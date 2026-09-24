@@ -31,6 +31,7 @@ import {
   Clock,
   Loader2,
 } from 'lucide-react';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 
 interface AssignTrainingWizardProps {
   defaultModuleId?: string;
@@ -88,7 +89,9 @@ export default function AssignTrainingWizard({
   const [skippedCount, setSkippedCount] = useState(0);
   const [done, setDone] = useState(false);
 
-  const { departments } = useDepartments(companyId, userProfile?.plantId ?? null);
+  // Departments of the caller's plant (admin: the selected plant tab).
+  const { plantId: departmentPlantId } = useDepartmentScope();
+  const { departments } = useDepartments(companyId, departmentPlantId);
   const { trainees, loading: traineesLoading } = useTraineeList({
     department: traineeDepartment || undefined,
     searchQuery: traineeSearch,

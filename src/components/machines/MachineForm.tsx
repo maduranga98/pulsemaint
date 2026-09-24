@@ -11,6 +11,8 @@ import {
 import type { MachineType, DocumentType, Machine } from '../../types/machine';
 import { MachineFormStepper } from './MachineFormStepper';
 import { useDepartments } from '../../hooks/useDepartments';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
+import { usePlants } from '../../hooks/usePlants';
 
 const CUSTOM_TYPE_OPTION = '__custom__';
 
@@ -66,8 +68,15 @@ export function MachineForm({
   const photoInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
-  const currentUserPlantId = useAuthStore((s) => s.userProfile?.plantId) ?? null;
-  const formPlantId = mode === 'create' ? currentUserPlantId : ((initialData as any)?.plantId ?? currentUserPlantId);
+  // The machine's plant: the caller's scoped plant (own plant; admin's
+  // selected plant tab) for a new machine, the machine's own plant when
+  // editing. Admin with no plant tab selected (or editing a plant-less
+  // machine) picks the plant in the form — its departments follow it.
+  const { plantId: scopedPlantId } = useDepartmentScope();
+  const isAdmin = useAuthStore((s) => s.userProfile?.role) === 'admin';
+  const basePlantId: string | null =
+    mode === 'create' ? scopedPlantId : ((initialData as any)?.plantId ?? scopedPlantId);
+  const showPlantPicker = isAdmin && !basePlantId;
 
   const schema = mode === 'create' ? createMachineSchema : updateMachineSchema;
   const defaultValues =
@@ -112,11 +121,13 @@ export function MachineForm({
             supplierWarrantyRef: w.supplierWarrantyRef ?? '',
           })) ?? [],
           compatiblePartIds: initialData?.compatiblePartIds || [],
+          plantId: basePlantId,
         };
 
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting: formIsSubmitting },
   } = useForm<FormData>({
     // create/update use different Zod schemas depending on `mode`, so their
@@ -124,6 +135,8 @@ export function MachineForm({
     resolver: zodResolver(schema as never) as Resolver<FormData>,
     defaultValues,
   });
+
+  const formPlantId: string | null = ((watch as (name: string) => unknown)('plantId') as string | null | undefined) || basePlantId;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -225,7 +238,8 @@ export function MachineForm({
                   photoInputRef,
                   docInputRef,
                   mode,
-                  formPlantId
+                  formPlantId,
+                  showPlantPicker
                 )}
 
                 {/* Form Footer */}
@@ -267,7 +281,8 @@ export function MachineForm({
                 photoInputRef,
                 docInputRef,
                 mode,
-                formPlantId
+                formPlantId,
+                showPlantPicker
               )}
 
               {/* Mobile Navigation */}
@@ -375,7 +390,8 @@ function renderFormSection(
   photoInputRef: React.RefObject<HTMLInputElement>,
   docInputRef: React.RefObject<HTMLInputElement>,
   mode: 'create' | 'edit',
-  formPlantId: string | null
+  formPlantId: string | null,
+  showPlantPicker: boolean
 ): React.ReactNode {
   switch (stepIndex) {
     case 0: // Basic Information
@@ -516,6 +532,19 @@ function renderFormSection(
       return (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">Location</h2>
+
+          {showPlantPicker && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Plant *</label>
+              <Controller
+                name={'plantId' as never}
+                control={control}
+                render={({ field }) => (
+                  <PlantSelect value={(field.value as string | null) ?? ''} onChange={(v) => field.onChange(v || null)} />
+                )}
+              />
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
@@ -930,6 +959,23 @@ function renderFormSection(
   }
 }
 
+function PlantSelect({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const { activePlants } = usePlants(companyId);
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+      <option value="">Select a plant...</option>
+      {activePlants.map((p) => (
+        <option key={p.id} value={p.id}>{p.name}</option>
+      ))}
+    </select>
+  );
+}
+
 interface DepartmentComboBoxProps {
   value: string;
   onChange: (val: string) => void;
@@ -950,6 +996,11 @@ function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProp
     setNewName('');
     setAdding(false);
   };
+
+  // Departments belong to a plant — nothing to list or add until one is set.
+  if (!plantId) {
+    return <p className="text-sm text-amber-600">Select a plant first to choose or add its department.</p>;
+  }
 
   return (
     <div className="space-y-2">

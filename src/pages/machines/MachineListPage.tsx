@@ -17,6 +17,8 @@ import type { MachineFilters, MachineType, MachineStatus, MachineCriticality } f
 import { generateMachineQrUrl } from '../../lib/machineQr';
 import { exportMachinesToCsv } from '../../lib/machineExport';
 import { auth } from '../../lib/firebase';
+import { ensureDepartments } from '../../services/departments.service';
+import { usePlants } from '../../hooks/usePlants';
 
 const SUGGESTED_TYPES: MachineType[] = [
   'cnc_machine','conveyor','compressor','boiler','generator','hydraulic_press',
@@ -189,8 +191,7 @@ interface ImportModalProps {
   siteId: string;
   /** Plant to assign every imported machine to — the importing user's own
    * plant, or (for admin) whichever plant tab is active. Null when admin
-   * is on "All Plants": the machines land unassigned, same as any other
-   * plant-less record, until a plant is picked for them individually. */
+   * is on "All Plants" — the modal then asks which plant to import into. */
   plantId: string | null;
   onClose: () => void;
   onDone: () => void;
@@ -203,6 +204,11 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState('');
   const [done, setDone] = useState(false);
+  // Admin on "All Plants" picks which plant the imported machines belong to.
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const { activePlants } = usePlants(companyId);
+  const [pickedPlantId, setPickedPlantId] = useState('');
+  const importPlantId = plantId ?? (pickedPlantId || null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -215,7 +221,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   const validRows = rows.filter((r) => !r._error);
 
   const handleImport = async () => {
-    if (!validRows.length) return;
+    if (!validRows.length || !importPlantId) return;
     setImporting(true);
     const userId = auth.currentUser?.uid ?? 'unknown';
     let count = 0;
@@ -223,7 +229,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
       const ref = doc(collection(db, 'machines'));
       await setDoc(ref, {
         siteId,
-        plantId,
+        plantId: importPlantId,
         name: row.name,
         type: row.type,
         manufacturer: row.manufacturer,
@@ -267,6 +273,8 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
       setProgress(t('common.machines.importModal.progress', { count, total: validRows.length }));
     }
     setImporting(false);
+    // Any department in the file that the plant doesn't have yet is added to it.
+    await ensureDepartments(companyId, importPlantId, validRows.map((r) => r.department));
     setDone(true);
     onDone();
   };
@@ -370,6 +378,22 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
           )}
         </div>
 
+        {!done && !plantId && (
+          <div className="px-6 pt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Plant *</label>
+            <select
+              value={pickedPlantId}
+              onChange={(e) => setPickedPlantId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="">Select the plant these machines belong to...</option>
+              {activePlants.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {!done && (
           <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
             <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium">
@@ -377,7 +401,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
             </button>
             <button
               onClick={handleImport}
-              disabled={validRows.length === 0 || importing}
+              disabled={validRows.length === 0 || importing || !importPlantId}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
             >
               {importing

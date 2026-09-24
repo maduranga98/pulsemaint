@@ -3,6 +3,9 @@ import { Trans, useTranslation, type TFunction } from 'react-i18next';
 import type { ShiftAssignBy, ShiftConfig, ShiftDay } from '@/types/handover.types';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
+import { usePlants } from '@/hooks/usePlants';
+import { ensureDepartments } from '@/services/departments.service';
 import { useCompanyUsers, type CompanyUserOption } from '@/hooks/useCompanyUsers';
 import { resolveShiftAssignBy } from '@/utils/handover.utils';
 
@@ -74,8 +77,21 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const [success, setSuccess] = useState(false);
 
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
-  const currentUserPlantId = useAuthStore((state) => state.userProfile?.plantId) ?? null;
-  const { users, loading: usersLoading } = useCompanyUsers(companyId);
+  // The shift plan's plant: its own plant when editing, otherwise the
+  // caller's scoped plant (own plant; admin's selected plant tab). Admin on
+  // "All Plants" (or editing a plan with no plant) picks it here. The
+  // department list and the employee list both follow this plant only.
+  const { plantId: scopedPlantId } = useDepartmentScope();
+  const { activePlants } = usePlants(companyId ?? '');
+  const [pickedPlantId, setPickedPlantId] = useState('');
+  useEffect(() => setPickedPlantId(''), [initial?.id]);
+  const showPlantPicker = !initial?.plantId && !scopedPlantId;
+  const shiftPlantId: string | null = initial?.plantId ?? scopedPlantId ?? (pickedPlantId || null);
+  const { users: companyUsers, loading: usersLoading } = useCompanyUsers(companyId);
+  const users = useMemo(
+    () => (shiftPlantId ? companyUsers.filter((u) => u.plantId === shiftPlantId) : companyUsers),
+    [companyUsers, shiftPlantId],
+  );
   const selectedMembers = useMemo(
     () => users.filter((user) => memberIds.includes(user.id)),
     [users, memberIds],
@@ -86,6 +102,10 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
     setSuccess(false);
     if (!shiftName.trim()) {
       setError(t('common.shiftHandovers.configForm.errors.shiftNameRequired'));
+      return;
+    }
+    if (!shiftPlantId) {
+      setError('Select the plant this shift belongs to.');
       return;
     }
     if (!/^\d{2}:\d{2}$/.test(startTime) || !/^\d{2}:\d{2}$/.test(endTime)) {
@@ -124,13 +144,15 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         color,
         activeDays,
         department: assignBy === 'department' ? department.trim() || null : null,
-        plantId: initial?.plantId ?? currentUserPlantId,
+        plantId: shiftPlantId,
         status,
         memberIds: assignBy === 'employee' ? memberIds : [],
         memberNames: assignBy === 'employee' ? selectedMembers.map((user) => user.fullName || user.id) : [],
         roles: assignBy === 'role' ? roles : [],
         assignBy,
       });
+      // A department picked/typed for this plan is registered in its plant.
+      if (assignBy === 'department') await ensureDepartments(companyId, shiftPlantId, [department]);
       setSuccess(true);
       if (!initial) {
         setShiftName('');
@@ -149,6 +171,26 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   return (
     <form className="rounded-lg border border-slate-200 bg-white p-4 space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {showPlantPicker && (
+          <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
+            Plant
+            <select
+              value={pickedPlantId}
+              onChange={(event) => {
+                setPickedPlantId(event.target.value);
+                // Departments and people belong to a plant — clear picks from another plant.
+                setDepartment('');
+                setMemberIds([]);
+              }}
+              className="min-h-12 rounded-md border border-slate-200 bg-white px-3 text-sm"
+            >
+              <option value="">Select a plant...</option>
+              {activePlants.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </label>
+        )}
         <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
           {t('common.shiftHandovers.configForm.shiftName')}
           <input value={shiftName} onChange={(event) => setShiftName(event.target.value)} placeholder={t('common.shiftHandovers.configForm.shiftNamePlaceholder')} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
@@ -194,7 +236,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
           {assignBy === 'department' && (
             <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
               {t('common.shiftHandovers.configForm.department')}
-              <DepartmentPicker value={department} onChange={setDepartment} />
+              <DepartmentPicker value={department} onChange={setDepartment} plantId={shiftPlantId} />
             </label>
           )}
         </div>
@@ -351,10 +393,17 @@ function EmployeePicker({
   );
 }
 
-function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+function DepartmentPicker({
+  value,
+  onChange,
+  plantId,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  plantId: string | null;
+}) {
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const plantId = useAuthStore((s) => s.userProfile?.plantId) ?? null;
   const { departments, addDepartment } = useDepartments(companyId, plantId);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
@@ -369,6 +418,11 @@ function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: 
     onChange(trimmed);
     setNewName('');
     setAdding(false);
+  }
+
+  // Departments belong to a plant — nothing to list or add until one is set.
+  if (!plantId) {
+    return <p className="min-h-12 flex items-center text-xs text-amber-600">Select a plant first.</p>;
   }
 
   if (adding) {

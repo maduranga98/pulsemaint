@@ -47,6 +47,8 @@ import { Upload, FileText } from 'lucide-react';
 import { computeExpectedEndDate, type DurationPreset } from '../../lib/traineeProgram/programmeDuration';
 import { ServiceLetterHistoryTab } from '../../components/settings/ServiceLetterHistoryTab';
 import { getRoleLabel } from '../../constants/copy';
+import { ensureDepartments } from '../../services/departments.service';
+import { useActivePlantStore } from '../../store/activePlantStore';
 
 const ROLE_OPTIONS: UserRole[] = [
   'admin',
@@ -271,7 +273,9 @@ export default function UsersPage() {
   // only has options once a plant has been picked to filter within. Plant
   // Manager has no plant filter (locked to their own plant), so fall back
   // to their own plantId for department options.
-  const { departments } = useDepartments(company?.id ?? '', plantFilter || currentUser?.plantId || null);
+  const adminTabPlantId = useActivePlantStore((st) => st.activePlantId);
+  const departmentsPlantId = plantFilter || adminTabPlantId || currentUser?.plantId || null;
+  const { departments } = useDepartments(company?.id ?? '', departmentsPlantId);
   const { activePlants } = usePlants(company?.id ?? '');
   // Filter controls (role/department/plant) are only useful once there's more
   // than one plant/department to slice by, and are reserved for the roles
@@ -448,6 +452,11 @@ export default function UsersPage() {
     // when the page loaded) so a large CSV stops at the plan's actual cap
     // instead of creating everything then reporting failures after the fact.
     const userCap = userLimit.limit;
+    // Departments named in the file, per plant — any the plant doesn't have
+    // yet are added to it once the invitations are created.
+    const departmentsByPlant = new Map<string, string[]>();
+    // Admin's selected plant tab is the default plant for rows with no Plant.
+    const adminTabPlantId = useActivePlantStore.getState().activePlantId;
     for (const row of rows) {
       if (userCap !== null && userLimit.count + created >= userCap) {
         failed += 1;
@@ -462,7 +471,7 @@ export default function UsersPage() {
         // none), everyone else who can invite is locked to their own plant.
         const plantId = row.role === 'admin'
           ? (matchedPlant?.id ?? null)
-          : (currentUser.role === 'admin' ? (matchedPlant?.id ?? null) : (currentUser.plantId ?? null));
+          : (currentUser.role === 'admin' ? (matchedPlant?.id ?? adminTabPlantId ?? null) : (currentUser.plantId ?? null));
         await createInvitation({
           companyId: company.id,
           companyName: company.name,
@@ -479,11 +488,17 @@ export default function UsersPage() {
           invitedByName: currentUser.fullName,
         }, t);
         created += 1;
+        if (plantId && row.department) {
+          departmentsByPlant.set(plantId, [...(departmentsByPlant.get(plantId) ?? []), row.department]);
+        }
       } catch (err) {
         failed += 1;
         errors.push(`${row.email}: ${err instanceof Error ? err.message : 'failed'}`);
       }
     }
+    await Promise.all(
+      [...departmentsByPlant.entries()].map(([plantId, names]) => ensureDepartments(company.id, plantId, names)),
+    );
     if (created > 0) toast.success(t('common.settings.users.invitations.bulkCreatedToast', '{{count}} invitation(s) created', { count: created }));
     if (activeTab === 'invitations') loadInvitations();
     return { created, failed, errors };

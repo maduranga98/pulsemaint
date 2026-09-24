@@ -6,6 +6,7 @@ import { useToast } from '../../hooks/useToast';
 import type { UpdateMachinePayload } from '../../types/machine';
 import type { UpdateMachineFormData } from '../../schemas/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
+import { ensureDepartments } from '../../services/departments.service';
 
 export function EditMachinePage() {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ export function EditMachinePage() {
         nextPmDue: formData.nextPmDue || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
         department: formData.department,
+        plantId: formData.plantId ?? undefined,
         floor: formData.floor || null,
         bay: formData.bay || null,
         station: formData.station || null,
@@ -81,6 +83,8 @@ export function EditMachinePage() {
       };
 
       await updateMachine(payload);
+      // A department typed for this machine becomes one of its plant's departments.
+      await ensureDepartments(userProfile.companyId, formData.plantId ?? machine?.plantId, [formData.department]);
       success('Machine updated successfully!');
       navigate(`/app/machines/${id}`);
     } catch (err) {

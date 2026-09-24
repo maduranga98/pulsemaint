@@ -165,6 +165,8 @@ export interface CreateMachinePayload {
 export interface UpdateMachinePayload {
   siteId: string;
   machineId: string;
+  /** Set only when assigning a plant to a machine that has none. */
+  plantId?: string | null;
   name?: string;
   type?: MachineType;
   manufacturer?: string;

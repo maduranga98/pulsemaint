@@ -8,6 +8,7 @@ import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import type { CreateMachineFormData } from '../../schemas/machine';
 import type { CreateMachinePayload, MachineCriticality } from '../../types/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
+import { ensureDepartments } from '../../services/departments.service';
 
 export function AddMachinePage() {
   const navigate = useNavigate();
@@ -52,10 +53,16 @@ export function AddMachinePage() {
     formData: CreateMachineFormData,
     files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }> }
   ) => {
+    // Admin on "All Plants" picks the plant in the form.
+    const machinePlantId = formData.plantId ?? plantId;
+    if (!machinePlantId) {
+      showError('Select the plant this machine belongs to.');
+      return;
+    }
     try {
       const payload: CreateMachinePayload = {
         siteId,
-        plantId,
+        plantId: machinePlantId,
         name: formData.name,
         type: formData.type,
         manufacturer: formData.manufacturer,
@@ -81,6 +88,8 @@ export function AddMachinePage() {
       };
 
       await createMachine(payload);
+      // A department typed for this machine becomes one of its plant's departments.
+      await ensureDepartments(userProfile.companyId, machinePlantId, [formData.department]);
       success(`Machine "${formData.name}" created successfully!`);
       navigate('/app/machines');
     } catch (err) {

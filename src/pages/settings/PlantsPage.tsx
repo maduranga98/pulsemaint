@@ -4,6 +4,7 @@ import { Factory, Plus, X, MapPin, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { subscribePlants, createPlant, updatePlant } from '../../services/plants.service';
 import type { Plant, PlantContactPerson } from '../../types/plant';
+import { useDepartments } from '../../hooks/useDepartments';
 
 const EMPTY_CONTACT: PlantContactPerson = { name: '', phone: '', email: '', designation: '' };
 
@@ -135,6 +136,7 @@ export default function PlantsPage() {
                       {plant.contactPerson.phone ? ` · ${plant.contactPerson.phone}` : ''}
                     </div>
                   )}
+                  <PlantDepartments companyId={plant.companyId} plantId={plant.id} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -271,6 +273,52 @@ export default function PlantsPage() {
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+/** A plant's departments (every department added from a machine, shift plan,
+ * user import or here), with an inline "add department". */
+function PlantDepartments({ companyId, plantId }: { companyId: string; plantId: string }) {
+  const { t } = useTranslation();
+  const { departments, addDepartment } = useDepartments(companyId, plantId);
+  const [adding, setAdding] = useState(false);
+  const [name, setName] = useState('');
+
+  async function commit() {
+    if (name.trim()) await addDepartment(name);
+    setName('');
+    setAdding(false);
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      <span className="text-xs text-slate-500">{t('common.settings.plants.departments', 'Departments')}:</span>
+      {departments.length === 0 && <span className="text-xs text-slate-400">—</span>}
+      {departments.map((d) => (
+        <span key={d} className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{d}</span>
+      ))}
+      {adding ? (
+        <span className="flex items-center gap-1">
+          <input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void commit();
+              if (e.key === 'Escape') setAdding(false);
+            }}
+            className="text-xs border border-slate-300 rounded px-2 py-0.5"
+          />
+          <button type="button" onClick={() => void commit()} className="text-xs font-medium text-blue-600">
+            {t('common.actions.add', 'Add')}
+          </button>
+        </span>
+      ) : (
+        <button type="button" onClick={() => setAdding(true)} className="text-xs font-medium text-blue-600 hover:text-blue-700">
+          + {t('common.settings.plants.addDepartment', 'Add department')}
+        </button>
       )}
     </div>
   );

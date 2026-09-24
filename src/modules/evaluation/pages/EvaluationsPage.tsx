@@ -13,6 +13,7 @@ import { fetchEvaluations, subscribeEvaluations, submitEvaluation, saveDraftEval
 import { downloadEvaluationPdf } from '../utils/evaluationPdf';
 import type { EvaluationSession, EvaluationRole, EvaluationTargetType } from '../types/evaluation.types';
 import { getRoleLabel } from '../types/evaluation.types';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 
 const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 
@@ -39,7 +40,9 @@ export default function EvaluationsPage() {
   // Plant managers don't evaluate (or get listed as evaluatees in) the
   // "Plant Manager" category — no self-evaluation for that role.
   const visibleRoleOrder = role === 'plant_manager' ? ROLE_ORDER.filter((r) => r !== 'plant_manager') : ROLE_ORDER;
-  const { departments } = useDepartments(companyId, userProfile?.plantId ?? null);
+  // Departments of the caller's plant (admin: the selected plant tab).
+  const { plantId: departmentPlantId } = useDepartmentScope();
+  const { departments } = useDepartments(companyId, departmentPlantId);
 
   const [sessions, setSessions] = useState<EvaluationSession[]>([]);
   const [, setLoading] = useState(true);
