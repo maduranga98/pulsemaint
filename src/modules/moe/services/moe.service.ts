@@ -157,6 +157,8 @@ export async function computeMoeSummaries(
   start: Date,
   end: Date,
   config?: MoeConfig,
+  /** Limit to one plant's machines (plant-scoped roles / admin's plant tab). */
+  plantId: string | null = null,
 ): Promise<MoeMachineSummary[]> {
   const cfg = config ?? (await fetchMoeConfig(siteId));
   const periodMinutes = Math.max(1, (end.getTime() - start.getTime()) / 60000);
@@ -167,7 +169,7 @@ export async function computeMoeSummaries(
     fetchPmStatsForSite(siteId, start, end),
   ]);
 
-  return machines.map((m) => {
+  return machines.filter((m) => !plantId || m.plantId === plantId).map((m) => {
     const bd = breakdownStats.get(m.id) ?? { count: 0, downtimeMinutes: 0 };
     const pm = pmStats.get(m.id) ?? { scheduled: 0, onTime: 0 };
 

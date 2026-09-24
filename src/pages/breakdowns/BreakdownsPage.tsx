@@ -15,6 +15,7 @@ import { markMachineUnderMaintenance } from '../../lib/machineOperationalStatus'
 import { TranslatedText } from '../../components/ui';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 import type { WorkOrder } from '../../types/workOrder';
+import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
 
 function roleLabel(role: string | undefined, t: TFunction): string {
   if (!role) return '';
@@ -102,6 +103,8 @@ export default function BreakdownsPage() {
   const canAssign = CAN_ASSIGN_ROLES.includes(role);
   const canAttend = CAN_ATTEND_ROLES.includes(role);
   const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
+  // Falls back to the machine's plant for records predating plant stamping.
+  const inScopedPlant = useRecordPlantMatcher();
 
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -160,7 +163,7 @@ export default function BreakdownsPage() {
     // plant is selected in the plant-tab switcher, or all if none is).
     // Tickets reported before machines carried plantId won't match, same
     // caveat as the Machines list.
-    if (scopedPlantId) list = list.filter((b) => b.machinePlantId === scopedPlantId);
+    if (scopedPlantId) list = list.filter((b) => inScopedPlant(b));
     // Technician/trainee/supervisor/floor_operator are further scoped to
     // their own registered department within that plant — everyone else
     // keeps full in-plant visibility.
@@ -183,7 +186,7 @@ export default function BreakdownsPage() {
       );
     }
     return list;
-  }, [breakdowns, filter, severityFilter, search, scopedDepartment, scopedPlantId, role]);
+  }, [breakdowns, filter, severityFilter, search, scopedDepartment, scopedPlantId, role, inScopedPlant]);
 
   // Multiple open tickets on the same machine are shown as one row so a
   // supervisor isn't assigning/attending the same machine ticket by ticket.

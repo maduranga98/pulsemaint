@@ -21,6 +21,7 @@ import {
   TRAINING_DELIVERY_MODE_LABELS,
 } from '@/lib/training/trainingTypes';
 import type { TrainingAssignment, TrainingModule } from '@/lib/training/trainingTypes';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 
 function categoryLabel(category: 'machine' | 'offboard', t: TFunction): string {
   return t(`common.trainingShared.manager.trainingAssignedTab.categories.${category}`);
@@ -46,7 +47,10 @@ export default function TrainingAssignedTab() {
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? t('common.trainingShared.manager.trainingAssignedTab.managerFallbackName');
   const { modules } = useTrainingLibraryModules();
-  const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
+  const [allAssignments, setAssignments] = useState<TrainingAssignment[]>([]);
+  // Only trainees in the caller's plant (admin: selected tab).
+  const { inPlant } = usePlantFilter(companyId);
+  const assignments = allAssignments.filter((a) => inPlant(null, a.traineeId));
   const [loading, setLoading] = useState(true);
   const [signingOff, setSigningOff] = useState<TrainingAssignment | null>(null);
   const [note, setNote] = useState('');

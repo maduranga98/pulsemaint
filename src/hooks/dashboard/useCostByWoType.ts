@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { computeCostByWoType, type MonthArg } from '../../services/analyticsAggregation';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 export interface CostByWoTypeRow {
   woType: string;
@@ -7,6 +8,8 @@ export interface CostByWoTypeRow {
 }
 
 export function useCostByWoType(companyId: string, month: MonthArg) {
+  // Plant-scoped roles / admin's plant tab only see their plant's figures.
+  const { plantId } = useDepartmentScope();
   const [data, setData] = useState<CostByWoTypeRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +26,7 @@ export function useCostByWoType(companyId: string, month: MonthArg) {
     setLoading(true);
     setError(null);
     try {
-      const result = await computeCostByWoType(companyId, month);
+      const result = await computeCostByWoType(companyId, month, plantId);
       setData(result);
     } catch (err) {
       setError((err as Error).message);
@@ -31,7 +34,7 @@ export function useCostByWoType(companyId: string, month: MonthArg) {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, monthKey]);
+  }, [companyId, monthKey, plantId]);
 
   useEffect(() => {
     fetch();

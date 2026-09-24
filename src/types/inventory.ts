@@ -260,6 +260,8 @@ export interface InventoryPart {
 export interface PartsRequest {
   id: string;
   companyId: string;
+  /** The plant this request belongs to — null/absent for requests predating plant scoping. */
+  plantId?: string | null;
   requestNumber: string;
 
   workOrderId: string | null;
@@ -395,6 +397,8 @@ export interface PurchaseOrder {
   id: string;
   companyId: string;
   poNumber: string;
+  /** The plant this PO was raised for — null/absent for POs predating plant scoping. */
+  plantId?: string | null;
 
   status: PurchaseOrderStatus;
 

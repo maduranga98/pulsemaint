@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { InventoryPart } from '@/types/inventory';
 import type { POItemRowData } from './PurchaseOrderItemRow';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 
 interface Props {
   supplierId: string;
@@ -35,6 +36,8 @@ export function SupplierPartsPicker({ supplierId, supplierName, excludePartIds, 
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [allParts, setAllParts] = useState<InventoryPart[]>([]);
+  // Only the caller's plant's parts (admin: selected plant tab).
+  const { plantId: scopedPlantId } = useDepartmentScope();
   const [selected, setSelected] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -55,6 +58,7 @@ export function SupplierPartsPicker({ supplierId, supplierName, excludePartIds, 
 
   const normalizedName = normalize(supplierName || '');
   const candidates = allParts.filter((p) => {
+    if (scopedPlantId && p.plantId !== scopedPlantId) return false;
     if (supplierId && p.supplierId === supplierId) return true;
     if (normalizedName && normalize(p.supplierName || '') === normalizedName) return true;
     return false;

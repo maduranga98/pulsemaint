@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
 import { useActiveBreakdowns } from '../../hooks/dashboard/useActiveBreakdowns';
 import { useOpenWorkOrders } from '../../hooks/dashboard/useOpenWorkOrders';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import {
   DASHBOARD_RANGE_LABELS,
@@ -12,7 +13,6 @@ import {
 
 import LiveShiftStatusWidget from '../../components/dashboard/manager/LiveShiftStatusWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
-import LiveBreakdownsWidget from '../../components/dashboard/manager/LiveBreakdownsWidget';
 import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
 import OpenSafetyCasesWidget from '../../components/dashboard/manager/OpenSafetyCasesWidget';
 import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
@@ -47,6 +47,9 @@ export default function ManagerDashboard() {
     : role === 'safety_officer' ? t('common.dashboard.safetyOfficerTitle')
     : t('common.dashboard.managerTitle');
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
+  // Plant manager/safety officer are locked to their own plant; admin follows
+  // the plant tab (null = All Plants).
+  const { plantId } = useDepartmentScope();
 
   const { count: todayBreakdowns } = useActiveBreakdowns(siteId);
   const { count: todayWorkOrders } = useOpenWorkOrders(siteId);
@@ -60,10 +63,10 @@ export default function ManagerDashboard() {
     // automatically as breakdowns / work orders / PM records change.
     const unsub = subscribeMonthlyAnalytics(companyId, months, (data) => {
       useDashboardStore.getState().setMonthlyAnalytics(data);
-    });
+    }, plantId);
     return () => unsub();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, monthsKey]);
+  }, [companyId, monthsKey, plantId]);
 
   const totalMaintenances =
     (monthly?.totalBreakdowns ?? 0) +
@@ -127,11 +130,8 @@ export default function ManagerDashboard() {
         {/* Live factory floor: every machine with an open WO or breakdown. */}
         <FactoryFloorMap companyId={companyId} />
 
-        {/* Live Breakdowns + Live PO Requests */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <LiveBreakdownsWidget siteId={siteId} />
-          <LivePOsWidget />
-        </div>
+        {/* Live PO Requests */}
+        <LivePOsWidget />
 
         {/* Open (not-closed) Safety Cases + Today's Trainings (safety and general) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -159,7 +159,7 @@ export default function ManagerDashboard() {
             admin doesn't get personal training assignments, so this is
             scoped to those two roles, replacing their old "My Training"
             nav tab. */}
-        {(role === 'plant_manager' || role === 'safety_officer') && <MyTrainingsWidget />}
+        {(role === 'plant_manager' || role === 'safety_officer') && <MyTrainingsWidget readOnly />}
 
         {/* Who's actually on shift right now. Trend charts, heatmaps,
             per-machine/contractor breakdowns, SLA, and Safety/Team

@@ -1,5 +1,6 @@
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTechnicianStatuses } from '../../../hooks/dashboard/useTechnicianStatuses';
+import { usePlantUserIds } from '../../../hooks/usePlantUserIds';
 import TechnicianStatusRow from './TechnicianStatusRow';
 import EmptyState from '../shared/EmptyState';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,9 @@ interface TechnicianStatusListProps {
 
 export default function TechnicianStatusList({ companyId }: TechnicianStatusListProps) {
   const { t } = useTranslation();
-  const { technicians, loading, error } = useTechnicianStatuses(companyId);
+  const { technicians: allTechnicians, loading, error } = useTechnicianStatuses(companyId);
+  const plantUserIds = usePlantUserIds(companyId);
+  const technicians = plantUserIds ? allTechnicians.filter((tech) => plantUserIds.has(tech.userId)) : allTechnicians;
 
   const sorted = [...technicians].sort((a, b) => {
     const order = { on_job: 0, available: 1, on_break: 2, off_shift: 3 };

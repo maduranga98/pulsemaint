@@ -12,9 +12,15 @@ import {
   updateDoc,
   where,
   type Timestamp,
+  type DocumentData,
+  type Query,
+  type QuerySnapshot,
+  type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
+import { useActivePlantStore } from '../store/activePlantStore';
+import { resolveScopedPlantId } from '../hooks/useDepartmentScope';
 import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggregation';
 import { fetchTeamPerformanceByUser } from './teamPerformance.service';
 import { computeWoTotalCost, flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
@@ -168,17 +174,89 @@ export function filtersFromConfig(config: ReportConfig): Record<string, unknown>
   };
 }
 
+// ---------------------------------------------------------------------------
+// Plant scoping for reports
+// ---------------------------------------------------------------------------
+
+interface ReportPlantScope {
+  companyId: string;
+  plantId: string;
+  userIds: Set<string>;
+  machineIds: Set<string>;
+  partIds: Set<string>;
+}
+
+// Set at the start of each fetchReportRows run (reports are generated one at
+// a time from the Reports hub), read by scopedGetDocs below.
+let reportPlantScope: ReportPlantScope | null = null;
+
+async function loadReportPlantScope(companyId: string): Promise<ReportPlantScope | null> {
+  const plantId = resolveScopedPlantId(useAuthStore.getState().userProfile, useActivePlantStore.getState().activePlantId);
+  if (!plantId) return null;
+  const [users, machines, parts] = await Promise.all([
+    getDocs(query(collection(db, `companies/${companyId}/users`), where('plantId', '==', plantId))),
+    getDocs(query(collection(db, 'machines'), where('siteId', '==', companyId), where('plantId', '==', plantId))),
+    getDocs(query(collection(db, 'inventoryParts'), where('companyId', '==', companyId), where('plantId', '==', plantId))),
+  ]);
+  return {
+    companyId,
+    plantId,
+    userIds: new Set(users.docs.map((d) => d.id)),
+    machineIds: new Set(machines.docs.map((d) => d.id)),
+    partIds: new Set(parts.docs.map((d) => d.id)),
+  };
+}
+
+// Person fields, in the order a record's owner is looked up.
+const PERSON_FIELDS = [
+  'traineeId', 'evaluateeId', 'auditorId', 'requestedBy', 'raisedBy', 'userId',
+  'outgoingSupervisorId', 'reportedBy', 'performedBy', 'uid',
+] as const;
+
+/** Does a report source document belong to the scoped plant? */
+function docInReportPlant(scope: ReportPlantScope, data: Record<string, unknown>): boolean {
+  // Some legacy modules (audits, kaizen) store the company id under
+  // `plantId` — only treat it as a plant when it isn't the company id.
+  const rawPlant = (data.machinePlantId ?? data.plantId) as string | null | undefined;
+  if (rawPlant && rawPlant !== scope.companyId) return rawPlant === scope.plantId;
+  if (data.machineId) return scope.machineIds.has(String(data.machineId));
+  if (data.partId) return scope.partIds.has(String(data.partId));
+  for (const field of PERSON_FIELDS) {
+    if (data[field]) return scope.userIds.has(String(data[field]));
+  }
+  // Nothing ties this record to a plant — keep it out of a plant's report.
+  return false;
+}
+
+/** getDocs, narrowed to the active report plant scope (if any). */
+async function scopedGetDocs<A, D extends DocumentData>(q: Query<A, D>): Promise<QuerySnapshot<A, D>> {
+  const snap = await getDocs(q);
+  const scope = reportPlantScope;
+  if (!scope) return snap;
+  const docs = snap.docs.filter((d) => docInReportPlant(scope, d.data() as Record<string, unknown>));
+  // Only docs/empty/size/forEach are used by the report builders.
+  return {
+    docs,
+    empty: docs.length === 0,
+    size: docs.length,
+    forEach: (cb: (d: QueryDocumentSnapshot<A, D>) => void) => docs.forEach(cb),
+  } as unknown as QuerySnapshot<A, D>;
+}
+
 export async function fetchReportRows(
   reportType: ReportType,
   companyId: string,
   config: ReportConfig,
   t?: TFunction,
 ): Promise<Record<string, unknown>[]> {
+  // Plant isolation: every document this report reads is filtered to the
+  // caller's plant (plant-scoped roles; admin's selected plant tab).
+  reportPlantScope = await loadReportPlantScope(companyId);
   // Executive summary is computed analytics, not a raw collection — build it
   // from the aggregation pipeline for the latest month in the range.
   if (reportType === 'executive_monthly') {
     const month = (config.dateTo || new Date().toISOString().slice(0, 10)).slice(0, 7);
-    const m = await computeMonthlyAnalytics(companyId, month);
+    const m = await computeMonthlyAnalytics(companyId, month, reportPlantScope?.plantId ?? null);
     const rows: Record<string, unknown>[] = [
       { metric: 'Month', value: m.month },
       { metric: 'Total Breakdowns', value: m.totalBreakdowns },
@@ -214,7 +292,9 @@ export async function fetchReportRows(
   // fetchTeamPerformanceByUser — a real feature, not a bug fix, and out of
   // scope here. Documented rather than silently left broken, per the task.
   if (reportType === 'technician_performance') {
-    return (await fetchTeamPerformanceByUser(companyId)) as unknown as Record<string, unknown>[];
+    const people = await fetchTeamPerformanceByUser(companyId);
+    const scope = reportPlantScope;
+    return (scope ? people.filter((p) => scope.userIds.has(p.userId)) : people) as unknown as Record<string, unknown>[];
   }
 
   // Maintenance Cost is a computed cost breakdown — one row per work order,
@@ -227,8 +307,8 @@ export async function fetchReportRows(
   // zero matches. Filters are now applied explicitly below before returning.
   if (reportType === 'maintenance_cost') {
     const [woSnap, contractorSnap] = await Promise.all([
-      getDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000))),
-      getDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000))),
+      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000))),
+      scopedGetDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000))),
     ]);
 
     // Contractor total project cost (parts auto-included + contractor's own
@@ -305,7 +385,7 @@ export async function fetchReportRows(
   // Project Cost — not a per-job dump, since "WOs Completed"/"Rating" are
   // aggregates, not fields on a single job document.
   if (reportType === 'contractor_performance') {
-    const snap = await getDocs(
+    const snap = await scopedGetDocs(
       query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000)),
     );
 
@@ -407,13 +487,13 @@ export async function fetchReportRows(
     const restrictToGeneral = wantGeneral && !wantSafety;
 
     const [assignmentSnap, programmeSnap, usersSnap] = await Promise.all([
-      getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId), limit(2000))),
-      getDocs(query(collection(db, 'traineeProgrammes'), where('companyId', '==', companyId), limit(1000))),
+      scopedGetDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId), limit(2000))),
+      scopedGetDocs(query(collection(db, 'traineeProgrammes'), where('companyId', '==', companyId), limit(1000))),
       // The top-level `users` collection is only an auth-routing mapping doc
       // ({ uid, companyId, role, siteId }); role lookups need the real
       // per-company profile at companies/{companyId}/users (see
       // teamPerformance.service.ts for the same fix on the Name bug).
-      getDocs(query(collection(db, `companies/${companyId}/users`), limit(1000))),
+      scopedGetDocs(query(collection(db, `companies/${companyId}/users`), limit(1000))),
     ]);
 
     const roleByUserId = new Map<string, string>();
@@ -489,7 +569,7 @@ export async function fetchReportRows(
   // so downtime (created → signed off) can't be computed from it. Only
   // work orders that have actually been signed off have a known downtime.
   if (reportType === 'downtime_analysis') {
-    const woSnap = await getDocs(
+    const woSnap = await scopedGetDocs(
       query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000)),
     );
     const rowsOut: Record<string, unknown>[] = [];
@@ -531,7 +611,7 @@ export async function fetchReportRows(
   // mutation log — the user wants to see what was audited, not who edited
   // what record.
   if (reportType === 'audit_trail') {
-    const snap = await getDocs(collection(db, 'audit_sessions', companyId, 'sessions'));
+    const snap = await scopedGetDocs(collection(db, 'audit_sessions', companyId, 'sessions'));
     const rowsOut: Record<string, unknown>[] = [];
     snap.docs.forEach((item) => {
       const a = item.data();
@@ -569,7 +649,7 @@ export async function fetchReportRows(
   // Quantity, Unit Price (final invoice-confirmed price), Total, Status,
   // Raised By, Date.
   if (reportType === 'po_history') {
-    const poSnap = await getDocs(
+    const poSnap = await scopedGetDocs(
       query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId), limit(1000)),
     );
     const pos = poSnap.docs.map((item) => ({ id: item.id, ...item.data() }));
@@ -585,7 +665,7 @@ export async function fetchReportRows(
   // Safety Incidents — the register of safety cases (incidents, near-misses,
   // hazards, unsafe acts) reported across the plant, most recent first.
   if (reportType === 'safety_incidents') {
-    const snap = await getDocs(
+    const snap = await scopedGetDocs(
       query(collection(db, 'safety_cases'), where('companyId', '==', companyId), limit(1000)),
     );
     return snap.docs
@@ -613,7 +693,7 @@ export async function fetchReportRows(
 
   // Work Permit History — the Permit-to-Work register, most recent first.
   if (reportType === 'work_permit_history') {
-    const snap = await getDocs(
+    const snap = await scopedGetDocs(
       query(collection(db, 'work_permits'), where('companyId', '==', companyId), limit(1000)),
     );
     const permitDate = (v: unknown): string => {
@@ -727,7 +807,7 @@ export async function fetchReportRows(
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
         try {
-          const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
+          const snap = await scopedGetDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
           snap.docs.forEach((item) => {
             const data = item.data();
             const row: Record<string, unknown> = { id: item.id, ...data };
@@ -749,13 +829,13 @@ export async function fetchReportRows(
       const out: { id: string; data: () => Record<string, unknown> }[] = [];
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
-        const snap = await getDocs(query(collection(db, source), where('siteId', 'in', chunk), limit(1000)));
+        const snap = await scopedGetDocs(query(collection(db, source), where('siteId', 'in', chunk), limit(1000)));
         snap.docs.forEach((d) => out.push(d));
       }
       return out;
     };
     try {
-      const snap = await getDocs(query(collection(db, source), where('companyId', '==', companyId), limit(1000)));
+      const snap = await scopedGetDocs(query(collection(db, source), where('companyId', '==', companyId), limit(1000)));
       docs = snap.docs;
       // Some collections (e.g. workOrders / breakdown_tickets) are scoped by
       // siteId, and older documents may lack a companyId field — so a
@@ -881,7 +961,7 @@ export async function fetchReportRows(
   // exactly as the Shift Handovers tab does.
   if (reportType === 'shift_handover_summary' && rows.length > 0) {
     try {
-      const shiftSnap = await getDocs(
+      const shiftSnap = await scopedGetDocs(
         query(collection(db, 'shift_config'), where('companyId', '==', companyId), limit(500)),
       );
       const departmentByShiftId = new Map<string, string>();
@@ -904,7 +984,7 @@ export async function fetchReportRows(
   // movement's category from the parts catalogue by partId so the filter has
   // something real to compare against.
   if (reportType === 'inventory_usage' && rows.length > 0) {
-    const partsSnap = await getDocs(
+    const partsSnap = await scopedGetDocs(
       query(collection(db, 'inventoryParts'), where('companyId', '==', companyId), limit(2000)),
     );
     const categoryByPartId = new Map<string, string>();
@@ -920,7 +1000,7 @@ export async function fetchReportRows(
     // confirmed back into stock yet.
     const returnableRows = rows.filter(({ row }) => row.movementType === 'issue' && row.isReturnable);
     if (returnableRows.length > 0) {
-      const returnsSnap = await getDocs(
+      const returnsSnap = await scopedGetDocs(
         query(collection(db, 'partReturns'), where('companyId', '==', companyId), limit(2000)),
       );
       const returnStatusByKey = new Map<string, string>();
@@ -956,7 +1036,7 @@ export async function fetchReportRows(
   // longer matches the low-stock filter above, so it can't appear here with
   // a refill date). See the PR description for the honest limitation.
   if (reportType === 'low_stock_alert' && rows.length > 0) {
-    const poSnap = await getDocs(
+    const poSnap = await scopedGetDocs(
       query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId), limit(1000)),
     );
     const posByPartId = new Map<string, { status: string; raisedAtMs: number }[]>();

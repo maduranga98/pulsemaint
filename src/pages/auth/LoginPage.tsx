@@ -104,7 +104,7 @@ export default function LoginPage() {
       setError(null);
       setLoading(true);
       const profile = await loginWithEmail(data.email, data.password);
-      navigate(postLoginRoute(profile.role), { replace: true });
+      navigate(postLoginRoute(profile.role), { replace: true, state: { postLogin: true } });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Login failed. Please try again.';
@@ -119,7 +119,7 @@ export default function LoginPage() {
       setError(null);
       setGoogleLoading(true);
       const profile = await loginWithGoogle();
-      navigate(postLoginRoute(profile.role), { replace: true });
+      navigate(postLoginRoute(profile.role), { replace: true, state: { postLogin: true } });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Google login failed.';

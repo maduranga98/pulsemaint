@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useSafetyCases } from '../../../hooks/safety/useSafety';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: '#EF4444',
@@ -19,9 +19,12 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function OpenSafetyCasesWidget({ companyId }: { companyId: string }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { cases, loading } = useSafetyCases(companyId);
-  const openCases = useMemo(() => cases.filter((c) => c.status !== 'closed'), [cases]);
+  const { plantId } = useDepartmentScope();
+  const openCases = useMemo(
+    () => cases.filter((c) => c.status !== 'closed' && (!plantId || c.plantId === plantId)),
+    [cases, plantId],
+  );
 
   return (
     <DashboardWidget
@@ -37,11 +40,9 @@ export default function OpenSafetyCasesWidget({ companyId }: { companyId: string
           {openCases.map((c) => {
             const color = SEVERITY_COLOR[c.severity] ?? '#8BA3BF';
             return (
-              <button
+              <div
                 key={c.id}
-                type="button"
-                onClick={() => navigate('/app/safety/cases')}
-                className="flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left hover:opacity-90"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left"
                 style={{ backgroundColor: `${color}12`, borderColor: `${color}40` }}
               >
                 <div className="min-w-0">
@@ -56,7 +57,7 @@ export default function OpenSafetyCasesWidget({ companyId }: { companyId: string
                     {c.severity}
                   </span>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

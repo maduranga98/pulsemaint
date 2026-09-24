@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useDepartmentScope } from '../useDepartmentScope';
 import { subscribeActiveShiftSessions } from '../../services/handover.service';
 import { subscribeEvaluations } from '../../modules/evaluation/services/evaluation.service';
 
@@ -23,13 +24,14 @@ export interface HrKpis {
  * an evaluation is drafted/submitted, or the roster changes — no reload.
  */
 export function useHrKpis(companyId: string) {
-  const [kpis, setKpis] = useState<HrKpis>({
-    presentToday: 0,
-    trainingsInProgress: 0,
-    evaluationsInProgress: 0,
-    activeStaff: 0,
-  });
+  // Raw live rows; the KPIs are derived below so they can be narrowed to the
+  // caller's plant (plant-scoped roles, or admin with a plant tab selected).
+  const [sessionUserIds, setSessionUserIds] = useState<string[]>([]);
+  const [draftEvaluateeIds, setDraftEvaluateeIds] = useState<string[]>([]);
+  const [inProgressTraineeIds, setInProgressTraineeIds] = useState<string[]>([]);
+  const [activeUsers, setActiveUsers] = useState<{ id: string; plantId: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
+  const { plantId } = useDepartmentScope();
 
   useEffect(() => {
     if (!companyId) {
@@ -37,14 +39,13 @@ export function useHrKpis(companyId: string) {
       return;
     }
     setLoading(true);
-    const patch = (p: Partial<HrKpis>) => setKpis((prev) => ({ ...prev, ...p }));
     // First payload from any stream is enough to drop the skeleton.
     const done = () => setLoading(false);
 
     const unsubShifts = subscribeActiveShiftSessions(
       companyId,
       (sessions) => {
-        patch({ presentToday: sessions.length });
+        setSessionUserIds(sessions.map((s) => s.userId));
         done();
       },
       () => done(),
@@ -53,7 +54,7 @@ export function useHrKpis(companyId: string) {
     const unsubEvals = subscribeEvaluations(
       companyId,
       (sessions) => {
-        patch({ evaluationsInProgress: sessions.filter((s) => s.status === 'draft').length });
+        setDraftEvaluateeIds(sessions.filter((s) => s.status === 'draft').map((s) => s.evaluateeId));
         done();
       },
       () => done(),
@@ -62,7 +63,9 @@ export function useHrKpis(companyId: string) {
     const unsubTraining = onSnapshot(
       query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
       (snap) => {
-        patch({ trainingsInProgress: snap.docs.filter((d) => d.data().status === 'in_progress').length });
+        setInProgressTraineeIds(
+          snap.docs.filter((d) => d.data().status === 'in_progress').map((d) => String(d.data().traineeId ?? '')),
+        );
         done();
       },
       () => done(),
@@ -72,7 +75,11 @@ export function useHrKpis(companyId: string) {
       collection(db, `companies/${companyId}/users`),
       (snap) => {
         // Count everyone who isn't deactivated — legacy users have no status.
-        patch({ activeStaff: snap.docs.filter((d) => (d.data().status ?? 'active') !== 'inactive').length });
+        setActiveUsers(
+          snap.docs
+            .filter((d) => (d.data().status ?? 'active') !== 'inactive')
+            .map((d) => ({ id: d.id, plantId: d.data().plantId ?? null })),
+        );
         done();
       },
       () => done(),
@@ -85,6 +92,18 @@ export function useHrKpis(companyId: string) {
       unsubUsers();
     };
   }, [companyId]);
+
+  const kpis = useMemo<HrKpis>(() => {
+    const staff = plantId ? activeUsers.filter((u) => u.plantId === plantId) : activeUsers;
+    const staffIds = plantId ? new Set(staff.map((u) => u.id)) : null;
+    const inPlant = (id: string) => !staffIds || staffIds.has(id);
+    return {
+      presentToday: sessionUserIds.filter(inPlant).length,
+      trainingsInProgress: inProgressTraineeIds.filter(inPlant).length,
+      evaluationsInProgress: draftEvaluateeIds.filter(inPlant).length,
+      activeStaff: staff.length,
+    };
+  }, [plantId, activeUsers, sessionUserIds, inProgressTraineeIds, draftEvaluateeIds]);
 
   return { kpis, loading };
 }

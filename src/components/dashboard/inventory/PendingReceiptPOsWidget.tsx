@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import DashboardWidget from '../shared/DashboardWidget';
 import { usePendingReceiptPOs } from '../../../hooks/dashboard/usePendingReceiptPOs';
 import EmptyState from '../shared/EmptyState';
@@ -19,7 +18,6 @@ const STATUS_BADGE: Partial<Record<PurchaseOrderStatus, { key: string; className
 export default function PendingReceiptPOsWidget({ companyId }: PendingReceiptPOsWidgetProps) {
   const { t } = useTranslation();
   const { orders, loading, error } = usePendingReceiptPOs(companyId);
-  const navigate = useNavigate();
 
   return (
     <DashboardWidget title={t('common.widgets.pendingReceiptPOsWidget.title')} loading={loading} error={error}>
@@ -35,7 +33,6 @@ export default function PendingReceiptPOsWidget({ companyId }: PendingReceiptPOs
                 <th className="pb-2 font-medium">{t('common.widgets.pendingReceiptPOsWidget.statusHeader')}</th>
                 <th className="pb-2 font-medium text-right">{t('common.widgets.pendingReceiptPOsWidget.items')}</th>
                 <th className="pb-2 font-medium text-right">{t('common.widgets.pendingReceiptPOsWidget.value')}</th>
-                <th className="pb-2 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]/50">
@@ -55,14 +52,6 @@ export default function PendingReceiptPOsWidget({ companyId }: PendingReceiptPOs
                   <td className="py-2.5 text-right text-[#F0F4F8]">{po.items.length}</td>
                   <td className="py-2.5 text-right text-[#F0F4F8]">
                     LKR {po.totalOrderValue.toLocaleString()}
-                  </td>
-                  <td className="py-2.5 text-right">
-                    <button
-                      onClick={() => navigate(`/app/inventory/purchase-orders/${po.id}`)}
-                      className="px-2 py-1 bg-[#1A56DB] text-white text-[10px] font-medium rounded hover:bg-[#1A56DB]/90 transition-colors"
-                    >
-                      {t('common.widgets.common.view')}
-                    </button>
                   </td>
                 </tr>
                 );

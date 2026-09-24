@@ -2,6 +2,7 @@ import { Clock, Users } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useLiveShiftStatus } from '../../../hooks/useLiveShiftStatus';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import { formatTimeRange } from '../../../utils/handover.utils';
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +34,8 @@ export default function LiveShiftStatusWidget({ companyId }: Props) {
   const { t } = useTranslation();
   const { rows, loading } = useLiveShiftStatus(companyId);
 
-  const activeRows = rows.filter((r) => r.status === 'working');
+  const { plantId } = useDepartmentScope();
+  const activeRows = rows.filter((r) => r.status === 'working' && (!plantId || r.shift.plantId === plantId));
   const totalWorking = activeRows.reduce((sum, r) => sum + r.workingCount, 0);
 
   return (

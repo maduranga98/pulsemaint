@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import { subscribeCompletedShiftSessions, subscribeShiftConfigs } from '@/services/handover.service';
 import { calculateLateStartMinutes } from '@/utils/handover.utils';
 import type { HandoverHistoryFilters, ShiftConfig, ShiftSession } from '@/types/handover.types';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 
 const initialFilters: HandoverHistoryFilters = {
   dateFrom: null,
@@ -45,6 +46,15 @@ export function HandoverHistoryPage() {
     return subscribeShiftConfigs(companyId, setShiftConfigs, (msg) => console.error('HandoverHistoryPage: shift configs error', msg));
   }, [companyId]);
 
+  // Only this plant's shifts/people (admin: selected plant tab): a row's
+  // plant is its shift plan's plant, falling back to the person's plant.
+  const { inPlant } = usePlantFilter(companyId);
+  const plantByShiftConfigId = useMemo(() => {
+    const map = new Map<string, string | null>();
+    shiftConfigs.forEach((s) => map.set(s.id, s.plantId ?? null));
+    return map;
+  }, [shiftConfigs]);
+
   const departmentByShiftConfigId = useMemo(() => {
     const map = new Map<string, string | null>();
     shiftConfigs.forEach((s) => map.set(s.id, s.department ?? null));
@@ -63,7 +73,9 @@ export function HandoverHistoryPage() {
   const rows = useMemo<ShiftTableRow[]>(() => {
     // Handover rows — always submitted by a supervisor (see SUP-018: only
     // supervisors compile/hand over a shift report on end-shift).
-    const handoverRows: ShiftTableRow[] = handoverHistory.map((h) => ({
+    const handoverRows: ShiftTableRow[] = handoverHistory
+      .filter((h) => inPlant(plantByShiftConfigId.get(h.shiftConfigId), h.outgoingSupervisorId))
+      .map((h) => ({
       id: `handover-${h.id}`,
       kind: 'handover',
       shiftName: h.shiftName,
@@ -84,6 +96,7 @@ export function HandoverHistoryPage() {
     // Session rows — skip any session already represented by a handover.
     const sessionRows: ShiftTableRow[] = sessions
       .filter((s) => !s.handoverId)
+      .filter((s) => inPlant(plantByShiftConfigId.get(s.shiftConfigId), s.userId))
       .map((s) => ({
         id: `session-${s.id}`,
         kind: 'session' as const,
@@ -121,7 +134,7 @@ export function HandoverHistoryPage() {
         const bt = (b.end ?? b.start)?.getTime() ?? 0;
         return bt - at;
       });
-  }, [handoverHistory, sessions, filters, departmentByShiftConfigId]);
+  }, [handoverHistory, sessions, filters, departmentByShiftConfigId, plantByShiftConfigId, inPlant]);
 
   return (
     <div className="space-y-5 p-4 lg:p-6">

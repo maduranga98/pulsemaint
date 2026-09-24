@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 /** WO statuses that still need attention on the floor — everything up to and
  *  including completion (a completed WO still awaits the supervisor's sign-off).
@@ -48,6 +49,9 @@ export function useFactoryFloorAttention(companyId: string) {
   const [woLoading, setWoLoading] = useState(true);
   const [bdLoading, setBdLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Plant-scoped roles (and admin with a plant tab selected) only see their
+  // own plant's machines on the floor map.
+  const inScopedPlant = useRecordPlantMatcher();
 
   useEffect(() => {
     if (!companyId) {
@@ -112,6 +116,7 @@ export function useFactoryFloorAttention(companyId: string) {
     for (const raw of wos) {
       const status = String(raw.status ?? '');
       if (!WO_ATTENTION_STATUSES.has(status)) continue;
+      if (!inScopedPlant(raw as { machinePlantId?: string; machineId?: string })) continue;
       const machineId = String(raw.machineId ?? '');
       if (!machineId) continue;
       const m = ensure(machineId, String(raw.machineName ?? ''), String(raw.machineLocation ?? ''));
@@ -126,6 +131,7 @@ export function useFactoryFloorAttention(companyId: string) {
     for (const raw of breakdowns) {
       const status = String(raw.status ?? '');
       if (BREAKDOWN_DONE.has(status)) continue;
+      if (!inScopedPlant(raw as { machinePlantId?: string; machineId?: string })) continue;
       const machineId = String(raw.machineId ?? '');
       if (!machineId) continue;
       const m = ensure(machineId, String(raw.machineName ?? ''), String(raw.location ?? ''));
@@ -138,7 +144,7 @@ export function useFactoryFloorAttention(companyId: string) {
       if (a.currentStatus !== b.currentStatus) return a.currentStatus === 'breakdown' ? -1 : 1;
       return b.openWoCount - a.openWoCount;
     });
-  }, [wos, breakdowns]);
+  }, [wos, breakdowns, inScopedPlant]);
 
   return { machines, loading: woLoading || bdLoading, error };
 }

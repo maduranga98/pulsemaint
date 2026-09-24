@@ -124,13 +124,13 @@ const NAV_GROUPS: NavGroup[] = [
       // Safety tab was removed entirely. Safety officer now gets a full
       // nav entry too (in addition to the "Open Safety Cases" dashboard
       // widget), since the case board is their primary EHS workspace.
-      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor', 'safety_officer'] },
+      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor', 'safety_officer', 'store_keeper'] },
       // Frontline roles a safety case can be assigned down to for action land
-      // on the same page's "Reported to Me" filtered view. Store keeper and
-      // floor_operator have no standalone Safety tab — their safety
-      // cases/trainings surface on their dashboard instead (see
-      // InventoryDashboard's SafetyForYouWidget and FloorOperatorDashboard's
-      // MySafetyCasesWidget/MySafetyTrainingsWidget).
+      // on the same page's "Reported to Me" filtered view. Store keeper's
+      // dashboard SafetyForYouWidget is display-only, so they get this entry
+      // to act on cases reported to them. floor_operator has no standalone
+      // Safety tab — their safety cases/trainings surface on their dashboard
+      // (FloorOperatorDashboard's MySafetyCasesWidget/MySafetyTrainingsWidget).
       // Safety officer and HR officer now use admin's "Safety Trainings" tab
       // (scheduling safety training sessions) instead of their own separate
       // entries (a general module library link, and a standalone calendar tab).
@@ -199,7 +199,7 @@ const NAV_GROUPS: NavGroup[] = [
       // shows the same MyTrainingsWidget; the route itself (no requiredRoles)
       // stays reachable so that widget's links to a specific assignment
       // still work.
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['supervisor'] },
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['supervisor', 'plant_manager', 'safety_officer', 'store_keeper', 'hr_officer'] },
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
       // My Certificates lives here for every role that has one, instead of
       // being split across this group and Workforce.

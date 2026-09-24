@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePlantFilter } from '../usePlantFilter';
 import type { PartsRequest } from '../../types/inventory';
 
 // Requests still carrying an outstanding returnable item — either not yet
@@ -36,5 +37,8 @@ export function usePendingPartsReturns(companyId: string) {
     return () => unsubscribe();
   }, [companyId]);
 
-  return { requests, count: requests.length, loading, error };
+  // Own plant only; requests predating plant stamping fall back to the requester's plant.
+  const { inPlant } = usePlantFilter(companyId);
+  const scoped = requests.filter((r) => inPlant(r.plantId, r.requestedBy));
+  return { requests: scoped, count: scoped.length, loading, error };
 }

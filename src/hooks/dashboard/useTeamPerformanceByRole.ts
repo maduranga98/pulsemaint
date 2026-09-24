@@ -4,6 +4,7 @@ import {
   type RolePerformanceSummary,
   type DateRange,
 } from '../../services/teamPerformance.service';
+import { usePlantUserIds } from '../usePlantUserIds';
 
 export type { RolePerformanceSummary };
 
@@ -15,6 +16,8 @@ export function useTeamPerformanceByRole(companyId: string, dateRange?: DateRang
   const [data, setData] = useState<RolePerformanceSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Only people in the caller's plant (admin: selected plant tab).
+  const plantUserIds = usePlantUserIds(companyId);
 
   const fetch = useCallback(async () => {
     if (!companyId) {
@@ -24,13 +27,19 @@ export function useTeamPerformanceByRole(companyId: string, dateRange?: DateRang
     setLoading(true);
     setError(null);
     try {
-      setData(await fetchTeamPerformanceByRole(companyId, dateRange));
+      setData(
+        await fetchTeamPerformanceByRole(
+          companyId,
+          dateRange,
+          plantUserIds ? (id: string) => plantUserIds.has(id) : undefined,
+        ),
+      );
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [companyId, dateRange?.from, dateRange?.to]);
+  }, [companyId, dateRange?.from, dateRange?.to, plantUserIds]);
 
   useEffect(() => {
     fetch();

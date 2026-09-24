@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useDepartmentScope } from '../useDepartmentScope';
 import type { WorkOrder } from '../../types';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 export function useOpenWorkOrders(siteId: string) {
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
-  const [count, setCount] = useState(0);
+  const [allWorkOrders, setAllWorkOrders] = useState<WorkOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,8 +26,7 @@ export function useOpenWorkOrders(siteId: string) {
       q,
       (snapshot) => {
         const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as WorkOrder));
-        setWorkOrders(data);
-        setCount(data.length);
+        setAllWorkOrders(data);
         setLoading(false);
       },
       (err) => {
@@ -38,5 +38,14 @@ export function useOpenWorkOrders(siteId: string) {
     return () => unsubscribe();
   }, [siteId]);
 
-  return { workOrders, count, loading, error };
+  // Plant-scoped roles (and admin with a plant tab selected) only see work
+  // orders on their own plant's machines.
+  const { plantId } = useDepartmentScope();
+  const inScopedPlant = useRecordPlantMatcher();
+  const workOrders = useMemo(
+    () => (plantId ? allWorkOrders.filter((wo) => inScopedPlant(wo)) : allWorkOrders),
+    [allWorkOrders, plantId, inScopedPlant],
+  );
+
+  return { workOrders, count: workOrders.length, loading, error };
 }

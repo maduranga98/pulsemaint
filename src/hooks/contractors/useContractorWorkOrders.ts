@@ -3,6 +3,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { WorkOrder } from '@/types/workOrder';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 interface UseContractorWorkOrdersResult {
   workOrders: WorkOrder[];
@@ -23,6 +24,8 @@ export function useContractorWorkOrders(contractorId?: string): UseContractorWor
   const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
   const [all, setAll] = useState<WorkOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const inScopedPlant = useRecordPlantMatcher();
+  // Only the caller's plant (admin: selected plant tab).
 
   useEffect(() => {
     if (!siteId) {
@@ -47,9 +50,10 @@ export function useContractorWorkOrders(contractorId?: string): UseContractorWor
   const workOrders = useMemo(() => {
     const millis = (wo: WorkOrder) => wo.createdAt?.toMillis?.() ?? 0;
     return all
+      .filter((wo) => inScopedPlant(wo))
       .filter((wo) => !contractorId || wo.contractorCompanyId === contractorId)
       .sort((a, b) => millis(b) - millis(a));
-  }, [all, contractorId]);
+  }, [all, contractorId, inScopedPlant]);
 
   return { workOrders, loading };
 }

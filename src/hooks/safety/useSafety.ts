@@ -4,6 +4,7 @@ import { db } from '../../lib/firebase';
 import { subscribeSafetyCases, subscribeWorkPermits, subscribeSafetyBlacklistResets } from '../../services/safety.service';
 import type { SafetyCase, WorkPermit } from '../../types/safety';
 import { computeBlacklist, type BlacklistEntry, type BlacklistResetMap } from '../../lib/safety/blacklist';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 /**
  * The Work Permit gating a given work order, live (or null).
@@ -74,7 +75,13 @@ export function useWorkOrderPermit(
 
 /** Live safety cases for the company, newest first. */
 export function useSafetyCases(companyId: string) {
-  const [cases, setCases] = useState<SafetyCase[]>([]);
+  const [allCases, setCases] = useState<SafetyCase[]>([]);
+  // Only the caller's plant (plant-scoped roles; admin's selected plant tab).
+  const { plantId } = useDepartmentScope();
+  const cases = useMemo(
+    () => (plantId ? allCases.filter((c) => c.plantId === plantId) : allCases),
+    [allCases, plantId],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -132,7 +139,12 @@ export function useSafetyBlacklist(companyId: string): { entries: BlacklistEntry
 
 /** Live work permits for the company, newest first. */
 export function useWorkPermits(companyId: string) {
-  const [permits, setPermits] = useState<WorkPermit[]>([]);
+  const [allPermits, setPermits] = useState<WorkPermit[]>([]);
+  const { plantId: permitPlantId } = useDepartmentScope();
+  const permits = useMemo(
+    () => (permitPlantId ? allPermits.filter((p) => p.plantId === permitPlantId) : allPermits),
+    [allPermits, permitPlantId],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

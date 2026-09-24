@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useAssignedTasks } from '../../../hooks/dashboard/useAssignedTasks';
@@ -12,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 export default function SafetyForYouWidget() {
   const { t } = useTranslation();
   const { trainings, safetyCases, loading } = useAssignedTasks();
-  const navigate = useNavigate();
 
   const safetyTrainings = useMemo(
     () => trainings.filter((tr) => tr.trainingType === 'safety_training'),
@@ -34,13 +32,12 @@ export default function SafetyForYouWidget() {
               </p>
               <div className="space-y-1">
                 {safetyCases.slice(0, 4).map((c) => (
-                  <button
+                  <div
                     key={c.id}
-                    onClick={() => navigate('/app/safety/cases')}
-                    className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
+                    className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] text-sm text-[#F0F4F8] truncate"
                   >
                     {c.title} · {c.severity}
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -53,13 +50,12 @@ export default function SafetyForYouWidget() {
               </p>
               <div className="space-y-1">
                 {safetyTrainings.slice(0, 4).map((tr) => (
-                  <button
+                  <div
                     key={tr.id}
-                    onClick={() => navigate('/app/training/my-modules')}
-                    className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
+                    className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] text-sm text-[#F0F4F8] truncate"
                   >
                     {tr.moduleName ?? t('common.widgets.assignedTasksWidget.trainingModule')}
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

@@ -2,8 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchMonthlyAnalytics } from '../../services/analytics.service';
 import { computeMonthlyAnalytics, type MonthArg } from '../../services/analyticsAggregation';
 import type { AnalyticsMonthly } from '../../types/analytics.types';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 export function useTechnicianPerformance(companyId: string, month: MonthArg) {
+  // Plant-scoped roles / admin's plant tab only see their plant's figures.
+  const { plantId } = useDepartmentScope();
   const [data, setData] = useState<AnalyticsMonthly | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,11 +20,11 @@ export function useTechnicianPerformance(companyId: string, month: MonthArg) {
     setLoading(true);
     setError(null);
     try {
-      let result = await fetchMonthlyAnalytics(companyId, month);
+      let result = await fetchMonthlyAnalytics(companyId, month, plantId);
       if (!result || result.technicianPerformance.length === 0) {
         // No completed WOs recorded in the selected month yet — fall back to
         // the all-time aggregation so the panel still shows live data.
-        result = await computeMonthlyAnalytics(companyId, 'all');
+        result = await computeMonthlyAnalytics(companyId, 'all', plantId);
       }
       setData(result);
     } catch (err) {
@@ -30,7 +33,7 @@ export function useTechnicianPerformance(companyId: string, month: MonthArg) {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, monthKey]);
+  }, [companyId, monthKey, plantId]);
 
   useEffect(() => {
     fetch();

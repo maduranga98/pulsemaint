@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useProgrammeSignOffQueue } from '../../../hooks/traineeProgram/useProgrammeSignOffQueue';
+import { usePlantUserIds } from '../../../hooks/usePlantUserIds';
 import { useTranslation } from 'react-i18next';
 
 interface ProgrammeSignOffQueueWidgetProps {
@@ -18,8 +18,9 @@ function formatDate(ts: { toDate?: () => Date } | null | undefined): string {
 // certificate issued.
 export default function ProgrammeSignOffQueueWidget({ companyId }: ProgrammeSignOffQueueWidgetProps) {
   const { t } = useTranslation();
-  const { programmes, loading } = useProgrammeSignOffQueue(companyId);
-  const navigate = useNavigate();
+  const { programmes: allProgrammes, loading } = useProgrammeSignOffQueue(companyId);
+  const plantUserIds = usePlantUserIds(companyId);
+  const programmes = plantUserIds ? allProgrammes.filter((p) => plantUserIds.has(p.traineeId)) : allProgrammes;
 
   return (
     <DashboardWidget
@@ -34,10 +35,9 @@ export default function ProgrammeSignOffQueueWidget({ companyId }: ProgrammeSign
           {programmes.map((p) => {
             const totalModules = p.months.reduce((n, m) => n + m.moduleIds.length, 0);
             return (
-              <button
+              <div
                 key={p.id}
-                onClick={() => navigate(`/app/training/manage/trainees/${p.traineeId}/programme`)}
-                className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F] hover:border-[#2E5A8F] transition-colors text-left"
+                className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F] text-left"
               >
                 <div className="min-w-0">
                   <p className="text-sm text-[#F0F4F8] truncate">{p.traineeName}</p>
@@ -48,7 +48,7 @@ export default function ProgrammeSignOffQueueWidget({ companyId }: ProgrammeSign
                 <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-medium bg-[#10B981]/15 text-[#10B981]">
                   {t('common.widgets.programmeSignOffQueueWidget.readyToSignOff')}
                 </span>
-              </button>
+              </div>
             );
           })}
         </div>

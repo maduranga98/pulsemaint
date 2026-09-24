@@ -11,6 +11,7 @@ import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { WOCompletionForm } from './WOCompletionForm';
 import { WOSignOffForm } from './WOSignOffForm';
+import { WOApprovalRequests } from './WOApprovalRequests';
 import { ChecklistExecutor } from './ChecklistExecutor';
 import { LotoGate } from './LotoGate';
 import { WorkPermitDetails } from './WorkPermitDetails';
@@ -261,6 +262,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* ── Overview ── */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {isSupervisor && <WOApprovalRequests workOrder={workOrder} />}
+
               {/* Live progress — status + checklist completion, updates as the
                   assigned team completes tasks. */}
               <section className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">

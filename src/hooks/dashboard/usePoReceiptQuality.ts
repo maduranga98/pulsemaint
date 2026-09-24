@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePurchaseOrders } from '../inventory/usePurchaseOrders';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 export interface PoReceiptQualityPoint {
   condition: 'Good' | 'Damaged' | 'Wrong Item';
@@ -21,6 +23,10 @@ export function usePoReceiptQuality(companyId: string, windowDays: number = 30) 
   const [data, setData] = useState<PoReceiptQualityPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Only receipts against this plant's POs (usePurchaseOrders is plant-scoped).
+  const { plantId } = useDepartmentScope();
+  const { orders: plantOrders } = usePurchaseOrders();
+  const poIdsKey = plantId ? plantOrders.map((o) => o.id).sort().join(',') : '';
 
   useEffect(() => {
     if (!companyId) {
@@ -46,6 +52,7 @@ export function usePoReceiptQuality(companyId: string, windowDays: number = 30) 
 
         snapshot.docs.forEach((d) => {
           const data = d.data();
+          if (plantId && !poIdsKey.split(',').includes(String(data.poId))) return;
           const createdAt = data.createdAt as Timestamp | undefined;
           if (!createdAt || createdAt.toMillis() < since.toMillis()) return;
 
@@ -76,7 +83,7 @@ export function usePoReceiptQuality(companyId: string, windowDays: number = 30) 
     );
 
     return () => unsubscribe();
-  }, [companyId, windowDays]);
+  }, [companyId, windowDays, plantId, poIdsKey]);
 
   return { data, loading, error };
 }

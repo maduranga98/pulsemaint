@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryModules';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 
 function formatDate(ts: Timestamp | null | undefined): string {
   if (!ts) return '—';
@@ -35,7 +36,10 @@ export default function TrainingAssignmentsProgress() {
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { modules } = useTrainingLibraryModules();
-  const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
+  const [allAssignments, setAssignments] = useState<TrainingAssignment[]>([]);
+  // Only trainees in the caller's plant (admin: selected tab).
+  const { inPlant } = usePlantFilter(companyId);
+  const assignments = allAssignments.filter((a) => inPlant(null, a.traineeId));
   const [loading, setLoading] = useState(true);
 
   const moduleIds = new Set(modules.map((m) => m.id));

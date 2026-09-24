@@ -108,6 +108,7 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
           machineId: schedule.machineId,
           machineName: schedule.machineName,
           machineDepartment: schedule.department,
+          machinePlantId: schedule.plantId || null,
           machineLocation: schedule.location,
           machineType: "",
           machineCriticality: schedule.machineCriticality,

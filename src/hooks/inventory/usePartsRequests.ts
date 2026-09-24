@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
@@ -7,6 +7,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 import type { PartsRequest, RequestStatus } from '@/types/inventory';
 
 export interface UsePartsRequestsOptions {
@@ -36,7 +37,14 @@ export function usePartsRequests(options: UsePartsRequestsOptions = {}): UsePart
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
 
-  const [requests, setRequests] = useState<PartsRequest[]>([]);
+  const [allRequests, setRequests] = useState<PartsRequest[]>([]);
+  // Own plant only (admin: selected plant tab). Requests predating plant
+  // stamping fall back to the requester's plant.
+  const { inPlant } = usePlantFilter(companyId);
+  const requests = useMemo(
+    () => allRequests.filter((r) => inPlant(r.plantId, r.requestedBy)),
+    [allRequests, inPlant],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

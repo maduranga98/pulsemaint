@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
@@ -13,6 +13,7 @@ import {
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingCertificate } from '@/lib/training/trainingTypes';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 
 export interface UseTrainingCertificatesOptions {
   traineeId?: string;
@@ -31,7 +32,13 @@ export function useTrainingCertificates(
   const { traineeId, includeRevoked = false } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
-  const [certificates, setCertificates] = useState<TrainingCertificate[]>([]);
+  const [allCertificates, setCertificates] = useState<TrainingCertificate[]>([]);
+  // Only certificates of trainees in the caller's plant (admin: selected tab).
+  const { inPlant } = usePlantFilter(companyId);
+  const certificates = useMemo(
+    () => allCertificates.filter((c) => inPlant(null, c.traineeId)),
+    [allCertificates, inPlant],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

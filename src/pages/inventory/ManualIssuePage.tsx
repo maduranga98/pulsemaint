@@ -17,6 +17,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { useWorkOrders } from '@/hooks/useWorkOrders';
 import { useCompanyUsers } from '@/hooks/useCompanyUsers';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
 import { notifyUsers } from '@/services/notifications.service';
 import { PartQrScanModal } from '@/components/inventory/shared/PartQrScanModal';
@@ -51,6 +52,7 @@ export function ManualIssuePage() {
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
+  const { plantId: scopedPlantId } = useDepartmentScope();
 
   const [showScanner, setShowScanner] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -244,6 +246,7 @@ export function ManualIssuePage() {
 
         tx.set(requestRef, {
           companyId,
+          plantId: selectedWo?.machinePlantId ?? scopedPlantId ?? null,
           requestNumber: makeRequestNumber(),
           workOrderId: selectedWo?.id ?? null,
           workOrderNumber: selectedWo?.woNumber ?? null,

@@ -8,6 +8,8 @@ import {
   type ContractorJobStatRow,
   type ContractorJobStats,
 } from '@/lib/contractors/contractorJobStats';
+import { usePlantMachineIds } from '@/hooks/usePlantMachineIds';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 type JobRow = ContractorJobStatRow<Timestamp>;
 
@@ -43,6 +45,9 @@ export function useContractorJobStats(): {
   const [woRows, setWoRows] = useState<JobRow[]>([]);
   const [jobRows, setJobRows] = useState<JobRow[]>([]);
   const [loading, setLoading] = useState(true);
+  // Jobs/ratings counted for the caller's plant only (admin: selected tab).
+  const inScopedPlant = useRecordPlantMatcher();
+  const plantMachineIds = usePlantMachineIds(companyId);
 
   useEffect(() => {
     if (!siteId || !canReadRegistry) {
@@ -56,6 +61,7 @@ export function useContractorJobStats(): {
           snap.docs
             .map((d) => d.data())
             .filter((data) => !!data.contractorCompanyId)
+            .filter((data) => inScopedPlant(data))
             .map((data) => ({
               contractorId: String(data.contractorCompanyId),
               at:
@@ -74,7 +80,7 @@ export function useContractorJobStats(): {
       () => setLoading(false),
     );
     return () => unsub();
-  }, [siteId, canReadRegistry]);
+  }, [siteId, canReadRegistry, inScopedPlant]);
 
   useEffect(() => {
     if (!companyId || !canReadRegistry) return;
@@ -85,6 +91,7 @@ export function useContractorJobStats(): {
           snap.docs
             .map((d) => d.data())
             .filter((data) => !!data.contractorId)
+            .filter((data) => !plantMachineIds || plantMachineIds.has(String(data.machineId)))
             .map((data) => ({
               contractorId: String(data.contractorId),
               at:
@@ -100,7 +107,7 @@ export function useContractorJobStats(): {
       () => setJobRows([]),
     );
     return () => unsub();
-  }, [companyId, canReadRegistry]);
+  }, [companyId, canReadRegistry, plantMachineIds]);
 
   const stats = useMemo(
     () => aggregateContractorJobStats([...woRows, ...jobRows]),

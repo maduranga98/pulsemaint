@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchMonthlyAnalytics } from '../../services/analytics.service';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 export interface PmComplianceHistoryPoint {
   month: string;
@@ -11,6 +12,8 @@ export interface PmComplianceHistoryPoint {
  * service (which computes from raw data when no pre-aggregated docs exist).
  */
 export function usePmComplianceHistory(companyId: string, monthsBack = 6) {
+  // Plant-scoped roles / admin's plant tab only see their plant's figures.
+  const { plantId } = useDepartmentScope();
   const [data, setData] = useState<PmComplianceHistoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +32,7 @@ export function usePmComplianceHistory(companyId: string, monthsBack = 6) {
       months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
     }
 
-    Promise.all(months.map((m) => fetchMonthlyAnalytics(companyId, m)))
+    Promise.all(months.map((m) => fetchMonthlyAnalytics(companyId, m, plantId)))
       .then((results) => {
         if (cancelled) return;
         setData(
@@ -46,7 +49,7 @@ export function usePmComplianceHistory(companyId: string, monthsBack = 6) {
     return () => {
       cancelled = true;
     };
-  }, [companyId, monthsBack]);
+  }, [companyId, monthsBack, plantId]);
 
   return { data, loading };
 }

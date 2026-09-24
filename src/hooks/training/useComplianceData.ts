@@ -14,6 +14,7 @@ import type {
   AssignmentStatus,
 } from '@/lib/training/trainingTypes';
 import type { Timestamp } from 'firebase/firestore';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -79,6 +80,7 @@ export function useComplianceData(
 ): UseComplianceDataResult {
   const { department, machineTypeId } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const { inPlant } = usePlantFilter(companyId);
 
   const [stats, setStats] = useState<ComplianceStats>(DEFAULT_STATS);
   const [matrixRows, setMatrixRows] = useState<ComplianceMatrixRow[]>([]);
@@ -138,7 +140,8 @@ export function useComplianceData(
 
         if (cancelled) return;
 
-        // Apply filters
+        // Apply filters — plant first (trainee's plant), then department.
+        assignments = assignments.filter((a) => inPlant(null, a.traineeId));
         if (department) {
           assignments = assignments.filter(
             (a) => a.department === department
@@ -292,7 +295,7 @@ export function useComplianceData(
     return () => {
       cancelled = true;
     };
-  }, [companyId, department, machineTypeId]);
+  }, [companyId, department, machineTypeId, inPlant]);
 
   return { stats, matrixRows, moduleHeaders, loading, error };
 }

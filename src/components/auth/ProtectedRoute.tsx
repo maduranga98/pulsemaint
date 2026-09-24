@@ -66,6 +66,15 @@ export default function ProtectedRoute({
     // which let a missing role bypass every role-gated route in the app
     // instead of blocking it.)
     if (!(userRole && requiredRoles.includes(userRole))) {
+      // Arrived here straight from the login page via a remembered
+      // "where you were headed" URL — typically the page the *previous*
+      // user of this browser was on when they signed out (e.g. an admin
+      // page, then a store keeper logs in). That's not a page this user
+      // asked for, so land them on their own dashboard rather than
+      // showing Access Denied right after a valid login.
+      if ((location.state as { postLogin?: boolean } | null)?.postLogin) {
+        return <Navigate to={userRole ? getDashboardRoute(userRole) : '/login'} replace />;
+      }
       return <Navigate to="/app/unauthorized" replace />;
     }
   }
@@ -106,5 +115,5 @@ function RedirectAuthedUser({ to }: { to: string }) {
   useEffect(() => {
     consumePostLoginRedirect();
   }, []);
-  return <Navigate to={to} replace />;
+  return <Navigate to={to} replace state={{ postLogin: true }} />;
 }

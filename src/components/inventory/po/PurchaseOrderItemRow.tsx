@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QrCode, Trash2, ScanLine } from 'lucide-react';
-import { collection, getDocs, limit, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { InventoryPart } from '@/types/inventory';
 import { PartSearchInput } from '@/components/inventory/shared/PartSearchInput';
 import { PartQrScanModal } from '@/components/inventory/shared/PartQrScanModal';
 import { useToast } from '@/hooks/useToast';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 
 export interface POItemRowData {
   partId: string;
@@ -50,6 +51,8 @@ export function PurchaseOrderItemRow({
     });
   }
 
+  const { plantId: scopedPlantId } = useDepartmentScope();
+
   async function lookupByCode(code: string) {
     const term = code.trim();
     if (!term || !companyId) return;
@@ -61,14 +64,14 @@ export function PurchaseOrderItemRow({
           collection(db, 'inventoryParts'),
           where('companyId', '==', companyId),
           where('partNumber', '==', term),
-          limit(1),
         ),
       );
-      if (snap.empty) {
+      // Same part number can exist in several plants — take this plant's.
+      const docSnap = snap.docs.find((d) => !scopedPlantId || d.data().plantId === scopedPlantId);
+      if (!docSnap) {
         addToast(t('common.inventory.po.itemRow.part.notFound', { term }), 'error');
         return;
       }
-      const docSnap = snap.docs[0];
       handlePartSelect({ id: docSnap.id, ...docSnap.data() } as InventoryPart);
       setQrInput('');
     } catch (err) {

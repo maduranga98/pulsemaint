@@ -87,6 +87,11 @@ exports.markMachineDownOnBreakdownReported = markMachineDownOnBreakdownReported;
 exports.reactivateMachineOnBreakdownClose = reactivateMachineOnBreakdownClose;
 exports.reactivateMachineOnWOSignOff = reactivateMachineOnWOSignOff;
 
+const {stampWorkOrderPlant, stampBreakdownPlant} = require("./src/machines/stampMachinePlant");
+
+exports.stampWorkOrderPlant = stampWorkOrderPlant;
+exports.stampBreakdownPlant = stampBreakdownPlant;
+
 // ---------------------------------------------------------------------------
 // Training Module — Cloud Functions
 // ---------------------------------------------------------------------------

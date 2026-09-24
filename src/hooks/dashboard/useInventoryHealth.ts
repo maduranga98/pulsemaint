@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useDepartmentScope } from '../useDepartmentScope';
 import type { InventoryPart } from '../../types/inventory';
 
 export function useInventoryHealth(companyId: string) {
-  const [parts, setParts] = useState<InventoryPart[]>([]);
+  const [allParts, setParts] = useState<InventoryPart[]>([]);
+  const { plantId } = useDepartmentScope();
+  const parts = plantId ? allParts.filter((p) => p.plantId === plantId) : allParts;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

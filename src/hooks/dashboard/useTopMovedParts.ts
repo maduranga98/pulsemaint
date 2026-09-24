@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePlantPartIds } from '../usePlantPartIds';
 
 export interface TopMovedPart {
   partId: string;
@@ -16,6 +17,7 @@ export function useTopMovedParts(companyId: string, windowDays: number = DEFAULT
   const [parts, setParts] = useState<TopMovedPart[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const plantPartIds = usePlantPartIds(companyId);
 
   useEffect(() => {
     if (!companyId) {
@@ -42,6 +44,7 @@ export function useTopMovedParts(companyId: string, windowDays: number = DEFAULT
           if (!performedAt || performedAt.toMillis() < since.toMillis()) continue;
 
           const partId = data.partId as string;
+          if (plantPartIds && !plantPartIds.has(partId)) continue;
           const name = (data.partName as string) ?? 'Unknown part';
           const qty = Math.abs((data.quantityChange as number) ?? 0);
 
@@ -67,7 +70,7 @@ export function useTopMovedParts(companyId: string, windowDays: number = DEFAULT
     );
 
     return () => unsubscribe();
-  }, [companyId, windowDays]);
+  }, [companyId, windowDays, plantPartIds]);
 
   return { parts, loading, error };
 }

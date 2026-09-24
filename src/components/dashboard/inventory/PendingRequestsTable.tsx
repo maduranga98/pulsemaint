@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import DashboardWidget from '../shared/DashboardWidget';
 import { usePendingPartsRequests } from '../../../hooks/dashboard/usePendingPartsRequests';
 import EmptyState from '../shared/EmptyState';
@@ -11,7 +10,6 @@ interface PendingRequestsTableProps {
 export default function PendingRequestsTable({ companyId }: PendingRequestsTableProps) {
   const { t } = useTranslation();
   const { requests, loading, error } = usePendingPartsRequests(companyId);
-  const navigate = useNavigate();
 
   return (
     <DashboardWidget title={t('common.widgets.pendingRequestsTable.title')} loading={loading} error={error}>
@@ -26,7 +24,6 @@ export default function PendingRequestsTable({ companyId }: PendingRequestsTable
                 <th className="pb-2 font-medium">{t('common.widgets.pendingRequestsTable.requestedBy')}</th>
                 <th className="pb-2 font-medium text-right">{t('common.widgets.pendingReceiptPOsWidget.items')}</th>
                 <th className="pb-2 font-medium text-right">{t('common.widgets.pendingRequestsTable.estValue')}</th>
-                <th className="pb-2 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]/50">
@@ -43,14 +40,6 @@ export default function PendingRequestsTable({ companyId }: PendingRequestsTable
                   <td className="py-2.5 text-right text-[#F0F4F8]">{req.items.length}</td>
                   <td className="py-2.5 text-right text-[#F0F4F8]">
                     LKR {req.totalEstimatedCost.toLocaleString()}
-                  </td>
-                  <td className="py-2.5 text-right">
-                    <button
-                      onClick={() => navigate(`/app/inventory/requests/${req.id}`)}
-                      className="px-2 py-1 bg-[#1A56DB] text-white text-[10px] font-medium rounded hover:bg-[#1A56DB]/90 transition-colors"
-                    >
-                      {t('common.widgets.pendingRequestsTable.review')}
-                    </button>
                   </td>
                 </tr>
               ))}

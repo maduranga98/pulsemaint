@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { PartReturn, PartReturnStatus } from '@/types/inventory';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
+import { usePlantPartIds } from '@/hooks/usePlantPartIds';
 
 export interface UsePartReturnsOptions {
   status?: PartReturnStatus | 'all';
@@ -21,7 +23,18 @@ export function usePartReturns(options: UsePartReturnsOptions = {}): UsePartRetu
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
 
-  const [returns, setReturns] = useState<PartReturn[]>([]);
+  const [allReturns, setReturns] = useState<PartReturn[]>([]);
+  // Own plant only (admin: selected plant tab): the returned part's plant,
+  // falling back to the requester's plant.
+  const { inPlant, isPlantScoped } = usePlantFilter(companyId);
+  const plantPartIds = usePlantPartIds(companyId);
+  const returns = useMemo(
+    () =>
+      isPlantScoped
+        ? allReturns.filter((r) => plantPartIds?.has(r.partId) || inPlant(null, r.requestedBy))
+        : allReturns,
+    [allReturns, isPlantScoped, plantPartIds, inPlant],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

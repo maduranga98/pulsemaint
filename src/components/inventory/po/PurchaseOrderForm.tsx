@@ -20,6 +20,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { notifyRoles } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
 import { purchaseOrderSchema, type PurchaseOrderFormValues } from '@/schemas/inventory';
@@ -55,6 +56,8 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
+  // Raiser's own plant (admin: the selected plant tab).
+  const { plantId: scopedPlantId } = useDepartmentScope();
 
   // Kept in sync with PurchaseOrderDetail's canApprove — approval is not
   // limited to plant_manager/admin, supervisors can approve too.
@@ -294,6 +297,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         const poNumber = await generatePONum();
         const payload = {
           companyId,
+          plantId: scopedPlantId,
           poNumber,
           status,
           ...supplierFields,

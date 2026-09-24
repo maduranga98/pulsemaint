@@ -8,6 +8,7 @@ import {
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { UserProfile } from '@/types/auth';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 
 export interface UseTraineeListOptions {
   department?: string;
@@ -27,6 +28,7 @@ export function useTraineeList(
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
   const [trainees, setTrainees] = useState<UserProfile[]>([]);
+  const { plantId } = useDepartmentScope();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +69,11 @@ export function useTraineeList(
           .map((d) => ({ id: d.id, ...d.data() }) as UserProfile)
           .sort((a, b) => (a.fullName ?? '').localeCompare(b.fullName ?? ''));
 
+        // Only trainees registered under the caller's plant (admin: selected tab).
+        if (plantId) {
+          docs = docs.filter((u) => u.plantId === plantId);
+        }
+
         if (department) {
           docs = docs.filter((u) => u.department === department);
         }
@@ -92,7 +99,7 @@ export function useTraineeList(
     );
 
     return () => unsubscribe();
-  }, [companyId, department, searchQuery]);
+  }, [companyId, department, searchQuery, plantId]);
 
   return { trainees, loading, error };
 }

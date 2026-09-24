@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 export interface LowStockPart {
   partId: string;
@@ -19,6 +20,7 @@ export function useLowStockParts(companyId: string) {
   const [parts, setParts] = useState<LowStockPart[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { plantId } = useDepartmentScope();
 
   useEffect(() => {
     if (!companyId) {
@@ -32,6 +34,7 @@ export function useLowStockParts(companyId: string) {
       q,
       (snapshot) => {
         const low = snapshot.docs
+          .filter((d) => !plantId || d.data().plantId === plantId)
           .map((d) => {
             const data = d.data();
             const currentStock = (data.currentStock as number) ?? 0;
@@ -58,7 +61,7 @@ export function useLowStockParts(companyId: string) {
     );
 
     return () => unsubscribe();
-  }, [companyId]);
+  }, [companyId, plantId]);
 
   return { parts, loading, error };
 }

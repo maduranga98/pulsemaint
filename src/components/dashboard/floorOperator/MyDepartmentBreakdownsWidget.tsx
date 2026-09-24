@@ -7,6 +7,7 @@ import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownStatus } from '../../../types/breakdown';
+import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
 
 interface MyDepartmentBreakdownsWidgetProps {
   siteId: string;
@@ -32,7 +33,9 @@ const STATUS_COLOR: Record<BreakdownStatus, string> = {
 // firestore.rules), so this never offers an action, only status.
 export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBreakdownsWidgetProps) {
   const { t } = useTranslation();
-  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
+  const { department: scopedDepartment } = useDepartmentScope();
+  // Falls back to the machine's plant for records predating plant stamping.
+  const inScopedPlant = useRecordPlantMatcher();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,7 +63,7 @@ export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBre
 
   const closedSet = new Set<BreakdownStatus>(['closed', 'cancelled']);
   const visible = breakdowns
-    .filter((b) => !scopedPlantId || b.machinePlantId === scopedPlantId)
+    .filter((b) => inScopedPlant(b))
     .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment)
     .filter((b) => !closedSet.has(b.status))
     .slice(0, 8);
