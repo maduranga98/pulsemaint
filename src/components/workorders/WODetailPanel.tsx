@@ -120,11 +120,20 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
   const checklistDone = workOrder.checklist.filter((i) => i.isCompleted).length;
   const checklistPct = checklistTotal > 0 ? Math.round((checklistDone / checklistTotal) * 100) : 0;
 
+  // A signed-off WO shows one consolidated sign-off summary (team, tasks and
+  // measurements, parts, permits, approvals, RCA, documents) — so the
+  // Checklist / Documents / Parts tabs and the overview sections that repeat
+  // those details are hidden rather than shown twice.
+  const isSignedOff = ['SIGNED_OFF', 'CLOSED'].includes(workOrder.status);
   const TABS: { key: TabKey; label: string }[] = [
     { key: 'overview', label: t('common.workOrders.copy.tabOverview') },
-    { key: 'checklist', label: t('common.workOrders.copy.tabChecklist') },
-    { key: 'documents', label: t('common.workOrders.copy.tabDocuments') },
-    { key: 'parts', label: t('common.workOrders.copy.tabParts') },
+    ...(isSignedOff
+      ? []
+      : ([
+          { key: 'checklist', label: t('common.workOrders.copy.tabChecklist') },
+          { key: 'documents', label: t('common.workOrders.copy.tabDocuments') },
+          { key: 'parts', label: t('common.workOrders.copy.tabParts') },
+        ] as { key: TabKey; label: string }[])),
     { key: 'history', label: t('common.workOrders.copy.tabHistory') },
   ];
 
@@ -266,13 +275,14 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
           {/* ── Overview ── */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              {['SIGNED_OFF', 'CLOSED'].includes(workOrder.status) && (
+              {isSignedOff && (
                 <WOSignOffSummary workOrder={workOrder} permits={workPermits} canRegenerateRca={isSupervisor} />
               )}
-              {isSupervisor && <WOApprovalRequests workOrder={workOrder} />}
+              {isSupervisor && !isSignedOff && <WOApprovalRequests workOrder={workOrder} />}
 
               {/* Live progress — status + checklist completion, updates as the
                   assigned team completes tasks. */}
+              {!isSignedOff && (
               <section className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('common.workOrders.detailPanel.progress')}</h3>
@@ -294,6 +304,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                   <p className="text-xs text-gray-400">{t('common.workOrders.detailPanel.noChecklistDefined')}</p>
                 )}
               </section>
+              )}
 
               {/* Overdue-but-unfinished notice */}
               {isOverdue && (
@@ -317,7 +328,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
               {/* Linked Work Permits — every Permit-to-Work tied to this WO,
                   whether attached at creation or raised later from the Work
                   Permits tab. */}
-              {(workOrder.requiresWorkPermit || workPermits.length > 0) && (
+              {!isSignedOff && (workOrder.requiresWorkPermit || workPermits.length > 0) && (
                 <section className="bg-white border border-gray-200 rounded-xl p-4">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
                     {t('common.workOrders.detailPanel.workPermitsTitle', { count: workPermits.length })}
@@ -386,6 +397,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
               </section>
 
               {/* Team */}
+              {!isSignedOff && (
               <section>
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.teamTitle')}</h3>
                 <div className="space-y-1.5">
@@ -424,10 +436,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                   )}
                 </div>
               </section>
+              )}
 
               {/* Technician work logs (recorded at completion) — one entry per
                   assigned person, so a team WO shows all tasks by everyone. */}
-              {(workOrder.technicianWorkLogs ?? []).length > 0 && (
+              {!isSignedOff && (workOrder.technicianWorkLogs ?? []).length > 0 && (
                 <section>
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.workDoneByTeamTitle')}</h3>
                   <div className="space-y-2">
@@ -452,7 +465,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
               {/* Per-assignee self-completions — visible to the sign-off
                   authority (and anyone with panel access) so they can see each
                   person's own recorded work before/at finalisation. */}
-              {isSupervisor && (workOrder.assigneeCompletions ?? []).length > 0 && (
+              {isSupervisor && !isSignedOff && (workOrder.assigneeCompletions ?? []).length > 0 && (
                 <section>
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
                     {t('common.workOrders.detailPanel.assigneeCompletionsTitle', { done: completedAssigneeCount, total: totalAssignees })}
@@ -485,6 +498,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
               )}
 
               {/* Dates */}
+              {!isSignedOff && (
               <section>
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.datesTitle')}</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
@@ -510,9 +524,10 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                   )}
                 </div>
               </section>
+              )}
 
               {/* Completion info (if completed) */}
-              {workOrder.workDoneDescription && (
+              {!isSignedOff && workOrder.workDoneDescription && (
                 <section className="bg-blue-50 rounded-xl p-4 space-y-2">
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('common.workOrders.detailPanel.completionTitle')}</h3>
                   <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.workDoneDescription}</p>
@@ -568,7 +583,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
 
               {/* Sign-off record — auto-captured when a supervisor/manager
                   signs off and closes the WO. */}
-              {workOrder.supervisorSignOffAt && (
+              {!isSignedOff && workOrder.supervisorSignOffAt && (
                 <section className="bg-gray-50 rounded-xl p-4 space-y-1.5">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('common.workOrders.detailPanel.signOffTitle')}</h3>
                   {workOrder.signOffOutcome && (
