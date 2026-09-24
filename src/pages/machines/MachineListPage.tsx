@@ -20,6 +20,7 @@ import { auth } from '../../lib/firebase';
 import { ensureDepartments } from '../../services/departments.service';
 import { usePlants } from '../../hooks/usePlants';
 import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
+import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
 
 const SUGGESTED_TYPES: MachineType[] = [
   'cnc_machine','conveyor','compressor','boiler','generator','hydraulic_press',
@@ -438,11 +439,19 @@ export function MachineListPage() {
   // tab could show nothing (its machines not in the first page) and the
   // header counts grew every time "Load more" was clicked. Filtering and
   // counting now run over the full list; "Load more" only reveals more rows.
-  const { machines, loading, error } = useMachines({
+  const { machines: storedMachines, loading, error } = useMachines({
     siteId,
     filters,
     pageSize: ALL_MACHINES_LIMIT,
   });
+  // Status follows the machine's actual work: under maintenance while it has
+  // an open breakdown or work order, active again once all are closed /
+  // signed off — shown this way even if the stored field lags behind.
+  const openWork = useMachinesWithOpenWork(userProfile?.companyId);
+  const machines = useMemo(
+    () => storedMachines.map((m) => ({ ...m, status: effectiveMachineStatus(m, openWork) as MachineStatus })),
+    [storedMachines, openWork],
+  );
   const [visibleCount, setVisibleCount] = useState(ROWS_PER_PAGE);
 
   // Reactive to viewport/orientation changes — a plain `window.innerWidth`

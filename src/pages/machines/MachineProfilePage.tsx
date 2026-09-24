@@ -12,6 +12,7 @@ import { MachineHistoryTimeline } from '../../components/workorders/MachineHisto
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
 import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields';
 import type { WOType } from '../../types/workOrder';
+import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
@@ -36,6 +37,8 @@ export function MachineProfilePage() {
 
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
   const { machine, loading, error } = useMachine({ siteId, machineId: id ?? '' });
+  // Status follows the machine's open breakdowns / work orders (see useMachinesWithOpenWork).
+  const openWork = useMachinesWithOpenWork(userProfile?.companyId);
 
   if (!userProfile || !id) {
     return (
@@ -103,7 +106,7 @@ export function MachineProfilePage() {
             </div>
 
             <div className="flex gap-2">
-              <MachineStatusBadge status={machine.status} size="lg" />
+              <MachineStatusBadge status={effectiveMachineStatus(machine, openWork) as typeof machine.status} size="lg" />
               <MachineCriticalityBadge criticality={machine.criticality} size="lg" />
             </div>
           </div>
@@ -229,7 +232,7 @@ export function MachineProfilePage() {
 
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {activeTab === 'overview' && <OverviewTab machine={machine} canEdit={canEditMachine} />}
+        {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} />}
         {activeTab === 'documents' && <DocumentsTab machine={machine} />}
         {activeTab === 'history' && <HistoryTab machine={machine} />}
         {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}

@@ -12,6 +12,7 @@ import { notifyRoles } from '../../services/notifications.service';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
 import { suggestBreakdownRootCause, type BreakdownRCASuggestion } from '../../lib/breakdownRCA';
+import { markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
 
 interface MachineOption {
   id: string;
@@ -218,6 +219,11 @@ export default function ReportBreakdownPage() {
         closedAt: null,
         slaDeadline: null,
       });
+      // The machine is down for maintenance from the moment it's reported.
+      // Best effort — roles without write access to machines (floor operator)
+      // rely on the markMachineDownOnBreakdownReported Cloud Function and on
+      // the list/profile showing status from open work.
+      void markMachineUnderMaintenance(machine.id);
       void notifyRoles(userProfile.companyId, ['supervisor', 'plant_manager', 'admin'], {
         type: 'breakdown',
         message: `${machine.name}: new breakdown reported${machineStillRunning ? ' (still running, degraded)' : ''}`,
