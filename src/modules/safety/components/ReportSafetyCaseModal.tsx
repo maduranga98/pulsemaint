@@ -71,7 +71,7 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
   const [reportToId, setReportToId] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const { users } = useCompanyUsers(companyId);
+  const { users } = useCompanyUsers(companyId, { includeAdmins: true });
   const { contractors } = useContractors();
   // Only in-progress work orders are eligible subjects.
   const { workOrders } = useWorkOrders({ status: ['IN_PROGRESS'] });

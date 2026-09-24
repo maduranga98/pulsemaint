@@ -16,14 +16,19 @@ export interface CompanyUserOption {
  * The company's people, live, for pickers that assign work or shifts to named
  * employees. Ordered by name so the list reads the same everywhere. Limited
  * to the caller's plant (plant-scoped roles; admin's selected plant tab) so
- * nobody can pick people from another plant.
+ * nobody can pick people from another plant. `includeAdmins` keeps the
+ * company's admins in the list whatever their plant — admins oversee every
+ * plant, so e.g. a safety case can always be reported to one.
  */
-export function useCompanyUsers(companyId: string | undefined) {
+export function useCompanyUsers(companyId: string | undefined, opts: { includeAdmins?: boolean } = {}) {
   const [allUsers, setUsers] = useState<CompanyUserOption[]>([]);
   const { plantId } = useDepartmentScope();
+  const includeAdmins = !!opts.includeAdmins;
   const users = useMemo(
-    () => (plantId ? allUsers.filter((u) => u.plantId === plantId) : allUsers),
-    [allUsers, plantId],
+    () => (plantId
+      ? allUsers.filter((u) => u.plantId === plantId || (includeAdmins && u.role === 'admin'))
+      : allUsers),
+    [allUsers, plantId, includeAdmins],
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

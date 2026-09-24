@@ -151,7 +151,7 @@ function CaseRow({ c, canAct }: { c: SafetyCase; canAct: boolean }) {
   const actions = c.actions ?? [];
 
   // People a case can be escalated to — oversight roles in the company.
-  const { users } = useCompanyUsers(profile?.companyId);
+  const { users } = useCompanyUsers(profile?.companyId, { includeAdmins: true });
   const reportRecipients = useMemo(
     () => users.filter((u) => REPORTED_TO_ROLES.includes(u.role) && u.id !== profile?.id),
     [users, profile?.id],
