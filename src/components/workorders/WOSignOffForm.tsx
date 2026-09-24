@@ -6,6 +6,7 @@ import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
 import { formatLkr } from '../../lib/contractors/invoiceCalculator';
 import { toast } from 'sonner';
+import { WOAiRcaCard } from './WOAiRcaCard';
 
 const RATING_DIMENSIONS = [
   { key: 'speedScore', labelKey: 'speedLabel' },
@@ -155,6 +156,16 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* AI root-cause analysis over the whole job — generated as soon as the
+          form opens so the supervisor reviews it before signing off. */}
+      <WOAiRcaCard
+        woId={workOrder.id}
+        rca={workOrder.aiRca}
+        canRegenerate
+        autoGenerate
+        pendingText={t('common.workOrders.summary.rcaNotYet', { defaultValue: 'No AI analysis yet.' })}
+      />
+
       {/* Contractor jobs: total cost and a rating, both required to close. */}
       {isContractorWO && (
         <>

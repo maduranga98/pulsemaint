@@ -94,24 +94,26 @@ function buildPrompt(wo: WorkOrder, tickets: string[]): string {
 }
 
 /**
- * Runs an AI root-cause analysis over a signed-off work order — the fault,
+ * Runs an AI root-cause analysis over a completed / signed-off work order — the fault,
  * its breakdown tickets, every task and measurement, what each assigned
  * person reported, parts, approval requests and attached documents — and
  * stores the result on the WO (`aiRca`) so the signed-off summary shows it.
  * A failure is stored too (source 'failed' + error), so the summary can say
  * why and offer a retry instead of silently showing nothing.
  */
-export async function generateWoAiRca(woId: string): Promise<WOAiRca> {
+export async function generateWoAiRca(woId: string, opts: { onlyIfMissing?: boolean } = {}): Promise<WOAiRca | null> {
   const ref = doc(db, 'workOrders', woId);
   let result: WOAiRca;
   try {
     const snap = await getDoc(ref);
     if (!snap.exists()) throw new Error('Work order not found');
     const wo = { ...snap.data(), id: snap.id } as WorkOrder;
+    // Already analysed (e.g. on the sign-off form) — don't pay for it twice.
+    if (opts.onlyIfMissing && wo.aiRca?.source === 'ai') return wo.aiRca;
     const tickets = await loadTickets(wo);
     const ai = await generateClaudeJson<RcaResult>(buildPrompt(wo, tickets), {
       systemInstruction:
-        'You are an experienced industrial maintenance reliability engineer performing root-cause analysis on a completed, signed-off work order. Respond only with the requested JSON.',
+        'You are an experienced industrial maintenance reliability engineer performing root-cause analysis on a completed work order that is being reviewed for sign-off (or has been signed off). Respond only with the requested JSON.',
       responseSchema: RCA_SCHEMA,
     });
     result = { ...ai, source: 'ai', generatedAt: Timestamp.now() };
