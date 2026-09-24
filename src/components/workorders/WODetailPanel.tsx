@@ -486,7 +486,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     <span>{t('common.workOrders.detailPanel.scheduledInline', { date: workOrder.scheduledStart.toDate().toLocaleDateString() })}</span>
                   )}
                   <span>{t('common.workOrders.detailPanel.dueInline', { date: workOrder.dueDate?.toDate().toLocaleDateString() })}</span>
-                  <span>{t('common.workOrders.detailPanel.estDurationInline', { value: workOrder.estimatedDuration, unit: workOrder.estimatedDurationUnit })}</span>
                   {workOrder.checkedInAt && (
                     <span>
                       {t('common.workOrders.detailPanel.checkedInInline', { date: workOrder.checkedInAt.toDate().toLocaleString() })}
