@@ -9,6 +9,7 @@ import { notifyUsers } from '@/services/notifications.service';
 import type { UserProfile, UserRole } from '@/types/auth';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import { getModuleCategory } from '@/lib/training/offboardTraining';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 
 const ROLE_OPTIONS = [
   'admin',
@@ -48,7 +49,9 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
   const [mode, setMode] = useState<TargetMode>('users');
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
-  const { departments } = useDepartments(companyId, userProfile?.plantId ?? null);
+  // Departments of the caller's plant (admin: the selected plant tab).
+  const { plantId: departmentPlantId } = useDepartmentScope();
+  const { departments } = useDepartments(companyId, departmentPlantId);
 
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
   const [selectedRoles, setSelectedRoles] = useState<Set<UserRole>>(new Set());

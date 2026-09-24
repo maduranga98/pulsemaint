@@ -6,25 +6,26 @@ import { useShiftConfig } from '@/hooks/useShiftConfig';
 import ShiftConfigForm from '@/components/handover/ShiftConfigForm';
 import { defaultShiftConfigs, describeShiftAssignment, formatTimeRange } from '@/utils/handover.utils';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import type { ShiftConfig } from '@/types/handover.types';
 
 export function ShiftConfigPage() {
   const { t } = useTranslation();
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
   const role = useAuthStore((state) => state.userProfile?.role);
-  const plantId = useAuthStore((state) => state.userProfile?.plantId) ?? null;
+  // Own plant; for admin, the selected plant tab (null = All Plants).
+  const { plantId } = useDepartmentScope();
   // Mirrors the shift_config delete rule in firestore.rules — plant managers
   // can create and edit shifts, but deletes stay admin-only company-wide.
   const canDelete = role === 'admin';
   const { shifts: allShifts, loading, save, remove } = useShiftConfig();
-  // Plant-scoped roles (everyone but admin) only manage shift plans for
-  // their own registered plant; shifts created before plant scoping existed
-  // (no plantId) stay visible to admin only until assigned one.
-  const shifts = role === 'admin' ? allShifts : allShifts.filter((s) => s.plantId === plantId);
+  // Only the plant's own shift plans (admin: the selected plant tab). Admin
+  // on "All Plants" sees every plan, including ones with no plant yet.
+  const shifts = role === 'admin' && !plantId ? allShifts : allShifts.filter((s) => s.plantId === plantId);
   const [editing, setEditing] = useState<ShiftConfig | undefined>(undefined);
 
   async function seedDefaults() {
-    if (!companyId) return;
+    if (!companyId || !plantId) return;
     for (const shift of defaultShiftConfigs(companyId)) {
       const { shiftName, startTime, endTime, color, activeDays, department, status, assignBy } = shift;
       await save({ shiftName, startTime, endTime, color, activeDays, department, plantId, status, memberIds: [], memberNames: [], roles: [], assignBy });
@@ -55,7 +56,10 @@ export function ShiftConfigPage() {
           <button
             type="button"
             onClick={() => void seedDefaults()}
-            className="min-h-12 shrink-0 rounded-md border border-blue-200 bg-white px-4 text-sm font-bold text-blue-700 hover:bg-blue-50"
+            // Default plans are created for one plant — pick a plant tab first.
+            disabled={!plantId}
+            title={!plantId ? 'Select a plant tab first' : undefined}
+            className="min-h-12 shrink-0 rounded-md border border-blue-200 bg-white px-4 text-sm font-bold text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('common.shiftHandovers.configPage.seedDefaults')}
           </button>

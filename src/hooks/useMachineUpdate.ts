@@ -97,6 +97,7 @@ export function useMachineUpdate({
         updateData.expectedLifespanYears = payload.expectedLifespanYears;
       }
       if (payload.department) updateData.department = payload.department;
+      if (payload.plantId) updateData.plantId = payload.plantId;
       if (payload.floor !== undefined) updateData.floor = payload.floor;
       if (payload.bay !== undefined) updateData.bay = payload.bay;
       if (payload.station !== undefined) updateData.station = payload.station;
