@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ProgramAssignment } from '@/types/trainingProgram';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 
 interface UseProgramAssignmentsResult {
   programAssignments: ProgramAssignment[];
@@ -18,7 +19,10 @@ interface UseProgramAssignmentsResult {
  */
 export function useProgramAssignments(): UseProgramAssignmentsResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const [programAssignments, setProgramAssignments] = useState<ProgramAssignment[]>([]);
+  const [allProgramAssignments, setProgramAssignments] = useState<ProgramAssignment[]>([]);
+  // Only trainees in the caller's plant (admin: selected tab).
+  const { inPlant } = usePlantFilter(companyId);
+  const programAssignments = allProgramAssignments.filter((pa) => inPlant(null, pa.traineeId));
   const [moduleAssignments, setModuleAssignments] = useState<TrainingAssignment[]>([]);
   const [paLoading, setPaLoading] = useState(true);
   const [maLoading, setMaLoading] = useState(true);

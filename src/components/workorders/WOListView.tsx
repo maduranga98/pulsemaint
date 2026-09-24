@@ -12,6 +12,7 @@ import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
+import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
 
 // The "All" pill was removed — the list simply starts unfiltered (`all`,
 // every active type combined). "Need Sign-Off" and "Approval Requests" used
@@ -93,14 +94,16 @@ export function WOListView() {
   // to, so the query must always be constrained to their own WOs or it is rejected.
   if (role === 'technician' || role === 'trainee') filters.technicianId = user?.uid;
 
-  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
+  const { department: scopedDepartment } = useDepartmentScope();
+  // Falls back to the machine's plant for records predating plant stamping.
+  const inScopedPlant = useRecordPlantMatcher();
   const { workOrders: fetchedWorkOrders, loading, error } = useWorkOrders(filters);
   // Plant-scoped roles only see work orders for their own registered plant
   // (admin: whichever plant is selected in the plant-tab switcher, or all if
   // none is); technician/trainee/supervisor/floor_operator are further
   // scoped to their own registered department within that plant.
   const workOrders = fetchedWorkOrders
-    .filter((wo) => !scopedPlantId || wo.machinePlantId === scopedPlantId)
+    .filter((wo) => inScopedPlant(wo))
     .filter((wo) => !scopedDepartment || wo.machineDepartment === scopedDepartment);
 
   // Deep-link straight to a specific WO's detail view (e.g. from the PM

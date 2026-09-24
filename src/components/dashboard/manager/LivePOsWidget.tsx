@@ -7,6 +7,7 @@ import { usePurchaseOrders } from '../../../hooks/inventory/usePurchaseOrders';
  * appears here the moment a store keeper raises one. */
 export default function LivePOsWidget() {
   const { t } = useTranslation();
+  // usePurchaseOrders is already limited to the caller's plant.
   const { orders, loading, error } = usePurchaseOrders('pending_approval');
 
   return (

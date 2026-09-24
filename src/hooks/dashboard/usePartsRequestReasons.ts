@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePlantFilter } from '../usePlantFilter';
 
 export type RequestReason = 'PM' | 'Breakdown' | 'Other';
 
@@ -26,6 +27,7 @@ export function usePartsRequestReasons(companyId: string, windowDays: number = 0
   const [data, setData] = useState<RequestReasonCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { inPlant } = usePlantFilter(companyId);
 
   const fetch = useCallback(async () => {
     if (!companyId) {
@@ -43,6 +45,7 @@ export function usePartsRequestReasons(companyId: string, windowDays: number = 0
       const snap = await getDocs(query(collection(db, 'partsRequests'), ...constraints));
       const counts: Record<RequestReason, number> = { PM: 0, Breakdown: 0, Other: 0 };
       snap.docs.forEach((d) => {
+        if (!inPlant(d.data().plantId, d.data().requestedBy)) return;
         const reason = toReason((d.data().workOrderType as string) ?? null);
         counts[reason] += 1;
       });
@@ -56,7 +59,7 @@ export function usePartsRequestReasons(companyId: string, windowDays: number = 0
     } finally {
       setLoading(false);
     }
-  }, [companyId, windowDays]);
+  }, [companyId, windowDays, inPlant]);
 
   useEffect(() => {
     fetch();

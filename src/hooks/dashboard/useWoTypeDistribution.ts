@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { toDate, monthKey } from '../../services/analyticsAggregation';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 export interface WoTypeCount {
   type: string;
@@ -13,6 +14,8 @@ export interface WoTypeCount {
 // `months` (the Analytics page's MTD/3M/6M/12M range) scopes the count to
 // the selected period, same as the other range-aware charts.
 export function useWoTypeDistribution(companyId: string, months?: string[]) {
+  // Plant-scoped roles / admin's plant tab only see their plant's figures.
+  const inScopedPlant = useRecordPlantMatcher();
   const [data, setData] = useState<WoTypeCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +36,7 @@ export function useWoTypeDistribution(companyId: string, months?: string[]) {
       const counts: Record<string, number> = {};
       snap.docs.forEach((d) => {
         const wo = d.data();
+        if (!inScopedPlant(wo)) return;
         if (monthSet) {
           const d2 = toDate(wo.actualEndTime ?? wo.createdAt);
           if (!d2 || !monthSet.has(monthKey(d2))) return;
@@ -51,7 +55,7 @@ export function useWoTypeDistribution(companyId: string, months?: string[]) {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, monthsKey]);
+  }, [companyId, monthsKey, inScopedPlant]);
 
   useEffect(() => {
     fetch();

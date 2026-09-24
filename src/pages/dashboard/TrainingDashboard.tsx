@@ -48,7 +48,7 @@ export default function TrainingDashboard() {
         <ContractorScoreboard companyId={companyId} month={currentMonth} />
 
         {/* HR officer's own outstanding trainings — replaces the old nav tab */}
-        <MyTrainingsWidget />
+        <MyTrainingsWidget readOnly />
       </div>
 
       <DashboardSidePanel />

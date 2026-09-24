@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePlantFilter } from '../usePlantFilter';
 
 export interface RequestTrendPoint {
   date: string;
@@ -17,6 +18,7 @@ export function usePartsRequestTrend(companyId: string, windowDays: number = DEF
   const [data, setData] = useState<RequestTrendPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { inPlant } = usePlantFilter(companyId);
 
   useEffect(() => {
     if (!companyId) {
@@ -40,7 +42,9 @@ export function usePartsRequestTrend(companyId: string, windowDays: number = DEF
           const key = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
           counts.set(key, 0);
         }
-        snapshot.docs.forEach((d) => {
+        snapshot.docs
+          .filter((d) => inPlant(d.data().plantId, d.data().requestedBy))
+          .forEach((d) => {
           const requestedAt = d.data().requestedAt as Timestamp | undefined;
           if (!requestedAt) return;
           const key = dayKey(requestedAt);
@@ -58,7 +62,7 @@ export function usePartsRequestTrend(companyId: string, windowDays: number = DEF
     );
 
     return () => unsubscribe();
-  }, [companyId, windowDays]);
+  }, [companyId, windowDays, inPlant]);
 
   return { data, loading, error };
 }

@@ -3,6 +3,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorJob, ContractorJobStatus } from '@/lib/contractors/contractorTypes';
+import { usePlantMachineIds } from '@/hooks/usePlantMachineIds';
 
 export interface UseContractorJobsOptions {
   contractorId?: string;
@@ -15,6 +16,8 @@ export function useContractorJobs(options: UseContractorJobsOptions = {}) {
   const [allJobs, setAllJobs] = useState<ContractorJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Only jobs on the caller's plant's machines (admin: selected plant tab).
+  const plantMachineIds = usePlantMachineIds(companyId);
 
   useEffect(() => {
     if (!companyId) {
@@ -42,6 +45,7 @@ export function useContractorJobs(options: UseContractorJobsOptions = {}) {
     const search = options.search?.trim().toLowerCase();
     const millis = (job: ContractorJob) => job.createdAt?.toMillis?.() ?? 0;
     return allJobs
+      .filter((job) => !plantMachineIds || plantMachineIds.has(job.machineId))
       .filter((job) => !options.contractorId || job.contractorId === options.contractorId)
       .slice()
       .sort((a, b) => millis(b) - millis(a))
@@ -59,7 +63,7 @@ export function useContractorJobs(options: UseContractorJobsOptions = {}) {
       }
       return true;
     });
-  }, [allJobs, options.search, options.status, options.contractorId]);
+  }, [allJobs, options.search, options.status, options.contractorId, plantMachineIds]);
 
   return { jobs, loading, error, totalCount: allJobs.length };
 }

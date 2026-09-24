@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
@@ -9,6 +9,7 @@ import {
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { StockMovement, MovementType } from '@/types/inventory';
+import { usePlantPartIds } from '@/hooks/usePlantPartIds';
 
 export interface UseStockMovementsOptions {
   partId?: string;
@@ -29,7 +30,13 @@ export function useStockMovements(options: UseStockMovementsOptions = {}): UseSt
   const { partId, movementType, startDate, endDate, pageSize = 100 } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
-  const [movements, setMovements] = useState<StockMovement[]>([]);
+  const [allMovements, setMovements] = useState<StockMovement[]>([]);
+  // Own plant's parts only (admin: selected plant tab).
+  const plantPartIds = usePlantPartIds(companyId);
+  const movements = useMemo(
+    () => (plantPartIds ? allMovements.filter((m) => plantPartIds.has(m.partId)) : allMovements),
+    [allMovements, plantPartIds],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

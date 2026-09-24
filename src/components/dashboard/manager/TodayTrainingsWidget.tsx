@@ -6,6 +6,37 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { getModuleSessions, isSafetyModule } from '../../../hooks/training/useSafetyTrainings';
 import type { TrainingModule } from '../../../lib/training/trainingTypes';
+import { usePlantUserIds } from '../../../hooks/usePlantUserIds';
+
+/** Module ids assigned to at least one of the given users — training
+ * modules are company-wide content, so a plant's "today's trainings" are the
+ * sessions of modules its own people are enrolled in. Null = no filter. */
+function useModuleIdsForUsers(companyId: string, userIds: Set<string> | null) {
+  const [moduleIds, setModuleIds] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    if (!companyId || !userIds) {
+      setModuleIds(null);
+      return;
+    }
+    setModuleIds(new Set());
+    const unsub = onSnapshot(
+      query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
+      (snap) => {
+        const ids = new Set<string>();
+        snap.docs.forEach((d) => {
+          const a = d.data() as { traineeId?: string; moduleId?: string };
+          if (a.moduleId && a.traineeId && userIds.has(a.traineeId)) ids.add(a.moduleId);
+        });
+        setModuleIds(ids);
+      },
+      () => setModuleIds(new Set()),
+    );
+    return () => unsub();
+  }, [companyId, userIds]);
+
+  return moduleIds;
+}
 
 /** Every training module for the company — safety and general alike, since
  * getModuleSessions/isSafetyModule work on any module regardless of scope. */
@@ -46,14 +77,17 @@ interface TodayTrainingsWidgetProps {
 export default function TodayTrainingsWidget({ companyId, safetyOnly = false }: TodayTrainingsWidgetProps) {
   const { t } = useTranslation();
   const { modules, loading } = useAllTrainingModules(companyId);
+  const plantUserIds = usePlantUserIds(companyId);
+  const plantModuleIds = useModuleIdsForUsers(companyId, plantUserIds);
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const todaySessions = useMemo(() => {
     return modules
+      .filter((m) => !plantModuleIds || plantModuleIds.has(m.id))
       .flatMap((m) => getModuleSessions(m).map((s) => ({ ...s, safety: isSafetyModule(m) })))
       .filter((s) => s.date === todayStr)
       .filter((s) => !safetyOnly || s.safety);
-  }, [modules, todayStr, safetyOnly]);
+  }, [modules, todayStr, safetyOnly, plantModuleIds]);
 
   return (
     <DashboardWidget

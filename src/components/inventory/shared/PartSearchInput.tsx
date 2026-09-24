@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { InventoryPart } from '@/types/inventory';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 
 interface PartSearchInputProps {
   onSelect: (part: InventoryPart) => void;
@@ -29,6 +30,8 @@ export function PartSearchInput({
   const [isLoading, setIsLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Only the caller's plant's parts (admin: selected plant tab).
+  const { plantId } = useDepartmentScope();
 
   const search = useCallback(
     async (term: string) => {
@@ -51,6 +54,7 @@ export function PartSearchInput({
         snap.forEach((doc) => {
           if (excludePartIds.includes(doc.id)) return;
           const data = doc.data() as Record<string, unknown>;
+          if (plantId && data.plantId !== plantId) return;
           const haystack = [data.partNumber, data.name, data.brand, data.supplierName]
             .filter(Boolean)
             .join(' ')
@@ -69,7 +73,7 @@ export function PartSearchInput({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [companyId, excludeKey]
+    [companyId, excludeKey, plantId]
   );
 
   useEffect(() => {

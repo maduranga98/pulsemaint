@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePlantFilter } from '../usePlantFilter';
 import type { PartsRequest } from '../../types/inventory';
 
 export function usePendingPartsRequests(companyId: string) {
@@ -38,5 +39,11 @@ export function usePendingPartsRequests(companyId: string) {
     return () => unsubscribe();
   }, [companyId]);
 
+  // Own plant only; requests predating plant stamping fall back to the requester's plant.
+  const { inPlant, isPlantScoped } = usePlantFilter(companyId);
+  if (isPlantScoped) {
+    const scoped = requests.filter((r) => inPlant(r.plantId, r.requestedBy));
+    return { requests: scoped, count: scoped.length, loading, error };
+  }
   return { requests, count, loading, error };
 }

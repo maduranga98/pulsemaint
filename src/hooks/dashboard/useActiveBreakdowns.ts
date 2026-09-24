@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useDepartmentScope } from '../useDepartmentScope';
 import type { Breakdown } from '../../types';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 export function useActiveBreakdowns(siteId: string, statusFilter?: (status: string) => boolean) {
-  const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
-  const [count, setCount] = useState(0);
+  const [allBreakdowns, setAllBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,8 +33,7 @@ export function useActiveBreakdowns(siteId: string, statusFilter?: (status: stri
         const data = snapshot.docs
           .map((d) => ({ ...d.data(), id: d.id } as Breakdown))
           .filter((b) => filter(b.status));
-        setBreakdowns(data);
-        setCount(data.length);
+        setAllBreakdowns(data);
         setLoading(false);
       },
       (err) => {
@@ -46,5 +46,14 @@ export function useActiveBreakdowns(siteId: string, statusFilter?: (status: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siteId]);
 
-  return { breakdowns, count, loading, error };
+  // Plant-scoped roles (and admin with a plant tab selected) only see
+  // breakdowns on their own plant's machines.
+  const { plantId } = useDepartmentScope();
+  const inScopedPlant = useRecordPlantMatcher();
+  const breakdowns = useMemo(
+    () => (plantId ? allBreakdowns.filter((b) => inScopedPlant(b)) : allBreakdowns),
+    [allBreakdowns, plantId, inScopedPlant],
+  );
+
+  return { breakdowns, count: breakdowns.length, loading, error };
 }

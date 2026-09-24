@@ -5,6 +5,7 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { useMyJobQueue } from '@/hooks/dashboard/useMyJobQueue';
 import { PartSearchInput } from '@/components/inventory/shared/PartSearchInput';
 import { notifyRoles } from '@/services/notifications.service';
@@ -16,6 +17,7 @@ interface WorkOrderContext {
   woType: string;
   machineId: string | null;
   machineName: string | null;
+  machinePlantId?: string | null;
   isContractorJob?: boolean;
   contractorCompany?: string | null;
 }
@@ -46,6 +48,7 @@ function makeRequestNumber(): string {
 export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: CreatePartsRequestModalProps) {
   const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
+  const { plantId: scopedPlantId } = useDepartmentScope();
   const [items, setItems] = useState<DraftItem[]>([]);
   const [priorityLevel, setPriorityLevel] = useState<PriorityLevel>('medium');
   const [isUrgent, setIsUrgent] = useState(false);
@@ -75,6 +78,7 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
           woType: selectedWo.woType,
           machineId: selectedWo.machineId,
           machineName: selectedWo.machineName,
+          machinePlantId: selectedWo.machinePlantId ?? null,
           isContractorJob: selectedWo.woType === 'CONTRACTOR',
           contractorCompany: selectedWo.contractorCompanyName ?? null,
         }
@@ -133,6 +137,7 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
 
       const docRef = await addDoc(collection(db, 'partsRequests'), {
         companyId: userProfile.companyId,
+        plantId: effectiveWorkOrder?.machinePlantId ?? scopedPlantId ?? null,
         requestNumber: makeRequestNumber(),
         workOrderId: effectiveWorkOrder?.id ?? null,
         workOrderNumber: effectiveWorkOrder?.woNumber ?? null,

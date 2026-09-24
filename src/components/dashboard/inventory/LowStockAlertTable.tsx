@@ -36,7 +36,6 @@ export default function LowStockAlertTable({ companyId }: LowStockAlertTableProp
                 <th className="pb-2 font-medium text-right">{t('common.widgets.lowStockAlertTable.stock')}</th>
                 <th className="pb-2 font-medium text-right">{t('common.widgets.lowStockAlertTable.min')}</th>
                 <th className="pb-2 font-medium text-right">{t('common.widgets.lowStockAlertTable.deficit')}</th>
-                <th className="pb-2 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]/50">
@@ -50,11 +49,6 @@ export default function LowStockAlertTable({ companyId }: LowStockAlertTableProp
                   <td className="py-2.5 text-right text-[#F0F4F8]">{p.currentStock}</td>
                   <td className="py-2.5 text-right text-[#8BA3BF]">{p.minStockLevel ?? 0}</td>
                   <td className="py-2.5 text-right text-[#EF4444]">{(p.minStockLevel ?? 0) - p.currentStock}</td>
-                  <td className="py-2.5 text-right">
-                    <button className="px-2 py-1 bg-[#1A56DB] text-white text-[10px] font-medium rounded hover:bg-[#1A56DB]/90 transition-colors">
-                      {t('common.widgets.lowStockAlertTable.raisePo')}
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>

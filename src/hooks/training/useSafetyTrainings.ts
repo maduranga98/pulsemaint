@@ -6,6 +6,7 @@ import {
   type TrainingAssignment,
   type TrainingModule,
 } from '@/lib/training/trainingTypes';
+import { usePlantFilter } from '../usePlantFilter';
 
 /** A single scheduled safety-training session derived from a module's lessons. */
 export interface SafetyTrainingSession {
@@ -127,9 +128,14 @@ export function useCompanySafetyAssignments(
     return () => unsub();
   }, [companyId]);
 
+  // Only trainees in the caller's plant (admin: selected tab).
+  const { inPlant } = usePlantFilter(companyId);
   const safety = useMemo(
-    () => assignments.filter((a) => isSafetyAssignment(a, safetyModuleIds, a.moduleId)),
-    [assignments, safetyModuleIds],
+    () =>
+      assignments.filter(
+        (a) => isSafetyAssignment(a, safetyModuleIds, a.moduleId) && inPlant(null, a.traineeId),
+      ),
+    [assignments, safetyModuleIds, inPlant],
   );
 
   return { assignments: safety, loading };

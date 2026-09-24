@@ -95,6 +95,7 @@ exports.triggerManualPM = onCall({cors: true}, async (request) => {
       machineId: schedule.machineId,
       machineName: schedule.machineName,
       machineDepartment: schedule.department,
+      machinePlantId: schedule.plantId || null,
       machineLocation: schedule.location,
       machineType: "",
       machineCriticality: schedule.machineCriticality,

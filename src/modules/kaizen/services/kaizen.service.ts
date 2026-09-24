@@ -345,7 +345,8 @@ export function subscribeKaizenCard(
 export async function fetchKaizenStats(
   plantId: string,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
+  cardFilter: (card: KaizenCard) => boolean = () => true
 ): Promise<KaizenStats> {
   let q = query(cardsCol(plantId));
   if (startDate) {
@@ -356,7 +357,7 @@ export async function fetchKaizenStats(
   }
 
   const snap = await getDocs(q);
-  const cards = snap.docs.map((d) => ({ ...d.data(), id: d.id } as KaizenCard));
+  const cards = snap.docs.map((d) => ({ ...d.data(), id: d.id } as KaizenCard)).filter(cardFilter);
 
   const byStatus = {} as Record<KaizenStatus, number>;
   const byCategory = {} as Record<KaizenCard['category'], number>;
@@ -414,10 +415,11 @@ export async function fetchKaizenStats(
 
 export async function fetchKaizenTrend(
   plantId: string,
-  months: number
+  months: number,
+  cardFilter: (card: KaizenCard) => boolean = () => true
 ): Promise<{ month: string; total: number; byStatus: Partial<Record<KaizenStatus, number>> }[]> {
   const snap = await getDocs(query(cardsCol(plantId)));
-  const cards = snap.docs.map((d) => ({ ...d.data(), id: d.id } as KaizenCard));
+  const cards = snap.docs.map((d) => ({ ...d.data(), id: d.id } as KaizenCard)).filter(cardFilter);
 
   const monthMap = new Map<
     string,

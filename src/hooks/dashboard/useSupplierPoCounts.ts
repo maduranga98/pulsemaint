@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePlantFilter } from '../usePlantFilter';
 
 export interface SupplierPoCount {
   supplierName: string;
@@ -13,6 +14,7 @@ export function useSupplierPoCounts(companyId: string, windowDays: number = 30) 
   const [suppliers, setSuppliers] = useState<SupplierPoCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { inPlant } = usePlantFilter(companyId);
 
   useEffect(() => {
     if (!companyId) {
@@ -29,6 +31,7 @@ export function useSupplierPoCounts(companyId: string, windowDays: number = 30) 
         const counts = new Map<string, number>();
         snapshot.docs.forEach((d) => {
           const data = d.data();
+          if (!inPlant(data.plantId, data.raisedBy)) return;
           const raisedAt = data.raisedAt as Timestamp | undefined;
           if (!raisedAt || raisedAt.toMillis() < since.toMillis()) return;
           const supplierName = (data.supplierName as string) || 'Unknown supplier';
@@ -50,7 +53,7 @@ export function useSupplierPoCounts(companyId: string, windowDays: number = 30) 
     );
 
     return () => unsubscribe();
-  }, [companyId, windowDays]);
+  }, [companyId, windowDays, inPlant]);
 
   return { suppliers, loading, error };
 }

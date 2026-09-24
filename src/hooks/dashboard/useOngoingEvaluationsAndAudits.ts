@@ -3,6 +3,7 @@ import {
   fetchOngoingEvaluationsAndAudits,
   type OngoingActivityRow,
 } from '../../services/teamPerformance.service';
+import { usePlantUserIds } from '../usePlantUserIds';
 
 export type { OngoingActivityRow };
 
@@ -34,5 +35,14 @@ export function useOngoingEvaluationsAndAudits(companyId: string) {
     fetch();
   }, [fetch]);
 
-  return { evaluations, audits, loading, error, refetch: fetch };
+  // Only this plant's people for plant-scoped roles / admin's plant tab.
+  const plantUserIds = usePlantUserIds(companyId);
+  const inPlant = (r: OngoingActivityRow) => !plantUserIds || (!!r.personId && plantUserIds.has(r.personId));
+  return {
+    evaluations: evaluations.filter(inPlant),
+    audits: audits.filter(inPlant),
+    loading,
+    error,
+    refetch: fetch,
+  };
 }

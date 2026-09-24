@@ -11,6 +11,7 @@ import type { Breakdown, BreakdownSeverity } from '../../../types/breakdown';
 import { groupBreakdownsByMachine } from '../../../lib/breakdowns/groupByMachine';
 import { markMachineUnderMaintenance } from '../../../lib/machineOperationalStatus';
 import { useTranslation } from 'react-i18next';
+import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
 
 interface UnassignedBreakdownsWidgetProps {
   siteId: string;
@@ -34,7 +35,9 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
-  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
+  const { department: scopedDepartment } = useDepartmentScope();
+  // Falls back to the machine's plant for records predating plant stamping.
+  const inScopedPlant = useRecordPlantMatcher();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [attendingMachineId, setAttendingMachineId] = useState<string | null>(null);
@@ -64,7 +67,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
   // technician/trainee/floor_operator are further scoped to their own
   // registered department within that plant.
   const scopedBreakdowns = breakdowns
-    .filter((b) => !scopedPlantId || b.machinePlantId === scopedPlantId)
+    .filter((b) => inScopedPlant(b))
     .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment);
   const groups = groupBreakdownsByMachine(scopedBreakdowns);
 

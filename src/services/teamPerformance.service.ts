@@ -60,6 +60,10 @@ export interface DateRange {
   to: string | null;
 }
 
+/** Plant scoping for person-keyed records: true when a person id should be counted. */
+export type PersonFilter = (personId: string) => boolean;
+const ALL_PEOPLE: PersonFilter = () => true;
+
 const asMillis = (value: unknown): number => {
   if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
     return (value as { toDate: () => Date }).toDate().getTime();
@@ -90,6 +94,8 @@ const inRange = (millis: number, range?: DateRange | null): boolean => {
 export async function fetchTeamPerformanceByRole(
   companyId: string,
   dateRange?: DateRange | null,
+  /** Keep only records about these people (plant scoping); all when omitted. */
+  personFilter: PersonFilter = ALL_PEOPLE,
 ): Promise<RolePerformanceSummary[]> {
   const [evals, audits, users, assignments, quizResults] = await Promise.all([
     // The Evaluations module writes to the 'evaluations' collection
@@ -139,6 +145,7 @@ export async function fetchTeamPerformanceByRole(
     const role = (u.role as string) ?? 'other';
     if (u.uid) userRole.set(String(u.uid), role);
     if (u.id) userRole.set(String(u.id), role);
+    if (!personFilter(String(u.uid ?? u.id ?? ''))) return;
     if (u.status && u.status !== 'active') return;
     if (!inRange(asMillis(u.createdAt), dateRange)) return;
     roleMemberCount[role] = (roleMemberCount[role] ?? 0) + 1;
@@ -148,6 +155,7 @@ export async function fetchTeamPerformanceByRole(
   // Evaluation scores per role, within the date range
   const roleEvalScores: Record<string, { total: number; count: number }> = {};
   evals.forEach((row) => {
+    if (!personFilter(String(row.evaluateeId ?? ''))) return;
     if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const role = (row.evaluateeRole as string) ?? 'other';
     const score = Number(row.overallScore ?? 0);
@@ -160,6 +168,7 @@ export async function fetchTeamPerformanceByRole(
   const roleAuditCount: Record<string, number> = {};
   audits.forEach((row) => {
     if (row.status && row.status !== 'submitted') return;
+    if (!personFilter(String(row.auditorId ?? ''))) return;
     if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const role = (row.auditorRole as string) || roleOf(row.auditorId);
     roleAuditCount[role] = (roleAuditCount[role] ?? 0) + 1;
@@ -170,6 +179,7 @@ export async function fetchTeamPerformanceByRole(
   const roleTrainingCount: Record<string, number> = {};
   assignments.forEach((row) => {
     if (!completedTraining.has(String(row.status))) return;
+    if (!personFilter(String(row.traineeId ?? row.userId ?? ''))) return;
     if (!inRange(asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt), dateRange)) return;
     const role = roleOf(row.traineeId ?? row.userId);
     roleTrainingCount[role] = (roleTrainingCount[role] ?? 0) + 1;
@@ -179,6 +189,7 @@ export async function fetchTeamPerformanceByRole(
   const roleQuizCount: Record<string, number> = {};
   const roleQuizMarks: Record<string, { total: number; count: number }> = {};
   quizResults.forEach((row) => {
+    if (!personFilter(String(row.userId ?? ''))) return;
     if (!inRange(asMillis(row.createdAt ?? row.attemptedAt), dateRange)) return;
     const role = roleOf(row.userId);
     if (row.passed) roleQuizCount[role] = (roleQuizCount[role] ?? 0) + 1;
@@ -359,6 +370,8 @@ export interface OngoingActivityRow {
   name: string;
   role: string;
   startedAt: number;
+  /** The evaluatee (evaluations) or auditor (audits) — used for plant scoping. */
+  personId: string | null;
 }
 
 export async function fetchOngoingEvaluationsAndAudits(
@@ -386,6 +399,7 @@ export async function fetchOngoingEvaluationsAndAudits(
         name: String(row.evaluateeName ?? row.templateName ?? (t ? t('common.evaluation.fallbacks.evaluation', 'Evaluation') : 'Evaluation')),
         role: String(row.evaluateeRole ?? 'other'),
         startedAt: asMillis(row.createdAt),
+        personId: row.evaluateeId ? String(row.evaluateeId) : null,
       }))
       .sort((a, b) => b.startedAt - a.startedAt),
     audits: draftAudits
@@ -394,6 +408,8 @@ export async function fetchOngoingEvaluationsAndAudits(
         name: String(row.userName ?? row.templateName ?? (t ? t('common.evaluation.fallbacks.audit', 'Audit') : 'Audit')),
         role: String(row.category ?? 'other'),
         startedAt: asMillis(row.startedAt ?? row.lastSaved),
+        // Draft doc ids are `${userId}_${category}` (see audit.service).
+        personId: row.userId ? String(row.userId) : String(row.id).split('_')[0] || null,
       }))
       .sort((a, b) => b.startedAt - a.startedAt),
   };
@@ -439,6 +455,7 @@ const toStatusRows = (counts: Record<string, { ongoing: number; completed: numbe
 export async function fetchTrainingCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
+  personFilter: PersonFilter = ALL_PEOPLE,
 ): Promise<CategoryStatusRow[]> {
   const completedStatuses = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
   const [assignments, modules] = await Promise.all([
@@ -455,6 +472,7 @@ export async function fetchTrainingCategoryStatus(
 
   const counts: Record<string, { ongoing: number; completed: number }> = {};
   assignments.forEach((row) => {
+    if (!personFilter(String(row.traineeId ?? row.userId ?? ''))) return;
     const isCompleted = completedStatuses.has(String(row.status));
     const at = isCompleted
       ? asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt)
@@ -472,6 +490,7 @@ export async function fetchTrainingCategoryStatus(
 export async function fetchAuditsByCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
+  personFilter: PersonFilter = ALL_PEOPLE,
 ): Promise<CategoryStatusRow[]> {
   const [drafts, submitted] = await Promise.all([
     safeDocs(getDocs(collection(db, 'audit_drafts', companyId, 'drafts'))),
@@ -482,11 +501,14 @@ export async function fetchAuditsByCategoryStatus(
 
   const counts: Record<string, { ongoing: number; completed: number }> = {};
   drafts.forEach((row) => {
+    // Draft doc ids are `${userId}_${category}` (see audit.service).
+    if (!personFilter(String(row.userId ?? String(row.id).split('_')[0]))) return;
     if (!inRange(asMillis(row.startedAt ?? row.lastSaved), dateRange)) return;
     const category = String(row.category ?? row.templateName ?? 'Other');
     bumpStatus(counts, category, false);
   });
   submitted.forEach((row) => {
+    if (!personFilter(String(row.auditorId ?? ''))) return;
     if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const category = String(row.category ?? row.templateName ?? 'Other');
     bumpStatus(counts, category, true);
@@ -499,6 +521,7 @@ export async function fetchAuditsByCategoryStatus(
 export async function fetchEvaluationsByCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
+  personFilter: PersonFilter = ALL_PEOPLE,
   t?: TFunction,
 ): Promise<CategoryStatusRow[]> {
   const evals = await safeDocs(getDocs(
@@ -507,6 +530,7 @@ export async function fetchEvaluationsByCategoryStatus(
 
   const counts: Record<string, { ongoing: number; completed: number }> = {};
   evals.forEach((row) => {
+    if (!personFilter(String(row.evaluateeId ?? ''))) return;
     const isCompleted = row.status === 'submitted';
     if (!isCompleted && row.status !== 'draft') return;
     const at = asMillis(row.submittedAt ?? row.createdAt);

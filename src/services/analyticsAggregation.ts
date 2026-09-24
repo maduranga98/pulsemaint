@@ -164,6 +164,7 @@ interface MonthlyRawData {
 export async function computeMonthlyAnalytics(
   companyId: string,
   month: MonthArg,
+  plantId: string | null = null,
 ): Promise<AnalyticsMonthly> {
   const [breakdowns, workOrders, contractorJobs, pmHistory, machines] = await Promise.all([
     fetchAll('breakdown_tickets', companyId),
@@ -172,7 +173,8 @@ export async function computeMonthlyAnalytics(
     fetchAll('pm_history', companyId),
     fetchMachines(companyId),
   ]);
-  return buildMonthlyAnalytics(companyId, month, { breakdowns, workOrders, contractorJobs, pmHistory, machines });
+  const raw = { breakdowns, workOrders, contractorJobs, pmHistory, machines };
+  return buildMonthlyAnalytics(companyId, month, plantId ? scopeRawToPlant(raw, plantId) : raw);
 }
 
 /**
@@ -184,6 +186,7 @@ export function subscribeMonthlyAnalytics(
   companyId: string,
   month: MonthArg,
   callback: (data: AnalyticsMonthly) => void,
+  plantId: string | null = null,
 ): () => void {
   if (!companyId) return () => {};
 
@@ -194,7 +197,7 @@ export function subscribeMonthlyAnalytics(
     // Wait until every listener has delivered its first snapshot so the first
     // emitted aggregate isn't computed from partial data.
     if (!Object.values(ready).every(Boolean)) return;
-    callback(buildMonthlyAnalytics(companyId, month, raw));
+    callback(buildMonthlyAnalytics(companyId, month, plantId ? scopeRawToPlant(raw, plantId) : raw));
   };
 
   const listen = (
@@ -237,6 +240,28 @@ export function subscribeMonthlyAnalytics(
     unsubMachines,
   ];
   return () => unsubs.forEach((u) => u());
+}
+
+/**
+ * Narrow raw operational data to a single plant: machines by their own
+ * plantId, and every other record by its denormalized machinePlantId/plantId
+ * or, failing that, by whether its machine belongs to the plant.
+ */
+function scopeRawToPlant(raw: MonthlyRawData, plantId: string): MonthlyRawData {
+  const machines = raw.machines.filter((m) => m.plantId === plantId);
+  const machineIds = new Set(machines.map((m) => String(m.id)));
+  const inPlant = (row: Row) => {
+    const rowPlant = row.machinePlantId ?? row.plantId;
+    if (rowPlant) return rowPlant === plantId;
+    return row.machineId != null && machineIds.has(String(row.machineId));
+  };
+  return {
+    machines,
+    breakdowns: raw.breakdowns.filter(inPlant),
+    workOrders: raw.workOrders.filter(inPlant),
+    contractorJobs: raw.contractorJobs.filter(inPlant),
+    pmHistory: raw.pmHistory.filter(inPlant),
+  };
 }
 
 function buildMonthlyAnalytics(
@@ -541,8 +566,11 @@ export async function computeBreakdownHeatmap(
   companyId: string,
   fromDate: string,
   toDate_: string,
+  plantId: string | null = null,
 ): Promise<Array<{ day: number; hour: number; count: number; machineNames: string[] }>> {
-  const breakdowns = await fetchAll('breakdown_tickets', companyId);
+  const breakdowns = (await fetchAll('breakdown_tickets', companyId)).filter(
+    (b) => !plantId || b.machinePlantId === plantId,
+  );
   const from = new Date(`${fromDate}T00:00:00`);
   const to = new Date(`${toDate_}T23:59:59.999`);
 
@@ -571,8 +599,11 @@ export async function computeBreakdownHeatmap(
 export async function computeCostByWoType(
   companyId: string,
   month: MonthArg,
+  plantId: string | null = null,
 ): Promise<Array<{ woType: string; cost: number }>> {
-  const workOrders = await fetchAll('workOrders', companyId);
+  const workOrders = (await fetchAll('workOrders', companyId)).filter(
+    (w) => !plantId || w.machinePlantId === plantId,
+  );
   const matcher = monthMatcher(month);
   const inMonth = (value: unknown) => matcher.has(toDate(value));
   const monthWOs = workOrders.filter((w) => inMonth(w.actualEndTime ?? w.createdAt));
@@ -597,13 +628,27 @@ export async function computeDailyAnalytics(
   companyId: string,
   fromDate: string,
   toDate_: string,
+  plantId: string | null = null,
 ): Promise<AnalyticsDaily[]> {
-  const [breakdowns, workOrders, contractorJobs, pmHistory] = await Promise.all([
+  const [allBreakdowns, allWorkOrders, allContractorJobs, allPmHistory, allMachines] = await Promise.all([
     fetchAll('breakdown_tickets', companyId),
     fetchAll('workOrders', companyId),
     fetchAll('contractorJobs', companyId),
     fetchAll('pm_history', companyId),
+    plantId ? fetchMachines(companyId) : Promise.resolve([] as Row[]),
   ]);
+  const { breakdowns, workOrders, contractorJobs, pmHistory } = plantId
+    ? scopeRawToPlant(
+        {
+          breakdowns: allBreakdowns,
+          workOrders: allWorkOrders,
+          contractorJobs: allContractorJobs,
+          pmHistory: allPmHistory,
+          machines: allMachines,
+        },
+        plantId,
+      )
+    : { breakdowns: allBreakdowns, workOrders: allWorkOrders, contractorJobs: allContractorJobs, pmHistory: allPmHistory };
 
   // Build an empty entry for each date in range so charts have continuous data.
   const byDate = new Map<string, AnalyticsDaily>();

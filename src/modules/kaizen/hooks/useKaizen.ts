@@ -1,5 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuthStore } from '../../../store/authStore';
+import { usePlantMachineIds } from '../../../hooks/usePlantMachineIds';
+import { usePlantFilter } from '../../../hooks/usePlantFilter';
 import type { KaizenCard, KaizenStats, KaizenTrendMonth } from '../types/kaizen.types';
 import type { KaizenFilters } from '../services/kaizen.service';
 import {
@@ -8,6 +10,21 @@ import {
   fetchKaizenStats,
   fetchKaizenTrend,
 } from '../services/kaizen.service';
+
+// ─── plant scoping ────────────────────────────────────────────────────────────
+
+/** A card belongs to the caller's plant via its machine's plant, falling back
+ * to the raiser's plant. Always true when not plant-scoped. */
+function useKaizenPlantFilter(companyId: string | undefined) {
+  const plantMachineIds = usePlantMachineIds(companyId);
+  const { inPlant, isPlantScoped } = usePlantFilter(companyId);
+  return useCallback(
+    (c: KaizenCard) =>
+      !isPlantScoped ||
+      (c.machineId && plantMachineIds ? plantMachineIds.has(c.machineId) : inPlant(null, c.raisedBy)),
+    [isPlantScoped, plantMachineIds, inPlant],
+  );
+}
 
 // ─── useKaizenList ────────────────────────────────────────────────────────────
 
@@ -19,9 +36,14 @@ interface UseKaizenListResult {
 
 export function useKaizenList(filters: KaizenFilters = {}): UseKaizenListResult {
   const plantId = useAuthStore((s) => s.userProfile?.companyId);
-  const [cards, setCards] = useState<KaizenCard[]>([]);
+  const [allCards, setCards] = useState<KaizenCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // (Kaizen's `plantId` above is legacy naming for the company id.) Only the
+  // caller's real plant: the card's machine's plant, falling back to the
+  // raiser's plant (admin: selected plant tab).
+  const cardInPlant = useKaizenPlantFilter(plantId);
+  const cards = useMemo(() => allCards.filter(cardInPlant), [allCards, cardInPlant]);
 
   const filterKey = JSON.stringify(filters);
 
@@ -96,17 +118,18 @@ export function useKaizenStats(dateRange?: DateRange): UseKaizenStatsResult {
   const [stats, setStats] = useState<KaizenStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const cardInPlant = useKaizenPlantFilter(plantId);
 
   useEffect(() => {
     if (!plantId) return;
     setLoading(true);
-    fetchKaizenStats(plantId, dateRange?.startDate, dateRange?.endDate)
+    fetchKaizenStats(plantId, dateRange?.startDate, dateRange?.endDate, cardInPlant)
       .then((data) => {
         setStats(data);
         setLoading(false);
       })
       .catch((e: Error) => setError(e.message));
-  }, [plantId, dateRange?.startDate, dateRange?.endDate]);
+  }, [plantId, dateRange?.startDate, dateRange?.endDate, cardInPlant]);
 
   return { stats, loading, error };
 }
@@ -132,17 +155,18 @@ export function useKaizenTrend(months = 12): UseKaizenTrendResult {
   const [trend, setTrend] = useState<KaizenTrendMonth[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const cardInPlant = useKaizenPlantFilter(plantId);
 
   useEffect(() => {
     if (!plantId) return;
     setLoading(true);
-    fetchKaizenTrend(plantId, months)
+    fetchKaizenTrend(plantId, months, cardInPlant)
       .then((data) => {
         setTrend(data as KaizenTrendMonth[]);
         setLoading(false);
       })
       .catch((e: Error) => setError(e.message));
-  }, [plantId, months]);
+  }, [plantId, months, cardInPlant]);
 
   return { trend, loading, error };
 }

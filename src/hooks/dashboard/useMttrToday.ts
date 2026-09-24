@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useDepartmentScope } from '../useDepartmentScope';
 import type { Breakdown } from '../../types';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 export function useMttrToday(siteId: string) {
-  const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
+  const [allBreakdowns, setAllBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +36,7 @@ export function useMttrToday(siteId: string) {
             const closed = b.closedAt?.toMillis?.();
             return closed != null && closed >= startOfDay.getTime();
           });
-        setBreakdowns(data);
+        setAllBreakdowns(data);
         setLoading(false);
       },
       (err) => {
@@ -45,6 +47,13 @@ export function useMttrToday(siteId: string) {
 
     return () => unsubscribe();
   }, [siteId]);
+
+  const { plantId } = useDepartmentScope();
+  const inScopedPlant = useRecordPlantMatcher();
+  const breakdowns = useMemo(
+    () => (plantId ? allBreakdowns.filter((b) => inScopedPlant(b)) : allBreakdowns),
+    [allBreakdowns, plantId, inScopedPlant],
+  );
 
   const mttrHours = useMemo(() => {
     if (breakdowns.length === 0) return 0;

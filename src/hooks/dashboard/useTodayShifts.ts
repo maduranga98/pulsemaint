@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { subscribeShiftConfigs, subscribeActiveShiftSessions } from '../../services/handover.service';
 import type { ShiftConfig, ShiftSession } from '../../types/handover.types';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 export interface DepartmentShift {
   department: string;
@@ -82,7 +83,13 @@ function groupTodayShifts(configs: ShiftConfig[], activeSessions: ShiftSession[]
 }
 
 export function useTodayShifts(companyId: string) {
-  const [configs, setConfigs] = useState<ShiftConfig[]>([]);
+  const [allConfigs, setConfigs] = useState<ShiftConfig[]>([]);
+  // Only this plant's shift plans for plant-scoped roles / admin's plant tab.
+  const { plantId } = useDepartmentScope();
+  const configs = useMemo(
+    () => (plantId ? allConfigs.filter((c) => c.plantId === plantId) : allConfigs),
+    [allConfigs, plantId],
+  );
   const [activeSessions, setActiveSessions] = useState<ShiftSession[]>([]);
   const [departments, setDepartments] = useState<DepartmentShift[]>([]);
   const [loading, setLoading] = useState(true);

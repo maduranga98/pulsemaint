@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
@@ -8,6 +8,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 import type { PurchaseOrder, PurchaseOrderStatus } from '@/types/inventory';
 
 interface UsePurchaseOrdersResult {
@@ -19,7 +20,11 @@ interface UsePurchaseOrdersResult {
 export function usePurchaseOrders(status?: PurchaseOrderStatus): UsePurchaseOrdersResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
-  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
+  const [allOrders, setOrders] = useState<PurchaseOrder[]>([]);
+  // Own plant only (admin: selected plant tab). POs predating plant stamping
+  // fall back to the plant of the person who raised them.
+  const { inPlant } = usePlantFilter(companyId);
+  const orders = useMemo(() => allOrders.filter((o) => inPlant(o.plantId, o.raisedBy)), [allOrders, inPlant]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

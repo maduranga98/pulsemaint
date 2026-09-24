@@ -34,7 +34,11 @@ export async function fetchDailyAnalytics(
   companyId: string,
   fromDate: string,
   toDate: string,
+  plantId: string | null = null,
 ): Promise<AnalyticsDaily[]> {
+  // Pre-aggregated docs are company-wide — a single plant is always computed
+  // from its own raw records.
+  if (plantId) return computeDailyAnalytics(companyId, fromDate, toDate, plantId);
   const q = query(
     collection(db, 'analytics_daily'),
     where('companyId', '==', companyId),
@@ -61,7 +65,11 @@ export async function fetchDailyAnalytics(
 export async function fetchMonthlyAnalytics(
   companyId: string,
   month: MonthArg,
+  plantId: string | null = null,
 ): Promise<AnalyticsMonthly | null> {
+  // Pre-aggregated docs are company-wide — a single plant is always computed
+  // from its own raw records.
+  if (plantId) return computeMonthlyAnalytics(companyId, month, plantId);
   // A multi-month range has no single precomputed doc — compute it from raw
   // data. A single month can still use its precomputed aggregate when present.
   if (typeof month === 'string') {

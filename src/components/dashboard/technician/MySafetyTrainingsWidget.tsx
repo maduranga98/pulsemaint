@@ -19,9 +19,15 @@ const STATUS_KEYS: Record<string, string> = {
 
 // Safety-training modules assigned to me, excluding ones I've already been
 // certified on.
-export default function MySafetyTrainingsWidget() {
+interface MySafetyTrainingsWidgetProps {
+  /** Display-only (management dashboards): rows aren't clickable. */
+  readOnly?: boolean;
+}
+
+export default function MySafetyTrainingsWidget({ readOnly = false }: MySafetyTrainingsWidgetProps = {}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const RowTag = readOnly ? 'div' : 'button';
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const { moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useMyAssignments();
@@ -48,11 +54,10 @@ export default function MySafetyTrainingsWidget() {
       ) : (
         <div className="space-y-2">
           {pending.map((a) => (
-            <button
+            <RowTag
               key={a.id}
-              type="button"
-              onClick={() => navigate(`/app/training/my-modules/${a.id}`)}
-              className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F] text-left hover:border-[#1A56DB] transition-colors"
+              {...(readOnly ? {} : { type: 'button' as const, onClick: () => navigate(`/app/training/my-modules/${a.id}`) })}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F] text-left ${readOnly ? '' : 'hover:border-[#1A56DB] transition-colors'}`}
             >
               <div className="min-w-0">
                 <p className="text-sm text-[#F0F4F8] truncate">{a.moduleName}</p>
@@ -63,9 +68,9 @@ export default function MySafetyTrainingsWidget() {
                 )}
               </div>
               <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-medium bg-[#1E3A5F] text-[#8BA3BF]">
-                {a.status === 'not_started' ? t('common.widgets.common.start') : a.status === 'in_progress' ? t('common.widgets.common.resume') : (STATUS_KEYS[a.status] ? t(`common.widgets.common.trainingStatus.${STATUS_KEYS[a.status]}`) : a.status)}
+                {!readOnly && a.status === 'not_started' ? t('common.widgets.common.start') : !readOnly && a.status === 'in_progress' ? t('common.widgets.common.resume') : (STATUS_KEYS[a.status] ? t(`common.widgets.common.trainingStatus.${STATUS_KEYS[a.status]}`) : a.status)}
               </span>
-            </button>
+            </RowTag>
           ))}
         </div>
       )}

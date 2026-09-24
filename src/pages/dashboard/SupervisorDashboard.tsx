@@ -96,7 +96,7 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* Row 4: Safety Trainings Assigned to Me */}
-        <MySafetyTrainingsWidget />
+        <MySafetyTrainingsWidget readOnly />
       </div>
 
       <DashboardSidePanel />

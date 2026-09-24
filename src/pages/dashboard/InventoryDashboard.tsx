@@ -41,7 +41,7 @@ export default function InventoryDashboard() {
         <SafetyForYouWidget />
 
         {/* My Trainings — not-completed, replaces the old nav tab */}
-        <MyTrainingsWidget />
+        <MyTrainingsWidget readOnly />
       </div>
 
       <DashboardSidePanel />

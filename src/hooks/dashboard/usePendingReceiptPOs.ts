@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { usePlantFilter } from '../usePlantFilter';
 import type { PurchaseOrder } from '../../types/inventory';
 
 // POs already sent to the supplier that haven't been fully received yet.
@@ -39,5 +40,8 @@ export function usePendingReceiptPOs(companyId: string) {
     return () => unsubscribe();
   }, [companyId]);
 
-  return { orders, count: orders.length, loading, error };
+  // Own plant only; POs predating plant stamping fall back to the raiser's plant.
+  const { inPlant } = usePlantFilter(companyId);
+  const scoped = orders.filter((o) => inPlant(o.plantId, o.raisedBy));
+  return { orders: scoped, count: scoped.length, loading, error };
 }

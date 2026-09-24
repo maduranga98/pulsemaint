@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   collection,
   query,
@@ -11,6 +11,8 @@ import {
 import { db } from '../lib/firebase';
 import type { WorkOrder, WOFilters } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
+import { useDepartmentScope } from './useDepartmentScope';
+import { useRecordPlantMatcher } from './useRecordPlantMatcher';
 
 interface UseWorkOrdersResult {
   workOrders: WorkOrder[];
@@ -21,7 +23,15 @@ interface UseWorkOrdersResult {
 }
 
 export function useWorkOrders(filters?: WOFilters): UseWorkOrdersResult {
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const [allWorkOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  // Plant-scoped roles (and admin with a plant tab selected) only ever get
+  // their own plant's work orders.
+  const { plantId } = useDepartmentScope();
+  const inScopedPlant = useRecordPlantMatcher();
+  const workOrders = useMemo(
+    () => (plantId ? allWorkOrders.filter((wo) => inScopedPlant(wo)) : allWorkOrders),
+    [allWorkOrders, plantId, inScopedPlant],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);

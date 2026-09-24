@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { useSafetyKpis } from '@/hooks/safety/useSafety';
 import InventoryAnalyticsPage from './InventoryAnalyticsPage';
 import HrAnalyticsPage from './HrAnalyticsPage';
@@ -60,15 +61,16 @@ export default function AnalyticsPage() {
   // The months covered by the selected range drive every range-aware section.
   const months = useMemo(() => monthsForDashboardRange(range), [range]);
   const monthsKey = months.join(',');
+  const { plantId } = useDepartmentScope();
 
   useEffect(() => {
     if (!companyId || isDedicatedAnalyticsRole) return;
     const unsub = subscribeMonthlyAnalytics(companyId, months, (data) => {
       useDashboardStore.getState().setMonthlyAnalytics(data);
-    });
+    }, plantId);
     return () => unsub();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, monthsKey, isDedicatedAnalyticsRole]);
+  }, [companyId, monthsKey, isDedicatedAnalyticsRole, plantId]);
 
   const kpis = [
     {

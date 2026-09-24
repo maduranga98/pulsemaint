@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { SAFETY_TRAINING_TYPE, type TrainingModule } from '@/lib/training/trainingTypes';
 import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
+import { usePlantFilter } from '@/hooks/usePlantFilter';
 
 // Roles that can assign safety trainings to people from this schedule.
 const CAN_ASSIGN_ROLES = ['safety_officer', 'supervisor', 'plant_manager', 'admin'];
@@ -67,6 +68,10 @@ function useSafetyTrainingSchedule(companyId: string, userId: string, role: stri
   const [safetyModuleIds, setSafetyModuleIds] = useState<Set<string>>(new Set());
   const [modulesById, setModulesById] = useState<Map<string, TrainingModule>>(new Map());
   const [assignmentEntries, setAssignmentEntries] = useState<ScheduledLesson[]>([]);
+  // Modules with at least one assignee in the caller's plant — a module's
+  // scheduled lessons only show for plants whose people are enrolled.
+  const [plantModuleIds, setPlantModuleIds] = useState<Set<string>>(new Set());
+  const { inPlant, isPlantScoped } = usePlantFilter(companyId);
 
   // Safety-training modules: their scheduled lessons + the set of safety module ids.
   useEffect(() => {
@@ -122,8 +127,12 @@ function useSafetyTrainingSchedule(companyId: string, userId: string, role: stri
         // One entry per (module, date) — every assignee collapses into that
         // entry's `assignees` list rather than producing a duplicate row.
         const grouped = new Map<string, ScheduledLesson>();
+        const inPlantModules = new Set<string>();
         snap.docs.forEach((d) => {
           const a = d.data();
+          // Only this plant's trainees (admin: selected plant tab).
+          if (!inPlant(null, a.traineeId ? String(a.traineeId) : null)) return;
+          if (a.moduleId) inPlantModules.add(String(a.moduleId));
           const isSafety = a.trainingType === SAFETY_TRAINING_TYPE || safetyModuleIds.has(String(a.moduleId));
           if (!isSafety) return;
           const date = tsToYmd(a.dueDate) ?? tsToYmd(a.assignedAt);
@@ -148,13 +157,20 @@ function useSafetyTrainingSchedule(companyId: string, userId: string, role: stri
           }
         });
         setAssignmentEntries([...grouped.values()]);
+        setPlantModuleIds(inPlantModules);
       },
       () => setAssignmentEntries([]),
     );
     return () => unsub();
-  }, [companyId, userId, canListAll, safetyModuleIds]);
+  }, [companyId, userId, canListAll, safetyModuleIds, inPlant]);
 
-  const lessons = useMemo(() => [...moduleLessons, ...assignmentEntries], [moduleLessons, assignmentEntries]);
+  const lessons = useMemo(
+    () => [
+      ...(isPlantScoped ? moduleLessons.filter((l) => !!l.moduleId && plantModuleIds.has(l.moduleId)) : moduleLessons),
+      ...assignmentEntries,
+    ],
+    [moduleLessons, assignmentEntries, isPlantScoped, plantModuleIds],
+  );
   return useMemo(() => ({ lessons, modulesById }), [lessons, modulesById]);
 }
 

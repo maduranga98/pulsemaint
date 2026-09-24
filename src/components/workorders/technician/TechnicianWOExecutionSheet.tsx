@@ -666,6 +666,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
               woType: wo.woType,
               machineId: wo.machineId,
               machineName: wo.machineName,
+              machinePlantId: wo.machinePlantId ?? null,
               isContractorJob: wo.woType === 'CONTRACTOR',
               contractorCompany: wo.contractorCompanyName ?? null,
             }}

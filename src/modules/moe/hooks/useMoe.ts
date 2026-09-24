@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from '../../../store/authStore';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import {
   computeMoeSummaries,
   aggregatePlantMoe,
@@ -24,6 +25,7 @@ export function useSiteId(): string | null {
 
 export function useMoeDashboard(start: Date, end: Date) {
   const siteId = useSiteId();
+  const { plantId } = useDepartmentScope();
   const [data, setData] = useState<MoePlantAggregate | null>(null);
   const [config, setConfig] = useState<MoeConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,9 +41,9 @@ export function useMoeDashboard(start: Date, end: Date) {
     try {
       const cfg = await fetchMoeConfig(siteId);
       setConfig(cfg);
-      const current = await computeMoeSummaries(siteId, start, end, cfg);
+      const current = await computeMoeSummaries(siteId, start, end, cfg, plantId);
       const prevRange = subtractRangeDuration(start, end);
-      const previous = await computeMoeSummaries(siteId, prevRange.start, prevRange.end, cfg);
+      const previous = await computeMoeSummaries(siteId, prevRange.start, prevRange.end, cfg, plantId);
       setData(aggregatePlantMoe(current, previous));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to compute MOE');
@@ -49,7 +51,7 @@ export function useMoeDashboard(start: Date, end: Date) {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [siteId, start.getTime(), end.getTime()]);
+  }, [siteId, start.getTime(), end.getTime(), plantId]);
 
   useEffect(() => {
     load();

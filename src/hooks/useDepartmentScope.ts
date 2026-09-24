@@ -32,6 +32,20 @@ export interface DepartmentScope {
  * Reports lists and to restrict what a scoped role can create against —
  * never to change what data exists, only what's shown to that role.
  */
+/**
+ * Non-hook form of the plant resolution below, for services that run outside
+ * React (e.g. report generation): the caller's own plant, or — for admin —
+ * the selected plant tab (null = All Plants).
+ */
+export function resolveScopedPlantId(
+  userProfile: { role?: UserRole; plantId?: string | null } | null | undefined,
+  activeAdminPlantId: string | null,
+): string | null {
+  const role = userProfile?.role;
+  if (role === 'admin') return activeAdminPlantId;
+  return role && PLANT_SCOPED_ROLES.has(role) ? (userProfile?.plantId ?? null) : null;
+}
+
 export function useDepartmentScope(): DepartmentScope {
   const userProfile = useAuthStore((s) => s.userProfile);
   // Admin has no registered plant of their own — they view "as" whichever
@@ -40,10 +54,7 @@ export function useDepartmentScope(): DepartmentScope {
   const activeAdminPlantId = useActivePlantStore((s) => s.activePlantId);
   const role = userProfile?.role;
   const isScoped = !!role && DEPARTMENT_SCOPED_ROLES.has(role);
-  const isAdmin = role === 'admin';
-  const plantId = isAdmin
-    ? activeAdminPlantId
-    : (role && PLANT_SCOPED_ROLES.has(role) ? (userProfile?.plantId ?? null) : null);
+  const plantId = resolveScopedPlantId(userProfile, activeAdminPlantId);
   return {
     department: isScoped ? (userProfile?.department ?? null) : null,
     isScoped,
