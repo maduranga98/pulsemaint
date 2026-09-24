@@ -4,6 +4,7 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { isNotificationVisibleTo } from '../../lib/notifications/recipients';
 import type { DashboardNotification } from '../../types/analytics.types';
+import { useDepartmentScope } from '../useDepartmentScope';
 
 /**
  * Dashboard notification feed. Applies the same strict targeting as the
@@ -47,9 +48,15 @@ export function useNotifications(companyId: string) {
     return () => unsubscribe();
   }, [companyId]);
 
+  // Only this user's plant (admin: selected plant tab) and, for
+  // department-scoped roles, their department.
+  const { plantId, department } = useDepartmentScope();
   const notifications = useMemo(
-    () => all.filter((n) => isNotificationVisibleTo(n, userProfile?.role, userProfile?.id)),
-    [all, userProfile],
+    () =>
+      all.filter((n) =>
+        isNotificationVisibleTo(n, userProfile?.role, userProfile?.id, { plantId, department }),
+      ),
+    [all, userProfile, plantId, department],
   );
 
   return { notifications, loading, error };
