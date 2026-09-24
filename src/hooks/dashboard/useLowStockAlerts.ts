@@ -15,6 +15,8 @@ export interface LowStockAlertRow {
   lowestInPeriod: number;
   /** When it most recently hit its minimum in the period (null: low since before the period). */
   lastAlertAt: Date | null;
+  /** Times it dropped to or below its minimum in the period (1 if it was already low when the period began). */
+  alertCount: number;
   status: LowStockAlertStatus;
 }
 
@@ -29,6 +31,7 @@ interface PartRow {
 
 interface MovementRow {
   partId: string;
+  quantityBefore: number;
   quantityAfter: number;
   performedAt: Date | null;
 }
@@ -94,6 +97,7 @@ export function useLowStockAlerts(companyId: string, windowDays: number) {
             const data = d.data();
             return {
               partId: String(data.partId ?? ''),
+              quantityBefore: Number(data.quantityBefore ?? NaN),
               quantityAfter: Number(data.quantityAfter ?? NaN),
               performedAt: (data.performedAt as Timestamp | undefined)?.toDate?.() ?? null,
             };
@@ -125,6 +129,10 @@ export function useLowStockAlerts(companyId: string, windowDays: number) {
         const lowNow = p.currentStock <= p.minStockLevel;
         if (!lowNow && lowMoves.length === 0) return;
         const lowest = Math.min(p.currentStock, ...lowMoves.map((m) => m.quantityAfter));
+        // An alert is a drop from above the minimum to at/below it.
+        const crossings = lowMoves.filter(
+          (m) => Number.isNaN(m.quantityBefore) || m.quantityBefore > p.minStockLevel,
+        ).length;
         const lastAlert = lowMoves.reduce<Date | null>(
           (latest, m) => (!latest || (m.performedAt && m.performedAt > latest) ? m.performedAt : latest),
           null,
@@ -137,16 +145,14 @@ export function useLowStockAlerts(companyId: string, windowDays: number) {
           minStockLevel: p.minStockLevel,
           lowestInPeriod: Math.max(0, lowest),
           lastAlertAt: lastAlert,
+          alertCount: Math.max(crossings, 1),
           status: p.currentStock <= 0 ? 'out_of_stock' : lowNow ? 'low_now' : 'restocked',
         });
       });
 
+    // Most-alerted first; ties: out of stock, then still low, then restocked.
     const rank: Record<LowStockAlertStatus, number> = { out_of_stock: 0, low_now: 1, restocked: 2 };
-    return out.sort(
-      (a, b) =>
-        rank[a.status] - rank[b.status] ||
-        (b.minStockLevel - b.currentStock) - (a.minStockLevel - a.currentStock),
-    );
+    return out.sort((a, b) => b.alertCount - a.alertCount || rank[a.status] - rank[b.status]);
   }, [parts, movements, plantId, windowDays]);
 
   return { rows, loading: partsLoading || movesLoading, error };
