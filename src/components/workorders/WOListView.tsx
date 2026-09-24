@@ -22,10 +22,10 @@ import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
 // reaches COMPLETED it's awaiting sign-off (handled via those widgets) and,
 // once actually signed off, moves into the separate terminal "Signed Off"
 // tab — a WO type filter stops being useful at either of those stages.
-type CategoryId = 'all' | 'signedOff' | 'cancelled' | WOType;
+type CategoryId = 'all' | 'awaitingSignOff' | 'signedOff' | 'cancelled' | WOType;
 
-// Still awaiting sign-off — excluded from every tab below (see
-// NeedSignOffWidget on the dashboard instead).
+// Still awaiting sign-off — excluded from the type tabs and listed on the
+// "Awaiting Sign-Off" tab instead (every WO type, Breakdown/PM included).
 const NEED_SIGN_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED'];
 // A cancelled WO was never actually signed off, so it gets its own tab
 // rather than being lumped into "Signed Off" — admins can still find it
@@ -126,8 +126,15 @@ export function WOListView() {
   // (Breakdowns, PM Schedules) — never shown here.
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
+  // Completed WOs of every type (Breakdown Repair and PM included) waiting on
+  // a supervisor's sign-off — listed here so a completed WO never simply
+  // disappears from the Work Orders page before anyone has signed it off.
+  const awaitingSignOffWOs = workOrders.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status));
+
   const displayedWOs =
-    activeCategory === 'signedOff'
+    activeCategory === 'awaitingSignOff'
+      ? awaitingSignOffWOs
+      : activeCategory === 'signedOff'
       ? canViewSignedOff
         ? nonExcludedWOs.filter((wo) => SIGNED_OFF_ONLY_STATUSES.includes(wo.status))
         : []
@@ -201,6 +208,24 @@ export function WOListView() {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => setActiveCategory('awaitingSignOff')}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                activeCategory === 'awaitingSignOff'
+                  ? 'bg-amber-500 text-white'
+                  : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
+              }`}
+            >
+              {t('common.workOrders.tabs.awaitingSignOff')}
+              <span
+                className={`text-xs font-medium rounded-full px-1.5 ${
+                  activeCategory === 'awaitingSignOff' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                {awaitingSignOffWOs.length}
+              </span>
+            </button>
             {canViewSignedOff && (
               <button
                 type="button"
@@ -272,7 +297,9 @@ export function WOListView() {
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">
-                {activeCategory === 'signedOff'
+                {activeCategory === 'awaitingSignOff'
+                  ? t('common.workOrders.empty.awaitingSignOff')
+                  : activeCategory === 'signedOff'
                   ? t('common.workOrders.empty.signedOff')
                   : activeCategory === 'cancelled'
                   ? t('common.workOrders.empty.cancelled')
@@ -287,7 +314,7 @@ export function WOListView() {
             <WOTable
               workOrders={displayedWOs}
               onSelect={setSelectedWO}
-              showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
+              showTypeColumn={activeCategory === 'all' || activeCategory === 'awaitingSignOff' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
             />
           )
         )}

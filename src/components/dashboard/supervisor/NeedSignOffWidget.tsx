@@ -3,17 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useWorkOrders } from '../../../hooks/useWorkOrders';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
-import type { WorkOrder } from '../../../types/workOrder';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
 import { WODetailPanel } from '../../workorders/WODetailPanel';
 
-// Breakdown Repair and Preventive Maintenance work orders have their own
-// sign-off flows on their own pages — kept off this list the same way the
-// Work Orders page's (now-removed) "Need Sign-Off" tab excluded them.
-const EXCLUDED_TYPES: WorkOrder['woType'][] = ['BREAKDOWN', 'PREVENTIVE'];
-
 /**
- * Completed work orders still awaiting a supervisor's sign-off decision.
+ * Completed work orders of every type (Breakdown Repair and PM included)
+ * still awaiting a supervisor's sign-off decision.
  * Clicking a row opens the work order's detail panel straight into the
  * sign-off form (same WOSignOffForm as the Work Orders page).
  */
@@ -29,7 +24,6 @@ export default function NeedSignOffWidget() {
       workOrders.filter(
         (wo) =>
           wo.status === 'COMPLETED' &&
-          !EXCLUDED_TYPES.includes(wo.woType) &&
           inScopedPlant(wo),
       ),
     [workOrders, inScopedPlant],

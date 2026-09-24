@@ -1027,12 +1027,14 @@
       "tabs": {
         "needSignOff": "Need Sign-Off",
         "signedOff": "Signed Off",
-        "approvalRequests": "Approval Requests"
+        "approvalRequests": "Approval Requests",
+        "awaitingSignOff": "Awaiting Sign-Off"
       },
       "empty": {
         "needSignOff": "No work orders awaiting sign-off.",
         "signedOff": "No work orders signed off or closed yet.",
-        "noOpenWOs": "No open work orders. All caught up!"
+        "noOpenWOs": "No open work orders. All caught up!",
+        "awaitingSignOff": "No completed work orders are waiting for sign-off."
       },
       "table": {
         "wo": "Work Order",

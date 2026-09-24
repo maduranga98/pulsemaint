@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs, documentId } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDoc, getDocs, documentId } from 'firebase/firestore';
 import { AlertCircle, ArrowLeft, CheckCircle, UserPlus, HardHat, Pencil, ClipboardPlus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
@@ -9,6 +9,8 @@ import type { Breakdown } from '../../types/breakdown';
 import { RCAModal } from '../../components/breakdowns/RCAModal';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import { BreakdownDetailCard } from '../../components/breakdowns/BreakdownDetailCard';
+import { WODetailPanel } from '../../components/workorders/WODetailPanel';
+import type { WorkOrder } from '../../types/workOrder';
 import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 import { notifyUsers } from '../../services/notifications.service';
 import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
@@ -33,6 +35,8 @@ export default function ViewBreakdownPage() {
   const [assignBusy, setAssignBusy] = useState(false);
   const [attendBusy, setAttendBusy] = useState(false);
   const [actorRoles, setActorRoles] = useState<Record<string, string>>({});
+  // The linked work order, opened straight into its sign-off form.
+  const [signOffWO, setSignOffWO] = useState<WorkOrder | null>(null);
 
   const role = userProfile?.role ?? '';
   const isSupervisorRole = CAN_ASSIGN_ROLES.includes(role);
@@ -101,8 +105,31 @@ export default function ViewBreakdownPage() {
     }).catch(() => {}); // silently ignore permission errors
   }, [id]);
 
+  // A breakdown repaired under a work order is closed by signing off that
+  // WO — useSignOff closes the WO and every ticket it covers together, so
+  // the WO never stays "Completed" with no sign-off. Only a ticket with no
+  // work order (or whose WO is already signed off) is closed on its own.
   async function handleClose() {
     if (!id || !userProfile) return;
+    if (breakdown?.linkedWOId) {
+      try {
+        const woSnap = await getDoc(doc(db, 'workOrders', breakdown.linkedWOId));
+        if (woSnap.exists()) {
+          const wo = { ...woSnap.data(), id: woSnap.id } as WorkOrder;
+          if (wo.status === 'COMPLETED') {
+            setSignOffWO(wo);
+            return;
+          }
+          if (!['SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(wo.status)) {
+            setError(t('common.breakdowns.viewPage.errors.woNotCompleted', { woNumber: wo.woNumber || wo.id }));
+            return;
+          }
+        }
+      } catch (err: any) {
+        setError(err?.message || t('common.breakdowns.viewPage.errors.closeFailed'));
+        return;
+      }
+    }
     try {
       await updateDoc(doc(db, 'breakdown_tickets', id), {
         status: 'closed',
@@ -319,7 +346,7 @@ export default function ViewBreakdownPage() {
                 {t('common.breakdowns.viewPage.createWorkOrder')}
               </button>
             )}
-            {b.status === 'resolved' && (
+            {b.status === 'resolved' && isSupervisorRole && (
               <button
                 type="button"
                 onClick={handleInitiateClose}
@@ -343,6 +370,10 @@ export default function ViewBreakdownPage() {
           onClose={() => { setShowRCAModal(false); setPendingClose(false); }}
           onSaved={handleRCASaved}
         />
+      )}
+
+      {signOffWO && (
+        <WODetailPanel workOrder={signOffWO} initialSignOff onClose={() => setSignOffWO(null)} />
       )}
 
       {showAssignModal && userProfile && (
