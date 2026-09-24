@@ -4,6 +4,7 @@ import { CheckCircle, XCircle, PackageCheck, Undo2, ArrowUp, RotateCcw, X } from
 import type { PartsRequest } from '@/types/inventory';
 import { useAuthStore } from '@/store/authStore';
 import { usePartReturns } from '@/hooks/inventory/usePartReturns';
+import { useCompanyUsers } from '@/hooks/useCompanyUsers';
 
 interface Props {
   request: PartsRequest;
@@ -11,6 +12,8 @@ interface Props {
     decision: 'approve' | 'partial' | 'escalate' | 'reject';
     notes?: string;
     escalationReason?: string;
+    escalateToSupervisorId?: string;
+    escalateToSupervisorName?: string;
     rejectionReason?: string;
     approvedQuantities?: Record<string, number>;
     returnableItemIds?: Record<string, boolean>;
@@ -18,6 +21,8 @@ interface Props {
   onCollection: (collected: boolean, collectorName: string, returnableItemIds?: Record<string, boolean>) => Promise<void>;
   onRequestReturn: (itemId: string, quantity: number) => Promise<void>;
   onCancelReturn: (returnId: string) => Promise<void>;
+  /** Supervisor-in-charge of the linked work order — escalations go to them. */
+  woSupervisor?: { id: string; name: string } | null;
 }
 
 const ESCALATION_REASON_KEYS = [
@@ -31,7 +36,7 @@ const ESCALATION_REASON_KEYS = [
 // Statuses in which the parts have been issued and are waiting to be collected.
 const AWAITING_COLLECTION = ['parts_reserved', 'approved', 'partially_approved'];
 
-export function RequestReviewPanel({ request, onDecision, onCollection, onRequestReturn, onCancelReturn }: Props) {
+export function RequestReviewPanel({ request, onDecision, onCollection, onRequestReturn, onCancelReturn, woSupervisor }: Props) {
   const { t } = useTranslation();
   const role = useAuthStore((s) => s.userProfile?.role);
   const userId = useAuthStore((s) => s.userProfile?.id);
@@ -53,6 +58,16 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
   >(null);
   const [escalationReason, setEscalationReason] = useState('');
   const [customEscalation, setCustomEscalation] = useState('');
+  // Escalation target: the linked WO's supervisor-in-charge; otherwise the
+  // store keeper picks one of their plant's supervisors (useCompanyUsers is
+  // already limited to the caller's plant).
+  const { users: companyUsers } = useCompanyUsers(useAuthStore((s) => s.userProfile?.companyId));
+  const plantSupervisors = companyUsers.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor');
+  const [pickedSupervisorId, setPickedSupervisorId] = useState('');
+  const escalationTarget = woSupervisor
+    ?? (pickedSupervisorId
+      ? { id: pickedSupervisorId, name: plantSupervisors.find((u) => u.id === pickedSupervisorId)?.fullName ?? '' }
+      : null);
   const [rejectReason, setRejectReason] = useState('');
   const [collectorName, setCollectorName] = useState(request.requestedByName ?? '');
   const [approvedQuantities, setApprovedQuantities] = useState<Record<string, number>>(
@@ -388,6 +403,33 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
               </label>
             ))}
           </div>
+          <div className="pt-2">
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              {t('common.inventory.requests.reviewPanel.escalateToLabel', 'Send to supervisor')} <span className="text-red-500">*</span>
+            </label>
+            {woSupervisor ? (
+              <p className="text-sm text-gray-800">
+                {t('common.inventory.requests.reviewPanel.escalateToWoSupervisor', '{{name}} — supervisor in charge of {{wo}}', {
+                  name: woSupervisor.name,
+                  wo: request.workOrderNumber ?? t('common.inventory.requests.reviewPanel.linkedWo', 'the linked work order'),
+                })}
+              </p>
+            ) : (
+              <select
+                value={pickedSupervisorId}
+                onChange={(e) => setPickedSupervisorId(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">{t('common.inventory.requests.reviewPanel.selectSupervisor', 'Select a supervisor...')}</option>
+                {plantSupervisors.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.fullName}
+                    {u.department ? ` — ${u.department}` : ''}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
           {escalationReason === t('common.inventory.requests.reviewPanel.escalationReasons.other') && (
             <textarea
               value={customEscalation}
@@ -445,14 +487,22 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
               const finalReason = escalationReason === t('common.inventory.requests.reviewPanel.escalationReasons.other') ? customEscalation : escalationReason;
               if (activeAction !== 'escalate') {
                 setActiveAction('escalate');
-              } else if (finalReason.trim()) {
-                run('escalate', () => onDecision({ decision: 'escalate', escalationReason: finalReason.trim() }));
+              } else if (finalReason.trim() && escalationTarget) {
+                run('escalate', () =>
+                  onDecision({
+                    decision: 'escalate',
+                    escalationReason: finalReason.trim(),
+                    escalateToSupervisorId: escalationTarget.id,
+                    escalateToSupervisorName: escalationTarget.name,
+                  }),
+                );
               }
             }}
             disabled={
               isLoading ||
               (activeAction === 'escalate' &&
-                !(escalationReason === t('common.inventory.requests.reviewPanel.escalationReasons.other') ? customEscalation.trim() : escalationReason.trim()))
+                (!escalationTarget ||
+                  !(escalationReason === t('common.inventory.requests.reviewPanel.escalationReasons.other') ? customEscalation.trim() : escalationReason.trim())))
             }
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
