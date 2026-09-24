@@ -3481,7 +3481,8 @@
         "errors": {
           "closeFailed": "Failed to close breakdown.",
           "assignFailed": "Failed to assign.",
-          "attendFailed": "Failed to attend."
+          "attendFailed": "Failed to attend.",
+          "woNotCompleted": "Work order {{woNumber}} isn't completed yet — it has to be completed and signed off before this breakdown can close."
         }
       },
       "editPage": {
@@ -3564,13 +3565,15 @@
         "needSignOff": "Need Sign-Off",
         "signedOff": "Signed Off",
         "cancelled": "Cancelled",
-        "approvalRequests": "Approval Requests"
+        "approvalRequests": "Approval Requests",
+        "awaitingSignOff": "Awaiting Sign-Off"
       },
       "empty": {
         "needSignOff": "No work orders awaiting sign-off.",
         "signedOff": "No work orders signed off or closed yet.",
         "cancelled": "No cancelled work orders.",
-        "noOpenWOs": "No open work orders. All caught up!"
+        "noOpenWOs": "No open work orders. All caught up!",
+        "awaitingSignOff": "No completed work orders are waiting for sign-off."
       },
       "table": {
         "wo": "Work Order",

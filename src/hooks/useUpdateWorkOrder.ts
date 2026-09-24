@@ -175,7 +175,12 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
             }
           }
 
-          if (data?.linkedBreakdownId) {
+          // Every ticket this WO covers — a WO raised for a machine group
+          // links all of its tickets, not just the primary one.
+          const ticketIds = Array.from(
+            new Set([data?.linkedBreakdownId, ...(data?.linkedBreakdownIds ?? [])].filter(Boolean) as string[]),
+          );
+          if (ticketIds.length > 0) {
             const map: Partial<Record<WOStatus, BreakdownStatus>> = {
               OPEN: 'reported',
               ASSIGNED: 'assigned',
@@ -201,7 +206,7 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
               };
               if (bdStatus === 'resolved') bdUpdates.resolvedAt = serverTimestamp();
               if (bdStatus === 'closed') bdUpdates.closedAt = serverTimestamp();
-              await updateDoc(doc(db, 'breakdown_tickets', data.linkedBreakdownId), bdUpdates);
+              await Promise.all(ticketIds.map((ticketId) => updateDoc(doc(db, 'breakdown_tickets', ticketId), bdUpdates)));
             }
           }
         } catch (bdErr) {

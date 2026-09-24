@@ -346,8 +346,13 @@ export function useWOCompletion(): UseWOCompletionResult {
           woNumberForNotice = woData?.woNumber ?? woId;
           woPlantId = woData?.machinePlantId ?? undefined;
           woDepartment = woData?.machineDepartment ?? null;
-          if (woData?.linkedBreakdownId) {
-            await updateDoc(doc(db, 'breakdown_tickets', woData.linkedBreakdownId), {
+          // Resolve every ticket this WO covers — a WO raised for a machine
+          // group links all of its tickets, not just the primary one.
+          const ticketIds = Array.from(
+            new Set([woData?.linkedBreakdownId, ...(woData?.linkedBreakdownIds ?? [])].filter(Boolean) as string[]),
+          );
+          await Promise.all(ticketIds.map((ticketId) =>
+            updateDoc(doc(db, 'breakdown_tickets', ticketId), {
               status: 'resolved',
               resolvedAt: Timestamp.fromDate(payload.actualEndTime),
               statusHistory: arrayUnion({
@@ -357,8 +362,8 @@ export function useWOCompletion(): UseWOCompletionResult {
                 changedAt: Timestamp.fromDate(new Date()),
                 note: `WO ${woData.woNumber ?? woId} completed`,
               }),
-            });
-          }
+            }),
+          ));
         } catch (bdErr) {
           console.error('Failed to sync linked breakdown on completion', bdErr);
         }
