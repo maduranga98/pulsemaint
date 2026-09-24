@@ -79,7 +79,7 @@ export default function InventoryAnalyticsPage() {
       </div>
 
       <div className="px-4 py-6 sm:px-6 lg:px-8">
-        {activeTab === 'low_stock' && <LowStockPartsChartLight companyId={companyId} />}
+        {activeTab === 'low_stock' && <LowStockPartsChartLight companyId={companyId} days={days} />}
         {activeTab === 'reasons' && <TopUsedPartsChartLight companyId={companyId} days={days} />}
         {activeTab === 'most_moved' && <MostMovedPartsChartLight companyId={companyId} days={days} />}
         {activeTab === 'suppliers' && <SupplierPoCountsChartLight companyId={companyId} days={days} />}
