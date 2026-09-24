@@ -19,6 +19,8 @@ export interface BreakdownRCASuggestion {
   probableCauses: string[];
   recommendedActions: string[];
   source: 'ai' | 'heuristic';
+  /** Why the AI call failed, when it was attempted and fell back to the heuristic. */
+  aiError?: string;
 }
 
 interface RCAInput {
@@ -271,7 +273,10 @@ export async function suggestBreakdownRootCause(
       recommendedActions: result.recommendedActions ?? [],
       source: 'ai',
     };
-  } catch {
-    return heuristicSuggestion(input);
+  } catch (err) {
+    console.warn('AI root-cause suggestion failed, using heuristic fallback', err);
+    const code = (err as { code?: string })?.code;
+    const message = err instanceof Error ? err.message : String(err);
+    return { ...heuristicSuggestion(input), aiError: code ? `${code}: ${message}` : message };
   }
 }
