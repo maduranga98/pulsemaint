@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -415,6 +415,11 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   );
 }
 
+// Rows revealed per "Load more" click (display only — counts use the full list).
+const ROWS_PER_PAGE = 20;
+// Upper bound for the one-shot registry load (Firestore needs a limit).
+const ALL_MACHINES_LIMIT = 5000;
+
 export function MachineListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -426,10 +431,18 @@ export function MachineListPage() {
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
   const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
 
-  const { machines, loading, error, hasMore, loadMore, totalCount } = useMachines({
+  // The whole machine registry for the company, loaded once and kept live.
+  // It used to be fetched 20 at a time from the server with the plant /
+  // department filters applied only to what was loaded so far, so a plant
+  // tab could show nothing (its machines not in the first page) and the
+  // header counts grew every time "Load more" was clicked. Filtering and
+  // counting now run over the full list; "Load more" only reveals more rows.
+  const { machines, loading, error } = useMachines({
     siteId,
     filters,
+    pageSize: ALL_MACHINES_LIMIT,
   });
+  const [visibleCount, setVisibleCount] = useState(ROWS_PER_PAGE);
 
   // Reactive to viewport/orientation changes — a plain `window.innerWidth`
   // check computed once at render time got stuck on whichever layout was
@@ -500,7 +513,14 @@ export function MachineListPage() {
     });
 
     return sorted;
-  }, [machines, filters, sortOrder]);
+  }, [machines, filters, sortOrder, scopedPlantId, scopedDepartment]);
+
+  // Back to the first page whenever the plant tab, filters or sort change.
+  useEffect(() => {
+    setVisibleCount(ROWS_PER_PAGE);
+  }, [scopedPlantId, scopedDepartment, filters, sortOrder]);
+  const visibleMachines = filteredMachines.slice(0, visibleCount);
+  const hasMore = filteredMachines.length > visibleCount;
 
   if (!userProfile) {
     return (
@@ -544,7 +564,7 @@ export function MachineListPage() {
               <h1 className="text-3xl font-bold text-gray-900">{t('common.machines.pageTitle')}</h1>
               <p className="text-gray-600 text-sm mt-1">
                 {t('common.machines.summary', {
-                  total: scopedDepartment || scopedPlantId ? scopedMachines.length : totalCount || machines.length,
+                  total: scopedMachines.length,
                   active: activeMachines,
                   maintenance: maintenanceMachines,
                 })}
@@ -644,7 +664,7 @@ export function MachineListPage() {
         {!loading && filteredMachines.length > 0 && isDesktop && (
           <div className="bg-white rounded-lg border border-gray-200">
             <MachineListTable
-              machines={filteredMachines}
+              machines={visibleMachines}
               onEdit={(machine) => navigate(`/app/machines/${machine.id}/edit`)}
             />
           </div>
@@ -652,7 +672,7 @@ export function MachineListPage() {
 
         {!loading && filteredMachines.length > 0 && !isDesktop && (
           <div className="grid grid-cols-1 gap-4">
-            {filteredMachines.map((machine) => (
+            {visibleMachines.map((machine) => (
               <MachineCard key={machine.id} machine={machine} />
             ))}
           </div>
@@ -661,7 +681,7 @@ export function MachineListPage() {
         {!loading && hasMore && (
           <div className="flex justify-center pt-4">
             <button
-              onClick={loadMore}
+              onClick={() => setVisibleCount((n) => n + ROWS_PER_PAGE)}
               className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
             >
               {t('common.machines.loadMore')}
