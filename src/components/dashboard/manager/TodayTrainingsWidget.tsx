@@ -5,37 +5,49 @@ import { db } from '../../../lib/firebase';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { getModuleSessions, isSafetyModule } from '../../../hooks/training/useSafetyTrainings';
-import type { TrainingModule } from '../../../lib/training/trainingTypes';
+import type { TrainingAssignment, TrainingModule } from '../../../lib/training/trainingTypes';
 import { usePlantUserIds } from '../../../hooks/usePlantUserIds';
 
-/** Module ids assigned to at least one of the given users — training
- * modules are company-wide content, so a plant's "today's trainings" are the
- * sessions of modules its own people are enrolled in. Null = no filter. */
-function useModuleIdsForUsers(companyId: string, userIds: Set<string> | null) {
-  const [moduleIds, setModuleIds] = useState<Set<string> | null>(null);
+type Ts = { toDate?: () => Date } | null | undefined;
+
+/** Local calendar date 'YYYY-MM-DD' (toISOString would give the UTC date,
+ * which is yesterday for the first hours of the day in UTC+ time zones). */
+function localDateStr(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+const tsDateStr = (ts: Ts) => (ts?.toDate ? localDateStr(ts.toDate()) : null);
+
+/** Live training assignments for the company (every kind). */
+function useCompanyAssignments(companyId: string) {
+  const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
 
   useEffect(() => {
-    if (!companyId || !userIds) {
-      setModuleIds(null);
+    if (!companyId) {
+      setAssignments([]);
       return;
     }
-    setModuleIds(new Set());
     const unsub = onSnapshot(
       query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
-      (snap) => {
-        const ids = new Set<string>();
-        snap.docs.forEach((d) => {
-          const a = d.data() as { traineeId?: string; moduleId?: string };
-          if (a.moduleId && a.traineeId && userIds.has(a.traineeId)) ids.add(a.moduleId);
-        });
-        setModuleIds(ids);
-      },
-      () => setModuleIds(new Set()),
+      (snap) => setAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as TrainingAssignment)),
+      () => setAssignments([]),
     );
     return () => unsub();
-  }, [companyId, userIds]);
+  }, [companyId]);
 
-  return moduleIds;
+  return assignments;
+}
+
+type SessionKind = 'lesson' | 'practice' | 'test' | 'external' | 'due';
+
+interface TodaySession {
+  key: string;
+  moduleId: string;
+  title: string;
+  detail: string;
+  time: string;
+  kind: SessionKind;
+  safety: boolean;
 }
 
 /** Every training module for the company — safety and general alike, since
@@ -77,17 +89,74 @@ interface TodayTrainingsWidgetProps {
 export default function TodayTrainingsWidget({ companyId, safetyOnly = false }: TodayTrainingsWidgetProps) {
   const { t } = useTranslation();
   const { modules, loading } = useAllTrainingModules(companyId);
+  const assignments = useCompanyAssignments(companyId);
+  // Plant tab on top (admin) / the caller's own plant — null = All Plants.
   const plantUserIds = usePlantUserIds(companyId);
-  const plantModuleIds = useModuleIdsForUsers(companyId, plantUserIds);
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = localDateStr(new Date());
 
-  const todaySessions = useMemo(() => {
-    return modules
-      .filter((m) => !plantModuleIds || plantModuleIds.has(m.id))
-      .flatMap((m) => getModuleSessions(m).map((s) => ({ ...s, safety: isSafetyModule(m) })))
-      .filter((s) => s.date === todayStr)
-      .filter((s) => !safetyOnly || s.safety);
-  }, [modules, todayStr, safetyOnly, plantModuleIds]);
+  const todaySessions = useMemo<TodaySession[]>(() => {
+    // Plant filter: a module belongs to the selected plant when someone in
+    // that plant is enrolled in it. Modules nobody is enrolled in yet aren't
+    // tied to any plant, so their scheduled sessions show under every plant.
+    const assignedModuleIds = new Set(assignments.map((a) => a.moduleId));
+    const plantAssignments = plantUserIds
+      ? assignments.filter((a) => plantUserIds.has(a.traineeId))
+      : assignments;
+    const plantModuleIds = new Set(plantAssignments.map((a) => a.moduleId));
+    const inPlant = (moduleId: string) => !plantUserIds || plantModuleIds.has(moduleId) || !assignedModuleIds.has(moduleId);
+    const moduleById = new Map(modules.map((m) => [m.id, m]));
+
+    const out: TodaySession[] = [];
+    for (const m of modules) {
+      if (!inPlant(m.id)) continue;
+      const safety = isSafetyModule(m);
+      // Scheduled lessons
+      getModuleSessions(m)
+        .filter((sess) => sess.date === todayStr)
+        .forEach((sess, i) => out.push({
+          key: `${m.id}-l${i}`, moduleId: m.id, title: m.title, detail: sess.lessonTitle, time: sess.time, kind: 'lesson', safety,
+        }));
+      // Scheduled practice quiz / final test
+      if (m.practiceQuiz?.scheduledDate === todayStr) {
+        out.push({ key: `${m.id}-pq`, moduleId: m.id, title: m.title, detail: m.practiceQuiz.title || '', time: m.practiceQuiz.scheduledTime ?? '', kind: 'practice', safety });
+      }
+      if (m.quiz?.scheduledDate === todayStr) {
+        out.push({ key: `${m.id}-q`, moduleId: m.id, title: m.title, detail: m.quiz.title || '', time: m.quiz.scheduledTime ?? '', kind: 'test', safety });
+      }
+    }
+
+    const done = new Set(['certified', 'expired']);
+    for (const a of plantAssignments) {
+      const m = moduleById.get(a.moduleId);
+      const safety = m ? isSafetyModule(m) : a.trainingType === 'safety_training';
+      // External / offboard training running today
+      const od = a.offboardDetails;
+      const from = tsDateStr(od?.startDate);
+      const to = tsDateStr(od?.endDate) ?? from;
+      if (from && to && from <= todayStr && todayStr <= to) {
+        out.push({
+          key: `${a.id}-x`, moduleId: a.moduleId, title: a.moduleName, time: '', kind: 'external', safety,
+          detail: [a.traineeName, od?.thirdPartyCompany].filter(Boolean).join(' · '),
+        });
+      }
+      // Assigned training due today and not finished yet
+      if (tsDateStr(a.dueDate) === todayStr && !done.has(a.status)) {
+        out.push({ key: `${a.id}-d`, moduleId: a.moduleId, title: a.moduleName, detail: a.traineeName, time: '', kind: 'due', safety });
+      }
+    }
+
+    return out
+      .filter((sess) => !safetyOnly || sess.safety)
+      .sort((x, y) => (x.time || '99:99').localeCompare(y.time || '99:99'));
+  }, [modules, assignments, plantUserIds, todayStr, safetyOnly]);
+
+  const kindLabel: Record<SessionKind, string> = {
+    lesson: t('common.dashboard.trainings.kindLesson', { defaultValue: 'Session' }),
+    practice: t('common.dashboard.trainings.kindPractice', { defaultValue: 'Practice quiz' }),
+    test: t('common.dashboard.trainings.kindTest', { defaultValue: 'Final test' }),
+    external: t('common.dashboard.trainings.kindExternal', { defaultValue: 'External training' }),
+    due: t('common.dashboard.trainings.kindDue', { defaultValue: 'Due today' }),
+  };
 
   return (
     <DashboardWidget
@@ -99,15 +168,17 @@ export default function TodayTrainingsWidget({ companyId, safetyOnly = false }: 
       {todaySessions.length === 0 ? (
         <EmptyState message={t('common.dashboard.trainings.empty')} />
       ) : (
-        <div className="space-y-1.5">
-          {todaySessions.map((s, i) => (
+        <div className="space-y-1.5 max-h-[320px] overflow-y-auto">
+          {todaySessions.map((s) => (
             <div
-              key={`${s.moduleId}-${i}`}
+              key={s.key}
               className="flex items-center justify-between gap-2 rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-[#F0F4F8]">{s.moduleTitle}</p>
-                <p className="truncate text-[11px] text-[#8BA3BF]">{s.lessonTitle}{s.time ? ` · ${s.time}` : ''}</p>
+                <p className="truncate text-sm font-semibold text-[#F0F4F8]">{s.title}</p>
+                <p className="truncate text-[11px] text-[#8BA3BF]">
+                  {kindLabel[s.kind]}{s.detail ? ` · ${s.detail}` : ''}{s.time ? ` · ${s.time}` : ''}
+                </p>
               </div>
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
