@@ -48,6 +48,7 @@ interface UseApprovalRequestResult {
     resolverId: string,
     resolverName: string,
     resolutionNote: string,
+    files?: File[],
   ) => Promise<boolean>;
   loading: boolean;
 }
@@ -140,6 +141,7 @@ export function useApprovalRequest(): UseApprovalRequestResult {
       resolverId: string,
       resolverName: string,
       resolutionNote: string,
+      files?: File[],
     ): Promise<boolean> => {
       setLoading(true);
       try {
@@ -152,6 +154,10 @@ export function useApprovalRequest(): UseApprovalRequestResult {
         const target = existing.find((r) => r.id === requestId);
         if (!target) throw new Error('Request not found');
 
+        const resolutionAttachments = files?.length
+          ? await Promise.all(files.map((file) => uploadApprovalAttachment(woId, wo.siteId, file)))
+          : undefined;
+
         const now = Timestamp.now();
         const nextRequests = existing.map((r) =>
           r.id === requestId
@@ -162,6 +168,7 @@ export function useApprovalRequest(): UseApprovalRequestResult {
                 resolvedByName: resolverName,
                 resolvedAt: now,
                 resolutionNote: resolutionNote.trim() || null,
+                ...(resolutionAttachments?.length ? { resolutionAttachments } : {}),
               }
             : r,
         );

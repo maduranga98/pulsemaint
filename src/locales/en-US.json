@@ -2727,12 +2727,14 @@
       },
       "pendingApprovalsWidget": {
         "approve": "Approve",
+        "attach": "Attach (optional)",
         "empty": "No pending approval requests",
         "emptySub": "Requests raised by technicians and trainees will appear here.",
         "notePlaceholder": "Note (optional)",
         "pending": "{{count}} pending",
         "pendingBadge": "Pending",
         "reject": "Reject",
+        "removeAttachment": "Remove attachment",
         "requested": "requested",
         "title": "Pending Approvals",
         "viewMore": "View {{count}} more…"

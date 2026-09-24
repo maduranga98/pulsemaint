@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Paperclip, X } from 'lucide-react';
 import { useApprovalRequest } from '../../hooks/useApprovalRequest';
 import { useAuthStore } from '../../store/authStore';
 import type { WorkOrder } from '../../types/workOrder';
@@ -15,6 +15,7 @@ export function WOApprovalRequests({ workOrder }: { workOrder: WorkOrder }) {
   const userProfile = useAuthStore((s) => s.userProfile);
   const { resolveApprovalRequest, loading } = useApprovalRequest();
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [files, setFiles] = useState<Record<string, File[]>>({});
   const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   const pending = (workOrder.approvalRequests ?? []).filter((r) => r.status === 'pending');
@@ -31,6 +32,7 @@ export function WOApprovalRequests({ workOrder }: { workOrder: WorkOrder }) {
       userProfile.id,
       userProfile.fullName ?? '',
       notes[requestId] ?? '',
+      files[requestId],
     );
     setResolvingId(null);
   }
@@ -55,6 +57,51 @@ export function WOApprovalRequests({ workOrder }: { workOrder: WorkOrder }) {
               placeholder={t('common.widgets.pendingApprovalsWidget.notePlaceholder')}
               className="w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-1 focus:ring-blue-500 outline-none"
             />
+            {(request.attachments?.length ?? 0) > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {request.attachments!.map((a) => (
+                  <a
+                    key={a.id}
+                    href={a.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 max-w-full px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 hover:text-blue-600"
+                  >
+                    <Paperclip className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{a.name}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <label className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-gray-600 border border-dashed border-gray-300 hover:border-blue-400 hover:text-blue-600 cursor-pointer">
+                <Paperclip className="w-3 h-3" />
+                {t('common.widgets.pendingApprovalsWidget.attach', 'Attach (optional)')}
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    const picked = Array.from(e.target.files ?? []);
+                    e.target.value = '';
+                    setFiles((f) => ({ ...f, [request.id]: [...(f[request.id] ?? []), ...picked] }));
+                  }}
+                />
+              </label>
+              {(files[request.id] ?? []).map((file, i) => (
+                <span key={`${file.name}-${i}`} className="inline-flex items-center gap-1 max-w-full px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">
+                  <span className="truncate">{file.name}</span>
+                  <button
+                    type="button"
+                    aria-label={t('common.widgets.pendingApprovalsWidget.removeAttachment', 'Remove attachment')}
+                    onClick={() => setFiles((f) => ({ ...f, [request.id]: (f[request.id] ?? []).filter((_, j) => j !== i) }))}
+                    className="text-gray-400 hover:text-red-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
             <div className="flex gap-2">
               <button
                 type="button"
