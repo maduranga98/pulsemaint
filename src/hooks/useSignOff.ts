@@ -234,9 +234,10 @@ export function useSignOff(): UseSignOffResult {
         }
 
         toast.success('Work order signed off and closed.');
-        // AI root-cause analysis over the whole job — runs in the background
-        // and is saved on the WO; the signed-off summary shows it when ready.
-        void generateWoAiRca(woId);
+        // AI root-cause analysis over the whole job — usually already produced
+        // on the sign-off form; only runs here if it wasn't (saved on the WO,
+        // shown on the signed-off summary).
+        void generateWoAiRca(woId, { onlyIfMissing: true });
         return true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Sign-off failed';

@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, RefreshCw, FileText, Paperclip } from 'lucide-react';
+import { FileText, Paperclip } from 'lucide-react';
 import type { WorkOrder } from '../../types/workOrder';
 import type { WorkPermit } from '../../types/safety';
-import { generateWoAiRca } from '../../lib/woAiRca';
+import { WOAiRcaCard } from './WOAiRcaCard';
 
 interface Props {
   workOrder: WorkOrder;
@@ -37,7 +36,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
  */
 export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: Props) {
   const { t } = useTranslation();
-  const [rcaBusy, setRcaBusy] = useState(false);
   const d = (key: string, defaultValue: string, opts?: Record<string, unknown>) =>
     t(`common.workOrders.summary.${key}`, { defaultValue, ...opts });
 
@@ -65,17 +63,6 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
       [...(a.attachments ?? []), ...(a.resolutionAttachments ?? [])].map((f) => ({ name: f.name, url: f.url, by: a.technicianName }))),
   ];
   const partsCost = (wo.partsUsed ?? []).reduce((s, p) => s + (p.totalCost || 0), 0);
-  const rca = wo.aiRca;
-
-  async function regenerate() {
-    setRcaBusy(true);
-    try {
-      await generateWoAiRca(wo.id);
-    } finally {
-      setRcaBusy(false);
-    }
-  }
-
   return (
     <div className="rounded-xl border border-[#1E3A5F] bg-[#0A1628] p-4 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -211,33 +198,7 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
         </Section>
       )}
 
-      <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3 space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-[#60A5FA]"><Sparkles className="w-4 h-4" /> {d('aiRca', 'AI root-cause analysis')}</p>
-          {canRegenerateRca && (
-            <button type="button" onClick={regenerate} disabled={rcaBusy}
-              className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-[#1E3A5F] text-[#93C5FD] hover:bg-[#1E3A5F] disabled:opacity-50">
-              <RefreshCw className={`w-3 h-3 ${rcaBusy ? 'animate-spin' : ''}`} /> {rca ? d('regenerate', 'Regenerate') : d('generate', 'Generate')}
-            </button>
-          )}
-        </div>
-        {rcaBusy ? (
-          <p className="text-sm text-[#93C5FD]">{d('rcaRunning', 'Analysing the work order…')}</p>
-        ) : !rca ? (
-          <p className="text-sm text-[#B6C4D6]">{d('rcaPending', 'Being generated after sign-off — it appears here shortly.')}</p>
-        ) : rca.source === 'failed' ? (
-          <p className="text-sm text-[#F87171]">{d('rcaFailed', 'AI analysis failed: {{error}}', { error: rca.error ?? '' })}</p>
-        ) : (
-          <div className="space-y-2 text-sm text-[#F0F4F8]">
-            <p>{rca.summary}</p>
-            <p><span className="font-semibold">{d('rootCause', 'Root cause')}:</span> {rca.rootCause} <span className="text-xs text-[#8BA3BF]">({rca.rootCauseCategory.replace(/_/g, ' ')} · {d('confidence', 'confidence')}: {rca.confidence})</span></p>
-            {rca.contributingFactors.length > 0 && <div><p className="font-semibold">{d('factors', 'Contributing factors')}</p><ul className="list-disc list-inside">{rca.contributingFactors.map((x, i) => <li key={i}>{x}</li>)}</ul></div>}
-            {rca.evidence.length > 0 && <div><p className="font-semibold">{d('evidence', 'Evidence')}</p><ul className="list-disc list-inside">{rca.evidence.map((x, i) => <li key={i}>{x}</li>)}</ul></div>}
-            {rca.preventiveActions.length > 0 && <div><p className="font-semibold">{d('preventive', 'Preventive actions')}</p><ul className="list-disc list-inside">{rca.preventiveActions.map((x, i) => <li key={i}>{x}</li>)}</ul></div>}
-            <p className="text-[11px] text-[#8BA3BF]">{d('rcaGenerated', 'Generated {{at}} — verify before acting.', { at: fmt(rca.generatedAt) })}</p>
-          </div>
-        )}
-      </div>
+      <WOAiRcaCard woId={wo.id} rca={wo.aiRca} canRegenerate={canRegenerateRca} />
 
       {docs.length > 0 && (
         <Section title={d('documents', 'Attached documents')}>
