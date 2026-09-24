@@ -1,7 +1,7 @@
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Breakdown, BreakdownType } from '../types/breakdown';
-import { generateClaudeJson, isClaudeEnabled } from './claude';
+import { generateClaudeJsonWithSources, isClaudeEnabled, type ClaudeSource } from './claude';
 
 // Kept in sync with SUPPORTED_LANGUAGES in lib/i18n.ts so the AI response
 // language always matches the app's currently selected UI language rather
@@ -21,6 +21,8 @@ export interface BreakdownRCASuggestion {
   source: 'ai' | 'heuristic';
   /** Why the AI call failed, when it was attempted and fell back to the heuristic. */
   aiError?: string;
+  /** Web pages / videos the AI researched (web research mode only). */
+  sources?: ClaudeSource[];
 }
 
 interface RCAInput {
@@ -249,6 +251,7 @@ export async function suggestBreakdownRootCause(
   input: RCAInput,
   excludeTicketIds: string[] = [],
   language = 'en-US',
+  opts: { webResearch?: boolean } = {},
 ): Promise<BreakdownRCASuggestion> {
   const history = await fetchRecentHistory(input.machineId, excludeTicketIds);
 
@@ -258,11 +261,16 @@ export async function suggestBreakdownRootCause(
 
   try {
     const languageName = RESPONSE_LANGUAGE_NAMES[language] ?? 'English';
-    const result = await generateClaudeJson<{ probableCauses: string[]; recommendedActions: string[] }>(
-      buildPrompt(input, history, languageName),
+    const research = opts.webResearch
+      ? `\n\nBefore answering, research this fault on the web: the machine's manufacturer manuals and service bulletins, maintenance forums, and troubleshooting videos (e.g. YouTube) for this machine type and symptom. Use what you find together with the machine's own past repairs to rank the causes and suggest actions.`
+      : '';
+    const { result, sources } = await generateClaudeJsonWithSources<{ probableCauses: string[]; recommendedActions: string[] }>(
+      buildPrompt(input, history, languageName) + research,
       {
         systemInstruction: 'You are a concise, practical industrial maintenance root-cause analysis assistant. Always respond with the requested JSON shape only.',
         responseSchema: CLAUDE_RESPONSE_SCHEMA,
+        machineId: input.machineId || undefined,
+        webSearch: opts.webResearch || undefined,
       },
     );
     if (!result.probableCauses?.length && !result.recommendedActions?.length) {
@@ -272,6 +280,7 @@ export async function suggestBreakdownRootCause(
       probableCauses: result.probableCauses ?? [],
       recommendedActions: result.recommendedActions ?? [],
       source: 'ai',
+      sources,
     };
   } catch (err) {
     console.warn('AI root-cause suggestion failed, using heuristic fallback', err);

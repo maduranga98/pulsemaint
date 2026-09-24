@@ -16,6 +16,7 @@ import { logAuditEvent } from '../utils/reports/auditLogger';
 import { notifyRoles } from '../services/notifications.service';
 import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 import { markMachineActiveIfNoOpenWork } from '../lib/machineOperationalStatus';
+import { generateWoAiRca } from '../lib/woAiRca';
 import { toast } from 'sonner';
 
 interface UseSignOffResult {
@@ -233,6 +234,9 @@ export function useSignOff(): UseSignOffResult {
         }
 
         toast.success('Work order signed off and closed.');
+        // AI root-cause analysis over the whole job — runs in the background
+        // and is saved on the WO; the signed-off summary shows it when ready.
+        void generateWoAiRca(woId);
         return true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Sign-off failed';
