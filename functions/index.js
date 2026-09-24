@@ -220,6 +220,14 @@ exports.createPortalSession = createPortalSession;
 exports.stripeWebhook = stripeWebhook;
 
 // ---------------------------------------------------------------------------
+// AI — Claude proxy (keeps ANTHROPIC_API_KEY server-side)
+// ---------------------------------------------------------------------------
+
+const { claudeJson } = require("./src/ai/claudeJson");
+
+exports.claudeJson = claudeJson;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

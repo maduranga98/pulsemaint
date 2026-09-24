@@ -34,7 +34,7 @@ npm run deploy    # firebase deploy --only functions
 npm run logs      # firebase functions:log
 ```
 
-Local Firebase emulators (auth/firestore/storage) are configured in `firebase.json`; the client wires up to them automatically when `VITE_USE_EMULATORS=1` is set (see `src/lib/firebase.ts`). Copy `.env.example` to `.env` before running the app — see that file for what each `VITE_*` var does (Firebase config, optional Google OAuth for Sheets export, optional Gemini key for AI root-cause suggestions).
+Local Firebase emulators (auth/firestore/storage) are configured in `firebase.json`; the client wires up to them automatically when `VITE_USE_EMULATORS=1` is set (see `src/lib/firebase.ts`). Copy `.env.example` to `.env` before running the app — see that file for what each `VITE_*` var does (Firebase config, optional Google OAuth for Sheets export, `VITE_DISABLE_AI` to opt out of AI). AI features (root-cause suggestions, translation) call Claude through the `claudeJson` Cloud Function (`functions/src/ai/claudeJson.js`); the key is the `ANTHROPIC_API_KEY` Secret Manager secret, never a `VITE_*` var.
 
 ## Architecture
 

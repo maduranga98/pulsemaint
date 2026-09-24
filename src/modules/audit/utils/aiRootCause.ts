@@ -5,7 +5,7 @@ import type {
   FindingKind,
 } from '../types/audit.types';
 import { nanoid } from 'nanoid';
-import { generateClaudeJson, hasClaudeKey } from '../../../lib/claude';
+import { generateClaudeJson, isClaudeEnabled } from '../../../lib/claude';
 
 /**
  * Heuristic "AI" root-cause analyzer.
@@ -180,10 +180,12 @@ const CLAUDE_RESPONSE_SCHEMA = {
           priority: { type: 'string', enum: ['high', 'medium', 'low'] },
         },
         required: ['findingId', 'probableCauses', 'recommendedActions', 'discipline', 'priority'],
+        additionalProperties: false,
       },
     },
   },
   required: ['suggestions'],
+  additionalProperties: false,
 };
 
 interface ClaudeRootCauseResult {
@@ -215,9 +217,9 @@ function buildPrompt(inputs: { id: string; kind: FindingKind; description: strin
 }
 
 /**
- * Runs root-cause analysis via the Claude API when VITE_ANTHROPIC_API_KEY is
- * configured, falling back to the local heuristic engine (analyzeAudit) if
- * the key is missing or the call fails, so audit submission never blocks on
+ * Runs root-cause analysis via Claude (claudeJson Cloud Function) when AI is
+ * enabled, falling back to the local heuristic engine (analyzeAudit) if AI
+ * is disabled or the call fails, so audit submission never blocks on
  * the AI provider being unavailable.
  */
 export async function analyzeAuditWithAI(
@@ -227,7 +229,7 @@ export async function analyzeAuditWithAI(
   const expanded = expandFindings(findings, failedAnswers);
   const heuristic = expanded.map(analyzeFinding);
 
-  if (!hasClaudeKey() || expanded.length === 0) {
+  if (!isClaudeEnabled() || expanded.length === 0) {
     return heuristic;
   }
 
