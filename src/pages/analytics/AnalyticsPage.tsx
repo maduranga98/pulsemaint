@@ -34,14 +34,6 @@ type Tab = 'breakdowns' | 'pm' | 'workorders' | 'machines' | 'safety' | 'team';
 export default function AnalyticsPage() {
   const { t } = useTranslation();
 
-  const TABS: { value: Tab; label: string }[] = [
-    { value: 'breakdowns', label: t('common.analytics.mainPage.tabs.breakdowns') },
-    { value: 'pm', label: t('common.analytics.mainPage.tabs.pm') },
-    { value: 'workorders', label: t('common.analytics.mainPage.tabs.workorders') },
-    { value: 'machines', label: t('common.analytics.mainPage.tabs.machines') },
-    { value: 'safety', label: t('common.analytics.mainPage.tabs.safety') },
-    { value: 'team', label: t('common.analytics.mainPage.tabs.team') },
-  ];
   // workOrders (and the charts fed from it — Work Order distribution,
   // Maintenance Cost Overview) are scoped by siteId, not companyId; for a
   // multi-site user those differ, so resolve the scope the same way the rest
@@ -49,6 +41,20 @@ export default function AnalyticsPage() {
   // scope, so the two roles see identical analytics for the same plant.
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = resolveAnalyticsScopeId(userProfile);
+  const ALL_TABS: { value: Tab; label: string }[] = [
+    { value: 'breakdowns', label: t('common.analytics.mainPage.tabs.breakdowns') },
+    { value: 'pm', label: t('common.analytics.mainPage.tabs.pm') },
+    { value: 'workorders', label: t('common.analytics.mainPage.tabs.workorders') },
+    { value: 'machines', label: t('common.analytics.mainPage.tabs.machines') },
+    { value: 'safety', label: t('common.analytics.mainPage.tabs.safety') },
+    { value: 'team', label: t('common.analytics.mainPage.tabs.team') },
+  ];
+  // Supervisors get the maintenance tabs only — Safety and Team Performance
+  // are for managers/admins.
+  const SUPERVISOR_HIDDEN_TABS: Tab[] = ['safety', 'team'];
+  const TABS = userProfile?.role === 'supervisor'
+    ? ALL_TABS.filter((tb) => !SUPERVISOR_HIDDEN_TABS.includes(tb.value))
+    : ALL_TABS;
   const isDedicatedAnalyticsRole =
     userProfile?.role === 'store_keeper' || userProfile?.role === 'hr_officer' || userProfile?.role === 'safety_officer';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
