@@ -1,4 +1,4 @@
-import { generateClaudeJson, hasClaudeKey } from './claude';
+import { generateClaudeJson, isClaudeEnabled } from './claude';
 import type { AppLanguage } from './i18n';
 
 const APP_LANGUAGE_NAMES: Record<AppLanguage, string> = {
@@ -49,11 +49,9 @@ const GOOGLE_TRANSLATE_TARGET: Record<AppLanguage, string> = {
 /**
  * Translates via Google's public (no API key) translate_a endpoint — the
  * same one Google Translate's own web page and many browser extensions use.
- * This is the default translation path: most deployments of this app don't
- * configure VITE_ANTHROPIC_API_KEY (it's optional, for AI root-cause
- * suggestions and meaning-aware translation), and without a fallback here,
- * voice-dictated Sinhala/Tamil/etc. text would silently never get translated
- * for anyone. Lower quality than Claude (word/phrase-level rather than meaning-aware),
+ * This is the fallback translation path when AI is disabled or the Claude
+ * call fails, so voice-dictated Sinhala/Tamil/etc. text still gets
+ * translated. Lower quality than Claude (word/phrase-level rather than meaning-aware),
  * but works out of the box with no configuration. Returns null on any
  * failure (network, parsing, blocked by a firewall/ad-blocker) so the
  * caller can fall back to the original text.
@@ -79,16 +77,24 @@ async function translateViaFreeGoogle(text: string, targetLanguage: AppLanguage)
  * Translates `text` — a transcript from the Web Speech API in the given
  * `sourceLang` locale (e.g. "si-LK", "ta-LK") — into `targetLanguage`, the
  * app's currently selected UI language, preserving meaning rather than
- * translating word-for-word. Falls back to the original text whenever no
- * Claude key is configured or the call fails, so dictation still works
- * without translation rather than blocking the user.
+ * translating word-for-word. Falls back to the original text whenever AI
+ * is disabled or the call fails, so dictation still works without
+ * translation rather than blocking the user.
  */
 export async function translateSpokenText(
   text: string,
   targetLanguage: AppLanguage,
   sourceLang?: string
 ): Promise<string> {
-  if (!hasClaudeKey()) return text;
+  return (await translateViaClaude(text, targetLanguage, sourceLang)) ?? text;
+}
+
+async function translateViaClaude(
+  text: string,
+  targetLanguage: AppLanguage,
+  sourceLang?: string
+): Promise<string | null> {
+  if (!isClaudeEnabled()) return null;
 
   const targetLanguageName = APP_LANGUAGE_NAMES[targetLanguage] ?? 'English';
   const sourceLanguageName = sourceLang ? SPEECH_LANGUAGE_NAMES[sourceLang] : undefined;
@@ -113,11 +119,12 @@ export async function translateSpokenText(
           translatedText: { type: 'string' },
         },
         required: ['translatedText'],
+        additionalProperties: false,
       },
     });
-    return result.translatedText?.trim() || text;
+    return result.translatedText?.trim() || null;
   } catch {
-    return text;
+    return null;
   }
 }
 
@@ -164,10 +171,9 @@ function writeDisplayCache(key: string, value: string): void {
  * Results are cached per (text, targetLanguage) pair so re-rendering the
  * same record doesn't re-call the translation API.
  *
- * Uses Claude (meaning-aware, given technical/CMMS context) when
- * VITE_ANTHROPIC_API_KEY is configured; otherwise falls back to Google's free
- * translate endpoint so this works with zero configuration. Falls back to
- * the original text only if both are unavailable/fail.
+ * Uses Claude (meaning-aware, given technical/CMMS context) when AI is
+ * enabled; if AI is disabled or the call fails, falls back to Google's free
+ * translate endpoint. Falls back to the original text only if both fail.
  */
 export async function translateForDisplay(text: string, targetLanguage: AppLanguage): Promise<string> {
   const trimmed = text.trim();
@@ -177,9 +183,10 @@ export async function translateForDisplay(text: string, targetLanguage: AppLangu
   const cached = readDisplayCache(key);
   if (cached !== undefined) return cached;
 
-  const translated = hasClaudeKey()
-    ? await translateSpokenText(trimmed, targetLanguage)
-    : (await translateViaFreeGoogle(trimmed, targetLanguage)) ?? trimmed;
+  const translated =
+    (await translateViaClaude(trimmed, targetLanguage)) ??
+    (await translateViaFreeGoogle(trimmed, targetLanguage)) ??
+    trimmed;
   writeDisplayCache(key, translated);
   return translated;
 }

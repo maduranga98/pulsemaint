@@ -1,7 +1,7 @@
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Breakdown, BreakdownType } from '../types/breakdown';
-import { generateClaudeJson, hasClaudeKey } from './claude';
+import { generateClaudeJson, isClaudeEnabled } from './claude';
 
 // Kept in sync with SUPPORTED_LANGUAGES in lib/i18n.ts so the AI response
 // language always matches the app's currently selected UI language rather
@@ -42,7 +42,7 @@ interface RCAInput {
 }
 
 // Keyword-driven fallback, mirrors the Audit module's aiRootCause engine so
-// there's always a usable answer when no Gemini key is configured or the
+// there's always a usable answer when AI is disabled or the
 // API call fails.
 const RULES_BY_TYPE: Record<BreakdownType, { keywords: string[]; causes: string[]; actions: string[] }[]> = {
   mechanical: [
@@ -197,6 +197,7 @@ const CLAUDE_RESPONSE_SCHEMA = {
     recommendedActions: { type: 'array', items: { type: 'string' } },
   },
   required: ['probableCauses', 'recommendedActions'],
+  additionalProperties: false,
 };
 
 function buildPrompt(input: RCAInput, history: Breakdown[], languageName: string): string {
@@ -236,9 +237,9 @@ Based on this — the reported description, the machine's model/manufacturer, an
  * Suggests probable root causes and next actions for a breakdown, using the
  * machine's own history of past breakdowns/root-cause findings plus its
  * model/manufacturer as research context. Uses Claude when
- * VITE_ANTHROPIC_API_KEY is configured, falling back to a deterministic
- * keyword engine (mirrors the Audit module's approach) when the key is
- * absent or the API call fails. `language` is the app language the caller
+ * AI is enabled, falling back to a deterministic
+ * keyword engine (mirrors the Audit module's approach) when AI is
+ * disabled or the API call fails. `language` is the app language the caller
  * currently has selected (e.g. from i18n.language) — the AI response is
  * written in that language; the heuristic fallback is English-only.
  */
@@ -249,7 +250,7 @@ export async function suggestBreakdownRootCause(
 ): Promise<BreakdownRCASuggestion> {
   const history = await fetchRecentHistory(input.machineId, excludeTicketIds);
 
-  if (!hasClaudeKey()) {
+  if (!isClaudeEnabled()) {
     return heuristicSuggestion(input);
   }
 
