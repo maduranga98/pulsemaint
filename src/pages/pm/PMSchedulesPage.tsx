@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
-import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { usePMWorkOrderLookup } from '../../hooks/pm/usePMWorkOrderLookup';
 import { useMachines } from '../../hooks/useMachines';
 import { useAuthStore } from '../../store/authStore';
@@ -36,7 +35,6 @@ export default function PMSchedulesPage() {
   const filters = usePMStore((s) => s.filters);
   const setFilters = usePMStore((s) => s.setFilters);
 
-  const { department: scopedDepartment } = useDepartmentScope();
   // Falls back to the machine's plant for records predating plant stamping.
   const inScopedPlant = useRecordPlantMatcher();
   const { schedules: fetchedSchedules, loading, bulkDelete } =
@@ -45,8 +43,7 @@ export default function PMSchedulesPage() {
   // supervisor (the only department-scoped role that reaches this page) is
   // further scoped to their own department within that plant.
   const schedules = fetchedSchedules
-    .filter((s) => inScopedPlant(s))
-    .filter((s) => !scopedDepartment || s.department === scopedDepartment);
+    .filter((s) => inScopedPlant(s));
   const { machines } = useMachines({ siteId: company?.id || '', pageSize: 500 });
   const woLookup = usePMWorkOrderLookup(userProfile?.siteIds?.[0] || company?.id || '');
 

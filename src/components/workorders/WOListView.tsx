@@ -6,7 +6,6 @@ import type { WorkOrder, WOFilters, WOType } from '../../types/workOrder';
 import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
-import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { WOTable } from './WOTable';
 import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
@@ -94,7 +93,6 @@ export function WOListView() {
   // to, so the query must always be constrained to their own WOs or it is rejected.
   if (role === 'technician' || role === 'trainee') filters.technicianId = user?.uid;
 
-  const { department: scopedDepartment } = useDepartmentScope();
   // Falls back to the machine's plant for records predating plant stamping.
   const inScopedPlant = useRecordPlantMatcher();
   const { workOrders: fetchedWorkOrders, loading, error } = useWorkOrders(filters);
@@ -103,8 +101,7 @@ export function WOListView() {
   // none is); technician/trainee/supervisor/floor_operator are further
   // scoped to their own registered department within that plant.
   const workOrders = fetchedWorkOrders
-    .filter((wo) => inScopedPlant(wo))
-    .filter((wo) => !scopedDepartment || wo.machineDepartment === scopedDepartment);
+    .filter((wo) => inScopedPlant(wo));
 
   // Deep-link straight to a specific WO's detail view (e.g. from the PM
   // Schedules table or PM Calendar), once it has loaded.

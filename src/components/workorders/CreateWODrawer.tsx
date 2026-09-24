@@ -19,6 +19,7 @@ import type { WOType, ChecklistItem } from '../../types/workOrder';
 import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '../../types/safety';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { useSafetyBlacklist } from '../../hooks/safety/useSafety';
+import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
 
 type MachineOption = {
   id: string;
@@ -163,7 +164,7 @@ export function CreateWODrawer({
         setMachines(
           machineOptions
             .filter((m) => !scopedPlantId || m.plantId === scopedPlantId)
-            .filter((m) => !scopedDepartment || m.department === scopedDepartment),
+            .filter((m) => !scopedDepartment || sameDepartment(m.department, scopedDepartment)),
         );
 
         const userSnap = await getDocs(collection(db, `companies/${companyId}/users`));
@@ -187,7 +188,7 @@ export function CreateWODrawer({
           users
             .filter((u) => u.role === 'technician' || u.role === 'trainee')
             .filter((u) => !scopedPlantId || u.plantId === scopedPlantId)
-            .filter((u) => !scopedDepartment || u.department === scopedDepartment)
+            .filter((u) => !scopedDepartment || sameDepartment(u.department, scopedDepartment))
             .map((u) => (u.role === 'trainee' ? { ...u, name: `${u.name} (Trainee)` } : u)),
         );
 
@@ -218,7 +219,7 @@ export function CreateWODrawer({
                 })
                 .filter((b) => !TERMINAL.has(b.status))
                 .filter((b) => !scopedPlantId || b.machinePlantId === scopedPlantId)
-                .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment),
+                .filter((b) => !scopedDepartment || sameDepartment(b.machineDepartment, scopedDepartment)),
             );
           }
         } catch (bdErr) {

@@ -4,7 +4,6 @@ import { collection, query, where, onSnapshot, doc, writeBatch, arrayUnion, serv
 import { toast } from 'sonner';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
-import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownSeverity } from '../../../types/breakdown';
@@ -35,7 +34,6 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
-  const { department: scopedDepartment } = useDepartmentScope();
   // Falls back to the machine's plant for records predating plant stamping.
   const inScopedPlant = useRecordPlantMatcher();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
@@ -67,8 +65,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
   // technician/trainee/floor_operator are further scoped to their own
   // registered department within that plant.
   const scopedBreakdowns = breakdowns
-    .filter((b) => inScopedPlant(b))
-    .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment);
+    .filter((b) => inScopedPlant(b));
   const groups = groupBreakdownsByMachine(scopedBreakdowns);
 
   async function handleAttend(tickets: Breakdown[], machineId: string) {
