@@ -133,22 +133,21 @@ export function useSignOff(): UseSignOffResult {
         // Keep the linked PM schedule in sync with the signed-off/closed WO.
         await syncPmScheduleWoStatus(woId, 'CLOSED');
 
-        // Keep a linked breakdown ticket in sync — closing the WO closes it.
+        // Keep linked breakdown tickets and the machine in sync — closing the
+        // WO closes its breakdowns and, if nothing else is open, reactivates
+        // the machine.
         let woNumber = woId;
         try {
           const snap = await getDoc(doc(db, 'workOrders', woId));
           const data = snap.data() as {
             linkedBreakdownId?: string | null;
+            linkedBreakdownIds?: string[];
             woNumber?: string;
             machineId?: string;
             contractorCompanyId?: string | null;
             contractorTechnicianIds?: string[];
           } | undefined;
           woNumber = data?.woNumber ?? woId;
-
-          if (data?.machineId) {
-            void markMachineActiveIfNoOpenWork(data.machineId);
-          }
 
           // A signed-off contractor job counts as a completed visit for each of
           // its assigned team members — bump their "jobs at this factory" count
@@ -169,9 +168,14 @@ export function useSignOff(): UseSignOffResult {
             );
           }
 
-          if (data?.linkedBreakdownId) {
-            const bdStatus: BreakdownStatus = 'closed';
-            await updateDoc(doc(db, 'breakdown_tickets', data.linkedBreakdownId), {
+          // Close every breakdown this WO covers — a WO raised for a machine
+          // group links all of its tickets, not just the primary one.
+          const breakdownIds = Array.from(
+            new Set([data?.linkedBreakdownId, ...(data?.linkedBreakdownIds ?? [])].filter(Boolean) as string[]),
+          );
+          const bdStatus: BreakdownStatus = 'closed';
+          await Promise.all(breakdownIds.map((breakdownId) =>
+            updateDoc(doc(db, 'breakdown_tickets', breakdownId), {
               status: bdStatus,
               closedAt: serverTimestamp(),
               statusHistory: arrayUnion({
@@ -179,9 +183,15 @@ export function useSignOff(): UseSignOffResult {
                 changedBy: user.uid,
                 changedByName: actorName,
                 changedAt: now,
-                note: `WO ${data.woNumber ?? woId} signed off and closed`,
+                note: `WO ${woNumber} signed off and closed`,
               }),
-            });
+            }).catch((e) => console.error('Failed to close linked breakdown on sign-off', e)),
+          ));
+
+          // Only now — with the WO and its breakdowns closed — can the machine
+          // go back to active (the check would otherwise see them still open).
+          if (data?.machineId) {
+            await markMachineActiveIfNoOpenWork(data.machineId);
           }
         } catch (bdErr) {
           console.error('Failed to sync breakdown on sign-off', bdErr);

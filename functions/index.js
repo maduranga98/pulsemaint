@@ -74,6 +74,20 @@ exports.updatePmComplianceOnWoClose = updatePmComplianceOnWoClose;
 exports.triggerManualPM = triggerManualPM;
 
 // ---------------------------------------------------------------------------
+// Machines — keep registry status in sync with breakdowns / work orders
+// ---------------------------------------------------------------------------
+
+const {
+  markMachineDownOnBreakdownReported,
+  reactivateMachineOnBreakdownClose,
+  reactivateMachineOnWOSignOff,
+} = require("./src/machines/syncMachineStatus");
+
+exports.markMachineDownOnBreakdownReported = markMachineDownOnBreakdownReported;
+exports.reactivateMachineOnBreakdownClose = reactivateMachineOnBreakdownClose;
+exports.reactivateMachineOnWOSignOff = reactivateMachineOnWOSignOff;
+
+// ---------------------------------------------------------------------------
 // Training Module — Cloud Functions
 // ---------------------------------------------------------------------------
 
