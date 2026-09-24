@@ -89,14 +89,16 @@ export default function SupervisorDashboard() {
         {/* Row 3: Pending Approvals + Need Sign-Off — replaces the Work
             Orders page's "Approval Requests" and "Need Sign-Off" tabs
             (removed there; also shown to plant_manager/admin on
-            ManagerDashboard). */}
+            ManagerDashboard). Both are actionable: approve/reject and
+            sign-off happen right from the widgets. */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PendingApprovalsWidget />
           <NeedSignOffWidget />
         </div>
 
-        {/* Row 4: Safety Trainings Assigned to Me */}
-        <MySafetyTrainingsWidget readOnly />
+        {/* Row 4: Safety Trainings Assigned to Me — clickable, since the
+            dashboard is the supervisor's only way into these trainings. */}
+        <MySafetyTrainingsWidget />
       </div>
 
       <DashboardSidePanel />

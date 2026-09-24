@@ -27,6 +27,9 @@ interface WODetailPanelProps {
   workOrder: WorkOrder;
   onClose: () => void;
   fullPage?: boolean;
+  /** Open straight into the sign-off form (e.g. from the dashboard's
+   *  "Need Sign-Off" widget). */
+  initialSignOff?: boolean;
 }
 
 const WORK_LOG_ROLE_LABELS: Record<string, string> = {
@@ -39,11 +42,11 @@ function detailRoleLabel(role: string): string {
   return WORK_LOG_ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
 }
 
-export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetailPanelProps) {
+export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSignOff = false }: WODetailPanelProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [showCompletionForm, setShowCompletionForm] = useState(false);
-  const [showSignOff, setShowSignOff] = useState(false);
+  const [showSignOff, setShowSignOff] = useState(initialSignOff && workOrder.status === 'COMPLETED');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
