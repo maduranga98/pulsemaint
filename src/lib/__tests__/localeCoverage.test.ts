@@ -5,6 +5,7 @@ import fr from '../../locales/fr.json';
 import de from '../../locales/de.json';
 import zh from '../../locales/zh.json';
 import ja from '../../locales/ja.json';
+import si from '../../locales/si.json';
 
 // Every language offered in the switcher must carry every en-US string —
 // otherwise the page silently falls back to English for that role/module.
@@ -25,7 +26,7 @@ function flatten(o: Tree, prefix = ''): Map<string, string> {
 const placeholders = (s: string) => (s.match(/\{\{\s*[\w.]+\s*\}\}/g) ?? []).map((p) => p.replace(/\s/g, '')).sort();
 
 const en = flatten(enUS as Tree);
-const LOCALES: Record<string, Tree> = { es, fr, de, zh, ja } as unknown as Record<string, Tree>;
+const LOCALES: Record<string, Tree> = { es, fr, de, zh, ja, si } as unknown as Record<string, Tree>;
 
 describe.each(Object.entries(LOCALES))('locale %s', (_code, tree) => {
   const loc = flatten(tree);
