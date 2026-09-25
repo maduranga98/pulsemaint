@@ -1571,7 +1571,7 @@
       "technicianStatusList": {
         "active": "{{count}} 人在岗",
         "empty": "暂无在岗技术员",
-        "title": "技术员状态"
+        "title": "团队状态"
       },
       "technicianStatusRow": {
         "doneToday": "今日已完成",

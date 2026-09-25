@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useDepartmentScope } from './useDepartmentScope';
+import { sameDepartment } from './useRecordPlantMatcher';
 
 /**
  * Ids of the company's users registered under the caller's scoped plant
@@ -11,12 +12,17 @@ import { useDepartmentScope } from './useDepartmentScope';
  * attendees) that carries no plantId of its own. Returns null when the
  * caller isn't plant-scoped (admin on "All Plants"), meaning "don't filter".
  */
-export function usePlantUserIds(companyId: string | undefined): Set<string> | null {
+export function usePlantUserIds(
+  companyId: string | undefined,
+  /** Also limit to this department (compared case/spacing-insensitively). */
+  opts: { department?: string | null } = {},
+): Set<string> | null {
   const { plantId } = useDepartmentScope();
+  const department = opts.department ?? null;
   const [ids, setIds] = useState<Set<string> | null>(null);
 
   useEffect(() => {
-    if (!plantId || !companyId) {
+    if ((!plantId && !department) || !companyId) {
       setIds(null);
       return;
     }
@@ -34,14 +40,15 @@ export function usePlantUserIds(companyId: string | undefined): Set<string> | nu
           snap.docs
             .filter((d) => {
               const userPlant = d.data().plantId as string | null | undefined;
-              return !userPlant || userPlant === plantId;
+              if (plantId && userPlant && userPlant !== plantId) return false;
+              return !department || sameDepartment(d.data().department as string | null | undefined, department);
             })
             .map((d) => d.id),
         )),
       (err) => console.error('Failed to load plant users', err),
     );
     return () => unsub();
-  }, [companyId, plantId]);
+  }, [companyId, plantId, department]);
 
   return ids;
 }

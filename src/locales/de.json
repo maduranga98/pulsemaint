@@ -1575,7 +1575,7 @@
       "technicianStatusList": {
         "active": "{{count}} aktiv",
         "empty": "Keine Techniker im Dienst",
-        "title": "Technikerstatus"
+        "title": "Teamstatus"
       },
       "technicianStatusRow": {
         "doneToday": "Heute erledigt",
