@@ -46,7 +46,130 @@
     "cancel": "අවලංගු කරන්න",
     "add_step": "පියවර එකතු කරන්න",
     "active": "සක්‍රීය",
-    "inactive": "අක්‍රීය"
+    "inactive": "අක්‍රීය",
+    "outcome_label": "ප්‍රතිඵලය",
+    "notes_label": "සටහන්",
+    "duration_label": "කාලය",
+    "machine_label": "යන්ත්‍රය",
+    "supervisor_label": "අධීක්ෂක",
+    "flow_label": "භාවිත කළ ප්‍රවාහය",
+    "session_photos": "සැසි ඡායාරූප",
+    "view_report": "ට්‍රයාජ් වාර්තාව බලන්න",
+    "back_to_ticket": "බිඳවැටීම් ටිකට්පතට ආපසු",
+    "back_to_history": "ඉතිහාසයට ආපසු",
+    "custom_flows": "අභිරුචි ප්‍රවාහ",
+    "templates": "සැකිලි",
+    "run_demo": "ආදර්ශනය ධාවනය කරන්න",
+    "edit": "සංස්කරණය",
+    "duplicate": "අනුපිටපත් කරන්න",
+    "view_sessions": "සැසි බලන්න",
+    "delete": "මකන්න",
+    "step": "පියවර",
+    "flow_name": "ප්‍රවාහයේ නම",
+    "description": "විස්තරය",
+    "machine_type": "යන්ත්‍ර වර්ගය",
+    "specific_machine": "විශේෂිත යන්ත්‍රය",
+    "language": "භාෂාව",
+    "emergency_contacts": "හදිසි සම්බන්ධතා",
+    "shutdown_procedure": "යන්ත්‍රය නැවැත්වීමේ ක්‍රියාපටිපාටිය",
+    "use_template": "සැකිල්ල භාවිත කරන්න",
+    "preview": "පෙරදසුන",
+    "date_range": "දින පරාසය",
+    "all_outcomes": "සියලු ප්‍රතිඵල",
+    "all_statuses": "සියලු තත්ත්වයන්",
+    "filter": "පෙරහන",
+    "timeline": "සැසි කාලරේඛාව",
+    "download_pdf": "PDF බාගන්න",
+    "no_sessions": "සැසි හමු නොවීය.",
+    "call_contact": "අමතන්න",
+    "notify_manager": "කම්හල් කළමනාකරුට දැනුම් දෙන්න",
+    "mark_shutdown": "යන්ත්‍රය නැවැත්වූ ලෙස සලකුණු කරන්න",
+    "machine_status": "යන්ත්‍ර තත්ත්වය",
+    "what_did_operator_do": "ගැටලුව විසඳීමට ක්‍රියාකරු කළේ කුමක්ද?",
+    "submit": "ඉදිරිපත් කරන්න",
+    "confirm_abandon": "අත්හැරීම තහවුරු කරන්න",
+    "keep_going": "දිගටම කරගෙන යන්න",
+    "photo_required_hint": "ඉදිරියට යාමට අවම වශයෙන් එක් ඡායාරූපයක් අවශ්‍යයි.",
+    "out_of_range": "අගය සාමාන්‍ය පරාසයෙන් පිටතයි!",
+    "normal_range": "සාමාන්‍ය පරාසය: {{min}} – {{max}} {{unit}}",
+    "char_count": "අක්ෂර {{count}} / {{max}}",
+    "add_another_photo": "තවත් ඡායාරූපයක් එක් කරන්න",
+    "reference_media": "යොමු මාධ්‍ය",
+    "step_notes": "පියවර සටහන්",
+    "escalation_warning": "⚠ මෙම පියවර සඳහා යොමු කිරීමක් අවශ්‍ය විය හැක.",
+    "required": "අවශ්‍යයි",
+    "optional": "විකල්ප",
+    "translate_tab": "පරිවර්තන",
+    "settings_tab": "සැකසුම්",
+    "steps_tab": "පියවර",
+    "preview_tab": "පෙරදසුන",
+    "checklist_item_placeholder": "පරීක්ෂණ ලැයිස්තු අයිතමය",
+    "add_item": "+ අයිතමයක් එක් කරන්න",
+    "option_label_placeholder": "විකල්ප නාමය",
+    "escalate": "යොමු කරන්න",
+    "safe": "ආරක්ෂිතයි",
+    "next_step_select": "ඊළඟ පියවර",
+    "add_option": "+ විකල්පයක් එක් කරන්න",
+    "options_label": "විකල්ප",
+    "checklist_items_label": "පරීක්ෂණ ලැයිස්තු අයිතම",
+    "field_label": "ක්ෂේත්‍ර නාමය",
+    "unit_label": "ඒකකය",
+    "min_label": "අවම",
+    "max_label": "උපරිම",
+    "placeholder_label": "ස්ථාන දරණය",
+    "max_characters_label": "උපරිම අක්ෂර",
+    "translation_title_label": "මාතෘකාව",
+    "translation_instruction_label": "උපදෙස",
+    "select_step_to_preview": "පෙරදසුන් කිරීමට පියවරක් තෝරන්න",
+    "untitled_step": "නම් නොකළ පියවර",
+    "delete_step": "පියවර මකන්න",
+    "supervisor_prefix": "අධීක්ෂක: {{name}}",
+    "flow_prefix": "ප්‍රවාහය: {{name}}",
+    "demo_badge": "ආදර්ශනය",
+    "response_label": "ප්‍රතිචාරය: {{value}}",
+    "skipped_label": "මඟ හැරිණි: {{reason}}",
+    "close": "වසන්න",
+    "photo_alt": "ඡායාරූපය {{index}}",
+    "session_status": {
+      "in_progress": "ක්‍රියාත්මක වෙමින්",
+      "completed": "සම්පූර්ණයි",
+      "escalated": "යොමු කළා",
+      "quick_fix": "ඉක්මන් විසඳුම",
+      "abandoned": "අත්හැර දැමුණි"
+    },
+    "flow_settings_title": "ප්‍රවාහ සැකසුම්",
+    "add_contact": "+ එක් කරන්න",
+    "contact_name_placeholder": "නම",
+    "contact_role_placeholder": "භූමිකාව",
+    "contact_phone_placeholder": "දුරකථනය",
+    "back": "ආපසු",
+    "triage_history_title": "ට්‍රයාජ් ඉතිහාසය",
+    "supervisor_label_short": "අධීක්ෂක",
+    "flow_label_short": "ප්‍රවාහය",
+    "duration_label_short": "කාලය",
+    "steps_completed": "සම්පූර්ණ කළ පියවර",
+    "edit_step_title": "පියවර #{{number}} සංස්කරණය",
+    "title_field": "මාතෘකාව *",
+    "phase_field": "අදියර",
+    "type_field": "වර්ගය",
+    "safety_field": "ආරක්ෂාව",
+    "select_step_to_edit": "සංස්කරණය කිරීමට පියවරක් තෝරන්න",
+    "preview_label": "පෙරදසුන",
+    "triage_flows_title": "ට්‍රයාජ් ප්‍රවාහ",
+    "triage_flows_subtitle": "ක්‍රියාකරු ට්‍රයාජ් මාර්ගෝපදේශ ප්‍රවාහ කළමනාකරණය කරන්න",
+    "templates_subtitle": "FirmiCore ගොඩනගා ඇති ට්‍රයාජ් ප්‍රවාහ සැකිලි",
+    "no_templates_available": "සැකිලි නොමැත.",
+    "session_not_found": "සැසිය හමු නොවීය",
+    "not_found": "හමු නොවීය",
+    "step_type": {
+      "statement": "ප්‍රකාශය",
+      "yes_no": "ඔව් / නැත",
+      "multiple_choice": "බහු තේරීම",
+      "photo_required": "ඡායාරූපය අවශ්‍යයි",
+      "number_input": "සංඛ්‍යා ආදානය",
+      "text_input": "පෙළ ආදානය",
+      "checklist": "පරීක්ෂණ ලැයිස්තුව"
+    }
   },
   "common": {
     "signOut": "ඉවත් වන්න",
@@ -186,7 +309,13 @@
         "noPartsFound": "කොටස් හමු නොවිනි",
         "noPartsHint": "ඔබේ පෙරහන් සකසන්න හෝ නව කොටසක් එකතු කරන්න.",
         "loadMore": "තවත් පූරණය කරන්න",
-        "selectedCount": "තෝරාගත් {{count}}"
+        "selectedCount": "තෝරාගත් {{count}}",
+        "backToInventory": "තොග වෙත ආපසු",
+        "confirmDelete_one": "තෝරාගත් කොටස් {{count}} මකන්නද? මෙය අහෝසි කළ නොහැක.",
+        "confirmDelete_other": "තෝරාගත් කොටස් {{count}} මකන්නද? මෙය අහෝසි කළ නොහැක.",
+        "deleteSuccess_one": "කොටස් {{count}} මැකුවා.",
+        "deleteSuccess_other": "කොටස් {{count}} මැකුවා.",
+        "deleteFailed": "කොටස් මැකීම අසාර්ථකයි: {{message}}"
       },
       "requests": {
         "title": "කොටස් ඉල්ලීම්",
@@ -195,13 +324,545 @@
         "scanIssue": "ස්කෑන් කර නිකුත් කරන්න",
         "newRequest": "+ නව ඉල්ලීම",
         "itemsTable": {
-          "writtenOff": "{{name}} විසින් අවලංගු කළා — ආපසු නොදෙනු ඇත: {{reason}}"
+          "writtenOff": "{{name}} විසින් අවලංගු කළා — ආපසු නොදෙනු ඇත: {{reason}}",
+          "columns": {
+            "part": "කොටස",
+            "categoryCriticality": "කාණ්ඩය / තීරණාත්මකභාවය",
+            "qtyRequested": "ඉල්ලූ ප්‍රමාණය",
+            "availStock": "පවතින තොගය",
+            "unitCost": "ඒකක පිරිවැය",
+            "lineTotal": "පේළි එකතුව",
+            "availability": "ලබා ගත හැකි බව",
+            "notes": "සටහන්"
+          },
+          "critical": "තීරණාත්මක",
+          "standard": "සම්මත",
+          "subtotal_one": "උප එකතුව (අයිතම {{count}})",
+          "subtotal_other": "උප එකතුව (අයිතම {{count}})",
+          "autoApprovalEligible": "✓ ස්වයංක්‍රීය අනුමැතියට සුදුසුයි: සියලු අයිතම තොගයේ ඇති අතර සීමාව තුළයි",
+          "autoApprovalNotEligible": "✗ ස්වයංක්‍රීය අනුමැතියට සුදුසු නැත: {{reasons}}",
+          "someUnavailable": "සමහර අයිතම නොමැත. ",
+          "costExceedsThreshold": "පිරිවැය LKR {{threshold}} සීමාව ඉක්මවයි."
+        },
+        "backToRequests": "ඉල්ලීම් වෙත ආපසු",
+        "requestNotFound": "ඉල්ලීම හමු නොවීය.",
+        "statusLabels": {
+          "pending_storekeeper": "සමාලෝචනයට",
+          "pending_supervisor": "අධීක්ෂක බලාපොරොත්තුවෙන්",
+          "approved": "රැගෙන යා යුතු කොටස්",
+          "partially_approved": "රැගෙන යා යුතු කොටස්",
+          "rejected": "ප්‍රතික්ෂේපිත",
+          "parts_reserved": "රැගෙන යා යුතු කොටස්",
+          "issued": "සම්පූර්ණයි",
+          "completed": "සම්පූර්ණයි",
+          "cancelled": "රැගෙන ගියේ නැත"
+        },
+        "priorityLabels": {
+          "critical": "තීරණාත්මක",
+          "high": "ඉහළ",
+          "medium": "මධ්‍යම",
+          "low": "අඩු"
+        },
+        "toasts": {
+          "requestRejected": "ඉල්ලීම ප්‍රතික්ෂේප කළා.",
+          "escalatedToSupervisor": "අධීක්ෂක වෙත යොමු කළා.",
+          "partsIssuedMoved": "කොටස් නිකුත් කළා — රැගෙන යා යුතු කොටස් වෙත ගෙන ගියා.",
+          "decisionFailed": "තීරණය සැකසීම අසාර්ථකයි.",
+          "collectionConfirmed": "රැගෙන යාම තහවුරු කළා — ඉල්ලීම සම්පූර්ණයි.",
+          "notCollectedReturned": "රැගෙන නොගිය ලෙස සලකුණු කළා — තොගය ආපසු දැමුවා.",
+          "collectionUpdateFailed": "රැගෙන යාමේ තත්ත්වය යාවත්කාලීන කිරීම අසාර්ථකයි.",
+          "returnRequested": "ආපසු දීම ඉල්ලා ඇත — ගබඩා භාරකරුවෙකු එය තහවුරු කරනු ඇත.",
+          "returnRequestFailed": "ආපසු දීම ඉල්ලීම අසාර්ථකයි.",
+          "returnCancelled": "ආපසු දීම අවලංගු කළා.",
+          "returnCancelFailed": "ආපසු දීම අවලංගු කිරීම අසාර්ථකයි.",
+          "enterCollectorName": "කොටස් රැගෙන යන පුද්ගලයාගේ නම ඇතුළත් කරන්න.",
+          "partsIssuedSuccess": "රැගෙන යාම තහවුරු කළා — කොටස් සාර්ථකව නිකුත් කළා",
+          "issueFailed": "කොටස් නිකුත් කිරීම අසාර්ථකයි. නැවත උත්සාහ කරන්න."
+        },
+        "detailHeader": {
+          "requestNumber": "ඉල්ලීම #{{number}}",
+          "createdLabel": "සෑදූ දිනය:",
+          "ageLabel": "වයස:",
+          "byLabel": "කළ අය:",
+          "collectedByLabel": "රැගෙන ගියේ:",
+          "collectedOn": "{{date}} දින",
+          "confirmedBy": "{{name}} විසින් තහවුරු කළා"
+        },
+        "availabilityIndicator": {
+          "outOfStock": "තොගය අවසන්",
+          "available": "ඇත ({{count}})",
+          "partial": "අර්ධ ({{available}}/{{requested}})"
+        },
+        "woContextCard": {
+          "contractorJob": "කොන්ත්‍රාත් කාර්යය — {{company}}",
+          "externalCompany": "බාහිර සමාගම",
+          "woNumber": "WO #{{number}}",
+          "noWorkOrderLinked": "වැඩ ඇණවුමක් සම්බන්ධ කර නැත",
+          "priorityLabel": "{{priority}} ප්‍රමුඛතාව",
+          "reasonLabel": "හේතුව: "
+        },
+        "reviewHistory": {
+          "title": "සමාලෝචන ඉතිහාසය",
+          "submittedBy": "{{name}} විසින් ඉදිරිපත් කළා",
+          "storeKeeperDecision": "ගබඩා භාරකරු {{name}} — {{decision}}",
+          "supervisorDecision": "අධීක්ෂක {{name}} — {{decision}}",
+          "stockReserved": "තොගය වෙන් කළා",
+          "partsIssued": "කොටස් නිකුත් කළා",
+          "partsIssuedBy": "{{name}} විසින් කොටස් නිකුත් කළා",
+          "collected": "රැගෙන ගියා",
+          "collectedBy": "{{name}} රැගෙන ගියා",
+          "returned": "ආපසු දුන්නා",
+          "returnedConfirmedBy": "ආපසු දුන්නා — {{name}} විසින් තහවුරු කළා",
+          "requestCompleted": "ඉල්ලීම සම්පූර්ණයි",
+          "decisions": {
+            "approve": "අනුමත කළා",
+            "escalate": "අධීක්ෂක වෙත යොමු කළා",
+            "reject": "ප්‍රතික්ෂේප කළා",
+            "partial": "අර්ධ වශයෙන් අනුමත කළා"
+          }
+        },
+        "reviewPanel": {
+          "escalationReasons": {
+            "costExceedsLimit": "පිරිවැය අනුමැති සීමාව ඉක්මවයි",
+            "criticalPartsSignOff": "තීරණාත්මක කොටස් සඳහා අධීක්ෂක අනුමැතිය අවශ්‍යයි",
+            "unusualRequest": "අසාමාන්‍ය ඉල්ලීමකි — සත්‍යාපනය අවශ්‍යයි",
+            "contractorAwareness": "කොන්ත්‍රාත් කාර්යයකි — අධීක්ෂක දැනුවත්භාවය අවශ්‍යයි",
+            "other": "වෙනත්"
+          },
+          "awaitingCollectionMessage": "කොටස් නිකුත් කර තොගය අඩු කර ඇත. <1>{{name}}</1> රැගෙන යාම බලාපොරොත්තුවෙන්.",
+          "markReturnableTitle": "අයිතම ආපසු දිය හැකි ලෙස සලකුණු කරන්න",
+          "collectedByLabel": "රැගෙන ගියේ",
+          "collectedByPlaceholder": "කොටස් රැගෙන යන පුද්ගලයාගේ නම",
+          "markCollected": "රැගෙන ගිය ලෙස සලකුණු කරන්න",
+          "saving": "සුරකිමින්…",
+          "notCollectedReturnStock": "රැගෙන ගියේ නැත — තොගය ආපසු දමන්න",
+          "returning": "ආපසු දමමින්…",
+          "storeKeeperWillConfirm": "ගබඩා භාරකරු රැගෙන යාම තහවුරු කරනු ඇත.",
+          "collectedByStrong": "රැගෙන ගියේ",
+          "collectedOn": "{{date}} දින",
+          "confirmedBy": "තහවුරු කළේ",
+          "requestProcessed": "මෙම ඉල්ලීම සකසා ඇත.",
+          "returnableItemsTitle": "ආපසු දිය හැකි අයිතම",
+          "pendingConfirmation": "{{part}} · {{quantity}} {{unit}} තහවුරු කිරීම පොරොත්තුවෙන්",
+          "cancelling": "අවලංගු කරමින්…",
+          "cancel": "අවලංගු කරන්න",
+          "issuedLabel": "නිකුත් කළේ: {{quantity}} {{unit}}",
+          "markAsReturned": "ආපසු දුන් ලෙස සලකුණු කරන්න",
+          "requesting": "ඉල්ලමින්…",
+          "reasonLabel": "හේතුව: {{reason}}",
+          "escalatedAwaitingSupervisor": "යොමු කළා — අධීක්ෂක සමාලෝචනය බලාපොරොත්තුවෙන්.",
+          "supervisorReviewTitle": "අධීක්ෂක සමාලෝචනය",
+          "reviewRequestTitle": "ඉල්ලීම සමාලෝචනය කරන්න",
+          "approvedQuantitiesTitle": "අනුමත ප්‍රමාණ",
+          "reqLabel": "ඉල්ලූ: {{quantity}}",
+          "escalationReasonLabel": "යොමු කිරීමට හේතුව",
+          "escalationReasonOtherPlaceholder": "යොමු කිරීමට හේතුව විස්තර කරන්න…",
+          "rejectionReasonLabel": "ප්‍රතික්ෂේප කිරීමට හේතුව",
+          "rejectionReasonPlaceholder": "මෙම ඉල්ලීම ප්‍රතික්ෂේප කරන්නේ ඇයි?",
+          "partiallyIssue": "අර්ධ වශයෙන් නිකුත් කරන්න",
+          "issuing": "නිකුත් කරමින්…",
+          "issueParts": "කොටස් නිකුත් කරන්න",
+          "escalating": "යොමු කරමින්…",
+          "confirmEscalate": "යොමු කිරීම තහවුරු කරන්න",
+          "escalateToSupervisor": "අධීක්ෂක වෙත යොමු කරන්න",
+          "rejecting": "ප්‍රතික්ෂේප කරමින්…",
+          "confirmReject": "ප්‍රතික්ෂේප කිරීම තහවුරු කරන්න",
+          "reject": "ප්‍රතික්ෂේප කරන්න",
+          "confirmReceivedTitle": "හොඳ තත්ත්වයෙන් ලැබුණු බව තහවුරු කරන්න — තොගය ස්වයංක්‍රීයව යාවත්කාලීන වේ",
+          "returnedButton": "ආපසු දුන්නා",
+          "confirming": "තහවුරු කරමින්…",
+          "rejectReturnTitle": "මෙම ආපසු දීම ප්‍රතික්ෂේප කරන්න",
+          "rejectReturnPrompt": "මෙම ආපසු දීම ප්‍රතික්ෂේප කිරීමට හේතුව?",
+          "requestedByActor": "{{name}} ඉල්ලුවා · ",
+          "notYetRequested": "තවම ඉල්ලා නැත"
+        },
+        "queue": {
+          "tabs": {
+            "toReview": "සමාලෝචනයට",
+            "awaitingSupervisor": "අධීක්ෂක බලාපොරොත්තුවෙන්",
+            "partsToCollect": "රැගෙන යා යුතු කොටස්",
+            "completed": "සම්පූර්ණ කළ",
+            "pendingReturn": "ආපසු දීම පොරොත්තුවෙන්",
+            "rejected": "ප්‍රතික්ෂේපිත",
+            "myRequests": "මගේ ඉල්ලීම්"
+          },
+          "priorityOptions": {
+            "all": "සියලු ප්‍රමුඛතා"
+          },
+          "searchPlaceholder": "ඉල්ලීම් #, WO #, තාක්ෂණ ශිල්පියා හෝ කොටස අනුව සොයන්න…",
+          "noRequestsFound": "ඉල්ලීම් හමු නොවීය",
+          "columns": {
+            "requestNumber": "ඉල්ලීම් #",
+            "woNumberType": "WO # / වර්ගය",
+            "requestedBy": "ඉල්ලූ අය",
+            "parts": "කොටස්",
+            "totalCost": "මුළු පිරිවැය",
+            "priority": "ප්‍රමුඛතාව",
+            "status": "තත්ත්වය",
+            "return": "ආපසු දීම",
+            "age": "වයස"
+          },
+          "justNow": "මේ දැන්",
+          "hoursAgo": "පැය {{count}}කට පෙර",
+          "daysAgo": "දින {{count}}කට පෙර",
+          "andMore": "සහ තවත් {{count}}",
+          "moreCount": "+තව {{count}}",
+          "noWo": "WO නැත",
+          "reviewButton": "සමාලෝචනය"
+        },
+        "returnBadges": {
+          "pending": "ආපසු දෙමින්",
+          "returned": "ආපසු දීම තහවුරුයි",
+          "rejected": "ආපසු දීම ප්‍රතික්ෂේපිතයි",
+          "cancelled": "ආපසු දීම අවලංගුයි"
+        },
+        "roleLabels": {
+          "store_keeper": "ගබඩා භාරකරු",
+          "supervisor": "අධීක්ෂක",
+          "plant_manager": "කම්හල් කළමනාකරු",
+          "admin": "පරිපාලක"
+        },
+        "createModal": {
+          "title": "කොටස් ඉල්ලන්න",
+          "forWorkOrder": "වැඩ ඇණවුම සඳහා",
+          "close": "වසන්න",
+          "submittedTitle": "කොටස් ඉල්ලීම ඉදිරිපත් කළා!",
+          "submittedSubtitle": "ගබඩා භාරකරු ඔබේ ඉල්ලීම සමාලෝචනය කරනු ඇත.",
+          "linkWorkOrderLabel": "වැඩ ඇණවුමකට සම්බන්ධ කරන්න (විකල්ප)",
+          "noWorkOrderOption": "වැඩ ඇණවුමක් නැත — පහතින් හේතුවක් ඇතුළත් කරන්න",
+          "linkWorkOrderHint": "මෙම ඉල්ලීම අදාළ කාර්ය ටිකට්පත තෝරන්න, නැතහොත් සම්බන්ධ නොකර පහතින් හේතුව පැහැදිලි කරන්න.",
+          "addPartsLabel": "කොටස් එක් කරන්න",
+          "availableUnit": "{{count}} {{unit}} ඇත",
+          "removeItem": "අයිතමය ඉවත් කරන්න",
+          "quantityLabel": "ප්‍රමාණය",
+          "notesLabel": "සටහන් (විකල්ප)",
+          "notesPlaceholder": "උදා. ගෙවී ගිය කොටසක් වෙනුවට",
+          "priorityLabel": "ප්‍රමුඛතාව",
+          "markUrgent": "හදිසි ලෙස සලකුණු කරන්න",
+          "reasonRequiredLabel": "ඉල්ලීමට හේතුව (අවශ්‍යයි)",
+          "purposeOptionalLabel": "අරමුණ (විකල්ප)",
+          "purposePlaceholder": "මෙම කොටස් අවශ්‍ය වන්නේ කුමකටද?",
+          "itemCount_one": "අයිතම {{count}}",
+          "itemCount_other": "අයිතම {{count}}",
+          "estCost": " · ඇස්ත. පිරිවැය {{amount}}",
+          "cancel": "අවලංගු කරන්න",
+          "submitting": "ඉදිරිපත් කරමින්…",
+          "submitRequest": "ඉල්ලීම ඉදිරිපත් කරන්න",
+          "errors": {
+            "minQuantity": "සෑම අයිතමයකටම අවම වශයෙන් 1 ප්‍රමාණයක් අවශ්‍යයි.",
+            "needWoOrReason": "සම්බන්ධිත වැඩ ඇණවුමක් තෝරන්න, නැතහොත් මෙම ඉල්ලීමට හේතුවක් ඇතුළත් කරන්න.",
+            "submitFailed": "ඉල්ලීම ඉදිරිපත් කිරීම අසාර්ථකයි"
+          }
+        },
+        "issueScreen": {
+          "title": "කොටස් නිකුත් කරන්න",
+          "woLabel": "WO:",
+          "collectingMessage": "තාක්ෂණ ශිල්පී <1>{{name}}</1> මෙම කොටස් රැගෙන යයි.",
+          "contractorBanner": "කොන්ත්‍රාත් කාර්යය සඳහා කොටස් — {{company}}",
+          "progressLabel": "කොටස් {{total}} න් {{checked}}ක් තහවුරු කළා",
+          "collectedByLabel": "රැගෙන ගියේ",
+          "collectedByPlaceholder": "කොටස් රැගෙන යන පුද්ගලයාගේ නම",
+          "requestNotFound": "ඉල්ලීම හමු නොවීය",
+          "enterCollectorName": "කොටස් රැගෙන යන පුද්ගලයාගේ නම ඇතුළත් කරන්න.",
+          "issueLabel": "නිකුත් කරන්න: {{quantity}} {{unit}}",
+          "critical": "තීරණාත්මක",
+          "undoSkip": "මඟ හැරීම අහෝසි කරන්න",
+          "cannotFindSkip": "සොයාගත නොහැක — මඟ හරින්න",
+          "issuing": "නිකුත් කරමින්…",
+          "issuePartsChecked": "කොටස් නිකුත් කරන්න ({{checked}}/{{total}} පරීක්ෂා කළා)"
         }
       },
       "po": {
         "title": "මිලදී ගැනීමේ ඇණවුම්",
         "suppliers": "සැපයුම්කරුවන්",
-        "createPO": "ඇණවුම සාදන්න"
+        "createPO": "ඇණවුම සාදන්න",
+        "statuses": {
+          "draft": "කෙටුම්පත",
+          "pending_approval": "අනුමැතිය පොරොත්තුවෙන්",
+          "approved": "අනුමත කළා",
+          "rejected": "ප්‍රතික්ෂේපිත",
+          "sent": "යැවුවා",
+          "invoice_received": "ඉන්වොයිසිය ලැබුණා",
+          "acknowledged": "පිළිගත්තා",
+          "received": "ලැබුණා",
+          "partially_received": "අර්ධ වශයෙන් ලැබුණා",
+          "cancelled": "අවලංගු කළා"
+        },
+        "detail": {
+          "timeline": {
+            "title": "කාලරේඛාව",
+            "steps": {
+              "raised": "ඉදිරිපත් කළා",
+              "sent": "යැවුවා",
+              "invoiceReceived": "ඉන්වොයිසිය ලැබුණා",
+              "acknowledged": "පිළිගත්තා",
+              "received": "ලැබුණා"
+            }
+          },
+          "history": {
+            "title": "ක්‍රියාවලි ඉතිහාසය",
+            "empty": "තවම ඉතිහාසයක් නැත.",
+            "events": {
+              "raised": "ඉදිරිපත් කළා",
+              "rejected": "ප්‍රතික්ෂේප කළා",
+              "approved": "අනුමත කළා",
+              "sentToSupplier": "සැපයුම්කරු වෙත යැවුවා",
+              "invoiceReceived": "ඉන්වොයිසිය ලැබුණා",
+              "pricedPoSent": "මිල සහිත PO යැවුවා",
+              "pricedPoSentRevision": "මිල සහිත PO යැවුවා (සංශෝධනය {{number}})",
+              "acknowledged": "පිළිගත්තා",
+              "stockReceived": "තොගය ලැබුණා",
+              "cancelled": "අවලංගු කළා"
+            }
+          },
+          "items": {
+            "title": "ඇණවුම් අයිතම",
+            "columns": {
+              "part": "කොටස",
+              "ordered": "ඇණවුම් කළ",
+              "received": "ලැබුණු",
+              "outstanding": "ඉතිරි",
+              "unitCost": "ඒකක පිරිවැය",
+              "total": "එකතුව"
+            },
+            "outstandingLabel": "ඉතිරි",
+            "grandTotalLabel": "මුළු එකතුව"
+          },
+          "receiptHistory": {
+            "title": "ලැබීම් ඉතිහාසය",
+            "noDeliveryRef": "බෙදාහැරීමේ යොමුවක් නැත"
+          },
+          "attachments": {
+            "title": "ඇමුණුම්"
+          },
+          "notes": {
+            "title": "සටහන්"
+          },
+          "actions": {
+            "downloadPdf": "PDF බාගන්න / මුද්‍රණය කරන්න",
+            "editPo": "PO සංස්කරණය",
+            "submitForApproval": "අනුමැතිය සඳහා ඉදිරිපත් කරන්න",
+            "approve": "අනුමත කරන්න",
+            "reject": "ප්‍රතික්ෂේප කරන්න",
+            "sendToSupplier": "සැපයුම්කරු වෙත යවන්න",
+            "sendToSupplierDisabledTitle": "යැවීමට පෙර මෙම PO ට සැපයුම්කරුගේ ඊමේල් ලිපිනයක් එක් කරන්න",
+            "submitReceivedInvoice": "ලැබුණු ඉන්වොයිසිය ඉදිරිපත් කරන්න",
+            "reviewInvoiceAndSend": "ඉන්වොයිසිය සමාලෝචනය කර මිල සහිත PO යවන්න",
+            "markAcknowledged": "පිළිගත් ලෙස සලකුණු කරන්න",
+            "attachRenewedInvoice": "අලුත් කළ ඉන්වොයිසිය අමුණන්න",
+            "markAsReceived": "ලැබුණු ලෙස සලකුණු කරන්න",
+            "cancelPo": "PO අවලංගු කරන්න"
+          },
+          "sendModal": {
+            "title": "PO {{supplierName}} වෙත යවන්න",
+            "defaultSupplier": "සැපයුම්කරු",
+            "description": "PO විස්තර සහිත ඊමේල් එකක් <1>{{email}}</1> වෙත යවනු ලැබේ.",
+            "noEmailOnFile": "සැපයුම්කරු (ඊමේල් ලිපිනයක් නැත)",
+            "messageLabel": "පණිවිඩය (විකල්ප)",
+            "messagePlaceholder": "සැපයුම්කරු සඳහා සටහනක් එක් කරන්න…",
+            "cancel": "අවලංගු කරන්න",
+            "send": "යවන්න",
+            "sending": "යවමින්…"
+          },
+          "invoiceModal": {
+            "titleSubmit": "ලැබුණු ඉන්වොයිසිය ඉදිරිපත් කරන්න",
+            "titleRenew": "අලුත් කළ ඉන්වොයිසිය අමුණන්න",
+            "descriptionInitial": "<1>{{poNumber}}</1> සඳහා සැපයුම්කරු එවූ ඉන්වොයිසිය අමුණන්න. ඊළඟට ඔබ එහි මිල සමාලෝචනය කර තහවුරු කරනු ඇත.",
+            "descriptionRenewal": "<1>{{poNumber}}</1> සඳහා සැපයුම්කරුගෙන් යාවත්කාලීන ඉන්වොයිසියක් අමුණන්න. එහි නව මිල යෙදීමට ඉන්වොයිසිය සමාලෝචනය කර මිල සහිත PO යවන්න භාවිත කරන්න.",
+            "fileLabel": "ඉන්වොයිස් ගොනුව",
+            "cancel": "අවලංගු කරන්න",
+            "submit": "ඉදිරිපත් කරන්න",
+            "uploading": "උඩුගත කරමින්…"
+          },
+          "reviewModal": {
+            "title": "ඉන්වොයිස් මිල සමාලෝචනය කරන්න",
+            "description": "එක් එක් අයිතමය සඳහා සැපයුම්කරුගේ ඉන්වොයිසියේ ඇති ඒකක පිරිවැය ඇතුළත් කරන්න — වත්මන් PO මිලෙන් පෙර පුරවා ඇත. යැවීමෙන් සැපයුම්කරුට අවසන් මිල සහිත PO ඊමේල් කෙරේ. මිල වෙනස් වුවහොත් ඔබට පසුව නැවත සංශෝධනය කළ හැක.",
+            "qtyLabel": "ප්‍රමාණය {{count}}",
+            "unitCostLabel": "ඒකක පිරිවැය ({{currency}})",
+            "messageLabel": "සැපයුම්කරුට පණිවිඩය (විකල්ප)",
+            "messagePlaceholder": "සැපයුම්කරු සඳහා සටහනක් එක් කරන්න…",
+            "cancel": "අවලංගු කරන්න",
+            "confirmAndSend": "තහවුරු කර මිල සහිත PO යවන්න",
+            "sending": "යවමින්…"
+          },
+          "cancelModal": {
+            "title": "මිලදී ගැනීමේ ඇණවුම අවලංගු කරන්නද?",
+            "description": "මෙම මිලදී ගැනීමේ ඇණවුම අවලංගු ලෙස සලකුණු වන අතර අහෝසි කළ නොහැක.",
+            "descriptionSentNote": " එය දැනටමත් යවා ඇති බැවින්, පහත හේතුව සමඟ සැපයුම්කරුට ඊමේල් කෙරේ.",
+            "reasonLabelRequired": "හේතුව *",
+            "reasonLabelOptional": "හේතුව (විකල්ප)",
+            "reasonPlaceholderRequired": "මෙම ඇණවුම අවලංගු කරන්නේ ඇයි?",
+            "reasonPlaceholderOptional": "විකල්ප සටහන",
+            "keepPo": "PO තබා ගන්න",
+            "confirmCancel": "ඔව්, අවලංගු කරන්න",
+            "cancelling": "අවලංගු කරමින්…"
+          },
+          "toasts": {
+            "approved": "මිලදී ගැනීමේ ඇණවුම අනුමත කළා.",
+            "approveFailed": "PO අනුමත කිරීම අසාර්ථකයි: {{message}}",
+            "approveFailedGeneric": "PO අනුමත කිරීම අසාර්ථකයි.",
+            "rejected": "මිලදී ගැනීමේ ඇණවුම ප්‍රතික්ෂේප කළා.",
+            "rejectFailed": "PO ප්‍රතික්ෂේප කිරීම අසාර්ථකයි: {{message}}",
+            "rejectFailedGeneric": "PO ප්‍රතික්ෂේප කිරීම අසාර්ථකයි.",
+            "acknowledgedRecorded": "සැපයුම්කරුගේ පිළිගැනීම සටහන් කළා.",
+            "updateFailed": "PO යාවත්කාලීන කිරීම අසාර්ථකයි.",
+            "submittedForApproval": "මිලදී ගැනීමේ ඇණවුම අනුමැතිය සඳහා ඉදිරිපත් කළා.",
+            "submitForApprovalFailed": "PO අනුමැතිය සඳහා ඉදිරිපත් කිරීම අසාර්ථකයි.",
+            "missingSupplierEmail": "යැවීමට පෙර මෙම PO ට සැපයුම්කරුගේ ඊමේල් ලිපිනයක් එක් කරන්න — එය නොමැතිව ඊමේල් යැවිය නොහැක.",
+            "sentToSupplier": "PO සැපයුම්කරු වෙත යැවුවා.",
+            "sentButEmailFailed": "PO යැවූ ලෙස සලකුණු කළා, නමුත් සැපයුම්කරුගේ ඊමේල් පෝලිමට එක් කළ නොහැකි විය. කොන්සෝලය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+            "invoiceSubmitted": "ඉන්වොයිසිය ඉදිරිපත් කළා. මිල තහවුරු කිරීමට එය සමාලෝචනය කරන්න.",
+            "invoiceRenewed": "අලුත් කළ ඉන්වොයිසිය අමුණා ඇත.",
+            "invoiceSubmitFailed": "ඉන්වොයිසිය ඉදිරිපත් කිරීම අසාර්ථකයි.",
+            "pricedPoSent": "මිල සහිත PO සැපයුම්කරු වෙත යැවුවා.",
+            "pricedPoSavedEmailFailed": "මිල සුරැකුවා, නමුත් මිල සහිත PO ඊමේල් පෝලිමට එක් කළ නොහැකි විය. කොන්සෝලය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+            "pricingSaveFailed": "ඉන්වොයිස් මිල සුරැකීම අසාර්ථකයි.",
+            "cancelled": "මිලදී ගැනීමේ ඇණවුම අවලංගු කළා.",
+            "cancelFailed": "PO අවලංගු කිරීම අසාර්ථකයි.",
+            "rejectPrompt": "ප්‍රතික්ෂේප කිරීමට හේතුව?"
+          }
+        },
+        "form": {
+          "supplierInfo": {
+            "title": "සැපයුම්කරු තොරතුරු",
+            "selectSupplierLabel": "සැපයුම්කරු තෝරන්න",
+            "selectSupplierPlaceholder": "— සුරකින ලද සැපයුම්කරුවෙකු තෝරන්න, නැතහොත් පහත විස්තර පුරවන්න —",
+            "fields": {
+              "supplierName": "සැපයුම්කරුගේ නම *",
+              "supplierNamePlaceholder": "සැපයුම්කරුගේ නම",
+              "contactPerson": "සම්බන්ධතා පුද්ගලයා",
+              "contactPersonPlaceholder": "විකුණුම් නියෝජිතයාගේ නම",
+              "phone": "දුරකථනය",
+              "phonePlaceholder": "+94 ...",
+              "email": "ඊමේල්",
+              "emailPlaceholder": "supplier@example.com",
+              "otherContact": "වෙනත් සම්බන්ධතා",
+              "otherContactPlaceholder": "ෆැක්ස්, විකල්ප දුරකථනය, ආදිය.",
+              "currency": "මුදල් ඒකකය",
+              "supplierAddress": "සැපයුම්කරුගේ ලිපිනය",
+              "deliveryAddress": "බෙදාහැරීමේ ලිපිනය",
+              "paymentTerms": "ගෙවීම් කොන්දේසි",
+              "paymentTermsPlaceholder": "උදා. දින 30, 50% අත්තිකාරම්"
+            }
+          },
+          "items": {
+            "title": "ඇණවුම් අයිතම",
+            "addItem": "අයිතමයක් එක් කරන්න",
+            "empty": "අයිතම එක් කර නැත. ආරම්භ කිරීමට \"අයිතමයක් එක් කරන්න\" ක්ලික් කරන්න.",
+            "pricingNote": "සැපයුම්කරුගේ ඉන්වොයිසිය සමාලෝචනය කළ පසු මිල එක් කෙරේ."
+          },
+          "notes": {
+            "label": "සටහන්",
+            "placeholder": "මෙම මිලදී ගැනීමේ ඇණවුම සඳහා අමතර සටහන්…"
+          },
+          "actions": {
+            "saveAsDraft": "කෙටුම්පතක් ලෙස සුරකින්න",
+            "submitForApproval": "අනුමැතිය සඳහා ඉදිරිපත් කරන්න",
+            "approve": "අනුමත කරන්න"
+          },
+          "toasts": {
+            "missingItems": "කොටසක් සහ ප්‍රමාණයක් සහිත අවම වශයෙන් එක් අයිතමයක් එක් කරන්න.",
+            "savedDraft": "PO කෙටුම්පතක් ලෙස සුරැකුවා.",
+            "submittedForApproval": "PO අනුමැතිය සඳහා ඉදිරිපත් කළා.",
+            "approvedUseSend": "PO අනුමත කළා. එය ඊමේල් කිරීමට PO හි \"සැපයුම්කරු වෙත යවන්න\" භාවිත කරන්න.",
+            "saveFailed": "මිලදී ගැනීමේ ඇණවුම සුරැකීම අසාර්ථකයි: {{message}}"
+          }
+        },
+        "list": {
+          "empty": {
+            "title": "තවම මිලදී ගැනීමේ ඇණවුම් නැත",
+            "subtitle": "ආරම්භ කිරීමට ඔබේ පළමු මිලදී ගැනීමේ ඇණවුම සාදන්න."
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "සැපයුම්කරු සොයන්න…",
+            "statusAll": "සියල්ල"
+          },
+          "noMatch": "ඔබේ පෙරහන් වලට ගැළපෙන ඇණවුම් නැත.",
+          "columns": {
+            "poNumber": "PO #",
+            "supplier": "සැපයුම්කරු",
+            "items": "අයිතම",
+            "totalValue": "මුළු වටිනාකම",
+            "status": "තත්ත්වය",
+            "raisedBy": "ඉදිරිපත් කළ අය",
+            "date": "දිනය",
+            "actions": "ක්‍රියා"
+          },
+          "actions": {
+            "view": "බලන්න",
+            "edit": "සංස්කරණය",
+            "approve": "අනුමත කරන්න",
+            "reject": "ප්‍රතික්ෂේප කරන්න",
+            "receive": "ලබා ගන්න",
+            "cancel": "අවලංගු කරන්න"
+          },
+          "toasts": {
+            "approved": "මිලදී ගැනීමේ ඇණවුම අනුමත කළා.",
+            "approveFailed": "PO අනුමත කිරීම අසාර්ථකයි: {{message}}",
+            "approveFailedGeneric": "PO අනුමත කිරීම අසාර්ථකයි.",
+            "rejectPrompt": "ප්‍රතික්ෂේප කිරීමට හේතුව?",
+            "rejected": "මිලදී ගැනීමේ ඇණවුම ප්‍රතික්ෂේප කළා.",
+            "rejectFailed": "PO ප්‍රතික්ෂේප කිරීම අසාර්ථකයි: {{message}}",
+            "rejectFailedGeneric": "PO ප්‍රතික්ෂේප කිරීම අසාර්ථකයි.",
+            "cancelled": "මිලදී ගැනීමේ ඇණවුම අවලංගු කළා.",
+            "cancelFailed": "PO අවලංගු කිරීම අසාර්ථකයි: {{message}}",
+            "cancelFailedGeneric": "PO අවලංගු කිරීම අසාර්ථකයි."
+          }
+        },
+        "itemRow": {
+          "itemLabel": "අයිතමය {{number}}",
+          "removeAriaLabel": "අයිතමය ඉවත් කරන්න",
+          "part": {
+            "label": "කොටස *",
+            "change": "වෙනස් කරන්න",
+            "searchPlaceholder": "අංකය හෝ නම අනුව කොටස සොයන්න…",
+            "scanPlaceholder": "QR ස්කෑන් කරන්න / කොටස් අංකය ඇතුළත් කර Enter ඔබන්න",
+            "lookup": "සොයන්න",
+            "lookingUp": "සොයමින්…",
+            "scan": "ස්කෑන්",
+            "scanTitle": "කැමරාවෙන් QR ස්කෑන් කරන්න",
+            "scanModalTitle": "PO සඳහා කොටස ස්කෑන් කරන්න",
+            "notFound": "\"{{term}}\" සඳහා කොටසක් හමු නොවීය",
+            "lookupFailed": "QR සෙවීම අසාර්ථකයි"
+          },
+          "fields": {
+            "quantity": "ප්‍රමාණය *",
+            "unit": "ඒකකය",
+            "expectedDelivery": "අපේක්ෂිත බෙදාහැරීම"
+          }
+        },
+        "supplierPicker": {
+          "title": "මෙම සැපයුම්කරුගෙන් කලින් මිලදී ගත් කොටස් — එකට යැවීමට ඒවායින් කිසිවක් එක් කරන්නද?",
+          "lowStockBadge": "අඩු තොග",
+          "currentLabel": "වත්මන්:",
+          "lowAtLabel": "අඩු මට්ටම:",
+          "maxLabel": "උපරිම:",
+          "addSelected_one": "තෝරාගත් {{count}} මෙම PO ට එක් කරන්න",
+          "addSelected_other": "තෝරාගත් {{count}} මෙම PO ට එක් කරන්න",
+          "addSelectedNone": "තෝරාගත් ඒවා මෙම PO ට එක් කරන්න"
+        },
+        "lowStockWidget": {
+          "title": "අඩු තොග ඇඟවීම්",
+          "createPoForSelected_one": "තෝරාගත් {{count}} සඳහා PO සාදන්න",
+          "createPoForSelected_other": "තෝරාගත් {{count}} සඳහා PO සාදන්න",
+          "allAboveMin": "✓ සියලු කොටස් අවම තොග මට්ටමට ඉහළින්",
+          "selectAriaLabel": "{{name}} තෝරන්න",
+          "stockLabel": "තොගය: {{value}} {{unit}}",
+          "minLabel": "අවම: {{value}} {{unit}}",
+          "orderNow": "දැන් ඇණවුම් කරන්න"
+        },
+        "createPage": {
+          "title": "මිලදී ගැනීමේ ඇණවුමක් සාදන්න"
+        },
+        "editPage": {
+          "title": "{{poNumber}} සංස්කරණය",
+          "backToList": "මිලදී ගැනීමේ ඇණවුම් වෙත ආපසු",
+          "notFound": "මිලදී ගැනීමේ ඇණවුම හමු නොවීය."
+        },
+        "detailPage": {
+          "backToList": "මිලදී ගැනීමේ ඇණවුම් වෙත ආපසු",
+          "notFound": "මිලදී ගැනීමේ ඇණවුම හමු නොවීය."
+        }
       },
       "filters": {
         "searchPlaceholder": "කොටස් සොයන්න…",
@@ -211,6 +872,440 @@
         "stockStatus": "තොග තත්ත්වය",
         "allSuppliers": "සියලු සැපයුම්කරුවන්",
         "clear": "හිස් කරන්න"
+      },
+      "enums": {
+        "status": {
+          "active": "සක්‍රිය",
+          "inactive": "අක්‍රිය",
+          "discontinued": "නවතා දමා ඇත"
+        },
+        "criticality": {
+          "critical": "තීරණාත්මක",
+          "high": "ඉහළ",
+          "medium": "මධ්‍යම",
+          "low": "අඩු"
+        },
+        "stockStatus": {
+          "in_stock": "තොගයේ ඇත",
+          "low_stock": "අඩු තොග",
+          "out_of_stock": "තොගය අවසන්"
+        },
+        "movementType": {
+          "issue": "නිකුත් කිරීම",
+          "return": "ආපසු දීම",
+          "receive": "ලැබීම",
+          "adjustment": "ගැලපීම",
+          "reserve": "වෙන් කිරීම",
+          "unreserve": "වෙන් කිරීම ඉවත් කිරීම",
+          "import_create": "ආයාත (නව)",
+          "import_update": "ආයාත (යාවත්කාලීන)",
+          "transfer_out": "පිටතට මාරු කිරීම",
+          "transfer_in": "ඇතුළට මාරු කිරීම"
+        }
+      },
+      "partForm": {
+        "fields": {
+          "partNumber": "කොටස් අංකය",
+          "partNumberAutoGenerated": "ස්වයංක්‍රීයව සකසයි ({{format}})",
+          "partNumberSelectCategory": "ආකෘතිය පෙරදසුන් කිරීමට කාණ්ඩයක් තෝරන්න",
+          "partNumberHint": "සුරකින විට ස්වයංක්‍රීයව පවරයි: කාණ්ඩය-සැපයුම්කරු-ස්ථානය-අනුක්‍රමය (උදා. විදුලි, සැපයුම්කරු SUP-LK-000012, රාක්කය A පෙට්ටිය 2 → E-012-RAS-0001).",
+          "name": "නම",
+          "namePlaceholder": "කොටසේ නම",
+          "category": "කාණ්ඩය",
+          "unit": "ඒකකය",
+          "unitSelect": "ඒකකය තෝරන්න",
+          "status": "තත්ත්වය",
+          "criticality": "තීරණාත්මකභාවය",
+          "currentStock": "වත්මන් තොගය",
+          "minStockLevel": "අවම තොග මට්ටම",
+          "maxStockLevel": "උපරිම තොග මට්ටම",
+          "storeLocation": "ගබඩා ස්ථානය",
+          "storeLocationPlaceholder": "රාක්කය A3, බඳුන 12…",
+          "stockPreview": "තොග මට්ටමේ පෙරදසුන",
+          "brand": "සන්නාමය",
+          "brandPlaceholder": "සන්නාම නාමය",
+          "modelRef": "මාදිලි යොමුව",
+          "modelRefPlaceholder": "මාදිලිය / කොටස් කේතය",
+          "warrantyMonths": "වගකීම (මාස)",
+          "description": "විස්තරය",
+          "descriptionPlaceholder": "විකල්ප විස්තරය…",
+          "compatibleMachines": "ගැළපෙන යන්ත්‍ර",
+          "warrantyFiles": "වගකීම් ලේඛන / රූප (විකල්ප)",
+          "filesSelected_one": "ගොනු {{count}}ක් තෝරා ඇත",
+          "filesSelected_other": "ගොනු {{count}}ක් තෝරා ඇත",
+          "unitCost": "ඒකක පිරිවැය (LKR)",
+          "supplier": "සැපයුම්කරු",
+          "selectSupplier": "සැපයුම්කරුවෙකු තෝරන්න…",
+          "noSuppliers": "තවම සැපයුම්කරුවන් නැත.",
+          "addSupplierLink": "සැපයුම්කරුවෙකු එක් කරන්න",
+          "addSupplierSuffix": "පළමුව, පසුව එය මෙහි තෝරා ගත හැක.",
+          "supplierContact": "සැපයුම්කරු සම්බන්ධතා",
+          "supplierContactPlaceholder": "තෝරාගත් සැපයුම්කරුගෙන්",
+          "supplierPartCode": "සැපයුම්කරුගේ කොටස් කේතය",
+          "supplierPartCodePlaceholder": "සැපයුම්කරුගෙන් ස්වයංක්‍රීයව පිරවේ, සංස්කරණය කළ හැක",
+          "leadTimeDays": "ඉදිරිපත් කාලය (දින)",
+          "lastPurchaseDate": "අවසන් මිලදී ගැනීමේ දිනය",
+          "lastPurchasePrice": "අවසන් මිලදී ගැනීමේ මිල (LKR)",
+          "notes": "සටහන්",
+          "notesPlaceholder": "අමතර සටහන්…"
+        }
+      },
+      "addPartPage": {
+        "title": "නව කොටසක් එක් කරන්න",
+        "backToCatalog": "නාමාවලියට ආපසු",
+        "sections": {
+          "identification": "1 · හඳුනා ගැනීම",
+          "stockLevels": "2 · තොග මට්ටම්",
+          "details": "3 · විස්තර",
+          "supplierPricing": "4 · සැපයුම්කරු සහ මිල",
+          "notes": "5 · සටහන්"
+        },
+        "actions": {
+          "savePart": "කොටස සුරකින්න",
+          "saveAndAddAnother": "සුරකින්න සහ තවත් එකක් එක් කරන්න",
+          "cancel": "අවලංගු කරන්න"
+        },
+        "toasts": {
+          "createSuccess": "කොටස {{partNumber}} සාර්ථකව සාදන ලදී.",
+          "warrantyUploadFailed": "කොටස සුරැකුවා, නමුත් වගකීම් ගොනුව උඩුගත කිරීම අසාර්ථක විය. ඔබට එය කොටස් පිටුවෙන් ඇමිණිය හැක.",
+          "createFailed": "කොටස සෑදීම අසාර්ථකයි: {{message}}"
+        },
+        "errors": {
+          "unknown": "නොදන්නා දෝෂයකි"
+        }
+      },
+      "editPartPage": {
+        "title": "කොටස සංස්කරණය",
+        "sections": {
+          "identification": "හඳුනා ගැනීම",
+          "stockLevels": "තොග මට්ටම්",
+          "details": "විස්තර",
+          "supplierPricing": "සැපයුම්කරු සහ මිල",
+          "notes": "සටහන්"
+        },
+        "actions": {
+          "saveChanges": "වෙනස්කම් සුරකින්න",
+          "cancel": "අවලංගු කරන්න"
+        },
+        "toasts": {
+          "removeDocSuccess": "වගකීම් ලේඛනය ඉවත් කළා.",
+          "removeDocFailed": "ලේඛනය ඉවත් කිරීම අසාර්ථකයි.",
+          "updateSuccess": "කොටස සාර්ථකව යාවත්කාලීන කළා.",
+          "updateFailed": "කොටස යාවත්කාලීන කිරීම අසාර්ථකයි."
+        },
+        "partNotFound": "කොටස හමු නොවීය.",
+        "adjustModal": {
+          "title": "තොග ප්‍රමාණය වෙනස් විය",
+          "description": "තොගය {{from}} සිට {{to}} දක්වා වෙනස් විය. මෙම ගැලපීමට හේතුවක් සපයන්න.",
+          "reasonLabel": "හේතුව *",
+          "reasonPlaceholder": "තොග ගැලපීමට හේතුව…",
+          "cancel": "අවලංගු කරන්න",
+          "confirm": "තහවුරු කරන්න",
+          "saving": "සුරකිමින්…"
+        }
+      },
+      "detailPage": {
+        "backToCatalog": "නාමාවලියට ආපසු",
+        "partNotFound": "කොටස හමු නොවීය.",
+        "tabs": {
+          "overview": "දළ විශ්ලේෂණය",
+          "history": "තොග ඉතිහාසය",
+          "requests": "සක්‍රිය ඉල්ලීම්",
+          "files": "ගොනු",
+          "analytics": "විශ්ලේෂණ"
+        },
+        "files": {
+          "warrantyDocuments": "වගකීම් ලේඛන",
+          "cadFiles": "CAD ගොනු",
+          "images": "රූප",
+          "imageLabel": "රූපය {{index}}",
+          "noWarrantyDocuments": "වගකීම් ලේඛන අමුණා නැත.",
+          "noCadFiles": "CAD ගොනු අමුණා නැත.",
+          "noImages": "රූප අමුණා නැත."
+        },
+        "analyticsPlaceholder": "භාවිත විශ්ලේෂණ මෙහි දිස්වේ.",
+        "header": {
+          "outOfStock": "තොගය අවසන් — {{unit}} 0ක් ඇත",
+          "lowStock": "අඩු තොග — {{available}} {{unit}} ඉතිරියි (අවම: {{min}})",
+          "inStock": "තොගයේ ඇත — {{available}} {{unit}} ඇත",
+          "current": "වත්මන්",
+          "minStockLevel": "අවම තොග මට්ටම",
+          "available": "ඇති",
+          "editPart": "කොටස සංස්කරණය",
+          "receiveStock": "තොගය ලබා ගන්න",
+          "adjustStock": "තොගය ගලපන්න",
+          "raisePO": "PO ඉදිරිපත් කරන්න",
+          "viewQr": "QR බලන්න"
+        },
+        "overview": {
+          "partDetails": "කොටස් විස්තර",
+          "brand": "සන්නාමය",
+          "modelRef": "මාදිලි යොමුව",
+          "warranty": "වගකීම",
+          "warrantyMonths_one": "මාස {{count}}",
+          "warrantyMonths_other": "මාස {{count}}",
+          "notes": "සටහන්",
+          "created": "සෑදූ දිනය",
+          "updated": "යාවත්කාලීන කළ දිනය",
+          "locationStorage": "ස්ථානය සහ ගබඩාව",
+          "storeLocation": "ගබඩා ස්ථානය",
+          "compatibleMachines": "ගැළපෙන යන්ත්‍ර",
+          "supplierInfo": "සැපයුම්කරු තොරතුරු",
+          "supplier": "සැපයුම්කරු",
+          "supplierCode": "සැපයුම්කරු කේතය",
+          "contactPerson": "සම්බන්ධතා පුද්ගලයා",
+          "phone": "දුරකථනය",
+          "email": "ඊමේල්",
+          "address": "ලිපිනය",
+          "country": "රට",
+          "website": "වෙබ් අඩවිය",
+          "paymentMethod": "ගෙවීම් ක්‍රමය",
+          "bankDetails": "බැංකු විස්තර",
+          "supplierPartCode": "සැපයුම්කරුගේ කොටස් කේතය",
+          "leadTime": "ඉදිරිපත් කාලය",
+          "leadTimeDays_one": "දින {{count}}",
+          "leadTimeDays_other": "දින {{count}}",
+          "lastPurchase": "අවසන් මිලදී ගැනීම",
+          "stockLevels": "තොග මට්ටම්",
+          "current": "වත්මන්",
+          "reserved": "වෙන් කළ",
+          "available": "ඇති",
+          "lastReceived": "අවසන් වරට ලැබුණේ",
+          "lastIssued": "අවසන් වරට නිකුත් කළේ",
+          "costSummary": "පිරිවැය සාරාංශය",
+          "unitCost": "ඒකක පිරිවැය",
+          "lastPurchasePrice": "අවසන් මිලදී ගැනීමේ මිල",
+          "totalStockValue": "මුළු තොග වටිනාකම",
+          "totalUsedAllTime": "මුළු භාවිතය (සියලු කාලය)",
+          "totalCostAllTime": "මුළු පිරිවැය (සියලු කාලය)"
+        },
+        "history": {
+          "totalReceived": "මුළු ලැබීම්",
+          "totalIssued": "මුළු නිකුත් කිරීම්",
+          "adjustments": "ගැලපීම්",
+          "netChange": "ශුද්ධ වෙනස",
+          "allTypes": "සියලු වර්ග",
+          "movementTypes": {
+            "issue": "නිකුත් කිරීම",
+            "return": "ආපසු දීම",
+            "receive": "ලැබීම",
+            "adjustment": "ගැලපීම",
+            "reserve": "වෙන් කිරීම",
+            "unreserve": "වෙන් කිරීම ඉවත් කිරීම",
+            "transfer_out": "පිටතට මාරු කිරීම",
+            "transfer_in": "ඇතුළට මාරු කිරීම"
+          },
+          "fromPlaceholder": "සිට",
+          "toPlaceholder": "දක්වා",
+          "loading": "චලන පූරණය වෙමින්…",
+          "noMovements": "තොග චලන හමු නොවීය.",
+          "by": "කළ අය:",
+          "ref": "යොමුව:",
+          "wo": "WO:"
+        },
+        "activeRequests": {
+          "loading": "සක්‍රිය ඉල්ලීම් පූරණය වෙමින්…",
+          "empty": "මෙම කොටස සඳහා අනුමැතිය බලාපොරොත්තුවෙන් සක්‍රිය ඉල්ලීම් නැත.",
+          "partsRequestsAwaiting": "අනුමැතිය බලාපොරොත්තුවෙන් කොටස් ඉල්ලීම්",
+          "qty": "ප්‍රමාණය {{quantity}}",
+          "requestedBy": "{{name}} ඉල්ලුවා",
+          "awaitingStoreKeeper": "ගබඩා භාරකරු බලාපොරොත්තුවෙන්",
+          "awaitingSupervisor": "අධීක්ෂක බලාපොරොත්තුවෙන්",
+          "purchaseOrdersAwaiting": "අනුමැතිය බලාපොරොත්තුවෙන් මිලදී ගැනීමේ ඇණවුම්",
+          "pendingApproval": "අනුමැතිය පොරොත්තුවෙන්"
+        },
+        "qrModal": {
+          "title": "කොටස් QR කේතය",
+          "download": "බාගන්න",
+          "print": "මුද්‍රණය"
+        }
+      },
+      "import": {
+        "stepIndicator": {
+          "template": "සැකිල්ල",
+          "upload": "උඩුගත කිරීම",
+          "validate": "වලංගු කිරීම",
+          "import": "ආයාතය",
+          "complete": "සම්පූර්ණයි"
+        },
+        "templateStep": {
+          "pageTitle": "Excel හෝ CSV වලින් තොග ආයාත කරන්න",
+          "pageSubtitle": "කොටස් තොග වශයෙන් ආයාත හෝ යාවත්කාලීන කිරීමට අපගේ සැකිල්ල භාවිත කරන්න.",
+          "howItWorks": "එය ක්‍රියා කරන ආකාරය",
+          "steps": [
+            "පහත සැකිල්ල බාගෙන ඔබේ කොටස් දත්ත පුරවන්න.",
+            "සම්පූර්ණ කළ ගොනුව උඩුගත කරන්න (උපරිම 10 MB, .xlsx හෝ .csv).",
+            "අපි සෑම පේළියක්ම වලංගු කරමු — ඉදිරියට යාමට පෙර දෝෂ නිවැරදි කරන්න.",
+            "ආයාත පෙරදසුන සමාලෝචනය කර, වෙනස්කම් යෙදීමට තහවුරු කරන්න."
+          ],
+          "templateDetails": "සැකිලි විස්තර",
+          "sheets": "පත්‍ර",
+          "columns": "තීරු",
+          "maxRows": "උපරිම පේළි",
+          "maxFileSize": "උපරිම ගොනු ප්‍රමාණය",
+          "tipsForSuccess": "සාර්ථකත්වය සඳහා ඉඟි",
+          "tips": [
+            "* ලකුණු කළ තීරු අනිවාර්යයි — ඒවා හිස්ව තැබුවහොත් එම පේළිය වලංගු කිරීමෙන් අසමත් වේ.",
+            "කොටස් අංකය විකල්පයි — හිස්ව තැබුවහොත් පද්ධතිය කාණ්ඩයෙන් එකක් ස්වයංක්‍රීයව සකසයි (උදා. E-012-RAS-0001, කාණ්ඩය, සැපයුම්කරු සහ ස්ථානය ඒකාබද්ධ කරමින්).",
+            "කොටස් අංකයක් ලබා දී එය දැනටමත් පද්ධතියේ ඇත්නම්, පේළිය එම කොටස යාවත්කාලීන කරයි.",
+            "ඔබේ සැපයුම්කරුවන් ලැයිස්තුවේ නැති ඕනෑම සැපයුම්කරු නාමයක් ස්වයංක්‍රීයව සකසන සැපයුම්කරු කේතයක් සමඟ ස්වයංක්‍රීයව එක් කෙරේ.",
+            "දිනයන් YYYY-MM-DD ආකෘතියෙන් විය යුතුය (උදා. 2025-01-15).",
+            "ඉඩ දෙන අගයන් සඳහා සැකිල්ල තුළ ඇති \"Valid Units\" සහ \"Valid Categories\" පත්‍ර බලන්න."
+          ],
+          "downloadTemplate": "සැකිල්ල බාගන්න",
+          "nextUploadFile": "ඊළඟ: ගොනුව උඩුගත කරන්න"
+        },
+        "uploadStep": {
+          "pageTitle": "ඔබේ ගොනුව උඩුගත කරන්න",
+          "pageSubtitle": "සම්පූර්ණ කළ සැකිල්ල උඩුගත කරන්න. .xlsx හෝ .csv, උපරිම 10 MB.",
+          "dropHere": "ඔබේ ගොනුව මෙහි දමන්න",
+          "dragDrop": "ඔබේ .xlsx හෝ .csv ගොනුව මෙහි ඇදගෙන ඇවිත් දමන්න",
+          "orBrowse": "නැතහොත් ගොනු පිරික්සීමට ක්ලික් කරන්න",
+          "maxSizeHint": "උපරිම 10 MB · .xlsx හෝ .csv",
+          "removeFile": "ගොනුව ඉවත් කරන්න",
+          "invalidFileType": ".xlsx හෝ .csv ගොනු පමණක් පිළිගැනේ.",
+          "fileTooLarge": "ගොනුව 10 MB සීමාව ඉක්මවයි ({{size}}). ගොනු ප්‍රමාණය අඩු කරන්න.",
+          "uploadAndValidate": "උඩුගත කර වලංගු කරන්න",
+          "back": "ආපසු"
+        },
+        "validation": {
+          "passed": "වලංගු කිරීම සමත්",
+          "failed": "වලංගු කිරීම අසමත්",
+          "allValid": "සියලු පේළි වලංගු වන අතර ආයාත කිරීමට සූදානම්.",
+          "errorsMustBeFixed_one": "ආයාත කිරීමට පෙර දෝෂ {{count}}ක් නිවැරදි කළ යුතුය.",
+          "errorsMustBeFixed_other": "ආයාත කිරීමට පෙර දෝෂ {{count}}ක් නිවැරදි කළ යුතුය.",
+          "totalRows": "මුළු පේළි",
+          "valid": "වලංගු",
+          "errors": "දෝෂ",
+          "create": "සාදන්න",
+          "update": "යාවත්කාලීන",
+          "uploadNewFile": "නව ගොනුවක් උඩුගත කරන්න",
+          "confirmImport": "ආයාතය තහවුරු කරන්න",
+          "uploadDifferentFile": "වෙනත් ගොනුවක් උඩුගත කරන්න"
+        },
+        "progress": {
+          "importingParts": "කොටස් ආයාත කරමින්…",
+          "importingOfTotal": "කොටස් {{total}} න් {{current}} ආයාත කරමින්",
+          "doNotNavigateAway": "ආයාතය ක්‍රියාත්මක වන අතරතුර මෙම පිටුවෙන් ඉවත් නොවන්න."
+        },
+        "complete": {
+          "title": "ආයාතය සම්පූර්ණයි!",
+          "summary": "කොටස් {{newCount}}ක් සාදන ලදී · කොටස් {{updateCount}}ක් යාවත්කාලීන කළා",
+          "rowsSkipped_one": "පේළි {{count}}ක් මඟ හැරිණි",
+          "rowsSkipped_other": "පේළි {{count}}ක් මඟ හැරිණි",
+          "created": "සාදන ලදී",
+          "updated": "යාවත්කාලීන කළා",
+          "skipped": "මඟ හැරිණි",
+          "viewImportedParts": "ආයාත කළ කොටස් බලන්න",
+          "undoImport": "ආයාතය අහෝසි කරන්න",
+          "undoWithinHours": "(පැය 24 ඇතුළත)",
+          "undoModalTitle": "ආයාතය අහෝසි කරන්නද?",
+          "undoModalBody": "මෙය මෙම ආයාතයේ සියලු වෙනස්කම් ආපසු හරවයි. සාදන ලද කොටස් මැකෙන අතර යාවත්කාලීන කළ කොටස් ප්‍රතිස්ථාපනය වේ.",
+          "cancel": "අවලංගු කරන්න",
+          "undoing": "අහෝසි කරමින්…",
+          "yesUndo": "ඔව්, අහෝසි කරන්න"
+        },
+        "historyPage": {
+          "title": "ආයාත ඉතිහාසය"
+        },
+        "toasts": {
+          "parseFailed": "ගොනුව විග්‍රහ කිරීම අසාර්ථකයි. ආකෘතිය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+          "importFailed": "ආයාතය අසාර්ථකයි. නැවත උත්සාහ කරන්න.",
+          "importReversed": "ආයාතය ආපසු හරවා ඇත.",
+          "undoFailed": "ආයාතය අහෝසි කිරීම අසාර්ථකයි.",
+          "reverseSuccess": "ආයාතය සාර්ථකව ආපසු හැරවිණි.",
+          "reverseFailed": "ආයාතය ආපසු හැරවීම අසාර්ථකයි."
+        },
+        "page": {
+          "title": "Excel සහ CSV ආයාතය",
+          "subtitle": "පැතුරුම්පතකින් තොග කොටස් ආයාත හෝ යාවත්කාලීන කරන්න."
+        },
+        "historyTable": {
+          "emptyTitle": "ආයාත සැසි හමු නොවීය",
+          "emptySubtitle": "ඔබේ පළමු ආයාතයෙන් පසු ආයාත ඉතිහාසය මෙහි දිස්වේ.",
+          "columns": {
+            "date": "දිනය",
+            "file": "ගොනුව",
+            "rows": "පේළි",
+            "created": "සාදන ලද",
+            "updated": "යාවත්කාලීන කළ",
+            "errors": "දෝෂ",
+            "importedBy": "ආයාත කළ අය",
+            "status": "තත්ත්වය",
+            "actions": "ක්‍රියා"
+          },
+          "details": "විස්තර",
+          "undo": "අහෝසි කරන්න",
+          "undoModal": {
+            "title": "ආයාතය අහෝසි කරන්නද?",
+            "body": "මෙය මෙම ආයාත සැසියේ සියලු වෙනස්කම් ආපසු හරවයි. සාදන ලද කොටස් මැකෙන අතර යාවත්කාලීන කළ කොටස් ඒවායේ පෙර තත්ත්වයට ප්‍රතිස්ථාපනය වේ.",
+            "cancel": "අවලංගු කරන්න",
+            "undoing": "අහෝසි කරමින්…",
+            "yesUndo": "ඔව්, අහෝසි කරන්න"
+          }
+        },
+        "errorTable": {
+          "errorsFound_one": "වලංගු කිරීමේ දෝෂ {{count}}ක් හමු විය",
+          "errorsFound_other": "වලංගු කිරීමේ දෝෂ {{count}}ක් හමු විය",
+          "downloadReport": "වාර්තාව බාගන්න",
+          "columns": {
+            "row": "පේළි #",
+            "column": "තීරුව",
+            "errorCode": "දෝෂ කේතය",
+            "message": "පණිවිඩය",
+            "fixHint": "නිවැරදි කිරීමේ ඉඟිය"
+          }
+        },
+        "previewTable": {
+          "showingRows": "පේළි {{total}} න් පළමු {{shown}} පෙන්වයි. සියලු පේළි වලංගු කළා.",
+          "newPartsWillBeCreated_one": "නව කොටස් {{count}}ක් සාදනු ඇත",
+          "newPartsWillBeCreated_other": "නව කොටස් {{count}}ක් සාදනු ඇත",
+          "partsWillBeUpdated_one": "කොටස් {{count}}ක් යාවත්කාලීන වනු ඇත",
+          "partsWillBeUpdated_other": "කොටස් {{count}}ක් යාවත්කාලීන වනු ඇත",
+          "autoGenerated": "ස්වයංක්‍රීයව සකසයි",
+          "columns": {
+            "partNumber": "කොටස් අංකය",
+            "partName": "කොටසේ නම",
+            "category": "කාණ්ඩය",
+            "unit": "ඒකකය",
+            "stock": "තොගය",
+            "unitCost": "ඒකක පිරිවැය",
+            "action": "ක්‍රියාව"
+          },
+          "actionCreate": "සාදන්න",
+          "actionUpdate": "යාවත්කාලීන"
+        }
+      },
+      "table": {
+        "noPartsFound": "කොටස් හමු නොවීය.",
+        "columns": {
+          "partNumber": "කොටස් අංකය",
+          "partName": "කොටසේ නම",
+          "location": "ස්ථානය",
+          "category": "කාණ්ඩය",
+          "criticality": "තීරණාත්මකභාවය",
+          "status": "තත්ත්වය",
+          "minStockLevel": "අවම තොග මට්ටම",
+          "availableStock": "පවතින තොගය",
+          "unitCost": "ඒකක පිරිවැය",
+          "totalCost": "මුළු පිරිවැය",
+          "actions": "ක්‍රියා"
+        },
+        "actions": {
+          "view": "බලන්න",
+          "edit": "සංස්කරණය",
+          "qr": "QR"
+        }
+      },
+      "card": {
+        "viewQrCode": "QR කේතය බලන්න",
+        "noLocation": "ස්ථානයක් නැත"
+      },
+      "shared": {
+        "stockGauge": {
+          "min": "අවම",
+          "max": "උපරිම"
+        }
       }
     },
     "widgets": {
@@ -7558,6 +8653,215 @@
         "toasts": {
           "issued": "වැඩ අවසරය නිකුත් කළා.",
           "failed": "අවසරය නිකුත් කිරීම අසාර්ථකයි."
+        }
+      }
+    },
+    "triage": {
+      "knowledge": {
+        "page": {
+          "title": "ට්‍රයාජ්",
+          "subtitle": "ක්‍රියාපටිපාටි, මාර්ගෝපදේශ, සම්බන්ධතා සහ ඉක්මන් ඇගයීම්",
+          "create": "සාදන්න",
+          "selectCategoryPrompt": "වම් පැනලයෙන් කාණ්ඩයක් තෝරන්න"
+        },
+        "categoryRail": {
+          "categoriesHeading": "කාණ්ඩ",
+          "noCategories": "තවම කාණ්ඩ නැත",
+          "contacts": "වගකිව යුතු පුද්ගලයින්",
+          "assessments": "ඉක්මන් ඇගයීම්"
+        },
+        "contactList": {
+          "heading": "වගකිව යුතු පුද්ගලයින්",
+          "subtitle": "හදිසි සම්බන්ධතා සහ ප්‍රධාන කාර්ය මණ්ඩලය",
+          "empty": "තවම සම්බන්ධතා එක් කර නැත.",
+          "deleteTitle": "සම්බන්ධතාව මකන්න",
+          "levels": {
+            "normal": "සාමාන්‍ය",
+            "emergency": "හදිසි"
+          }
+        },
+        "contentList": {
+          "back": "ආපසු",
+          "empty": "මෙම කාණ්ඩයේ තවම අන්තර්ගතයක් නැත.",
+          "deleteTitle": "අයිතමය මකන්න",
+          "openFullSize": "සම්පූර්ණ ප්‍රමාණයෙන් විවෘත කරන්න ↗",
+          "types": {
+            "procedure": "ක්‍රියාපටිපාටිය",
+            "guide": "මාර්ගෝපදේශය",
+            "video": "වීඩියෝ",
+            "pdf": "PDF",
+            "image": "රූපය",
+            "media": "මාධ්‍ය"
+          }
+        },
+        "assessmentList": {
+          "heading": "ඉක්මන් ඇගයීම්",
+          "subtitle": "ඔබේ දැනුම පරීක්ෂා කර සහතික ලබා ගන්න",
+          "empty": "තවම ඇගයීම් නැත.",
+          "passMark": "සමත් ලකුණ: {{value}}%",
+          "lastScore": "අවසන් ලකුණ: {{value}}%",
+          "status": {
+            "certified": "සහතික ලත්",
+            "retry": "නැවත උත්සාහ කරන්න",
+            "start": "ආරම්භ කරන්න"
+          },
+          "button": {
+            "certified": "සමාලෝචනය",
+            "retry": "ප්‍රශ්නාවලිය නැවත උත්සාහ කරන්න",
+            "start": "ප්‍රශ්නාවලියට මුහුණ දෙන්න"
+          }
+        },
+        "quizModal": {
+          "passMark": "සමත් ලකුණ: {{value}}%",
+          "close": "වසන්න",
+          "progress": "{{current}} / {{total}}",
+          "correct": "✓ නිවැරදියි!",
+          "incorrect": "✗ වැරදියි",
+          "next": "ඊළඟ →",
+          "finish": "අවසන් කරන්න",
+          "resultSummary": "{{total}} න් {{score}}ක් නිවැරදියි · සමත් ලකුණ {{passMark}}%",
+          "passedTitle": "ඇගයීම සමත්!",
+          "passedDetail": "ඔබ {{title}} සමත් වුණා",
+          "failedTitle": "සමත් වූයේ නැත",
+          "failedDetail": "ද්‍රව්‍ය සමාලෝචනය කර නැවත උත්සාහ කරන්න",
+          "savingResult": "ප්‍රතිඵලය සුරකිමින්..."
+        },
+        "builder": {
+          "accessRestricted": {
+            "title": "ප්‍රවේශය සීමා කර ඇත",
+            "message": "ට්‍රයාජ් සාදන්නා අධීක්ෂකවරුන්, කම්හල් කළමනාකරුවන්, මානව සම්පත් නිලධාරීන්, ආරක්ෂක නිලධාරීන් සහ පරිපාලකයින් සඳහා පමණි."
+          },
+          "back": "ට්‍රයාජ් වෙත ආපසු",
+          "title": "ට්‍රයාජ් සාදන්නා",
+          "subtitle": "ට්‍රයාජ් අන්තර්ගතය, සම්බන්ධතා සහ ඇගයීම් සාදන්න සහ කළමනාකරණය කරන්න",
+          "tabs": {
+            "content": "අන්තර්ගතය සහ කාණ්ඩ",
+            "contacts": "සම්බන්ධතා",
+            "assessments": "ඇගයීම්"
+          },
+          "contactBuilder": {
+            "addContactHeading": "සම්බන්ධතාවක් එක් කරන්න",
+            "currentContactsHeading": "වත්මන් සම්බන්ධතා",
+            "fields": {
+              "name": "නම *",
+              "role": "භූමිකාව",
+              "dept": "දෙපාර්තමේන්තුව",
+              "phone": "දුරකථනය / දිගුව *",
+              "priority": "ප්‍රමුඛතාව"
+            },
+            "placeholders": {
+              "name": "සම්පූර්ණ නම",
+              "role": "උදා. නඩත්තු අධීක්ෂක",
+              "dept": "උදා. ඉංජිනේරු",
+              "phone": "උදා. දිගුව 555 හෝ +94 77 123 4567"
+            },
+            "levels": {
+              "normal": "සාමාන්‍ය",
+              "emergency": "හදිසි"
+            },
+            "saving": "සුරකිමින්...",
+            "addContact": "+ සම්බන්ධතාවක් එක් කරන්න"
+          },
+          "assessmentBuilder": {
+            "newAssessmentHeading": "නව ඇගයීම",
+            "fields": {
+              "title": "මාතෘකාව *",
+              "category": "කාණ්ඩය *",
+              "passMark": "සමත් ලකුණ (%)"
+            },
+            "placeholders": {
+              "title": "උදා. ආරක්ෂක අගුළු දැමීමේ ක්‍රියාපටිපාටි ප්‍රශ්නාවලිය",
+              "selectCategory": "තෝරන්න…"
+            },
+            "questionLabel": "ප්‍රශ්නය {{number}}",
+            "removeQuestion": "ඉවත් කරන්න",
+            "questionPlaceholder": "ප්‍රශ්න පෙළ…",
+            "optionPlaceholder": "විකල්පය {{letter}}",
+            "correctAnswerTitle": "නිවැරදි පිළිතුර ලෙස සලකුණු කරන්න",
+            "addQuestion": "+ ප්‍රශ්නයක් එක් කරන්න",
+            "saving": "සුරකිමින්...",
+            "saveAssessment": "💾 ඇගයීම සුරකින්න",
+            "existingHeading": "පවතින ඇගයීම් ({{count}})",
+            "empty": "තවම ඇගයීම් සාදා නැත.",
+            "summary": "{{category}} · ප්‍රශ්න {{count}} · සමත් {{passMark}}%",
+            "deleteTitle": "ඇගයීම මකන්න",
+            "status": {
+              "open": "විවෘත",
+              "archived": "සංරක්ෂිත"
+            }
+          },
+          "contentBuilder": {
+            "addContentItemHeading": "අන්තර්ගත අයිතමයක් එක් කරන්න",
+            "fields": {
+              "category": "කාණ්ඩය *",
+              "type": "වර්ගය *",
+              "title": "මාතෘකාව *",
+              "meta": "මෙටා / උපමාතෘකාව",
+              "introduction": "හැඳින්වීම",
+              "steps": "පියවර (පේළියකට එකක්, ආකෘතිය: මාතෘකාව | විස්තරය)",
+              "warningNote": "අනතුරු ඇඟවීමේ සටහන (විකල්ප)",
+              "bodyBullets": "අන්තර්ගත ලක්ෂ්‍ය (පේළියකට එකක්)",
+              "videoUrl": "YouTube URL හෝ වීඩියෝ ID",
+              "uploadPdf": "PDF උඩුගත කරන්න හෝ URL අලවන්න",
+              "uploadImage": "රූපයක් උඩුගත කරන්න",
+              "uploadFile": "ගොනුවක් උඩුගත කරන්න (වීඩියෝ, ලේඛනය, ආදිය)"
+            },
+            "placeholders": {
+              "selectCategory": "කාණ්ඩය තෝරන්න…",
+              "createNewCategory": "+ නව කාණ්ඩයක් සාදන්න…",
+              "title": "උදා. හදිසි නැවතුම් ක්‍රියාපටිපාටිය",
+              "meta": "උදා. ක්‍රියාපටිපාටිය · පියවර 6 · තීරණාත්මක",
+              "introduction": "කෙටි පැහැදිලි කිරීමේ ඡේදය",
+              "steps": "විදුලිය හුදකලා කරන්න | ප්‍රධාන ස්විචය නිවා දමන්න\nඋපද්‍රව පරීක්ෂා කරන්න | කාන්දු හෝ ගිනි පුපුරු සොයන්න",
+              "warningNote": "උදා. අධීක්ෂක අනුමැතියකින් තොරව නැවත ආරම්භ නොකරන්න",
+              "bodyBullets": "දිනපතා තෙල් මට්ටම පරීක්ෂා කරන්න\nසෑම පැය 500කට වරක් පෙරහන ප්‍රතිස්ථාපනය කරන්න",
+              "videoUrl": "https://youtube.com/watch?v=... හෝ dQw4w9WgXcQ",
+              "orPasteUrl": "නැතහොත් පොදු PDF URL එකක් අලවන්න",
+              "orPasteFileUrl": "නැතහොත් පොදු ගොනු URL එකක් අලවන්න"
+            },
+            "types": {
+              "procedure": "ක්‍රියාපටිපාටිය",
+              "guide": "මාර්ගෝපදේශය",
+              "video": "වීඩියෝ",
+              "pdf": "pdf",
+              "image": "රූපය",
+              "media": "මාධ්‍ය"
+            },
+            "newCategory": {
+              "iconLabel": "නිරූපකය",
+              "titleLabel": "මාතෘකාව *",
+              "titlePlaceholder": "උදා. ආරක්ෂාව සහ හදිසි",
+              "descriptionLabel": "විස්තරය",
+              "descriptionPlaceholder": "කෙටි විස්තරය",
+              "colourLabel": "වර්ණය",
+              "creating": "සාදමින්…",
+              "createCategory": "කාණ්ඩය සාදන්න",
+              "suggestions": {
+                "safetyEmergency": "ආරක්ෂාව සහ හදිසි",
+                "electrical": "විදුලි",
+                "mechanical": "යාන්ත්‍රික",
+                "hydraulics": "ද්‍රවචාලක",
+                "lubrication": "ලිහිසි කිරීම",
+                "startupShutdown": "ආරම්භය සහ නැවැත්වීම",
+                "troubleshooting": "දෝෂ නිරාකරණය",
+                "preventiveMaintenance": "වැළැක්වීමේ නඩත්තුව"
+              }
+            },
+            "saving": "සුරකිමින්...",
+            "addContentItem": "+ අන්තර්ගත අයිතමයක් එක් කරන්න",
+            "manageCategories": "කාණ්ඩ කළමනාකරණය ({{count}})",
+            "columns": {
+              "icon": "නිරූපකය",
+              "title": "මාතෘකාව",
+              "color": "වර්ණය",
+              "pinned": "අමුණා ඇත",
+              "actions": "ක්‍රියා"
+            },
+            "pinnedYes": "ඔව්",
+            "deleteCategoryTitle": "කාණ්ඩය මකන්න",
+            "livePreviewHeading": "සජීවී පෙරදසුන",
+            "addCategoryToPreview": "පෙරදසුන බැලීමට කාණ්ඩයක් එක් කරන්න"
+          }
         }
       }
     }
