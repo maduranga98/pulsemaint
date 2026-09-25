@@ -868,8 +868,10 @@ export function CreateWODrawer({
                 }))}
               supervisors={supervisors.map((s) => ({ id: s.id, name: s.name, role: s.role, department: s.department ?? '' }))}
               contractors={registeredContractors
-                // Only contractors registered to this work order's plant.
-                .filter((c) => !woPlantId || c.plantId === woPlantId)
+                // Contractors registered to this work order's plant, plus
+                // company-wide ones (no plant) — contractors created before
+                // plant stamping have none, and were all being filtered out.
+                .filter((c) => !woPlantId || !c.plantId || c.plantId === woPlantId)
                 .filter((c) => !blacklistedIds.has(`contractor:${c.id}`))
                 .map((c) => ({
                   id: c.id,

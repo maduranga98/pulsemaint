@@ -173,6 +173,13 @@ service cloud.firestore {
       // (unconditional read) saw the data. Writes below stay site-gated.
       allow read: if isPlantManager() && belongsToCompany(resource.data.companyId);
 
+      // Plant Manager: site read, mirroring the supervisor rule above. The
+      // Work Orders list and Maintenance History query workOrders by siteId
+      // (useWorkOrders), which the companyId-only rule can't prove, so the
+      // whole query failed with "Missing or insufficient permissions" for
+      // plant managers.
+      allow read: if isPlantManager() && woSiteMatches();
+
       // Safety Officer: company-wide read for safety oversight — breakdown/WO
       // follow-up and the analytics dashboards (which query workOrders by
       // companyId). Read-only; safety officers never modify work orders.

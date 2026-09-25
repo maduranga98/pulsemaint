@@ -107,12 +107,42 @@ export function TeamAssignmentPanel({
     toggleAssignee(tech.id, tech.name);
   }
 
+  // Active team members of the selected registered contractor.
+  const activeContractorTeam = contractorTeam.filter((m) => m.status !== 'inactive');
+  const contactPerson: string = watch('contractorContactPerson') ?? '';
+  const primaryContact = contractors.find((c) => c.id === selectedContractorId);
+
+  // Contact person for a registered contractor is picked from its profile:
+  // the primary contact or one of its team members, filling in their number.
+  function selectContactPerson(key: string) {
+    if (key === '__primary' && primaryContact) {
+      setValue('contractorContactPerson', primaryContact.contactPerson);
+      setValue('contractorContactNumber', primaryContact.contactNumber);
+      return;
+    }
+    const member = activeContractorTeam.find((m) => m.id === key);
+    if (member) {
+      setValue('contractorContactPerson', member.fullName);
+      setValue('contractorContactNumber', member.phone ?? '');
+    } else {
+      setValue('contractorContactPerson', '');
+      setValue('contractorContactNumber', '');
+    }
+  }
+  const contactSelectValue =
+    primaryContact && contactPerson && contactPerson === primaryContact.contactPerson
+      ? '__primary'
+      : activeContractorTeam.find((m) => m.fullName === contactPerson)?.id ?? '';
+
   function selectContractor(c: ContractorOption) {
     setValue('contractorCompanyId', c.id);
     setValue('contractorCompanyName', c.companyName);
     setValue('contractorContactPerson', c.contactPerson);
     setValue('contractorContactNumber', c.contactNumber);
     setValue('isManualContractor', false);
+    // A different company — its team members replace any previously picked.
+    setValue('contractorTechnicianIds', []);
+    setValue('contractorTechnicianNames', []);
     setShowContractorDropdown(false);
     setContractorSearch(c.companyName);
   }
@@ -276,10 +306,33 @@ export function TeamAssignmentPanel({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('common.workOrders.copy.contractorContactLabel')} <span className="text-red-500">*</span>
             </label>
-            <input
-              {...register('contractorContactPerson')}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-            />
+            {selectedContractorId && !isManualContractor ? (
+              <select
+                value={contactSelectValue}
+                onChange={(e) => selectContactPerson(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">{t('common.workOrders.teamAssignment.chooseContactPerson')}</option>
+                {primaryContact?.contactPerson && (
+                  <option value="__primary">
+                    {t('common.workOrders.teamAssignment.primaryContactOption', { name: primaryContact.contactPerson })}
+                  </option>
+                )}
+                {activeContractorTeam
+                  .filter((m) => m.fullName !== primaryContact?.contactPerson)
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.fullName}
+                      {m.designation ? ` (${String(m.designation).replace(/_/g, ' ')})` : ''}
+                    </option>
+                  ))}
+              </select>
+            ) : (
+              <input
+                {...register('contractorContactPerson')}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              />
+            )}
           </div>
 
           {/* Contact Number */}
@@ -303,13 +356,13 @@ export function TeamAssignmentPanel({
             {selectedContractorId && !isManualContractor ? (
               // Registered contractor: pick from its team members. The selected
               // members' jobs/last-visit counters update when the WO is signed off.
-              contractorTeam.length === 0 ? (
+              activeContractorTeam.length === 0 ? (
                 <p className="text-xs text-gray-400 px-1 py-2">
                   {t('common.workOrders.teamAssignment.noContractorTeamMembers')}
                 </p>
               ) : (
                 <div className="space-y-1 max-h-56 overflow-y-auto rounded-lg border border-gray-100">
-                  {contractorTeam.map((member) => {
+                  {activeContractorTeam.map((member) => {
                     const isSelected = selectedContractorTechIds.includes(member.id);
                     return (
                       <button
