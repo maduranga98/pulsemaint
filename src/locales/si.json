@@ -943,6 +943,65 @@
           "backToProfile": "Back to Machine Profile",
           "backToRegistry": "Back to Registry"
         }
+      },
+      "statusLabels": {
+        "active": "සක්‍රිය",
+        "under_maintenance": "නඩත්තුව යටතේ",
+        "decommissioned": "භාවිතයෙන් ඉවත් කළ"
+      },
+      "criticalityLabels": {
+        "1": "අඩු",
+        "2": "සාමාන්‍යයට අඩු",
+        "3": "මධ්‍යම",
+        "4": "ඉහළ",
+        "5": "අතිශය තීරණාත්මක"
+      },
+      "importModal": {
+        "title": "CSV වලින් යන්ත්‍ර ආයාත කරන්න",
+        "close": "වසන්න",
+        "downloadTemplate": "CSV සැකිල්ල බාගන්න",
+        "downloadTemplateHint": "පසුව එය පුරවා පහතින් උඩුගත කරන්න",
+        "suggestedTypesLabel": "යෝජිත වර්ග:",
+        "suggestedTypesHint": "වෙනත් ඕනෑම අගයක් අභිරුචි වර්ගයක් ලෙස පිළිගැනේ",
+        "validStatusesLabel": "වලංගු තත්ත්වයන්:",
+        "criticalityLabel": "තීරණාත්මකභාවය:",
+        "criticalityHint": "1–5 (1=අඩු, 5=අතිශය තීරණාත්මක)",
+        "datesLabel": "දිනයන්",
+        "datesHint": "(purchase_date, installation_date, next_pm_date): YYYY-MM-DD",
+        "warrantyItemsLabel": "වගකීම් අයිතම:",
+        "warrantyItemsHint": "\"කොටසේ නම:කල් ඉකුත් දිනය:සැපයුම්කරු යොමුව\" — අයිතම කිහිපයක් \";\" මගින් වෙන් කරන්න",
+        "sparePartsLabel": "අමතර කොටස්:",
+        "sparePartsHint": "කොටස් කිහිපයක් \";\" මගින් වෙන් කරන්න",
+        "chooseFile": "CSV ගොනුව තෝරන්න",
+        "previewCount_one": "පෙරදසුන — පේළි {{count}} (වලංගු {{valid}}, දෝෂ සහිත {{invalid}})",
+        "previewCount_other": "පෙරදසුන — පේළි {{count}} (වලංගු {{valid}}, දෝෂ සහිත {{invalid}})",
+        "progress": "ආයාත කරමින්... {{count}}/{{total}}",
+        "cancel": "අවලංගු කරන්න",
+        "importing": "ආයාත කරමින්...",
+        "importButton_one": "යන්ත්‍ර {{count}} ආයාත කරන්න",
+        "importButton_other": "යන්ත්‍ර {{count}} ආයාත කරන්න",
+        "importSuccess_one": "යන්ත්‍ර {{count}} සාර්ථකව ආයාත කළා!",
+        "importSuccess_other": "යන්ත්‍ර {{count}} සාර්ථකව ආයාත කළා!",
+        "tableHeaders": {
+          "name": "නම",
+          "type": "වර්ගය",
+          "manufacturer": "නිෂ්පාදකයා",
+          "model": "මාදිලිය",
+          "serial": "අනුක්‍රමික",
+          "department": "දෙපාර්තමේන්තුව",
+          "status": "තත්ත්වය",
+          "criticality": "තීරණ.",
+          "error": "දෝෂය"
+        },
+        "errors": {
+          "invalidDate": "අවලංගු දිනය \"{{value}}\" (YYYY-MM-DD භාවිත කරන්න)",
+          "warrantyItem": "වගකීම් අයිතමය \"{{partName}}\": {{error}}",
+          "missingName": "නම නැත",
+          "missingManufacturer": "නිෂ්පාදකයා නැත",
+          "missingType": "වර්ගය නැත",
+          "invalidStatus": "අවලංගු තත්ත්වය \"{{status}}\"",
+          "field": "{{field}}: {{error}}"
+        }
       }
     },
     "breakdowns": {
@@ -1018,6 +1077,64 @@
           "sourceAi": "මෙම යන්ත්‍රයේ මෑත බිඳවැටීම් ඉතිහාසයෙන් AI මගින් සකස් කළ — ක්‍රියා කිරීමට පෙර තහවුරු කරන්න.",
           "sourceHeuristic": "අභ්‍යන්තර නඩත්තු රටා වලින් සකස් කළ (AI ලබා ගත නොහැක) — ක්‍රියා කිරීමට පෙර තහවුරු කරන්න.",
           "title": "AI මූල හේතු යෝජනා"
+        },
+        "back": "ආපසු",
+        "titleSingular": "බිඳවැටීමට සහභාගී වන්න",
+        "titlePlural": "බිඳවැටීම්වලට සහභාගී වන්න",
+        "subtitle_one": "{{machineName}} — ටිකට්පත් {{count}}: {{tickets}}",
+        "subtitle_other": "{{machineName}} — ටිකට්පත් {{count}}: {{tickets}}",
+        "loading": "පූරණය වෙමින්…",
+        "backToBreakdowns": "බිඳවැටීම් වෙත ආපසු",
+        "notYetAssigned": "මෙම බිඳවැටීම් තවම පවරා නැත.",
+        "assignFirst": "පළමුව බිඳවැටීම් ලැයිස්තුවෙන් ඒවා පවරන්න හෝ සහභාගී වන්න.",
+        "noBreakdownsSpecified": "බිඳවැටීම් සඳහන් කර නැත.",
+        "reportedDetailsSingular": "වාර්තා කළ විස්තර",
+        "reportedDetailsPlural": "එක් එක් ටිකට්පත සඳහා වාර්තා කළ විස්තර",
+        "assessmentSingular": "ඔබේ ඇගයීම",
+        "assessmentPlural": "ඔබේ ඇගයීම — ඉහත සියලු ටිකට්පත්වලට අදාළයි",
+        "stillRunning": "තවමත් ක්‍රියාත්මකයි (දුර්වල)",
+        "stopped": "නතර විය",
+        "whatHappenedLabel": "සිදු වූයේ කුමක්ද?",
+        "productionImpactLabel": "නිෂ්පාදන බලපෑම",
+        "productionCountLabel": "නතර වූ විට වත්මන් නිෂ්පාදන ගණන",
+        "severityLabel": "බරපතළකම *",
+        "typeLabel": "වර්ගය *",
+        "attemptedFixesLabel": "උත්සාහ කළ විසඳුම්",
+        "technicianFindingsLabel": "සිදු වූයේ කුමක්ද? (තාක්ෂණ ශිල්පී/අභ්‍යාසලාභී සොයාගැනීම්)",
+        "technicianFindingsPlaceholder": "වාර්තා කළ අයගේ විස්තරයෙන් වෙන්ව, සිදු වූ දේ පිළිබඳ ඔබේම විස්තරය. නැතහොත් මයික් එක ඔබා අපට කියන්න.",
+        "attachMediaLabel": "මාධ්‍ය අමුණන්න (ඡායාරූප/වීඩියෝ)",
+        "filesSelected_one": "ගොනු {{count}}ක් තෝරා ඇත",
+        "filesSelected_other": "ගොනු {{count}}ක් තෝරා ඇත",
+        "uploading": "උඩුගත කරමින්…",
+        "cancel": "අවලංගු කරන්න",
+        "saving": "සුරකිමින්…",
+        "saveAssessment": "ඇගයීම සුරකින්න",
+        "saveAssessmentMultiple": "ටිකට්පත් {{count}} සඳහා ඇගයීම සුරකින්න",
+        "severities": {
+          "critical": "තීරණාත්මක — නිෂ්පාදනය නතර විය",
+          "high": "ඉහළ — විශාල බලපෑමක්",
+          "medium": "මධ්‍යම — සුළු බලපෑමක්",
+          "low": "අඩු — පෙනුමට පමණි / නිරීක්ෂණය"
+        },
+        "types": {
+          "mechanical": "යාන්ත්‍රික",
+          "electrical": "විදුලි",
+          "hydraulic": "ද්‍රවචාලක",
+          "pneumatic": "වායුචාලක",
+          "software": "මෘදුකාංග / පාලන",
+          "other": "වෙනත්"
+        },
+        "notes": {
+          "assessedSolo": "සහභාගී වූ තාක්ෂණ ශිල්පියා විසින් ඇගයීය — බරපතළකම, වර්ගය සහ උත්සාහ කළ විසඳුම් සටහන් කළා.",
+          "assessedAlongside_one": "{{machineName}} හි තවත් බිඳවැටීම් {{count}}ක් සමඟ සහභාගී වූ තාක්ෂණ ශිල්පියා විසින් ඇගයීය.",
+          "assessedAlongside_other": "{{machineName}} හි තවත් බිඳවැටීම් {{count}}ක් සමඟ සහභාගී වූ තාක්ෂණ ශිල්පියා විසින් ඇගයීය."
+        },
+        "toasts": {
+          "saved": "ඇගයීම සුරැකුවා",
+          "savedMultiple": "ටිකට්පත් {{count}} සඳහා ඇගයීම සුරැකුවා"
+        },
+        "errors": {
+          "saveFailed": "සුරැකීම අසාර්ථකයි."
         }
       },
       "reportPage": {
@@ -1025,11 +1142,192 @@
         "aiSuggestionTitle": "AI යෝජනාව",
         "continueButton": "ඉදිරියට",
         "submittedSubtitle": "{{machineName}} සඳහා ඔබේ වාර්තාව නඩත්තු කණ්ඩායමට යවන ලදී.",
-        "submittedTitle": "බිඳවැටීම වාර්තා කරන ලදී"
+        "submittedTitle": "බිඳවැටීම වාර්තා කරන ලදී",
+        "back": "ආපසු",
+        "title": "බිඳවැටීමක් වාර්තා කරන්න",
+        "subtitle": "යන්ත්‍ර බිඳවැටීමක් ඉක්මනින් ඔබේ නඩත්තු කණ්ඩායමට යොමු කරන්න. තාක්ෂණ ශිල්පියෙකු පැමිණි පසු බරපතළකම සහ වර්ගය තක්සේරු කරනු ඇත.",
+        "profileTimedOut": "ඔබේ ගිණුම් විස්තර පූරණය වීමට සාමාන්‍යයට වඩා වැඩි කාලයක් ගතවේ. ඔබේ සම්බන්ධතාව පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+        "retry": "නැවත උත්සාහ කරන්න",
+        "machineLabel": "යන්ත්‍රය *",
+        "machineLockedPrefix": "QR ස්කෑන් මගින් තෝරාගත් යන්ත්‍රය:",
+        "machinesTimedOut": "යන්ත්‍ර ලැයිස්තුව පූරණය වීමට සාමාන්‍යයට වඩා වැඩි කාලයක් ගතවේ.",
+        "loadingMachines": "යන්ත්‍ර පූරණය වෙමින්…",
+        "noMachines": "තවම යන්ත්‍ර නැත — පළමුව එකක් එක් කරන්න",
+        "selectMachine": "යන්ත්‍රයක් තෝරන්න",
+        "whatHappenedLabel": "සිදු වූයේ කුමක්ද? *",
+        "whatHappenedPlaceholder": "රෝග ලක්ෂණ, දෝෂ කේත, ශබ්ද ආදිය විස්තර කරන්න. නැතහොත් මයික් එක ඔබා සිදු වූ දේ අපට කියන්න.",
+        "productionImpactLabel": "නිෂ්පාදන බලපෑම",
+        "productionImpactPlaceholder": "උදා., රේඛාව 2 නතර විය, පැයට ඒකක ~500ක් අහිමි",
+        "productionCountLabel": "නතර වූ විට වත්මන් නිෂ්පාදන ගණන",
+        "stillRunningLabel": "යන්ත්‍රය තවමත් ක්‍රියාත්මකයි (දුර්වල නමුත් ක්‍රියාකාරී)",
+        "cancel": "අවලංගු කරන්න",
+        "submitting": "ඉදිරිපත් කරමින්…",
+        "submit": "බිඳවැටීම ඉදිරිපත් කරන්න",
+        "errors": {
+          "profileNotLoaded": "ඔබේ ගිණුම තවම සම්පූර්ණයෙන් පූරණය වී නැත. මොහොතකින් නැවත උත්සාහ කරන්න.",
+          "selectMachine": "බිඳ වැටුණු යන්ත්‍රය තෝරන්න.",
+          "descriptionTooShort": "බිඳවැටීම අවම වශයෙන් අක්ෂර 10කින් විස්තර කරන්න.",
+          "machineNotFound": "තෝරාගත් යන්ත්‍රය හමු නොවීය.",
+          "submitFailed": "බිඳවැටීම වාර්තා කිරීම අසාර්ථකයි."
+        }
       },
       "viewPage": {
         "errors": {
-          "woNotCompleted": "වැඩ ඇණවුම {{woNumber}} තවම සම්පූර්ණ නැත — මෙම බිඳවැටීම වසා දැමීමට පෙර එය සම්පූර්ණ කර අනුමත කළ යුතුය."
+          "woNotCompleted": "වැඩ ඇණවුම {{woNumber}} තවම සම්පූර්ණ නැත — මෙම බිඳවැටීම වසා දැමීමට පෙර එය සම්පූර්ණ කර අනුමත කළ යුතුය.",
+          "closeFailed": "බිඳවැටීම වැසීම අසාර්ථකයි.",
+          "assignFailed": "පැවරීම අසාර්ථකයි.",
+          "attendFailed": "සහභාගී වීම අසාර්ථකයි."
+        },
+        "loading": "බිඳවැටීම පූරණය වෙමින්…",
+        "notFound": "බිඳවැටීම හමු නොවීය.",
+        "backToBreakdowns": "බිඳවැටීම් වෙත ආපසු",
+        "back": "ආපසු",
+        "assignTechnician": "තාක්ෂණ ශිල්පියෙකු පවරන්න",
+        "attend": "සහභාගී වන්න",
+        "attending": "සහභාගී වෙමින්…",
+        "fillReport": "බිඳවැටීම් වාර්තාව පුරවන්න",
+        "createWorkOrder": "වැඩ ඇණවුමක් සාදන්න",
+        "closeBreakdown": "බිඳවැටීම වසන්න",
+        "notes": {
+          "closed": "විසඳුම සහ RCA පසු බිඳවැටීම වසා දැමුණි.",
+          "assigned": "{{actor}} විසින් {{name}} වෙත පවරන ලදී",
+          "selfAttended": "{{actor}} ස්වයංව සහභාගී විය"
+        }
+      },
+      "roleLabels": {
+        "technician": "තාක්ෂණ ශිල්පී",
+        "trainee": "අභ්‍යාසලාභී",
+        "supervisor": "අධීක්ෂක",
+        "maintenance_supervisor": "අධීක්ෂක",
+        "plant_manager": "කම්හල් කළමනාකරු",
+        "store_keeper": "ගබඩා භාරකරු",
+        "floor_operator": "බිම් ක්‍රියාකරු",
+        "hr_officer": "මානව සම්පත් නිලධාරී",
+        "safety_officer": "ආරක්ෂක නිලධාරී",
+        "admin": "පරිපාලක"
+      },
+      "errors": {
+        "invalidQrMachine": "QR කේතයේ වලංගු යන්ත්‍ර අංකයක් නොතිබුණි.",
+        "cameraOpenFailed": "කැමරාව විවෘත කිරීම අසාර්ථකයි.",
+        "assignFailed": "පැවරීම අසාර්ථකයි.",
+        "attendFailed": "සහභාගී වීම අසාර්ථකයි."
+      },
+      "assignModal": {
+        "title": "තාක්ෂණ ශිල්පී / අභ්‍යාසලාභී පවරන්න",
+        "onShiftHint": "දැනට මුරයේ සිටින තාක්ෂණ ශිල්පීන් සහ අභ්‍යාසලාභීන් පමණක් පෙන්වයි.",
+        "loading": "මුරයේ සිටින අය පූරණය වෙමින්…",
+        "empty": "දැනට කිසිදු තාක්ෂණ ශිල්පියෙක් හෝ අභ්‍යාසලාභියෙක් මුරයට පැමිණ නැත. ඔවුන්ගේ මුරය ආරම්භ කරන ලෙස ඉල්ලන්න, නැතහොත් යමෙකු රාජකාරියට පැමිණි පසු පවරන්න.",
+        "unnamed": "නම් නොකළ",
+        "onShift": "මුරයේ",
+        "cancel": "අවලංගු කරන්න",
+        "assigning": "පවරමින්…",
+        "assign": "පවරන්න"
+      },
+      "detail": {
+        "pendingAssessment": "ඇගයීම පොරොත්තුවෙන්",
+        "reported": "වාර්තා කළේ",
+        "reportedSourceWeb": "වෙබ්",
+        "attendedBy": "සහභාගී වූ අය",
+        "whatHappened": "සිදු වූ දේ",
+        "productionImpact": "නිෂ්පාදන බලපෑම",
+        "attemptedFixes": "උත්සාහ කළ විසඳුම්",
+        "technicianFindings": "සිදු වූ දේ (තාක්ෂණ ශිල්පී/අභ්‍යාසලාභී සොයාගැනීම්)",
+        "assignedTechnicians": "පවරා ඇති තාක්ෂණ ශිල්පීන්",
+        "attachedMedia": "අමුණා ඇති මාධ්‍ය",
+        "attachmentAlt": "ඇමුණුම {{index}}",
+        "fileLabel": "ගොනුව {{index}}",
+        "statusHistory": "තත්ත්ව ඉතිහාසය",
+        "noStatusChanges": "තවම තත්ත්ව වෙනස්කම් නැත."
+      },
+      "signOffOutcome": {
+        "completed": "සම්පූර්ණයි",
+        "partially_completed": "අර්ධ වශයෙන් සම්පූර්ණයි",
+        "not_completed": "සම්පූර්ණ නැත",
+        "failed": "අසාර්ථකයි"
+      },
+      "workOrderSection": {
+        "title": "වැඩ ඇණවුම",
+        "loading": "වැඩ ඇණවුම පූරණය වෙමින්…",
+        "loadFailed": "සම්බන්ධිත වැඩ ඇණවුම පූරණය කළ නොහැකි විය.",
+        "team": "කණ්ඩායම",
+        "startedEnded": "ආරම්භය / අවසානය",
+        "workDone": "කළ වැඩ",
+        "partsUsed": "භාවිත කළ කොටස්",
+        "signedOff": "අනුමත කළේ"
+      },
+      "detailCard": {
+        "machine": "යන්ත්‍රය",
+        "machineStillRunning": "යන්ත්‍රය තවමත් ක්‍රියාත්මකයි (දුර්වල)",
+        "machineStopped": "යන්ත්‍රය නතර විය"
+      },
+      "editPage": {
+        "back": "ආපසු",
+        "title": "බිඳවැටීමට සහභාගී වන්න",
+        "loading": "පූරණය වෙමින්…",
+        "notFound": "බිඳවැටීම හමු නොවීය.",
+        "backToBreakdowns": "බිඳවැටීම් වෙත ආපසු",
+        "notYetAssigned": "මෙම බිඳවැටීම තවම පවරා නැත.",
+        "assignFirst": "පළමුව බිඳවැටීම් ලැයිස්තුවෙන් එය පවරන්න හෝ සහභාගී වන්න — යමෙකු සහභාගී වූ පසු එය සංස්කරණය කළ හැක.",
+        "viewBreakdown": "බිඳවැටීම බලන්න",
+        "viewOnly": "වාර්තා කළ, බැලීමට පමණි",
+        "statusLabel": "තත්ත්වය",
+        "stillRunning": "යන්ත්‍රය තවමත් ක්‍රියාත්මකයි (දුර්වල)",
+        "stopped": "යන්ත්‍රය නතර විය",
+        "errors": {
+          "saveFailed": "සුරැකීම අසාර්ථකයි."
+        }
+      },
+      "floorOperatorWidgets": {
+        "myDepartmentTitle": "බිඳවැටීම්",
+        "noOpenBreakdowns": "ඔබේ දෙපාර්තමේන්තුවේ විවෘත බිඳවැටීම් නැත.",
+        "reportWidgetTitle": "බිඳවැටීමක් වාර්තා කරන්න",
+        "scanQrCode": "QR කේතය ස්කෑන් කරන්න",
+        "notMachineQr": "එම QR කේතය යන්ත්‍ර QR කේතයක් නොවේ."
+      },
+      "rcaModal": {
+        "title": "හේතු 5 (5-Why) මූල හේතු විශ්ලේෂණය",
+        "describeProblem": "ගැටලුව විස්තර කරන්න",
+        "describeProblemHint": "සිදු වූ දේ පිළිබඳ පැහැදිලි, සත්‍ය ප්‍රකාශයක් දෙන්න. මෙම අදියරේදී උපකල්පන හෝ හේතු වළක්වන්න.",
+        "problemPlaceholder": "උදා., යන්ත්‍රය X ජූනි 11 දින 14:00 ට නිෂ්පාදනය නැවැත්වූ අතර පැය 3ක අක්‍රිය කාලයක් ඇති විය.",
+        "fiveWhysAnalysis": "ඇයි 5 විශ්ලේෂණය",
+        "fiveWhysHint": "පෙර පිළිතුර මත පදනම්ව එක් එක් \"ඇයි\" ට පිළිතුරු දෙන්න. සම්පූර්ණ කිරීමට අවම වශයෙන් ඇයි 1 අවශ්‍යයි.",
+        "problemLabel": "ගැටලුව:",
+        "notSpecified": "(සඳහන් කර නැත)",
+        "whyLabel": "ඇයි {{index}}",
+        "whyAnswerPlaceholder": "ඇයි {{index}} පිළිතුර…",
+        "rootCauseLabel": "මූල හේතුව",
+        "rootCauseHint": "ඔබේ ඇයි 5 විශ්ලේෂණය අනුව, සැබෑ යටින් පවතින මූල හේතුව කුමක්ද?",
+        "rootCausePlaceholder": "මූල හේතුව වන්නේ…",
+        "correctiveActionsTitle": "නිවැරදි කිරීමේ ක්‍රියාමාර්ග",
+        "correctiveActionLabel": "නිවැරදි කිරීමේ ක්‍රියාමාර්ගය (විකල්ප)",
+        "correctiveActionPlaceholder": "නැවත සිදුවීම වැළැක්වීමට නිවැරදි කිරීමේ ක්‍රියාමාර්ගය විස්තර කරන්න…",
+        "createWOForAction": "මෙම නිවැරදි කිරීමේ ක්‍රියාමාර්ගය සඳහා වැඩ ඇණවුමක් සාදන්න",
+        "pmUpdateLabel": "PM කාලසටහන් යාවත්කාලීනය (විකල්ප)",
+        "pmUpdateHint": "මෙම සොයාගැනීම නිසා වැළැක්වීමේ නඩත්තු කාලසටහනේ වෙනසක් අවශ්‍යද?",
+        "pmUpdatePlaceholder": "උදා., යන්ත්‍රය X හි ලිහිසි කිරීමේ වාර ගණන මාසිකයේ සිට සති දෙකකට වරක් දක්වා වැඩි කරන්න.",
+        "summary": "සාරාංශය",
+        "correctiveActionSummaryLabel": "නිවැරදි කිරීමේ ක්‍රියාමාර්ගය",
+        "cancel": "අවලංගු කරන්න",
+        "back": "ආපසු",
+        "saveDraft": "කෙටුම්පත සුරකින්න",
+        "next": "ඊළඟ",
+        "saving": "සුරකිමින්…",
+        "completeRCA": "RCA සම්පූර්ණ කරන්න",
+        "whyQuestions": {
+          "q1": "මෙම ගැටලුව ඇති වූයේ ඇයි?",
+          "q2": "එය සිදු වූයේ ඇයි?",
+          "q3": "එය එයට හේතු වූයේ ඇයි?",
+          "q4": "එම තත්ත්වය පැවතියේ ඇයි?",
+          "q5": "යටින් පවතින පද්ධතිමය හේතුව කුමක්ද?"
+        },
+        "errors": {
+          "firstWhyRequired": "RCA සම්පූර්ණ කිරීමට පෙර අවම වශයෙන් පළමු ඇයි ට පිළිතුරු දෙන්න.",
+          "rootCauseRequired": "RCA සම්පූර්ණ කිරීමට මූල හේතුව අවශ්‍යයි.",
+          "saveFailed": "RCA සුරැකීම අසාර්ථකයි."
+        },
+        "toasts": {
+          "completed": "RCA සම්පූර්ණ කළා.",
+          "draftSaved": "RCA කෙටුම්පත සුරැකුවා."
         }
       }
     },
@@ -1108,6 +1406,364 @@
         "overdue": "දින {{days}}ක් ප්‍රමාද",
         "dueToday": "අද නියමිතයි",
         "dueIn": "දින {{days}}කින්"
+      },
+      "calendarView": {
+        "week": "සතිය",
+        "month": "මාසය",
+        "days": {
+          "sun": "ඉරි",
+          "mon": "සඳු",
+          "tue": "අඟ",
+          "wed": "බදා",
+          "thu": "බ්‍රහ",
+          "fri": "සිකු",
+          "sat": "සෙන"
+        },
+        "moreCount_one": "+තව {{count}}",
+        "moreCount_other": "+තව {{count}}",
+        "noPmsScheduled": "PM සැලසුම් කර නැත",
+        "noPmsScheduledPeriod": "PM සැලසුම් කර නැත.",
+        "openWorkOrder": "වැඩ ඇණවුම විවෘත කරන්න",
+        "openSchedule": "කාලසටහන විවෘත කරන්න",
+        "pageTitle": "PM දින දර්ශනය",
+        "eventsThisPeriod_one": "මෙම කාලයේ සිදුවීම් {{count}}",
+        "eventsThisPeriod_other": "මෙම කාලයේ සිදුවීම් {{count}}",
+        "loading": "දින දර්ශනය පූරණය වෙමින්..."
+      },
+      "types": {
+        "lubrication": "ලිහිසි කිරීම",
+        "inspection": "පරීක්ෂාව",
+        "calibration": "ක්‍රමාංකනය",
+        "filter_replacement": "පෙරහන් ප්‍රතිස්ථාපනය",
+        "belt_chain_check": "පටි/දම්වැල් පරීක්ෂාව",
+        "full_service": "සම්පූර්ණ සේවාව",
+        "electrical_check": "විදුලි පරීක්ෂාව",
+        "hydraulic_service": "ද්‍රවචාලක සේවාව",
+        "safety_inspection": "ආරක්ෂක පරීක්ෂාව",
+        "other": "වෙනත්"
+      },
+      "statuses": {
+        "active": "සක්‍රිය",
+        "paused": "විරාම කළ",
+        "completed": "සම්පූර්ණයි",
+        "archived": "සංරක්ෂිත"
+      },
+      "operationalStatuses": {
+        "on_track": "නියමිත පරිදි",
+        "due_soon": "ඉක්මනින් නියමිතයි",
+        "overdue": "කල් ඉකුත්",
+        "paused": "විරාම කළ",
+        "completed": "සම්පූර්ණයි",
+        "in_progress": "ක්‍රියාත්මක වෙමින්"
+      },
+      "recurrence": {
+        "daily": "දිනපතා",
+        "weekly": "සතිපතා",
+        "biweekly": "සති දෙකකට වරක්",
+        "monthly": "මාසිකව",
+        "quarterly": "කාර්තුමය",
+        "semi_annual": "අර්ධ වාර්ෂික",
+        "annual": "වාර්ෂික",
+        "custom": "අභිරුචි"
+      },
+      "triggerUnits": {
+        "operating_hours": "ක්‍රියාකාරී පැය",
+        "production_cycles": "නිෂ්පාදන චක්‍ර"
+      },
+      "historyStatuses": {
+        "completed_on_time": "නියමිත වේලාවට සම්පූර්ණයි",
+        "completed_late": "ප්‍රමාද වී සම්පූර්ණයි",
+        "overdue": "කල් ඉකුත්",
+        "missed": "මඟ හැරුණු",
+        "in_progress": "ක්‍රියාත්මක වෙමින්"
+      },
+      "skills": {
+        "Electrical": "විදුලි",
+        "Mechanical": "යාන්ත්‍රික",
+        "Hydraulic": "ද්‍රවචාලක",
+        "Pneumatic": "වායුචාලක",
+        "Welding": "වෑල්ඩින්",
+        "PLC": "PLC",
+        "HVAC": "HVAC",
+        "Other": "වෙනත්"
+      },
+      "card": {
+        "roleSupervisor": "{{name}} (අධීක්ෂක)",
+        "roleTechnician": "{{name}} (තාක්ෂණ ශිල්පී)",
+        "roleContractor": "{{name}} (කොන්ත්‍රාත්කරු)",
+        "roleContractorTechnician": "{{name}} (කොන්ත්‍රාත් කණ්ඩායම් සාමාජික)",
+        "daysOverdue_one": "දින {{count}}ක් කල් ඉකුත්",
+        "daysOverdue_other": "දින {{count}}ක් කල් ඉකුත්",
+        "dueToday": "අද නියමිතයි",
+        "daysUntilDue_one": "නියමිත දිනයට දින {{count}}",
+        "daysUntilDue_other": "නියමිත දිනයට දින {{count}}",
+        "triggerAfter": "{{count}} {{unit}}",
+        "unassigned": "පවරා නැත"
+      },
+      "checklistBuilder": {
+        "empty": "තවම පරීක්ෂණ පියවර එක් කර නැත.",
+        "stepDescriptionPlaceholder": "පියවර විස්තරය",
+        "typeLabel": "වර්ගය:",
+        "checkbox": "සලකුණු කොටුව",
+        "measurement": "මිනුම",
+        "methodPlaceholder": "ක්‍රමය (උදා. දෘශ්‍ය, මයික්‍රොමීටරය)",
+        "unitPlaceholder": "ඒකකය (උදා. mm, °C)",
+        "min": "අවම",
+        "max": "උපරිම",
+        "estimatedMinutes_one": "මිනි. {{count}}",
+        "estimatedMinutes_other": "මිනි. {{count}}",
+        "photoRequired": "ඡායාරූපය අවශ්‍යයි",
+        "photo": "ඡායාරූපය",
+        "moveUp": "ඉහළට",
+        "moveDown": "පහළට",
+        "removeStep": "පියවර ඉවත් කරන්න",
+        "addStepPlaceholder": "පරීක්ෂණ පියවරක් එක් කරන්න...",
+        "add": "එක් කරන්න",
+        "photoRequiredForStep": "මෙම පියවරට ඡායාරූපයක් අවශ්‍යයි",
+        "newStepType": "නව පියවර වර්ගය:"
+      },
+      "createForm": {
+        "back": "ආපසු",
+        "next": "ඊළඟ",
+        "saving": "සුරකිමින්...",
+        "updateSchedule": "කාලසටහන යාවත්කාලීන කරන්න",
+        "createSchedule": "කාලසටහන සාදන්න",
+        "updateShort": "යාවත්කාලීන",
+        "createShort": "සාදන්න",
+        "errors": {
+          "missingCompanyOrUser": "සමාගම් හෝ පරිශීලක තොරතුරු නැත",
+          "saveFailed": "සුරැකීම අසාර්ථකයි"
+        },
+        "toasts": {
+          "updated": "PM කාලසටහන යාවත්කාලීන කළා",
+          "created": "PM කාලසටහන සාදන ලදී"
+        },
+        "steps": {
+          "basic": {
+            "label": "මූලික තොරතුරු",
+            "description": "නම, වර්ගය, ප්‍රමුඛතාව"
+          },
+          "machine": {
+            "label": "යන්ත්‍රය",
+            "description": "ඉලක්ක යන්ත්‍රය තෝරන්න"
+          },
+          "trigger": {
+            "label": "ක්‍රියාරම්භකය",
+            "description": "දින දර්ශනය හෝ භාවිතය මත"
+          },
+          "team": {
+            "label": "කණ්ඩායම",
+            "description": "තාක්ෂණ ශිල්පීන් පවරන්න"
+          },
+          "checklist": {
+            "label": "පරීක්ෂණ ලැයිස්තුව",
+            "description": "PM කාර්ය පියවර"
+          },
+          "parts": {
+            "label": "කොටස්",
+            "description": "කොටස් කලින් වෙන් කරන්න"
+          },
+          "documents": {
+            "label": "ලේඛන",
+            "description": "යොමු අමුණන්න"
+          },
+          "alerts": {
+            "label": "ඇඟවීම්",
+            "description": "දැනුම්දීම් සැකසුම්"
+          }
+        },
+        "step1": {
+          "heading": "කාලසටහන් හැඳුනුම",
+          "nameLabel": "කාලසටහනේ නම *",
+          "namePlaceholder": "උදා. රෙදි වියන යන්ත්‍ර මාසික ලිහිසි කිරීම",
+          "pmTypeLabel": "PM වර්ගය *",
+          "priorityLabel": "ප්‍රමුඛතාව",
+          "descriptionLabel": "විස්තරය",
+          "descriptionPlaceholder": "මෙම PM තුළ කළ යුත්තේ කුමක්ද?"
+        },
+        "step2": {
+          "heading": "යන්ත්‍ර තේරීම",
+          "machineLabel": "යන්ත්‍රය *",
+          "selectMachinePlaceholder": "යන්ත්‍රයක් තෝරන්න...",
+          "machineOption": "{{name}} — {{department}} (සෞඛ්‍යය: {{health}}%)",
+          "department": "දෙපාර්තමේන්තුව",
+          "location": "ස්ථානය",
+          "machineType": "යන්ත්‍ර වර්ගය",
+          "criticality": "තීරණාත්මකභාවය",
+          "criticalityValue": "{{value}}/5",
+          "autoUpgraded": "PM ස්වයංක්‍රීයව තීරණාත්මක දක්වා ඉහළ නැංවිණි",
+          "healthScore": "සෞඛ්‍ය ලකුණ"
+        },
+        "step3": {
+          "heading": "ක්‍රියාරම්භක වින්‍යාසය",
+          "calendarBased": "දින දර්ශනය මත",
+          "usageBased": "භාවිතය මත",
+          "firstPmDateLabel": "පළමු PM දිනය *",
+          "recurrenceLabel": "පුනරාවර්තනය *",
+          "everyXDays": "සෑම දින X කට වරක්",
+          "noEndDate": "අවසන් දිනයක් නැත (දිගටම ක්‍රියාත්මක)",
+          "endDateLabel": "අවසන් දිනය",
+          "seasonalOverride": "කාලීන අභිබවා යාම",
+          "peakSeasonStart": "උච්ච කාලයේ ආරම්භය",
+          "peakSeasonEnd": "උච්ච කාලයේ අවසානය",
+          "peakSeasonInterval": "උච්ච කාල පරතරය",
+          "triggerAfterLabel": "ක්‍රියාරම්භ වන්නේ *",
+          "unitLabel": "ඒකකය *",
+          "selectUnitPlaceholder": "තෝරන්න...",
+          "currentMeterValue": "වත්මන් මීටර අගය",
+          "lastMeterResetDate": "අවසන් මීටර යළි සැකසූ දිනය"
+        },
+        "step4": {
+          "heading": "කණ්ඩායම් පැවරුම",
+          "assignedTechniciansLabel": "පවරා ඇති තාක්ෂණ ශිල්පීන් *",
+          "technicianNamePlaceholder": "තාක්ෂණ ශිල්පියාගේ නම ඇතුළත් කරන්න",
+          "add": "එක් කරන්න",
+          "removeTechnician": "{{name}} ඉවත් කරන්න",
+          "estimatedDurationLabel": "ඇස්තමේන්තුගත කාලය *",
+          "unitLabel": "ඒකකය *",
+          "hours": "පැය",
+          "days": "දින",
+          "skillsRequiredLabel": "අවශ්‍ය කුසලතා"
+        },
+        "step5": {
+          "heading": "PM පරීක්ෂණ ලැයිස්තුව",
+          "useExistingTemplate": "පවතින සැකිල්ලක් භාවිත කරන්න",
+          "saveAsTemplate": "සැකිල්ලක් ලෙස සුරකින්න"
+        },
+        "step6": {
+          "heading": "කොටස් කලින් වෙන් කිරීම",
+          "subheading": "විකල්ප: තොගයෙන් අපේක්ෂිත අමතර කොටස් අමුණන්න.",
+          "partSummary": "{{number}} • ප්‍රමාණය: {{quantity}}",
+          "remove": "ඉවත් කරන්න",
+          "partIdPlaceholder": "කොටස් ID",
+          "partNamePlaceholder": "කොටසේ නම",
+          "partNumberPlaceholder": "කොටස් අංකය",
+          "qtyPlaceholder": "ප්‍රමාණය",
+          "add": "එක් කරන්න"
+        },
+        "step7": {
+          "heading": "ලේඛන සහ යොමු",
+          "subheading": "යන්ත්‍ර අත්පොත්, SOP, යොමු ඡායාරූප අමුණන්න.",
+          "fileSizeKb": "({{size}} KB)",
+          "remove": "ඉවත් කරන්න",
+          "uploadHint": "ගොනු උඩුගත කිරීමට ක්ලික් කරන්න හෝ ඇදගෙන ඇවිත් දමන්න",
+          "uploadTypes": "PDF, Word, රූප 10MB දක්වා"
+        },
+        "step8": {
+          "heading": "සැකසුම් සහ ඇඟවීම්",
+          "leadTimeLabel": "පෙර දැනුම්දීමේ කාලය (දින)",
+          "leadTimeHint": "තාක්ෂණ ශිල්පියාට දැනුම් දීමට නියමිත දිනයට පෙර දින",
+          "overdueEscalationLabel": "කල් ඉකුත් යොමු කිරීම (පැය)",
+          "overdueEscalationHint": "නියමිත වේලාවෙන් පසු කම්හල් කළමනාකරු වෙත යොමු කිරීමට පැය",
+          "autoCloseLabel": "ස්වයංක්‍රීය වැසීම (දින)",
+          "autoCloseHint": "කල් ඉකුත් ලෙස ස්වයංක්‍රීයව සලකුණු කිරීමට දින",
+          "notificationSummaryTitle": "දැනුම්දීම් සාරාංශය",
+          "notif1": "PM නියමිත වූ විට පවරා ඇති තාක්ෂණ ශිල්පියාට සහ අධීක්ෂකට Push + ඊමේල්",
+          "notif2": "යොමු කිරීමේ පැය තුළ PM ආරම්භ නොකළහොත් කම්හල් කළමනාකරුට Push + SMS",
+          "notif3": "PM වැඩ ඇණවුම ස්වයංක්‍රීයව සෑදූ විට වහාම Push"
+        }
+      },
+      "detail": {
+        "notFound": "කාලසටහන හමු නොවීය.",
+        "openingLinkedWo": "සම්බන්ධිත වැඩ ඇණවුම විවෘත කරමින්…",
+        "complianceRate": "අනුකූලතා අනුපාතය",
+        "nextDue": "ඊළඟ නියමිත දිනය",
+        "daysOverdue_one": "දින {{count}}ක් කල් ඉකුත්",
+        "daysOverdue_other": "දින {{count}}ක් කල් ඉකුත්",
+        "today": "අද",
+        "daysShort_one": "දින {{count}}",
+        "daysShort_other": "දින {{count}}",
+        "completed": "සම්පූර්ණයි",
+        "missedCount_one": "{{count}}ක් මඟ හැරුණි",
+        "missedCount_other": "{{count}}ක් මඟ හැරුණි",
+        "status": "තත්ත්වය",
+        "tabs": {
+          "overview": "දළ විශ්ලේෂණය",
+          "history": "ඉතිහාසය"
+        },
+        "scheduleDetails": "කාලසටහන් විස්තර",
+        "priority": "ප්‍රමුඛතාව",
+        "triggerType": "ක්‍රියාරම්භක වර්ගය",
+        "recurrence": "පුනරාවර්තනය",
+        "endDate": "අවසන් දිනය",
+        "noEndDate": "අවසන් දිනයක් නැත",
+        "triggerAfter": "ක්‍රියාරම්භ වන්නේ",
+        "currentMeter": "වත්මන් මීටරය",
+        "estDuration": "ඇස්ත. කාලය",
+        "leadTime": "පෙර දැනුම්දීමේ කාලය",
+        "leadTimeDays_one": "දින {{count}}",
+        "leadTimeDays_other": "දින {{count}}",
+        "escalation": "යොමු කිරීම",
+        "escalationHours": "පැය {{count}}",
+        "checklist": "පරීක්ෂණ ලැයිස්තුව",
+        "preallocatedParts": "කලින් වෙන් කළ කොටස්",
+        "qty_one": "ප්‍රමාණය: {{count}}",
+        "qty_other": "ප්‍රමාණය: {{count}}",
+        "historyTable": {
+          "woNumber": "WO අංකය",
+          "dueDate": "නියමිත දිනය",
+          "completed": "සම්පූර්ණ කළ දිනය",
+          "status": "තත්ත්වය",
+          "technicians": "තාක්ෂණ ශිල්පීන්",
+          "duration": "කාලය"
+        },
+        "durationMinutes_one": "මිනි. {{count}}",
+        "durationMinutes_other": "මිනි. {{count}}",
+        "noHistoryYet": "තවම ඉතිහාසයක් නැත."
+      },
+      "errors": {
+        "companyIdRequired": "සමාගම් ID අවශ්‍යයි",
+        "fetchCalendarEventsFailed": "දින දර්ශන සිදුවීම් ලබා ගැනීම අසාර්ථකයි"
+      },
+      "workloadPage": {
+        "title": "තාක්ෂණ ශිල්පී වැඩ බර",
+        "description": "තාක්ෂණ ශිල්පියා අනුව ඉදිරි PM පැවරුම්",
+        "dateRangeLabel": "දින පරාසය",
+        "range_7": "දින 7",
+        "range_14": "දින 14",
+        "range_30": "දින 30",
+        "loadErrorTitle": "වැඩ බර පූරණය කළ නොහැකි විය"
+      },
+      "technicianWorkload": {
+        "assignedHoursSummary_one": "PM {{count}} • ඇස්ත. පැය {{hours}}",
+        "assignedHoursSummary_other": "PM {{count}} • ඇස්ත. පැය {{hours}}",
+        "status": {
+          "ok": "හරි",
+          "busy": "කාර්යබහුල",
+          "overloaded": "අධික බර"
+        },
+        "moreCount_one": "+තව {{count}}",
+        "moreCount_other": "+තව {{count}}",
+        "empty": "මෙම පරාසයේ ඉදිරි PM පැවරුම් නැත."
+      },
+      "complianceDashboard": {
+        "loading": "අනුකූලතා දත්ත පූරණය වෙමින්...",
+        "kpi": {
+          "overallCompliance": "සමස්ත අනුකූලතාව",
+          "scheduledThisMonth": "මෙම මාසයේ සැලසුම් කළ",
+          "completedOnTime": "නියමිත වේලාවට සම්පූර්ණ කළ",
+          "overdue": "කල් ඉකුත්"
+        },
+        "trendChartTitle": "අනුකූලතා ප්‍රවණතාව (පසුගිය මාස 6)",
+        "chart": {
+          "breakdowns": "බිඳවැටීම්",
+          "complianceRate": "අනුකූලතාව %",
+          "percentAxisLabel": "%"
+        },
+        "byMachineTitle": "යන්ත්‍රය අනුව අනුකූලතාව",
+        "byTechnicianTitle": "තාක්ෂණ ශිල්පියා අනුව අනුකූලතාව",
+        "table": {
+          "name": "නම",
+          "rate": "අනුපාතය",
+          "scheduled": "සැලසුම් කළ",
+          "onTime": "නියමිත වේලාවට",
+          "missed": "මඟ හැරුණු"
+        },
+        "noData": "දත්ත නොමැත."
+      },
+      "editPage": {
+        "title": "PM කාලසටහන සංස්කරණය",
+        "notFound": "කාලසටහන හමු නොවීය. එය මකා දමා ඇති විය හැක."
       }
     },
     "layout": {
@@ -6095,6 +6751,244 @@
         "noDataYet": "තවම දත්ත නැත.",
         "departmentCriticality": "{{department}} · තීරණාත්මකභාවය {{criticality}}",
         "criticalBadge": "තීරණාත්මක"
+      }
+    },
+    "safetyCases": {
+      "pageTitle": "ආරක්ෂක සිද්ධි",
+      "pageTitleReportedToMe": "මට වාර්තා කළ ආරක්ෂක සිද්ධි",
+      "subtitle": "ක්‍රියාමාර්ග සටහන් කර වාර්තා වූ සෑම ආරක්ෂක සිද්ධියක්ම නිරීක්ෂණය කරන්න.",
+      "subtitleReportedToMe": "ආරක්ෂක කණ්ඩායම ඔබ වෙත යොමු කළ සිද්ධි.",
+      "cases_one": "සිද්ධි ({{count}})",
+      "cases_other": "සිද්ධි ({{count}})",
+      "empty": {
+        "officer": "තවම ආරක්ෂක සිද්ධි සටහන් කර නැත",
+        "reportedToMe": "ඔබට කිසිදු සිද්ධියක් වාර්තා කර නැත"
+      },
+      "types": {
+        "incident": "සිද්ධිය",
+        "near_miss": "ආසන්න අනතුර",
+        "hazard": "උපද්‍රවය",
+        "unsafe_act": "අනාරක්ෂිත ක්‍රියාව"
+      },
+      "severities": {
+        "low": "අඩු",
+        "medium": "මධ්‍යම",
+        "high": "ඉහළ",
+        "critical": "තීරණාත්මක"
+      },
+      "statuses": {
+        "open": "විවෘත",
+        "investigating": "විමර්ශනය කරමින්",
+        "closed": "වසා ඇත"
+      },
+      "subjectTypes": {
+        "other": "වෙනත්",
+        "work_order": "වැඩ ඇණවුම",
+        "contractor": "කොන්ත්‍රාත්කරු",
+        "operator": "ක්‍රියාකරු",
+        "technician": "තාක්ෂණ ශිල්පී"
+      },
+      "roleLabels": {
+        "admin": "පරිපාලක",
+        "plant_manager": "කම්හල් කළමනාකරු",
+        "supervisor": "අධීක්ෂක",
+        "hr_officer": "මානව සම්පත් නිලධාරී",
+        "technician": "තාක්ෂණ ශිල්පී",
+        "floor_operator": "ක්‍රියාකරු",
+        "store_keeper": "ගබඩා භාරකරු",
+        "trainee": "අභ්‍යාසලාභී",
+        "safety_officer": "ආරක්ෂක නිලධාරී"
+      },
+      "points": "ලකුණු {{points}}",
+      "row": {
+        "reportedBy": "වාර්තා කළ අය",
+        "reportedAt": "වාර්තා කළ වේලාව",
+        "location": "ස්ථානය",
+        "reportedTo": "වාර්තා කළේ",
+        "whatHappened": "සිදු වූ දේ",
+        "actionToTake": "ගත යුතු ක්‍රියාමාර්ගය",
+        "actionsTaken_one": "ගත් ක්‍රියාමාර්ග ({{count}})",
+        "actionsTaken_other": "ගත් ක්‍රියාමාර්ග ({{count}})",
+        "noActions": "තවම ක්‍රියාමාර්ග සටහන් කර නැත.",
+        "closedNotice": "මෙම සිද්ධිය වසා ඇති අතර තවදුරටත් සංස්කරණය කළ නොහැක."
+      },
+      "actionForm": {
+        "heading": "ක්‍රියාමාර්ගයක් සටහන් කරන්න",
+        "notePlaceholder": "මෙම සිද්ධිය සම්බන්ධයෙන් කළේ කුමක්ද?",
+        "keepStatus": "තත්ත්වය තබා ගන්න ({{status}})",
+        "setToOpen": "විවෘත ලෙස සකසන්න",
+        "setToInvestigating": "විමර්ශනය ලෙස සකසන්න",
+        "setToClosed": "වසා ඇති ලෙස සකසන්න",
+        "record": "සටහන් කරන්න",
+        "recording": "සුරකිමින්…",
+        "errors": {
+          "noteOrStatus": "සටහනක් එක් කරන්න හෝ තත්ත්වය වෙනස් කරන්න."
+        },
+        "toasts": {
+          "recorded": "ක්‍රියාමාර්ගය සටහන් කළා.",
+          "failed": "ක්‍රියාමාර්ගය සටහන් කිරීම අසාර්ථකයි."
+        }
+      },
+      "reportTo": {
+        "label": "වාර්තා කරන්න",
+        "selectPerson": "පුද්ගලයෙකු තෝරන්න…",
+        "report": "වාර්තා කරන්න",
+        "reporting": "වාර්තා කරමින්…",
+        "errors": {
+          "chooseRecipient": "මෙම සිද්ධිය වාර්තා කළ යුත්තේ කාටදැයි තෝරන්න."
+        },
+        "toasts": {
+          "reported": "{{name}} වෙත වාර්තා කළා.",
+          "failed": "සිද්ධිය වාර්තා කිරීම අසාර්ථකයි."
+        },
+        "notification": "ඔබට ආරක්ෂක සිද්ධියක් වාර්තා කර ඇත: {{title}}"
+      },
+      "createModal": {
+        "title": "ආරක්ෂක සිද්ධියක් වාර්තා කරන්න",
+        "close": "වසන්න",
+        "cancel": "අවලංගු කරන්න",
+        "submit": "සිද්ධිය සටහන් කරන්න",
+        "saving": "සුරකිමින්…",
+        "subject": {
+          "label": "සිද්ධිය අදාළ වන්නේ",
+          "select": "තෝරන්න…",
+          "workOrderLabel": "අදාළ වැඩ ඇණවුම (ක්‍රියාත්මක)",
+          "workOrderOption": "{{number}} — {{machine}}",
+          "machineFallback": "යන්ත්‍රය",
+          "noWorkOrders": "දැනට ක්‍රියාත්මක වැඩ ඇණවුම් නැත.",
+          "noPeople": "{{label}} හමු නොවීය."
+        },
+        "fields": {
+          "type": "වර්ගය",
+          "severity": "බරපතළකම",
+          "pointsLabel": "ආරක්ෂක ලකුණු (බරපතළකම අනුව ස්වයංක්‍රීයව)",
+          "title": "මාතෘකාව *",
+          "titlePlaceholder": "උදා. ඇසුරුම් රේඛාව අසල ලිස්සීමේ අවදානම",
+          "location": "ස්ථානය",
+          "locationPlaceholder": "ප්‍රදේශය / යන්ත්‍රය",
+          "whatHappened": "සිදු වූයේ කුමක්ද?",
+          "actionToTake": "ගත යුතු ක්‍රියාමාර්ගය",
+          "reportTo": "වාර්තා කරන්න (විකල්ප)",
+          "reportToNone": "කිසිවෙකුට නැත — ආරක්ෂක කණ්ඩායම සමඟ තබන්න"
+        },
+        "errors": {
+          "titleRequired": "සිද්ධියට කෙටි මාතෘකාවක් දෙන්න."
+        },
+        "toasts": {
+          "logged": "ආරක්ෂක සිද්ධිය සටහන් කළා.",
+          "failed": "ආරක්ෂක සිද්ධිය සටහන් කිරීම අසාර්ථකයි."
+        },
+        "notifications": {
+          "newCase": "නව ආරක්ෂක සිද්ධියක් වාර්තා විය: {{title}}",
+          "newCaseOversight": "ආරක්ෂක සිද්ධියක් වාර්තා කළා: {{title}}",
+          "reportedTo": "ඔබට ආරක්ෂක සිද්ධියක් වාර්තා කර ඇත: {{title}}",
+          "reportedToOversight": "{{name}} වෙත ආරක්ෂක සිද්ධියක් වාර්තා කළා: {{title}}"
+        }
+      }
+    },
+    "workPermits": {
+      "pageTitle": "වැඩ අවසර",
+      "pageSubtitle": "වැඩ අවසර: ආරක්ෂක අවසර නිකුත් කරන්න, නිරීක්ෂණය කරන්න, දීර්ඝ කරන්න සහ අනුමත කරන්න.",
+      "newPermit": "නව අවසරය",
+      "close": "වසන්න",
+      "cancel": "අවලංගු කරන්න",
+      "tabs": {
+        "current": "වත්මන්",
+        "closed": "වසා ඇති"
+      },
+      "empty": {
+        "closed": "වසා ඇති අවසර නැත",
+        "current": "මෙම කාණ්ඩයේ වත්මන් අවසර නැත"
+      },
+      "overdue": "කල් ඉකුත්",
+      "noLocation": "ස්ථානයක් නැත",
+      "validRange": "වලංගු {{from}} → {{to}}",
+      "workOrderLine": "WO: {{number}}",
+      "workOrderLineWithType": "WO: {{number}} ({{type}})",
+      "supervisorLine": "අධීක්ෂක: {{name}}",
+      "signedOffBy": "{{name}} විසින් අනුමත කළා",
+      "extendTime": "කාලය දීර්ඝ කරන්න",
+      "finishAndSignOff": "අවසන් කර අනුමත කරන්න",
+      "statuses": {
+        "draft": "කෙටුම්පත",
+        "active": "සක්‍රිය",
+        "closed": "වසා ඇත",
+        "expired": "කල් ඉකුත්"
+      },
+      "completions": {
+        "completed": "සම්පූර්ණයි",
+        "partially_completed": "අර්ධ වශයෙන් සම්පූර්ණයි",
+        "not_completed": "සම්පූර්ණ නැත"
+      },
+      "extendModal": {
+        "title": "අවසරය දීර්ඝ කරන්න",
+        "currentlyValidUntil": "දැනට {{date}} දක්වා වලංගුයි.",
+        "newValidUntil": "නව වලංගු කාලය දක්වා",
+        "extend": "දීර්ඝ කරන්න",
+        "extending": "දීර්ඝ කරමින්…",
+        "errors": {
+          "pickDateTime": "නව දිනයක් සහ වේලාවක් තෝරන්න.",
+          "endMustBeLater": "නව අවසානය වත්මන් වලංගු කාලයට වඩා පසු විය යුතුය."
+        },
+        "toasts": {
+          "extended": "අවසරය දීර්ඝ කළා.",
+          "failed": "අවසරය දීර්ඝ කිරීම අසාර්ථකයි."
+        }
+      },
+      "signOffModal": {
+        "title": "අවසරය අනුමත කරන්න",
+        "completionStatusLabel": "සම්පූර්ණ කිරීමේ තත්ත්වය",
+        "noteLabel": "සටහන (විකල්ප)",
+        "signOff": "අනුමත කරන්න",
+        "saving": "සුරකිමින්…",
+        "toasts": {
+          "signedOff": "අවසරය අනුමත කළා.",
+          "failed": "අවසරය අනුමත කිරීම අසාර්ථකයි."
+        }
+      },
+      "createModal": {
+        "title": "නව වැඩ අවසරය",
+        "workOrder": {
+          "label": "වැඩ ඇණවුම (විකල්ප)",
+          "none": "වැඩ ඇණවුමකට සම්බන්ධ නැත",
+          "option": "{{number}} — {{machine}}",
+          "machineFallback": "යන්ත්‍රය",
+          "type": "වර්ගය:",
+          "description": "විස්තරය:",
+          "createdBy": "WO සෑදූ අය:"
+        },
+        "category": {
+          "label": "අවසර කාණ්ඩය",
+          "newCategoryPlaceholder": "නව කාණ්ඩයේ නම",
+          "add": "එක් කරන්න",
+          "addNew": "+ නව කාණ්ඩයක් එක් කරන්න…"
+        },
+        "fields": {
+          "title": "මාතෘකාව *",
+          "titlePlaceholder": "කළ යුතු වැඩ",
+          "location": "ස්ථානය",
+          "locationPlaceholder": "ප්‍රදේශය / යන්ත්‍රය",
+          "validFrom": "වලංගු වන්නේ",
+          "validTo": "වලංගු දක්වා (කාලය)",
+          "supervisor": "අධීක්ෂක පවරන්න (විකල්ප)",
+          "noSupervisor": "අධීක්ෂකයෙක් නැත — අනුමැතිය ආරක්ෂක කණ්ඩායම සතුයි",
+          "description": "වැඩ විස්තරය",
+          "hazards": "හඳුනාගත් උපද්‍රව",
+          "precautions": "ක්‍රියාත්මක පූර්වාරක්ෂා",
+          "noPrecautions": "මෙම කාණ්ඩයට පෙර සැකසූ පූර්වාරක්ෂා නැත — ඉහත ඕනෑම උපද්‍රවයක් සටහන් කරන්න.",
+          "ppe": "අවශ්‍ය PPE",
+          "ppePlaceholder": "උදා. හිස්වැස්ම, අත්වැසුම්, ආරක්ෂක පටිය"
+        },
+        "submit": "අවසරය නිකුත් කරන්න",
+        "saving": "සුරකිමින්…",
+        "errors": {
+          "titleRequired": "අවසරයට මාතෘකාවක් දෙන්න.",
+          "validToBeforeFrom": "\"වලංගු දක්වා\" \"වලංගු වන්නේ\" දිනයේ හෝ ඊට පසු විය යුතුය."
+        },
+        "toasts": {
+          "issued": "වැඩ අවසරය නිකුත් කළා.",
+          "failed": "අවසරය නිකුත් කිරීම අසාර්ථකයි."
+        }
       }
     }
   },
