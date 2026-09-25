@@ -751,22 +751,29 @@
             "email": "Email",
             "specialization": "Specialization",
             "certifications": "Certifications, comma separated",
-            "certificationAttachments": "Certification attachments"
+            "certificationAttachments": "Certification attachments",
+            "photo": "Profile photo",
+            "photoHint": "JPG, PNG or WebP, up to 5 MB."
           },
           "actions": {
-            "save": "Save Technician",
+            "save": "Save Team Member",
             "saving": "Saving…",
-            "removeAttachment": "Remove attachment"
+            "removeAttachment": "Remove attachment",
+            "uploadPhoto": "Upload photo",
+            "changePhoto": "Change photo",
+            "removePhoto": "Remove photo"
           },
           "toasts": {
-            "updated": "Technician updated",
-            "added": "Technician added"
+            "updated": "Team member updated",
+            "added": "Team member added"
           },
           "errors": {
             "missingContractor": "Missing contractor reference.",
             "mustBeLoggedIn": "You must be logged in.",
             "requiredFields": "Full name and NIC/Passport are required.",
-            "saveFailed": "Failed to save technician"
+            "saveFailed": "Failed to save team member",
+            "photoNotImage": "Choose an image file (JPG, PNG, WebP…).",
+            "photoTooLarge": "The photo must be 5 MB or smaller."
           }
         }
       },
@@ -832,11 +839,11 @@
       },
       "addTechnicianPage": {
         "title": "Add a team member",
-        "subtitle": "Register an individual technician for gate identification and job history."
+        "subtitle": "Register an individual team member for gate identification and job history."
       },
       "editTechnicianPage": {
-        "title": "Edit Technician",
-        "subtitle": "Update contractor technician details and status."
+        "title": "Edit Team Member",
+        "subtitle": "Update contractor team member details and status."
       },
       "profilePage": {
         "loading": "Loading contractor...",
