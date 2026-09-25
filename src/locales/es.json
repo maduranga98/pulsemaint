@@ -48,7 +48,11 @@
         "audit": "Auditoría",
         "evaluations": "Evaluaciones",
         "settings": "Configuración",
-        "billing": "Facturación y plan"
+        "billing": "Facturación y plan",
+        "maintenanceHistory": "Historial de mantenimiento",
+        "myRequests": "Mis solicitudes",
+        "requestsInbox": "Bandeja de solicitudes",
+        "safetyBlacklist": "Lista negra"
       },
       "help": "Ayuda y soporte"
     },
@@ -209,7 +213,8 @@
           "autoApprovalEligible": "✓ Elegible para aprobación automática: todos los artículos en stock y dentro del umbral",
           "autoApprovalNotEligible": "✗ No elegible para aprobación automática: {{reasons}}",
           "someUnavailable": "Algunos artículos no disponibles. ",
-          "costExceedsThreshold": "El costo supera el umbral de LKR {{threshold}}."
+          "costExceedsThreshold": "El costo supera el umbral de LKR {{threshold}}.",
+          "writtenOff": "Cancelado por {{name}} — no se devolverá: {{reason}}"
         },
         "availabilityIndicator": {
           "outOfStock": "Sin stock",
@@ -1345,7 +1350,14 @@
         "returnFailed": "No se pudo solicitar la devolución.",
         "returnRequested": "Devolución solicitada — un almacenista la confirmará.",
         "returning": "Devolviendo",
-        "title": "Mis repuestos retornables"
+        "title": "Mis repuestos retornables",
+        "writeOffBody": "Indica por qué no se devolverá (perdido, dañado, consumido, etc.). Queda registrado y se notifica a los almacenistas/supervisores.",
+        "writeOffButton": "Cancelar",
+        "writeOffConfirm": "Confirmar cancelación",
+        "writeOffFailed": "No se pudo registrar la cancelación.",
+        "writeOffReasonPlaceholder": "Motivo (obligatorio)",
+        "writeOffRecorded": "Registrado — ya no se espera la devolución de este artículo.",
+        "writeOffTitle": "Cancelar devolución de {{partName}}"
       },
       "mySafetyCasesWidget": {
         "actionsTaken": "Acciones tomadas",
@@ -1420,7 +1432,9 @@
         "reject": "Rechazar",
         "requested": "solicitó",
         "title": "Aprobaciones pendientes",
-        "viewMore": "Ver {{count}} más…"
+        "viewMore": "Ver {{count}} más…",
+        "attach": "Adjuntar (opcional)",
+        "removeAttachment": "Quitar adjunto"
       },
       "pendingReceiptPOsWidget": {
         "empty": "No hay OC pendientes de recepción",
@@ -1499,7 +1513,11 @@
           "inApprovalOfSupervisor": "En aprobación del supervisor",
           "needToCollect": "Por recoger"
         },
-        "title": "Repuestos solicitados"
+        "title": "Repuestos solicitados",
+        "cancel": "Cancelar",
+        "cancelFailed": "No se pudo cancelar la solicitud.",
+        "cancelled": "Solicitud cancelada.",
+        "cancelling": "Cancelando…"
       },
       "safetyForYouWidget": {
         "empty": "Nada relacionado con seguridad pendiente",
@@ -1574,7 +1592,7 @@
       },
       "technicianStatusList": {
         "active": "{{count}} activos",
-        "empty": "No hay técnicos en turno",
+        "empty": "Ningún técnico o aprendiz de tu departamento en turno",
         "title": "Estado del equipo"
       },
       "technicianStatusRow": {
@@ -1673,6 +1691,14 @@
           "operator": "Operador",
           "machine": "Máquina"
         }
+      },
+      "needSignOffWidget": {
+        "badge": "Completada",
+        "empty": "Nada pendiente de aprobación",
+        "emptySub": "Las órdenes de trabajo completadas aparecerán aquí hasta que las apruebes.",
+        "pending": "{{count}} pendientes",
+        "title": "Pendientes de aprobación",
+        "viewMore": "Ver {{count}} más…"
       }
     },
     "machines": {
@@ -2056,7 +2082,12 @@
           "descriptionTooShort": "Describa la avería con al menos 10 caracteres.",
           "machineNotFound": "Máquina seleccionada no encontrada.",
           "submitFailed": "No se pudo reportar la avería."
-        }
+        },
+        "aiSuggestionDisclaimer": "Contrasta esto tú mismo con las órdenes de trabajo completadas y los análisis de causa raíz anteriores de la máquina antes de actuar.",
+        "aiSuggestionTitle": "Sugerencia de IA",
+        "continueButton": "Continuar",
+        "submittedSubtitle": "Tu informe de {{machineName}} se envió al equipo de mantenimiento.",
+        "submittedTitle": "Avería reportada"
       },
       "attendPage": {
         "back": "Atrás",
@@ -2116,6 +2147,17 @@
         },
         "errors": {
           "saveFailed": "No se pudo guardar."
+        },
+        "rca": {
+          "actionsLabel": "Próximas acciones recomendadas",
+          "aiError": "IA no disponible — {{error}}",
+          "causesLabel": "Causas probables",
+          "cta": "Obtener sugerencias de IA",
+          "error": "No se pudieron generar sugerencias ahora. Inténtalo de nuevo.",
+          "loading": "Analizando…",
+          "sourceAi": "Generado por IA a partir del historial reciente de averías de esta máquina — verifícalo antes de actuar.",
+          "sourceHeuristic": "Generado a partir de patrones de mantenimiento integrados (IA no disponible) — verifícalo antes de actuar.",
+          "title": "Sugerencias de causa raíz por IA"
         }
       },
       "viewPage": {
@@ -2137,7 +2179,8 @@
         "errors": {
           "closeFailed": "No se pudo cerrar la avería.",
           "assignFailed": "No se pudo asignar.",
-          "attendFailed": "No se pudo atender."
+          "attendFailed": "No se pudo atender.",
+          "woNotCompleted": "La orden de trabajo {{woNumber}} aún no está completada — debe completarse y aprobarse antes de poder cerrar esta avería."
         }
       },
       "editPage": {
@@ -2589,7 +2632,9 @@
         "noContractorTeamMembers": "Aún no hay miembros de equipo registrados para este contratista. Agréguelos en la pestaña de Miembros del Equipo del contratista.",
         "assignInternalTechniciansLabel": "Asignar técnicos internos",
         "optionalLabel": "(opcional)",
-        "activeWOsInline": "{{count}} OT activas"
+        "activeWOsInline": "{{count}} OT activas",
+        "chooseContactPerson": "Elige una persona de contacto…",
+        "primaryContactOption": "{{name}} (contacto principal)"
       },
       "pageTitle": "Órdenes de Trabajo",
       "count": "{{count}} órdenes de trabajo",
@@ -2598,12 +2643,14 @@
       "tabs": {
         "needSignOff": "Requiere Firma",
         "signedOff": "Firmadas",
-        "approvalRequests": "Solicitudes de Aprobación"
+        "approvalRequests": "Solicitudes de Aprobación",
+        "cancelled": "Canceladas"
       },
       "empty": {
         "needSignOff": "No hay órdenes de trabajo pendientes de firma.",
         "signedOff": "Aún no hay órdenes de trabajo firmadas o cerradas.",
-        "noOpenWOs": "No hay órdenes de trabajo abiertas. ¡Todo al día!"
+        "noOpenWOs": "No hay órdenes de trabajo abiertas. ¡Todo al día!",
+        "cancelled": "No hay órdenes de trabajo canceladas."
       },
       "table": {
         "wo": "Orden de Trabajo",
@@ -2735,7 +2782,12 @@
         "requestedByLabel": "{{name}} solicitó",
         "notePlaceholder": "Nota (opcional)",
         "approveButton": "Aprobar",
-        "rejectButton": "Rechazar"
+        "rejectButton": "Rechazar",
+        "attachmentsLabel": "Adjuntos",
+        "machineLabel": "Máquina",
+        "priorityLabel": "Prioridad",
+        "statusLabel": "Estado",
+        "woNumberLabel": "Orden de trabajo"
       },
       "myWorkOrders": {
         "pageTitle": "Mis Órdenes de Trabajo",
@@ -2806,7 +2858,8 @@
         "completeMyWorkButton": "Completar Mi Trabajo",
         "submitAndCompleteButton": "Completar y Enviar Orden de Trabajo",
         "pendingTeamCompletionHint": "La orden de trabajo se puede enviar para firma una vez que todos los miembros del equipo asignados hayan completado su propio trabajo ({{completed}}/{{total}}).",
-        "statusHint": "Esta orden de trabajo está {{status}}."
+        "statusHint": "Esta orden de trabajo está {{status}}.",
+        "approvalAttachmentsLabel": "Adjuntos (opcional)"
       },
       "mediaCapture": {
         "takePhoto": "Tomar Foto",
@@ -5483,12 +5536,17 @@
             "email": "Correo electrónico",
             "specialization": "Especialización",
             "certifications": "Certificaciones, separadas por comas",
-            "certificationAttachments": "Adjuntos de certificación"
+            "certificationAttachments": "Adjuntos de certificación",
+            "photo": "Foto de perfil",
+            "photoHint": "JPG, PNG o WebP, hasta 5 MB."
           },
           "actions": {
             "save": "Guardar Técnico",
             "saving": "Guardando…",
-            "removeAttachment": "Quitar adjunto"
+            "removeAttachment": "Quitar adjunto",
+            "changePhoto": "Cambiar foto",
+            "removePhoto": "Quitar foto",
+            "uploadPhoto": "Subir foto"
           },
           "toasts": {
             "updated": "Técnico actualizado",
@@ -5498,7 +5556,9 @@
             "missingContractor": "Falta la referencia del contratista.",
             "mustBeLoggedIn": "Debe iniciar sesión.",
             "requiredFields": "El nombre completo y la cédula/pasaporte son obligatorios.",
-            "saveFailed": "No se pudo guardar el técnico"
+            "saveFailed": "No se pudo guardar el técnico",
+            "photoNotImage": "Elige un archivo de imagen (JPG, PNG, WebP…).",
+            "photoTooLarge": "La foto debe pesar 5 MB o menos."
           }
         }
       },
@@ -8372,6 +8432,267 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Integraciones personalizadas y API",
         "dedicatedSupportSla": "Soporte dedicado y SLA"
+      }
+    },
+    "actions": {
+      "activate": "Activar",
+      "cancel": "Cancelar",
+      "deactivate": "Desactivar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "save": "Guardar",
+      "saving": "Guardando…"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "maintenanceHistory": {
+      "allDepartments": "Todos los departamentos",
+      "columns": {
+        "actions": "Acciones",
+        "attendedBy": "Atendido por",
+        "closed": "Cerrada",
+        "department": "Departamento",
+        "machine": "Máquina",
+        "outcome": "Resultado",
+        "rootCause": "Causa raíz",
+        "signedOff": "Aprobada",
+        "supervisor": "Supervisor",
+        "ticket": "Ticket",
+        "wo": "Orden de trabajo"
+      },
+      "empty": "Ningún registro coincide con estos filtros.",
+      "exportFailed": "No se pudo crear el PDF. Inténtalo de nuevo.",
+      "exportPdf": "Exportar PDF",
+      "filters": {
+        "allSupervisors": "Todos los supervisores",
+        "allTypes": "Todos los tipos",
+        "clear": "Borrar filtros",
+        "department": "Departamento",
+        "from": "Desde",
+        "search": "Buscar número, máquina, descripción…",
+        "supervisor": "Supervisor",
+        "to": "Hasta",
+        "woType": "Tipo de orden de trabajo"
+      },
+      "outcomes": {
+        "complete": "Completa",
+        "failed": "Fallida",
+        "not_complete": "No completa"
+      },
+      "rootCauses": {
+        "external_damage": "Daño externo",
+        "lack_of_maintenance": "Falta de mantenimiento",
+        "manufacturing_defect": "Defecto de fabricación",
+        "operator_error": "Error del operador",
+        "unknown": "Desconocida",
+        "wear_and_tear": "Desgaste"
+      },
+      "showMore": "Mostrar más ({{shown}} de {{total}})",
+      "subtitle": "Todas las órdenes de trabajo aprobadas y averías cerradas de tu planta, de todos los supervisores y departamentos. Exporta cualquier registro como un informe PDF detallado.",
+      "tabs": {
+        "breakdowns": "Averías cerradas",
+        "workOrders": "Órdenes de trabajo aprobadas"
+      },
+      "title": "Historial de mantenimiento",
+      "view": "Abrir",
+      "woTypes": {
+        "BREAKDOWN": "Reparación de avería",
+        "CONTRACTOR": "Contratista",
+        "CORRECTIVE": "Correctivo",
+        "INSPECTION": "Inspección",
+        "INSTALLATION": "Instalación",
+        "MODIFICATION": "Modificación",
+        "OTHER": "Otro",
+        "PREVENTIVE": "Mantenimiento preventivo"
+      }
+    },
+    "staffRequests": {
+      "attachments": {
+        "add": "Adjuntar archivos",
+        "remove": "Quitar {{name}}",
+        "tooLarge": "{{name}} supera los 25 MB y no se adjuntó."
+      },
+      "cancel": "Cancelar",
+      "card": {
+        "closedOn": "Cerrada el {{date}}",
+        "reference": "Referencia: {{reference}}",
+        "replies_one": "{{count}} respuesta",
+        "replies_other": "{{count}} respuestas",
+        "sentTo": "Para: {{to}}"
+      },
+      "categories": {
+        "other": "Otro",
+        "personal": "Personal",
+        "record_access": "Acceso a detalles de OT / averías anteriores",
+        "service_letter": "Carta de servicio",
+        "work": "Trabajo"
+      },
+      "close": "Cerrar",
+      "filters": {
+        "all": "Todas",
+        "allCategories": "Todos los tipos de solicitud",
+        "search": "Buscar solicitudes…"
+      },
+      "inbox": {
+        "empty": "No hay solicitudes aquí.",
+        "scope": {
+          "admin": "Solicitudes enviadas al administrador.",
+          "plantManager": "Solicitudes enviadas al gerente de planta de tu planta.",
+          "supervisor": "Solicitudes enviadas a los supervisores de tu departamento ({{department}})."
+        },
+        "title": "Bandeja de solicitudes"
+      },
+      "myPage": {
+        "empty": "Aún no has enviado ninguna solicitud.",
+        "newRequest": "Nueva solicitud",
+        "subtitle": "Pide a tu supervisor, gerente de planta o administrador asuntos personales o laborales, una carta de servicio o acceso a detalles de órdenes de trabajo / averías anteriores.",
+        "title": "Mis solicitudes"
+      },
+      "newRequest": {
+        "category": "Tipo de solicitud",
+        "choosePerson": "Elige una persona…",
+        "errors": {
+          "recipient": "Elige a quién enviar la solicitud.",
+          "required": "Añade un asunto y un mensaje."
+        },
+        "failed": "No se pudo enviar la solicitud. Inténtalo de nuevo.",
+        "loadingPeople": "Cargando personas…",
+        "message": "Mensaje",
+        "noRecipients": "Todavía no hay nadie disponible para recibir tus solicitudes. Pide a tu administrador que revise tu planta y departamento.",
+        "reference": "Número de OT / avería",
+        "referencePlaceholder": "p. ej. WO-2026-0142 o BD-0098",
+        "send": "Enviar solicitud",
+        "sendTo": "Enviar a",
+        "sent": "Solicitud enviada.",
+        "subject": "Asunto",
+        "title": "Nueva solicitud"
+      },
+      "notifications": {
+        "closed": "{{name}} cerró la solicitud \"{{subject}}\"",
+        "newReply": "{{name}} respondió a la solicitud \"{{subject}}\"",
+        "newRequest": "Nueva solicitud de {{category}} de {{name}}: {{subject}}"
+      },
+      "recipients": {
+        "admin": "Administrador",
+        "plant_manager": "Mi gerente de planta",
+        "supervisor": "Mi supervisor de departamento"
+      },
+      "reply": {
+        "close": "Cerrar solicitud",
+        "errors": {
+          "empty": "Escribe un mensaje o adjunta un archivo."
+        },
+        "failed": "No se pudo actualizar la solicitud. Inténtalo de nuevo.",
+        "headingHandler": "Responder",
+        "headingRequester": "Añadir un seguimiento",
+        "placeholder": "Escribe una respuesta…",
+        "reopen": "Reabrir",
+        "send": "Enviar respuesta",
+        "sendAndClose": "Responder y cerrar",
+        "sent": "Respuesta enviada."
+      },
+      "roles": {
+        "admin": "Administrador",
+        "floor_operator": "Operador",
+        "hr_officer": "Responsable de RR. HH.",
+        "plant_manager": "Gerente de planta",
+        "safety_officer": "Responsable de seguridad",
+        "store_keeper": "Almacenista",
+        "supervisor": "Supervisor",
+        "technician": "Técnico",
+        "trainee": "Aprendiz"
+      },
+      "sending": "Enviando…",
+      "statuses": {
+        "answered": "Respondida",
+        "closed": "Cerrada",
+        "open": "Abierta"
+      }
+    },
+    "ui": {
+      "notifications": {
+        "title": "Notificaciones",
+        "mute": "Silenciar sonido de notificaciones",
+        "unmute": "Activar sonido de notificaciones",
+        "soundOn": "Sonido de notificaciones activado",
+        "soundOff": "Sonido de notificaciones desactivado",
+        "markAllRead": "Marcar todo como leído",
+        "enableDevice": "Activa las notificaciones del dispositivo con sonido para nuevas alertas",
+        "allCaughtUp": "Estás al día.",
+        "dismiss": "Descartar",
+        "needsAttention": "Requiere atención"
+      },
+      "selectItemForDetails": "Selecciona un elemento para ver los detalles.",
+      "live": "En vivo",
+      "failedToLoad": "No se pudieron cargar los datos",
+      "retry": "Reintentar",
+      "close": "Cerrar",
+      "loading": "Cargando...",
+      "toggleNavigation": "Mostrar/ocultar navegación",
+      "voiceLanguage": "Idioma en el que hablarás",
+      "machineCell": {
+        "status": "Estado",
+        "health": "Salud",
+        "openWos": "OT abiertas"
+      },
+      "planGate": {
+        "title": "Mejora tu plan para desbloquear esta función",
+        "notIncluded": "{{feature}} no está incluido en tu plan actual.",
+        "viewPlans": "Ver planes",
+        "features": {
+          "autoPOEmail": "Correo automático de órdenes de compra a proveedores",
+          "qrLowStockAlerts": "Escaneo QR de inventario y alertas de stock bajo",
+          "contractors": "Gestión de contratistas",
+          "shiftHandover": "Relevo de turno y reuniones informativas",
+          "training": "Módulo de formación",
+          "safety": "Espacio de seguridad",
+          "moeAnalytics": "Análisis de tendencias MOE y comparación de máquinas",
+          "multiSite": "Gestión de varias plantas"
+        }
+      },
+      "shiftConfig": {
+        "plant": "Planta",
+        "selectPlant": "Selecciona una planta...",
+        "selectPlantFirst": "Primero selecciona una planta."
+      },
+      "cancelReason": {
+        "title": "Cancelar",
+        "description": "Indica un motivo para la cancelación.",
+        "confirm": "Confirmar cancelación",
+        "cancelling": "Cancelando…",
+        "categoryLabel": "Categoría del motivo",
+        "reasonLabel": "Motivo",
+        "placeholder": "Motivo de la cancelación…",
+        "required": "El motivo de cancelación es obligatorio.",
+        "goBack": "Volver",
+        "categories": {
+          "none": "Selecciona una categoría (opcional)…",
+          "duplicate": "Ticket duplicado",
+          "reported_in_error": "Reportado por error",
+          "no_longer_needed": "Ya no es necesario",
+          "resolved_externally": "Resuelto externamente",
+          "wrong_machine": "Máquina / activo incorrecto",
+          "other": "Otro"
+        }
+      },
+      "triageStep": {
+        "escalation": "Paso de escalamiento",
+        "quickFix": "Paso de solución rápida",
+        "requiresPhoto": "Requiere foto"
+      },
+      "errorBoundary": {
+        "title": "Algo salió mal",
+        "body": "Esta página no se pudo mostrar. Recarga la página o abre la consola del navegador para ver los detalles.",
+        "reload": "Recargar",
+        "tryAgain": "Intentar de nuevo"
+      },
+      "relativeTime": {
+        "justNow": "justo ahora",
+        "minutes": "hace {{count}} min",
+        "hours": "hace {{count}} h",
+        "days": "hace {{count}} d"
       }
     }
   },

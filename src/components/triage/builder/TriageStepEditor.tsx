@@ -86,7 +86,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
             onChange={(e) => onChange({ isEscalationStep: e.target.checked })}
             className="accent-red-500"
           />
-          Escalation step
+          {t('common.ui.triageStep.escalation')}
         </label>
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input
@@ -95,7 +95,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
             onChange={(e) => onChange({ isQuickFixStep: e.target.checked })}
             className="accent-green-500"
           />
-          Quick-fix step
+          {t('common.ui.triageStep.quickFix')}
         </label>
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input
@@ -104,7 +104,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
             onChange={(e) => onChange({ requiresPhoto: e.target.checked })}
             className="accent-blue-500"
           />
-          Requires photo
+          {t('common.ui.triageStep.requiresPhoto')}
         </label>
       </div>
 

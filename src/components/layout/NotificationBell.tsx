@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useNavigate } from 'react-router-dom';
 import { Bell, AlertTriangle, Wrench, Package, Calendar, GraduationCap, ClipboardCheck, FileText, CheckCheck, BellRing, Volume2, VolumeX, MessageSquare } from 'lucide-react';
@@ -37,6 +38,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 
 /** Global notification bell, mounted once in AppLayout's header — visible to every role. */
 export default function NotificationBell() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useMyNotifications();
@@ -116,7 +118,7 @@ export default function NotificationBell() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         className="relative p-2 rounded-lg text-slate-300 hover:bg-white/10 transition-colors"
-        aria-label="Notifications"
+        aria-label={t('common.ui.notifications.title')}
       >
         <Bell className="w-5 h-5" />
         {totalCount > 0 && (
@@ -140,15 +142,15 @@ export default function NotificationBell() {
           style={isDesktop ? desktopStyle : undefined}
         >
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-900">Notifications</p>
+            <p className="text-sm font-semibold text-slate-900">{t('common.ui.notifications.title')}</p>
             <div className="flex items-center gap-2">
               {isDeviceNotificationSupported() && (
                 <button
                   type="button"
                   onClick={toggleSound}
                   className="p-1 rounded text-slate-400 hover:text-slate-600"
-                  aria-label={soundOn ? 'Mute notification sound' : 'Unmute notification sound'}
-                  title={soundOn ? 'Notification sound on' : 'Notification sound off'}
+                  aria-label={soundOn ? t('common.ui.notifications.mute') : t('common.ui.notifications.unmute')}
+                  title={soundOn ? t('common.ui.notifications.soundOn') : t('common.ui.notifications.soundOff')}
                 >
                   {soundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
                 </button>
@@ -160,7 +162,7 @@ export default function NotificationBell() {
                   className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
-                  Mark all as read
+                  {t('common.ui.notifications.markAllRead')}
                 </button>
               )}
             </div>
@@ -172,11 +174,11 @@ export default function NotificationBell() {
               className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border-b border-blue-100 transition-colors"
             >
               <BellRing className="w-3.5 h-3.5 shrink-0" />
-              Turn on device notifications with sound for new alerts
+              {t('common.ui.notifications.enableDevice')}
             </button>
           )}
           {notifications.length === 0 && alerts.length === 0 ? (
-            <p className="text-center py-10 text-sm text-slate-400">You&rsquo;re all caught up.</p>
+            <p className="text-center py-10 text-sm text-slate-400">{t('common.ui.notifications.allCaughtUp')}</p>
           ) : (
             <>
               {/* Real, timestamped notifications (already newest-first) come
@@ -215,7 +217,7 @@ export default function NotificationBell() {
               {alerts.length > 0 && (
                 <div className="divide-y divide-amber-100 bg-amber-50/40">
                   <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
-                    Needs attention
+                    {t('common.ui.notifications.needsAttention')}
                   </p>
                   {alerts.slice(0, 30).map((a) => {
                     const Icon = ICON_MAP[a.type] ?? Bell;
@@ -234,7 +236,7 @@ export default function NotificationBell() {
                         <button
                           onClick={() => setDismissed((prev) => new Set(prev).add(a.id))}
                           className="text-slate-300 hover:text-slate-500 text-xs shrink-0"
-                          aria-label="Dismiss"
+                          aria-label={t('common.ui.notifications.dismiss')}
                         >
                           ✕
                         </button>

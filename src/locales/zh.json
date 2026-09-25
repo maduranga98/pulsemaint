@@ -48,7 +48,11 @@
         "audit": "审计",
         "evaluations": "评估",
         "settings": "设置",
-        "billing": "账单与套餐"
+        "billing": "账单与套餐",
+        "maintenanceHistory": "维护历史",
+        "myRequests": "我的申请",
+        "requestsInbox": "申请收件箱",
+        "safetyBlacklist": "黑名单"
       },
       "help": "帮助与支持"
     },
@@ -209,7 +213,8 @@
           "autoApprovalEligible": "✓ 符合自动批准条件：所有项目均有库存且在阈值内",
           "autoApprovalNotEligible": "✗ 不符合自动批准条件：{{reasons}}",
           "someUnavailable": "部分项目不可用。",
-          "costExceedsThreshold": "费用超过 {{threshold}} 卢比的阈值。"
+          "costExceedsThreshold": "费用超过 {{threshold}} 卢比的阈值。",
+          "writtenOff": "已由 {{name}} 取消 — 不会归还：{{reason}}"
         },
         "availabilityIndicator": {
           "outOfStock": "缺货",
@@ -1181,7 +1186,9 @@
         },
         "title": "故障频率热力图",
         "tooltipCount": "{{day}} {{hour}} — {{count}} 起故障",
-        "tooltipNone": "{{day}} {{hour}} — 无故障"
+        "tooltipNone": "{{day}} {{hour}} — 无故障",
+        "tooltipCount_one": "{{day}} {{hour}} — {{count}} 次故障",
+        "tooltipCount_other": "{{day}} {{hour}} — {{count}} 次故障"
       },
       "breakdownKanbanBoard": {
         "lanes": {
@@ -1274,7 +1281,9 @@
         "sinceTime": "自 {{time}}",
         "title": "实时班次状态",
         "workingNow": "{{count}} 人正在工作",
-        "yesterday": "昨天"
+        "yesterday": "昨天",
+        "footer_one": "{{shifts}} 个班次进行中 · {{people}} 人在岗",
+        "footer_other": "{{shifts}} 个班次进行中 · {{people}} 人在岗"
       },
       "lowStockAlertTable": {
         "category": "类别",
@@ -1341,7 +1350,14 @@
         "returnFailed": "申请退还失败。",
         "returnRequested": "已申请退还——仓管员将确认。",
         "returning": "退还中",
-        "title": "我的可退还备件"
+        "title": "我的可退还备件",
+        "writeOffBody": "请说明为何不归还（丢失、损坏、已耗尽等）。此信息将被记录，并通知仓管员/主管。",
+        "writeOffButton": "取消",
+        "writeOffConfirm": "确认取消",
+        "writeOffFailed": "无法记录取消。",
+        "writeOffReasonPlaceholder": "原因（必填）",
+        "writeOffRecorded": "已记录 — 此物品不再需要归还。",
+        "writeOffTitle": "取消归还 {{partName}}"
       },
       "mySafetyCasesWidget": {
         "actionsTaken": "已采取的措施",
@@ -1416,7 +1432,9 @@
         "reject": "拒绝",
         "requested": "申请：",
         "title": "待批准",
-        "viewMore": "查看另外 {{count}} 项…"
+        "viewMore": "查看另外 {{count}} 项…",
+        "attach": "附件（可选）",
+        "removeAttachment": "移除附件"
       },
       "pendingReceiptPOsWidget": {
         "empty": "没有待收货的采购单",
@@ -1495,7 +1513,11 @@
           "inApprovalOfSupervisor": "主管审批中",
           "needToCollect": "待领取"
         },
-        "title": "已申请备件"
+        "title": "已申请备件",
+        "cancel": "取消",
+        "cancelFailed": "无法取消申请。",
+        "cancelled": "申请已取消。",
+        "cancelling": "正在取消…"
       },
       "safetyForYouWidget": {
         "empty": "暂无待处理的安全事项",
@@ -1570,7 +1592,7 @@
       },
       "technicianStatusList": {
         "active": "{{count}} 人在岗",
-        "empty": "暂无在岗技术员",
+        "empty": "您部门没有在班的技术员或学员",
         "title": "团队状态"
       },
       "technicianStatusRow": {
@@ -1669,6 +1691,14 @@
           "operator": "操作员",
           "machine": "设备"
         }
+      },
+      "needSignOffWidget": {
+        "badge": "已完成",
+        "empty": "没有待签核的项目",
+        "emptySub": "已完成的工单会显示在此处，直到您签核为止。",
+        "pending": "{{count}} 项待处理",
+        "title": "待签核",
+        "viewMore": "查看另外 {{count}} 项…"
       }
     },
     "machines": {
@@ -2052,7 +2082,12 @@
           "descriptionTooShort": "请至少输入 10 个字符描述故障。",
           "machineNotFound": "未找到所选设备。",
           "submitFailed": "报告故障失败。"
-        }
+        },
+        "aiSuggestionDisclaimer": "采取行动前，请自行对照该设备以往已完成的工单和根本原因分析进行核对。",
+        "aiSuggestionTitle": "AI 建议",
+        "continueButton": "继续",
+        "submittedSubtitle": "您关于 {{machineName}} 的报告已发送给维护团队。",
+        "submittedTitle": "故障已报告"
       },
       "attendPage": {
         "back": "返回",
@@ -2112,6 +2147,17 @@
         },
         "errors": {
           "saveFailed": "保存失败。"
+        },
+        "rca": {
+          "actionsLabel": "建议的后续措施",
+          "aiError": "AI 不可用 — {{error}}",
+          "causesLabel": "可能原因",
+          "cta": "获取 AI 建议",
+          "error": "暂时无法生成建议，请重试。",
+          "loading": "正在分析…",
+          "sourceAi": "由 AI 根据该设备近期故障记录生成 — 采取行动前请核实。",
+          "sourceHeuristic": "根据内置维护模式生成（AI 不可用）— 采取行动前请核实。",
+          "title": "AI 根本原因建议"
         }
       },
       "viewPage": {
@@ -2133,7 +2179,8 @@
         "errors": {
           "closeFailed": "无法关闭故障。",
           "assignFailed": "分配失败。",
-          "attendFailed": "处理失败。"
+          "attendFailed": "处理失败。",
+          "woNotCompleted": "工单 {{woNumber}} 尚未完成 — 必须完成并签核后才能关闭此故障。"
         }
       },
       "editPage": {
@@ -2215,12 +2262,14 @@
       "tabs": {
         "needSignOff": "待签核",
         "signedOff": "已签核",
-        "approvalRequests": "审批请求"
+        "approvalRequests": "审批请求",
+        "cancelled": "已取消"
       },
       "empty": {
         "needSignOff": "没有待签核的工单。",
         "signedOff": "尚无已签核或已关闭的工单。",
-        "noOpenWOs": "没有未处理的工单。全部完成！"
+        "noOpenWOs": "没有未处理的工单。全部完成！",
+        "cancelled": "没有已取消的工单。"
       },
       "table": {
         "wo": "工单",
@@ -2611,7 +2660,9 @@
         "noContractorTeamMembers": "此承包商尚未注册团队成员。请在承包商的“团队成员”标签页中添加。",
         "assignInternalTechniciansLabel": "分配内部技术员",
         "optionalLabel": "（可选）",
-        "activeWOsInline": "{{count}} 个进行中的工单"
+        "activeWOsInline": "{{count}} 个进行中的工单",
+        "chooseContactPerson": "选择联系人…",
+        "primaryContactOption": "{{name}}（主要联系人）"
       },
       "signOffForm": {
         "starLabel": "{{count}} 星",
@@ -2731,7 +2782,12 @@
         "requestedByLabel": "{{name}} 已申请",
         "notePlaceholder": "备注（可选）",
         "approveButton": "批准",
-        "rejectButton": "拒绝"
+        "rejectButton": "拒绝",
+        "attachmentsLabel": "附件",
+        "machineLabel": "设备",
+        "priorityLabel": "优先级",
+        "statusLabel": "状态",
+        "woNumberLabel": "工单"
       },
       "myWorkOrders": {
         "pageTitle": "我的工单",
@@ -2802,7 +2858,8 @@
         "completeMyWorkButton": "完成我的工作",
         "submitAndCompleteButton": "完成并提交工单",
         "pendingTeamCompletionHint": "待所有被分配的团队成员完成各自的工作（{{completed}}/{{total}}）后，即可提交工单进行签核。",
-        "statusHint": "此工单状态为 {{status}}。"
+        "statusHint": "此工单状态为 {{status}}。",
+        "approvalAttachmentsLabel": "附件（可选）"
       },
       "mediaCapture": {
         "takePhoto": "拍照",
@@ -5479,12 +5536,17 @@
             "email": "邮箱",
             "specialization": "专长",
             "certifications": "资质证书，以逗号分隔",
-            "certificationAttachments": "资质证书附件"
+            "certificationAttachments": "资质证书附件",
+            "photo": "头像照片",
+            "photoHint": "JPG、PNG 或 WebP，最大 5 MB。"
           },
           "actions": {
             "save": "保存技术人员",
             "saving": "保存中…",
-            "removeAttachment": "移除附件"
+            "removeAttachment": "移除附件",
+            "changePhoto": "更换照片",
+            "removePhoto": "移除照片",
+            "uploadPhoto": "上传照片"
           },
           "toasts": {
             "updated": "技术人员信息已更新",
@@ -5494,7 +5556,9 @@
             "missingContractor": "缺少承包商引用信息。",
             "mustBeLoggedIn": "您必须登录。",
             "requiredFields": "姓名和身份证/护照号为必填项。",
-            "saveFailed": "保存技术人员失败"
+            "saveFailed": "保存技术人员失败",
+            "photoNotImage": "请选择图片文件（JPG、PNG、WebP…）。",
+            "photoTooLarge": "照片不得超过 5 MB。"
           }
         }
       },
@@ -8368,6 +8432,267 @@
         "ssoSaml": "SSO / SAML 单点登录",
         "customIntegrationsApi": "自定义集成与 API",
         "dedicatedSupportSla": "专属支持与 SLA"
+      }
+    },
+    "actions": {
+      "activate": "启用",
+      "cancel": "取消",
+      "deactivate": "停用",
+      "delete": "删除",
+      "edit": "编辑",
+      "save": "保存",
+      "saving": "正在保存…"
+    },
+    "status": {
+      "active": "活跃",
+      "inactive": "停用"
+    },
+    "maintenanceHistory": {
+      "allDepartments": "所有部门",
+      "columns": {
+        "actions": "操作",
+        "attendedBy": "处理人",
+        "closed": "已关闭",
+        "department": "部门",
+        "machine": "设备",
+        "outcome": "结果",
+        "rootCause": "根本原因",
+        "signedOff": "已签核",
+        "supervisor": "主管",
+        "ticket": "工单号",
+        "wo": "工单"
+      },
+      "empty": "没有符合这些筛选条件的记录。",
+      "exportFailed": "无法生成 PDF，请重试。",
+      "exportPdf": "导出 PDF",
+      "filters": {
+        "allSupervisors": "所有主管",
+        "allTypes": "所有类型",
+        "clear": "清除筛选",
+        "department": "部门",
+        "from": "从",
+        "search": "搜索编号、设备、描述…",
+        "supervisor": "主管",
+        "to": "至",
+        "woType": "工单类型"
+      },
+      "outcomes": {
+        "complete": "已完成",
+        "failed": "失败",
+        "not_complete": "未完成"
+      },
+      "rootCauses": {
+        "external_damage": "外部损坏",
+        "lack_of_maintenance": "缺乏维护",
+        "manufacturing_defect": "制造缺陷",
+        "operator_error": "操作失误",
+        "unknown": "未知",
+        "wear_and_tear": "磨损"
+      },
+      "showMore": "显示更多（{{shown}} / {{total}}）",
+      "subtitle": "您工厂中所有已签核的工单和已关闭的故障，涵盖所有主管和部门。可将任意记录导出为详细的 PDF 报告。",
+      "tabs": {
+        "breakdowns": "已关闭的故障",
+        "workOrders": "已签核的工单"
+      },
+      "title": "维护历史",
+      "view": "打开",
+      "woTypes": {
+        "BREAKDOWN": "故障维修",
+        "CONTRACTOR": "承包商",
+        "CORRECTIVE": "纠正性",
+        "INSPECTION": "检查",
+        "INSTALLATION": "安装",
+        "MODIFICATION": "改造",
+        "OTHER": "其他",
+        "PREVENTIVE": "预防性维护"
+      }
+    },
+    "staffRequests": {
+      "attachments": {
+        "add": "添加附件",
+        "remove": "移除 {{name}}",
+        "tooLarge": "{{name}} 超过 25 MB，未添加。"
+      },
+      "cancel": "取消",
+      "card": {
+        "closedOn": "关闭于 {{date}}",
+        "reference": "参考：{{reference}}",
+        "replies_one": "{{count}} 条回复",
+        "replies_other": "{{count}} 条回复",
+        "sentTo": "发送给：{{to}}"
+      },
+      "categories": {
+        "other": "其他",
+        "personal": "个人",
+        "record_access": "查看以往工单 / 故障详情",
+        "service_letter": "工作证明信",
+        "work": "工作"
+      },
+      "close": "关闭",
+      "filters": {
+        "all": "全部",
+        "allCategories": "所有申请类型",
+        "search": "搜索申请…"
+      },
+      "inbox": {
+        "empty": "这里没有申请。",
+        "scope": {
+          "admin": "发送给管理员的申请。",
+          "plantManager": "发送给您所在工厂厂长的申请。",
+          "supervisor": "发送给您部门（{{department}}）主管的申请。"
+        },
+        "title": "申请收件箱"
+      },
+      "myPage": {
+        "empty": "您还没有发送任何申请。",
+        "newRequest": "新建申请",
+        "subtitle": "向您的主管、厂长或管理员提出个人或工作事项、申请工作证明信，或申请查看以往工单 / 故障详情。",
+        "title": "我的申请"
+      },
+      "newRequest": {
+        "category": "申请类型",
+        "choosePerson": "选择人员…",
+        "errors": {
+          "recipient": "请选择申请的接收人。",
+          "required": "请填写主题和内容。"
+        },
+        "failed": "无法发送申请，请重试。",
+        "loadingPeople": "正在加载人员…",
+        "message": "内容",
+        "noRecipients": "目前还没有人可以接收您的申请。请让管理员检查您的工厂和部门设置。",
+        "reference": "工单 / 故障编号",
+        "referencePlaceholder": "例如 WO-2026-0142 或 BD-0098",
+        "send": "发送申请",
+        "sendTo": "发送给",
+        "sent": "申请已发送。",
+        "subject": "主题",
+        "title": "新建申请"
+      },
+      "notifications": {
+        "closed": "{{name}} 关闭了申请“{{subject}}”",
+        "newReply": "{{name}} 回复了申请“{{subject}}”",
+        "newRequest": "{{name}} 提交了新的{{category}}申请：{{subject}}"
+      },
+      "recipients": {
+        "admin": "管理员",
+        "plant_manager": "我的厂长",
+        "supervisor": "我的部门主管"
+      },
+      "reply": {
+        "close": "关闭申请",
+        "errors": {
+          "empty": "请输入内容或添加附件。"
+        },
+        "failed": "无法更新申请，请重试。",
+        "headingHandler": "回复",
+        "headingRequester": "补充说明",
+        "placeholder": "输入回复…",
+        "reopen": "重新打开",
+        "send": "发送回复",
+        "sendAndClose": "回复并关闭",
+        "sent": "回复已发送。"
+      },
+      "roles": {
+        "admin": "管理员",
+        "floor_operator": "操作员",
+        "hr_officer": "人事专员",
+        "plant_manager": "厂长",
+        "safety_officer": "安全员",
+        "store_keeper": "仓管员",
+        "supervisor": "主管",
+        "technician": "技术员",
+        "trainee": "学员"
+      },
+      "sending": "正在发送…",
+      "statuses": {
+        "answered": "已回复",
+        "closed": "已关闭",
+        "open": "待处理"
+      }
+    },
+    "ui": {
+      "notifications": {
+        "title": "通知",
+        "mute": "关闭通知声音",
+        "unmute": "开启通知声音",
+        "soundOn": "通知声音已开启",
+        "soundOff": "通知声音已关闭",
+        "markAllRead": "全部标为已读",
+        "enableDevice": "为新提醒开启带声音的设备通知",
+        "allCaughtUp": "您已处理完所有通知。",
+        "dismiss": "忽略",
+        "needsAttention": "需要关注"
+      },
+      "selectItemForDetails": "选择一个项目以查看详情。",
+      "live": "实时",
+      "failedToLoad": "数据加载失败",
+      "retry": "重试",
+      "close": "关闭",
+      "loading": "正在加载...",
+      "toggleNavigation": "切换导航",
+      "voiceLanguage": "您将使用的语言",
+      "machineCell": {
+        "status": "状态",
+        "health": "健康度",
+        "openWos": "未完成工单"
+      },
+      "planGate": {
+        "title": "升级以解锁此功能",
+        "notIncluded": "您当前的套餐不包含 {{feature}}。",
+        "viewPlans": "查看套餐",
+        "features": {
+          "autoPOEmail": "自动向供应商发送采购订单邮件",
+          "qrLowStockAlerts": "库存二维码扫描和低库存提醒",
+          "contractors": "承包商管理",
+          "shiftHandover": "交接班和班前会",
+          "training": "培训模块",
+          "safety": "安全工作区",
+          "moeAnalytics": "MOE 趋势分析和设备对比",
+          "multiSite": "多厂区管理"
+        }
+      },
+      "shiftConfig": {
+        "plant": "工厂",
+        "selectPlant": "选择工厂...",
+        "selectPlantFirst": "请先选择工厂。"
+      },
+      "cancelReason": {
+        "title": "取消",
+        "description": "请提供取消原因。",
+        "confirm": "确认取消",
+        "cancelling": "正在取消…",
+        "categoryLabel": "原因类别",
+        "reasonLabel": "原因",
+        "placeholder": "取消原因…",
+        "required": "必须填写取消原因。",
+        "goBack": "返回",
+        "categories": {
+          "none": "选择类别（可选）…",
+          "duplicate": "重复工单",
+          "reported_in_error": "误报",
+          "no_longer_needed": "不再需要",
+          "resolved_externally": "已在外部解决",
+          "wrong_machine": "设备 / 资产错误",
+          "other": "其他"
+        }
+      },
+      "triageStep": {
+        "escalation": "升级步骤",
+        "quickFix": "快速修复步骤",
+        "requiresPhoto": "需要照片"
+      },
+      "errorBoundary": {
+        "title": "出现问题",
+        "body": "此页面无法显示。请重新加载页面，或打开浏览器控制台查看详情。",
+        "reload": "重新加载",
+        "tryAgain": "重试"
+      },
+      "relativeTime": {
+        "justNow": "刚刚",
+        "minutes": "{{count}} 分钟前",
+        "hours": "{{count}} 小时前",
+        "days": "{{count}} 天前"
       }
     }
   },

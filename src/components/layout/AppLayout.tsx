@@ -538,7 +538,7 @@ export default function AppLayout() {
               type="button"
               onClick={() => setSidebarOpen((v) => !v)}
               className="lg:hidden p-2 -ml-2 rounded-md hover:bg-[#142849] text-[#8BA3BF]"
-              aria-label="Toggle navigation"
+              aria-label={t('common.ui.toggleNavigation')}
             >
               {Icon.menu}
             </button>
