@@ -452,6 +452,38 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Staff requests (personal / work / service letter / record access /
+    // other) raised by any non-admin role and routed to a role group:
+    // supervisors of the requester's plant AND department, plant managers of
+    // the requester's plant, or the company's admins. The requester and the
+    // addressed role can read and reply; admin can read every request in the
+    // company. Plant/department narrowing is applied by the client queries
+    // (subscribeRequestInbox) — the users/{uid} mapping doc these rules read
+    // doesn't carry plantId/department, so they can't be checked here.
+    match /staff_requests/{requestId} {
+      function canHandleRequest(d) {
+        return belongsToCompany(d.companyId) && (
+          isAdmin()
+          || (d.recipientRole == 'plant_manager' && isPlantManager())
+          || (d.recipientRole == 'supervisor' && isSupervisor())
+        );
+      }
+
+      allow read: if isAuthenticated()
+        && (resource.data.requesterId == request.auth.uid || canHandleRequest(resource.data));
+      allow create: if isAuthenticated()
+        && belongsToCompany(request.resource.data.companyId)
+        && getUserRole() != 'admin'
+        && request.resource.data.requesterId == request.auth.uid
+        && request.resource.data.recipientRole in ['supervisor', 'plant_manager', 'admin']
+        && request.resource.data.status == 'open';
+      allow update: if isAuthenticated()
+        && (resource.data.requesterId == request.auth.uid || canHandleRequest(resource.data))
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['replies', 'status', 'updatedAt', 'closedAt']);
+      allow delete: if isAdmin();
+    }
+
     // Company-added work permit categories, layered on top of the 7 seeded
     // ones in WORK_PERMIT_CATEGORIES (client-side constant) — same role gate
     // as issuing a permit itself, since adding a category happens inline

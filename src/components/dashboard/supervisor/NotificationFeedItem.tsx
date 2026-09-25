@@ -1,4 +1,4 @@
-import { AlertTriangle, Wrench, Package, Calendar, Bell, GraduationCap, ClipboardCheck, FileText } from 'lucide-react';
+import { AlertTriangle, Wrench, Package, Calendar, Bell, GraduationCap, ClipboardCheck, FileText, MessageSquare } from 'lucide-react';
 import { relativeTime } from '../../../utils/analytics.utils';
 import { useAuthStore } from '../../../store/authStore';
 import { notificationDisplayMessage } from '../../../lib/notifications/recipients';
@@ -13,6 +13,7 @@ const ICON_MAP: Record<DashboardNotificationType, typeof Bell> = {
   training: GraduationCap,
   evaluation: ClipboardCheck,
   document: FileText,
+  request: MessageSquare,
 };
 
 const COLOR_MAP: Record<string, string> = {

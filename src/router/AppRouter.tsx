@@ -100,6 +100,8 @@ import WorkPermitsPage from '../modules/safety/pages/WorkPermitsPage';
 import SafetyCalendarPage from '../modules/safety/pages/SafetyCalendarPage';
 import SafetyAnalyticsPage from '../modules/safety/pages/SafetyAnalyticsPage';
 import SafetyCasesPage from '../modules/safety/pages/SafetyCasesPage';
+import MyRequestsPage from '../modules/requests/pages/MyRequestsPage';
+import RequestsInboxPage from '../modules/requests/pages/RequestsInboxPage';
 import SafetyBlacklistPage from '../modules/safety/pages/SafetyBlacklistPage';
 
 // Dashboard
@@ -573,6 +575,11 @@ export default function AppRouter() {
         <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer']}><WorkPermitsPage /></ProtectedRoute>} />
         {/* Safety Training Schedules — the company-wide safety-training
             calendar, available to every signed-in role. */}
+        {/* Staff requests — every role except admin raises them (personal,
+            work, service letter, access to past WO/breakdown details, other);
+            supervisors, plant managers and admins answer them in the inbox. */}
+        <Route path="requests" element={<ProtectedRoute requiredRoles={['plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer']}><MyRequestsPage /></ProtectedRoute>} />
+        <Route path="requests/inbox" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><RequestsInboxPage /></ProtectedRoute>} />
         <Route path="safety/calendar" element={<ProtectedRoute><SafetyCalendarPage /></ProtectedRoute>} />
         <Route path="safety/analytics" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyAnalyticsPage /></ProtectedRoute>} />
         {/* Blacklist: entities (technician/contractor/operator/machine) that have

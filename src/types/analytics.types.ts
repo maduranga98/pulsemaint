@@ -265,7 +265,8 @@ export type DashboardNotificationType =
   | 'alert'
   | 'training'
   | 'evaluation'
-  | 'document';
+  | 'document'
+  | 'request';
 
 export interface DashboardNotification {
   id: string;

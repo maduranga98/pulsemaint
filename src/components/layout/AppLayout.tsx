@@ -59,6 +59,12 @@ const Icon = {
   menu: (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   ),
+  inbox: (
+    <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+  ),
+  message: (
+    <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  ),
   help: (
     <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
   ),
@@ -235,6 +241,10 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['plant_manager', 'admin', 'hr_officer'],
       },
+      // Staff requests: every role except admin raises them; supervisors,
+      // plant managers and admins answer the ones addressed to them.
+      { labelKey: 'common.nav.items.myRequests', to: '/app/requests', icon: Icon.message, roles: ['plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer'] },
+      { labelKey: 'common.nav.items.requestsInbox', to: '/app/requests/inbox', icon: Icon.inbox, roles: ['supervisor', 'plant_manager', 'admin'] },
       // "My Training" nav entries for other roles were dropped in favor of
       // dashboard widgets (see MyTrainingsWidget); trainee's own "My Training"
       // / "My Program", and "My Certificates" for every role that has one,
