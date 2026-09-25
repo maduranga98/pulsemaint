@@ -64,6 +64,10 @@ export interface StaffRequest {
   attachments: StaffRequestAttachment[];
 
   recipientRole: StaffRequestRecipientRole;
+  /** The specific person the request was sent to. Absent on requests sent to
+   *  a whole role group (before a named recipient could be picked). */
+  recipientUserId?: string | null;
+  recipientName?: string | null;
 
   status: StaffRequestStatus;
   replies: StaffRequestReply[];

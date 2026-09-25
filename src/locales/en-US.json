@@ -8651,7 +8651,6 @@
         "title": "New request",
         "category": "Request type",
         "sendTo": "Send to",
-        "noDepartment": "You have no registered department, so no supervisor will receive this. Choose your plant manager or admin instead.",
         "reference": "WO / breakdown number",
         "referencePlaceholder": "e.g. WO-2026-0142 or BD-0098",
         "subject": "Subject",
@@ -8660,8 +8659,11 @@
         "sent": "Request sent.",
         "failed": "Couldn't send the request. Please try again.",
         "errors": {
-          "required": "Add a subject and a message."
-        }
+          "required": "Add a subject and a message.",
+          "recipient": "Choose who to send the request to."
+        },
+        "choosePerson": "Choose a person…",
+        "noRecipients": "No one is available to receive requests from you yet. Ask your admin to check your plant and department."
       },
       "reply": {
         "headingHandler": "Reply",
