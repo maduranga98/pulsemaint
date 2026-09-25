@@ -84,7 +84,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
             onClick={handleClear}
             className="px-3 py-2 text-sm text-red-600 hover:text-red-800 border border-red-200 rounded-lg"
           >
-            Clear
+            {t('common.ui2.pm.pMFilterBar.clear')}
           </button>
         )}
       </div>
@@ -92,7 +92,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
       {isExpanded && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-gray-100">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">PM Type</label>
+            <label className="block text-xs text-gray-500 mb-1">{t('common.ui2.pm.pMFilterBar.pmType')}</label>
             <select
               multiple
               value={filters.pmType || []}
@@ -110,7 +110,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
           </div>
 
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Status</label>
+            <label className="block text-xs text-gray-500 mb-1">{t('common.ui2.pm.pMFilterBar.status')}</label>
             <select
               multiple
               value={filters.status || []}
@@ -128,7 +128,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
           </div>
 
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Date From</label>
+            <label className="block text-xs text-gray-500 mb-1">{t('common.ui2.pm.pMFilterBar.dateFrom')}</label>
             <input
               type="date"
               value={filters.dateFrom ? filters.dateFrom.toISOString().split('T')[0] : ''}
@@ -138,7 +138,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
           </div>
 
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Date To</label>
+            <label className="block text-xs text-gray-500 mb-1">{t('common.ui2.pm.pMFilterBar.dateTo')}</label>
             <input
               type="date"
               value={filters.dateTo ? filters.dateTo.toISOString().split('T')[0] : ''}

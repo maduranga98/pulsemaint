@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { PackageX } from 'lucide-react';
 import type { InventoryPart } from '@/types/inventory';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   parts: InventoryPart[];
 }
@@ -11,6 +12,7 @@ interface Props {
  * with part details so the storekeeper can act on fully depleted items.
  */
 export function OutOfStockWidget({ parts }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -55,7 +57,7 @@ export function OutOfStockWidget({ parts }: Props) {
                 onClick={() => navigate(`/app/inventory/purchase-orders/new?partId=${part.id}`)}
                 className="shrink-0 px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors"
               >
-                Reorder
+                {t('common.inventory.ui.outOfStockWidget.reorder')}
               </button>
             </div>
           ))}

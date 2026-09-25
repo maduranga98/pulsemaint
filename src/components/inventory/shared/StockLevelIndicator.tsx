@@ -1,6 +1,7 @@
 import type { PartUnit } from '@/types/inventory';
 import { UnitLabel } from './UnitLabel';
 
+import { useTranslation } from 'react-i18next';
 interface StockLevelIndicatorProps {
   currentStock: number;
   reservedStock: number;
@@ -16,6 +17,7 @@ export function StockLevelIndicator({
   maxStockLevel,
   unit,
 }: StockLevelIndicatorProps) {
+  const { t } = useTranslation();
   const available = currentStock - reservedStock;
 
   let barColor = 'bg-green-500';
@@ -35,19 +37,19 @@ export function StockLevelIndicator({
     <div className="space-y-2">
       <div className="grid grid-cols-3 gap-2 text-xs">
         <div>
-          <p className="text-gray-500">Current</p>
+          <p className="text-gray-500">{t('common.inventory.ui.stockLevelIndicator.current')}</p>
           <p className="font-semibold text-gray-900">
             <UnitLabel unit={unit} quantity={currentStock} />
           </p>
         </div>
         <div>
-          <p className="text-gray-500">Reserved</p>
+          <p className="text-gray-500">{t('common.inventory.ui.stockLevelIndicator.reserved')}</p>
           <p className="font-semibold text-gray-700">
             <UnitLabel unit={unit} quantity={reservedStock} />
           </p>
         </div>
         <div>
-          <p className="text-gray-500">Available</p>
+          <p className="text-gray-500">{t('common.inventory.ui.stockLevelIndicator.available')}</p>
           <p className={`font-semibold ${textColor}`}>
             <UnitLabel unit={unit} quantity={available} />
           </p>

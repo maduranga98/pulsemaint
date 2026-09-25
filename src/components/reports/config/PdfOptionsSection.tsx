@@ -35,7 +35,7 @@ export default function PdfOptionsSection({
           {t('common.reports.config.pdfOptionsSection.paperSize')}
           <select value={config.paperSize} onChange={(event) => onChange({ paperSize: event.target.value as ReportConfig['paperSize'] })} className="h-11 w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 text-sm text-[#F0F4F8]">
             <option>A4</option>
-            <option>Letter</option>
+            <option>{t('common.ui2.reports.pdfOptionsSection.letter')}</option>
           </select>
         </label>
         <label className="space-y-1 text-xs text-[#8BA3BF]">

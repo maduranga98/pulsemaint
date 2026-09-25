@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMachineBreakdowns, type BreakdownHistoryItem } from '../../hooks/useMachineBreakdowns';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   machineId: string;
   machineName?: string;
@@ -31,6 +32,7 @@ function formatTimestamp(ts: any): string {
 }
 
 function BreakdownEntry({ entry }: { entry: BreakdownHistoryItem }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -60,7 +62,7 @@ function BreakdownEntry({ entry }: { entry: BreakdownHistoryItem }) {
           <p className="text-gray-700">{entry.description}</p>
           {entry.attemptedFixes && (
             <p className="text-gray-500">
-              Attempted fixes: <span className="font-medium text-gray-700">{entry.attemptedFixes}</span>
+              {t('common.ui2.machines.breakdownHistoryList.attemptedFixes')} <span className="font-medium text-gray-700">{entry.attemptedFixes}</span>
             </p>
           )}
           {entry.assignedTechnicianNames.length > 0 && (
@@ -80,12 +82,13 @@ function BreakdownEntry({ entry }: { entry: BreakdownHistoryItem }) {
 }
 
 export function BreakdownHistoryList({ machineId, machineName }: Props) {
+  const { t } = useTranslation();
   const { entries, loading, error, hasMore, loadMore } = useMachineBreakdowns(machineId);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-gray-900">Breakdown History</h2>
+        <h2 className="font-semibold text-gray-900">{t('common.ui2.machines.breakdownHistoryList.breakdownHistory')}</h2>
         {machineName && <p className="text-sm text-gray-500">{machineName}</p>}
       </div>
 
@@ -102,7 +105,7 @@ export function BreakdownHistoryList({ machineId, machineName }: Props) {
       {!loading && entries.length === 0 && !error && (
         <div className="text-center py-12">
           <p className="text-3xl mb-3">⚡</p>
-          <p className="text-gray-400 text-sm">No breakdown history for this machine yet.</p>
+          <p className="text-gray-400 text-sm">{t('common.ui2.machines.breakdownHistoryList.noBreakdownHistoryForThis')}</p>
         </div>
       )}
 

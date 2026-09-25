@@ -5,12 +5,14 @@ import { WOTypeBadge } from './WOTypeBadge';
 import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 
+import { useTranslation } from 'react-i18next';
 interface WOCardProps {
   workOrder: WorkOrder;
   onClick: (wo: WorkOrder) => void;
 }
 
 export function WOCard({ workOrder, onClick }: WOCardProps) {
+  const { t } = useTranslation();
   const priorityConfig = WO_PRIORITY_CONFIG[workOrder.priority];
   const maxAvatars = 3;
   const extraTechs = workOrder.assignedTechnicianNames.length - maxAvatars;
@@ -27,7 +29,7 @@ export function WOCard({ workOrder, onClick }: WOCardProps) {
           <WOTypeBadge woType={workOrder.woType} size="sm" />
           {workOrder.woType === 'CONTRACTOR' && (
             <span className="inline-flex items-center gap-1 text-xs text-indigo-600 font-medium">
-              <HardHat className="w-3 h-3" /> Contractor
+              <HardHat className="w-3 h-3" /> {t('common.ui2.workorders.wOCard.contractor')}
             </span>
           )}
         </div>

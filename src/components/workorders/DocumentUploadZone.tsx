@@ -123,7 +123,7 @@ export function DocumentUploadZone({
         <p className="text-3xl mb-2">📁</p>
         <p className="text-sm font-medium text-gray-700">{t('common.workOrders.copy.uploadHint')}</p>
         <p className="text-xs text-gray-400 mt-1">
-          CAD, PDF, Images, Video, ZIP supported
+          {t('common.ui2.workorders.documentUploadZone.cadPdfImagesVideoZip')}
         </p>
         <input
           ref={inputRef}
@@ -179,7 +179,7 @@ export function DocumentUploadZone({
                 type="button"
                 onClick={() => onRemovePending(i)}
                 className="text-gray-400 hover:text-red-500 p-1"
-                aria-label="Remove file"
+                aria-label={t('common.ui2.workorders.documentUploadZone.removeFile')}
               >
                 ×
               </button>
@@ -205,7 +205,7 @@ export function DocumentUploadZone({
                   type="button"
                   onClick={() => onRemoveUploaded(doc.id)}
                   className="text-gray-400 hover:text-red-500 p-1"
-                  aria-label="Remove file"
+                  aria-label={t('common.ui2.workorders.documentUploadZone.removeFile')}
                 >
                   ×
                 </button>

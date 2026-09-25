@@ -12,6 +12,7 @@ import { KaizenCard as KaizenCardPreview } from './KaizenCard';
 import type { KaizenCard } from '../types/kaizen.types';
 import { Timestamp } from 'firebase/firestore';
 
+import { useTranslation } from 'react-i18next';
 const DRAFT_KEY = 'kaizen_form_draft';
 
 const schema = z.object({
@@ -40,6 +41,7 @@ const CATEGORIES: KaizenCategory[] = ['safety', 'quality', 'efficiency', '5s', '
 const PRIORITIES: KaizenPriority[] = ['low', 'medium', 'high', 'critical'];
 
 export function KaizenForm({ onClose, onCreated }: Props) {
+  const { t } = useTranslation();
   const plantId = useAuthStore((s) => s.userProfile?.companyId ?? '');
   const userId = useAuthStore((s) => s.userProfile?.id ?? '');
   const userName = useAuthStore((s) => s.userProfile?.fullName ?? '');
@@ -93,7 +95,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
       const url = await uploadKaizenPhoto(file, plantId, tempCardId, 'before');
       setBeforePhotos((prev) => [...prev, url]);
     } catch {
-      toast.error('Failed to upload photo');
+      toast.error(t('common.ui2.kaizen.kaizenForm.failedToUploadPhoto'));
     } finally {
       setUploadingPhoto(false);
     }
@@ -138,7 +140,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
         plantId,
       });
       localStorage.removeItem(DRAFT_KEY);
-      toast.success('Kaizen raised successfully!');
+      toast.success(t('common.ui2.kaizen.kaizenForm.kaizenRaisedSuccessfully'));
       onCreated?.(id);
       onClose();
     } catch (e: unknown) {
@@ -184,7 +186,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">Raise a Kaizen</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t('common.ui2.kaizen.kaizenForm.raiseAKaizen')}</h2>
             <p className="text-xs text-gray-500">Step {step + 1} of {steps.length}: {steps[step]}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded hover:bg-gray-100">
@@ -210,13 +212,13 @@ export function KaizenForm({ onClose, onCreated }: Props) {
               {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title <span className="text-red-500">*</span>
+                  {t('common.ui2.kaizen.kaizenForm.title')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
                     {...register('title')}
                     maxLength={120}
-                    placeholder="Brief description of the issue"
+                    placeholder={t('common.ui2.kaizen.kaizenForm.briefDescriptionOfTheIssue')}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
                   />
                   <span className="absolute right-3 top-2 text-xs text-gray-400">
@@ -229,12 +231,12 @@ export function KaizenForm({ onClose, onCreated }: Props) {
               {/* Problem statement */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  What is the problem? <span className="text-red-500">*</span>
+                  {t('common.ui2.kaizen.kaizenForm.whatIsTheProblem')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   {...register('problemStatement')}
                   rows={3}
-                  placeholder="Describe the current problem clearly..."
+                  placeholder={t('common.ui2.kaizen.kaizenForm.describeTheCurrentProblemClearly')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.problemStatement && (
@@ -244,7 +246,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.ui2.kaizen.kaizenForm.category')}</label>
                 <div className="grid grid-cols-4 gap-2">
                   {CATEGORIES.map((cat) => {
                     const meta = KAIZEN_CATEGORY_META[cat];
@@ -270,7 +272,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
 
               {/* Priority */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.ui2.kaizen.kaizenForm.priority')}</label>
                 <div className="flex gap-2 flex-wrap">
                   {PRIORITIES.map((p) => {
                     const meta = KAIZEN_PRIORITY_META[p];
@@ -297,7 +299,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
 
               {/* Area / Machine */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.ui2.kaizen.kaizenForm.location')}</label>
                 <div className="flex gap-3 mb-2">
                   {(['area', 'machine'] as const).map((type) => (
                     <label key={type} className="flex items-center gap-1.5 cursor-pointer">
@@ -314,13 +316,13 @@ export function KaizenForm({ onClose, onCreated }: Props) {
                 {values.areaType === 'machine' ? (
                   <input
                     {...register('machineName')}
-                    placeholder="Machine name or ID"
+                    placeholder={t('common.ui2.kaizen.kaizenForm.machineNameOrId')}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
                   <input
                     {...register('area')}
-                    placeholder="Department or zone (e.g. Assembly Line 3)"
+                    placeholder={t('common.ui2.kaizen.kaizenForm.departmentOrZoneEG')}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -329,7 +331,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
               {/* Before photos */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Before Photos <span className="text-gray-400">(optional)</span>
+                  {t('common.ui2.kaizen.kaizenForm.beforePhotos')} <span className="text-gray-400">(optional)</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer border-2 border-dashed border-gray-300 rounded-lg px-4 py-3 hover:border-blue-400 transition-colors w-fit">
                   <Camera size={16} className="text-gray-400" />
@@ -365,12 +367,12 @@ export function KaizenForm({ onClose, onCreated }: Props) {
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Suggested Solution <span className="text-red-500">*</span>
+                  {t('common.ui2.kaizen.kaizenForm.suggestedSolution')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   {...register('suggestedSolution')}
                   rows={4}
-                  placeholder="Describe how you suggest fixing this..."
+                  placeholder={t('common.ui2.kaizen.kaizenForm.describeHowYouSuggestFixing')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.suggestedSolution && (
@@ -381,7 +383,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Estimated Cost (LKR)
+                    {t('common.ui2.kaizen.kaizenForm.estimatedCostLkr')}
                   </label>
                   <input
                     type="number"
@@ -393,7 +395,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Monthly Benefit (LKR)
+                    {t('common.ui2.kaizen.kaizenForm.monthlyBenefitLkr')}
                   </label>
                   <input
                     type="number"
@@ -407,13 +409,13 @@ export function KaizenForm({ onClose, onCreated }: Props) {
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.kaizen.kaizenForm.tags')}</label>
                 <div className="flex gap-2">
                   <input
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
-                    placeholder="Add a tag..."
+                    placeholder={t('common.ui2.kaizen.kaizenForm.addATag')}
                     className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
@@ -449,7 +451,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
           {step === 2 && (
             <div>
               <p className="text-sm text-gray-500 mb-3">
-                Here's how your Kaizen will appear on the board:
+                {t('common.ui2.kaizen.kaizenForm.hereSHowYourKaizen')}
               </p>
               <div className="max-w-xs">
                 <KaizenCardPreview
@@ -459,14 +461,14 @@ export function KaizenForm({ onClose, onCreated }: Props) {
                 />
               </div>
               <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-                <p className="font-medium mb-1">Summary</p>
-                <p><span className="text-gray-500">Category:</span> {KAIZEN_CATEGORY_META[values.category ?? 'efficiency'].label}</p>
-                <p><span className="text-gray-500">Priority:</span> {KAIZEN_PRIORITY_META[values.priority ?? 'medium'].label}</p>
+                <p className="font-medium mb-1">{t('common.ui2.kaizen.kaizenForm.summary')}</p>
+                <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.category2')}</span> {KAIZEN_CATEGORY_META[values.category ?? 'efficiency'].label}</p>
+                <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.priority2')}</span> {KAIZEN_PRIORITY_META[values.priority ?? 'medium'].label}</p>
                 {values.estimatedCost != null && values.estimatedCost > 0 && (
-                  <p><span className="text-gray-500">Est. Cost:</span> LKR {values.estimatedCost.toLocaleString()}</p>
+                  <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.estCost')}</span> LKR {values.estimatedCost.toLocaleString()}</p>
                 )}
                 {values.estimatedBenefit != null && values.estimatedBenefit > 0 && (
-                  <p><span className="text-gray-500">Monthly Benefit:</span> LKR {values.estimatedBenefit.toLocaleString()}</p>
+                  <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.monthlyBenefit')}</span> LKR {values.estimatedBenefit.toLocaleString()}</p>
                 )}
               </div>
             </div>
@@ -481,7 +483,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
               onClick={() => setStep(step - 1)}
               className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
             >
-              <ChevronLeft size={16} /> Back
+              <ChevronLeft size={16} /> {t('common.ui2.kaizen.kaizenForm.back')}
             </button>
           ) : (
             <button
@@ -489,7 +491,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
               onClick={onClose}
               className="text-sm text-gray-500 hover:text-gray-700"
             >
-              Cancel
+              {t('common.ui2.kaizen.kaizenForm.cancel')}
             </button>
           )}
 
@@ -499,7 +501,7 @@ export function KaizenForm({ onClose, onCreated }: Props) {
               onClick={() => setStep(step + 1)}
               className="flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
             >
-              Next <ChevronRight size={16} />
+              {t('common.ui2.kaizen.kaizenForm.next')} <ChevronRight size={16} />
             </button>
           ) : (
             <button

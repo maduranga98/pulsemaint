@@ -190,14 +190,14 @@ export function SignOffForm({ job }: SignOffFormProps) {
           <div>
             <label className="text-xs font-medium text-slate-500">{t('common.contractors.jobs.signOffForm.totalCost.usedPartsCost')}</label>
             <div className="mt-1 flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
-              <span className="font-medium text-slate-500">LKR</span>
+              <span className="font-medium text-slate-500">{t('common.ui2.contractors.signOffForm.lkr')}</span>
               <span>{autoPartsCost.toFixed(2)}</span>
             </div>
           </div>
           <div>
             <label className="text-xs font-medium text-slate-500">{t('common.contractors.jobs.signOffForm.totalCost.projectCost')}</label>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-500">LKR</span>
+              <span className="text-sm font-medium text-slate-500">{t('common.ui2.contractors.signOffForm.lkr')}</span>
               <input
                 value={projectCost}
                 onChange={(event) => setProjectCost(event.target.value)}

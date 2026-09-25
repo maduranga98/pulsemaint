@@ -21,11 +21,13 @@ import {
 } from '../types/kaizen.types';
 import type { KaizenStatus, KaizenCategory } from '../types/kaizen.types';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   isProPlan?: boolean;
 }
 
 export function KaizenStats({ isProPlan = false }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { stats, loading } = useKaizenStats();
   const { trend } = useKaizenTrend(12);
@@ -117,7 +119,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Status donut */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">By Status</h3>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('common.ui2.kaizen.kaizenStats.byStatus')}</h3>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie
@@ -147,7 +149,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
 
         {/* Category bar */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">By Category</h3>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('common.ui2.kaizen.kaizenStats.byCategory')}</h3>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={barData} layout="vertical" margin={{ left: 0, right: 8 }}>
               <XAxis type="number" tick={{ fontSize: 10 }} />
@@ -164,9 +166,9 @@ export function KaizenStats({ isProPlan = false }: Props) {
 
         {/* Leaderboard */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Top Contributors</h3>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('common.ui2.kaizen.kaizenStats.topContributors')}</h3>
           {stats.topContributors.length === 0 ? (
-            <p className="text-xs text-gray-400 italic">No data yet</p>
+            <p className="text-xs text-gray-400 italic">{t('common.ui2.kaizen.kaizenStats.noDataYet')}</p>
           ) : (
             <div className="space-y-2">
               {stats.topContributors.map((c, i) => (
@@ -193,7 +195,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
 
       {/* Trend line */}
       <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Monthly Kaizen Trend (12 months)</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('common.ui2.kaizen.kaizenStats.monthlyKaizenTrend12Months')}</h3>
         <ResponsiveContainer width="100%" height={160}>
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
@@ -216,7 +218,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* ROI distribution */}
           <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">ROI Payback Distribution</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('common.ui2.kaizen.kaizenStats.roiPaybackDistribution')}</h3>
             <p className="text-xs text-gray-400 italic">
               (Requires actual cost + benefit data on verified cards)
             </p>
@@ -224,7 +226,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
 
           {/* Benefit comparison */}
           <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Estimated vs Actual Benefit</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('common.ui2.kaizen.kaizenStats.estimatedVsActualBenefit')}</h3>
             <ResponsiveContainer width="100%" height={120}>
               <BarChart
                 data={[
@@ -247,16 +249,16 @@ export function KaizenStats({ isProPlan = false }: Props) {
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex items-center gap-4">
           <Lock size={20} className="text-gray-400 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-700">ROI Analytics — Factory Pro</p>
+            <p className="text-sm font-semibold text-gray-700">{t('common.ui2.kaizen.kaizenStats.roiAnalyticsFactoryPro')}</p>
             <p className="text-xs text-gray-500 mt-0.5">
-              Upgrade to Factory Pro to unlock ROI distribution, payback analysis, and benefit tracking.
+              {t('common.ui2.kaizen.kaizenStats.upgradeToFactoryProTo')}
             </p>
           </div>
           <button
             onClick={() => navigate('/app/billing')}
             className="shrink-0 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700"
           >
-            Upgrade
+            {t('common.ui2.kaizen.kaizenStats.upgrade')}
           </button>
         </div>
       )}

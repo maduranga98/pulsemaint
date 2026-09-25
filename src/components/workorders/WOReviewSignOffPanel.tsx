@@ -92,7 +92,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
   async function handleSaveRCA() {
     if (!rootCauseText.trim()) {
-      toast.error('Root cause description is required to save the analysis.');
+      toast.error(t('common.ui2.workorders.wOReviewSignOffPanel.rootCauseDescriptionIsRequired'));
       return;
     }
     setRcaSaving(true);
@@ -104,9 +104,9 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
       );
       if (makeCorrectiveWO && correctiveAction.trim()) {
         await createCorrectiveWO(correctiveAction.trim(), uid, userName);
-        toast.success('Corrective work order created.');
+        toast.success(t('common.ui2.workorders.wOReviewSignOffPanel.correctiveWorkOrderCreated'));
       }
-      toast.success('Root cause analysis saved.');
+      toast.success(t('common.ui2.workorders.wOReviewSignOffPanel.rootCauseAnalysisSaved'));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to save RCA');
     } finally {
@@ -161,20 +161,20 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
         <div className="flex-1 overflow-y-auto p-4">
           {step === 'review' && (
             <div className="space-y-4">
-              <Field label="Work done">{wo.workDoneDescription || ''}</Field>
+              <Field label={t('common.ui2.workorders.wOReviewSignOffPanel.workDone')}>{wo.workDoneDescription || ''}</Field>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Machine status after">{wo.machineStatusAfterRepair ? MACHINE_STATUS_LABEL[wo.machineStatusAfterRepair] : ''}</Field>
-                <Field label="Test run">{wo.testRunResult ? TEST_RESULT_LABEL[wo.testRunResult] : ''}</Field>
-                <Field label="Checklist">{checklistDone}/{wo.checklist?.length ?? 0} complete</Field>
-                <Field label="Parts used">{wo.partsUsed?.length ?? 0}</Field>
+                <Field label={t('common.ui2.workorders.wOReviewSignOffPanel.machineStatusAfter')}>{wo.machineStatusAfterRepair ? MACHINE_STATUS_LABEL[wo.machineStatusAfterRepair] : ''}</Field>
+                <Field label={t('common.ui2.workorders.wOReviewSignOffPanel.testRun')}>{wo.testRunResult ? TEST_RESULT_LABEL[wo.testRunResult] : ''}</Field>
+                <Field label={t('common.ui2.workorders.wOReviewSignOffPanel.checklist')}>{checklistDone}/{wo.checklist?.length ?? 0} complete</Field>
+                <Field label={t('common.ui2.workorders.wOReviewSignOffPanel.partsUsed')}>{wo.partsUsed?.length ?? 0}</Field>
               </div>
-              {wo.testRunNotes && <Field label="Test notes">{wo.testRunNotes}</Field>}
+              {wo.testRunNotes && <Field label={t('common.ui2.workorders.wOReviewSignOffPanel.testNotes')}>{wo.testRunNotes}</Field>}
 
               {/* Work done by each assigned person, with their role — so the
                   supervisor signing off sees exactly who did what. */}
               {(wo.technicianWorkLogs ?? []).length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Work done by team</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.ui2.workorders.wOReviewSignOffPanel.workDoneByTeam')}</p>
                   <div className="space-y-2">
                     {(wo.technicianWorkLogs ?? []).map((log, i) => (
                       <div key={log.technicianId || i} className="rounded-lg border border-blue-800 bg-blue-950 px-4 py-3">
@@ -188,7 +188,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                         {log.tasksDescription ? (
                           <p className="mt-1 whitespace-pre-wrap text-xs text-blue-100">{log.tasksDescription}</p>
                         ) : (
-                          <p className="mt-1 text-xs text-blue-300/70">No individual tasks recorded.</p>
+                          <p className="mt-1 text-xs text-blue-300/70">{t('common.ui2.workorders.wOReviewSignOffPanel.noIndividualTasksRecorded')}</p>
                         )}
                       </div>
                     ))}
@@ -198,7 +198,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
               {(wo.partsUsed ?? []).length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Parts used</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.ui2.workorders.wOReviewSignOffPanel.partsUsed')}</p>
                   <div className="space-y-2">
                     {/* Dark blue card with explicit light text: the previous
                         light emerald card inherited the app's dark-theme text
@@ -217,7 +217,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                       </div>
                     ))}
                     <div className="flex justify-end rounded-lg bg-blue-950 px-4 py-2 text-sm text-blue-200">
-                      Total parts cost:&nbsp;
+                      {t('common.ui2.workorders.wOReviewSignOffPanel.totalPartsCost')}&nbsp;
                       <span className="font-semibold text-white">
                         LKR {(wo.partsUsed ?? []).reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
                       </span>
@@ -228,7 +228,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
               {evidence.length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Evidence</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.ui2.workorders.wOReviewSignOffPanel.evidence')}</p>
                   <div className="grid grid-cols-3 gap-2">
                     {evidence.map((e) => (
                       <a
@@ -261,13 +261,13 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                     onClick={() => setShowRCA((v) => !v)}
                     className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700"
                   >
-                    <span>Root cause analysis (optional)</span>
+                    <span>{t('common.ui2.workorders.wOReviewSignOffPanel.rootCauseAnalysisOptional')}</span>
                     {showRCA ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   </button>
                   {showRCA && (
                     <div className="space-y-3 border-t border-gray-100 p-3">
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause category</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.ui2.workorders.wOReviewSignOffPanel.rootCauseCategory')}</label>
                         <select
                           value={rootCauseEnum}
                           onChange={(e) => setRootCauseEnum(e.target.value as WORootCause)}
@@ -279,12 +279,12 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                         </select>
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause description</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.ui2.workorders.wOReviewSignOffPanel.rootCauseDescription')}</label>
                         <textarea
                           value={rootCauseText}
                           onChange={(e) => setRootCauseText(e.target.value)}
                           rows={3}
-                          placeholder="Describe the underlying root cause…"
+                          placeholder={t('common.ui2.workorders.wOReviewSignOffPanel.describeTheUnderlyingRootCause')}
                           className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
                         />
                       </div>
@@ -312,7 +312,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                         )}
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Corrective action</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.ui2.workorders.wOReviewSignOffPanel.correctiveAction')}</label>
                         <textarea
                           value={correctiveAction}
                           onChange={(e) => setCorrectiveAction(e.target.value)}
@@ -326,7 +326,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                             onChange={(e) => setMakeCorrectiveWO(e.target.checked)}
                             className="h-4 w-4 rounded border-gray-300"
                           />
-                          Create a corrective work order from this action
+                          {t('common.ui2.workorders.wOReviewSignOffPanel.createACorrectiveWorkOrder')}
                         </label>
                       </div>
                       <button
@@ -353,7 +353,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                     onClick={() => setStep('signoff')}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white hover:bg-blue-700"
                   >
-                    <Check className="h-4 w-4" /> Continue to sign-off
+                    <Check className="h-4 w-4" /> {t('common.ui2.workorders.wOReviewSignOffPanel.continueToSignOff')}
                   </button>
                 </div>
               )}

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { PartsRequest } from '@/types/inventory';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   requests: PartsRequest[];
 }
@@ -14,17 +15,18 @@ function formatTimestamp(ts: { seconds: number } | null | undefined): string {
 }
 
 export function ReservedStockWidget({ requests }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100">
-        <h2 className="font-semibold text-gray-900">Parts to Collect</h2>
+        <h2 className="font-semibold text-gray-900">{t('common.inventory.ui.reservedStockWidget.partsToCollect')}</h2>
       </div>
 
       {requests.length === 0 ? (
         <div className="px-4 py-8 text-center text-gray-400 text-sm">
-          No parts currently reserved
+          {t('common.inventory.ui.reservedStockWidget.noPartsCurrentlyReserved')}
         </div>
       ) : (
         <div className="divide-y divide-gray-100">
@@ -60,7 +62,7 @@ export function ReservedStockWidget({ requests }: Props) {
                   onClick={() => navigate(`/app/inventory/requests/${r.id}`)}
                   className="shrink-0 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors"
                 >
-                  Confirm Collection
+                  {t('common.inventory.ui.reservedStockWidget.confirmCollection')}
                 </button>
               </div>
             );

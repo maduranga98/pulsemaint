@@ -3,7 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { savePendingScanMachineId, savePostLoginRedirect } from '../../lib/scanTarget';
 import { useAuthStore } from '../../store/authStore';
 
+import { useTranslation } from 'react-i18next';
 export default function ScanRedirectPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const machineId = searchParams.get('machineId');
@@ -41,7 +43,7 @@ export default function ScanRedirectPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-600">Redirecting to breakdown report...</p>
+      <p className="text-gray-600">{t('common.ui2.machines.scanRedirectPage.redirectingToBreakdownReport')}</p>
     </div>
   );
 }

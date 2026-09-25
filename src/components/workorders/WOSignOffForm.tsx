@@ -190,7 +190,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
                   {t('common.workOrders.signOffForm.projectCostLabel')}
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-500">LKR</span>
+                  <span className="text-sm font-medium text-gray-500">{t('common.ui2.workorders.wOSignOffForm.lkr')}</span>
                   <input
                     value={projectCost}
                     onChange={(e) => setProjectCost(e.target.value)}

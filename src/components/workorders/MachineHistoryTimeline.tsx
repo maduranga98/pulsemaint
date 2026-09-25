@@ -72,7 +72,7 @@ function HistoryEntry({ entry, t }: { entry: MachineHistoryEntry; t: TFunction }
 
           {entry.rootCause && (
             <p className="text-gray-500">
-              Root cause: <span className="font-medium text-gray-700">{entry.rootCause.replace(/_/g, ' ')}</span>
+              {t('common.ui2.workorders.machineHistoryTimeline.rootCause')} <span className="font-medium text-gray-700">{entry.rootCause.replace(/_/g, ' ')}</span>
             </p>
           )}
 
@@ -84,14 +84,14 @@ function HistoryEntry({ entry, t }: { entry: MachineHistoryEntry; t: TFunction }
 
           {entry.contractorName && (
             <p className="text-gray-500">
-              Contractor: <span className="font-medium">{entry.contractorName}</span>
+              {t('common.ui2.workorders.machineHistoryTimeline.contractor')} <span className="font-medium">{entry.contractorName}</span>
               {contractorTechnicianNames.length > 0 && ` (${contractorTechnicianNames.join(', ')})`}
             </p>
           )}
 
           {partsUsed.length > 0 && (
             <div>
-              <p className="text-gray-400 text-xs mb-1">Parts used:</p>
+              <p className="text-gray-400 text-xs mb-1">{t('common.ui2.workorders.machineHistoryTimeline.partsUsed')}</p>
               <div className="space-y-1">
                 {partsUsed.map((p, i) => (
                   <div key={i} className="flex justify-between text-xs">

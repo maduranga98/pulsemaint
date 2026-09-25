@@ -8,8 +8,8 @@ export default function AuthLoading() {
         {/* FirmiCore Logo */}
         <div className="text-center">
           <div className="text-4xl font-bold">
-            <span className="text-white">Firmi</span>
-            <span className="text-[#00C2FF]">Core</span>
+            <span className="text-white">{t('common.ui2.auth.authLoading.firmi')}</span>
+            <span className="text-[#00C2FF]">{t('common.ui2.auth.authLoading.core')}</span>
           </div>
         </div>
 

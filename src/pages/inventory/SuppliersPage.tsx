@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   writeBatch,
 } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
@@ -96,6 +97,7 @@ async function parseXlsxRows(file: File): Promise<string[][]> {
 }
 
 export function SuppliersPage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
@@ -133,7 +135,7 @@ export function SuppliersPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (!file) return;
     if (!companyId) {
-      addToast('Missing company context. Please re-login.', 'error');
+      addToast(t('common.inventory.suppliersPage.toasts.missingCompany'), 'error');
       return;
     }
     setImporting(true);
@@ -141,7 +143,7 @@ export function SuppliersPage() {
       const isExcel = file.name.toLowerCase().endsWith('.xlsx');
       const rows: string[][] = isExcel ? await parseXlsxRows(file) : parseCsv(await file.text());
       if (rows.length < 2) {
-        addToast('File has no data rows. Use the sample as a starting point.', 'error');
+        addToast(t('common.inventory.suppliersPage.toasts.noRows'), 'error');
         return;
       }
       // Normalize away spaces/underscores/hyphens so "Contact Person",
@@ -153,7 +155,7 @@ export function SuppliersPage() {
       const col = (name: string) => header.indexOf(normalize(name));
       const nameIdx = col('name');
       if (nameIdx === -1) {
-        addToast('File must include a "name" column (see the sample).', 'error');
+        addToast(t('common.inventory.suppliersPage.toasts.nameColumn'), 'error');
         return;
       }
       const idx = {
@@ -185,7 +187,7 @@ export function SuppliersPage() {
         }));
 
       if (records.length === 0) {
-        addToast('No valid supplier rows found in the file.', 'error');
+        addToast(t('common.inventory.suppliersPage.toasts.noValidRows'), 'error');
         return;
       }
 
@@ -207,10 +209,10 @@ export function SuppliersPage() {
         }
         await batch.commit();
       }
-      addToast(`Imported ${records.length} supplier${records.length === 1 ? '' : 's'}.`, 'success');
+      addToast(t('common.inventory.suppliersPage.toasts.imported', { count: records.length }), 'success');
     } catch (err) {
       console.error('Supplier CSV import failed', err);
-      addToast('Failed to import suppliers. Check the CSV format against the sample.', 'error');
+      addToast(t('common.inventory.suppliersPage.toasts.importFailed'), 'error');
     } finally {
       setImporting(false);
     }
@@ -241,7 +243,7 @@ export function SuppliersPage() {
 
   async function handleSave() {
     if (!form.name.trim()) {
-      addToast('Supplier name is required.', 'error');
+      addToast(t('common.inventory.suppliersPage.toasts.nameRequired'), 'error');
       return;
     }
     setSaving(true);
@@ -252,7 +254,7 @@ export function SuppliersPage() {
           updatedAt: serverTimestamp(),
           updatedBy: userId,
         });
-        addToast('Supplier updated.', 'success');
+        addToast(t('common.inventory.suppliersPage.toasts.updated'), 'success');
       } else {
         const supplierCode = await getNextSupplierCode(companyId, form.country);
         await addDoc(collection(db, 'suppliers'), {
@@ -264,26 +266,26 @@ export function SuppliersPage() {
           updatedAt: serverTimestamp(),
           updatedBy: userId,
         });
-        addToast(`Supplier added (${supplierCode}).`, 'success');
+        addToast(t('common.inventory.suppliersPage.toasts.added', { code: supplierCode }), 'success');
       }
       setModalOpen(false);
     } catch (err) {
       console.error(err);
-      addToast('Failed to save supplier.', 'error');
+      addToast(t('common.inventory.suppliersPage.toasts.saveFailed'), 'error');
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(supplier: Supplier) {
-    if (!window.confirm(`Remove supplier "${supplier.name}"?`)) return;
+    if (!window.confirm(t('common.inventory.suppliersPage.confirmRemove', { name: supplier.name }))) return;
     setDeletingId(supplier.id);
     try {
       await deleteDoc(doc(db, 'suppliers', supplier.id));
-      addToast('Supplier removed.', 'success');
+      addToast(t('common.inventory.suppliersPage.toasts.removed'), 'success');
     } catch (err) {
       console.error(err);
-      addToast('Failed to remove supplier.', 'error');
+      addToast(t('common.inventory.suppliersPage.toasts.removeFailed'), 'error');
     } finally {
       setDeletingId(null);
     }
@@ -295,7 +297,7 @@ export function SuppliersPage() {
         <Link to="/app/inventory" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 flex-1">Suppliers</h1>
+        <h1 className="text-2xl font-bold text-gray-900 flex-1">{t('common.inventory.suppliersPage.title')}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <input
             ref={fileInputRef}
@@ -309,7 +311,7 @@ export function SuppliersPage() {
             className="inline-flex items-center gap-1.5 px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-semibold rounded-lg"
           >
             <Download className="w-4 h-4" />
-            Sample CSV
+            {t('common.inventory.suppliersPage.sampleCsv')}
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -317,14 +319,14 @@ export function SuppliersPage() {
             className="inline-flex items-center gap-1.5 px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-semibold rounded-lg disabled:opacity-60"
           >
             <Upload className="w-4 h-4" />
-            {importing ? 'Importing…' : 'Import (CSV/Excel)'}
+            {importing ? t('common.inventory.suppliersPage.importing') : t('common.inventory.suppliersPage.import')}
           </button>
           <button
             onClick={openAdd}
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"
           >
             <Plus className="w-4 h-4" />
-            Add Supplier
+            {t('common.inventory.suppliersPage.addSupplier')}
           </button>
         </div>
       </div>
@@ -335,7 +337,7 @@ export function SuppliersPage() {
         </div>
       ) : suppliers.length === 0 ? (
         <div className="p-8 text-center text-gray-500 text-sm bg-white border border-gray-200 rounded-xl">
-          No suppliers yet. Add your first supplier to select them when creating a purchase order.
+          {t('common.inventory.suppliersPage.empty')}
         </div>
       ) : (
         <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
@@ -360,7 +362,7 @@ export function SuppliersPage() {
                         )}
                       </span>
                       <span className="block text-sm text-gray-500 truncate">
-                        {[s.contactPerson, s.phone, s.email].filter(Boolean).join(' · ') || 'No contact details'}
+                        {[s.contactPerson, s.phone, s.email].filter(Boolean).join(' · ') || t('common.inventory.suppliersPage.noContact')}
                       </span>
                     </span>
                   </button>
@@ -368,7 +370,7 @@ export function SuppliersPage() {
                     <button
                       onClick={() => openEdit(s)}
                       className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      aria-label="Edit supplier"
+                      aria-label={t('common.inventory.suppliersPage.editAria')}
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -377,7 +379,7 @@ export function SuppliersPage() {
                         onClick={() => handleDelete(s)}
                         disabled={deletingId === s.id}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                        aria-label="Remove supplier"
+                        aria-label={t('common.inventory.suppliersPage.removeAria')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -387,27 +389,27 @@ export function SuppliersPage() {
                 {expanded && (
                   <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 border-t border-gray-100 pt-3 text-sm">
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Contact Person</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.contactPerson')}</dt>
                       <dd className="text-gray-800">{s.contactPerson || ''}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Phone</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.phone')}</dt>
                       <dd className="text-gray-800">{s.phone || ''}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Email</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.email')}</dt>
                       <dd className="text-gray-800 break-all">{s.email || ''}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Address</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.address')}</dt>
                       <dd className="text-gray-800 whitespace-pre-line">{s.address || ''}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Country</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.country')}</dt>
                       <dd className="text-gray-800">{s.country || ''}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Website</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.website')}</dt>
                       <dd className="text-gray-800 break-all">
                         {s.website ? (
                           <a href={s.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
@@ -417,15 +419,15 @@ export function SuppliersPage() {
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Payment Method</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.paymentMethod')}</dt>
                       <dd className="text-gray-800">{s.paymentMethod || ''}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Bank Details</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.bankDetails')}</dt>
                       <dd className="text-gray-800">{s.bankDetails || ''}</dd>
                     </div>
                     <div className="sm:col-span-2">
-                      <dt className="text-xs uppercase tracking-wide text-gray-400">Notes</dt>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">{t('common.inventory.suppliersPage.fields.notes')}</dt>
                       <dd className="text-gray-800 whitespace-pre-line">{s.notes || ''}</dd>
                     </div>
                   </dl>
@@ -440,23 +442,23 @@ export function SuppliersPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">{editing ? 'Edit Supplier' : 'Add Supplier'}</h3>
+              <h3 className="text-lg font-bold text-gray-900">{editing ? t('common.inventory.suppliersPage.editSupplier') : t('common.inventory.suppliersPage.addSupplier')}</h3>
               <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-700">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.nameRequired')}</label>
                 <input
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   className={inputCls}
-                  placeholder="Supplier / company name"
+                  placeholder={t('common.inventory.suppliersPage.placeholders.name')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.contactPerson')}</label>
                 <input
                   value={form.contactPerson}
                   onChange={(e) => setForm((f) => ({ ...f, contactPerson: e.target.value }))}
@@ -465,7 +467,7 @@ export function SuppliersPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.phone')}</label>
                   <input
                     value={form.phone}
                     onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
@@ -473,7 +475,7 @@ export function SuppliersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.email')}</label>
                   <input
                     type="email"
                     value={form.email}
@@ -483,7 +485,7 @@ export function SuppliersPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.address')}</label>
                 <textarea
                   value={form.address}
                   onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
@@ -493,16 +495,16 @@ export function SuppliersPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.country')}</label>
                   <input
                     value={form.country}
                     onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
                     className={inputCls}
-                    placeholder="e.g. LK or Sri Lanka"
+                    placeholder={t('common.inventory.suppliersPage.placeholders.country')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.website')}</label>
                   <input
                     value={form.website}
                     onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
@@ -513,26 +515,26 @@ export function SuppliersPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.paymentMethod')}</label>
                   <input
                     value={form.paymentMethod}
                     onChange={(e) => setForm((f) => ({ ...f, paymentMethod: e.target.value }))}
                     className={inputCls}
-                    placeholder="e.g. Bank Transfer"
+                    placeholder={t('common.inventory.suppliersPage.placeholders.paymentMethod')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bank Details</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.bankDetails')}</label>
                   <input
                     value={form.bankDetails}
                     onChange={(e) => setForm((f) => ({ ...f, bankDetails: e.target.value }))}
                     className={inputCls}
-                    placeholder="Bank, account #"
+                    placeholder={t('common.inventory.suppliersPage.placeholders.bankDetails')}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.suppliersPage.fields.notes')}</label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
@@ -547,14 +549,14 @@ export function SuppliersPage() {
                 disabled={saving}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 text-sm"
               >
-                Cancel
+                {t('common.inventory.suppliersPage.cancel')}
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
                 className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm disabled:opacity-60"
               >
-                {saving ? 'Saving…' : 'Save Supplier'}
+                {saving ? t('common.inventory.suppliersPage.saving') : t('common.inventory.suppliersPage.save')}
               </button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface ItemData {
   partId: string;
   partNumber: string;
@@ -42,6 +43,7 @@ function defaultQuantity(item: ItemData): number {
 }
 
 export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
+  const { t } = useTranslation();
   const [quantityReceived, setQuantityReceived] = useState(() => defaultQuantity(item));
   const [unitCost, setUnitCost] = useState(() => item.unitCost ?? 0);
   const [condition, setCondition] = useState('good');
@@ -67,7 +69,7 @@ export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
           <p className="font-mono text-xs text-gray-500">{item.partNumber}</p>
           {item.quantityOrdered !== undefined && (
             <p className="text-xs text-gray-500 mt-1">
-              Ordered: <span className="font-medium">{item.quantityOrdered} {item.unit}</span>
+              {t('common.inventory.ui.receiveItemRow.ordered')} <span className="font-medium">{item.quantityOrdered} {item.unit}</span>
               {item.quantityReceivedSoFar !== undefined && (
                 <> · Received so far: <span className="font-medium">{item.quantityReceivedSoFar} {item.unit}</span></>
               )}
@@ -80,7 +82,7 @@ export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
             <button
               onClick={onRemove}
               className="p-1 text-gray-400 hover:text-red-500 transition-colors rounded"
-              title="Remove"
+              title={t('common.inventory.ui.receiveItemRow.remove')}
             >
               <X className="w-4 h-4" />
             </button>
@@ -104,7 +106,7 @@ export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">
-            Unit Cost (LKR)
+            {t('common.inventory.ui.receiveItemRow.unitCostLkr')}
           </label>
           <input
             type="number"
@@ -119,7 +121,7 @@ export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
 
       {/* Condition radio */}
       <div>
-        <p className="text-xs font-medium text-gray-500 mb-1.5">Condition</p>
+        <p className="text-xs font-medium text-gray-500 mb-1.5">{t('common.inventory.ui.receiveItemRow.condition')}</p>
         <div className="flex gap-4">
           {CONDITIONS.map((c) => (
             <label key={c.value} className="flex items-center gap-1.5 cursor-pointer text-sm">
@@ -139,12 +141,12 @@ export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
 
       {/* Notes */}
       <div>
-        <label className="block text-xs font-medium text-gray-500 mb-1">Notes (optional)</label>
+        <label className="block text-xs font-medium text-gray-500 mb-1">{t('common.inventory.ui.receiveItemRow.notesOptional')}</label>
         <input
           type="text"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Any notes about this item…"
+          placeholder={t('common.inventory.ui.receiveItemRow.anyNotesAboutThisItem')}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>

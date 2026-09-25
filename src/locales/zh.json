@@ -800,7 +800,9 @@
         },
         "errors": {
           "unknown": "未知错误"
-        }
+        },
+        "inventoryItemLimitReached": "已达到库存物品上限",
+        "upgradePlan": "升级套餐"
       },
       "editPartPage": {
         "title": "编辑备件",
@@ -1133,6 +1135,242 @@
         "stockGauge": {
           "max": "最大",
           "min": "最小"
+        }
+      },
+      "suppliersPage": {
+        "toasts": {
+          "missingCompany": "缺少公司信息，请重新登录。",
+          "noRows": "文件中没有数据行。请以示例文件为起点。",
+          "nameColumn": "文件必须包含 \"name\" 列（参见示例）。",
+          "noValidRows": "文件中未找到有效的供应商行。",
+          "imported_one": "已导入 {{count}} 个供应商。",
+          "imported_other": "已导入 {{count}} 个供应商。",
+          "importFailed": "导入供应商失败。请对照示例检查 CSV 格式。",
+          "nameRequired": "供应商名称为必填项。",
+          "updated": "供应商已更新。",
+          "added": "已添加供应商（{{code}}）。",
+          "saveFailed": "保存供应商失败。",
+          "removed": "供应商已删除。",
+          "removeFailed": "删除供应商失败。"
+        },
+        "confirmRemove": "删除供应商 \"{{name}}\"？",
+        "title": "供应商",
+        "sampleCsv": "示例 CSV",
+        "importing": "正在导入…",
+        "import": "导入（CSV/Excel）",
+        "addSupplier": "添加供应商",
+        "editSupplier": "编辑供应商",
+        "empty": "暂无供应商。添加第一个供应商后即可在创建采购订单时选择。",
+        "noContact": "无联系信息",
+        "editAria": "编辑供应商",
+        "removeAria": "删除供应商",
+        "fields": {
+          "contactPerson": "联系人",
+          "phone": "电话",
+          "email": "电子邮件",
+          "address": "地址",
+          "country": "国家",
+          "website": "网站",
+          "paymentMethod": "付款方式",
+          "bankDetails": "银行信息",
+          "notes": "备注",
+          "nameRequired": "名称 *"
+        },
+        "placeholders": {
+          "name": "供应商 / 公司名称",
+          "country": "例如：LK 或 斯里兰卡",
+          "paymentMethod": "例如：银行转账",
+          "bankDetails": "银行、账号"
+        },
+        "cancel": "取消",
+        "saving": "正在保存…",
+        "save": "保存供应商"
+      },
+      "movementLogPage": {
+        "stockMovementLog": "库存变动日志",
+        "completeAuditTrailReadOnly": "完整审计记录 · 只读",
+        "exportToExcel": "导出到 Excel",
+        "clear": "清除",
+        "dateTime": "日期 / 时间",
+        "part": "备件",
+        "type": "类型",
+        "change": "变动",
+        "beforeAfter": "变动前 → 变动后",
+        "reference": "参考",
+        "by": "操作人",
+        "notes": "备注",
+        "referenceType": "参考类型",
+        "workOrder": "工单",
+        "unitCostAtTime": "当时单价",
+        "costImpact": "成本影响",
+        "noMovementsFound": "未找到变动记录",
+        "tryAdjustingYourSearchOr": "请尝试调整搜索条件或日期范围。",
+        "noMovementsFound2": "未找到变动记录。",
+        "searchByPartOrPerson": "按备件或人员搜索…"
+      },
+      "inventoryDashboardPage": {
+        "inventory": "库存",
+        "checkRequestStatusAndBrowse": "查看申请状态并浏览备件目录。",
+        "requestParts": "申领备件",
+        "youAreCurrentlyOfflineShowing": "您当前处于离线状态。正在显示缓存数据——重新连接后将同步更改。",
+        "inventoryManagement": "库存管理",
+        "addItem": "添加物品",
+        "createPo": "创建采购单",
+        "scanIssue": "扫码发放",
+        "partsReturns": "备件退回",
+        "suppliers": "供应商",
+        "lowStockAlerts": "低库存提醒",
+        "purchaseOrders": "采购订单",
+        "viewAll": "查看全部",
+        "requestsAwaitingYourApprovalPurchase": "待您审批的申请、采购订单和备件目录。",
+        "pendingPoRequests": "待处理采购申请",
+        "pendingReturn": "待退回"
+      },
+      "manualIssuePage": {
+        "scanIssueParts": "扫码发放备件",
+        "scanAPartQrCode": "扫描备件二维码或按名称/编号搜索，直接从库存发放——适用于尚无备件申请的情况（例如现场处理的故障）。添加所需的所有备件，设置数量，然后一次性发放整批。",
+        "searchManually": "手动搜索",
+        "searching": "正在搜索…",
+        "clearBatch": "清空批次",
+        "quantity": "数量",
+        "returnableExpectedBackInStock": "可退回——工作完成后预计退回库存",
+        "issuingTo": "发放给 *",
+        "theyLlBeNotifiedAnd": "对方将收到通知，并显示在其“待领取备件 / 待退回”中。",
+        "reason": "原因 *",
+        "workOrderOptional": "工单（可选）",
+        "appliedToEveryPartIn": "适用于本批次的所有备件。",
+        "searchByPartNameOr": "按备件名称或编号搜索…",
+        "describeTheReason": "描述原因…",
+        "scanPartToIssue": "扫描要发放的备件",
+        "failedToLookUpPart": "查找备件失败。",
+        "enterAReasonForIssuing": "请输入发放这些备件的原因。",
+        "fixTheHighlightedQuantitiesBefore": "发放前请修正标出的数量。",
+        "selectWhoIsTakingThese": "请选择领取这些备件的人员。"
+      },
+      "inventorySettingsPage": {
+        "inventorySettings": "库存设置",
+        "configureApprovalThresholdsNotificationsAnd": "配置审批阈值、通知等。",
+        "notifications": "通知",
+        "enableLowStockAlerts": "启用低库存提醒",
+        "notifyRoles": "通知角色",
+        "numberingPrefixes": "编号前缀",
+        "preview": "预览：",
+        "returnPolicy": "退回政策",
+        "requireTechniciansToLogUnused": "要求技术员登记未使用备件的退回",
+        "supplierCommunication": "供应商沟通",
+        "purchaseOrderEmailLanguage": "采购订单邮件语言",
+        "languageUsedForOutboundPo": "发送给供应商的采购订单邮件所用语言（订单文件、定价、取消和交货通知）。",
+        "settingsSaved": "设置已保存。",
+        "failedToSaveSettings": "保存设置失败。"
+      },
+      "inventoryReportsPage": {
+        "inventoryReports": "库存报表",
+        "generateAndExportInventoryReports": "生成并导出库存报表。",
+        "generatePdf": "生成 PDF",
+        "exportExcel": "导出 Excel",
+        "dateRange": "日期范围",
+        "start": "开始",
+        "month": "月份",
+        "end": "结束",
+        "machineOptional": "设备（可选）",
+        "categoryOptional": "类别（可选）",
+        "cancel": "取消",
+        "allMachines": "所有设备",
+        "allCategories": "所有类别",
+        "reportGeneratedSuccessfully": "报表生成成功。"
+      },
+      "partReturnsPage": {
+        "backToInventory": "返回库存",
+        "partsReturns": "备件退回",
+        "confirmPartsBeingPhysicallyReturned": "确认申请人实际退回库存的备件。"
+      },
+      "receiveStockPage": {
+        "receiveNewStock": "接收新库存"
+      },
+      "ui": {
+        "outOfStockWidget": {
+          "reorder": "补货"
+        },
+        "partsCatalogWidget": {
+          "partsCatalog": "备件目录",
+          "viewAll": "查看全部",
+          "noPartsInCatalogYet": "目录中暂无备件。"
+        },
+        "pendingRequestsWidget": {
+          "viewAll": "查看全部"
+        },
+        "recentMovementsWidget": {
+          "recentStockMovements": "最近库存变动",
+          "noRecentMovements": "暂无最近变动"
+        },
+        "reservedStockWidget": {
+          "partsToCollect": "待领取备件",
+          "noPartsCurrentlyReserved": "当前没有预留的备件",
+          "confirmCollection": "确认领取"
+        },
+        "receiveAgainstPo": {
+          "selectPurchaseOrder": "选择采购订单",
+          "receiveDate": "接收日期",
+          "deliveryReference": "交货单号",
+          "finalCostTotal": "最终总成本",
+          "notesOptional": "备注（可选）",
+          "generating": "正在生成…",
+          "anyAdditionalNotesAboutThis": "关于本次交货的其他备注…",
+          "sendTheSupplierAnEmail": "将当前表单内容通过邮件发送给供应商——在确认收货后修改了数量、状况或备注时使用",
+          "emailResentWithTheCurrent": "已按当前收货信息重新发送邮件。采购订单已退回至“已收到发票”。",
+          "nothingToSendAddA": "没有可发送的内容——请添加已收/损坏数量，或确认供应商已登记邮箱。",
+          "failedToResendEmail": "重新发送邮件失败。"
+        },
+        "receiveItemRow": {
+          "ordered": "订购：",
+          "unitCostLkr": "单价（LKR）",
+          "condition": "状况",
+          "notesOptional": "备注（可选）",
+          "remove": "移除",
+          "anyNotesAboutThisItem": "关于此物品的备注…"
+        },
+        "partReturnQueueRow": {
+          "returned": "已退回",
+          "reject": "拒绝",
+          "conditionReceived": "收到时状况",
+          "notesOptional": "备注（可选）",
+          "reasonForDispute": "争议原因"
+        },
+        "categorySelect": {
+          "selectCategory": "选择类别…",
+          "otherManuallyCreated": "其他（手动创建）…",
+          "enterCustomCategoryName": "输入自定义类别名称"
+        },
+        "machineSelect": {
+          "loading": "正在加载…",
+          "noMachinesFound": "未找到设备。",
+          "searchMachines": "搜索设备…"
+        },
+        "partQrScanModal": {
+          "cancel": "取消",
+          "close": "关闭"
+        },
+        "partSearchInput": {
+          "searching": "正在搜索…",
+          "noPartsFound": "未找到备件"
+        },
+        "quickStockAdjust": {
+          "adjust": "调整",
+          "quickAdjust": "快速调整",
+          "current": "当前：",
+          "quantityChange": "数量变动",
+          "newStock": "新库存：",
+          "reason": "原因",
+          "quickStockAdjust": "快速库存调整",
+          "eGCountedDuringStocktake": "例如：盘点时清点",
+          "reasonIsRequired": "原因为必填项。",
+          "adjustmentQuantityCannotBeZero": "调整数量不能为零。",
+          "stockCannotGoBelowZero": "库存不能低于零。"
+        },
+        "stockLevelIndicator": {
+          "current": "当前",
+          "reserved": "已预留",
+          "available": "可用"
         }
       }
     },
@@ -8903,6 +9141,426 @@
         "trialUntil": "您的免费试用期至",
         "saving": "正在保存...",
         "complete": "完成设置"
+      }
+    },
+    "ui2": {
+      "auth": {
+        "authLoading": {
+          "firmi": "Firmi",
+          "core": "Core"
+        }
+      },
+      "contractors": {
+        "signOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "layout": {
+        "appLayout": {
+          "firmicore": "FirmiCore"
+        }
+      },
+      "machines": {
+        "breakdownHistoryList": {
+          "attemptedFixes": "已尝试的修复：",
+          "breakdownHistory": "故障历史",
+          "noBreakdownHistoryForThis": "该设备暂无故障历史。"
+        },
+        "conditionMonitoringTab": {
+          "logNewReading": "记录新读数",
+          "parameter": "参数",
+          "value": "数值",
+          "unit": "单位",
+          "minOptional": "最小值（可选）",
+          "maxOptional": "最大值（可选）",
+          "loadingReadings": "正在加载读数...",
+          "noReadingsLoggedYetUse": "暂无读数。请使用上方表单记录第一个读数。",
+          "eGBearingTempVibration": "例如：轴承温度、振动",
+          "acceptableMin": "可接受最小值",
+          "acceptableMax": "可接受最大值",
+          "parameterNameIsRequired": "参数名称为必填项",
+          "valueIsRequired": "数值为必填项",
+          "readingLogged": "读数已记录"
+        },
+        "downtimeCostFields": {
+          "downtimeCost": "停机成本",
+          "edit": "编辑",
+          "directHourlyRate": "直接小时费率",
+          "configureNow": "立即配置",
+          "unitsValue": "产量 × 单价",
+          "currency": "货币",
+          "lkr": "LKR",
+          "usd": "USD",
+          "aed": "AED",
+          "sar": "SAR",
+          "unitsProducedPerHour": "每小时产量",
+          "cancel": "取消",
+          "downtimeCostRatesUpdated": "停机成本费率已更新。"
+        },
+        "isolationPointsTab": {
+          "isolationPoints": "隔离点",
+          "addIsolationPoint": "添加隔离点",
+          "noIsolationPointsDefinedFor": "该设备未定义隔离点。",
+          "newIsolationPoint": "新隔离点",
+          "label": "标签",
+          "location": "位置",
+          "edit": "编辑",
+          "delete": "删除",
+          "labelEGMainPower": "标签（例如：主电源断路器）",
+          "locationEGPanelB": "位置（例如：B 柜第 3 排）",
+          "isolationPointsUpdated": "隔离点已更新",
+          "labelIsRequired": "标签为必填项",
+          "deleteThisIsolationPoint": "删除此隔离点？"
+        },
+        "machineForm": {
+          "back": "返回",
+          "next": "下一步",
+          "machineType": "设备类型 *",
+          "selectAType": "选择类型...",
+          "otherEnterCustomType": "其他——输入自定义类型…",
+          "basicInformation": "基本信息",
+          "machineName": "设备名称 *",
+          "manufacturer": "制造商 *",
+          "model": "型号",
+          "serialNumber": "序列号",
+          "expectedLifespanYears": "预期寿命（年）",
+          "purchaseDate": "购买日期",
+          "installationDate": "安装日期",
+          "location": "位置",
+          "plant": "工厂 *",
+          "department": "部门 *",
+          "floor": "楼层",
+          "bay": "区域",
+          "station": "工位",
+          "thisLocationDataWillAuto": "此位置信息将自动填入与该设备关联的工单",
+          "statusCriticality": "状态与关键性",
+          "status": "状态 *",
+          "low": "低",
+          "missionCritical": "极其关键",
+          "critical0": "严重（0）",
+          "perfect100": "完美（100）",
+          "nextPmDate": "下次预防性维护日期",
+          "dateTheNextPreventiveMaintenance": "下次预防性维护的到期日期。完成 PM 工单后自动更新。",
+          "documentsPhotos": "文件与照片",
+          "photos": "照片",
+          "clickOrDragPhotosHere": "点击或将照片拖到此处",
+          "warrantyInformation": "保修信息",
+          "remove": "移除",
+          "warrantyExpiryDate": "保修到期日期",
+          "supplierReference": "供应商 / 参考",
+          "modificationNotes": "改造备注",
+          "additionalNotes": "其他备注",
+          "selectAPlant": "选择工厂...",
+          "selectAPlantFirstTo": "请先选择工厂，再选择或添加其部门。",
+          "selectADepartment": "选择部门...",
+          "add": "添加",
+          "loadingDepartments": "正在加载部门...",
+          "eGInjectionMolderPackaging": "例如：注塑机、包装线…",
+          "eGCncLatheMachine": "例如：数控车床 01",
+          "eGMazakCorporation": "例如：Mazak Corporation",
+          "eGQuickTurn200": "例如：QUICK TURN 200",
+          "uniqueSerialNumber": "唯一序列号",
+          "eGGround1st2nd": "例如：一楼、二楼、三楼",
+          "partComponentName": "备件 / 部件名称",
+          "eGWr2025001": "例如：WR-2025-001",
+          "documentAnyModificationsMadeTo": "记录对该设备所做的改造...",
+          "anyOtherRelevantInformation": "其他相关信息...",
+          "newDepartmentName": "新部门名称"
+        },
+        "machineHealthScore": {
+          "healthScore": "健康评分"
+        },
+        "addMachinePage": {
+          "loading": "正在加载...",
+          "machineLimitReached": "已达到设备数量上限",
+          "upgradePlan": "升级套餐"
+        },
+        "editMachinePage": {
+          "loading": "正在加载...",
+          "loadingMachine": "正在加载设备...",
+          "machineNotFound": "未找到设备"
+        },
+        "machineListPage": {
+          "plant": "工厂 *",
+          "selectThePlantTheseMachines": "选择这些设备所属的工厂..."
+        },
+        "machineQrPage": {
+          "firmicore": "FirmiCore"
+        },
+        "scanRedirectPage": {
+          "redirectingToBreakdownReport": "正在跳转到故障报告..."
+        }
+      },
+      "pm": {
+        "pMFilterBar": {
+          "clear": "清除",
+          "pmType": "PM 类型",
+          "status": "状态",
+          "dateFrom": "开始日期",
+          "dateTo": "结束日期"
+        }
+      },
+      "reports": {
+        "pdfOptionsSection": {
+          "letter": "Letter"
+        }
+      },
+      "workorders": {
+        "checklistBuilder": {
+          "type": "类型：",
+          "checkbox": "复选框",
+          "measurement": "测量",
+          "minutes": "分钟",
+          "hours": "小时",
+          "days": "天",
+          "assignWorkers": "指派人员：",
+          "downloadTemplate": "下载模板",
+          "duration": "时长",
+          "methodEGVisualMicrometer": "方法（例如：目视、千分尺）",
+          "min": "最小",
+          "max": "最大",
+          "moveUp": "上移",
+          "moveDown": "下移",
+          "removeStep": "删除步骤"
+        },
+        "documentUploadZone": {
+          "cadPdfImagesVideoZip": "支持 CAD、PDF、图片、视频、ZIP",
+          "removeFile": "移除文件"
+        },
+        "machineHistoryTimeline": {
+          "rootCause": "根本原因：",
+          "contractor": "承包商：",
+          "partsUsed": "使用的备件："
+        },
+        "partsPreRequestPanel": {
+          "optionalNote": "可选备注…"
+        },
+        "qrCheckInModal": {
+          "checkInAtMachine": "在设备处签到",
+          "scanTheQrStickerOn": "扫描以下设备上的二维码贴纸：",
+          "toRecordYourArrivalAnd": "以记录到达并开始工单。",
+          "cancel": "取消",
+          "close": "关闭"
+        },
+        "signatureCanvas": {
+          "clear": "清除",
+          "useSignature": "使用签名"
+        },
+        "wOCard": {
+          "contractor": "承包商"
+        },
+        "wOReviewSignOffPanel": {
+          "workDoneByTeam": "团队完成的工作",
+          "noIndividualTasksRecorded": "未记录个人任务。",
+          "partsUsed": "使用的备件",
+          "totalPartsCost": "备件总成本：",
+          "evidence": "证据",
+          "rootCauseAnalysisOptional": "根本原因分析（可选）",
+          "rootCauseCategory": "根本原因类别",
+          "rootCauseDescription": "根本原因描述",
+          "correctiveAction": "纠正措施",
+          "createACorrectiveWorkOrder": "根据此措施创建纠正工单",
+          "continueToSignOff": "继续验收",
+          "workDone": "完成的工作",
+          "machineStatusAfter": "修复后设备状态",
+          "testRun": "试运行",
+          "checklist": "检查清单",
+          "testNotes": "测试备注",
+          "describeTheUnderlyingRootCause": "描述潜在的根本原因…",
+          "rootCauseDescriptionIsRequired": "保存分析需要填写根本原因描述。",
+          "correctiveWorkOrderCreated": "已创建纠正工单。",
+          "rootCauseAnalysisSaved": "根本原因分析已保存。"
+        },
+        "wOSignOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "kaizen": {
+        "kaizenBoard": {
+          "newKaizen": "新改善提案",
+          "rejectedOnHold": "已拒绝 / 暂缓"
+        },
+        "kaizenDetail": {
+          "loading": "正在加载...",
+          "problem": "问题",
+          "suggestedSolution": "建议方案",
+          "beforePhotos": "改善前照片",
+          "afterPhotos": "改善后照片",
+          "rejectionReason": "拒绝原因",
+          "onHold": "暂缓",
+          "stateHistory": "状态历史",
+          "comments": "评论",
+          "noCommentsYet": "暂无评论。",
+          "internal": "内部",
+          "internalSupervisorsOnly": "内部（仅主管可见）",
+          "benefitDataNotYetAvailable": "效益数据暂不可用",
+          "estimatedCost": "预估成本",
+          "actualCost": "实际成本",
+          "estMonthlyBenefit": "预估月效益",
+          "actualMonthlyBenefit": "实际月效益",
+          "paybackPeriod": "回收期",
+          "putOnHold": "暂缓",
+          "reject": "拒绝",
+          "rejectionReasonRequired": "拒绝原因（必填）",
+          "cancel": "取消",
+          "addAComment": "添加评论...",
+          "notesForThisTransitionOptional": "本次状态变更备注（可选）",
+          "whyIsThisBeingRejected": "为什么拒绝？",
+          "reasonForHold": "暂缓原因",
+          "failedToVote": "投票失败",
+          "rejectionReasonIsRequired": "拒绝原因为必填项",
+          "kaizenRejected": "改善提案已拒绝",
+          "kaizenPutOnHold": "改善提案已暂缓",
+          "failedToAddComment": "添加评论失败",
+          "photoUploaded": "照片已上传",
+          "uploadFailed": "上传失败"
+        },
+        "kaizenForm": {
+          "raiseAKaizen": "提交改善提案",
+          "title": "标题",
+          "whatIsTheProblem": "问题是什么？",
+          "category": "类别",
+          "priority": "优先级",
+          "location": "位置",
+          "beforePhotos": "改善前照片",
+          "suggestedSolution": "建议方案",
+          "estimatedCostLkr": "预估成本（LKR）",
+          "monthlyBenefitLkr": "月效益（LKR）",
+          "tags": "标签",
+          "hereSHowYourKaizen": "您的改善提案在看板上的显示效果：",
+          "summary": "摘要",
+          "category2": "类别：",
+          "priority2": "优先级：",
+          "estCost": "预估成本：",
+          "monthlyBenefit": "月效益：",
+          "back": "返回",
+          "cancel": "取消",
+          "next": "下一步",
+          "briefDescriptionOfTheIssue": "问题简述",
+          "describeTheCurrentProblemClearly": "清楚描述当前问题...",
+          "machineNameOrId": "设备名称或 ID",
+          "departmentOrZoneEG": "部门或区域（例如：3 号装配线）",
+          "describeHowYouSuggestFixing": "描述您建议的解决方法...",
+          "addATag": "添加标签...",
+          "failedToUploadPhoto": "照片上传失败",
+          "kaizenRaisedSuccessfully": "改善提案提交成功！"
+        },
+        "kaizenListView": {
+          "bulkApprove": "批量批准",
+          "bulkReject": "批量拒绝",
+          "confirm": "确认",
+          "exportExcel": "导出 Excel",
+          "loading": "正在加载...",
+          "noKaizenCardsYet": "暂无改善卡片",
+          "raiseTheFirstImprovementIdea": "提交第一个改善想法吧！",
+          "rejectionReason": "拒绝原因",
+          "title": "标题",
+          "category": "类别",
+          "status": "状态",
+          "priority": "优先级",
+          "raisedBy": "提交人",
+          "votes": "投票",
+          "estBenefit": "预估效益",
+          "date": "日期",
+          "noReviewedCardsSelected": "未选择已审核的卡片",
+          "rejectionReasonRequired": "需要填写拒绝原因"
+        },
+        "kaizenMonthlyDigest": {
+          "monthlyKaizenDigestFactoryPro": "月度改善摘要 — Factory Pro",
+          "generatePdfReportsOfMonthly": "生成月度改善活动的 PDF 报告，包括新卡片、实施情况、投资回报率和优秀贡献者表彰。",
+          "upgradeToFactoryPro": "升级到 Factory Pro",
+          "month": "月份：",
+          "printExportPdf": "打印 / 导出 PDF",
+          "kaizenMonthlyDigest": "月度改善摘要",
+          "generatingDigest": "正在生成摘要...",
+          "monthlySummary": "月度总结",
+          "title": "标题",
+          "category": "类别",
+          "priority": "优先级",
+          "raisedBy": "提交人",
+          "status": "状态",
+          "actualCostLkr": "实际成本（LKR）",
+          "actualBenefitMoLkr": "实际月效益（LKR）",
+          "topContributorThisMonth": "本月最佳贡献者"
+        },
+        "kaizenStats": {
+          "byStatus": "按状态",
+          "byCategory": "按类别",
+          "topContributors": "最佳贡献者",
+          "noDataYet": "暂无数据",
+          "monthlyKaizenTrend12Months": "月度改善趋势（12 个月）",
+          "roiPaybackDistribution": "投资回收期分布",
+          "estimatedVsActualBenefit": "预估与实际效益对比",
+          "roiAnalyticsFactoryPro": "投资回报分析 — Factory Pro",
+          "upgradeToFactoryProTo": "升级到 Factory Pro 以解锁投资回报分布、回收期分析和效益跟踪。",
+          "upgrade": "升级"
+        },
+        "kaizenPage": {
+          "kaizenBoard": "改善看板",
+          "myKaizens": "我的改善",
+          "category": "类别：",
+          "all": "全部",
+          "priority": "优先级：",
+          "searchKaizens": "搜索改善提案...",
+          "newKaizen": "新改善提案"
+        }
+      },
+      "safety": {
+        "safetyBlacklistPage": {
+          "safetyBlacklist": "安全黑名单",
+          "currentlyBlacklisted": "当前在黑名单中",
+          "from": "从",
+          "to": "至",
+          "blacklistedOnly": "仅显示黑名单",
+          "name": "名称",
+          "type": "类型",
+          "points": "积分",
+          "cases": "事件数",
+          "lastCase": "最近事件",
+          "status": "状态",
+          "blacklisted": "已列入黑名单",
+          "ok": "OK",
+          "clearTo0": "清零",
+          "minPoints": "最低积分",
+          "pointsByEntity": "按对象统计积分"
+        },
+        "safetyCalendarPage": {
+          "backToSafetyTrainings": "返回安全培训",
+          "safetyTrainingSchedules": "安全培训日程",
+          "noSafetyTrainingsScheduledThis": "当天没有安排安全培训。",
+          "assign": "指派"
+        },
+        "safetyDashboard": {
+          "safetyDashboard": "安全仪表板",
+          "reportSafetyCase": "报告安全事件"
+        }
+      },
+      "breakdowns": {
+        "publicBreakdownReportPage": {
+          "firmi": "Firmi",
+          "core": "Core",
+          "reportABreakdownNoSign": "报告故障——无需登录",
+          "breakdownReported": "故障已报告",
+          "ticket": "工单",
+          "hasBeenSentToThe": "已发送给维护团队。",
+          "youCanCloseThisPage": "您可以关闭此页面。",
+          "thisIsTakingLongerThan": "耗时比平常长。请检查网络连接后重试。",
+          "retry": "重试",
+          "loadingMachine": "正在加载设备…",
+          "reportingOn": "报告对象",
+          "whatHappened": "发生了什么？*",
+          "machineIsStillRunningDegraded": "设备仍在运行（性能下降但可运行）",
+          "signIn": "登录",
+          "firmicore": "FirmiCore",
+          "describeTheSymptomsErrorCodes": "描述症状、错误代码、声音等。或点击麦克风告诉我们发生了什么。",
+          "machineInformationIsNotLoaded": "设备信息尚未加载。",
+          "pleaseDescribeTheBreakdownIn": "请至少用 10 个字符描述故障。"
+        }
+      },
+      "dashboard": {
+        "floorOperatorDashboard": {
+          "dashboard": "仪表板"
+        }
       }
     }
   },

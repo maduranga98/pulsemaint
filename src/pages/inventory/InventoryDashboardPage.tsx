@@ -19,6 +19,7 @@ import { ReservedStockWidget } from '@/components/inventory/dashboard/ReservedSt
 import { PartsCatalogWidget } from '@/components/inventory/dashboard/PartsCatalogWidget';
 import { CreatePartsRequestModal } from '@/components/inventory/requests/CreatePartsRequestModal';
 
+import { useTranslation } from 'react-i18next';
 const PENDING_STATUSES = new Set(['pending_storekeeper', 'pending_supervisor']);
 
 function SkeletonCard() {
@@ -37,6 +38,7 @@ function SkeletonCard() {
 // suppliers, settings) is off-limits to them at the router level already,
 // so surfacing those links here just leads to dead ends.
 function TechnicianInventoryView() {
+  const { t } = useTranslation();
   const [showRequest, setShowRequest] = useState(false);
   // ownOnly — a technician/trainee should only ever see their own requests
   // here, never their colleagues'.
@@ -51,15 +53,15 @@ function TechnicianInventoryView() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Check request status and browse the parts catalog.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.inventoryDashboardPage.inventory')}</h1>
+          <p className="text-gray-500 text-sm mt-0.5">{t('common.inventory.inventoryDashboardPage.checkRequestStatusAndBrowse')}</p>
         </div>
         <button
           onClick={() => setShowRequest(true)}
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"
         >
           <PackagePlus className="w-4 h-4" />
-          Request Parts
+          {t('common.inventory.inventoryDashboardPage.requestParts')}
         </button>
       </div>
 
@@ -73,7 +75,7 @@ function TechnicianInventoryView() {
           <PendingRequestsWidget requests={pendingRequests} />
           <PendingRequestsWidget
             requests={pendingReturnRequests}
-            title="Pending Return"
+            title={t('common.inventory.inventoryDashboardPage.pendingReturn')}
             emptyMessage="No returnable items awaiting return"
           />
           <PartsCatalogWidget parts={catalogParts} totalCount={catalogCount} />
@@ -84,6 +86,7 @@ function TechnicianInventoryView() {
 }
 
 function FullInventoryDashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { stats, loading: statsLoading } = useInventoryStats();
@@ -120,14 +123,14 @@ function FullInventoryDashboard() {
       {!isOnline && (
         <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-sm">
           <AlertTriangle className="w-4 h-4 shrink-0" />
-          You are currently offline. Showing cached data — changes will sync when you reconnect.
+          {t('common.inventory.inventoryDashboardPage.youAreCurrentlyOfflineShowing')}
         </div>
       )}
 
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventory Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.inventoryDashboardPage.inventoryManagement')}</h1>
           <p className="text-gray-500 text-sm mt-0.5">{todayStr}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -136,42 +139,42 @@ function FullInventoryDashboard() {
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"
           >
             <Plus className="w-4 h-4" />
-            Add Item
+            {t('common.inventory.inventoryDashboardPage.addItem')}
           </Link>
           <Link
             to="/app/inventory/purchase-orders/new"
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg"
           >
             <ShoppingCart className="w-4 h-4" />
-            Create PO
+            {t('common.inventory.inventoryDashboardPage.createPo')}
           </Link>
           <Link
             to="/app/inventory/issue/manual"
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-lg"
           >
             <ScanLine className="w-4 h-4" />
-            Scan &amp; Issue
+            {t('common.inventory.inventoryDashboardPage.scanIssue')}
           </Link>
           <Link
             to="/app/inventory/returns"
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-lg"
           >
             <RotateCcw className="w-4 h-4" />
-            Parts Returns
+            {t('common.inventory.inventoryDashboardPage.partsReturns')}
           </Link>
           <Link
             to="/app/inventory/suppliers"
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-lg"
           >
             <Truck className="w-4 h-4" />
-            Suppliers
+            {t('common.inventory.inventoryDashboardPage.suppliers')}
           </Link>
           <Link
             to="/app/inventory/settings"
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-lg"
           >
             <Bell className="w-4 h-4" />
-            Low Stock Alerts
+            {t('common.inventory.inventoryDashboardPage.lowStockAlerts')}
           </Link>
         </div>
       </div>
@@ -219,14 +222,14 @@ function FullInventoryDashboard() {
             <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
               <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                 <ShoppingCart className="w-4 h-4 text-gray-500" />
-                Purchase Orders
+                {t('common.inventory.inventoryDashboardPage.purchaseOrders')}
                 <span className="text-xs font-normal text-gray-500">({purchaseOrders.length})</span>
               </h2>
               <Link
                 to="/app/inventory/purchase-orders"
                 className="text-sm text-blue-600 hover:text-blue-800 font-medium"
               >
-                View all
+                {t('common.inventory.inventoryDashboardPage.viewAll')}
               </Link>
             </div>
             <div className="p-2">
@@ -249,6 +252,7 @@ function FullInventoryDashboard() {
 // approval. The store keeper's full stock/receiving/movements toolkit is left
 // out deliberately.
 function SupervisorInventoryView() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showRequest, setShowRequest] = useState(false);
   const { requests, loading } = usePartsRequests({ status: 'all' });
@@ -264,15 +268,15 @@ function SupervisorInventoryView() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Requests awaiting your approval, purchase orders, and the parts catalog.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.inventoryDashboardPage.inventory')}</h1>
+          <p className="text-gray-500 text-sm mt-0.5">{t('common.inventory.inventoryDashboardPage.requestsAwaitingYourApprovalPurchase')}</p>
         </div>
         <button
           onClick={() => setShowRequest(true)}
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"
         >
           <PackagePlus className="w-4 h-4" />
-          Request Parts
+          {t('common.inventory.inventoryDashboardPage.requestParts')}
         </button>
       </div>
 
@@ -291,10 +295,10 @@ function SupervisorInventoryView() {
             <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
               <h2 className="font-semibold text-gray-900 flex items-center gap-2">
                 <ShoppingCart className="w-4 h-4 text-gray-500" />
-                Pending PO Requests
+                {t('common.inventory.inventoryDashboardPage.pendingPoRequests')}
                 <span className="text-xs font-normal text-gray-500">({pendingPOs.length})</span>
               </h2>
-              <Link to="/app/inventory/purchase-orders" className="text-sm text-blue-600 hover:text-blue-800 font-medium">View all</Link>
+              <Link to="/app/inventory/purchase-orders" className="text-sm text-blue-600 hover:text-blue-800 font-medium">{t('common.inventory.inventoryDashboardPage.viewAll')}</Link>
             </div>
             <div className="p-2">
               <PurchaseOrderList

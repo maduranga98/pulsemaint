@@ -34,6 +34,7 @@ import {
 import type { InventoryPart, RequestItem } from '@/types/inventory';
 import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
+import { useTranslation } from 'react-i18next';
 function makeRequestNumber(): string {
   const d = new Date();
   const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
@@ -49,6 +50,7 @@ const ISSUE_REASONS = [
 ];
 
 export function ManualIssuePage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -114,7 +116,7 @@ export function ManualIssuePage() {
       addPartToBatch(part);
     } catch (err) {
       console.error(err);
-      addToast('Failed to look up part.', 'error');
+      addToast(t('common.inventory.manualIssuePage.failedToLookUpPart'), 'error');
     } finally {
       setLookingUp(false);
     }
@@ -140,16 +142,16 @@ export function ManualIssuePage() {
     if (!userProfile || !companyId || lines.length === 0) return;
     const finalReason = reason === 'Other' ? customReason.trim() : reason;
     if (!finalReason) {
-      addToast('Enter a reason for issuing these parts.', 'error');
+      addToast(t('common.inventory.manualIssuePage.enterAReasonForIssuing'), 'error');
       return;
     }
     if (!issuable) {
-      addToast('Fix the highlighted quantities before issuing.', 'error');
+      addToast(t('common.inventory.manualIssuePage.fixTheHighlightedQuantitiesBefore'), 'error');
       return;
     }
     const recipient = recipientOptions.find((u) => u.id === recipientId);
     if (!recipient) {
-      addToast('Select who is taking these parts.', 'error');
+      addToast(t('common.inventory.manualIssuePage.selectWhoIsTakingThese'), 'error');
       return;
     }
 
@@ -317,12 +319,10 @@ export function ManualIssuePage() {
         <Link to="/app/inventory" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Scan &amp; Issue Parts</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.manualIssuePage.scanIssueParts')}</h1>
       </div>
       <p className="text-sm text-gray-500">
-        Scan a part QR code or search for it by name/number to issue it directly from stock — for
-        cases where no parts request exists yet (e.g. a breakdown handled on the spot). Add every
-        part you need, set the quantities, then issue the whole batch at once.
+        {t('common.inventory.manualIssuePage.scanAPartQrCode')}
       </p>
 
       {/* Scan / search triggers — always available so more parts can be added to the batch. */}
@@ -352,7 +352,7 @@ export function ManualIssuePage() {
           ].join(' ')}
         >
           <Search className="w-7 h-7" />
-          <span className="font-medium text-sm">Search manually</span>
+          <span className="font-medium text-sm">{t('common.inventory.manualIssuePage.searchManually')}</span>
         </button>
       </div>
 
@@ -363,13 +363,13 @@ export function ManualIssuePage() {
             autoFocus
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by part name or number…"
+            placeholder={t('common.inventory.manualIssuePage.searchByPartNameOr')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {searchQuery.trim() && (
             <div className="max-h-64 overflow-y-auto divide-y divide-gray-100 border border-gray-100 rounded-lg">
               {searching ? (
-                <p className="px-3 py-3 text-sm text-gray-400">Searching…</p>
+                <p className="px-3 py-3 text-sm text-gray-400">{t('common.inventory.manualIssuePage.searching')}</p>
               ) : searchResults.length === 0 ? (
                 <p className="px-3 py-3 text-sm text-gray-400">No parts match "{searchQuery}".</p>
               ) : (
@@ -403,7 +403,7 @@ export function ManualIssuePage() {
               Batch — {totals.lineCount} part{totals.lineCount === 1 ? '' : 's'}
             </h2>
             <button onClick={reset} className="text-xs text-gray-400 hover:text-red-600">
-              Clear batch
+              {t('common.inventory.manualIssuePage.clearBatch')}
             </button>
           </div>
 
@@ -437,7 +437,7 @@ export function ManualIssuePage() {
 
                 <div className="flex items-center justify-between gap-3">
                   <label className="text-sm font-medium text-gray-700">
-                    Quantity
+                    {t('common.inventory.manualIssuePage.quantity')}
                     <input
                       type="number"
                       min={1}
@@ -470,7 +470,7 @@ export function ManualIssuePage() {
                     }
                     className="rounded text-purple-600"
                   />
-                  Returnable — expected back in stock once the job is done
+                  {t('common.inventory.manualIssuePage.returnableExpectedBackInStock')}
                 </label>
 
                 {error && <p className="text-xs text-red-600">{error}</p>}
@@ -484,7 +484,7 @@ export function ManualIssuePage() {
       {lines.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Issuing To *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.manualIssuePage.issuingTo')}</label>
             <select
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
@@ -496,12 +496,12 @@ export function ManualIssuePage() {
               ))}
             </select>
             <p className="mt-1 text-xs text-gray-400">
-              They'll be notified, and this shows up under their own Parts to Collect / Pending Return.
+              {t('common.inventory.manualIssuePage.theyLlBeNotifiedAnd')}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Reason *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.manualIssuePage.reason')}</label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -514,14 +514,14 @@ export function ManualIssuePage() {
                 type="text"
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="Describe the reason…"
+                placeholder={t('common.inventory.manualIssuePage.describeTheReason')}
                 className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Work Order (optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.manualIssuePage.workOrderOptional')}</label>
             <select
               value={workOrderId}
               onChange={(e) => setWorkOrderId(e.target.value)}
@@ -532,7 +532,7 @@ export function ManualIssuePage() {
                 <option key={wo.id} value={wo.id}>{wo.woNumber} · {wo.machineName} — {wo.description}</option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-gray-400">Applied to every part in this batch.</p>
+            <p className="mt-1 text-xs text-gray-400">{t('common.inventory.manualIssuePage.appliedToEveryPartIn')}</p>
           </div>
 
         </div>
@@ -562,7 +562,7 @@ export function ManualIssuePage() {
 
       {showScanner && (
         <PartQrScanModal
-          title="Scan Part to Issue"
+          title={t('common.inventory.manualIssuePage.scanPartToIssue')}
           onScan={handleScan}
           onClose={() => setShowScanner(false)}
         />

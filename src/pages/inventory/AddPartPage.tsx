@@ -224,13 +224,13 @@ export function AddPartPage() {
     return (
       <div className="max-w-md mx-auto py-16 text-center space-y-3">
         <Lock className="w-8 h-8 text-amber-500 mx-auto" />
-        <h1 className="text-lg font-bold text-gray-900">Inventory item limit reached</h1>
+        <h1 className="text-lg font-bold text-gray-900">{t('common.inventory.addPartPage.inventoryItemLimitReached')}</h1>
         <p className="text-sm text-gray-600">{limitMessage}</p>
         <Link
           to="/app/billing"
           className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
         >
-          Upgrade plan
+          {t('common.inventory.addPartPage.upgradePlan')}
         </Link>
       </div>
     );

@@ -27,6 +27,7 @@ import { KaizenForm } from './KaizenForm';
 import type { KaizenCard as KaizenCardType, KaizenStatus, KaizenCategory, KaizenPriority } from '../types/kaizen.types';
 import { KAIZEN_STATUS_META, VALID_TRANSITIONS } from '../types/kaizen.types';
 
+import { useTranslation } from 'react-i18next';
 const BOARD_COLUMNS: KaizenStatus[] = [
   'RAISED',
   'REVIEWED',
@@ -137,6 +138,7 @@ function SortableKaizenCard({
 // ─── KaizenBoard ──────────────────────────────────────────────────────────────
 
 export function KaizenBoard({ filters = {}, isProPlan = false }: Props) {
+  const { t } = useTranslation();
   const userId = useAuthStore((s) => s.userProfile?.id ?? '');
   const userName = useAuthStore((s) => s.userProfile?.fullName ?? '');
   const role = useAuthStore((s) => s.userProfile?.role ?? 'technician');
@@ -264,7 +266,7 @@ export function KaizenBoard({ filters = {}, isProPlan = false }: Props) {
                     onClick={() => setShowForm(true)}
                     className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-gray-400 hover:text-white hover:bg-white/10 rounded-lg border border-dashed border-gray-600 transition-colors mt-1"
                   >
-                    <Plus size={13} /> New Kaizen
+                    <Plus size={13} /> {t('common.ui2.kaizen.kaizenBoard.newKaizen')}
                   </button>
                 )}
               </DroppableColumn>
@@ -278,7 +280,7 @@ export function KaizenBoard({ filters = {}, isProPlan = false }: Props) {
               className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
             >
               {showSidebar ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-              <span className="rotate-90 whitespace-nowrap">Rejected / On Hold</span>
+              <span className="rotate-90 whitespace-nowrap">{t('common.ui2.kaizen.kaizenBoard.rejectedOnHold')}</span>
             </button>
           </div>
 

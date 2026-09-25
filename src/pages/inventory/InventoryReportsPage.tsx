@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/useToast';
 import { useAuthStore } from '@/store/authStore';
 import { Navigate } from 'react-router-dom';
 
+import { useTranslation } from 'react-i18next';
 interface Report {
   id: string;
   icon: React.ReactNode;
@@ -37,6 +38,7 @@ const REPORTS: Report[] = [
 ];
 
 export function InventoryReportsPage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const canAccess = useAuthStore((s) =>
     s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin'])
@@ -62,7 +64,7 @@ export function InventoryReportsPage() {
     try {
       // Placeholder - no actual PDF generation in phase 1
       await new Promise((r) => setTimeout(r, 1500));
-      addToast('Report generated successfully.', 'success');
+      addToast(t('common.inventory.inventoryReportsPage.reportGeneratedSuccessfully'), 'success');
       setSelectedReport(null);
     } finally {
       setGenerating(false);
@@ -78,8 +80,8 @@ export function InventoryReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Inventory Reports</h1>
-        <p className="text-gray-500 text-sm mt-0.5">Generate and export inventory reports.</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.inventoryReportsPage.inventoryReports')}</h1>
+        <p className="text-gray-500 text-sm mt-0.5">{t('common.inventory.inventoryReportsPage.generateAndExportInventoryReports')}</p>
       </div>
 
       {/* Report cards */}
@@ -107,7 +109,7 @@ export function InventoryReportsPage() {
                 className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
               >
                 <FileText className="w-3.5 h-3.5" />
-                Generate PDF
+                {t('common.inventory.inventoryReportsPage.generatePdf')}
               </button>
               <button
                 onClick={() => {
@@ -116,7 +118,7 @@ export function InventoryReportsPage() {
                 className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors"
               >
                 <Table className="w-3.5 h-3.5" />
-                Export Excel
+                {t('common.inventory.inventoryReportsPage.exportExcel')}
               </button>
             </div>
           </div>
@@ -142,17 +144,17 @@ export function InventoryReportsPage() {
             <div className="space-y-4">
               {/* Date range */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.inventory.inventoryReportsPage.dateRange')}</label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Start</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('common.inventory.inventoryReportsPage.start')}</p>
                     <div className="flex gap-1">
                       <select
                         value={filters.startMonth}
                         onChange={(e) => setFilters((p) => ({ ...p, startMonth: e.target.value }))}
                         className="flex-1 border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="">Month</option>
+                        <option value="">{t('common.inventory.inventoryReportsPage.month')}</option>
                         {months.map((m) => <option key={m} value={m}>{m}</option>)}
                       </select>
                       <select
@@ -165,14 +167,14 @@ export function InventoryReportsPage() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">End</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('common.inventory.inventoryReportsPage.end')}</p>
                     <div className="flex gap-1">
                       <select
                         value={filters.endMonth}
                         onChange={(e) => setFilters((p) => ({ ...p, endMonth: e.target.value }))}
                         className="flex-1 border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="">Month</option>
+                        <option value="">{t('common.inventory.inventoryReportsPage.month')}</option>
                         {months.map((m) => <option key={m} value={m}>{m}</option>)}
                       </select>
                       <select
@@ -189,22 +191,22 @@ export function InventoryReportsPage() {
 
               {/* Machine filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Machine (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.inventoryReportsPage.machineOptional')}</label>
                 <input
                   value={filters.machine}
                   onChange={(e) => setFilters((p) => ({ ...p, machine: e.target.value }))}
-                  placeholder="All machines"
+                  placeholder={t('common.inventory.inventoryReportsPage.allMachines')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Category filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.inventoryReportsPage.categoryOptional')}</label>
                 <input
                   value={filters.category}
                   onChange={(e) => setFilters((p) => ({ ...p, category: e.target.value }))}
-                  placeholder="All categories"
+                  placeholder={t('common.inventory.inventoryReportsPage.allCategories')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -215,7 +217,7 @@ export function InventoryReportsPage() {
                 onClick={() => setSelectedReport(null)}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 text-sm"
               >
-                Cancel
+                {t('common.inventory.inventoryReportsPage.cancel')}
               </button>
               <button
                 onClick={handleGenerate}

@@ -19,6 +19,7 @@ import {
   KAIZEN_PRIORITY_META,
 } from '../types/kaizen.types';
 
+import { useTranslation } from 'react-i18next';
 type SortKey = 'title' | 'category' | 'status' | 'priority' | 'raisedByName' | 'voteCount' | 'estimatedBenefit' | 'raisedAt';
 type SortDir = 'asc' | 'desc';
 
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export function KaizenListView({ isProPlan = false }: Props) {
+  const { t } = useTranslation();
   const userId = useAuthStore((s) => s.userProfile?.id ?? '');
   const userName = useAuthStore((s) => s.userProfile?.fullName ?? '');
   const role = useAuthStore((s) => s.userProfile?.role ?? 'technician');
@@ -98,7 +100,7 @@ export function KaizenListView({ isProPlan = false }: Props) {
   async function bulkApprove() {
     const reviewedCards = sorted.filter((c) => selected.has(c.id) && c.status === 'REVIEWED');
     if (reviewedCards.length === 0) {
-      toast.error('No REVIEWED cards selected');
+      toast.error(t('common.ui2.kaizen.kaizenListView.noReviewedCardsSelected'));
       return;
     }
     setBulkProcessing(true);
@@ -119,7 +121,7 @@ export function KaizenListView({ isProPlan = false }: Props) {
 
   async function bulkReject() {
     if (!bulkRejectReason.trim()) {
-      toast.error('Rejection reason required');
+      toast.error(t('common.ui2.kaizen.kaizenListView.rejectionReasonRequired'));
       return;
     }
     setBulkProcessing(true);
@@ -195,13 +197,13 @@ export function KaizenListView({ isProPlan = false }: Props) {
                 disabled={bulkProcessing}
                 className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
               >
-                Bulk Approve
+                {t('common.ui2.kaizen.kaizenListView.bulkApprove')}
               </button>
               <button
                 onClick={() => setShowBulkReject(!showBulkReject)}
                 className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
               >
-                Bulk Reject
+                {t('common.ui2.kaizen.kaizenListView.bulkReject')}
               </button>
             </>
           )}
@@ -210,7 +212,7 @@ export function KaizenListView({ isProPlan = false }: Props) {
               <input
                 value={bulkRejectReason}
                 onChange={(e) => setBulkRejectReason(e.target.value)}
-                placeholder="Rejection reason"
+                placeholder={t('common.ui2.kaizen.kaizenListView.rejectionReason')}
                 className="border border-gray-300 rounded px-2 py-1 text-xs"
               />
               <button
@@ -218,7 +220,7 @@ export function KaizenListView({ isProPlan = false }: Props) {
                 disabled={bulkProcessing}
                 className="px-2 py-1 text-xs bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-60"
               >
-                Confirm
+                {t('common.ui2.kaizen.kaizenListView.confirm')}
               </button>
             </div>
           )}
@@ -227,14 +229,14 @@ export function KaizenListView({ isProPlan = false }: Props) {
           onClick={exportToExcel}
           className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg px-2.5 py-1.5"
         >
-          <Download size={13} /> Export Excel
+          <Download size={13} /> {t('common.ui2.kaizen.kaizenListView.exportExcel')}
         </button>
       </div>
 
       {/* Table */}
       <div className="flex-1 overflow-auto">
         {loading ? (
-          <div className="p-8 text-center text-gray-400 animate-pulse">Loading...</div>
+          <div className="p-8 text-center text-gray-400 animate-pulse">{t('common.ui2.kaizen.kaizenListView.loading')}</div>
         ) : (
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-gray-50 border-b border-gray-200 z-10">
@@ -250,14 +252,14 @@ export function KaizenListView({ isProPlan = false }: Props) {
                     </button>
                   </th>
                 )}
-                <SortableHeader col="title" label="Title" />
-                <SortableHeader col="category" label="Category" />
-                <SortableHeader col="status" label="Status" />
-                <SortableHeader col="priority" label="Priority" />
-                <SortableHeader col="raisedByName" label="Raised By" />
-                <SortableHeader col="voteCount" label="Votes" />
-                {isProPlan && <SortableHeader col="estimatedBenefit" label="Est. Benefit" />}
-                <SortableHeader col="raisedAt" label="Date" />
+                <SortableHeader col="title" label={t('common.ui2.kaizen.kaizenListView.title')} />
+                <SortableHeader col="category" label={t('common.ui2.kaizen.kaizenListView.category')} />
+                <SortableHeader col="status" label={t('common.ui2.kaizen.kaizenListView.status')} />
+                <SortableHeader col="priority" label={t('common.ui2.kaizen.kaizenListView.priority')} />
+                <SortableHeader col="raisedByName" label={t('common.ui2.kaizen.kaizenListView.raisedBy')} />
+                <SortableHeader col="voteCount" label={t('common.ui2.kaizen.kaizenListView.votes')} />
+                {isProPlan && <SortableHeader col="estimatedBenefit" label={t('common.ui2.kaizen.kaizenListView.estBenefit')} />}
+                <SortableHeader col="raisedAt" label={t('common.ui2.kaizen.kaizenListView.date')} />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -343,8 +345,8 @@ export function KaizenListView({ isProPlan = false }: Props) {
         {!loading && sorted.length === 0 && (
           <div className="py-16 text-center text-gray-400">
             <p className="text-4xl mb-3">💡</p>
-            <p className="font-medium">No Kaizen cards yet</p>
-            <p className="text-sm mt-1">Raise the first improvement idea!</p>
+            <p className="font-medium">{t('common.ui2.kaizen.kaizenListView.noKaizenCardsYet')}</p>
+            <p className="text-sm mt-1">{t('common.ui2.kaizen.kaizenListView.raiseTheFirstImprovementIdea')}</p>
           </div>
         )}
       </div>

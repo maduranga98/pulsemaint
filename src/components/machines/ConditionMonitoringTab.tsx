@@ -16,6 +16,7 @@ import { useAuthStore } from '../../store/authStore';
 import type { ConditionReading, ConditionReadingDraft } from '../../types/conditionMonitoring';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface ConditionMonitoringTabProps {
   machine: { id: string; siteId: string };
 }
@@ -50,6 +51,7 @@ const emptyDraft = (): ConditionReadingDraft => ({
 });
 
 export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const uid = user?.uid ?? '';
@@ -72,17 +74,17 @@ export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps)
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!draft.parameter.trim()) {
-      toast.error('Parameter name is required');
+      toast.error(t('common.ui2.machines.conditionMonitoringTab.parameterNameIsRequired'));
       return;
     }
     if (draft.value === '') {
-      toast.error('Value is required');
+      toast.error(t('common.ui2.machines.conditionMonitoringTab.valueIsRequired'));
       return;
     }
     setSubmitting(true);
     try {
       await addReading(draft, uid, userName);
-      toast.success('Reading logged');
+      toast.success(t('common.ui2.machines.conditionMonitoringTab.readingLogged'));
       setDraft(emptyDraft());
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to log reading';
@@ -96,18 +98,18 @@ export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps)
     <div className="space-y-8">
       {/* Log New Reading */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Log New Reading</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('common.ui2.machines.conditionMonitoringTab.logNewReading')}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {/* Parameter */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Parameter</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.ui2.machines.conditionMonitoringTab.parameter')}</label>
               <input
                 type="text"
                 list="parameter-suggestions"
                 value={draft.parameter}
                 onChange={(e) => setDraft({ ...draft, parameter: e.target.value })}
-                placeholder="e.g. Bearing Temp, Vibration"
+                placeholder={t('common.ui2.machines.conditionMonitoringTab.eGBearingTempVibration')}
                 className="w-full text-sm rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
               />
               <datalist id="parameter-suggestions">
@@ -119,7 +121,7 @@ export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps)
 
             {/* Value */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Value</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.ui2.machines.conditionMonitoringTab.value')}</label>
               <input
                 type="number"
                 step="any"
@@ -132,7 +134,7 @@ export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps)
 
             {/* Unit */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Unit</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.ui2.machines.conditionMonitoringTab.unit')}</label>
               <input
                 type="text"
                 value={draft.unit}
@@ -144,26 +146,26 @@ export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps)
 
             {/* Min */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Min (optional)</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.ui2.machines.conditionMonitoringTab.minOptional')}</label>
               <input
                 type="number"
                 step="any"
                 value={draft.min}
                 onChange={(e) => setDraft({ ...draft, min: e.target.value === '' ? '' : Number(e.target.value) })}
-                placeholder="Acceptable min"
+                placeholder={t('common.ui2.machines.conditionMonitoringTab.acceptableMin')}
                 className="w-full text-sm rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
 
             {/* Max */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Max (optional)</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.ui2.machines.conditionMonitoringTab.maxOptional')}</label>
               <input
                 type="number"
                 step="any"
                 value={draft.max}
                 onChange={(e) => setDraft({ ...draft, max: e.target.value === '' ? '' : Number(e.target.value) })}
-                placeholder="Acceptable max"
+                placeholder={t('common.ui2.machines.conditionMonitoringTab.acceptableMax')}
                 className="w-full text-sm rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
@@ -182,12 +184,12 @@ export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps)
       {/* Charts section */}
       <div className="space-y-6">
         {loading && (
-          <p className="text-sm text-gray-400 text-center py-4">Loading readings...</p>
+          <p className="text-sm text-gray-400 text-center py-4">{t('common.ui2.machines.conditionMonitoringTab.loadingReadings')}</p>
         )}
 
         {!loading && readings.length === 0 && (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-            <p className="text-sm text-gray-500">No readings logged yet. Use the form above to log the first reading.</p>
+            <p className="text-sm text-gray-500">{t('common.ui2.machines.conditionMonitoringTab.noReadingsLoggedYetUse')}</p>
           </div>
         )}
 

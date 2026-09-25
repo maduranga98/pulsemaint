@@ -6,6 +6,7 @@ import type { Machine, IsolationPoint, IsolationPointType } from '../../types/ma
 import { Zap, Droplets, Wind, Settings, Flame, Plus, Pencil, Trash2, X, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface IsolationPointsTabProps {
   machine: Machine;
   canEdit: boolean;
@@ -47,6 +48,7 @@ interface IpFormState {
 const emptyForm = (): IpFormState => ({ type: 'electrical', label: '', location: '' });
 
 export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps) {
+  const { t } = useTranslation();
   const points: IsolationPoint[] = machine.isolationPoints ?? [];
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState<IpFormState>(emptyForm());
@@ -61,7 +63,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
         isolationPoints: updated,
         updatedAt: serverTimestamp(),
       });
-      toast.success('Isolation points updated');
+      toast.success(t('common.ui2.machines.isolationPointsTab.isolationPointsUpdated'));
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Save failed';
       toast.error(msg);
@@ -72,7 +74,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
 
   async function handleAdd() {
     if (!addForm.label.trim()) {
-      toast.error('Label is required');
+      toast.error(t('common.ui2.machines.isolationPointsTab.labelIsRequired'));
       return;
     }
     const newPoint: IsolationPoint = {
@@ -93,7 +95,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
 
   async function handleEditSave() {
     if (!editForm.label.trim()) {
-      toast.error('Label is required');
+      toast.error(t('common.ui2.machines.isolationPointsTab.labelIsRequired'));
       return;
     }
     const updated = points.map((p) =>
@@ -106,14 +108,14 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('Delete this isolation point?')) return;
+    if (!window.confirm(t('common.ui2.machines.isolationPointsTab.deleteThisIsolationPoint'))) return;
     await savePoints(points.filter((p) => p.id !== id));
   }
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">Isolation Points</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.ui2.machines.isolationPointsTab.isolationPoints')}</h3>
         {canEdit && !showAddForm && (
           <button
             type="button"
@@ -121,14 +123,14 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
             className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
-            Add Isolation Point
+            {t('common.ui2.machines.isolationPointsTab.addIsolationPoint')}
           </button>
         )}
       </div>
 
       {points.length === 0 && !showAddForm && (
         <p className="text-sm text-gray-500 py-4 text-center">
-          No isolation points defined for this machine.
+          {t('common.ui2.machines.isolationPointsTab.noIsolationPointsDefinedFor')}
         </p>
       )}
 
@@ -152,14 +154,14 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
                     type="text"
                     value={editForm.label}
                     onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
-                    placeholder="Label"
+                    placeholder={t('common.ui2.machines.isolationPointsTab.label')}
                     className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
                   />
                   <input
                     type="text"
                     value={editForm.location}
                     onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                    placeholder="Location"
+                    placeholder={t('common.ui2.machines.isolationPointsTab.location')}
                     className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
                   />
                 </div>
@@ -203,7 +205,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
                     type="button"
                     onClick={() => startEdit(point)}
                     className="p-1.5 text-gray-400 hover:text-blue-600 rounded"
-                    aria-label="Edit"
+                    aria-label={t('common.ui2.machines.isolationPointsTab.edit')}
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
@@ -212,7 +214,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
                     onClick={() => handleDelete(point.id)}
                     disabled={saving}
                     className="p-1.5 text-gray-400 hover:text-red-600 rounded disabled:opacity-50"
-                    aria-label="Delete"
+                    aria-label={t('common.ui2.machines.isolationPointsTab.delete')}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -226,7 +228,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
       {/* Add form */}
       {showAddForm && (
         <div className="border border-blue-300 rounded-xl p-3 bg-blue-50 space-y-2">
-          <p className="text-sm font-medium text-gray-700">New Isolation Point</p>
+          <p className="text-sm font-medium text-gray-700">{t('common.ui2.machines.isolationPointsTab.newIsolationPoint')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <select
               value={addForm.type}
@@ -241,14 +243,14 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
               type="text"
               value={addForm.label}
               onChange={(e) => setAddForm({ ...addForm, label: e.target.value })}
-              placeholder="Label (e.g. Main Power Breaker)"
+              placeholder={t('common.ui2.machines.isolationPointsTab.labelEGMainPower')}
               className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
             />
             <input
               type="text"
               value={addForm.location}
               onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
-              placeholder="Location (e.g. Panel B, Row 3)"
+              placeholder={t('common.ui2.machines.isolationPointsTab.locationEGPanelB')}
               className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
             />
           </div>

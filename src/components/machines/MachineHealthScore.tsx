@@ -1,5 +1,6 @@
 import { getHealthScoreColor, getHealthScoreLabel } from '../../lib/machineHealth';
 
+import { useTranslation } from 'react-i18next';
 interface MachineHealthScoreProps {
   score: number;
   variant?: 'bar' | 'gauge' | 'compact';
@@ -11,6 +12,7 @@ export function MachineHealthScore({
   variant = 'bar',
   showLabel = true,
 }: MachineHealthScoreProps) {
+  const { t } = useTranslation();
   const color = getHealthScoreColor(score);
   const label = getHealthScoreLabel(score);
 
@@ -68,7 +70,7 @@ export function MachineHealthScore({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Health Score</span>
+        <span className="text-sm font-medium text-gray-700">{t('common.ui2.machines.machineHealthScore.healthScore')}</span>
         <span className="text-sm font-semibold" style={{ color }}>
           {score}/100
         </span>

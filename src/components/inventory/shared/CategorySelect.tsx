@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { VALID_CATEGORIES, CATEGORY_LABELS } from '@/lib/inventory/inventoryTypes';
 
+import { useTranslation } from 'react-i18next';
 const CUSTOM_OPTION = '__custom__';
 
 interface CategorySelectProps {
@@ -12,6 +13,7 @@ interface CategorySelectProps {
 }
 
 export function CategorySelect({ value, onChange, id, required, className }: CategorySelectProps) {
+  const { t } = useTranslation();
   const isStandard = (VALID_CATEGORIES as readonly string[]).includes(value);
   const [customMode, setCustomMode] = useState(!isStandard && value.length > 0);
 
@@ -35,21 +37,21 @@ export function CategorySelect({ value, onChange, id, required, className }: Cat
         className={className ?? 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'}
       >
         <option value="" disabled>
-          Select category…
+          {t('common.inventory.ui.categorySelect.selectCategory')}
         </option>
         {VALID_CATEGORIES.map((c) => (
           <option key={c} value={c}>
             {CATEGORY_LABELS[c]}
           </option>
         ))}
-        <option value={CUSTOM_OPTION}>Other (manually created)…</option>
+        <option value={CUSTOM_OPTION}>{t('common.inventory.ui.categorySelect.otherManuallyCreated')}</option>
       </select>
       {customMode && (
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Enter custom category name"
+          placeholder={t('common.inventory.ui.categorySelect.enterCustomCategoryName')}
           required={required}
           className={className ?? 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'}
         />

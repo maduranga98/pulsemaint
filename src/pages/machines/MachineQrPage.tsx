@@ -111,7 +111,7 @@ export function MachineQrPage() {
             <div className="bg-white rounded-lg border border-gray-200 p-8">
               <div id="qr-print-container" className="flex flex-col items-center gap-6 p-8 bg-white">
                 {/* FirmiCore Logo placeholder */}
-                <div className="text-sm font-semibold text-gray-600">FirmiCore</div>
+                <div className="text-sm font-semibold text-gray-600">{t('common.ui2.machines.machineQrPage.firmicore')}</div>
 
                 {/* QR Code */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
