@@ -48,7 +48,11 @@
         "audit": "Audit",
         "evaluations": "Évaluations",
         "settings": "Paramètres",
-        "billing": "Facturation et forfait"
+        "billing": "Facturation et forfait",
+        "maintenanceHistory": "Historique de maintenance",
+        "myRequests": "Mes demandes",
+        "requestsInbox": "Boîte des demandes",
+        "safetyBlacklist": "Liste noire"
       },
       "help": "Aide et assistance"
     },
@@ -209,7 +213,8 @@
           "autoApprovalEligible": "✓ Éligible à l'approbation automatique : tous les articles en stock et dans le seuil",
           "autoApprovalNotEligible": "✗ Non éligible à l'approbation automatique : {{reasons}}",
           "someUnavailable": "Certains articles ne sont pas disponibles. ",
-          "costExceedsThreshold": "Le coût dépasse le seuil de {{threshold}} LKR."
+          "costExceedsThreshold": "Le coût dépasse le seuil de {{threshold}} LKR.",
+          "writtenOff": "Annulé par {{name}} — ne sera pas retourné : {{reason}}"
         },
         "availabilityIndicator": {
           "outOfStock": "Rupture de stock",
@@ -1345,7 +1350,14 @@
         "returnFailed": "Échec de la demande de retour.",
         "returnRequested": "Retour demandé — un magasinier le confirmera.",
         "returning": "Retour en cours",
-        "title": "Mes pièces consignées"
+        "title": "Mes pièces consignées",
+        "writeOffBody": "Indiquez pourquoi cet article ne sera pas retourné (perdu, endommagé, consommé, etc.). C'est enregistré et les magasiniers/superviseurs sont notifiés.",
+        "writeOffButton": "Annuler",
+        "writeOffConfirm": "Confirmer l'annulation",
+        "writeOffFailed": "Impossible d'enregistrer l'annulation.",
+        "writeOffReasonPlaceholder": "Motif (obligatoire)",
+        "writeOffRecorded": "Enregistré — cet article n'est plus attendu en retour.",
+        "writeOffTitle": "Annuler le retour de {{partName}}"
       },
       "mySafetyCasesWidget": {
         "actionsTaken": "Actions entreprises",
@@ -1420,7 +1432,9 @@
         "reject": "Rejeter",
         "requested": "a demandé",
         "title": "Approbations en attente",
-        "viewMore": "Voir {{count}} de plus…"
+        "viewMore": "Voir {{count}} de plus…",
+        "attach": "Joindre (facultatif)",
+        "removeAttachment": "Retirer la pièce jointe"
       },
       "pendingReceiptPOsWidget": {
         "empty": "Aucune commande en attente de réception",
@@ -1499,7 +1513,11 @@
           "inApprovalOfSupervisor": "En approbation du superviseur",
           "needToCollect": "À récupérer"
         },
-        "title": "Pièces demandées"
+        "title": "Pièces demandées",
+        "cancel": "Annuler",
+        "cancelFailed": "Impossible d'annuler la demande.",
+        "cancelled": "Demande annulée.",
+        "cancelling": "Annulation…"
       },
       "safetyForYouWidget": {
         "empty": "Rien en attente lié à la sécurité",
@@ -1574,7 +1592,7 @@
       },
       "technicianStatusList": {
         "active": "{{count}} actifs",
-        "empty": "Aucun technicien en poste",
+        "empty": "Aucun technicien ou stagiaire de votre service en poste",
         "title": "Statut de l'équipe"
       },
       "technicianStatusRow": {
@@ -1673,6 +1691,14 @@
           "operator": "Opérateur",
           "machine": "Machine"
         }
+      },
+      "needSignOffWidget": {
+        "badge": "Terminé",
+        "empty": "Rien en attente de validation",
+        "emptySub": "Les ordres de travail terminés apparaîtront ici jusqu'à ce que vous les validiez.",
+        "pending": "{{count}} en attente",
+        "title": "À valider",
+        "viewMore": "Voir {{count}} de plus…"
       }
     },
     "machines": {
@@ -2056,7 +2082,12 @@
           "descriptionTooShort": "Veuillez décrire la panne en au moins 10 caractères.",
           "machineNotFound": "Machine sélectionnée introuvable.",
           "submitFailed": "Échec du signalement de la panne."
-        }
+        },
+        "aiSuggestionDisclaimer": "Comparez vous-même avec les ordres de travail terminés et les analyses de cause racine précédents de la machine avant d'agir.",
+        "aiSuggestionTitle": "Suggestion IA",
+        "continueButton": "Continuer",
+        "submittedSubtitle": "Votre signalement pour {{machineName}} a été envoyé à l'équipe de maintenance.",
+        "submittedTitle": "Panne signalée"
       },
       "attendPage": {
         "back": "Retour",
@@ -2116,6 +2147,17 @@
         },
         "errors": {
           "saveFailed": "Échec de l'enregistrement."
+        },
+        "rca": {
+          "actionsLabel": "Actions recommandées",
+          "aiError": "IA indisponible — {{error}}",
+          "causesLabel": "Causes probables",
+          "cta": "Obtenir des suggestions IA",
+          "error": "Impossible de générer des suggestions pour le moment. Réessayez.",
+          "loading": "Analyse…",
+          "sourceAi": "Généré par l'IA à partir de l'historique récent des pannes de cette machine — vérifiez avant d'agir.",
+          "sourceHeuristic": "Généré à partir de modèles de maintenance intégrés (IA indisponible) — vérifiez avant d'agir.",
+          "title": "Suggestions de cause racine par IA"
         }
       },
       "viewPage": {
@@ -2137,7 +2179,8 @@
         "errors": {
           "closeFailed": "Échec de la clôture de la panne.",
           "assignFailed": "Échec de l'assignation.",
-          "attendFailed": "Échec du traitement."
+          "attendFailed": "Échec du traitement.",
+          "woNotCompleted": "L'ordre de travail {{woNumber}} n'est pas encore terminé — il doit être terminé et validé avant de pouvoir clôturer cette panne."
         }
       },
       "editPage": {
@@ -2589,7 +2632,9 @@
         "noContractorTeamMembers": "Aucun membre d'équipe encore enregistré pour ce prestataire. Ajoutez-les dans l'onglet Membres de l'Équipe du prestataire.",
         "assignInternalTechniciansLabel": "Assigner des techniciens internes",
         "optionalLabel": "(facultatif)",
-        "activeWOsInline": "{{count}} OT actifs"
+        "activeWOsInline": "{{count}} OT actifs",
+        "chooseContactPerson": "Choisissez un contact…",
+        "primaryContactOption": "{{name}} (contact principal)"
       },
       "pageTitle": "Ordres de Travail",
       "count": "{{count}} ordres de travail",
@@ -2598,12 +2643,14 @@
       "tabs": {
         "needSignOff": "À Valider",
         "signedOff": "Validés",
-        "approvalRequests": "Demandes d'Approbation"
+        "approvalRequests": "Demandes d'Approbation",
+        "cancelled": "Annulés"
       },
       "empty": {
         "needSignOff": "Aucun ordre de travail en attente de validation.",
         "signedOff": "Aucun ordre de travail validé ou clôturé pour l'instant.",
-        "noOpenWOs": "Aucun ordre de travail ouvert. Tout est à jour !"
+        "noOpenWOs": "Aucun ordre de travail ouvert. Tout est à jour !",
+        "cancelled": "Aucun ordre de travail annulé."
       },
       "table": {
         "wo": "Ordre de Travail",
@@ -2735,7 +2782,12 @@
         "requestedByLabel": "{{name}} a demandé",
         "notePlaceholder": "Note (facultatif)",
         "approveButton": "Approuver",
-        "rejectButton": "Rejeter"
+        "rejectButton": "Rejeter",
+        "attachmentsLabel": "Pièces jointes",
+        "machineLabel": "Machine",
+        "priorityLabel": "Priorité",
+        "statusLabel": "Statut",
+        "woNumberLabel": "Ordre de travail"
       },
       "myWorkOrders": {
         "pageTitle": "Mes Ordres de Travail",
@@ -2806,7 +2858,8 @@
         "completeMyWorkButton": "Terminer Mon Travail",
         "submitAndCompleteButton": "Terminer et Envoyer l'Ordre de Travail",
         "pendingTeamCompletionHint": "L'ordre de travail peut être envoyé pour validation une fois que tous les membres de l'équipe assignés ont terminé leur propre travail ({{completed}}/{{total}}).",
-        "statusHint": "Cet ordre de travail est {{status}}."
+        "statusHint": "Cet ordre de travail est {{status}}.",
+        "approvalAttachmentsLabel": "Pièces jointes (facultatif)"
       },
       "mediaCapture": {
         "takePhoto": "Prendre une Photo",
@@ -5483,12 +5536,17 @@
             "email": "E-mail",
             "specialization": "Spécialisation",
             "certifications": "Certifications, séparées par des virgules",
-            "certificationAttachments": "Pièces jointes de certification"
+            "certificationAttachments": "Pièces jointes de certification",
+            "photo": "Photo de profil",
+            "photoHint": "JPG, PNG ou WebP, jusqu'à 5 Mo."
           },
           "actions": {
             "save": "Enregistrer le technicien",
             "saving": "Enregistrement…",
-            "removeAttachment": "Supprimer la pièce jointe"
+            "removeAttachment": "Supprimer la pièce jointe",
+            "changePhoto": "Changer la photo",
+            "removePhoto": "Supprimer la photo",
+            "uploadPhoto": "Téléverser une photo"
           },
           "toasts": {
             "updated": "Technicien mis à jour",
@@ -5498,7 +5556,9 @@
             "missingContractor": "Référence de sous-traitant manquante.",
             "mustBeLoggedIn": "Vous devez être connecté.",
             "requiredFields": "Le nom complet et le CIN/passeport sont obligatoires.",
-            "saveFailed": "Échec de l'enregistrement du technicien"
+            "saveFailed": "Échec de l'enregistrement du technicien",
+            "photoNotImage": "Choisissez un fichier image (JPG, PNG, WebP…).",
+            "photoTooLarge": "La photo doit faire 5 Mo au maximum."
           }
         }
       },
@@ -8372,6 +8432,267 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Intégrations personnalisées et API",
         "dedicatedSupportSla": "Support dédié et SLA"
+      }
+    },
+    "actions": {
+      "activate": "Activer",
+      "cancel": "Annuler",
+      "deactivate": "Désactiver",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "maintenanceHistory": {
+      "allDepartments": "Tous les services",
+      "columns": {
+        "actions": "Actions",
+        "attendedBy": "Pris en charge par",
+        "closed": "Clôturée",
+        "department": "Service",
+        "machine": "Machine",
+        "outcome": "Résultat",
+        "rootCause": "Cause racine",
+        "signedOff": "Validé",
+        "supervisor": "Superviseur",
+        "ticket": "Ticket",
+        "wo": "Ordre de travail"
+      },
+      "empty": "Aucun enregistrement ne correspond à ces filtres.",
+      "exportFailed": "Impossible de créer le PDF. Réessayez.",
+      "exportPdf": "Exporter en PDF",
+      "filters": {
+        "allSupervisors": "Tous les superviseurs",
+        "allTypes": "Tous les types",
+        "clear": "Effacer les filtres",
+        "department": "Service",
+        "from": "Du",
+        "search": "Rechercher un numéro, une machine, une description…",
+        "supervisor": "Superviseur",
+        "to": "Au",
+        "woType": "Type d'ordre de travail"
+      },
+      "outcomes": {
+        "complete": "Terminé",
+        "failed": "Échoué",
+        "not_complete": "Non terminé"
+      },
+      "rootCauses": {
+        "external_damage": "Dommage externe",
+        "lack_of_maintenance": "Manque de maintenance",
+        "manufacturing_defect": "Défaut de fabrication",
+        "operator_error": "Erreur de l'opérateur",
+        "unknown": "Inconnue",
+        "wear_and_tear": "Usure"
+      },
+      "showMore": "Afficher plus ({{shown}} sur {{total}})",
+      "subtitle": "Tous les ordres de travail validés et pannes clôturées de votre usine, de tous les superviseurs et services. Exportez n'importe quel enregistrement en rapport PDF détaillé.",
+      "tabs": {
+        "breakdowns": "Pannes clôturées",
+        "workOrders": "Ordres de travail validés"
+      },
+      "title": "Historique de maintenance",
+      "view": "Ouvrir",
+      "woTypes": {
+        "BREAKDOWN": "Réparation de panne",
+        "CONTRACTOR": "Sous-traitant",
+        "CORRECTIVE": "Correctif",
+        "INSPECTION": "Inspection",
+        "INSTALLATION": "Installation",
+        "MODIFICATION": "Modification",
+        "OTHER": "Autre",
+        "PREVENTIVE": "Maintenance préventive"
+      }
+    },
+    "staffRequests": {
+      "attachments": {
+        "add": "Joindre des fichiers",
+        "remove": "Retirer {{name}}",
+        "tooLarge": "{{name}} dépasse 25 Mo et n'a pas été joint."
+      },
+      "cancel": "Annuler",
+      "card": {
+        "closedOn": "Clôturée le {{date}}",
+        "reference": "Référence : {{reference}}",
+        "replies_one": "{{count}} réponse",
+        "replies_other": "{{count}} réponses",
+        "sentTo": "À : {{to}}"
+      },
+      "categories": {
+        "other": "Autre",
+        "personal": "Personnel",
+        "record_access": "Accès aux détails d'anciens OT / pannes",
+        "service_letter": "Attestation de service",
+        "work": "Travail"
+      },
+      "close": "Fermer",
+      "filters": {
+        "all": "Toutes",
+        "allCategories": "Tous les types de demande",
+        "search": "Rechercher des demandes…"
+      },
+      "inbox": {
+        "empty": "Aucune demande ici.",
+        "scope": {
+          "admin": "Demandes envoyées à l'administrateur.",
+          "plantManager": "Demandes envoyées au directeur de votre usine.",
+          "supervisor": "Demandes envoyées aux superviseurs de votre service ({{department}})."
+        },
+        "title": "Boîte des demandes"
+      },
+      "myPage": {
+        "empty": "Vous n'avez encore envoyé aucune demande.",
+        "newRequest": "Nouvelle demande",
+        "subtitle": "Adressez-vous à votre superviseur, directeur d'usine ou administrateur pour une question personnelle ou professionnelle, une attestation de service ou l'accès aux détails d'anciens ordres de travail / pannes.",
+        "title": "Mes demandes"
+      },
+      "newRequest": {
+        "category": "Type de demande",
+        "choosePerson": "Choisissez une personne…",
+        "errors": {
+          "recipient": "Choisissez à qui envoyer la demande.",
+          "required": "Ajoutez un objet et un message."
+        },
+        "failed": "Impossible d'envoyer la demande. Réessayez.",
+        "loadingPeople": "Chargement des personnes…",
+        "message": "Message",
+        "noRecipients": "Personne ne peut encore recevoir vos demandes. Demandez à votre administrateur de vérifier votre usine et votre service.",
+        "reference": "Numéro d'OT / de panne",
+        "referencePlaceholder": "ex. WO-2026-0142 ou BD-0098",
+        "send": "Envoyer la demande",
+        "sendTo": "Envoyer à",
+        "sent": "Demande envoyée.",
+        "subject": "Objet",
+        "title": "Nouvelle demande"
+      },
+      "notifications": {
+        "closed": "{{name}} a clôturé la demande « {{subject}} »",
+        "newReply": "{{name}} a répondu à la demande « {{subject}} »",
+        "newRequest": "Nouvelle demande ({{category}}) de {{name}} : {{subject}}"
+      },
+      "recipients": {
+        "admin": "Administrateur",
+        "plant_manager": "Mon directeur d'usine",
+        "supervisor": "Mon superviseur de service"
+      },
+      "reply": {
+        "close": "Clôturer la demande",
+        "errors": {
+          "empty": "Écrivez un message ou joignez un fichier."
+        },
+        "failed": "Impossible de mettre à jour la demande. Réessayez.",
+        "headingHandler": "Répondre",
+        "headingRequester": "Ajouter un suivi",
+        "placeholder": "Écrivez une réponse…",
+        "reopen": "Rouvrir",
+        "send": "Envoyer la réponse",
+        "sendAndClose": "Répondre et clôturer",
+        "sent": "Réponse envoyée."
+      },
+      "roles": {
+        "admin": "Administrateur",
+        "floor_operator": "Opérateur",
+        "hr_officer": "Responsable RH",
+        "plant_manager": "Directeur d'usine",
+        "safety_officer": "Responsable sécurité",
+        "store_keeper": "Magasinier",
+        "supervisor": "Superviseur",
+        "technician": "Technicien",
+        "trainee": "Stagiaire"
+      },
+      "sending": "Envoi…",
+      "statuses": {
+        "answered": "Répondue",
+        "closed": "Clôturée",
+        "open": "Ouverte"
+      }
+    },
+    "ui": {
+      "notifications": {
+        "title": "Notifications",
+        "mute": "Couper le son des notifications",
+        "unmute": "Réactiver le son des notifications",
+        "soundOn": "Son des notifications activé",
+        "soundOff": "Son des notifications désactivé",
+        "markAllRead": "Tout marquer comme lu",
+        "enableDevice": "Activer les notifications de l'appareil avec son pour les nouvelles alertes",
+        "allCaughtUp": "Vous êtes à jour.",
+        "dismiss": "Ignorer",
+        "needsAttention": "Nécessite une attention"
+      },
+      "selectItemForDetails": "Sélectionnez un élément pour voir les détails.",
+      "live": "En direct",
+      "failedToLoad": "Impossible de charger les données",
+      "retry": "Réessayer",
+      "close": "Fermer",
+      "loading": "Chargement...",
+      "toggleNavigation": "Afficher/masquer la navigation",
+      "voiceLanguage": "Langue dans laquelle vous parlerez",
+      "machineCell": {
+        "status": "Statut",
+        "health": "Santé",
+        "openWos": "OT ouverts"
+      },
+      "planGate": {
+        "title": "Passez à une offre supérieure pour débloquer cette fonctionnalité",
+        "notIncluded": "{{feature}} n'est pas inclus dans votre offre actuelle.",
+        "viewPlans": "Voir les offres",
+        "features": {
+          "autoPOEmail": "E-mail automatique des bons de commande aux fournisseurs",
+          "qrLowStockAlerts": "Scan QR de l'inventaire et alertes de stock bas",
+          "contractors": "Gestion des sous-traitants",
+          "shiftHandover": "Passation de poste et briefings",
+          "training": "Module de formation",
+          "safety": "Espace sécurité",
+          "moeAnalytics": "Analyse des tendances MOE et comparaison des machines",
+          "multiSite": "Gestion multisite"
+        }
+      },
+      "shiftConfig": {
+        "plant": "Usine",
+        "selectPlant": "Sélectionnez une usine...",
+        "selectPlantFirst": "Sélectionnez d'abord une usine."
+      },
+      "cancelReason": {
+        "title": "Annuler",
+        "description": "Veuillez indiquer un motif d'annulation.",
+        "confirm": "Confirmer l'annulation",
+        "cancelling": "Annulation…",
+        "categoryLabel": "Catégorie du motif",
+        "reasonLabel": "Motif",
+        "placeholder": "Motif de l'annulation…",
+        "required": "Un motif d'annulation est obligatoire.",
+        "goBack": "Retour",
+        "categories": {
+          "none": "Sélectionnez une catégorie (facultatif)…",
+          "duplicate": "Ticket en double",
+          "reported_in_error": "Signalé par erreur",
+          "no_longer_needed": "N'est plus nécessaire",
+          "resolved_externally": "Résolu en externe",
+          "wrong_machine": "Mauvaise machine / mauvais équipement",
+          "other": "Autre"
+        }
+      },
+      "triageStep": {
+        "escalation": "Étape d'escalade",
+        "quickFix": "Étape de correction rapide",
+        "requiresPhoto": "Photo obligatoire"
+      },
+      "errorBoundary": {
+        "title": "Une erreur s'est produite",
+        "body": "Cette page n'a pas pu s'afficher. Rechargez la page ou ouvrez la console du navigateur pour plus de détails.",
+        "reload": "Recharger",
+        "tryAgain": "Réessayer"
+      },
+      "relativeTime": {
+        "justNow": "à l'instant",
+        "minutes": "il y a {{count}} min",
+        "hours": "il y a {{count}} h",
+        "days": "il y a {{count}} j"
       }
     }
   },

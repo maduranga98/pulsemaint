@@ -8782,6 +8782,90 @@
       "exportFailed": "Couldn't create the PDF. Please try again.",
       "empty": "No records match these filters.",
       "showMore": "Show more ({{shown}} of {{total}})"
+    },
+    "ui": {
+      "notifications": {
+        "title": "Notifications",
+        "mute": "Mute notification sound",
+        "unmute": "Unmute notification sound",
+        "soundOn": "Notification sound on",
+        "soundOff": "Notification sound off",
+        "markAllRead": "Mark all as read",
+        "enableDevice": "Turn on device notifications with sound for new alerts",
+        "allCaughtUp": "You're all caught up.",
+        "dismiss": "Dismiss",
+        "needsAttention": "Needs attention"
+      },
+      "selectItemForDetails": "Select an item to view details.",
+      "live": "Live",
+      "failedToLoad": "Failed to load data",
+      "retry": "Retry",
+      "close": "Close",
+      "loading": "Loading...",
+      "toggleNavigation": "Toggle navigation",
+      "voiceLanguage": "Language you'll speak in",
+      "machineCell": {
+        "status": "Status",
+        "health": "Health",
+        "openWos": "Open WOs"
+      },
+      "planGate": {
+        "title": "Upgrade to unlock this feature",
+        "notIncluded": "{{feature}} isn't included on your current plan.",
+        "viewPlans": "View plans",
+        "features": {
+          "autoPOEmail": "Automatic PO email to suppliers",
+          "qrLowStockAlerts": "Inventory QR scan & low-stock alerts",
+          "contractors": "Contractor management",
+          "shiftHandover": "Shift handover & briefings",
+          "training": "Training module",
+          "safety": "Safety Workspace",
+          "moeAnalytics": "MOE trend analytics & machine comparison",
+          "multiSite": "Multi-site management"
+        }
+      },
+      "shiftConfig": {
+        "plant": "Plant",
+        "selectPlant": "Select a plant...",
+        "selectPlantFirst": "Select a plant first."
+      },
+      "cancelReason": {
+        "title": "Cancel",
+        "description": "Please provide a reason for cancelling.",
+        "confirm": "Confirm Cancel",
+        "cancelling": "Cancelling…",
+        "categoryLabel": "Reason category",
+        "reasonLabel": "Reason",
+        "placeholder": "Reason for cancellation…",
+        "required": "A cancellation reason is required.",
+        "goBack": "Go Back",
+        "categories": {
+          "none": "Select a category (optional)…",
+          "duplicate": "Duplicate ticket",
+          "reported_in_error": "Reported in error",
+          "no_longer_needed": "No longer needed",
+          "resolved_externally": "Resolved externally",
+          "wrong_machine": "Wrong machine / asset",
+          "other": "Other"
+        }
+      },
+      "triageStep": {
+        "escalation": "Escalation step",
+        "quickFix": "Quick-fix step",
+        "requiresPhoto": "Requires photo"
+      },
+      "errorBoundary": {
+        "title": "Something went wrong",
+        "body": "This page failed to render. Reload the page or open the browser console for details.",
+        "reload": "Reload",
+        "tryAgain": "Try again"
+      },
+      "relativeTime": {
+        "justNow": "just now",
+        "minutes": "{{count}}m ago",
+        "hours": "{{count}}h ago",
+        "days": "{{count}}d ago"
+      }
     }
   },
   "help": {

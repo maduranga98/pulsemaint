@@ -67,7 +67,7 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
                   <MapPin className="h-3 w-3" /> {selected.location || t('common.dashboard.floorMap.noLocation')}
                 </p>
               </div>
-              <button type="button" onClick={() => setSelected(null)} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
+              <button type="button" onClick={() => setSelected(null)} className="text-[#8BA3BF] hover:text-white" aria-label={t('common.ui.close')}>
                 <X className="h-5 w-5" />
               </button>
             </div>

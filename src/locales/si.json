@@ -97,7 +97,11 @@
         "audit": "විගණනය",
         "evaluations": "ඇගයීම්",
         "settings": "සැකසුම්",
-        "billing": "බිල්පත් සහ සැලසුම"
+        "billing": "බිල්පත් සහ සැලසුම",
+        "maintenanceHistory": "නඩත්තු ඉතිහාසය",
+        "myRequests": "මගේ ඉල්ලීම්",
+        "requestsInbox": "ඉල්ලීම් එන ලිපි",
+        "safetyBlacklist": "කළු ලැයිස්තුව"
       },
       "help": "උදව් සහ සහාය"
     },
@@ -189,7 +193,10 @@
         "subtitleManage": "තාක්ෂණික නිලධාරීන්ගේ කොටස් ඉල්ලීම් සමාලෝචනය කර කළමනාකරණය කරන්න.",
         "subtitleOwn": "ඔබ ඉල්ලූ කොටස් සහ ඒවායේ තත්ත්වය නිරීක්ෂණය කරන්න.",
         "scanIssue": "ස්කෑන් කර නිකුත් කරන්න",
-        "newRequest": "+ නව ඉල්ලීම"
+        "newRequest": "+ නව ඉල්ලීම",
+        "itemsTable": {
+          "writtenOff": "{{name}} විසින් අවලංගු කළා — ආපසු නොදෙනු ඇත: {{reason}}"
+        }
       },
       "po": {
         "title": "මිලදී ගැනීමේ ඇණවුම්",
@@ -256,7 +263,9 @@
         },
         "title": "හානි සංඛ්‍යාත heatmap එක",
         "tooltipCount": "{{day}} {{hour}} — හානි {{count}}ක්",
-        "tooltipNone": "{{day}} {{hour}} — හානි නැත"
+        "tooltipNone": "{{day}} {{hour}} — හානි නැත",
+        "tooltipCount_one": "{{day}} {{hour}} — බිඳවැටීම් {{count}}",
+        "tooltipCount_other": "{{day}} {{hour}} — බිඳවැටීම් {{count}}"
       },
       "breakdownKanbanBoard": {
         "lanes": {
@@ -349,7 +358,9 @@
         "sinceTime": "{{time}} සිට",
         "title": "සජීවී මුර තත්ත්වය",
         "workingNow": "{{count}} දැන් වැඩ කරයි",
-        "yesterday": "ඊයේ"
+        "yesterday": "ඊයේ",
+        "footer_one": "සජීවී මුර {{shifts}} · වැඩ කරන පුද්ගලයින් {{people}}",
+        "footer_other": "සජීවී මුර {{shifts}} · වැඩ කරන පුද්ගලයින් {{people}}"
       },
       "lowStockAlertTable": {
         "category": "ප්‍රවර්ගය",
@@ -416,7 +427,14 @@
         "returnFailed": "ආපසු දීමේ ඉල්ලීම අසාර්ථකයි.",
         "returnRequested": "ආපසු දීමට ඉල්ලා ඇත — ගබඩාකරු එය තහවුරු කරනු ඇත.",
         "returning": "ආපසු දෙමින්",
-        "title": "මගේ ආපසු දිය හැකි කොටස්"
+        "title": "මගේ ආපසු දිය හැකි කොටස්",
+        "writeOffBody": "මෙය ආපසු නොදෙන්නේ ඇයිදැයි කියන්න (නැති වූ, හානි වූ, භාවිතයෙන් අවසන් වූ ආදිය). මෙය වාර්තා වන අතර ගබඩා භාරකරුවන්/අධීක්ෂකවරුන්ට දැනුම් දෙනු ලැබේ.",
+        "writeOffButton": "අවලංගු කරන්න",
+        "writeOffConfirm": "අවලංගු කිරීම තහවුරු කරන්න",
+        "writeOffFailed": "අවලංගු කිරීම වාර්තා කිරීමට නොහැකි විය.",
+        "writeOffReasonPlaceholder": "හේතුව (අනිවාර්ය)",
+        "writeOffRecorded": "වාර්තා කළා — මෙම අයිතමය තවදුරටත් ආපසු බලාපොරොත්තු නොවේ.",
+        "writeOffTitle": "{{partName}} ආපසු දීම අවලංගු කරන්න"
       },
       "mySafetyCasesWidget": {
         "actionsTaken": "ගත් ක්‍රියාමාර්ග",
@@ -491,7 +509,9 @@
         "reject": "ප්‍රතික්ෂේප කරන්න",
         "requested": "ඉල්ලා ඇත",
         "title": "පොරොත්තු අනුමැති",
-        "viewMore": "තවත් {{count}} බලන්න…"
+        "viewMore": "තවත් {{count}} බලන්න…",
+        "attach": "අමුණන්න (විකල්ප)",
+        "removeAttachment": "ඇමුණුම ඉවත් කරන්න"
       },
       "pendingReceiptPOsWidget": {
         "empty": "රිසිට්පත් සඳහා පොරොත්තු PO නැත",
@@ -570,7 +590,11 @@
           "inApprovalOfSupervisor": "අධීක්ෂකගේ අනුමැතියෙන්",
           "needToCollect": "එකතු කළ යුතුයි"
         },
-        "title": "ඉල්ලූ කොටස්"
+        "title": "ඉල්ලූ කොටස්",
+        "cancel": "අවලංගු කරන්න",
+        "cancelFailed": "ඉල්ලීම අවලංගු කිරීමට නොහැකි විය.",
+        "cancelled": "ඉල්ලීම අවලංගු කළා.",
+        "cancelling": "අවලංගු කරමින්…"
       },
       "safetyForYouWidget": {
         "empty": "ආරක්ෂාව සම්බන්ධ පොරොත්තු කිසිවක් නැත",
@@ -645,8 +669,8 @@
       },
       "technicianStatusList": {
         "active": "{{count}} ක්‍රියාකාරී",
-        "empty": "මුරයේ තාක්ෂණවේදීන් නැත",
-        "title": "තාක්ෂණවේදී තත්ත්වය"
+        "empty": "ඔබේ දෙපාර්තමේන්තුවේ මුරයේ සිටින කාර්මික ශිල්පීන් හෝ අභ්‍යාසලාභීන් නැත",
+        "title": "කණ්ඩායම් තත්ත්වය"
       },
       "technicianStatusRow": {
         "doneToday": "අද නිම කළ",
@@ -725,6 +749,14 @@
         "running": "සිදුවෙමින් ({{count}})",
         "title": "වැඩ නියෝග",
         "today": "අද ({{count}})"
+      },
+      "needSignOffWidget": {
+        "badge": "සම්පූර්ණයි",
+        "empty": "අනුමැතිය බලාපොරොත්තුවෙන් කිසිවක් නැත",
+        "emptySub": "සම්පූර්ණ කළ වැඩ ඇණවුම් ඔබ අනුමත කරන තුරු මෙහි පෙන්වනු ඇත.",
+        "pending": "{{count}}ක් පොරොත්තුවෙන්",
+        "title": "අනුමැතිය අවශ්‍යයි",
+        "viewMore": "තවත් {{count}}ක් බලන්න…"
       }
     },
     "machines": {
@@ -955,6 +987,31 @@
         "resolved": "විසඳන ලද",
         "closed": "වසා ඇත",
         "cancelled": "අවලංගු කළ"
+      },
+      "attendPage": {
+        "rca": {
+          "actionsLabel": "නිර්දේශිත ඊළඟ ක්‍රියාමාර්ග",
+          "aiError": "AI ලබා ගත නොහැක — {{error}}",
+          "causesLabel": "විය හැකි හේතු",
+          "cta": "AI යෝජනා ලබා ගන්න",
+          "error": "දැන් යෝජනා සැකසිය නොහැක. නැවත උත්සාහ කරන්න.",
+          "loading": "විශ්ලේෂණය කරමින්…",
+          "sourceAi": "මෙම යන්ත්‍රයේ මෑත බිඳවැටීම් ඉතිහාසයෙන් AI මගින් සකස් කළ — ක්‍රියා කිරීමට පෙර තහවුරු කරන්න.",
+          "sourceHeuristic": "අභ්‍යන්තර නඩත්තු රටා වලින් සකස් කළ (AI ලබා ගත නොහැක) — ක්‍රියා කිරීමට පෙර තහවුරු කරන්න.",
+          "title": "AI මූල හේතු යෝජනා"
+        }
+      },
+      "reportPage": {
+        "aiSuggestionDisclaimer": "ක්‍රියා කිරීමට පෙර, යන්ත්‍රයේ පෙර සම්පූර්ණ කළ වැඩ ඇණවුම් සහ මූල හේතු විශ්ලේෂණ සමඟ මෙය ඔබම සසඳා බලන්න.",
+        "aiSuggestionTitle": "AI යෝජනාව",
+        "continueButton": "ඉදිරියට",
+        "submittedSubtitle": "{{machineName}} සඳහා ඔබේ වාර්තාව නඩත්තු කණ්ඩායමට යවන ලදී.",
+        "submittedTitle": "බිඳවැටීම වාර්තා කරන ලදී"
+      },
+      "viewPage": {
+        "errors": {
+          "woNotCompleted": "වැඩ ඇණවුම {{woNumber}} තවම සම්පූර්ණ නැත — මෙම බිඳවැටීම වසා දැමීමට පෙර එය සම්පූර්ණ කර අනුමත කළ යුතුය."
+        }
       }
     },
     "workOrders": {
@@ -965,12 +1022,14 @@
       "tabs": {
         "needSignOff": "අත්සන අවශ්‍යයි",
         "signedOff": "අත්සන් කළ",
-        "approvalRequests": "අනුමැති ඉල්ලීම්"
+        "approvalRequests": "අනුමැති ඉල්ලීම්",
+        "cancelled": "අවලංගු කළ"
       },
       "empty": {
         "needSignOff": "අත්සන් කිරීමට කාර්ය නියෝග නැත.",
         "signedOff": "තවම අත්සන් කළ හෝ වසා දැමූ කාර්ය නියෝග නැත.",
-        "noOpenWOs": "විවෘත කාර්ය නියෝග නැත. සියල්ල සම්පූර්ණයි!"
+        "noOpenWOs": "විවෘත කාර්ය නියෝග නැත. සියල්ල සම්පූර්ණයි!",
+        "cancelled": "අවලංගු කළ වැඩ ඇණවුම් නැත."
       },
       "table": {
         "wo": "කාර්ය නියෝගය",
@@ -983,6 +1042,20 @@
         "action": "ක්‍රියාව",
         "signOff": "අත්සන් කරන්න",
         "noWorkOrdersFound": "කාර්ය නියෝග හමු නොවීය."
+      },
+      "approvalRequests": {
+        "attachmentsLabel": "ඇමුණුම්",
+        "machineLabel": "යන්ත්‍රය",
+        "priorityLabel": "ප්‍රමුඛතාව",
+        "statusLabel": "තත්ත්වය",
+        "woNumberLabel": "වැඩ ඇණවුම"
+      },
+      "teamAssignment": {
+        "chooseContactPerson": "සම්බන්ධතා පුද්ගලයෙකු තෝරන්න…",
+        "primaryContactOption": "{{name}} (ප්‍රධාන සම්බන්ධතාව)"
+      },
+      "technicianSheet": {
+        "approvalAttachmentsLabel": "ඇමුණුම් (විකල්ප)"
       }
     },
     "pmSchedules": {
@@ -1139,6 +1212,286 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "අභිරුචි ඒකාබද්ධතා සහ API",
         "dedicatedSupportSla": "කැපවූ සහාය සහ SLA"
+      }
+    },
+    "actions": {
+      "activate": "සක්‍රිය කරන්න",
+      "cancel": "අවලංගු කරන්න",
+      "deactivate": "අක්‍රිය කරන්න",
+      "delete": "මකන්න",
+      "edit": "සංස්කරණය කරන්න",
+      "save": "සුරකින්න",
+      "saving": "සුරකිමින්…"
+    },
+    "contractors": {
+      "technicians": {
+        "form": {
+          "actions": {
+            "changePhoto": "ඡායාරූපය වෙනස් කරන්න",
+            "removePhoto": "ඡායාරූපය ඉවත් කරන්න",
+            "uploadPhoto": "ඡායාරූපය උඩුගත කරන්න"
+          },
+          "errors": {
+            "photoNotImage": "රූප ගොනුවක් තෝරන්න (JPG, PNG, WebP…).",
+            "photoTooLarge": "ඡායාරූපය 5 MB හෝ ඊට අඩු විය යුතුය."
+          },
+          "fields": {
+            "photo": "පැතිකඩ ඡායාරූපය",
+            "photoHint": "JPG, PNG හෝ WebP, 5 MB දක්වා."
+          }
+        }
+      }
+    },
+    "status": {
+      "active": "සක්‍රිය",
+      "inactive": "අක්‍රිය"
+    },
+    "maintenanceHistory": {
+      "allDepartments": "සියලු දෙපාර්තමේන්තු",
+      "columns": {
+        "actions": "ක්‍රියා",
+        "attendedBy": "සහභාගී වූයේ",
+        "closed": "වසා දැමූ",
+        "department": "දෙපාර්තමේන්තුව",
+        "machine": "යන්ත්‍රය",
+        "outcome": "ප්‍රතිඵලය",
+        "rootCause": "මූල හේතුව",
+        "signedOff": "අනුමත කළ",
+        "supervisor": "අධීක්ෂක",
+        "ticket": "ටිකට්පත",
+        "wo": "වැඩ ඇණවුම"
+      },
+      "empty": "මෙම පෙරහන් වලට ගැළපෙන වාර්තා නැත.",
+      "exportFailed": "PDF සෑදීමට නොහැකි විය. නැවත උත්සාහ කරන්න.",
+      "exportPdf": "PDF අපනයනය කරන්න",
+      "filters": {
+        "allSupervisors": "සියලු අධීක්ෂකවරුන්",
+        "allTypes": "සියලු වර්ග",
+        "clear": "පෙරහන් ඉවත් කරන්න",
+        "department": "දෙපාර්තමේන්තුව",
+        "from": "සිට",
+        "search": "අංකය, යන්ත්‍රය, විස්තරය සොයන්න…",
+        "supervisor": "අධීක්ෂක",
+        "to": "දක්වා",
+        "woType": "වැඩ ඇණවුම් වර්ගය"
+      },
+      "outcomes": {
+        "complete": "සම්පූර්ණයි",
+        "failed": "අසාර්ථකයි",
+        "not_complete": "සම්පූර්ණ නැත"
+      },
+      "rootCauses": {
+        "external_damage": "බාහිර හානිය",
+        "lack_of_maintenance": "නඩත්තුව නොමැතිකම",
+        "manufacturing_defect": "නිෂ්පාදන දෝෂය",
+        "operator_error": "ක්‍රියාකරුගේ දෝෂය",
+        "unknown": "නොදන්නා",
+        "wear_and_tear": "ගෙවී යාම"
+      },
+      "showMore": "තවත් පෙන්වන්න ({{total}} න් {{shown}})",
+      "subtitle": "ඔබේ කම්හලේ සියලු අධීක්ෂකවරුන් සහ දෙපාර්තමේන්තු වලින් අනුමත කළ සියලු වැඩ ඇණවුම් සහ වසා දැමූ බිඳවැටීම්. ඕනෑම වාර්තාවක් සවිස්තරාත්මක PDF වාර්තාවක් ලෙස අපනයනය කරන්න.",
+      "tabs": {
+        "breakdowns": "වසා දැමූ බිඳවැටීම්",
+        "workOrders": "අනුමත කළ වැඩ ඇණවුම්"
+      },
+      "title": "නඩත්තු ඉතිහාසය",
+      "view": "විවෘත කරන්න",
+      "woTypes": {
+        "BREAKDOWN": "බිඳවැටීම් අලුත්වැඩියාව",
+        "CONTRACTOR": "කොන්ත්‍රාත්කරු",
+        "CORRECTIVE": "නිවැරදි කිරීමේ",
+        "INSPECTION": "පරීක්ෂාව",
+        "INSTALLATION": "ස්ථාපනය",
+        "MODIFICATION": "වෙනස් කිරීම",
+        "OTHER": "වෙනත්",
+        "PREVENTIVE": "නිවාරණ නඩත්තුව"
+      }
+    },
+    "staffRequests": {
+      "attachments": {
+        "add": "ගොනු අමුණන්න",
+        "remove": "{{name}} ඉවත් කරන්න",
+        "tooLarge": "{{name}} 25 MB ට වඩා විශාල බැවින් අමුණා නැත."
+      },
+      "cancel": "අවලංගු කරන්න",
+      "card": {
+        "closedOn": "{{date}} වසා දමන ලදී",
+        "reference": "යොමුව: {{reference}}",
+        "replies_one": "පිළිතුරු {{count}}",
+        "replies_other": "පිළිතුරු {{count}}",
+        "sentTo": "වෙත: {{to}}"
+      },
+      "categories": {
+        "other": "වෙනත්",
+        "personal": "පෞද්ගලික",
+        "record_access": "පෙර වැඩ ඇණවුම් / බිඳවැටීම් විස්තර බැලීමට ප්‍රවේශය",
+        "service_letter": "සේවා සහතික ලිපිය",
+        "work": "වැඩ"
+      },
+      "close": "වසන්න",
+      "filters": {
+        "all": "සියල්ල",
+        "allCategories": "සියලු ඉල්ලීම් වර්ග",
+        "search": "ඉල්ලීම් සොයන්න…"
+      },
+      "inbox": {
+        "empty": "මෙහි ඉල්ලීම් නැත.",
+        "scope": {
+          "admin": "පරිපාලක වෙත යැවූ ඉල්ලීම්.",
+          "plantManager": "ඔබේ කම්හලේ කම්හල් කළමනාකරු වෙත යැවූ ඉල්ලීම්.",
+          "supervisor": "ඔබේ දෙපාර්තමේන්තුවේ ({{department}}) අධීක්ෂකවරුන් වෙත යැවූ ඉල්ලීම්."
+        },
+        "title": "ඉල්ලීම් එන ලිපි"
+      },
+      "myPage": {
+        "empty": "ඔබ තවම කිසිදු ඉල්ලීමක් යවා නැත.",
+        "newRequest": "නව ඉල්ලීම",
+        "subtitle": "පෞද්ගලික හෝ වැඩ කටයුතු, සේවා සහතික ලිපියක්, හෝ පෙර වැඩ ඇණවුම් / බිඳවැටීම් විස්තර බැලීමට ප්‍රවේශය සඳහා ඔබේ අධීක්ෂක, කම්හල් කළමනාකරු හෝ පරිපාලකගෙන් ඉල්ලන්න.",
+        "title": "මගේ ඉල්ලීම්"
+      },
+      "newRequest": {
+        "category": "ඉල්ලීම් වර්ගය",
+        "choosePerson": "පුද්ගලයෙකු තෝරන්න…",
+        "errors": {
+          "recipient": "ඉල්ලීම යැවිය යුත්තේ කාටදැයි තෝරන්න.",
+          "required": "මාතෘකාවක් සහ පණිවිඩයක් එක් කරන්න."
+        },
+        "failed": "ඉල්ලීම යැවීමට නොහැකි විය. නැවත උත්සාහ කරන්න.",
+        "loadingPeople": "පුද්ගලයින් පූරණය වෙමින්…",
+        "message": "පණිවිඩය",
+        "noRecipients": "ඔබගෙන් ඉල්ලීම් ලබා ගැනීමට තවම කිසිවෙකු නැත. ඔබේ කම්හල සහ දෙපාර්තමේන්තුව පරීක්ෂා කරන ලෙස ඔබේ පරිපාලකගෙන් ඉල්ලන්න.",
+        "reference": "වැඩ ඇණවුම් / බිඳවැටීම් අංකය",
+        "referencePlaceholder": "උදා. WO-2026-0142 හෝ BD-0098",
+        "send": "ඉල්ලීම යවන්න",
+        "sendTo": "යවන්න",
+        "sent": "ඉල්ලීම යවන ලදී.",
+        "subject": "මාතෘකාව",
+        "title": "නව ඉල්ලීම"
+      },
+      "notifications": {
+        "closed": "{{name}} \"{{subject}}\" ඉල්ලීම වසා දැමීය",
+        "newReply": "{{name}} \"{{subject}}\" ඉල්ලීමට පිළිතුරු දුන්නේය",
+        "newRequest": "{{name}} ගෙන් නව {{category}} ඉල්ලීමක්: {{subject}}"
+      },
+      "recipients": {
+        "admin": "පරිපාලක",
+        "plant_manager": "මගේ කම්හල් කළමනාකරු",
+        "supervisor": "මගේ දෙපාර්තමේන්තු අධීක්ෂක"
+      },
+      "reply": {
+        "close": "ඉල්ලීම වසන්න",
+        "errors": {
+          "empty": "පණිවිඩයක් ලියන්න හෝ ගොනුවක් අමුණන්න."
+        },
+        "failed": "ඉල්ලීම යාවත්කාලීන කිරීමට නොහැකි විය. නැවත උත්සාහ කරන්න.",
+        "headingHandler": "පිළිතුරු දෙන්න",
+        "headingRequester": "අමතර සටහනක් එක් කරන්න",
+        "placeholder": "පිළිතුරක් ලියන්න…",
+        "reopen": "නැවත විවෘත කරන්න",
+        "send": "පිළිතුර යවන්න",
+        "sendAndClose": "පිළිතුරු දී වසන්න",
+        "sent": "පිළිතුර යවන ලදී."
+      },
+      "roles": {
+        "admin": "පරිපාලක",
+        "floor_operator": "ක්‍රියාකරු",
+        "hr_officer": "මානව සම්පත් නිලධාරී",
+        "plant_manager": "කම්හල් කළමනාකරු",
+        "safety_officer": "ආරක්ෂක නිලධාරී",
+        "store_keeper": "ගබඩා භාරකරු",
+        "supervisor": "අධීක්ෂක",
+        "technician": "කාර්මික ශිල්පී",
+        "trainee": "අභ්‍යාසලාභී"
+      },
+      "sending": "යවමින්…",
+      "statuses": {
+        "answered": "පිළිතුරු දුන්",
+        "closed": "වසා දැමූ",
+        "open": "විවෘත"
+      }
+    },
+    "ui": {
+      "notifications": {
+        "title": "දැනුම්දීම්",
+        "mute": "දැනුම්දීම් ශබ්දය නිහඬ කරන්න",
+        "unmute": "දැනුම්දීම් ශබ්දය සක්‍රිය කරන්න",
+        "soundOn": "දැනුම්දීම් ශබ්දය සක්‍රියයි",
+        "soundOff": "දැනුම්දීම් ශබ්දය අක්‍රියයි",
+        "markAllRead": "සියල්ල කියවූ ලෙස සලකුණු කරන්න",
+        "enableDevice": "නව ඇඟවීම් සඳහා ශබ්දය සහිත උපාංග දැනුම්දීම් සක්‍රිය කරන්න",
+        "allCaughtUp": "ඔබ සියල්ල බලා අවසන්.",
+        "dismiss": "ඉවත් කරන්න",
+        "needsAttention": "අවධානය අවශ්‍යයි"
+      },
+      "selectItemForDetails": "විස්තර බැලීමට අයිතමයක් තෝරන්න.",
+      "live": "සජීවී",
+      "failedToLoad": "දත්ත පූරණය කිරීමට නොහැකි විය",
+      "retry": "නැවත උත්සාහ කරන්න",
+      "close": "වසන්න",
+      "loading": "පූරණය වෙමින්...",
+      "toggleNavigation": "සංචාලනය පෙන්වන්න/සඟවන්න",
+      "voiceLanguage": "ඔබ කතා කරන භාෂාව",
+      "machineCell": {
+        "status": "තත්ත්වය",
+        "health": "සෞඛ්‍යය",
+        "openWos": "විවෘත වැඩ ඇණවුම්"
+      },
+      "planGate": {
+        "title": "මෙම විශේෂාංගය භාවිතයට උත්ශ්‍රේණි කරන්න",
+        "notIncluded": "{{feature}} ඔබේ වත්මන් සැලැස්මට ඇතුළත් නැත.",
+        "viewPlans": "සැලසුම් බලන්න",
+        "features": {
+          "autoPOEmail": "සැපයුම්කරුවන්ට ස්වයංක්‍රීය මිලදී ගැනීමේ ඇණවුම් ඊමේල්",
+          "qrLowStockAlerts": "තොග QR ස්කෑන් සහ අඩු තොග ඇඟවීම්",
+          "contractors": "කොන්ත්‍රාත්කරු කළමනාකරණය",
+          "shiftHandover": "මුර භාරදීම සහ කෙටි රැස්වීම්",
+          "training": "පුහුණු මොඩියුලය",
+          "safety": "ආරක්ෂක වැඩ අවකාශය",
+          "moeAnalytics": "MOE ප්‍රවණතා විශ්ලේෂණය සහ යන්ත්‍ර සංසන්දනය",
+          "multiSite": "බහු-ස්ථාන කළමනාකරණය"
+        }
+      },
+      "shiftConfig": {
+        "plant": "කම්හල",
+        "selectPlant": "කම්හලක් තෝරන්න...",
+        "selectPlantFirst": "පළමුව කම්හලක් තෝරන්න."
+      },
+      "cancelReason": {
+        "title": "අවලංගු කරන්න",
+        "description": "අවලංගු කිරීමට හේතුවක් සපයන්න.",
+        "confirm": "අවලංගු කිරීම තහවුරු කරන්න",
+        "cancelling": "අවලංගු කරමින්…",
+        "categoryLabel": "හේතු කාණ්ඩය",
+        "reasonLabel": "හේතුව",
+        "placeholder": "අවලංගු කිරීමට හේතුව…",
+        "required": "අවලංගු කිරීමේ හේතුවක් අවශ්‍යයි.",
+        "goBack": "ආපසු යන්න",
+        "categories": {
+          "none": "කාණ්ඩයක් තෝරන්න (විකල්ප)…",
+          "duplicate": "අනුපිටපත් ටිකට්පත",
+          "reported_in_error": "වැරදීමකින් වාර්තා කළ",
+          "no_longer_needed": "තවදුරටත් අවශ්‍ය නැත",
+          "resolved_externally": "බාහිරව විසඳූ",
+          "wrong_machine": "වැරදි යන්ත්‍රය / වත්කම",
+          "other": "වෙනත්"
+        }
+      },
+      "triageStep": {
+        "escalation": "ඉහළට යොමු කිරීමේ පියවර",
+        "quickFix": "ඉක්මන් විසඳුම් පියවර",
+        "requiresPhoto": "ඡායාරූපයක් අවශ්‍යයි"
+      },
+      "errorBoundary": {
+        "title": "යමක් වැරදී ඇත",
+        "body": "මෙම පිටුව පෙන්වීමට නොහැකි විය. පිටුව නැවත පූරණය කරන්න හෝ විස්තර සඳහා බ්‍රව්සර් කොන්සෝලය විවෘත කරන්න.",
+        "reload": "නැවත පූරණය කරන්න",
+        "tryAgain": "නැවත උත්සාහ කරන්න"
+      },
+      "relativeTime": {
+        "justNow": "දැන්",
+        "minutes": "මිනිත්තු {{count}}කට පෙර",
+        "hours": "පැය {{count}}කට පෙර",
+        "days": "දින {{count}}කට පෙර"
       }
     }
   },

@@ -48,7 +48,11 @@
         "audit": "Prüfung",
         "evaluations": "Bewertungen",
         "settings": "Einstellungen",
-        "billing": "Abrechnung & Tarif"
+        "billing": "Abrechnung & Tarif",
+        "maintenanceHistory": "Wartungsverlauf",
+        "myRequests": "Meine Anfragen",
+        "requestsInbox": "Anfragen-Posteingang",
+        "safetyBlacklist": "Sperrliste"
       },
       "help": "Hilfe & Support"
     },
@@ -209,7 +213,8 @@
           "autoApprovalEligible": "✓ Für automatische Genehmigung berechtigt: alle Positionen auf Lager und innerhalb des Schwellenwerts",
           "autoApprovalNotEligible": "✗ Nicht für automatische Genehmigung berechtigt: {{reasons}}",
           "someUnavailable": "Einige Positionen nicht verfügbar. ",
-          "costExceedsThreshold": "Kosten überschreiten den Schwellenwert von {{threshold}} LKR."
+          "costExceedsThreshold": "Kosten überschreiten den Schwellenwert von {{threshold}} LKR.",
+          "writtenOff": "Storniert von {{name}} — wird nicht zurückgegeben: {{reason}}"
         },
         "availabilityIndicator": {
           "outOfStock": "Nicht auf Lager",
@@ -1345,7 +1350,14 @@
         "returnFailed": "Rückgabeanfrage fehlgeschlagen.",
         "returnRequested": "Rückgabe angefragt — ein Lagerist wird sie bestätigen.",
         "returning": "Wird zurückgegeben",
-        "title": "Meine rückgabefähigen Teile"
+        "title": "Meine rückgabefähigen Teile",
+        "writeOffBody": "Geben Sie an, warum dies nicht zurückgegeben wird (verloren, beschädigt, verbraucht usw.). Dies wird protokolliert und Lageristen/Vorgesetzte werden benachrichtigt.",
+        "writeOffButton": "Stornieren",
+        "writeOffConfirm": "Stornierung bestätigen",
+        "writeOffFailed": "Stornierung konnte nicht erfasst werden.",
+        "writeOffReasonPlaceholder": "Grund (erforderlich)",
+        "writeOffRecorded": "Erfasst — dieser Artikel wird nicht mehr zurückerwartet.",
+        "writeOffTitle": "Rückgabe von {{partName}} stornieren"
       },
       "mySafetyCasesWidget": {
         "actionsTaken": "Ergriffene Maßnahmen",
@@ -1420,7 +1432,9 @@
         "reject": "Ablehnen",
         "requested": "angefragt",
         "title": "Ausstehende Genehmigungen",
-        "viewMore": "{{count}} weitere anzeigen…"
+        "viewMore": "{{count}} weitere anzeigen…",
+        "attach": "Anhängen (optional)",
+        "removeAttachment": "Anhang entfernen"
       },
       "pendingReceiptPOsWidget": {
         "empty": "Keine Bestellungen zum Wareneingang",
@@ -1499,7 +1513,11 @@
           "inApprovalOfSupervisor": "In Genehmigung durch Vorgesetzten",
           "needToCollect": "Abzuholen"
         },
-        "title": "Angeforderte Teile"
+        "title": "Angeforderte Teile",
+        "cancel": "Stornieren",
+        "cancelFailed": "Anfrage konnte nicht storniert werden.",
+        "cancelled": "Anfrage storniert.",
+        "cancelling": "Wird storniert…"
       },
       "safetyForYouWidget": {
         "empty": "Nichts Sicherheitsrelevantes ausstehend",
@@ -1574,7 +1592,7 @@
       },
       "technicianStatusList": {
         "active": "{{count}} aktiv",
-        "empty": "Keine Techniker im Dienst",
+        "empty": "Keine Techniker oder Auszubildenden Ihrer Abteilung in der Schicht",
         "title": "Teamstatus"
       },
       "technicianStatusRow": {
@@ -1673,6 +1691,14 @@
           "operator": "Bediener",
           "machine": "Maschine"
         }
+      },
+      "needSignOffWidget": {
+        "badge": "Abgeschlossen",
+        "empty": "Nichts wartet auf Abnahme",
+        "emptySub": "Abgeschlossene Arbeitsaufträge erscheinen hier, bis Sie sie abnehmen.",
+        "pending": "{{count}} ausstehend",
+        "title": "Abnahme erforderlich",
+        "viewMore": "{{count}} weitere anzeigen…"
       }
     },
     "machines": {
@@ -2056,7 +2082,12 @@
           "descriptionTooShort": "Beschreiben Sie die Störung mit mindestens 10 Zeichen.",
           "machineNotFound": "Ausgewählte Maschine nicht gefunden.",
           "submitFailed": "Störung konnte nicht gemeldet werden."
-        }
+        },
+        "aiSuggestionDisclaimer": "Gleichen Sie dies vor dem Handeln selbst mit den abgeschlossenen Arbeitsaufträgen und Ursachenanalysen der Maschine ab.",
+        "aiSuggestionTitle": "KI-Vorschlag",
+        "continueButton": "Weiter",
+        "submittedSubtitle": "Ihre Meldung für {{machineName}} wurde an das Wartungsteam gesendet.",
+        "submittedTitle": "Störung gemeldet"
       },
       "attendPage": {
         "back": "Zurück",
@@ -2116,6 +2147,17 @@
         },
         "errors": {
           "saveFailed": "Speichern fehlgeschlagen."
+        },
+        "rca": {
+          "actionsLabel": "Empfohlene nächste Schritte",
+          "aiError": "KI nicht verfügbar — {{error}}",
+          "causesLabel": "Wahrscheinliche Ursachen",
+          "cta": "KI-Vorschläge abrufen",
+          "error": "Vorschläge konnten gerade nicht erstellt werden. Bitte erneut versuchen.",
+          "loading": "Wird analysiert…",
+          "sourceAi": "Von der KI aus dem jüngsten Störungsverlauf dieser Maschine erstellt — vor dem Handeln prüfen.",
+          "sourceHeuristic": "Aus integrierten Wartungsmustern erstellt (KI nicht verfügbar) — vor dem Handeln prüfen.",
+          "title": "KI-Vorschläge zur Grundursache"
         }
       },
       "viewPage": {
@@ -2137,7 +2179,8 @@
         "errors": {
           "closeFailed": "Störung konnte nicht geschlossen werden.",
           "assignFailed": "Zuweisung fehlgeschlagen.",
-          "attendFailed": "Bearbeitung fehlgeschlagen."
+          "attendFailed": "Bearbeitung fehlgeschlagen.",
+          "woNotCompleted": "Arbeitsauftrag {{woNumber}} ist noch nicht abgeschlossen — er muss abgeschlossen und abgenommen werden, bevor diese Störung geschlossen werden kann."
         }
       },
       "editPage": {
@@ -2589,7 +2632,9 @@
         "noContractorTeamMembers": "Für diesen Auftragnehmer sind noch keine Teammitglieder registriert. Fügen Sie sie im Reiter „Teammitglieder“ des Auftragnehmers hinzu.",
         "assignInternalTechniciansLabel": "Interne Techniker zuweisen",
         "optionalLabel": "(optional)",
-        "activeWOsInline": "{{count}} aktive AA"
+        "activeWOsInline": "{{count}} aktive AA",
+        "chooseContactPerson": "Ansprechpartner wählen…",
+        "primaryContactOption": "{{name}} (Hauptansprechpartner)"
       },
       "pageTitle": "Arbeitsaufträge",
       "count": "{{count}} Arbeitsaufträge",
@@ -2598,12 +2643,14 @@
       "tabs": {
         "needSignOff": "Abzeichnung Erforderlich",
         "signedOff": "Abgezeichnet",
-        "approvalRequests": "Genehmigungsanfragen"
+        "approvalRequests": "Genehmigungsanfragen",
+        "cancelled": "Storniert"
       },
       "empty": {
         "needSignOff": "Keine Arbeitsaufträge warten auf Abzeichnung.",
         "signedOff": "Noch keine abgezeichneten oder geschlossenen Arbeitsaufträge.",
-        "noOpenWOs": "Keine offenen Arbeitsaufträge. Alles erledigt!"
+        "noOpenWOs": "Keine offenen Arbeitsaufträge. Alles erledigt!",
+        "cancelled": "Keine stornierten Arbeitsaufträge."
       },
       "table": {
         "wo": "Arbeitsauftrag",
@@ -2735,7 +2782,12 @@
         "requestedByLabel": "{{name}} angefragt",
         "notePlaceholder": "Notiz (optional)",
         "approveButton": "Genehmigen",
-        "rejectButton": "Ablehnen"
+        "rejectButton": "Ablehnen",
+        "attachmentsLabel": "Anhänge",
+        "machineLabel": "Maschine",
+        "priorityLabel": "Priorität",
+        "statusLabel": "Status",
+        "woNumberLabel": "Arbeitsauftrag"
       },
       "myWorkOrders": {
         "pageTitle": "Meine Arbeitsaufträge",
@@ -2806,7 +2858,8 @@
         "completeMyWorkButton": "Meine Arbeit Abschließen",
         "submitAndCompleteButton": "Abschließen & Arbeitsauftrag Einreichen",
         "pendingTeamCompletionHint": "Der Arbeitsauftrag kann zur Abzeichnung eingereicht werden, sobald alle zugewiesenen Teammitglieder ihre eigene Arbeit abgeschlossen haben ({{completed}}/{{total}}).",
-        "statusHint": "Dieser Arbeitsauftrag ist {{status}}."
+        "statusHint": "Dieser Arbeitsauftrag ist {{status}}.",
+        "approvalAttachmentsLabel": "Anhänge (optional)"
       },
       "mediaCapture": {
         "takePhoto": "Foto Aufnehmen",
@@ -5483,12 +5536,17 @@
             "email": "E-Mail",
             "specialization": "Spezialisierung",
             "certifications": "Zertifizierungen, durch Komma getrennt",
-            "certificationAttachments": "Zertifizierungsanhänge"
+            "certificationAttachments": "Zertifizierungsanhänge",
+            "photo": "Profilfoto",
+            "photoHint": "JPG, PNG oder WebP, bis 5 MB."
           },
           "actions": {
             "save": "Techniker speichern",
             "saving": "Wird gespeichert…",
-            "removeAttachment": "Anhang entfernen"
+            "removeAttachment": "Anhang entfernen",
+            "changePhoto": "Foto ändern",
+            "removePhoto": "Foto entfernen",
+            "uploadPhoto": "Foto hochladen"
           },
           "toasts": {
             "updated": "Techniker aktualisiert",
@@ -5498,7 +5556,9 @@
             "missingContractor": "Fehlende Auftragnehmer-Referenz.",
             "mustBeLoggedIn": "Sie müssen angemeldet sein.",
             "requiredFields": "Vollständiger Name und NIC/Reisepass sind erforderlich.",
-            "saveFailed": "Techniker konnte nicht gespeichert werden"
+            "saveFailed": "Techniker konnte nicht gespeichert werden",
+            "photoNotImage": "Wählen Sie eine Bilddatei (JPG, PNG, WebP…).",
+            "photoTooLarge": "Das Foto darf höchstens 5 MB groß sein."
           }
         }
       },
@@ -8372,6 +8432,267 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Individuelle Integrationen & API",
         "dedicatedSupportSla": "Dedizierter Support & SLA"
+      }
+    },
+    "actions": {
+      "activate": "Aktivieren",
+      "cancel": "Abbrechen",
+      "deactivate": "Deaktivieren",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "maintenanceHistory": {
+      "allDepartments": "Alle Abteilungen",
+      "columns": {
+        "actions": "Aktionen",
+        "attendedBy": "Bearbeitet von",
+        "closed": "Geschlossen",
+        "department": "Abteilung",
+        "machine": "Maschine",
+        "outcome": "Ergebnis",
+        "rootCause": "Grundursache",
+        "signedOff": "Abgenommen",
+        "supervisor": "Vorgesetzter",
+        "ticket": "Ticket",
+        "wo": "Arbeitsauftrag"
+      },
+      "empty": "Keine Einträge entsprechen diesen Filtern.",
+      "exportFailed": "PDF konnte nicht erstellt werden. Bitte erneut versuchen.",
+      "exportPdf": "PDF exportieren",
+      "filters": {
+        "allSupervisors": "Alle Vorgesetzten",
+        "allTypes": "Alle Typen",
+        "clear": "Filter zurücksetzen",
+        "department": "Abteilung",
+        "from": "Von",
+        "search": "Nummer, Maschine, Beschreibung suchen…",
+        "supervisor": "Vorgesetzter",
+        "to": "Bis",
+        "woType": "Arbeitsauftragstyp"
+      },
+      "outcomes": {
+        "complete": "Abgeschlossen",
+        "failed": "Fehlgeschlagen",
+        "not_complete": "Nicht abgeschlossen"
+      },
+      "rootCauses": {
+        "external_damage": "Äußere Beschädigung",
+        "lack_of_maintenance": "Mangelnde Wartung",
+        "manufacturing_defect": "Herstellungsfehler",
+        "operator_error": "Bedienfehler",
+        "unknown": "Unbekannt",
+        "wear_and_tear": "Verschleiß"
+      },
+      "showMore": "Mehr anzeigen ({{shown}} von {{total}})",
+      "subtitle": "Alle abgenommenen Arbeitsaufträge und geschlossenen Störungen Ihres Werks, von allen Vorgesetzten und Abteilungen. Exportieren Sie jeden Eintrag als detaillierten PDF-Bericht.",
+      "tabs": {
+        "breakdowns": "Geschlossene Störungen",
+        "workOrders": "Abgenommene Arbeitsaufträge"
+      },
+      "title": "Wartungsverlauf",
+      "view": "Öffnen",
+      "woTypes": {
+        "BREAKDOWN": "Störungsreparatur",
+        "CONTRACTOR": "Auftragnehmer",
+        "CORRECTIVE": "Korrektiv",
+        "INSPECTION": "Inspektion",
+        "INSTALLATION": "Installation",
+        "MODIFICATION": "Änderung",
+        "OTHER": "Sonstiges",
+        "PREVENTIVE": "Vorbeugende Wartung"
+      }
+    },
+    "staffRequests": {
+      "attachments": {
+        "add": "Dateien anhängen",
+        "remove": "{{name}} entfernen",
+        "tooLarge": "{{name}} ist größer als 25 MB und wurde nicht angehängt."
+      },
+      "cancel": "Abbrechen",
+      "card": {
+        "closedOn": "Geschlossen am {{date}}",
+        "reference": "Referenz: {{reference}}",
+        "replies_one": "{{count}} Antwort",
+        "replies_other": "{{count}} Antworten",
+        "sentTo": "An: {{to}}"
+      },
+      "categories": {
+        "other": "Sonstiges",
+        "personal": "Persönlich",
+        "record_access": "Zugriff auf frühere AA-/Störungsdetails",
+        "service_letter": "Dienstbescheinigung",
+        "work": "Arbeit"
+      },
+      "close": "Schließen",
+      "filters": {
+        "all": "Alle",
+        "allCategories": "Alle Anfragetypen",
+        "search": "Anfragen suchen…"
+      },
+      "inbox": {
+        "empty": "Hier gibt es keine Anfragen.",
+        "scope": {
+          "admin": "An den Administrator gesendete Anfragen.",
+          "plantManager": "An den Werksleiter Ihres Werks gesendete Anfragen.",
+          "supervisor": "An die Vorgesetzten Ihrer Abteilung ({{department}}) gesendete Anfragen."
+        },
+        "title": "Anfragen-Posteingang"
+      },
+      "myPage": {
+        "empty": "Sie haben noch keine Anfragen gesendet.",
+        "newRequest": "Neue Anfrage",
+        "subtitle": "Wenden Sie sich an Ihren Vorgesetzten, Werksleiter oder Administrator bei persönlichen oder beruflichen Anliegen, für eine Dienstbescheinigung oder Zugriff auf frühere Arbeitsauftrags-/Störungsdetails.",
+        "title": "Meine Anfragen"
+      },
+      "newRequest": {
+        "category": "Anfragetyp",
+        "choosePerson": "Person wählen…",
+        "errors": {
+          "recipient": "Wählen Sie, an wen die Anfrage gehen soll.",
+          "required": "Geben Sie einen Betreff und eine Nachricht ein."
+        },
+        "failed": "Anfrage konnte nicht gesendet werden. Bitte erneut versuchen.",
+        "loadingPeople": "Personen werden geladen…",
+        "message": "Nachricht",
+        "noRecipients": "Noch niemand kann Ihre Anfragen empfangen. Bitten Sie Ihren Administrator, Ihr Werk und Ihre Abteilung zu prüfen.",
+        "reference": "AA- / Störungsnummer",
+        "referencePlaceholder": "z. B. WO-2026-0142 oder BD-0098",
+        "send": "Anfrage senden",
+        "sendTo": "Senden an",
+        "sent": "Anfrage gesendet.",
+        "subject": "Betreff",
+        "title": "Neue Anfrage"
+      },
+      "notifications": {
+        "closed": "{{name}} hat die Anfrage „{{subject}}“ geschlossen",
+        "newReply": "{{name}} hat auf die Anfrage „{{subject}}“ geantwortet",
+        "newRequest": "Neue Anfrage ({{category}}) von {{name}}: {{subject}}"
+      },
+      "recipients": {
+        "admin": "Administrator",
+        "plant_manager": "Mein Werksleiter",
+        "supervisor": "Mein Abteilungsvorgesetzter"
+      },
+      "reply": {
+        "close": "Anfrage schließen",
+        "errors": {
+          "empty": "Schreiben Sie eine Nachricht oder hängen Sie eine Datei an."
+        },
+        "failed": "Anfrage konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+        "headingHandler": "Antworten",
+        "headingRequester": "Nachtrag hinzufügen",
+        "placeholder": "Antwort schreiben…",
+        "reopen": "Wieder öffnen",
+        "send": "Antwort senden",
+        "sendAndClose": "Antworten & schließen",
+        "sent": "Antwort gesendet."
+      },
+      "roles": {
+        "admin": "Administrator",
+        "floor_operator": "Bediener",
+        "hr_officer": "Personalreferent",
+        "plant_manager": "Werksleiter",
+        "safety_officer": "Sicherheitsbeauftragter",
+        "store_keeper": "Lagerist",
+        "supervisor": "Vorgesetzter",
+        "technician": "Techniker",
+        "trainee": "Auszubildender"
+      },
+      "sending": "Wird gesendet…",
+      "statuses": {
+        "answered": "Beantwortet",
+        "closed": "Geschlossen",
+        "open": "Offen"
+      }
+    },
+    "ui": {
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "mute": "Benachrichtigungston stummschalten",
+        "unmute": "Benachrichtigungston einschalten",
+        "soundOn": "Benachrichtigungston an",
+        "soundOff": "Benachrichtigungston aus",
+        "markAllRead": "Alle als gelesen markieren",
+        "enableDevice": "Gerätebenachrichtigungen mit Ton für neue Meldungen aktivieren",
+        "allCaughtUp": "Sie sind auf dem neuesten Stand.",
+        "dismiss": "Verwerfen",
+        "needsAttention": "Erfordert Aufmerksamkeit"
+      },
+      "selectItemForDetails": "Wählen Sie ein Element aus, um Details anzuzeigen.",
+      "live": "Live",
+      "failedToLoad": "Daten konnten nicht geladen werden",
+      "retry": "Erneut versuchen",
+      "close": "Schließen",
+      "loading": "Wird geladen...",
+      "toggleNavigation": "Navigation ein-/ausblenden",
+      "voiceLanguage": "Sprache, in der Sie sprechen",
+      "machineCell": {
+        "status": "Status",
+        "health": "Zustand",
+        "openWos": "Offene AA"
+      },
+      "planGate": {
+        "title": "Upgrade, um diese Funktion freizuschalten",
+        "notIncluded": "{{feature}} ist in Ihrem aktuellen Tarif nicht enthalten.",
+        "viewPlans": "Tarife ansehen",
+        "features": {
+          "autoPOEmail": "Automatische Bestell-E-Mail an Lieferanten",
+          "qrLowStockAlerts": "Inventar-QR-Scan & Warnungen bei niedrigem Bestand",
+          "contractors": "Auftragnehmerverwaltung",
+          "shiftHandover": "Schichtübergabe & Besprechungen",
+          "training": "Schulungsmodul",
+          "safety": "Sicherheitsbereich",
+          "moeAnalytics": "MOE-Trendanalyse & Maschinenvergleich",
+          "multiSite": "Verwaltung mehrerer Standorte"
+        }
+      },
+      "shiftConfig": {
+        "plant": "Werk",
+        "selectPlant": "Werk wählen...",
+        "selectPlantFirst": "Wählen Sie zuerst ein Werk."
+      },
+      "cancelReason": {
+        "title": "Abbrechen",
+        "description": "Bitte geben Sie einen Grund für die Stornierung an.",
+        "confirm": "Stornierung bestätigen",
+        "cancelling": "Wird storniert…",
+        "categoryLabel": "Kategorie des Grundes",
+        "reasonLabel": "Grund",
+        "placeholder": "Grund für die Stornierung…",
+        "required": "Ein Stornierungsgrund ist erforderlich.",
+        "goBack": "Zurück",
+        "categories": {
+          "none": "Kategorie wählen (optional)…",
+          "duplicate": "Doppeltes Ticket",
+          "reported_in_error": "Irrtümlich gemeldet",
+          "no_longer_needed": "Nicht mehr erforderlich",
+          "resolved_externally": "Extern gelöst",
+          "wrong_machine": "Falsche Maschine / falsches Gerät",
+          "other": "Sonstiges"
+        }
+      },
+      "triageStep": {
+        "escalation": "Eskalationsschritt",
+        "quickFix": "Schnellbehebungsschritt",
+        "requiresPhoto": "Foto erforderlich"
+      },
+      "errorBoundary": {
+        "title": "Etwas ist schiefgelaufen",
+        "body": "Diese Seite konnte nicht angezeigt werden. Laden Sie die Seite neu oder öffnen Sie die Browserkonsole für Details.",
+        "reload": "Neu laden",
+        "tryAgain": "Erneut versuchen"
+      },
+      "relativeTime": {
+        "justNow": "gerade eben",
+        "minutes": "vor {{count}} Min.",
+        "hours": "vor {{count}} Std.",
+        "days": "vor {{count}} T."
       }
     }
   },

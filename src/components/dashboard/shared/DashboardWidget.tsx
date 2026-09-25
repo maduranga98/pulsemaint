@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 import LiveIndicator from './LiveIndicator';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -24,6 +25,7 @@ export default function DashboardWidget({
   onRetry,
   className = '',
 }: DashboardWidgetProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={`relative bg-[#0F1E35] border border-[#1E3A5F] rounded-xl overflow-hidden hover:border-[#2E5A8F] transition-colors ${className}`}
@@ -35,7 +37,7 @@ export default function DashboardWidget({
           {live && (
             <span className="inline-flex items-center gap-1 text-[10px] text-[#10B981] font-medium uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-              Live
+              {t('common.ui.live')}
             </span>
           )}
         </div>
@@ -48,7 +50,7 @@ export default function DashboardWidget({
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <AlertTriangle className="w-8 h-8 text-[#EF4444] mb-2" />
-            <p className="text-sm text-[#F0F4F8]">Failed to load data</p>
+            <p className="text-sm text-[#F0F4F8]">{t('common.ui.failedToLoad')}</p>
             <p className="text-xs text-[#8BA3BF] mt-1">{error}</p>
             {onRetry && (
               <button
@@ -56,7 +58,7 @@ export default function DashboardWidget({
                 className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#1A56DB] bg-[#1A56DB]/10 rounded-md hover:bg-[#1A56DB]/20 transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
-                Retry
+                {t('common.ui.retry')}
               </button>
             )}
           </div>

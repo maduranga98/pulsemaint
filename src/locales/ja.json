@@ -48,7 +48,11 @@
         "audit": "監査",
         "evaluations": "評価",
         "settings": "設定",
-        "billing": "請求とプラン"
+        "billing": "請求とプラン",
+        "maintenanceHistory": "保全履歴",
+        "myRequests": "マイリクエスト",
+        "requestsInbox": "リクエスト受信箱",
+        "safetyBlacklist": "ブラックリスト"
       },
       "help": "ヘルプとサポート"
     },
@@ -209,7 +213,8 @@
           "autoApprovalEligible": "✓ 自動承認対象：すべての項目が在庫あり、しきい値内",
           "autoApprovalNotEligible": "✗ 自動承認対象外：{{reasons}}",
           "someUnavailable": "一部の項目が利用できません。",
-          "costExceedsThreshold": "費用がしきい値 LKR {{threshold}} を超えています。"
+          "costExceedsThreshold": "費用がしきい値 LKR {{threshold}} を超えています。",
+          "writtenOff": "{{name}} がキャンセル — 返却されません：{{reason}}"
         },
         "availabilityIndicator": {
           "outOfStock": "在庫切れ",
@@ -1181,7 +1186,9 @@
         },
         "title": "故障頻度ヒートマップ",
         "tooltipCount": "{{day}} {{hour}} — {{count}}件の故障",
-        "tooltipNone": "{{day}} {{hour}} — 故障なし"
+        "tooltipNone": "{{day}} {{hour}} — 故障なし",
+        "tooltipCount_one": "{{day}} {{hour}} — 故障 {{count}} 件",
+        "tooltipCount_other": "{{day}} {{hour}} — 故障 {{count}} 件"
       },
       "breakdownKanbanBoard": {
         "lanes": {
@@ -1274,7 +1281,9 @@
         "sinceTime": "{{time}}から",
         "title": "リアルタイムシフト状況",
         "workingNow": "{{count}}人が現在作業中",
-        "yesterday": "昨日"
+        "yesterday": "昨日",
+        "footer_one": "稼働中のシフト {{shifts}} 件 · 作業中 {{people}} 名",
+        "footer_other": "稼働中のシフト {{shifts}} 件 · 作業中 {{people}} 名"
       },
       "lowStockAlertTable": {
         "category": "カテゴリー",
@@ -1341,7 +1350,14 @@
         "returnFailed": "返却申請に失敗しました。",
         "returnRequested": "返却を申請しました — 倉庫係が確認します。",
         "returning": "返却手続き中",
-        "title": "自分の返却可能部品"
+        "title": "自分の返却可能部品",
+        "writeOffBody": "返却できない理由（紛失、破損、使用済みなど）を入力してください。記録され、倉庫担当者／監督者に通知されます。",
+        "writeOffButton": "キャンセル",
+        "writeOffConfirm": "キャンセルを確定",
+        "writeOffFailed": "キャンセルを記録できませんでした。",
+        "writeOffReasonPlaceholder": "理由（必須）",
+        "writeOffRecorded": "記録しました — このアイテムの返却は不要になりました。",
+        "writeOffTitle": "{{partName}} の返却をキャンセル"
       },
       "mySafetyCasesWidget": {
         "actionsTaken": "実施した対応",
@@ -1416,7 +1432,9 @@
         "reject": "却下",
         "requested": "申請内容：",
         "title": "保留中の承認",
-        "viewMore": "他{{count}}件を表示…"
+        "viewMore": "他{{count}}件を表示…",
+        "attach": "添付（任意）",
+        "removeAttachment": "添付を削除"
       },
       "pendingReceiptPOsWidget": {
         "empty": "入荷待ちの発注書はありません",
@@ -1495,7 +1513,11 @@
           "inApprovalOfSupervisor": "上長承認待ち",
           "needToCollect": "受け取り待ち"
         },
-        "title": "申請済み部品"
+        "title": "申請済み部品",
+        "cancel": "キャンセル",
+        "cancelFailed": "リクエストをキャンセルできませんでした。",
+        "cancelled": "リクエストをキャンセルしました。",
+        "cancelling": "キャンセル中…"
       },
       "safetyForYouWidget": {
         "empty": "保留中の安全関連事項はありません",
@@ -1570,7 +1592,7 @@
       },
       "technicianStatusList": {
         "active": "{{count}}人稼働中",
-        "empty": "勤務中の技術者はいません",
+        "empty": "あなたの部署にシフト中の技術者・研修生はいません",
         "title": "チームステータス"
       },
       "technicianStatusRow": {
@@ -1669,6 +1691,14 @@
           "operator": "オペレーター",
           "machine": "設備"
         }
+      },
+      "needSignOffWidget": {
+        "badge": "完了",
+        "empty": "承認待ちはありません",
+        "emptySub": "完了した作業指示は、承認するまでここに表示されます。",
+        "pending": "保留中 {{count}} 件",
+        "title": "承認待ち",
+        "viewMore": "さらに {{count}} 件を表示…"
       }
     },
     "machines": {
@@ -2052,7 +2082,12 @@
           "descriptionTooShort": "故障内容を10文字以上で説明してください。",
           "machineNotFound": "選択した設備が見つかりません。",
           "submitFailed": "故障の報告に失敗しました。"
-        }
+        },
+        "aiSuggestionDisclaimer": "対応する前に、この設備の過去の完了済み作業指示と根本原因分析とご自身で照合してください。",
+        "aiSuggestionTitle": "AI の提案",
+        "continueButton": "続行",
+        "submittedSubtitle": "{{machineName}} の報告を保全チームに送信しました。",
+        "submittedTitle": "故障を報告しました"
       },
       "attendPage": {
         "back": "戻る",
@@ -2112,6 +2147,17 @@
         },
         "errors": {
           "saveFailed": "保存に失敗しました。"
+        },
+        "rca": {
+          "actionsLabel": "推奨される次の対応",
+          "aiError": "AI を利用できません — {{error}}",
+          "causesLabel": "考えられる原因",
+          "cta": "AI の提案を取得",
+          "error": "現在提案を生成できません。もう一度お試しください。",
+          "loading": "分析中…",
+          "sourceAi": "この設備の最近の故障履歴から AI が生成しました — 対応前に確認してください。",
+          "sourceHeuristic": "組み込みの保全パターンから生成しました（AI 利用不可）— 対応前に確認してください。",
+          "title": "AI による根本原因の提案"
         }
       },
       "viewPage": {
@@ -2133,7 +2179,8 @@
         "errors": {
           "closeFailed": "故障を完了にできませんでした。",
           "assignFailed": "割り当てに失敗しました。",
-          "attendFailed": "対応に失敗しました。"
+          "attendFailed": "対応に失敗しました。",
+          "woNotCompleted": "作業指示 {{woNumber}} はまだ完了していません — この故障を閉じるには、作業指示を完了して承認する必要があります。"
         }
       },
       "editPage": {
@@ -2215,12 +2262,14 @@
       "tabs": {
         "needSignOff": "サインオフ待ち",
         "signedOff": "サインオフ済み",
-        "approvalRequests": "承認依頼"
+        "approvalRequests": "承認依頼",
+        "cancelled": "キャンセル済み"
       },
       "empty": {
         "needSignOff": "サインオフ待ちの作業指示書はありません。",
         "signedOff": "サインオフまたは完了済みの作業指示書はまだありません。",
-        "noOpenWOs": "未対応の作業指示書はありません。すべて完了しています！"
+        "noOpenWOs": "未対応の作業指示書はありません。すべて完了しています！",
+        "cancelled": "キャンセルされた作業指示はありません。"
       },
       "table": {
         "wo": "作業指示書",
@@ -2611,7 +2660,9 @@
         "noContractorTeamMembers": "この外注業者にはまだチームメンバーが登録されていません。外注業者の「チームメンバー」タブで追加してください。",
         "assignInternalTechniciansLabel": "社内技術者を割り当て",
         "optionalLabel": "（任意）",
-        "activeWOsInline": "進行中の作業指示書 {{count}} 件"
+        "activeWOsInline": "進行中の作業指示書 {{count}} 件",
+        "chooseContactPerson": "連絡担当者を選択…",
+        "primaryContactOption": "{{name}}（主担当）"
       },
       "signOffForm": {
         "starLabel": "{{count}} つ星",
@@ -2731,7 +2782,12 @@
         "requestedByLabel": "{{name}} が依頼",
         "notePlaceholder": "メモ（任意）",
         "approveButton": "承認",
-        "rejectButton": "却下"
+        "rejectButton": "却下",
+        "attachmentsLabel": "添付ファイル",
+        "machineLabel": "設備",
+        "priorityLabel": "優先度",
+        "statusLabel": "ステータス",
+        "woNumberLabel": "作業指示"
       },
       "myWorkOrders": {
         "pageTitle": "自分の作業指示書",
@@ -2802,7 +2858,8 @@
         "completeMyWorkButton": "自分の作業を完了する",
         "submitAndCompleteButton": "完了して作業指示書を送信",
         "pendingTeamCompletionHint": "割り当てられたすべてのチームメンバーが各自の作業を完了すると（{{completed}}/{{total}}）、サインオフのために作業指示書を送信できます。",
-        "statusHint": "この作業指示書は{{status}}です。"
+        "statusHint": "この作業指示書は{{status}}です。",
+        "approvalAttachmentsLabel": "添付ファイル（任意）"
       },
       "mediaCapture": {
         "takePhoto": "写真を撮る",
@@ -5479,12 +5536,17 @@
             "email": "メールアドレス",
             "specialization": "専門分野",
             "certifications": "資格(カンマ区切り)",
-            "certificationAttachments": "資格証明書の添付ファイル"
+            "certificationAttachments": "資格証明書の添付ファイル",
+            "photo": "プロフィール写真",
+            "photoHint": "JPG、PNG、WebP、最大 5 MB。"
           },
           "actions": {
             "save": "技術者を保存",
             "saving": "保存中…",
-            "removeAttachment": "添付ファイルを削除"
+            "removeAttachment": "添付ファイルを削除",
+            "changePhoto": "写真を変更",
+            "removePhoto": "写真を削除",
+            "uploadPhoto": "写真をアップロード"
           },
           "toasts": {
             "updated": "技術者情報を更新しました",
@@ -5494,7 +5556,9 @@
             "missingContractor": "契約業者の参照情報がありません。",
             "mustBeLoggedIn": "ログインが必要です。",
             "requiredFields": "氏名とNIC/パスポートは必須です。",
-            "saveFailed": "技術者の保存に失敗しました"
+            "saveFailed": "技術者の保存に失敗しました",
+            "photoNotImage": "画像ファイル（JPG、PNG、WebP など）を選択してください。",
+            "photoTooLarge": "写真は 5 MB 以下にしてください。"
           }
         }
       },
@@ -8368,6 +8432,267 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "カスタム連携とAPI",
         "dedicatedSupportSla": "専任サポートとSLA"
+      }
+    },
+    "actions": {
+      "activate": "有効化",
+      "cancel": "キャンセル",
+      "deactivate": "無効化",
+      "delete": "削除",
+      "edit": "編集",
+      "save": "保存",
+      "saving": "保存中…"
+    },
+    "status": {
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "maintenanceHistory": {
+      "allDepartments": "すべての部署",
+      "columns": {
+        "actions": "操作",
+        "attendedBy": "対応者",
+        "closed": "クローズ",
+        "department": "部署",
+        "machine": "設備",
+        "outcome": "結果",
+        "rootCause": "根本原因",
+        "signedOff": "承認済み",
+        "supervisor": "監督者",
+        "ticket": "チケット",
+        "wo": "作業指示"
+      },
+      "empty": "このフィルターに一致する記録はありません。",
+      "exportFailed": "PDF を作成できませんでした。もう一度お試しください。",
+      "exportPdf": "PDF をエクスポート",
+      "filters": {
+        "allSupervisors": "すべての監督者",
+        "allTypes": "すべての種類",
+        "clear": "フィルターをクリア",
+        "department": "部署",
+        "from": "開始",
+        "search": "番号、設備、説明を検索…",
+        "supervisor": "監督者",
+        "to": "終了",
+        "woType": "作業指示の種類"
+      },
+      "outcomes": {
+        "complete": "完了",
+        "failed": "失敗",
+        "not_complete": "未完了"
+      },
+      "rootCauses": {
+        "external_damage": "外部損傷",
+        "lack_of_maintenance": "保全不足",
+        "manufacturing_defect": "製造上の欠陥",
+        "operator_error": "作業者のミス",
+        "unknown": "不明",
+        "wear_and_tear": "摩耗"
+      },
+      "showMore": "さらに表示（{{shown}} / {{total}}）",
+      "subtitle": "工場内のすべての承認済み作業指示とクローズした故障を、すべての監督者・部署分まとめて表示します。任意の記録を詳細な PDF レポートとしてエクスポートできます。",
+      "tabs": {
+        "breakdowns": "クローズした故障",
+        "workOrders": "承認済みの作業指示"
+      },
+      "title": "保全履歴",
+      "view": "開く",
+      "woTypes": {
+        "BREAKDOWN": "故障修理",
+        "CONTRACTOR": "請負業者",
+        "CORRECTIVE": "是正",
+        "INSPECTION": "点検",
+        "INSTALLATION": "据付",
+        "MODIFICATION": "改造",
+        "OTHER": "その他",
+        "PREVENTIVE": "予防保全"
+      }
+    },
+    "staffRequests": {
+      "attachments": {
+        "add": "ファイルを添付",
+        "remove": "{{name}} を削除",
+        "tooLarge": "{{name}} は 25 MB を超えているため添付されませんでした。"
+      },
+      "cancel": "キャンセル",
+      "card": {
+        "closedOn": "{{date}} にクローズ",
+        "reference": "参照：{{reference}}",
+        "replies_one": "返信 {{count}} 件",
+        "replies_other": "返信 {{count}} 件",
+        "sentTo": "宛先：{{to}}"
+      },
+      "categories": {
+        "other": "その他",
+        "personal": "個人的な用件",
+        "record_access": "過去の作業指示／故障の詳細の閲覧",
+        "service_letter": "在職証明書",
+        "work": "業務"
+      },
+      "close": "閉じる",
+      "filters": {
+        "all": "すべて",
+        "allCategories": "すべてのリクエスト種別",
+        "search": "リクエストを検索…"
+      },
+      "inbox": {
+        "empty": "リクエストはありません。",
+        "scope": {
+          "admin": "管理者宛てのリクエスト。",
+          "plantManager": "あなたの工場の工場長宛てのリクエスト。",
+          "supervisor": "あなたの部署（{{department}}）の監督者宛てのリクエスト。"
+        },
+        "title": "リクエスト受信箱"
+      },
+      "myPage": {
+        "empty": "まだリクエストを送信していません。",
+        "newRequest": "新しいリクエスト",
+        "subtitle": "監督者、工場長、管理者に、個人的な用件や業務上の用件、在職証明書、過去の作業指示／故障の詳細の閲覧を依頼できます。",
+        "title": "マイリクエスト"
+      },
+      "newRequest": {
+        "category": "リクエスト種別",
+        "choosePerson": "担当者を選択…",
+        "errors": {
+          "recipient": "送信先を選択してください。",
+          "required": "件名とメッセージを入力してください。"
+        },
+        "failed": "リクエストを送信できませんでした。もう一度お試しください。",
+        "loadingPeople": "担当者を読み込み中…",
+        "message": "メッセージ",
+        "noRecipients": "現在、あなたのリクエストを受け取れる人がいません。管理者に工場と部署の設定を確認してもらってください。",
+        "reference": "作業指示／故障番号",
+        "referencePlaceholder": "例：WO-2026-0142 または BD-0098",
+        "send": "リクエストを送信",
+        "sendTo": "送信先",
+        "sent": "リクエストを送信しました。",
+        "subject": "件名",
+        "title": "新しいリクエスト"
+      },
+      "notifications": {
+        "closed": "{{name}} さんがリクエスト「{{subject}}」をクローズしました",
+        "newReply": "{{name}} さんがリクエスト「{{subject}}」に返信しました",
+        "newRequest": "{{name}} さんから新しい{{category}}のリクエスト：{{subject}}"
+      },
+      "recipients": {
+        "admin": "管理者",
+        "plant_manager": "自分の工場長",
+        "supervisor": "自分の部署の監督者"
+      },
+      "reply": {
+        "close": "リクエストをクローズ",
+        "errors": {
+          "empty": "メッセージを入力するか、ファイルを添付してください。"
+        },
+        "failed": "リクエストを更新できませんでした。もう一度お試しください。",
+        "headingHandler": "返信",
+        "headingRequester": "追記する",
+        "placeholder": "返信を入力…",
+        "reopen": "再開",
+        "send": "返信を送信",
+        "sendAndClose": "返信してクローズ",
+        "sent": "返信を送信しました。"
+      },
+      "roles": {
+        "admin": "管理者",
+        "floor_operator": "オペレーター",
+        "hr_officer": "人事担当者",
+        "plant_manager": "工場長",
+        "safety_officer": "安全管理者",
+        "store_keeper": "倉庫担当者",
+        "supervisor": "監督者",
+        "technician": "技術者",
+        "trainee": "研修生"
+      },
+      "sending": "送信中…",
+      "statuses": {
+        "answered": "返信済み",
+        "closed": "クローズ",
+        "open": "未対応"
+      }
+    },
+    "ui": {
+      "notifications": {
+        "title": "通知",
+        "mute": "通知音をミュート",
+        "unmute": "通知音のミュートを解除",
+        "soundOn": "通知音オン",
+        "soundOff": "通知音オフ",
+        "markAllRead": "すべて既読にする",
+        "enableDevice": "新しいアラートのデバイス通知（音あり）をオンにする",
+        "allCaughtUp": "すべて確認済みです。",
+        "dismiss": "閉じる",
+        "needsAttention": "要対応"
+      },
+      "selectItemForDetails": "詳細を表示する項目を選択してください。",
+      "live": "ライブ",
+      "failedToLoad": "データを読み込めませんでした",
+      "retry": "再試行",
+      "close": "閉じる",
+      "loading": "読み込み中...",
+      "toggleNavigation": "ナビゲーションの切り替え",
+      "voiceLanguage": "話す言語",
+      "machineCell": {
+        "status": "ステータス",
+        "health": "健全度",
+        "openWos": "未完了の作業指示"
+      },
+      "planGate": {
+        "title": "この機能を使うにはアップグレードしてください",
+        "notIncluded": "{{feature}} は現在のプランに含まれていません。",
+        "viewPlans": "プランを見る",
+        "features": {
+          "autoPOEmail": "仕入先への発注書の自動メール送信",
+          "qrLowStockAlerts": "在庫 QR スキャンと在庫不足アラート",
+          "contractors": "請負業者管理",
+          "shiftHandover": "シフト引き継ぎとブリーフィング",
+          "training": "研修モジュール",
+          "safety": "安全ワークスペース",
+          "moeAnalytics": "MOE トレンド分析と設備比較",
+          "multiSite": "複数拠点の管理"
+        }
+      },
+      "shiftConfig": {
+        "plant": "工場",
+        "selectPlant": "工場を選択...",
+        "selectPlantFirst": "先に工場を選択してください。"
+      },
+      "cancelReason": {
+        "title": "キャンセル",
+        "description": "キャンセルの理由を入力してください。",
+        "confirm": "キャンセルを確定",
+        "cancelling": "キャンセル中…",
+        "categoryLabel": "理由のカテゴリー",
+        "reasonLabel": "理由",
+        "placeholder": "キャンセルの理由…",
+        "required": "キャンセルの理由は必須です。",
+        "goBack": "戻る",
+        "categories": {
+          "none": "カテゴリーを選択（任意）…",
+          "duplicate": "重複したチケット",
+          "reported_in_error": "誤って報告",
+          "no_longer_needed": "不要になった",
+          "resolved_externally": "外部で解決済み",
+          "wrong_machine": "設備／資産の誤り",
+          "other": "その他"
+        }
+      },
+      "triageStep": {
+        "escalation": "エスカレーション手順",
+        "quickFix": "応急処置手順",
+        "requiresPhoto": "写真が必要"
+      },
+      "errorBoundary": {
+        "title": "問題が発生しました",
+        "body": "このページを表示できませんでした。ページを再読み込みするか、ブラウザーのコンソールで詳細を確認してください。",
+        "reload": "再読み込み",
+        "tryAgain": "もう一度試す"
+      },
+      "relativeTime": {
+        "justNow": "たった今",
+        "minutes": "{{count}} 分前",
+        "hours": "{{count}} 時間前",
+        "days": "{{count}} 日前"
       }
     }
   },

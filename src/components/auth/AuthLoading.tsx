@@ -1,4 +1,7 @@
+import { useTranslation } from 'react-i18next';
+
 export default function AuthLoading() {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 bg-[#0A1628] flex items-center justify-center">
       <div className="flex flex-col items-center gap-6">
@@ -31,7 +34,7 @@ export default function AuthLoading() {
 
         {/* Loading text */}
         <p className="text-[#00C2FF] text-lg font-medium animate-pulse">
-          Loading...
+          {t('common.ui.loading')}
         </p>
       </div>
     </div>

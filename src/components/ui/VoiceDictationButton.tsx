@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Mic, Square } from 'lucide-react';
 
 // Minimal shape of the Web Speech API's SpeechRecognition, which lacks
@@ -84,6 +85,7 @@ interface VoiceDictationButtonProps {
  * language) when the reporter and viewer use different languages.
  */
 export function VoiceDictationButton({ onTranscript, disabled, className = '' }: VoiceDictationButtonProps) {
+  const { t } = useTranslation();
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
   const [voiceLang, setVoiceLang] = useState(getStoredVoiceLang);
@@ -155,8 +157,8 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
         value={voiceLang}
         onChange={(e) => handleLangChange(e.target.value)}
         disabled={disabled || listening}
-        title="Language you'll speak in"
-        aria-label="Language you'll speak in"
+        title={t('common.ui.voiceLanguage')}
+        aria-label={t('common.ui.voiceLanguage')}
         className="text-xs px-1.5 py-1 border border-slate-200 rounded-lg bg-white text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {VOICE_INPUT_LANGUAGES.map((l) => (

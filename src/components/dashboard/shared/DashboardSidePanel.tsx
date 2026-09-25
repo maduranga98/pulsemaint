@@ -1,7 +1,9 @@
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useDashboardStore } from '../../../store/dashboard.store';
 
 export default function DashboardSidePanel() {
+  const { t } = useTranslation();
   const sidePanel = useDashboardStore((s) => s.sidePanel);
   const closeSidePanel = useDashboardStore((s) => s.closeSidePanel);
 
@@ -53,7 +55,7 @@ export default function DashboardSidePanel() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-[#8BA3BF]">Select an item to view details.</p>
+            <p className="text-sm text-[#8BA3BF]">{t('common.ui.selectItemForDetails')}</p>
           )}
         </div>
       </aside>

@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import i18n from 'i18next';
 import type { BreakdownSeverity } from '../types';
 
 // ---------------------------------------------------------------------------
@@ -115,15 +116,17 @@ export function relativeTime(ts: Timestamp | null | undefined): string {
   // snapshot until the server resolves it — guard so a just-created record
   // (e.g. a notification raised during WO sign-off) can't crash the render.
   const ms = (ts as { toMillis?: () => number } | null | undefined)?.toMillis?.();
-  if (ms == null) return 'just now';
+  const tr = (key: string, fallback: string, count?: number) =>
+    i18n.t(`common.ui.relativeTime.${key}`, { count, defaultValue: fallback });
+  if (ms == null) return tr('justNow', 'just now');
   const diffMs = Date.now() - ms;
   const diffMin = Math.floor(diffMs / 60_000);
-  if (diffMin < 1) return 'just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return tr('justNow', 'just now');
+  if (diffMin < 60) return tr('minutes', `${diffMin}m ago`, diffMin);
   const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `${diffH}h ago`;
+  if (diffH < 24) return tr('hours', `${diffH}h ago`, diffH);
   const diffD = Math.floor(diffH / 24);
-  return `${diffD}d ago`;
+  return tr('days', `${diffD}d ago`, diffD);
 }
 
 export function dateRangeFromChartRange(range: '7D' | '30D' | '3M' | '6M' | '12M'): { from: Date; to: Date } {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 
 export interface CancelReasonResult {
@@ -32,13 +33,14 @@ const REASON_CATEGORIES = [
  */
 export function CancelReasonModal({
   open,
-  title = 'Cancel',
-  description = 'Please provide a reason for cancelling.',
-  confirmLabel = 'Confirm Cancel',
+  title,
+  description,
+  confirmLabel,
   loading = false,
   onClose,
   onConfirm,
 }: CancelReasonModalProps) {
+  const { t } = useTranslation();
   const [reason, setReason] = useState('');
   const [category, setCategory] = useState('');
   const [touched, setTouched] = useState(false);
@@ -69,7 +71,7 @@ export function CancelReasonModal({
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-start sm:items-center justify-center bg-black/40 p-4 py-8">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 my-auto">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+          <h3 className="text-lg font-semibold text-slate-900">{title ?? t('common.ui.cancelReason.title')}</h3>
           <button
             type="button"
             onClick={handleClose}
@@ -79,10 +81,10 @@ export function CancelReasonModal({
             <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
-        <p className="text-sm text-slate-600 mb-4">{description}</p>
+        <p className="text-sm text-slate-600 mb-4">{description ?? t('common.ui.cancelReason.description')}</p>
 
         <label className="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">
-          Reason category
+          {t('common.ui.cancelReason.categoryLabel')}
         </label>
         <select
           value={category}
@@ -92,20 +94,20 @@ export function CancelReasonModal({
         >
           {REASON_CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>
-              {c.label}
+              {t(`common.ui.cancelReason.categories.${c.value || 'none'}`, { defaultValue: c.label })}
             </option>
           ))}
         </select>
 
         <label className="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">
-          Reason <span className="text-red-500">*</span>
+          {t('common.ui.cancelReason.reasonLabel')} <span className="text-red-500">*</span>
         </label>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           onBlur={() => setTouched(true)}
           rows={3}
-          placeholder="Reason for cancellation…"
+          placeholder={t('common.ui.cancelReason.placeholder')}
           className={`w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 ${
             reasonInvalid
               ? 'border-red-400 focus:ring-red-500'
@@ -113,7 +115,7 @@ export function CancelReasonModal({
           }`}
         />
         {reasonInvalid && (
-          <p className="text-xs text-red-600 mt-1">A cancellation reason is required.</p>
+          <p className="text-xs text-red-600 mt-1">{t('common.ui.cancelReason.required')}</p>
         )}
 
         <div className="flex gap-3 mt-4">
@@ -123,7 +125,7 @@ export function CancelReasonModal({
             disabled={loading}
             className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 text-sm"
           >
-            Go Back
+            {t('common.ui.cancelReason.goBack')}
           </button>
           <button
             type="button"
@@ -131,7 +133,7 @@ export function CancelReasonModal({
             disabled={loading || !reason.trim()}
             className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 text-sm"
           >
-            {loading ? 'Cancelling…' : confirmLabel}
+            {loading ? t('common.ui.cancelReason.cancelling') : confirmLabel ?? t('common.ui.cancelReason.confirm')}
           </button>
         </div>
       </div>

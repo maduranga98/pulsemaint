@@ -173,7 +173,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {showPlantPicker && (
           <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-            Plant
+            {t('common.ui.shiftConfig.plant')}
             <select
               value={pickedPlantId}
               onChange={(event) => {
@@ -184,7 +184,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
               }}
               className="min-h-12 rounded-md border border-slate-200 bg-white px-3 text-sm"
             >
-              <option value="">Select a plant...</option>
+              <option value="">{t('common.ui.shiftConfig.selectPlant')}</option>
               {activePlants.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
@@ -422,7 +422,7 @@ function DepartmentPicker({
 
   // Departments belong to a plant — nothing to list or add until one is set.
   if (!plantId) {
-    return <p className="min-h-12 flex items-center text-xs text-amber-600">Select a plant first.</p>;
+    return <p className="min-h-12 flex items-center text-xs text-amber-600">{t('common.ui.shiftConfig.selectPlantFirst')}</p>;
   }
 
   if (adding) {

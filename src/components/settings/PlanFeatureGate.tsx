@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Lock } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { planLimitsFor, type PlanLimitConfig } from '../../lib/planLimits';
@@ -28,6 +29,7 @@ interface PlanFeatureGateProps {
  * current plan doesn't include the feature.
  */
 export function PlanFeatureGate({ feature, children }: PlanFeatureGateProps) {
+  const { t } = useTranslation();
   const plan = useAuthStore((s) => s.company?.plan);
   const included = planLimitsFor(plan).features[feature];
 
@@ -37,15 +39,15 @@ export function PlanFeatureGate({ feature, children }: PlanFeatureGateProps) {
     <div className="min-h-full flex items-center justify-center px-6 py-16">
       <div className="max-w-md w-full bg-white border border-slate-200 rounded-xl p-6 text-center space-y-3">
         <Lock className="w-8 h-8 text-amber-500 mx-auto" />
-        <h1 className="text-lg font-bold text-slate-900">Upgrade to unlock this feature</h1>
+        <h1 className="text-lg font-bold text-slate-900">{t('common.ui.planGate.title')}</h1>
         <p className="text-sm text-slate-600">
-          {FEATURE_LABEL[feature]} isn't included on your current plan.
+          {t('common.ui.planGate.notIncluded', { feature: t(`common.ui.planGate.features.${feature}`, { defaultValue: FEATURE_LABEL[feature] }) })}
         </p>
         <Link
           to="/app/billing"
           className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
         >
-          View plans
+          {t('common.ui.planGate.viewPlans')}
         </Link>
       </div>
     </div>

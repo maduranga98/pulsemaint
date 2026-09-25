@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MachineHealthDoc } from '../../../types/analytics.types';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -15,6 +16,7 @@ interface MachineHealthCellProps {
 }
 
 export default function MachineHealthCell({ machine, onClick }: MachineHealthCellProps) {
+  const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
   const color = STATUS_COLORS[machine.currentStatus] ?? '#8BA3BF';
   const isCritical = machine.currentStatus === 'breakdown';
@@ -51,15 +53,15 @@ export default function MachineHealthCell({ machine, onClick }: MachineHealthCel
           <p className="text-[11px] text-[#8BA3BF] mt-0.5">{machine.location}</p>
           <div className="mt-2 space-y-1">
             <div className="flex justify-between text-[11px]">
-              <span className="text-[#8BA3BF]">Status</span>
+              <span className="text-[#8BA3BF]">{t('common.ui.machineCell.status')}</span>
               <span style={{ color }} className="capitalize">{machine.currentStatus.replace('_', ' ')}</span>
             </div>
             <div className="flex justify-between text-[11px]">
-              <span className="text-[#8BA3BF]">Health</span>
+              <span className="text-[#8BA3BF]">{t('common.ui.machineCell.health')}</span>
               <span className="text-[#F0F4F8]">{machine.healthScore}%</span>
             </div>
             <div className="flex justify-between text-[11px]">
-              <span className="text-[#8BA3BF]">Open WOs</span>
+              <span className="text-[#8BA3BF]">{t('common.ui.machineCell.openWos')}</span>
               <span className="text-[#F0F4F8]">{machine.openWoCount}</span>
             </div>
           </div>
