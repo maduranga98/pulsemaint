@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, deleteField, doc, getDoc, serverTimestamp, updateDoc, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { nanoid } from 'nanoid';
+import { Camera, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -18,6 +19,8 @@ import type {
   TechnicianStatus,
 } from '@/lib/contractors/contractorTypes';
 import type { TechnicianCertificationDoc } from '@/lib/contractors/contractorTypes';
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
 export function TechnicianForm() {
   const { t } = useTranslation();
@@ -37,6 +40,41 @@ export function TechnicianForm() {
   const [certFiles, setCertFiles] = useState<File[]>([]);
   const [existingCertDocs, setExistingCertDocs] = useState<TechnicianCertificationDoc[]>([]);
   const [saving, setSaving] = useState(false);
+  // Profile photo: the saved URL, a newly picked file (uploaded on save), or
+  // removal of the saved one.
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!photoFile) {
+      setPhotoPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(photoFile);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [photoFile]);
+
+  function pickPhoto(file: File | undefined) {
+    if (photoInputRef.current) photoInputRef.current.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error(t('common.contractors.technicians.form.errors.photoNotImage'));
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      toast.error(t('common.contractors.technicians.form.errors.photoTooLarge'));
+      return;
+    }
+    setPhotoFile(file);
+  }
+
+  function removePhoto() {
+    setPhotoFile(null);
+    setPhotoUrl(null);
+  }
 
   // Load existing technician when editing.
   useEffect(() => {
@@ -55,6 +93,7 @@ export function TechnicianForm() {
       setSpecialization(data.specialization ?? []);
       setCertifications((data.certifications ?? []).join(', '));
       setExistingCertDocs((data.certificationDocuments ?? []) as TechnicianCertificationDoc[]);
+      setPhotoUrl((data.photoUrl as string | undefined) || null);
     })();
     return () => { cancelled = true; };
   }, [contractorId, techId]);
@@ -105,6 +144,14 @@ export function TechnicianForm() {
       );
       const certificationDocuments = [...existingCertDocs, ...uploadedCertDocs];
 
+      let savedPhotoUrl = photoUrl;
+      if (photoFile) {
+        const path = `contractors/${contractorId}/technicians/photos/${nanoid(10)}_${photoFile.name.replace(/[^\w.-]+/g, '_')}`;
+        const pref = storageRef(storage, path);
+        await uploadBytes(pref, photoFile, { contentType: photoFile.type });
+        savedPhotoUrl = await getDownloadURL(pref);
+      }
+
       const payload: Record<string, unknown> = {
         companyId: userProfile.companyId,
         contractorId,
@@ -120,6 +167,8 @@ export function TechnicianForm() {
         certificationDocuments,
         updatedAt: serverTimestamp(),
       };
+      if (savedPhotoUrl) payload.photoUrl = savedPhotoUrl;
+      else if (techId) payload.photoUrl = deleteField();
 
       if (techId) {
         await updateDoc(doc(db, 'contractors', contractorId, 'technicians', techId), payload);
@@ -144,6 +193,49 @@ export function TechnicianForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+          {photoPreview || photoUrl ? (
+            <img src={photoPreview ?? photoUrl ?? ''} alt={fullName || t('common.contractors.technicians.form.fields.photo')} className="h-full w-full object-cover" />
+          ) : (
+            <UserRound className="h-9 w-9 text-slate-400" aria-hidden />
+          )}
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium text-slate-700">{t('common.contractors.technicians.form.fields.photo')}</p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => pickPhoto(e.target.files?.[0])}
+            />
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              <Camera className="h-3.5 w-3.5" />
+              {photoPreview || photoUrl
+                ? t('common.contractors.technicians.form.actions.changePhoto')
+                : t('common.contractors.technicians.form.actions.uploadPhoto')}
+            </button>
+            {(photoPreview || photoUrl) && (
+              <button
+                type="button"
+                onClick={removePhoto}
+                disabled={saving}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                {t('common.contractors.technicians.form.actions.removePhoto')}
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-slate-500">{t('common.contractors.technicians.form.fields.photoHint')}</p>
+        </div>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <input placeholder={t('common.contractors.technicians.form.fields.fullName')} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
         <input placeholder={t('common.contractors.technicians.form.fields.nicOrPassport')} value={nicOrPassport} onChange={(e) => setNicOrPassport(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
