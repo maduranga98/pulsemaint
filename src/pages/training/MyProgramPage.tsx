@@ -8,6 +8,7 @@ import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModu
 import TrainingProgressBar from '@/components/training/shared/TrainingProgressBar';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+import { formatDueDateTime } from '@/lib/training/dueDateTime';
 
 function formatDate(ts: { toDate?: () => Date } | null | undefined): string {
   if (!ts?.toDate) return '';
@@ -55,7 +56,7 @@ export default function MyProgramPage() {
                   {a.dueDate
                     ? t('common.traineeManagement.myProgramPage.assignedModules.assignedWithDue', {
                         assignedDate: formatDate(a.assignedAt),
-                        dueDate: formatDate(a.dueDate),
+                        dueDate: formatDueDateTime(a.dueDate),
                       })
                     : t('common.traineeManagement.myProgramPage.assignedModules.assigned', { date: formatDate(a.assignedAt) })}
                 </span>

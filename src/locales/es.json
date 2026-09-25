@@ -3538,7 +3538,9 @@
         "notification": {
           "message": "Se le ha asignado un nuevo módulo de capacitación: {{title}}",
           "oversightMessage": "asignó \"{{title}}\" a {{name}}"
-        }
+        },
+        "dueTime": "Hora Límite",
+        "dueTimeHint": "Si no se elige una hora, vence a las 23:59 de la fecha límite."
       },
       "editorLayout": {
         "tabs": {
@@ -4122,7 +4124,9 @@
           "settings": {
             "dueDate": "Fecha de Vencimiento",
             "notifyTrainee": "Notificar al Aprendiz",
-            "notifyTraineeHint": "Enviar notificación al crear la asignación"
+            "notifyTraineeHint": "Enviar notificación al crear la asignación",
+            "dueTime": "Hora Límite",
+            "dueTimeHint": "Si no se elige una hora, vence a las 23:59 de la fecha límite."
           },
           "review": {
             "summary": "Asignando <strong>{{moduleCount}} módulos</strong> a <strong>{{traineeCount}} aprendices</strong> ({{totalCount}} asignaciones en total)",

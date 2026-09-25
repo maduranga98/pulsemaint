@@ -20,6 +20,7 @@ import { getModuleCategory } from '@/lib/training/offboardTraining';
 import { notifyUsers } from '@/services/notifications.service';
 import type { DurationPreset } from '@/lib/traineeProgram/programmeDuration';
 import { computeExpectedEndDate } from '@/lib/traineeProgram/programmeDuration';
+import { combineDueDateTime } from '@/lib/training/dueDateTime';
 import {
   Users,
   BookOpen,
@@ -42,6 +43,7 @@ interface AssignTrainingWizardProps {
 
 interface AssignmentSettings {
   dueDate: string;
+  dueTime: string;
   notifyTrainee: boolean;
   /** Training Type category (Task 5) — defaults from the selected module when unambiguous. */
   trainingType: TraineeTrainingType | '';
@@ -79,6 +81,7 @@ export default function AssignTrainingWizard({
   const [selectedModuleIds, setSelectedModuleIds] = useState<Set<string>>(new Set());
   const [settings, setSettings] = useState<AssignmentSettings>({
     dueDate: '',
+    dueTime: '',
     notifyTrainee: true,
     trainingType: '',
     trainingPeriodPreset: 6,
@@ -217,8 +220,9 @@ export default function AssignTrainingWizard({
           settings.trainingPeriodPreset === 'custom'
             ? settings.trainingPeriodCustomMonths
             : settings.trainingPeriodPreset;
-        const computedDueDate = settings.dueDate
-          ? new Date(settings.dueDate)
+        const pickedDueDate = combineDueDateTime(settings.dueDate, settings.dueTime);
+        const computedDueDate = pickedDueDate
+          ? pickedDueDate
           : computeExpectedEndDate(settings.trainingPeriodPreset, new Date(), new Date(new Date().setMonth(new Date().getMonth() + settings.trainingPeriodCustomMonths)));
 
         await addDoc(collection(db, 'trainingAssignments'), {
@@ -239,8 +243,8 @@ export default function AssignTrainingWizard({
             // Offboard trainings default the due date to the training's end
             // date when the assigner didn't pick one explicitly; otherwise
             // fall back to the computed training-period end date.
-            settings.dueDate
-              ? new Date(settings.dueDate)
+            pickedDueDate
+              ? pickedDueDate
               : (isOffboard && module.offboardDetails?.endDate) || computedDueDate,
           trainingType: settings.trainingType || module.trainingType || null,
           trainingPeriodMonths,
@@ -569,14 +573,28 @@ export default function AssignTrainingWizard({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('common.trainingShared.manager.assignWizard.settings.dueDate')} <span className="text-gray-400 font-normal">{t('common.trainingShared.manager.assignWizard.optional')}</span>
             </label>
-            <input
-              type="date"
-              value={settings.dueDate}
-              onChange={(e) =>
-                setSettings((s) => ({ ...s, dueDate: e.target.value }))
-              }
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="flex flex-wrap gap-2">
+              <input
+                type="date"
+                value={settings.dueDate}
+                onChange={(e) =>
+                  setSettings((s) => ({ ...s, dueDate: e.target.value }))
+                }
+                aria-label={t('common.trainingShared.manager.assignWizard.settings.dueDate')}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="time"
+                value={settings.dueTime}
+                onChange={(e) =>
+                  setSettings((s) => ({ ...s, dueTime: e.target.value }))
+                }
+                disabled={!settings.dueDate}
+                aria-label={t('common.trainingShared.manager.assignWizard.settings.dueTime')}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-1">{t('common.trainingShared.manager.assignWizard.settings.dueTimeHint')}</p>
           </div>
 
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">

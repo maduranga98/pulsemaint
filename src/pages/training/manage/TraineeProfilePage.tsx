@@ -22,6 +22,7 @@ import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadg
 import PracticalSignOffCard from '@/components/training/manager/PracticalSignOffCard';
 import { canSignOffTraining } from '@/lib/training/trainingSignOff';
 import { issueTrainingCertificate } from '@/services/trainingCertificates.service';
+import { formatDueDateTime } from '@/lib/training/dueDateTime';
 
 function formatTs(ts: Timestamp | null | undefined): string {
   if (!ts) return '';
@@ -204,7 +205,7 @@ export default function TraineeProfilePage() {
                   <TrainingProgressBar progress={a.overallProgress} showLabel />
                   <div className="flex gap-4 mt-2 text-xs text-slate-500">
                     <span>{t('common.traineeManagement.traineeProfilePage.assignedLabel', { date: formatTs(a.assignedAt) })}</span>
-                    {a.dueDate && <span>{t('common.traineeManagement.traineeProfilePage.dueLabel', { date: formatTs(a.dueDate) })}</span>}
+                    {a.dueDate && <span>{t('common.traineeManagement.traineeProfilePage.dueLabel', { date: formatDueDateTime(a.dueDate) })}</span>}
                   </div>
                 </div>
               ))}

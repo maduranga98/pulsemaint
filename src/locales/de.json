@@ -3538,7 +3538,9 @@
         "notification": {
           "message": "Ihnen wurde ein neues Schulungsmodul zugewiesen: {{title}}",
           "oversightMessage": "hat „{{title}}“ an {{name}} zugewiesen"
-        }
+        },
+        "dueTime": "Fälligkeitszeit",
+        "dueTimeHint": "Ohne Uhrzeit ist die Schulung am Fälligkeitstag um 23:59 fällig."
       },
       "editorLayout": {
         "tabs": {
@@ -4122,7 +4124,9 @@
           "settings": {
             "dueDate": "Fälligkeitsdatum",
             "notifyTrainee": "Auszubildenden benachrichtigen",
-            "notifyTraineeHint": "Benachrichtigung senden, wenn die Zuweisung erstellt wird"
+            "notifyTraineeHint": "Benachrichtigung senden, wenn die Zuweisung erstellt wird",
+            "dueTime": "Fälligkeitszeit",
+            "dueTimeHint": "Ohne Uhrzeit ist die Schulung am Fälligkeitstag um 23:59 fällig."
           },
           "review": {
             "summary": "Weist <strong>{{moduleCount}} Module</strong> <strong>{{traineeCount}} Auszubildenden</strong> zu ({{totalCount}} Zuweisungen insgesamt)",
