@@ -2913,8 +2913,8 @@
       },
       "technicianStatusList": {
         "active": "{{count}} active",
-        "empty": "No technicians on shift",
-        "title": "Technician Status"
+        "empty": "No technicians or trainees from your department on shift",
+        "title": "Team Status"
       },
       "technicianStatusRow": {
         "doneToday": "Done today",

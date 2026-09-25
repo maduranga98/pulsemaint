@@ -1571,7 +1571,7 @@
       "technicianStatusList": {
         "active": "{{count}}人稼働中",
         "empty": "勤務中の技術者はいません",
-        "title": "技術者の状況"
+        "title": "チームステータス"
       },
       "technicianStatusRow": {
         "doneToday": "本日の完了数",
