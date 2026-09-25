@@ -3390,6 +3390,1477 @@
           }
         }
       }
+    },
+    "traineeManagement": {
+      "managementList": {
+        "searchPlaceholder": "නම, දෙපාර්තමේන්තුව හෝ සේවක අංකය අනුව අභ්‍යාසලාභියා සොයන්න...",
+        "profilesHeading": "අභ්‍යාසලාභී පැතිකඩ",
+        "noTrainees": "අභ්‍යාසලාභීන් හමු නොවීය.",
+        "stats": {
+          "trainings": "පුහුණු",
+          "progress": "ප්‍රගතිය",
+          "marks": "ලකුණු"
+        },
+        "woCount_one": "සම්බන්ධ වූ WO {{count}}",
+        "woCount_other": "සම්බන්ධ වූ WO {{count}}",
+        "viewTrainings": "පුහුණු බලන්න",
+        "hideTrainings": "පුහුණු සඟවන්න",
+        "trainingsHeading": "පුහුණු",
+        "trainingsHeadingWithName": "පුහුණු — {{name}}",
+        "selectTraineePrompt": "පවරා ඇති පුහුණු බැලීමට ඉහතින් අභ්‍යාසලාභියෙකු තෝරන්න.",
+        "setupProgramme": "පුහුණු වැඩසටහන සකසන්න",
+        "noTrainingsAssigned": "තවම පුහුණු පවරා නැත.",
+        "columns": {
+          "module": "මොඩියුලය",
+          "period": "කාලය",
+          "progress": "ප්‍රගතිය",
+          "marks": "ලකුණු",
+          "status": "තත්ත්වය",
+          "actions": "ක්‍රියා"
+        },
+        "periodMonths_one": "මාස {{count}}",
+        "periodMonths_other": "මාස {{count}}",
+        "notAvailable": "—",
+        "status": {
+          "not_started": "ආරම්භ කර නැත",
+          "in_progress": "ක්‍රියාත්මක වෙමින්",
+          "quiz_passed": "ප්‍රශ්නාවලිය සමත්",
+          "quiz_failed": "ප්‍රශ්නාවලිය අසමත්",
+          "awaiting_practical": "අනුමැතිය බලාපොරොත්තුවෙන්",
+          "certified": "සහතික ලත්",
+          "expired": "කල් ඉකුත්",
+          "retraining_required": "නැවත පුහුණුව"
+        },
+        "actions": {
+          "report": "වාර්තාව"
+        }
+      },
+      "moduleSettingsForm": {
+        "sectionTitle": "අභ්‍යාසලාභී මොඩියුල තොරතුරු",
+        "fields": {
+          "title": "මොඩියුල මාතෘකාව",
+          "titlePlaceholder": "උදා. විදුලි අභ්‍යාසලාභී හඳුන්වාදීම",
+          "description": "විස්තරය",
+          "descriptionPlaceholder": "මෙම වැඩසටහන් මොඩියුලය ආවරණය කරන දේ කෙටියෙන් විස්තර කරන්න…",
+          "trainingType": "පුහුණු වර්ගය",
+          "selectTrainingType": "පුහුණු වර්ගය තෝරන්න…",
+          "passingScore": "සමත් ලකුණ",
+          "status": "තත්ත්වය",
+          "tags": "ටැග්",
+          "tagsPlaceholder": "විදුලි, අභ්‍යාසලාභී, ආරක්ෂාව (කොමා වලින් වෙන් කර)",
+          "tagsHint": "ටැග් කොමා වලින් වෙන් කරන්න"
+        },
+        "statuses": {
+          "draft": "කෙටුම්පත",
+          "active": "සක්‍රිය",
+          "archived": "සංරක්ෂිත"
+        },
+        "errors": {
+          "titleRequired": "මාතෘකාව අවශ්‍යයි",
+          "trainingTypeRequired": "පුහුණු වර්ගය අවශ්‍යයි"
+        },
+        "submit": "මොඩියුලය සුරකින්න"
+      },
+      "library": {
+        "moduleLibrary": {
+          "titleDefault": "අභ්‍යාසලාභී මොඩියුල පුස්තකාලය",
+          "loadSamples": "නියැදි මොඩියුල පූරණය කරන්න",
+          "loadingSamples": "පූරණය වෙමින්…",
+          "createModule": "අභ්‍යාසලාභී මොඩියුලයක් සාදන්න",
+          "searchPlaceholder": "අභ්‍යාසලාභී මොඩියුල සොයන්න...",
+          "allTrainingTypes": "සියලු පුහුණු වර්ග",
+          "statusFilters": {
+            "all": "සියල්ල",
+            "draft": "කෙටුම්පත",
+            "active": "සක්‍රිය",
+            "archived": "සංරක්ෂිත"
+          },
+          "columns": {
+            "title": "මාතෘකාව",
+            "trainingType": "පුහුණු වර්ගය",
+            "lessons": "පාඩම්",
+            "hasQuiz": "ප්‍රශ්නාවලිය ඇත",
+            "status": "තත්ත්වය",
+            "actions": "ක්‍රියා"
+          },
+          "yes": "ඔව්",
+          "no": "නැත",
+          "notAvailable": "—",
+          "emptyState": "අභ්‍යාසලාභී මොඩියුල හමු නොවීය.",
+          "lessonsCount_one": "පාඩම් {{count}}",
+          "lessonsCount_other": "පාඩම් {{count}}",
+          "hasQuizLabel": "ප්‍රශ්නාවලියක් ඇත",
+          "actions": {
+            "edit": "සංස්කරණය",
+            "archive": "සංරක්ෂණය",
+            "delete": "මකන්න"
+          },
+          "confirm": {
+            "archive": "මෙම මොඩියුලය සංරක්ෂණය කරන්නද? එය තවදුරටත් අභ්‍යාසලාභීන්ට පැවරිය නොහැක.",
+            "delete": "මෙම මොඩියුලය ස්ථිරවම මකන්නද? මෙය අහෝසි කළ නොහැක."
+          }
+        },
+        "offboardFields": {
+          "sectionTitle": "බාහිර පුහුණු විස්තර",
+          "country": "රට",
+          "countryPlaceholder": "රට තෝරන්න…",
+          "thirdPartyCompany": "තෙවන පාර්ශ්ව සමාගම",
+          "thirdPartyCompanyPlaceholder": "උදා. Siemens පුහුණු මධ්‍යස්ථානය",
+          "contactName": "සම්බන්ධතා නම",
+          "contactInfo": "සම්බන්ධතා තොරතුරු",
+          "contactInfoPlaceholder": "ඊමේල් / දුරකථනය",
+          "mode": "ක්‍රමය",
+          "modeOptions": {
+            "inPerson": "පුද්ගලිකව",
+            "online": "මාර්ගගත",
+            "hybrid": "මිශ්‍ර"
+          },
+          "startDate": "ආරම්භක දිනය",
+          "endDate": "අවසන් දිනය",
+          "duration_one": "කාලය: දින {{count}}",
+          "duration_other": "කාලය: දින {{count}}",
+          "topic": "මාතෘකාව",
+          "topicPlaceholder": "උදා. උසස් PLC ක්‍රමලේඛනය",
+          "assessmentQuestions": "ඇගයීම් ප්‍රශ්න",
+          "assessmentQuestionsHint": "පුහුණුව අවසන් කළ පසු අභ්‍යාසලාභියා මේවාට පිළිතුරු දෙනු ඇත.",
+          "customQuestionPlaceholder": "අභිරුචි ප්‍රශ්නයක් එක් කරන්න…",
+          "addQuestion": "එක් කරන්න"
+        },
+        "offboardReportViewer": {
+          "trainingDetails": "පුහුණු විස්තර",
+          "trainee": "අභ්‍යාසලාභියා",
+          "provider": "සැපයුම්කරු",
+          "country": "රට",
+          "mode": "ක්‍රමය",
+          "duration": "කාලය",
+          "durationValue": "දින {{count}}",
+          "dates": "දිනයන්",
+          "notAvailable": "—",
+          "knowledgeGained": "ලැබූ දැනුම",
+          "assessmentQA": "ඇගයීම් ප්‍රශ්න සහ පිළිතුරු",
+          "attachments": "ඇමුණුම්",
+          "downloadPdf": "PDF වාර්තාව බාගන්න",
+          "pdfGenerating": "PDF වාර්තාව සකස් වෙමින් පවතී.",
+          "notSubmitted": "අභ්‍යාසලාභියා තවම දැනුම් වාර්තාව ඉදිරිපත් කර නැත."
+        },
+        "practicalSignOff": {
+          "title": "ප්‍රායෝගික අනුමැතිය",
+          "quizScore": "ප්‍රශ්නාවලි ලකුණ",
+          "observationsLabel": "නිරීක්ෂණ",
+          "observationsPlaceholder": "ප්‍රායෝගික ඇගයීමේදී නිරීක්ෂණය කළ දේ විස්තර කරන්න (අවම අක්ෂර 10)...",
+          "observationsCounter": "{{count}} / අවම අක්ෂර 10",
+          "assessmentResult": "ඇගයීම් ප්‍රතිඵලය",
+          "pass": "සමත්",
+          "fail": "අසමත්",
+          "signature": "අනුමත කරන අත්සන",
+          "submit": "අනුමත කරන්න",
+          "errors": {
+            "observationsTooShort": "නිරීක්ෂණ අවම වශයෙන් අක්ෂර 10ක් විය යුතුය.",
+            "selectResult": "සමත් හෝ අසමත් තෝරන්න.",
+            "signatureRequired": "සහතිකය අනුමත කිරීමට ඔබේ අත්සන එක් කරන්න.",
+            "signOffFailed": "අනුමත කිරීම අසාර්ථකයි."
+          }
+        },
+        "programsTab": {
+          "heading": "වැඩසටහන්",
+          "createProgram": "වැඩසටහනක් සාදන්න",
+          "assignedToast": "වැඩසටහන සාර්ථකව පැවරුවා.",
+          "emptyState": "තවම වැඩසටහන් සාදා නැත.",
+          "columns": {
+            "title": "මාතෘකාව",
+            "modules": "මොඩියුල",
+            "totalDuration": "මුළු කාලය",
+            "status": "තත්ත්වය",
+            "actions": "ක්‍රියා"
+          },
+          "durationDays": "දින {{count}}",
+          "status": {
+            "active": "සක්‍රිය",
+            "archived": "සංරක්ෂිත"
+          },
+          "actions": {
+            "assign": "පවරන්න",
+            "delete": "මකන්න"
+          },
+          "confirm": {
+            "delete": "මෙම වැඩසටහන මකන්නද? මෙය එය නාමාවලියෙන් ස්ථිරවම ඉවත් කරන අතර අහෝසි කළ නොහැක. දැනටමත් පවරා ඇති අභ්‍යාසලාභීන්ගේ ප්‍රගතිය රැඳේ."
+          }
+        },
+        "assignedProgramsTab": {
+          "emptyState": "කිසිවෙකුට විවෘත වැඩසටහන් පැවරුමක් නැත.",
+          "columns": {
+            "program": "වැඩසටහන",
+            "trainee": "අභ්‍යාසලාභියා",
+            "assigned": "පැවරූ දිනය",
+            "dueDate": "නියමිත දිනය",
+            "progress": "ප්‍රගතිය",
+            "status": "තත්ත්වය",
+            "action": "ක්‍රියාව"
+          },
+          "status": {
+            "awaitingSignOff": "අනුමැතිය බලාපොරොත්තුවෙන්",
+            "inProgress": "ක්‍රියාත්මක වෙමින්"
+          },
+          "signOff": "අනුමත කරන්න",
+          "notAvailable": "—",
+          "modal": {
+            "title": "වැඩසටහන අනුමත කරන්න",
+            "subtitle": "{{traineeName}} — {{programName}}",
+            "noteLabel": "සටහන",
+            "notePlaceholder": "අනුමත කිරීමේ සටහන...",
+            "signatureLabel": "අනුමත කරන අත්සන",
+            "cancel": "අවලංගු කරන්න",
+            "confirm": "අනුමැතිය තහවුරු කරන්න",
+            "confirming": "අනුමත කරමින්…"
+          },
+          "toasts": {
+            "signatureRequired": "සහතිකය අනුමත කිරීමට ඔබේ අත්සන එක් කරන්න."
+          }
+        },
+        "createProgramModal": {
+          "title": "පුහුණු වැඩසටහනක් සාදන්න",
+          "programTitle": "වැඩසටහනේ මාතෘකාව",
+          "programTitlePlaceholder": "උදා. විදුලි අභ්‍යාසලාභී වැඩසටහන",
+          "description": "විස්තරය",
+          "totalDuration": "මුළු වැඩසටහන් කාලය",
+          "days": "දින",
+          "modulesLabel": "මොඩියුල",
+          "modulesHint": "(එක් එක් මොඩියුලය තෝරා නියමිත කාලය සකසන්න)",
+          "modulesEmpty": "තවම මොඩියුල නැත — පළමුව මොඩියුල ටැබයෙන් එකක් සාදන්න.",
+          "dueDaysSuffix": "දිනකින් නියමිතයි",
+          "cancel": "අවලංගු කරන්න",
+          "create": "වැඩසටහන සාදන්න",
+          "creating": "සාදමින්…",
+          "errors": {
+            "validation": "මාතෘකාවක් එක් කර අවම වශයෙන් එක් මොඩියුලයක් තෝරන්න.",
+            "failed": "වැඩසටහන සෑදීම අසාර්ථකයි"
+          }
+        },
+        "assignProgramModal": {
+          "title": "වැඩසටහන පවරන්න",
+          "searchPlaceholder": "අභ්‍යාසලාභීන් සොයන්න...",
+          "emptyState": "අභ්‍යාසලාභීන් හමු නොවීය.",
+          "cancel": "අවලංගු කරන්න",
+          "assign": "පවරන්න",
+          "assignTo": "{{count}} දෙනාට පවරන්න",
+          "assigning": "පවරමින්…",
+          "errors": {
+            "failed": "වැඩසටහන පැවරීම අසාර්ථකයි"
+          }
+        },
+        "offboardCompletionForm": {
+          "backLink": "← මගේ පුහුණුවට ආපසු",
+          "provider": "සැපයුම්කරු",
+          "country": "රට",
+          "mode": "ක්‍රමය",
+          "duration": "කාලය",
+          "durationValue": "දින {{count}}",
+          "start": "ආරම්භය",
+          "end": "අවසානය",
+          "topic": "මාතෘකාව",
+          "notAvailable": "—",
+          "knowledgeGainedLabel": "ලැබූ දැනුම",
+          "knowledgeGainedPlaceholder": "ඔබ ඉගෙන ගත් දේ සහ එය යොදන ආකාරය සාරාංශ කරන්න...",
+          "assessmentQuestions": "ඇගයීම් ප්‍රශ්න",
+          "attachments": "ඇමුණුම්",
+          "uploadLink": "ලේඛන / අත්පොත් උඩුගත කරන්න",
+          "uploading": "උඩුගත කරමින්…",
+          "submit": "දැනුම් වාර්තාව ඉදිරිපත් කරන්න",
+          "success": {
+            "heading": "දැනුම් වාර්තාව ඉදිරිපත් කළා",
+            "message": "ස්තූතියි — ඔබේ පුහුණු වාර්තාව සමාලෝචනය සඳහා යවා ඇත. සහතිකයක් හෝ වැඩිදුර ක්‍රියාමාර්ගයක් අවශ්‍ය නම් HR පසු විපරම් කරනු ඇත.",
+            "backButton": "මගේ පුහුණුවට ආපසු"
+          },
+          "errors": {
+            "fileTooLarge": "{{fileName}} 25MB සීමාව ඉක්මවයි.",
+            "uploadFailed": "ඇමුණුම උඩුගත කිරීම අසාර්ථකයි",
+            "submitFailed": "වාර්තාව ඉදිරිපත් කිරීම අසාර්ථකයි"
+          }
+        },
+        "programCertificateCard": {
+          "heading": "වැඩසටහන් සම්පූර්ණ කිරීමේ සහතිකය",
+          "certificateNo": "සහතික අංකය",
+          "program": "වැඩසටහන",
+          "modulesCompleted": "සම්පූර්ණ කළ මොඩියුල",
+          "modulesCompleted_one": "මොඩියුල {{count}}",
+          "modulesCompleted_other": "මොඩියුල {{count}}",
+          "issued": "නිකුත් කළේ {{date}}",
+          "signedOffBy": "{{name}} ({{role}}) විසින් අනුමත කරන ලදී",
+          "notAvailable": "—",
+          "downloadAria": "වැඩසටහන් සහතිකය A4 PDF ලෙස බාගන්න",
+          "downloadButton": "A4 PDF බාගන්න",
+          "toasts": {
+            "pdfFailed": "සහතික PDF සකස් කිරීමට නොහැකි විය."
+          }
+        },
+        "programmeCertificateCard": {
+          "heading": "වැඩසටහන් සම්පූර්ණ කිරීමේ සහතිකය",
+          "certificateNo": "සහතික අංකය",
+          "programme": "වැඩසටහන",
+          "programmeTitle": "මාස {{count}} අභ්‍යාසලාභී වැඩසටහන",
+          "modulesCompleted_one": "මාස {{months}}ක් පුරා මොඩියුල {{count}}",
+          "modulesCompleted_other": "මාස {{months}}ක් පුරා මොඩියුල {{count}}",
+          "issued": "නිකුත් කළේ {{date}}",
+          "signedOffBy": "{{name}} ({{role}}) විසින් අනුමත කරන ලදී",
+          "finalMark": "අවසන් ලකුණ: {{mark}}%",
+          "downloadAria": "වැඩසටහන් සහතික PDF බාගන්න",
+          "downloadButton": "PDF බාගන්න"
+        }
+      },
+      "assignmentsListPage": {
+        "title": "අභ්‍යාසලාභී කළමනාකරණය",
+        "tabs": {
+          "assigned": "පවරා ඇති",
+          "programs": "වැඩසටහන්",
+          "modules": "මොඩියුල"
+        }
+      },
+      "createModulePage": {
+        "toasts": {
+          "saved": "අභ්‍යාසලාභී මොඩියුලය සුරැකුවා."
+        },
+        "backAria": "ආපසු",
+        "title": "අභ්‍යාසලාභී මොඩියුලයක් සාදන්න"
+      },
+      "editModulePage": {
+        "notFound": "මොඩියුලය හමු නොවීය.",
+        "back": "ආපසු",
+        "wrongLibrary": {
+          "title": "මෙම පුස්තකාලයේ හමු නොවීය.",
+          "description": "මෙම මොඩියුලය පුහුණු පුස්තකාලයට අයත්ය. එය පුහුණු ටැබයෙන් විවෘත කරන්න."
+        },
+        "backAria": "ආපසු",
+        "quizBuilder": "ප්‍රශ්නාවලි සාදන්නා"
+      },
+      "traineeProfilePage": {
+        "backAria": "ආපසු",
+        "title": "අභ්‍යාසලාභී පැතිකඩ",
+        "trainingProgramme": "පුහුණු වැඩසටහන",
+        "awaitingSignOff": "ප්‍රායෝගික අනුමැතිය බලාපොරොත්තුවෙන්",
+        "allAssignments_one": "සියලු පැවරුම් ({{count}})",
+        "allAssignments_other": "සියලු පැවරුම් ({{count}})",
+        "noAssignments": "තවම පැවරුම් නැත.",
+        "noOtherAssignments": "වෙනත් පැවරුම් නැත — ඉහත “ප්‍රායෝගික අනුමැතිය බලාපොරොත්තුවෙන්” බලන්න.",
+        "assignedLabel": "පැවරුවේ: {{date}}",
+        "dueLabel": "නියමිත: {{date}}"
+      },
+      "traineeProgrammePage": {
+        "programmeStatuses": {
+          "active": "සක්‍රිය",
+          "completed": "සම්පූර්ණයි",
+          "discontinued": "නවතා දමා ඇත"
+        },
+        "reviewStatuses": {
+          "pending": "පොරොත්තුවෙන්",
+          "reviewed": "සමාලෝචනය කළා",
+          "needs_revision": "සංශෝධනය අවශ්‍යයි"
+        },
+        "errors": {
+          "pickEndDate": "අභිරුචි කාලයක් සඳහා අවසන් දිනයක් තෝරන්න.",
+          "endAfterStart": "අවසන් දිනය ආරම්භක දිනයට පසු විය යුතුය.",
+          "createFailed": "වැඩසටහන සෑදීම අසාර්ථකයි",
+          "reviewFailed": "සාරාංශය සමාලෝචනය අසාර්ථකයි",
+          "signatureRequired": "සහතිකය අනුමත කිරීමට ඔබේ අත්සන එක් කරන්න.",
+          "issueCertificateFailed": "සහතිකය නිකුත් කිරීම අසාර්ථකයි"
+        },
+        "toasts": {
+          "created": "පුහුණු වැඩසටහන සාදන ලදී.",
+          "summaryReviewed": "සාරාංශය සමාලෝචනය කළා.",
+          "certificateIssued": "සහතිකය නිකුත් කළා."
+        },
+        "backAria": "ආපසු",
+        "headerTitle": "පුහුණු වැඩසටහන — {{name}}",
+        "monthProgramme_one": "මාස {{count}} වැඩසටහන",
+        "monthProgramme_other": "මාස {{count}} වැඩසටහන",
+        "monthLabel": "මාසය {{number}}",
+        "knowledgeWriteups": "දැනුම් ලිපි",
+        "noSubmissions": "තවම ඉදිරිපත් කිරීම් නැත.",
+        "defaultWriteupName": "දැනුම් ලිපිය",
+        "actions": {
+          "markReviewed": "සමාලෝචනය කළ ලෙස සලකුණු කරන්න",
+          "needsRevision": "සංශෝධනය අවශ්‍යයි"
+        },
+        "defaultRevisionComment": "කරුණාකර තවත් විස්තර එක් කරන්න.",
+        "issueCertificate": {
+          "title": "සම්පූර්ණ කිරීමේ සහතිකය නිකුත් කරන්න",
+          "mustCertifyAll": "සහතිකයක් නිකුත් කිරීමට පෙර සියලු මොඩියුල සහතික කළ යුතුය.",
+          "recommendationPlaceholder": "භාරකරුගේ නිර්දේශය (අධීක්ෂක / පරිපාලක / කම්හල් කළමනාකරු)...",
+          "authorizingSignature": "අනුමත කරන අත්සන ({{name}})",
+          "issuing": "නිකුත් කරමින්…",
+          "issue": "සහතිකය නිකුත් කරන්න"
+        },
+        "setup": {
+          "title": "පුහුණු වැඩසටහන සකසන්න",
+          "duration": "කාලය",
+          "durationOptions": {
+            "sixMonths": "මාස 6",
+            "oneYear": "වසර 1",
+            "custom": "අභිරුචි පරාසය…"
+          },
+          "startDate": "ආරම්භක දිනය",
+          "endDate": "අවසන් දිනය",
+          "customRangeSized_one": "මෙය මාස {{count}} ස්ථානගත කිරීමකි — පහත සැලැස්ම ඊට ගැළපෙන සේ සකසා ඇත.",
+          "customRangeSized_other": "මෙය මාස {{count}} ස්ථානගත කිරීමකි — පහත සැලැස්ම ඊට ගැළපෙන සේ සකසා ඇත.",
+          "monthFocusPlaceholder": "මාසයේ අවධානය (විකල්ප)",
+          "modules": "මොඩියුල",
+          "weekendTasksPlaceholder": "මෙම මාසයේ සති අන්ත කාර්ය, පේළියකට එකක්",
+          "creating": "සාදමින්…",
+          "create": "වැඩසටහන සාදන්න"
+        }
+      },
+      "myProgramPage": {
+        "assignedModules": {
+          "title": "පවරා ඇති අභ්‍යාසලාභී මොඩියුල",
+          "noneOutstanding": "ඉතිරි අභ්‍යාසලාභී මොඩියුල නැත — අලුතින් කිසිවක් පවරා නැත, නැතහොත් පවරා ඇති සියල්ල සම්පූර්ණයි.",
+          "assignedWithDue": "පැවරුවේ {{assignedDate}} · නියමිත {{dueDate}}",
+          "assigned": "පැවරුවේ {{date}}"
+        },
+        "monthLabel": "මාසය {{number}}",
+        "noModulesThisMonth": "මෙම මාසයට තවම මොඩියුල පවරා නැත.",
+        "title": "මගේ පුහුණු වැඩසටහන",
+        "noProgramme": "ඔබ සඳහා මාසික වැඩසටහනක් තවම සකසා නැත — ඔබට පවරා ඇති අභ්‍යාසලාභී මොඩියුල පහත ඇත.",
+        "summary": "මාස {{count}} වැඩසටහන · ආරම්භය {{startDate}} · අපේක්ෂිත අවසානය {{endDate}}",
+        "overallProgress": "සමස්ත ප්‍රගතිය",
+        "moduleCount": "මොඩියුල {{completed}} / {{total}}",
+        "completedWithMark": "වැඩසටහන සම්පූර්ණයි — අවසන් ලකුණ {{mark}}%.",
+        "completed": "වැඩසටහන සම්පූර්ණයි.",
+        "downloadCertificate": "සහතිකය බාගන්න"
+      }
+    },
+    "shiftHandovers": {
+      "createPage": {
+        "title": "මුර භාරදීමක් සාදන්න",
+        "subtitle": "සම්පාදිත මුර සාරාංශය සමාලෝචනය කර වගකීම පැමිණෙන අධීක්ෂකට පවරන්න."
+      },
+      "detailPage": {
+        "loading": "භාරදීම පූරණය වෙමින්...",
+        "exportPdf": "PDF අපනයනය"
+      },
+      "historyPage": {
+        "title": "මුර භාරදීම්",
+        "subtitle": "සෑම මුරයක් සහ පරිශීලකයෙකු හරහා අධීක්ෂක වගකීම් පැවරීම්වල කාල සටහන් සහිත සංරක්ෂිතය.",
+        "shiftConfiguration": "මුර වින්‍යාසය",
+        "loading": "පූරණය වෙමින්…",
+        "empty": "භාරදීම් හමු නොවීය."
+      },
+      "filterBar": {
+        "searchNamePlaceholder": "නම සොයන්න…",
+        "allRoles": "සියලු භූමිකා",
+        "allShifts": "සියලු මුර",
+        "allDepartments": "සියලු දෙපාර්තමේන්තු",
+        "lateOnly": "ප්‍රමාද ඒවා පමණි",
+        "roleLabels": {
+          "admin": "පරිපාලක",
+          "plant_manager": "කම්හල් කළමනාකරු",
+          "supervisor": "අධීක්ෂක",
+          "technician": "තාක්ෂණ ශිල්පී",
+          "store_keeper": "ගබඩා භාරකරු",
+          "hr_officer": "මානව සම්පත් නිලධාරී",
+          "trainee": "අභ්‍යාසලාභී",
+          "floor_operator": "බිම් ක්‍රියාකරු"
+        }
+      },
+      "historyCard": {
+        "shiftLog": "මුර ලොගය",
+        "started": "ආරම්භය: {{time}}",
+        "late": "({{duration}} ප්‍රමාදයි)",
+        "ended": "අවසානය: {{time}}",
+        "ot": "අතිකාල: {{value}}",
+        "watchFlags": "අවධානය ධජ: {{count}}",
+        "breakdownsDuringShift": "මුරය තුළ බිඳවැටීම්: {{count}}",
+        "wosDuringShift": "මුරය තුළ WO: {{count}}",
+        "viewArchive": "සංරක්ෂිතය බලන්න",
+        "export": "අපනයනය"
+      },
+      "historyTable": {
+        "columns": {
+          "shiftName": "මුරයේ නම",
+          "personAndRole": "පුද්ගලයා සහ භූමිකාව",
+          "department": "දෙපාර්තමේන්තුව",
+          "shiftStarted": "මුරය ආරම්භ විය",
+          "lateBy": "ප්‍රමාදය",
+          "shiftEnded": "මුරය අවසන් විය",
+          "ot": "අතිකාල",
+          "breakdownsDuringShift": "මුරය තුළ බිඳවැටීම්",
+          "wosDuringShift": "මුරය තුළ WO",
+          "watchFlags": "අවධානය ධජ",
+          "action": "ක්‍රියාව"
+        },
+        "onTime": "නියමිත වේලාවට",
+        "late": "{{duration}} ප්‍රමාදයි",
+        "none": "නැත",
+        "shiftLog": "මුර ලොගය",
+        "view": "බලන්න",
+        "export": "අපනයනය"
+      },
+      "statusBadge": {
+        "pendingAcceptance": "පිළිගැනීම පොරොත්තුවෙන්",
+        "accepted": "පිළිගත්තා",
+        "archived": "සංරක්ෂිත"
+      },
+      "timeline": {
+        "title": "කාලරේඛාව",
+        "shiftStart": "මුරය ආරම්භය",
+        "handoverSubmitted": "භාරදීම ඉදිරිපත් කළා",
+        "handoverAccepted": "භාරදීම පිළිගත්තා"
+      },
+      "detailView": {
+        "titleSuffix": "භාරදීම",
+        "assignedShift": "පවරා ඇති මුරය",
+        "scheduledRange": "සැලසුම් කළ {{start}}–{{end}}",
+        "shiftTakenFrom": "මුරය භාරගත්තේ",
+        "shiftHandedOverTo": "මුරය භාරදුන්නේ",
+        "pendingAcceptance": "පිළිගැනීම පොරොත්තුවෙන්",
+        "shiftStartTime": "මුරය ආරම්භක වේලාව",
+        "shiftEndTime": "මුරය අවසන් වේලාව",
+        "overtime": "අතිකාල (OT)",
+        "workedVsScheduled": "(වැඩ කළ {{worked}} එදිරිව සැලසුම් කළ {{scheduled}})",
+        "watchMachineFlags": "අවධානය යොමු කළ යුතු යන්ත්‍ර",
+        "noWatchFlags": "අවධානය ධජ කිසිවක් නැත.",
+        "pendingWorkOrders": "පොරොත්තු වැඩ ඇණවුම්",
+        "noPendingWOs": "පොරොත්තු වැඩ ඇණවුම් නැත.",
+        "ongoingBreakdowns": "පවතින බිඳවැටීම්",
+        "noOngoingBreakdowns": "පවතින බිඳවැටීම් නැත.",
+        "generalNotesSafety": "සාමාන්‍ය සටහන් සහ ආරක්ෂක කරුණු",
+        "safetyIncident": "ආරක්ෂක සිද්ධිය",
+        "safetyIncidentReportedNoDescription": "සිද්ධියක් වාර්තා කර ඇත (විස්තරයක් සපයා නැත).",
+        "noSafetyIncidents": "ආරක්ෂක සිද්ධි වාර්තා වී නැත.",
+        "restrictedAreas": "සීමා කළ ප්‍රදේශ",
+        "temporaryRepairs": "තාවකාලික අලුත්වැඩියා",
+        "generalNotes": "සාමාන්‍ය සටහන්"
+      },
+      "safetyCasesSection": {
+        "title": "ඔබට වාර්තා කළ ආරක්ෂක සිද්ධි",
+        "loading": "ආරක්ෂක සිද්ධි පූරණය වෙමින්...",
+        "empty": "ඔබට වාර්තා කළ විවෘත ආරක්ෂක සිද්ධි නැත."
+      },
+      "pendingWoRow": {
+        "noDueDate": "නියමිත දිනයක් නැත",
+        "noNote": "සටහනක් නැත",
+        "supervisorNotePlaceholder": "අධීක්ෂක සටහන",
+        "carryForward": {
+          "continue": "ඊළඟ මුරයේ දිගටම",
+          "escalate": "කළමනාකරු වෙත යොමු කරන්න",
+          "on_hold": "රඳවා ඇත"
+        }
+      },
+      "breakdownSnapshotRow": {
+        "minutesElapsed": "මිනිත්තු {{count}}ක් ගත විය",
+        "noNote": "සටහනක් නැත",
+        "notePlaceholder": "බිඳවැටීම් සටහන",
+        "nextShiftPriority": {
+          "urgent": "හදිසි - වහාම විසඳන්න",
+          "continue": "සාමාන්‍ය ලෙස දිගටම",
+          "monitor": "නිරීක්ෂණය පමණි"
+        }
+      },
+      "createForm": {
+        "endShiftFirst": "භාරදීමේ සාරාංශය සම්පාදනය කිරීමට පළමුව ඔබේ මුරය අවසන් කරන්න.",
+        "steps": {
+          "stats": "සංඛ්‍යාලේඛන",
+          "watch": "අවධානය",
+          "wos": "WO",
+          "breakdowns": "බිඳවැටීම්",
+          "safety": "ආරක්ෂාව",
+          "notes": "සටහන්",
+          "signOff": "අනුමැතිය"
+        },
+        "errors": {
+          "acknowledgeRequired": "ඉදිරිපත් කිරීමට පෙර අනුමැතිය තහවුරු කරන්න.",
+          "statsNotCompiled": "මුර සාරාංශය තවම සම්පාදනය කර නැත. පළමුව ඔබේ මුරය අවසන් කරන්න.",
+          "submitFailed": "භාරදීම ඉදිරිපත් කිරීම අසාර්ථකයි"
+        },
+        "toasts": {
+          "submitSuccess": "භාරදීම සාර්ථකව ඉදිරිපත් කළා"
+        },
+        "wizard": {
+          "back": "ආපසු",
+          "next": "ඊළඟ"
+        },
+        "section1AutoStats": {
+          "title": "ස්වයංක්‍රීයව සැකසූ මුර සංඛ්‍යාලේඛන",
+          "subtitle": "සජීවී Firestore වාර්තා වලින් සම්පාදනය කළ කියවීමට පමණක් සාරාංශය.",
+          "emptyState": "සංඛ්‍යාලේඛන පිරවීමට මුර සාරාංශය සම්පාදනය කරන්න."
+        },
+        "section2WatchFlags": {
+          "title": "අවධානය යොමු කළ යුතු යන්ත්‍ර",
+          "subtitle": "ඊළඟ මුරයේදී විශේෂ අවධානය අවශ්‍ය යන්ත්‍ර.",
+          "addWatchFlag": "අවධානය ධජයක් එක් කරන්න",
+          "empty": "අවධානය යන්ත්‍ර එක් කර නැත."
+        },
+        "section3PendingWOs": {
+          "title": "පොරොත්තු වැඩ ඇණවුම්",
+          "subtitle": "ඉදිරියට ගෙන යන සටහන් පමණි. වැඩ ඇණවුම් මෙහිදී වෙනස් නොවේ.",
+          "empty": "පොරොත්තු වැඩ ඇණවුම් නැත."
+        },
+        "section4OngoingBreakdowns": {
+          "title": "පවතින බිඳවැටීම්",
+          "subtitle": "ඊළඟ මුරයේ අවධානය අවශ්‍ය විවෘත බිඳවැටීම්.",
+          "empty": "පවතින බිඳවැටීම් නැත."
+        },
+        "section5PartsNotes": {
+          "title": "කොටස් සහ තොග සටහන්",
+          "subtitle": "ඊළඟ අධීක්ෂක සඳහා අඩු තොග සහ කොටස් ඉල්ලීම් තොරතුරු.",
+          "lowStockAlerts": "අඩු තොග ඇඟවීම්",
+          "noAlerts": "අඩු තොග ඇඟවීම් සම්පාදනය වී නැත.",
+          "alertLine": "{{name}}: {{current}} / අවම {{min}}",
+          "notesPlaceholder": "කොටස් සහ තොග සටහන්"
+        },
+        "section6SafetyIncidents": {
+          "title": "ආරක්ෂාව සහ සිද්ධි",
+          "subtitle": "ආරක්ෂක සිද්ධි, සීමා කළ ප්‍රදේශ සහ තාවකාලික අලුත්වැඩියා.",
+          "incidentQuestion": "මෙම මුරය තුළ ආරක්ෂක සිද්ධියක් හෝ ආසන්න අනතුරක් සිදු වූවාද?",
+          "incidentDescriptionPlaceholder": "සිද්ධිය, සම්බන්ධ යන්ත්‍ර, ගත් ක්‍රියාමාර්ග, අවශ්‍ය පසු විපරම් විස්තර කරන්න",
+          "restrictedAreasPlaceholder": "සීමා කළ ප්‍රදේශ",
+          "temporaryRepairsPlaceholder": "තාවකාලික අලුත්වැඩියා"
+        },
+        "section7GeneralNotes": {
+          "title": "සාමාන්‍ය සටහන්",
+          "subtitle": "පැමිණෙන අධීක්ෂක සඳහා සරල පෙළ සටහන්.",
+          "placeholder": "ඉහත ආවරණය නොවූ ඕනෑම දෙයක්",
+          "charCount": "{{count}}/2000"
+        },
+        "section8SignOff": {
+          "title": "පිටවන අධීක්ෂකගේ අනුමැතිය",
+          "supervisor": "අධීක්ෂක",
+          "shift": "මුරය",
+          "signOffTime": "අනුමත කළ වේලාව",
+          "confirmation": "ඉහත තොරතුරු නිවැරදි සහ සම්පූර්ණ බව මම තහවුරු කරමි.",
+          "submitting": "ඉදිරිපත් කරමින්...",
+          "submit": "භාරදීම ඉදිරිපත් කරන්න"
+        }
+      },
+      "briefingPage": {
+        "noPending": "පොරොත්තු මුර කෙටි විස්තරයක් නැත.",
+        "returnToDashboard": "උපකරණ පුවරුවට ආපසු"
+      },
+      "briefingHeader": {
+        "title": "පැමිණෙන මුරයේ කෙටි විස්තරය",
+        "handoverFrom": "{{time}} ට {{name}} ගෙන් භාරදීම"
+      },
+      "briefingScreen": {
+        "watchMachines": "අවධානය යොමු කළ යුතු යන්ත්‍ර",
+        "noWatchFlags": "අවධානය ධජ නැත.",
+        "activeBreakdowns": "සක්‍රිය බිඳවැටීම්",
+        "pendingWorkOrders": "පොරොත්තු වැඩ ඇණවුම්",
+        "partsInventoryFlags": "කොටස් සහ තොග ධජ",
+        "partQtyLine": "{{name}}: {{current}} / අවම {{min}}",
+        "noPartsNotes": "කොටස් සටහන් නැත.",
+        "lastShiftStatistics": "පසුගිය මුරයේ සංඛ්‍යාලේඛන",
+        "generalNotes": "සාමාන්‍ය සටහන්",
+        "noGeneralNotes": "සාමාන්‍ය සටහන් නැත."
+      },
+      "overlapBanner": {
+        "handedOver": "{{time}} ට මුරය {{name}} වෙත භාරදුන්නා.",
+        "overlapInProgress": "අතිච්ඡාදනය ක්‍රියාත්මකයි - {{name}} {{shiftName}} භාරදෙමින් සිටී.",
+        "reviewBriefing": "කෙටි විස්තරය සමාලෝචනය කරන්න"
+      },
+      "statsGrid": {
+        "breakdowns": "බිඳවැටීම්",
+        "openWOs": "විවෘත WO",
+        "pmsDone": "කළ PM",
+        "hoursLost": "අහිමි වූ පැය",
+        "partsIssued": "නිකුත් කළ කොටස්",
+        "wosCompleted": "සම්පූර්ණ කළ WO",
+        "critical": "තීරණාත්මක",
+        "pmsMissed": "මඟ හැරුණු PM"
+      },
+      "acceptShiftButton": {
+        "confirmText": "පිළිගැනීමෙන්, ඔබ මුර කෙටි විස්තරය සමාලෝචනය කළ බවත් මෙම මුරයේ වගකීම භාරගන්නා බවත් තහවුරු කරයි.",
+        "cancel": "අවලංගු කරන්න",
+        "accepting": "පිළිගනිමින්...",
+        "confirmAcceptance": "පිළිගැනීම තහවුරු කරන්න",
+        "acceptShift": "මුරය පිළිගෙන වගකීම භාරගන්න"
+      },
+      "endShiftConfirmModal": {
+        "title": "මුරය අවසන් කරන්න",
+        "confirmQuestion": "ඔබේ මුරය අවසන් කිරීමට ඔබට විශ්වාසද?",
+        "closeAria": "වසන්න",
+        "currentShift": "වත්මන් මුරය",
+        "currentShiftFallback": "වත්මන් මුරය",
+        "scheduled": "සැලසුම් කළ",
+        "currentTime": "වත්මන් වේලාව",
+        "duration": "කාලය",
+        "notStarted": "ආරම්භ කර නැත",
+        "cancel": "අවලංගු කරන්න",
+        "generating": "සකසමින්...",
+        "endShiftAndGenerateReport": "මුරය අවසන් කර වාර්තාව සකසන්න",
+        "endShift": "මුරය අවසන් කරන්න"
+      },
+      "endShiftButton": {
+        "start": "ආරම්භ කරන්න",
+        "failedToStart": "මුරය ආරම්භ කිරීම අසාර්ථකයි",
+        "starting": "ආරම්භ කරමින්…",
+        "startShift": "මුරය ආරම්භ කරන්න",
+        "endShift": "මුරය අවසන් කරන්න"
+      },
+      "statusPanel": {
+        "since": "{{time}} සිට",
+        "sinceDay": "{{day}} {{time}} සිට",
+        "yesterday": "ඊයේ",
+        "notStartedToday": "අද ආරම්භ කර නැත",
+        "ended": "{{time}} ට අවසන් විය",
+        "working": "වැඩ කරමින්",
+        "notWorking": "වැඩ නොකරයි",
+        "workingCount": "වැඩ කරමින් ({{count}})",
+        "noOneScheduled": "මෙම මුරයට තවම කිසිවෙකු සැලසුම් කර නැත.",
+        "liveShiftStatus": "සජීවී මුර තත්ත්වය",
+        "summaryLine": "{{shifts}} හරහා දැනට {{people}} වැඩ කරමින්",
+        "personCount_one": "පුද්ගලයින් {{count}}",
+        "personCount_other": "පුද්ගලයින් {{count}}",
+        "shiftCount_one": "මුර {{count}}",
+        "shiftCount_other": "මුර {{count}}"
+      },
+      "watchFlagAddModal": {
+        "title": "අවධානය යන්ත්‍රයක් එක් කරන්න",
+        "closeAria": "වසන්න",
+        "machine": "යන්ත්‍රය",
+        "loadingMachines": "යන්ත්‍ර පූරණය වෙමින්…",
+        "selectMachine": "යන්ත්‍රයක් තෝරන්න",
+        "machineId": "යන්ත්‍ර අංකය",
+        "location": "ස්ථානය",
+        "department": "දෙපාර්තමේන්තුව",
+        "floor": "මහල",
+        "bay": "කොටස",
+        "station": "ස්ථානය",
+        "criticalWatch": "තීරණාත්මක අවධානය",
+        "monitor": "නිරීක්ෂණය",
+        "infoOnly": "තොරතුරු පමණි",
+        "watchReason": "අවධානයට හේතුව",
+        "recommendedAction": "නිර්දේශිත ක්‍රියාව",
+        "linkedBreakdownOptional": "සම්බන්ධිත බිඳවැටීම (විකල්ප)",
+        "selectMachineFirst": "පළමුව යන්ත්‍රයක් තෝරන්න",
+        "loadingBreakdowns": "බිඳවැටීම් පූරණය වෙමින්…",
+        "noOpenBreakdowns": "මෙම යන්ත්‍රයට විවෘත බිඳවැටීම් නැත",
+        "none": "කිසිවක් නැත",
+        "addWatchFlag": "අවධානය ධජයක් එක් කරන්න"
+      },
+      "watchFlagBadge": {
+        "criticalWatch": "තීරණාත්මක අවධානය",
+        "monitor": "නිරීක්ෂණය",
+        "infoOnly": "තොරතුරු පමණි"
+      },
+      "watchFlagCard": {
+        "carriedForward": "ඉදිරියට ගෙන ආ",
+        "machineDetail": "යන්ත්‍ර විස්තර",
+        "recommended": "නිර්දේශිත:",
+        "linkedBreakdown": "සම්බන්ධිත බිඳවැටීම",
+        "resolveFlag": "ධජය විසඳන්න"
+      },
+      "configPage": {
+        "backToShiftHandovers": "මුර භාරදීම් වෙත ආපසු",
+        "title": "මුර වින්‍යාසය",
+        "subtitle": "ඔබේ සමාගම ක්‍රියාත්මක කරන මුර සැලසුම් සහ එක් එක් මුරයේ වැඩ කරන අය නිර්වචනය කරන්න.",
+        "seedDefaults": "පෙරනිමි එක් කරන්න",
+        "editingShift": "සංස්කරණය: {{name}}",
+        "addNewShift": "නව මුරයක් එක් කරන්න",
+        "cancelEdit": "සංස්කරණය අවලංගු කරන්න",
+        "shiftPlans": "මුර සැලසුම්",
+        "shiftPlansWithCount": "මුර සැලසුම් ({{count}})",
+        "loadingShifts": "මුර පූරණය වෙමින්…",
+        "noShiftsConfigured": "තවම මුර වින්‍යාස කර නැත.",
+        "active": "සක්‍රිය",
+        "inactive": "අක්‍රිය",
+        "individualAssignmentsHint": "තනි පැවරුම් සැකසුම් → පරිශීලකයින් තුළද කළ හැක.",
+        "edit": "සංස්කරණය",
+        "delete": "මකන්න",
+        "confirmDelete": "මෙම මුර වින්‍යාසය මකන්නද?",
+        "days": {
+          "Mon": "සඳු",
+          "Tue": "අඟ",
+          "Wed": "බදා",
+          "Thu": "බ්‍රහ",
+          "Fri": "සිකු",
+          "Sat": "සෙන",
+          "Sun": "ඉරි"
+        }
+      },
+      "configForm": {
+        "shiftName": "මුරයේ නම",
+        "shiftNamePlaceholder": "උදා. උදෑසන මුරය",
+        "from": "සිට",
+        "to": "දක්වා",
+        "colour": "වර්ණය",
+        "status": "තත්ත්වය",
+        "active": "සක්‍රිය",
+        "inactive": "අක්‍රිය",
+        "assignShiftBy": "මුරය පවරන ආකාරය",
+        "department": "දෙපාර්තමේන්තුව",
+        "rolesOnThisShift": "මෙම මුරයේ භූමිකා",
+        "employeesOnShift": "මෙම මුරයේ සේවකයින්",
+        "employeesOnShiftWithCount": "මෙම මුරයේ සේවකයින් ({{count}} තෝරා ඇත)",
+        "clearSelection": "තේරීම ඉවත් කරන්න",
+        "searchByNameOrRole": "නම හෝ භූමිකාව අනුව සොයන්න…",
+        "loadingEmployees": "සේවකයින් පූරණය වෙමින්…",
+        "noEmployeesYet": "මෙම සමාගමේ තවම සේවකයින් නැත.",
+        "noEmployeesMatch": "එම සෙවීමට ගැළපෙන සේවකයින් නැත.",
+        "individualAssignmentHint": "<strong>සැකසුම් → පරිශීලකයින්</strong> තුළ මුරයක් තේරීමෙන් පුද්ගලයෙකු තනිව මුරයකට දැමිය හැකි අතර, එය ඔවුන් සඳහා දෙපාර්තමේන්තු හෝ භූමිකා මට්ටමේ සැලැස්ම අභිබවා යයි. මෙම සැලැස්ම වෙනස් වූ විට පවරා ඇති සාමාජිකයින්ට ඊමේල් යවන අතර මුරය ආරම්භ වීමට පැය 2–3කට පෙර මතක් කරයි.",
+        "shiftSaved": "මුරය සුරැකුවා.",
+        "saving": "සුරකිමින්…",
+        "saveShift": "මුරය සුරකින්න",
+        "newDepartmentPlaceholder": "උදා. සිවිල්, ආරක්ෂාව",
+        "add": "එක් කරන්න",
+        "cancel": "අවලංගු කරන්න",
+        "selectDepartment": "දෙපාර්තමේන්තුවක් තෝරන්න…",
+        "addNewDepartment": "+ නව දෙපාර්තමේන්තුවක් එක් කරන්න…",
+        "days": {
+          "Mon": "සඳු",
+          "Tue": "අඟ",
+          "Wed": "බදා",
+          "Thu": "බ්‍රහ",
+          "Fri": "සිකු",
+          "Sat": "සෙන",
+          "Sun": "ඉරි"
+        },
+        "roles": {
+          "admin": "පරිපාලක",
+          "supervisor": "අධීක්ෂක",
+          "technician": "තාක්ෂණ ශිල්පී",
+          "floorOperator": "බිම් ක්‍රියාකරු",
+          "storeKeeper": "ගබඩා භාරකරු",
+          "trainee": "අභ්‍යාසලාභී",
+          "plantManager": "කම්හල් කළමනාකරු",
+          "hrOfficer": "මානව සම්පත් නිලධාරී",
+          "safetyOfficer": "ආරක්ෂක නිලධාරී"
+        },
+        "assignBy": {
+          "department": {
+            "label": "දෙපාර්තමේන්තුව අනුව",
+            "hint": "තෝරාගත් දෙපාර්තමේන්තුවේ සියලු දෙනා මෙම මුරයේ වැඩ කරයි."
+          },
+          "role": {
+            "label": "භූමිකාව අනුව",
+            "hint": "තෝරාගත් භූමිකා ඇති සියලු දෙනා මෙම මුරයේ වැඩ කරයි."
+          },
+          "employee": {
+            "label": "සේවකයා අනුව",
+            "hint": "ඔබ පහතින් තෝරන අය පමණක් මෙම මුරයේ වැඩ කරයි."
+          }
+        },
+        "errors": {
+          "shiftNameRequired": "මුරයේ නම අවශ්‍යයි.",
+          "invalidTimes": "මුරය සඳහා වලංගු ආරම්භක සහ අවසන් වේලාවන් සකසන්න.",
+          "departmentRequired": "මෙම මුරය සඳහා දෙපාර්තමේන්තුවක් තෝරන්න හෝ සාදන්න.",
+          "roleRequired": "මෙම මුරය සඳහා අවම වශයෙන් එක් භූමිකාවක් තෝරන්න.",
+          "employeeRequired": "මෙම මුරය සඳහා අවම වශයෙන් එක් සේවකයෙකු තෝරන්න.",
+          "activeDayRequired": "අවම වශයෙන් එක් සක්‍රිය දිනයක් තෝරන්න.",
+          "saveFailed": "මුරය සුරැකීම අසාර්ථකයි."
+        }
+      }
+    },
+    "reports": {
+      "hubPage": {
+        "title": "වාර්තා",
+        "subtitle": "මෙහෙයුම් වාර්තා සකසන්න, අපනයනය කරන්න සහ කාලසටහන්ගත කරන්න",
+        "noResults": "ඔබේ සෙවීමට ගැළපෙන වාර්තා නැත."
+      },
+      "historyPage": {
+        "backToReports": "වාර්තා වෙත ආපසු",
+        "title": "වාර්තා ඉතිහාසය",
+        "subtitle": "සකසන ලද වාර්තා බාගන්න, බෙදාගන්න සහ කළමනාකරණය කරන්න",
+        "loading": "වාර්තා ඉතිහාසය පූරණය වෙමින්...",
+        "empty": "තවම සකසන ලද වාර්තා නැත."
+      },
+      "categoryTabs": {
+        "all": "සියල්ල",
+        "breakdowns": "බිඳවැටීම්",
+        "work_orders": "වැඩ ඇණවුම්",
+        "machines": "යන්ත්‍ර",
+        "inventory": "තොග",
+        "people": "පුද්ගලයින්",
+        "compliance": "අනුකූලතාව",
+        "financial": "මූල්‍ය",
+        "executive": "විධායක"
+      },
+      "card": {
+        "actions": {
+          "generate": "සකසන්න"
+        }
+      },
+      "searchBar": {
+        "placeholder": "වාර්තා සොයන්න"
+      },
+      "configPanel": {
+        "estimatedGeneration": "ඇස්තමේන්තුගත සැකසීම: තත්පර {{seconds}}",
+        "closeAriaLabel": "වාර්තා පැනලය වසන්න",
+        "dateRangeTitle": "දින පරාසය",
+        "dateRangeUnsupportedNote": "මෙම වාර්තාව දින කවුළුවක් නොව වත්මන් දත්ත පිළිබිඹු කරයි — දින පරාස පෙරහන මෙහි අදාළ නොවේ.",
+        "actions": {
+          "generating": "සකසමින්…",
+          "generateFormat": "{{format}} සකසන්න"
+        }
+      },
+      "preview": {
+        "title": "වාර්තා පෙරදසුන",
+        "recordCount_one": "වාර්තා {{count}}",
+        "recordCount_other": "වාර්තා {{count}}",
+        "loading": "පෙරදසුන පූරණය වෙමින්…",
+        "errors": {
+          "loadFailed": "පෙරදසුන පූරණය අසාර්ථකයි"
+        },
+        "empty": "තෝරාගත් පෙරහන් වලට ගැළපෙන වාර්තා නැත.",
+        "showingFirst": "වාර්තා {{total}} න් පළමු {{shown}} පෙන්වයි. සියල්ල බැලීමට අපනයනය කරන්න."
+      },
+      "config": {
+        "enums": {
+          "severity": {
+            "critical": "තීරණාත්මක",
+            "high": "ඉහළ",
+            "medium": "මධ්‍යම",
+            "low": "අඩු"
+          },
+          "shift": {
+            "morning": "උදෑසන",
+            "afternoon": "දහවල්",
+            "night": "රාත්‍රී"
+          },
+          "trainingStatus": {
+            "certified": "සහතික ලත්",
+            "expiring": "කල් ඉකුත් වෙමින්",
+            "expired": "කල් ඉකුත්",
+            "inProgress": "ක්‍රියාත්මක වෙමින්"
+          },
+          "trainingType": {
+            "safetyTraining": "ආරක්ෂක පුහුණුව",
+            "generalTraining": "සාමාන්‍ය පුහුණුව"
+          },
+          "slaStatus": {
+            "within": "සීමාව තුළ",
+            "atRisk": "අවදානමේ",
+            "breached": "උල්ලංඝනය විය"
+          },
+          "woType": {
+            "breakdown": "බිඳවැටීම",
+            "corrective": "නිවැරදි කිරීම",
+            "preventive": "වැළැක්වීමේ",
+            "installation": "ස්ථාපනය",
+            "modification": "වෙනස් කිරීම",
+            "inspection": "පරීක්ෂාව",
+            "contractor": "කොන්ත්‍රාත්කරු",
+            "other": "වෙනත්"
+          },
+          "breakdownType": {
+            "mechanical": "යාන්ත්‍රික",
+            "electrical": "විදුලි",
+            "hydraulic": "ද්‍රවචාලක",
+            "pneumatic": "වායුචාලක",
+            "software": "මෘදුකාංග",
+            "other": "වෙනත්"
+          },
+          "partCategory": {
+            "electrical": "විදුලි",
+            "mechanical": "යාන්ත්‍රික",
+            "hydraulic": "ද්‍රවචාලක",
+            "pneumatic": "වායුචාලක",
+            "automation": "ස්වයංක්‍රීයකරණය",
+            "civil": "සිවිල්"
+          }
+        },
+        "dateRangeSelector": {
+          "title": "දින පරාසය",
+          "from": "සිට",
+          "to": "දක්වා",
+          "ranges": {
+            "today": "අද",
+            "yesterday": "ඊයේ",
+            "this_week": "මෙම සතිය",
+            "last_week": "පසුගිය සතිය",
+            "this_month": "මෙම මාසය",
+            "last_month": "පසුගිය මාසය",
+            "last_3_months": "පසුගිය මාස 3",
+            "last_6_months": "පසුගිය මාස 6",
+            "this_year": "මෙම වසර",
+            "custom": "අභිරුචි"
+          }
+        },
+        "outputFormatToggle": {
+          "title": "ප්‍රතිදාන ආකෘතිය",
+          "pdf": "PDF",
+          "excel": "Excel (.xlsx)"
+        },
+        "pdfOptionsSection": {
+          "title": "PDF විකල්ප",
+          "includeCharts": "ප්‍රස්ථාර ඇතුළත් කරන්න",
+          "includeDataTable": "අමු දත්ත වගුව ඇතුළත් කරන්න",
+          "paperSize": "කඩදාසි ප්‍රමාණය",
+          "orientation": "දිශානතිය",
+          "portrait": "සිරස්",
+          "landscape": "තිරස්"
+        },
+        "reportFilterSection": {
+          "title": "වාර්තා පෙරහන්",
+          "machineHistoryWarning": "යන්ත්‍ර ඉතිහාසයට හරියටම එක් යන්ත්‍රයක් අවශ්‍යයි.",
+          "noFilters": "මෙම වාර්තාව දින පරාසය සහ ප්‍රවේශ විෂය පථය පමණක් භාවිත කරයි.",
+          "labels": {
+            "woType": "WO වර්ගය",
+            "breakdownType": "බිඳවැටීම් වර්ගය",
+            "partCategory": "කොටස් කාණ්ඩය",
+            "priority": "ප්‍රමුඛතාව",
+            "trainingStatus": "පුහුණු තත්ත්වය",
+            "trainingType": "පුහුණු වර්ගය",
+            "slaStatus": "SLA තත්ත්වය"
+          },
+          "placeholders": {
+            "woType": "වැඩ ඇණවුම් වර්ග සොයන්න…",
+            "breakdownType": "බිඳවැටීම් වර්ග සොයන්න…",
+            "partCategory": "කොටස් කාණ්ඩ සොයන්න…"
+          }
+        },
+        "searchableMultiSelect": {
+          "allNoFilter": "සියල්ල ({{label}} පෙරහනක් නැත)",
+          "selectedCount_one": "{{count}} තෝරා ඇත",
+          "selectedCount_other": "{{count}} තෝරා ඇත",
+          "removeAriaLabel": "{{label}} ඉවත් කරන්න",
+          "loading": "පූරණය වෙමින්…",
+          "noMatches": "ගැළපීම් හමු නොවීය."
+        },
+        "severityCheckboxGroup": {
+          "label": "බරපතළකම"
+        },
+        "shiftCheckboxGroup": {
+          "label": "මුරය"
+        },
+        "contractorMultiSelect": {
+          "label": "කොන්ත්‍රාත්කරු",
+          "placeholder": "කොන්ත්‍රාත්කරුවන් සොයන්න…"
+        },
+        "departmentMultiSelect": {
+          "label": "දෙපාර්තමේන්තුව",
+          "placeholder": "දෙපාර්තමේන්තු සොයන්න…"
+        },
+        "machineMultiSelect": {
+          "label": "යන්ත්‍රය",
+          "placeholder": "යන්ත්‍ර සොයන්න…"
+        },
+        "supervisorMultiSelect": {
+          "label": "අධීක්ෂක",
+          "placeholder": "අධීක්ෂකවරුන් සොයන්න…"
+        },
+        "technicianMultiSelect": {
+          "label": "තාක්ෂණ ශිල්පී",
+          "placeholder": "තාක්ෂණ ශිල්පීන් සොයන්න…"
+        }
+      },
+      "generation": {
+        "errorState": {
+          "retry": "නැවත උත්සාහ කරන්න"
+        },
+        "statusMessage": {
+          "idle": "වාර්තාව වින්‍යාස කර අපනයන ක්‍රියාවක් තෝරන්න.",
+          "fetching_data": "දත්ත ලබා ගනිමින්...",
+          "building": "වාර්තාව සකසමින්...",
+          "finalizing": "PDF අවසන් කරමින්...",
+          "ready": "බාගැනීමට සූදානම්",
+          "error": "වාර්තා සැකසීම අසාර්ථකයි"
+        },
+        "readyActions": {
+          "downloadPdf": "PDF බාගන්න"
+        }
+      },
+      "history": {
+        "card": {
+          "generatedBy": "{{name}} විසින් සකසන ලදී · {{date}}",
+          "open": "විවෘත කරන්න",
+          "deleteAriaLabel": "ඉතිහාස ඇතුළත් කිරීම මකන්න"
+        },
+        "filterBar": {
+          "allReports": "සියලු වාර්තා",
+          "allFormats": "සියලු ආකෘති",
+          "pdf": "PDF",
+          "excel": "Excel",
+          "sheets": "Sheets",
+          "generatedByPlaceholder": "සකසූ අය"
+        },
+        "table": {
+          "columns": {
+            "reportName": "වාර්තාවේ නම",
+            "format": "ආකෘතිය",
+            "generatedBy": "සකසූ අය",
+            "dateTime": "දිනය සහ වේලාව",
+            "dateRange": "දින පරාසය",
+            "fileSize": "ගොනු ප්‍රමාණය",
+            "actions": "ක්‍රියා"
+          },
+          "dateRangeValue": "{{from}} සිට {{to}} දක්වා",
+          "fileSizeMb": "{{size}} MB",
+          "noFileSize": "-",
+          "downloadAriaLabel": "වාර්තාව බාගන්න",
+          "copyLinkAriaLabel": "බෙදාගැනීමේ සබැඳිය පිටපත් කරන්න",
+          "deleteAriaLabel": "ඉතිහාස ඇතුළත් කිරීම මකන්න"
+        },
+        "storageUsageIndicator": {
+          "summary_one": "වාර්තා <strong>{{count}}</strong> සුරැකී ඇත · <strong>{{mb}} MB</strong> භාවිතයි",
+          "summary_other": "වාර්තා <strong>{{count}}</strong> සුරැකී ඇත · <strong>{{mb}} MB</strong> භාවිතයි"
+        }
+      },
+      "shared": {
+        "formatChip": {
+          "pdf": "PDF",
+          "excel": "Excel",
+          "google_sheets": "Sheets",
+          "csv": "CSV"
+        },
+        "yes": "ඔව්",
+        "no": "නැත"
+      },
+      "definitions": {
+        "breakdown_summary": {
+          "name": "බිඳවැටීම් සාරාංශ වාර්තාව",
+          "description": "බිඳවැටීම් සඳහා සංඛ්‍යාතය, බරපතළකම, MTTR, අහිමි වූ පැය සහ SLA කාර්ය සාධනය."
+        },
+        "work_order_detail": {
+          "name": "වැඩ ඇණවුම් විස්තර වාර්තාව",
+          "description": "වර්ගය, ප්‍රමුඛතාව, පැවරුම්, කොටස්, පිරිවැය සහ තත්ත්වය සහිත සම්පූර්ණ වැඩ ඇණවුම් ලේඛනය."
+        },
+        "machine_history": {
+          "name": "යන්ත්‍ර ඉතිහාස වාර්තාව",
+          "description": "වර්ග, දිනයන්, තත්ත්වය සහ කාලසීමා සහිත යන්ත්‍රයක සම්පූර්ණ වැඩ ඇණවුම් ඉතිහාසය."
+        },
+        "machine_health_score": {
+          "name": "යන්ත්‍ර සෞඛ්‍ය ලකුණු වාර්තාව",
+          "description": "යන්ත්‍ර සමූහයේ සෞඛ්‍ය ලකුණු, අවදානම් ව්‍යාප්තිය, දෙපාර්තමේන්තු බෙදීම සහ මාස හයක ප්‍රවණතා."
+        },
+        "maintenance_cost": {
+          "name": "නඩත්තු පිරිවැය වාර්තාව",
+          "description": "කොටස්, ශ්‍රමය, කොන්ත්‍රාත් වියදම, දෙපාර්තමේන්තුව අනුව පිරිවැය සහ මිල අධික යන්ත්‍ර."
+        },
+        "technician_performance": {
+          "name": "කණ්ඩායම් කාර්ය සාධන වාර්තාව",
+          "description": "ඇගයීම්, ඉක්මන් ඇගයීම් ලකුණු සහ පුහුණු සම්පූර්ණ කිරීම් වලින් එකතු කළ භූමිකාව අනුව කාර්ය සාධනය."
+        },
+        "contractor_performance": {
+          "name": "කොන්ත්‍රාත්කරු කාර්ය සාධන වාර්තාව",
+          "description": "කොන්ත්‍රාත්කරු ලකුණු පුවරුව, SLA අනුකූලතාව, පළමු වරම නිවැරදි කිරීමේ අනුපාතය, ශ්‍රේණිගත කිරීම්, පිරිවැය සහ ඉන්වොයිස්."
+        },
+        "inventory_usage": {
+          "name": "තොග භාවිත වාර්තාව",
+          "description": "නිකුත් කළ කොටස්, වටිනාකම්, කාණ්ඩ මිශ්‍රණය, දෛනික ප්‍රවණතා, වැඩ ඇණවුම් සහ තාක්ෂණ ශිල්පීන්."
+        },
+        "low_stock_alert": {
+          "name": "අඩු තොග ඇඟවීම් වාර්තාව",
+          "description": "අවම මට්ටමට අඩු කොටස්, තොග අවසන් අයිතම, සැපයුම්කරු ඉදිරිපත් කාල සහ හිඟයන්."
+        },
+        "inventory_listing": {
+          "name": "තොග ලැයිස්තු වාර්තාව",
+          "description": "තොග මට්ටම්, පිරිවැය, සැපයුම්කරු සහ ස්ථාන විස්තර සහිත සියලු වත්මන් තොග අයිතම."
+        },
+        "pm_compliance": {
+          "name": "PM අනුකූලතා වාර්තාව",
+          "description": "සැලසුම් කළ PM සම්පූර්ණ කිරීම, මඟ හැරුණු කාර්ය, යන්ත්‍ර සහ තාක්ෂණ ශිල්පී අනුකූලතා විශ්ලේෂණ."
+        },
+        "training_compliance": {
+          "name": "පුහුණු අනුකූලතා වාර්තාව",
+          "description": "සේවක සහ අභ්‍යාසලාභී වැඩසටහන් පුහුණුව හරහා පුද්ගලයා අනුව පුහුණු ආවරණය, ලකුණු සමඟ."
+        },
+        "sla_compliance": {
+          "name": "SLA අනුකූලතා වාර්තාව",
+          "description": "බරපතළකම අනුව SLA කාර්ය සාධනය, ප්‍රවණතා, උල්ලංඝන විස්තර, දෙපාර්තමේන්තු සහ යන්ත්‍ර විශ්ලේෂණ."
+        },
+        "shift_handover_summary": {
+          "name": "මුර භාරදීම් සාරාංශය",
+          "description": "මුර පිළිගැනීම, අතිච්ඡාදනය, අවධානය ධජ, විවෘත වැඩ, ආරක්ෂක සිද්ධි සහ සටහන්."
+        },
+        "downtime_analysis": {
+          "name": "අක්‍රිය කාල විශ්ලේෂණ වාර්තාව",
+          "description": "යන්ත්‍රය, ස්ථානය සහ සතියේ දිනය අනුව WO එක් එක්කෙහි අක්‍රිය කාලය (සෑදූ දින සිට අනුමත කිරීම දක්වා)."
+        },
+        "executive_monthly": {
+          "name": "විධායක මාසික වාර්තාව",
+          "description": "මණ්ඩලයට සූදානම් මාසික නඩත්තු විස්තරය, KPI ප්‍රවණතා, පිරිවැය, අවදානම් සහ ක්‍රියාමාර්ග."
+        },
+        "audit_trail": {
+          "name": "විගණන මාර්ග වාර්තාව",
+          "description": "කාණ්ඩය, විෂය පථය, සහභාගිවන්නන් සහ ලකුණු සහිත සම්පූර්ණ කළ විගණන මොඩියුල සැසි."
+        },
+        "po_history": {
+          "name": "PO ඉතිහාස වාර්තාව",
+          "description": "සැපයුම්කරු, කොටස්, ඉන්වොයිස් අවසන් මිල, දිනයන් සහ ප්‍රගතිය සහිත මිලදී ගැනීමේ ඇණවුම් ලේඛනය."
+        },
+        "safety_incidents": {
+          "name": "ආරක්ෂක සිද්ධි වාර්තාව",
+          "description": "ආරක්ෂක සිද්ධි ලේඛනය — කම්හල පුරා වාර්තා වූ සිද්ධි, ආසන්න අනතුරු, උපද්‍රව සහ අනාරක්ෂිත ක්‍රියා."
+        },
+        "work_permit_history": {
+          "name": "වැඩ අවසර ඉතිහාස වාර්තාව",
+          "description": "වැඩ අවසර ලේඛනය — කාණ්ඩය, වලංගු කාලය, පූර්වාරක්ෂා, අනුමත කිරීමේ ප්‍රතිඵලය සහ එක් එක් අවසරය නිකුත් කළ අය."
+        }
+      },
+      "columns": {
+        "safety_incidents": {
+          "reportedAt": "වාර්තා කළ දිනය",
+          "type": "වර්ගය",
+          "title": "සිද්ධිය",
+          "severity": "බරපතළකම",
+          "status": "තත්ත්වය",
+          "location": "ස්ථානය",
+          "reportedByName": "වාර්තා කළ අය"
+        },
+        "work_permit_history": {
+          "permitNumber": "අවසර අංකය",
+          "category": "කාණ්ඩය",
+          "title": "මාතෘකාව",
+          "status": "තත්ත්වය",
+          "validFrom": "වලංගු වන්නේ",
+          "validTo": "වලංගු දක්වා",
+          "location": "ස්ථානය",
+          "requestedByName": "සෑදූ අය",
+          "completion": "සම්පූර්ණ කිරීම",
+          "signedOffByName": "අනුමත කළ අය",
+          "signedOffAt": "අනුමත කළ දිනය"
+        },
+        "breakdown_summary": {
+          "ticketNumber": "ටිකට්පත",
+          "severity": "බරපතළකම",
+          "description": "සිදු වූ දේ (වාර්තා කළ)",
+          "attemptedFixes": "උත්සාහ කළ විසඳුම්",
+          "technicianFindings": "සිදු වූ දේ (තාක්ෂණ ශිල්පී/අභ්‍යාසලාභී)",
+          "assignedTechnicianNames": "පවරා ඇති තාක්ෂණ ශිල්පීන්",
+          "woNumber": "වැඩ ඇණවුම් අංකය",
+          "woAssignedTechnicianNames": "WO වෙත පවරා ඇති තාක්ෂණ ශිල්පීන්",
+          "woChecklist": "පරීක්ෂණ ලැයිස්තුව (අධීක්ෂක)",
+          "woRootCause": "මූල හේතු විශ්ලේෂණය",
+          "woPartsUsed": "භාවිත කළ කොටස්",
+          "woSignOffNotes": "අනුමත කිරීමේ සටහන",
+          "woSignedOffAt": "අනුමත කළ වේලාව (WO)"
+        },
+        "sla_compliance": {
+          "ticketNumber": "ටිකට්පත",
+          "machineName": "යන්ත්‍රය",
+          "severity": "බරපතළකම",
+          "status": "තත්ත්වය",
+          "slaDeadline": "SLA අවසාන දිනය",
+          "slaBreached": "උල්ලංඝනය විය",
+          "reportedAt": "වාර්තා කළ දිනය",
+          "resolvedAt": "විසඳූ දිනය"
+        },
+        "downtime_analysis": {
+          "woTicket": "WO ටිකට්පත",
+          "machineName": "යන්ත්‍රයේ නම",
+          "location": "ස්ථානය",
+          "woType": "WO වර්ගය",
+          "createdAt": "සෑදූ දිනය",
+          "downtimeMinutes": "අක්‍රිය කාලය (මිනි.)"
+        },
+        "work_order_detail": {
+          "woNumber": "WO අංකය",
+          "woType": "වර්ගය",
+          "priority": "ප්‍රමුඛතාව",
+          "status": "තත්ත්වය",
+          "machineName": "යන්ත්‍රය",
+          "machineDepartment": "දෙපාර්තමේන්තුව",
+          "participants": "සහභාගිවන්නන්",
+          "createdByName": "සෑදූ අය",
+          "supervisorSignOffByName": "අනුමත කළ අය",
+          "createdAt": "සෑදූ දිනය",
+          "actualEndTime": "සම්පූර්ණ කළ දිනය",
+          "supervisorSignOffAt": "අනුමත කළ දිනය"
+        },
+        "maintenance_cost": {
+          "woTicket": "WO ටිකට්පත",
+          "woType": "WO වර්ගය",
+          "machineName": "යන්ත්‍රය",
+          "machineDepartment": "දෙපාර්තමේන්තුව",
+          "totalCost": "මුළු පිරිවැය",
+          "signedOffDate": "අනුමත කළ දිනය"
+        },
+        "technician_performance": {
+          "name": "නම",
+          "role": "භූමිකාව",
+          "evaluationScore": "ඇගයීම් ලකුණ",
+          "auditScore": "විගණන ලකුණ",
+          "trainingsCompleted": "සම්පූර්ණ කළ පුහුණු",
+          "quizzesPassed": "සමත් වූ ප්‍රශ්නාවලි"
+        },
+        "contractor_performance": {
+          "contractorName": "නම",
+          "wosCompleted": "සම්පූර්ණ කළ WO",
+          "rating": "ශ්‍රේණිගත කිරීම",
+          "signedOffDate": "අනුමත කළ දිනය",
+          "signedOffByName": "අනුමත කළ අය",
+          "totalProjectCost": "මුළු ව්‍යාපෘති පිරිවැය"
+        },
+        "inventory_usage": {
+          "partNumber": "කොටස් අංකය",
+          "partName": "කොටස",
+          "movementType": "චලනය",
+          "quantityChange": "ප්‍රමාණ වෙනස",
+          "quantityAfter": "පසු ප්‍රමාණය",
+          "totalCostImpact": "පිරිවැය බලපෑම",
+          "workOrderNumber": "සම්බන්ධිත WO",
+          "isReturnable": "ආපසු දිය හැකි",
+          "returnStatus": "ආපසු දීමේ තත්ත්වය",
+          "performedByName": "කළ අය",
+          "performedAt": "දිනය"
+        },
+        "low_stock_alert": {
+          "name": "කොටසේ නම",
+          "lowStockAlertDate": "අඩු තොග ඇඟවීම ලැබුණු දිනය",
+          "poStatus": "තත්ත්වය",
+          "refilledDate": "නැවත පිරවූ දිනය"
+        },
+        "inventory_listing": {
+          "partNumber": "කොටස් අංකය",
+          "name": "කොටසේ නම",
+          "storeLocation": "ස්ථානය",
+          "category": "කාණ්ඩය",
+          "criticality": "තීරණාත්මකභාවය",
+          "status": "තත්ත්වය",
+          "minStockLevel": "අවම තොග මට්ටම",
+          "availableStock": "පවතින තොගය",
+          "unitCost": "ඒකක පිරිවැය",
+          "totalCost": "මුළු පිරිවැය"
+        },
+        "pm_compliance": {
+          "scheduleName": "කාලසටහන",
+          "machineName": "යන්ත්‍රය",
+          "dueDate": "නියමිත දිනය",
+          "completedDate": "සම්පූර්ණ කළ දිනය",
+          "status": "තත්ත්වය",
+          "daysOverdue": "කල් ඉකුත් දින",
+          "technicianNames": "තාක්ෂණ ශිල්පීන්"
+        },
+        "machine_health_score": {
+          "machineName": "යන්ත්‍රය",
+          "machineIdCode": "වත්කම් කේතය",
+          "department": "දෙපාර්තමේන්තුව",
+          "currentStatus": "තත්ත්වය",
+          "healthScore": "සෞඛ්‍ය ලකුණ",
+          "watchFlagLevel": "අවධානය මට්ටම",
+          "mtbfDays": "MTBF (දින)",
+          "mttrHours": "MTTR (පැය)",
+          "openBreakdownCount": "විවෘත බිඳවැටීම්",
+          "openWoCount": "විවෘත WO",
+          "maintenanceCostMTD": "මාසය මේ දක්වා පිරිවැය",
+          "lastServiceDate": "අවසන් සේවාව",
+          "nextPmDue": "ඊළඟ PM"
+        },
+        "shift_handover_summary": {
+          "shiftName": "මුරයේ නම",
+          "personName": "පුද්ගලයා",
+          "personRole": "භූමිකාව",
+          "department": "දෙපාර්තමේන්තුව",
+          "shiftActualStart": "මුරය ආරම්භ විය",
+          "lateByMinutes": "ප්‍රමාදය (මිනි.)",
+          "shiftActualEnd": "මුරය අවසන් විය",
+          "otMinutes": "අතිකාල (මිනි.)",
+          "breakdownsOpened": "මුරය තුළ බිඳවැටීම්",
+          "wosOpened": "මුරය තුළ WO",
+          "watchFlagsCount": "අවධානය ධජ"
+        },
+        "training_compliance": {
+          "name": "නම",
+          "role": "භූමිකාව",
+          "trainingsAssigned": "පවරා ඇති පුහුණු ගණන",
+          "trainingsCompleted": "සම්පූර්ණ කළ පුහුණු ගණන",
+          "totalMarks": "මුළු ලකුණු"
+        },
+        "machine_history": {
+          "machineName": "යන්ත්‍රයේ නම",
+          "machineType": "වර්ගය",
+          "purchaseDate": "මිලදී ගත් දිනය",
+          "installationDate": "ස්ථාපනය කළ දිනය",
+          "department": "දෙපාර්තමේන්තුව",
+          "location": "ස්ථානය",
+          "lastServiceDate": "අවසන් සේවා දිනය",
+          "lastServiceType": "අවසන් සේවා වර්ගය",
+          "nextPmDue": "ඊළඟ PM දිනය"
+        },
+        "executive_monthly": {
+          "metric": "මිනුම",
+          "value": "අගය"
+        },
+        "audit_trail": {
+          "date": "දිනය",
+          "categoryLabel": "කාණ්ඩය",
+          "scopeDetails": "විෂය පථ විස්තර",
+          "doneBy": "කළ අය",
+          "participants": "සහභාගිවන්නන්",
+          "marks": "ලකුණු"
+        },
+        "po_history": {
+          "poNumber": "PO කේතය",
+          "supplierName": "සැපයුම්කරු",
+          "itemName": "අයිතමය",
+          "quantity": "ප්‍රමාණය",
+          "unitPrice": "ඒකක මිල",
+          "lineTotal": "එකතුව",
+          "status": "තත්ත්වය",
+          "raisedByName": "ඉදිරිපත් කළ අය",
+          "raisedAt": "දිනය",
+          "receivedAt": "ලැබුණු දිනය"
+        }
+      },
+      "pdf": {
+        "machineProfile": "යන්ත්‍ර පැතිකඩ",
+        "noRecords": "මෙම වාර්තා වින්‍යාසයට ගැළපෙන වාර්තා නැත.",
+        "dateRange": "දින පරාසය: {{range}}",
+        "generatedSummary": "සකසන ලදී: {{generatedAt}}  ·  වාර්තා {{count}}",
+        "ticketLabel": "ටිකට්පත {{number}}",
+        "unknownMachine": "නොදන්නා යන්ත්‍රය",
+        "emptyCell": "—",
+        "charts": {
+          "distribution": "{{column}} ව්‍යාප්තිය",
+          "breakdownByType": "වර්ගය අනුව බිඳවැටීම් ගණන",
+          "topMachinesByHealth": "සෞඛ්‍ය ලකුණ අනුව ඉහළම යන්ත්‍ර 5",
+          "totalCostVsWoType": "මුළු පිරිවැය එදිරිව WO වර්ගය",
+          "contractorVsRating": "කොන්ත්‍රාත්කරු එදිරිව ශ්‍රේණිගත කිරීම",
+          "stockStatus": "තොග තත්ත්වය (අඩු / අවසන් / තොගයේ ඇත)",
+          "lowStockByMonth": "මාසය අනුව අඩු තොග ඇඟවීම්",
+          "trainingsByRole": "භූමිකාව අනුව සම්පූර්ණ කළ පුහුණු",
+          "lateVsOnTime": "ප්‍රමාද එදිරිව නියමිත වේලාවට (පුද්ගලයින් ගණන)",
+          "downtimeByWeekday": "අක්‍රිය කාලය එදිරිව සතියේ දිනය",
+          "auditsByCategory": "කාණ්ඩය අනුව සම්පූර්ණ කළ විගණන",
+          "topEmployeesByMarks": "සියලු කාර්ය සාධනවල මුළු ලකුණු අනුව ඉහළම සේවකයින් 5"
+        },
+        "machineProfileFields": {
+          "machine": "යන්ත්‍රය",
+          "manufacturer": "නිෂ්පාදකයා",
+          "model": "මාදිලිය",
+          "serialNumber": "අනුක්‍රමික අංකය",
+          "type": "වර්ගය",
+          "department": "දෙපාර්තමේන්තුව",
+          "location": "ස්ථානය",
+          "status": "තත්ත්වය",
+          "criticality": "තීරණාත්මකභාවය",
+          "healthScore": "සෞඛ්‍ය ලකුණ",
+          "installationDate": "ස්ථාපන දිනය",
+          "lastService": "අවසන් සේවාව",
+          "nextPmDue": "ඊළඟ PM නියමිත දිනය"
+        }
+      },
+      "labels": {
+        "safetyIncidentType": {
+          "incident": "සිද්ධිය",
+          "nearMiss": "ආසන්න අනතුර",
+          "hazard": "උපද්‍රවය",
+          "unsafeAct": "අනාරක්ෂිත ක්‍රියාව"
+        },
+        "workPermitCategory": {
+          "hotWork": "උණුසුම් වැඩ",
+          "confinedSpace": "සීමිත අවකාශය",
+          "electricalIsolation": "විදුලි හුදකලා කිරීම",
+          "workingAtHeight": "උසක වැඩ කිරීම",
+          "excavation": "කැණීම",
+          "chemicalHandling": "රසායන හැසිරවීම",
+          "general": "සාමාන්‍ය වැඩ අවසරය"
+        },
+        "workPermitCompletion": {
+          "completed": "සම්පූර්ණයි",
+          "partiallyCompleted": "අර්ධ වශයෙන් සම්පූර්ණයි",
+          "notCompleted": "සම්පූර්ණ නැත"
+        }
+      },
+      "excel": {
+        "metric": "මිනුම",
+        "value": "අගය",
+        "noData": "දත්ත නැත",
+        "summarySheetName": "සාරාංශය",
+        "detailSheetName": "විස්තර",
+        "reportMetric": "වාර්තාව",
+        "dateRangeMetric": "දින පරාසය",
+        "dateRangeValue": "{{from}} සිට {{to}} දක්වා",
+        "rowsMetric": "පේළි"
+      }
     }
   },
   "help": {
