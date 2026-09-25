@@ -8663,7 +8663,8 @@
           "recipient": "Choose who to send the request to."
         },
         "choosePerson": "Choose a person…",
-        "noRecipients": "No one is available to receive requests from you yet. Ask your admin to check your plant and department."
+        "noRecipients": "No one is available to receive requests from you yet. Ask your admin to check your plant and department.",
+        "loadingPeople": "Loading people…"
       },
       "reply": {
         "headingHandler": "Reply",
