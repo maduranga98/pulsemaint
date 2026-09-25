@@ -1229,16 +1229,1006 @@
           "actions": {
             "changePhoto": "ඡායාරූපය වෙනස් කරන්න",
             "removePhoto": "ඡායාරූපය ඉවත් කරන්න",
-            "uploadPhoto": "ඡායාරූපය උඩුගත කරන්න"
+            "uploadPhoto": "ඡායාරූපය උඩුගත කරන්න",
+            "save": "කණ්ඩායම් සාමාජිකයා සුරකින්න",
+            "saving": "සුරකිමින්…",
+            "removeAttachment": "ඇමුණුම ඉවත් කරන්න"
           },
           "errors": {
             "photoNotImage": "රූප ගොනුවක් තෝරන්න (JPG, PNG, WebP…).",
-            "photoTooLarge": "ඡායාරූපය 5 MB හෝ ඊට අඩු විය යුතුය."
+            "photoTooLarge": "ඡායාරූපය 5 MB හෝ ඊට අඩු විය යුතුය.",
+            "missingContractor": "කොන්ත්‍රාත්කරු යොමුව නැත.",
+            "mustBeLoggedIn": "ඔබ පුරනය වී සිටිය යුතුය.",
+            "requiredFields": "සම්පූර්ණ නම සහ ජා.හැ.අ./ගමන් බලපත්‍රය අවශ්‍යයි.",
+            "saveFailed": "කණ්ඩායම් සාමාජිකයා සුරැකීමට නොහැකි විය"
           },
           "fields": {
             "photo": "පැතිකඩ ඡායාරූපය",
-            "photoHint": "JPG, PNG හෝ WebP, 5 MB දක්වා."
+            "photoHint": "JPG, PNG හෝ WebP, 5 MB දක්වා.",
+            "fullName": "සම්පූර්ණ නම *",
+            "nicOrPassport": "ජා.හැ.අ./ගමන් බලපත්‍රය *",
+            "phone": "දුරකථනය",
+            "email": "ඊමේල්",
+            "specialization": "විශේෂඥතාව",
+            "certifications": "සහතික, කොමා වලින් වෙන් කර",
+            "certificationAttachments": "සහතික ඇමුණුම්"
+          },
+          "toasts": {
+            "updated": "කණ්ඩායම් සාමාජිකයා යාවත්කාලීන කළා",
+            "added": "කණ්ඩායම් සාමාජිකයා එක් කළා"
           }
+        },
+        "designations": {
+          "engineer": "ඉංජිනේරු",
+          "senior_technician": "ජ්‍යෙෂ්ඨ කාර්මික ශිල්පී",
+          "technician": "කාර්මික ශිල්පී",
+          "helper": "සහායක",
+          "other": "වෙනත්"
+        },
+        "statuses": {
+          "active": "සක්‍රිය",
+          "inactive": "අක්‍රිය"
+        },
+        "accessLog": {
+          "empty": "සටහන් කළ පැමිණීම් නැත.",
+          "notRecorded": "-",
+          "arrivalDeparture": "පැමිණීම {{arrival}} - පිටවීම {{departure}}"
+        },
+        "grid": {
+          "empty": "කණ්ඩායම් සාමාජිකයින් ලියාපදිංචි කර නැත."
+        },
+        "card": {
+          "nicOrPassport": "ජා.හැ.අ./ගමන් බලපත්‍රය:",
+          "jobs": "රැකියා: {{count}}",
+          "lastVisit": "අවසන් පැමිණීම: {{date}}",
+          "never": "කිසි විටෙක නැත",
+          "actions": {
+            "view": "බලන්න",
+            "edit": "සංස්කරණය කරන්න"
+          }
+        },
+        "detailModal": {
+          "fields": {
+            "nicOrPassport": "ජා.හැ.අ./ගමන් බලපත්‍රය",
+            "contractor": "කොන්ත්‍රාත්කරු",
+            "phone": "දුරකථනය",
+            "email": "ඊමේල්",
+            "jobsAtThisFactory": "මෙම කම්හලේ රැකියා",
+            "lastVisit": "අවසන් පැමිණීම",
+            "specialization": "විශේෂඥතාව",
+            "certifications": "සහතික",
+            "certificationFiles": "සහතික ගොනු"
+          },
+          "actions": {
+            "close": "වසන්න",
+            "view": "බලන්න",
+            "download": "බාගන්න"
+          }
+        }
+      },
+      "jobs": {
+        "listPage": {
+          "title": "කොන්ත්‍රාත් රැකියා",
+          "subtitle": "ආරාධනා, පැමිණීම්, වැඩ සටහන්, අනුමැතිය, ඉන්වොයිස් සහ ශ්‍රේණිගත කිරීම් නිරීක්ෂණය කරන්න.",
+          "loading": "කොන්ත්‍රාත් රැකියා පූරණය වෙමින්..."
+        },
+        "detailPage": {
+          "loading": "රැකියාව පූරණය වෙමින්...",
+          "notFound": "කොන්ත්‍රාත් රැකියාව හමු නොවීය.",
+          "team": {
+            "title": "කොන්ත්‍රාත් කණ්ඩායම",
+            "techniciansNotConfirmed": "කාර්මික ශිල්පීන් තහවුරු කර නැත"
+          },
+          "actions": {
+            "logWork": "වැඩ සටහන් කරන්න",
+            "signOff": "අනුමත කරන්න",
+            "invoice": "ඉන්වොයිසිය",
+            "rate": "ශ්‍රේණිගත කරන්න"
+          }
+        },
+        "logWorkPage": {
+          "loading": "වැඩ සටහන පූරණය වෙමින්...",
+          "notFound": "රැකියාව හමු නොවීය.",
+          "onSiteFor": "ස්ථානයේ සිටි කාලය: මිනිත්තු {{minutes}}",
+          "actions": {
+            "logDeparture": "පිටවීම සටහන් කරන්න",
+            "completeChecklist": "පරීක්ෂණ ලැයිස්තුව සම්පූර්ණ කරන්න"
+          }
+        },
+        "signOffPage": {
+          "loading": "අනුමැතිය පූරණය වෙමින්...",
+          "notFound": "රැකියාව හමු නොවීය.",
+          "title": "කොන්ත්‍රාත්කරු අනුමැතිය"
+        },
+        "ratePage": {
+          "loading": "ශ්‍රේණිගත කිරීමේ පෝරමය පූරණය වෙමින්...",
+          "notFound": "රැකියාව හමු නොවීය."
+        },
+        "invoiceComparisonPage": {
+          "loading": "ඉන්වොයිසිය පූරණය වෙමින්...",
+          "notFound": "රැකියාව හමු නොවීය.",
+          "title": "ඉන්වොයිස් සංසන්දනය"
+        },
+        "statusBadge": {
+          "invitation_sent": "ආරාධනා කළ",
+          "acknowledged": "පිළිගත්",
+          "contractor_arrived": "ස්ථානයේ",
+          "work_in_progress": "වැඩ කරමින්",
+          "checklist_complete": "පරීක්ෂණ ලැයිස්තුව අවසන්",
+          "signed_off": "අනුමත කළ",
+          "invoice_submitted": "ඉන්වොයිසිය පොරොත්තුවෙන්",
+          "payment_processed": "ගෙවූ",
+          "cancelled": "අවලංගු කළ"
+        },
+        "statusStepper": {
+          "invitation_sent": "ආරාධනා කළ",
+          "acknowledged": "පිළිගත්",
+          "contractor_arrived": "ස්ථානයේ",
+          "work_in_progress": "වැඩ කරමින්",
+          "checklist_complete": "පරීක්ෂණ ලැයිස්තුව",
+          "signed_off": "අනුමත කළ",
+          "invoice_submitted": "ඉන්වොයිසිය",
+          "payment_processed": "අවසන්"
+        },
+        "jobList": {
+          "tabs": {
+            "active": "සක්‍රිය",
+            "invitation_sent": "ආරාධනා යැවූ",
+            "work_in_progress": "ක්‍රියාත්මක වෙමින්",
+            "checklist_complete": "අනුමැතිය බලාපොරොත්තුවෙන්",
+            "invoice_submitted": "ඉන්වොයිසිය පොරොත්තුවෙන්",
+            "completed": "සම්පූර්ණ කළ",
+            "cancelled": "අවලංගු කළ"
+          },
+          "columns": {
+            "wo": "වැඩ ඇණවුම",
+            "contractor": "කොන්ත්‍රාත්කරු",
+            "machine": "යන්ත්‍රය",
+            "priority": "ප්‍රමුඛතාව",
+            "status": "තත්ත්වය",
+            "invited": "ආරාධනා කළේ",
+            "onSite": "ස්ථානයේ",
+            "rating": "ශ්‍රේණිය",
+            "invoice": "ඉන්වොයිසිය",
+            "actions": "ක්‍රියා"
+          },
+          "empty": "කොන්ත්‍රාත් රැකියා හමු නොවීය.",
+          "viewJob": "රැකියාව බලන්න",
+          "view": "බලන්න"
+        },
+        "jobHeader": {
+          "slaDeadline": "SLA නියමිත කාලය: {{deadline}}"
+        },
+        "arrivalLog": {
+          "title": "පැමිණීම සහ පිටවීම",
+          "arrivalLabel": "පැමිණීම: {{value}}",
+          "departureLabel": "පිටවීම: {{value}}",
+          "notArrived": "පැමිණ නැත",
+          "notDeparted": "පිටව ගොස් නැත",
+          "actions": {
+            "logArrival": "කොන්ත්‍රාත්කරුගේ පැමිණීම සටහන් කරන්න",
+            "logDeparture": "පිටවීම සටහන් කරන්න"
+          },
+          "toasts": {
+            "arrivalLogged": "පැමිණීම සටහන් කළා.",
+            "arrivalFailed": "පැමිණීම සටහන් කිරීමට නොහැකි විය",
+            "departureLogged": "පිටවීම සටහන් කළා.",
+            "departureFailed": "පිටවීම සටහන් කිරීමට නොහැකි විය"
+          }
+        },
+        "timeline": {
+          "title": "රැකියා කාලරේඛාව",
+          "workStarted": "වැඩ ආරම්භ කළේ: {{value}}",
+          "workCompleted": "වැඩ අවසන් කළේ: {{value}}",
+          "waitingForParts": "කොටස් බලාපොරොත්තුවෙන්: {{start}} → {{end}}",
+          "waitingForPermission": "අවසරය බලාපොරොත්තුවෙන්: {{start}} → {{end}}",
+          "actions": {
+            "startWork": "වැඩ ආරම්භ කරන්න",
+            "markWorkComplete": "වැඩ අවසන් ලෙස සලකුණු කරන්න",
+            "markWaitingForParts": "කොටස් බලාපොරොත්තුවෙන් ලෙස සලකුණු කරන්න",
+            "resolvePartsWait": "කොටස් බලාපොරොත්තුව විසඳන්න",
+            "markWaitingForPermission": "අවසරය බලාපොරොත්තුවෙන් ලෙස සලකුණු කරන්න",
+            "resolvePermissionWait": "අවසර බලාපොරොත්තුව විසඳන්න"
+          },
+          "toasts": {
+            "workStartLogged": "වැඩ ආරම්භය සටහන් කළා.",
+            "workCompletionLogged": "වැඩ අවසන් කිරීම සටහන් කළා.",
+            "markedWaitingForParts": "කොටස් බලාපොරොත්තුවෙන් ලෙස සලකුණු කළා.",
+            "partsWaitResolved": "කොටස් බලාපොරොත්තුව විසඳුණා.",
+            "markedWaitingForPermission": "අවසරය බලාපොරොත්තුවෙන් ලෙස සලකුණු කළා.",
+            "permissionWaitResolved": "අවසර බලාපොරොත්තුව විසඳුණා.",
+            "updateFailed": "රැකියා කාලරේඛාව යාවත්කාලීන කිරීමට නොහැකි විය"
+          }
+        },
+        "invitation": {
+          "title": "රැකියා ආරාධනාව",
+          "sent": "යැවූයේ: {{value}}",
+          "acknowledged": "පිළිගත්තේ: {{value}}",
+          "notAcknowledged": "පිළිගෙන නැත",
+          "actions": {
+            "viewDetails": "ආරාධනා විස්තර බලන්න",
+            "resend": "ආරාධනාව නැවත යවන්න",
+            "markAcknowledged": "පිළිගත් ලෙස සලකුණු කරන්න"
+          }
+        },
+        "workLog": {
+          "entryForm": {
+            "title": "වැඩ පියවරක් සටහන් කරන්න",
+            "descriptionPlaceholder": "කළේ කුමක්ද?",
+            "addPhotos": "ඡායාරූප එක් කරන්න",
+            "durationPlaceholder": "කාලය (මිනිත්තු)",
+            "addStep": "පියවරක් එක් කරන්න"
+          },
+          "timeline": {
+            "title": "වැඩ සටහන",
+            "empty": "තවම වැඩ පියවර සටහන් කර නැත."
+          },
+          "stepCard": {
+            "step": "පියවර {{number}}",
+            "duration": "මිනිත්තු {{minutes}}",
+            "logged": "සටහන් කළේ {{value}}",
+            "pendingSync": "සමමුහුර්ත කිරීම පොරොත්තුවෙන්"
+          }
+        },
+        "partsUsed": {
+          "title": "භාවිත කළ කොටස්",
+          "factoryParts": {
+            "title": "නිකුත් කළ කම්හල් කොටස්",
+            "empty": "කම්හල් කොටස් නිකුත් කර නැත.",
+            "line": "{{name}} x {{quantity}}"
+          },
+          "contractorMaterials": {
+            "title": "කොන්ත්‍රාත්කරුගේ ද්‍රව්‍ය",
+            "empty": "කොන්ත්‍රාත්කරුගේ ද්‍රව්‍ය සටහන් කර නැත.",
+            "line": "{{description}} x {{quantity}} {{unit}}"
+          }
+        },
+        "checklist": {
+          "title": "රැකියාවෙන් පසු පරීක්ෂණ ලැයිස්තුව",
+          "empty": "පරීක්ෂණ ලැයිස්තුව තවම සම්පූර්ණ කර නැත.",
+          "pass": "සමත්",
+          "fail": "අසමත්",
+          "testRun": "පරීක්ෂණ ධාවනය: {{value}}",
+          "machineAfter": "පසු යන්ත්‍ර තත්ත්වය: {{value}}"
+        },
+        "photos": {
+          "title": "ඡායාරූප සහ ලේඛන",
+          "addPhotos": "ඡායාරූප එක් කරන්න",
+          "empty": "තවම ඡායාරූප උඩුගත කර නැත."
+        },
+        "invoiceUpload": {
+          "title": "කොන්ත්‍රාත්කරුගේ ඉන්වොයිසිය උඩුගත කරන්න",
+          "referencePlaceholder": "ඉන්වොයිස් යොමුව",
+          "amountPlaceholder": "මුදල (LKR)",
+          "uploadPdf": "ඉන්වොයිස් PDF උඩුගත කරන්න"
+        },
+        "invoiceComparison": {
+          "title": "ඉන්වොයිස් සංසන්දනය",
+          "systemInvoice": {
+            "title": "පද්ධති ඉන්වොයිසිය",
+            "labor": "ශ්‍රමය",
+            "laborValue": "පැය {{hours}} x {{rate}}",
+            "laborCost": "ශ්‍රම පිරිවැය",
+            "factoryParts": "කම්හල් කොටස්",
+            "systemTotal": "පද්ධති එකතුව"
+          },
+          "contractorInvoice": {
+            "title": "කොන්ත්‍රාත්කරුගේ ඉන්වොයිසිය",
+            "reference": "යොමුව",
+            "date": "දිනය",
+            "invoiceTotal": "ඉන්වොයිස් එකතුව"
+          },
+          "variance": {
+            "label": "වෙනස: {{amount}}",
+            "match": "ඉන්වොයිසිය පද්ධති ගණනය සමඟ ගැළපේ.",
+            "mismatch": "කොන්ත්‍රාත්කරුගේ ඉන්වොයිසිය {{percent}}% කින් {{direction}}.",
+            "flagged": "වෙනස {{percent}}%",
+            "withinRange": "පරාසය තුළ {{percent}}%"
+          }
+        },
+        "ratingForm": {
+          "title": "{{contractorName}} ශ්‍රේණිගත කරන්න",
+          "dimensions": {
+            "speed": {
+              "label": "වේගය",
+              "helper": "අලුත්වැඩියාව කොතරම් ඉක්මනින් අවසන් කළාද?"
+            },
+            "quality": {
+              "label": "ගුණාත්මකභාවය",
+              "helper": "වැඩ කොතරම් හොඳින් කළාද?"
+            },
+            "professionalism": {
+              "label": "වෘත්තීයභාවය",
+              "helper": "කොන්ත්‍රාත් කණ්ඩායම කොතරම් වෘත්තීයමයද?"
+            },
+            "communication": {
+              "label": "සන්නිවේදනය",
+              "helper": "ඔවුන් කොතරම් හොඳින් සන්නිවේදනය කළාද?"
+            }
+          },
+          "overallScore": "සමස්ත ලකුණ",
+          "notesPlaceholder": "සවිස්තරාත්මක ප්‍රතිචාර එක් කරන්න",
+          "submit": "ශ්‍රේණිගත කිරීම ඉදිරිපත් කරන්න",
+          "saving": "සුරකිමින්…",
+          "toasts": {
+            "success": "ශ්‍රේණිගත කිරීම ඉදිරිපත් කළා",
+            "incomplete": "ඉදිරිපත් කිරීමට පෙර ක්ෂේත්‍ර හතරම ශ්‍රේණිගත කරන්න.",
+            "failed": "ශ්‍රේණිගත කිරීම ඉදිරිපත් කිරීමට නොහැකි විය"
+          }
+        },
+        "ratingQuickTags": {
+          "arrivedOnTime": "නියමිත වේලාවට පැමිණියා",
+          "neatWorkmanship": "පිළිවෙළ වැඩ",
+          "explainedIssueWell": "ගැටලුව හොඳින් පැහැදිලි කළා",
+          "leftSiteClean": "ස්ථානය පිරිසිදුව තැබුවා",
+          "requiredNoCallbacks": "නැවත කැඳවීම් අවශ්‍ය නොවුණා",
+          "professionalTeam": "වෘත්තීය කණ්ඩායම"
+        },
+        "followUpFlag": {
+          "label": "එම ගැටලුවම දින 30ක් ඇතුළත නැවත ඇති විය",
+          "placeholder": "පසු ගැටලුව විස්තර කරන්න"
+        },
+        "signOffForm": {
+          "reviewSummary": {
+            "title": "සමාලෝචන සාරාංශය",
+            "workDoneDescriptionPlaceholder": "කළ වැඩ පිළිබඳ විස්තරය",
+            "machineStatus": {
+              "operational": "ක්‍රියාත්මකයි",
+              "partially_operational": "අර්ධ වශයෙන් ක්‍රියාත්මකයි",
+              "still_down": "තවමත් නතර වී ඇත"
+            }
+          },
+          "totalCost": {
+            "title": "මුළු පිරිවැය",
+            "helper": "භාවිත කළ කොටස් පිරිවැය (මෙම වැඩ ඇණවුමෙන්) සහ ඔබ පහත ඇතුළත් කරන ව්‍යාපෘති පිරිවැය. මෙම වැඩ ඇණවුම, යන්ත්‍රයේ පිරිවැය ඉතිහාසය සහ නඩත්තු පිරිවැය විශ්ලේෂණයට සටහන් වේ.",
+            "usedPartsCost": "භාවිත කළ කොටස් පිරිවැය (ස්වයංක්‍රීය)",
+            "projectCost": "ව්‍යාපෘති පිරිවැය",
+            "summary": "මුළු පිරිවැය — භාවිත කළ කොටස් {{partsCost}} + ව්‍යාපෘතිය {{projectCost}}"
+          },
+          "rating": {
+            "title": "කොන්ත්‍රාත්කරු ශ්‍රේණිගත කිරීම",
+            "helper": "ක්ෂේත්‍ර හතරම ශ්‍රේණිගත කරන්න — අනුමත කිරීමට ශ්‍රේණිගත කිරීමක් අවශ්‍ය වන අතර එය මෙම කොන්ත්‍රාත්කරුගේ රැකියා ඉතිහාසයේ පෙන්වයි.",
+            "overallScore": "සමස්ත ලකුණ",
+            "dimensions": {
+              "speed": "වේගය",
+              "quality": "ගුණාත්මකභාවය",
+              "professionalism": "වෘත්තීයභාවය",
+              "communication": "සන්නිවේදනය"
+            }
+          },
+          "signature": {
+            "title": "ඩිජිටල් අත්සන",
+            "clear": "මකන්න"
+          },
+          "concerns": {
+            "label": "මෙම වැඩේ ගුණාත්මකභාවය ගැන මට සැක ඇත",
+            "notesPlaceholder": "අනුමැතිය හෝ විරෝධතා සටහන්"
+          },
+          "submit": "අනුමත කර සම්පූර්ණ කරන්න",
+          "saving": "සුරකිමින්…",
+          "errors": {
+            "signatureRequired": "මෙම රැකියාව අනුමත කිරීමට අත්සනක් අවශ්‍යයි.",
+            "invalidProjectCost": "වලංගු ව්‍යාපෘති පිරිවැයක් ඇතුළත් කරන්න.",
+            "ratingRequired": "මෙම රැකියාව අනුමත කිරීමට පෙර ක්ෂේත්‍ර හතරම ශ්‍රේණිගත කරන්න."
+          },
+          "toasts": {
+            "success": "රැකියාව සාර්ථකව අනුමත කළා",
+            "failed": "මෙම රැකියාව අනුමත කිරීමට නොහැකි විය."
+          }
+        }
+      },
+      "documents": {
+        "renewalModal": {
+          "title": "ලේඛනය අලුත් කරන්න",
+          "titleWithName": "{{name}} අලුත් කරන්න"
+        },
+        "criticalWarning": {
+          "message": "කල් ඉකුත් වූ ලේඛන අලුත් කරන තුරු කොන්ත්‍රාත්කරුට නව රැකියා පැවරිය නොහැක."
+        },
+        "historyAccordion": {
+          "title": "{{documentType}} ඉතිහාසය",
+          "version": "v{{version}}"
+        },
+        "statusBadge": {
+          "noExpiry": "කල් ඉකුත් වීමක් නැත",
+          "blocksAssignment": "පැවරීම අවහිර කරයි"
+        },
+        "card": {
+          "noExpiry": "කල් ඉකුත් වීමක් නැත",
+          "versionUploadedBy": "අනුවාදය {{version}} - උඩුගත කළේ {{name}}",
+          "issued": "නිකුත් කළේ: {{date}}",
+          "expiry": "කල් ඉකුත් වන්නේ: {{date}}",
+          "actions": {
+            "download": "බාගන්න",
+            "preview": "පෙරදසුන",
+            "renew": "අලුත් කරන්න"
+          }
+        },
+        "list": {
+          "title": "ලේඛන",
+          "subtitle": "වලංගු, කල් ඉකුත් වීමට ආසන්න, කල් ඉකුත් වූ සහ ස්ථිර අනුකූලතා වාර්තා.",
+          "empty": "තවම ලේඛන උඩුගත කර නැත.",
+          "actions": {
+            "upload": "ලේඛනයක් උඩුගත කරන්න"
+          },
+          "legend": {
+            "valid": "කොළ: වලංගුයි",
+            "expiringSoon": "තැඹිලි: දින 30ක් ඇතුළත කල් ඉකුත් වේ",
+            "expired": "රතු: කල් ඉකුත් වී ඇත",
+            "noExpiry": "අළු: කල් ඉකුත් වීමක් නැත"
+          }
+        },
+        "uploadModal": {
+          "defaultTitle": "ලේඛනයක් උඩුගත කරන්න",
+          "fields": {
+            "documentName": "ලේඛනයේ නම",
+            "issueDate": "නිකුත් කළ දිනය",
+            "expiryDate": "කල් ඉකුත් වන දිනය (ස්ථිර නම් හිස්ව තබන්න)",
+            "notes": "සටහන්"
+          },
+          "fileArea": {
+            "uploadHint": "PDF, DOCX, JPG හෝ PNG 50MB දක්වා",
+            "renewalHint": "විකල්ප: ගොනුව ප්‍රතිස්ථාපනය කරන්න (කිසිවක් නොතෝරන්නේ නම් වත්මන් ගොනුව තබා ගනී)"
+          },
+          "currentValidity": {
+            "label": "වත්මන් වලංගුභාවය:",
+            "expires": "{{date}} කල් ඉකුත් වේ",
+            "noExpiry": "කල් ඉකුත් වීමක් සටහන් කර නැත",
+            "hint": "ගිවිසුම දීර්ඝ කිරීමට පහත නව කල් ඉකුත් වන දිනය සකසන්න."
+          },
+          "actions": {
+            "close": "වසන්න",
+            "saving": "සුරකිමින්…",
+            "upload": "උඩුගත කරන්න",
+            "renew": "ලේඛනය අලුත් කරන්න"
+          },
+          "toasts": {
+            "uploaded": "ලේඛනය උඩුගත කළා",
+            "renewed": "ලේඛනය අලුත් කළා",
+            "renewedWithDate": "ලේඛනය අලුත් කළා — {{date}} දක්වා වලංගුයි"
+          },
+          "errors": {
+            "missingContractor": "කොන්ත්‍රාත්කරු යොමුව නැත. උඩුගත කළ නොහැක.",
+            "mustBeLoggedIn": "ලේඛන උඩුගත කිරීමට ඔබ පුරනය වී සිටිය යුතුය.",
+            "fileRequired": "උඩුගත කිරීමට ගොනුවක් තෝරන්න.",
+            "expiryRequired": "අලුත් කළ ලේඛනය සඳහා නව කල් ඉකුත් වන දිනය සකසන්න.",
+            "uploadFailed": "උඩුගත කිරීම අසාර්ථකයි"
+          }
+        }
+      },
+      "analytics": {
+        "blockedList": {
+          "title": "කල් ඉකුත් වූ සහ පැවරීම අවහිර කරන",
+          "expiredDaysAgo": "{{documentType}} දින {{days}}කට පෙර කල් ඉකුත් විය"
+        },
+        "expiryAlerts": {
+          "title": "දින 30ක් ඇතුළත කල් ඉකුත් වන",
+          "empty": "ළඟදී කල් ඉකුත් වන ලේඛන නැත."
+        },
+        "performanceDashboard": {
+          "loading": "කොන්ත්‍රාත්කරු කාර්ය සාධනය පූරණය වෙමින්...",
+          "topPerformer": "ඉහළම කාර්ය සාධනය",
+          "needsReview": "සමාලෝචනය අවශ්‍යයි",
+          "stats": {
+            "activeContractors": "සක්‍රිය කොන්ත්‍රාත්කරුවන්",
+            "jobsThisMonth": "මෙම මාසයේ රැකියා",
+            "avgRating": "සාමාන්‍ය ශ්‍රේණිය",
+            "slaCompliance": "SLA අනුකූලතාව"
+          },
+          "charts": {
+            "jobsByContractor": "කොන්ත්‍රාත්කරු අනුව රැකියා",
+            "avgRatingComparison": "සාමාන්‍ය ශ්‍රේණි සංසන්දනය",
+            "totalCostByContractor": "කොන්ත්‍රාත්කරු අනුව මුළු පිරිවැය"
+          }
+        },
+        "complianceMatrix": {
+          "columns": {
+            "contractor": "කොන්ත්‍රාත්කරු"
+          },
+          "status": {
+            "notUploaded": "උඩුගත කර නැත",
+            "expired": "කල් ඉකුත් වී ඇත",
+            "expiring": "කල් ඉකුත් වෙමින්",
+            "noExpiry": "කල් ඉකුත් වීමක් නැත",
+            "valid": "වලංගුයි"
+          }
+        },
+        "scoreboard": {
+          "columns": {
+            "rank": "ස්ථානය",
+            "contractor": "කොන්ත්‍රාත්කරු",
+            "rating": "ශ්‍රේණිය",
+            "jobs": "රැකියා",
+            "mttr": "MTTR",
+            "sla": "SLA",
+            "invoice": "ඉන්වොයිසිය",
+            "lastJob": "අවසන් රැකියාව"
+          },
+          "minutes": "මිනිත්තු {{count}}",
+          "empty": "තවම කොන්ත්‍රාත්කරු කාර්ය සාධන දත්ත නැත. {{amount}}"
+        }
+      },
+      "addContractorPage": {
+        "title": "කොන්ත්‍රාත්කරුවෙකු එක් කරන්න",
+        "subtitle": "බාහිර කොන්ත්‍රාත්කරු පැතිකඩක් සාදන්න. කොන්ත්‍රාත්කරුවන්ට FirmiCore පිවිසුම් ප්‍රවේශය නොලැබේ."
+      },
+      "editContractorPage": {
+        "title": "කොන්ත්‍රාත්කරු සංස්කරණය කරන්න",
+        "subtitle": "පැතිකඩ, සම්බන්ධතා, හැකියාවන් සහ ආරක්ෂිත මූල්‍ය ක්ෂේත්‍ර යාවත්කාලීන කරන්න."
+      },
+      "addTechnicianPage": {
+        "title": "කණ්ඩායම් සාමාජිකයෙකු එක් කරන්න",
+        "subtitle": "ගේට්ටු හඳුනාගැනීම සහ රැකියා ඉතිහාසය සඳහා තනි කණ්ඩායම් සාමාජිකයෙකු ලියාපදිංචි කරන්න."
+      },
+      "editTechnicianPage": {
+        "title": "කණ්ඩායම් සාමාජිකයා සංස්කරණය කරන්න",
+        "subtitle": "කොන්ත්‍රාත් කණ්ඩායම් සාමාජිකයාගේ විස්තර සහ තත්ත්වය යාවත්කාලීන කරන්න."
+      },
+      "profilePage": {
+        "loading": "කොන්ත්‍රාත්කරු පූරණය වෙමින්...",
+        "notFound": "කොන්ත්‍රාත්කරු හමු නොවීය.",
+        "tabs": {
+          "overview": "දළ විශ්ලේෂණය",
+          "documents": "ලේඛන",
+          "teamMembers": "කණ්ඩායම් සාමාජිකයින්",
+          "jobHistory": "රැකියා ඉතිහාසය",
+          "analytics": "විශ්ලේෂණ"
+        }
+      },
+      "documentsPage": {
+        "title": "කොන්ත්‍රාත්කරු ලේඛන",
+        "subtitle": "අනුකූලතා ලේඛන, අලුත් කිරීම් සහ පැවරීම් අවහිර තත්ත්වය.",
+        "loading": "ලේඛන පූරණය වෙමින්..."
+      },
+      "techniciansPage": {
+        "title": "කොන්ත්‍රාත් කණ්ඩායම් සාමාජිකයින්",
+        "registeredCount_one": "කණ්ඩායම් සාමාජිකයින් {{count}} දෙනෙකු ලියාපදිංචි කර ඇත.",
+        "registeredCount_other": "කණ්ඩායම් සාමාජිකයින් {{count}} දෙනෙකු ලියාපදිංචි කර ඇත.",
+        "loading": "කණ්ඩායම් සාමාජිකයින් පූරණය වෙමින්...",
+        "actions": {
+          "addTeamMember": "කණ්ඩායම් සාමාජිකයෙකු එක් කරන්න"
+        }
+      },
+      "historyPage": {
+        "title": "කොන්ත්‍රාත්කරු රැකියා ඉතිහාසය",
+        "loading": "ඉතිහාසය පූරණය වෙමින්..."
+      },
+      "analyticsPage": {
+        "title": "{{companyName}} විශ්ලේෂණ",
+        "loading": "විශ්ලේෂණ පූරණය වෙමින්...",
+        "notFound": "කොන්ත්‍රාත්කරු හමු නොවීය."
+      },
+      "performanceDashboardPage": {
+        "title": "කොන්ත්‍රාත්කරු කාර්ය සාධනය",
+        "subtitle": "ලකුණු පත්‍ර, SLA ප්‍රවණතා, ශ්‍රේණිගත කිරීම්, පිරිවැය සහ ඉන්වොයිස් නිරවද්‍යතාව."
+      },
+      "compliancePage": {
+        "title": "ලේඛන අනුකූලතාව",
+        "subtitle": "මානව සම්පත්, අධීක්ෂකවරුන් සහ කම්හල් කළමනාකරුවන් සඳහා අනුකූලතා දර්ශනය.",
+        "loading": "අනුකූලතාව පූරණය වෙමින්...",
+        "stats": {
+          "totalContractors": "මුළු කොන්ත්‍රාත්කරුවන්",
+          "fullyValid": "සම්පූර්ණයෙන් වලංගු",
+          "expiringDocs": "කල් ඉකුත් වන ලේඛන",
+          "blocked": "අවහිර කළ"
+        }
+      },
+      "reportsHubPage": {
+        "title": "කොන්ත්‍රාත්කරු වාර්තා",
+        "subtitle": "මොඩියුලය 7 සඳහා PDF, Excel හෝ Google Sheets අපනයන සාදන්න.",
+        "reports": {
+          "performance": {
+            "title": "කොන්ත්‍රාත්කරු කාර්ය සාධන වාර්තාව",
+            "description": "එක් එක් කොන්ත්‍රාත්කරුගේ මිනුම්, ශ්‍රේණිගත කිරීම් සහ MTTR"
+          },
+          "invoiceComparison": {
+            "title": "කොන්ත්‍රාත්කරු ඉන්වොයිස් සංසන්දනය",
+            "description": "ඉන්වොයිස්, වෙනස්කම් සහ අනුමැති තත්ත්වය"
+          },
+          "jobHistory": {
+            "title": "රැකියා ඉතිහාස වාර්තාව",
+            "description": "කොන්ත්‍රාත්කරු, යන්ත්‍රය සහ දිනය අනුව පෙරිය හැකි සියලු රැකියා"
+          },
+          "rating": {
+            "title": "කොන්ත්‍රාත්කරු ශ්‍රේණිගත කිරීමේ වාර්තාව",
+            "description": "ශ්‍රේණිගත කිරීම් විස්තර සහ ප්‍රතිචාර ප්‍රවණතා"
+          },
+          "documentCompliance": {
+            "title": "ලේඛන අනුකූලතා වාර්තාව",
+            "description": "කොන්ත්‍රාත්කරුවන් හරහා ලේඛන තත්ත්වය"
+          }
+        },
+        "actions": {
+          "generatePdf": "PDF සාදන්න",
+          "exportExcel": "Excel අපනයනය කරන්න",
+          "pushToSheets": "Google Sheets වෙත යවන්න"
+        }
+      },
+      "registry": {
+        "alertBanner": {
+          "blockedByDocument": "රැකියා පැවරීම අවහිරයි - {{documentName}} කල් ඉකුත් වී ඇත. රැකියා පැවරීමට අලුත් කරන්න.",
+          "blockedCount_one": "කල් ඉකුත් වූ ලේඛන සහිත කොන්ත්‍රාත්කරුවන් {{count}} - රැකියා පැවරීම අවහිරයි.",
+          "blockedCount_other": "කල් ඉකුත් වූ ලේඛන සහිත කොන්ත්‍රාත්කරුවන් {{count}} - රැකියා පැවරීම අවහිරයි.",
+          "expiringCount_one": "කොන්ත්‍රාත්කරු ලේඛන {{count}}ක් දින 30ක් ඇතුළත කල් ඉකුත් වේ.",
+          "expiringCount_other": "කොන්ත්‍රාත්කරු ලේඛන {{count}}ක් දින 30ක් ඇතුළත කල් ඉකුත් වේ.",
+          "complianceLink": "අනුකූලතාව"
+        },
+        "formStepper": {
+          "steps": {
+            "company": "සමාගම",
+            "contacts": "සම්බන්ධතා",
+            "specializations": "විශේෂඥතා",
+            "financial": "මූල්‍ය",
+            "documents": "ලේඛන"
+          }
+        },
+        "docStatusDot": {
+          "valid": "ලේඛන වලංගුයි",
+          "expiring": "ළඟදී කල් ඉකුත් වේ",
+          "expired": "කල් ඉකුත් වූ ලේඛන"
+        },
+        "statusBadge": {
+          "active": "සක්‍රිය",
+          "inactive": "අක්‍රිය",
+          "blacklisted": "කළු ලැයිස්තුගත"
+        },
+        "techniciansTab": {
+          "registeredCount_one": "කණ්ඩායම් සාමාජිකයින් {{count}} දෙනෙකු ලියාපදිංචි කර ඇත",
+          "registeredCount_other": "කණ්ඩායම් සාමාජිකයින් {{count}} දෙනෙකු ලියාපදිංචි කර ඇත",
+          "subtitle": "ගේට්ටු හඳුනාගැනීම සහ රැකියා ඉතිහාසය සඳහා තනි කොන්ත්‍රාත් කාර්ය මණ්ඩලය.",
+          "actions": {
+            "addTeamMember": "කණ්ඩායම් සාමාජිකයෙකු එක් කරන්න"
+          }
+        },
+        "formSection1": {
+          "title": "සමාගම් තොරතුරු",
+          "fields": {
+            "companyName": "සමාගමේ නම *",
+            "tradeName": "වෙළඳ නාමය",
+            "registrationNumber": "ලියාපදිංචි අංකය *",
+            "dateEstablished": "ආරම්භ කළ වර්ෂය",
+            "city": "නගරය *",
+            "district": "දිස්ත්‍රික්කය",
+            "country": "රට *",
+            "website": "වෙබ් අඩවිය",
+            "primaryAddress": "ප්‍රධාන ලිපිනය *",
+            "notes": "අභ්‍යන්තර සටහන්"
+          },
+          "companyTypes": {
+            "private_ltd": "පුද්ගලික සමාගම (Pvt Ltd)",
+            "sole_proprietor": "තනි හිමිකරු",
+            "partnership": "හවුල් ව්‍යාපාරය",
+            "public_ltd": "රාජ්‍ය සමාගම (PLC)",
+            "foreign": "විදේශීය"
+          }
+        },
+        "formSection2": {
+          "title": "සම්බන්ධතා විස්තර",
+          "primaryContact": "ප්‍රධාන සම්බන්ධතාව",
+          "secondaryContact": "ද්විතීයික සම්බන්ධතාව",
+          "other": "වෙනත්",
+          "fields": {
+            "fullName": "සම්පූර්ණ නම *",
+            "fullNameOptional": "සම්පූර්ණ නම",
+            "designation": "තනතුර",
+            "phone": "දුරකථනය *",
+            "phoneOptional": "දුරකථනය",
+            "email": "ඊමේල් *",
+            "emailOptional": "ඊමේල්",
+            "emergencyContact": "හදිසි සම්බන්ධතාව *",
+            "whatsappNumber": "WhatsApp අංකය"
+          }
+        },
+        "formSection3": {
+          "title": "විශේෂඥතා",
+          "specializationTags": "විශේෂඥතා ටැග් *",
+          "fields": {
+            "machineTypesServiced": "සේවා සපයන යන්ත්‍ර වර්ග",
+            "industriesServed": "සේවය කරන කර්මාන්ත",
+            "geographicCoverage": "භූගෝලීය ආවරණය",
+            "emergencyResponseTime": "හදිසි ප්‍රතිචාර කාලය",
+            "teamSizeAvailable": "ලබා ගත හැකි කණ්ඩායම් ප්‍රමාණය",
+            "languagesSpoken": "කතා කරන භාෂා"
+          },
+          "serviceHours": {
+            "24_7": "24/7",
+            "business_hours": "ව්‍යාපාරික වේලාවන්",
+            "on_call": "ඇමතුම් මත",
+            "custom": "අභිරුචි"
+          }
+        },
+        "formSection4": {
+          "title": "මූල්‍ය සහ බිල්පත්",
+          "restricted": "මූල්‍ය විස්තර ලබා ගත හැක්කේ කම්හල් කළමනාකරුවන්ට සහ පරිපාලකයින්ට පමණි.",
+          "paymentMethods": "ගෙවීම් ක්‍රම",
+          "paymentMethodOptions": {
+            "bankTransfer": "බැංකු හුවමාරුව",
+            "cheque": "චෙක්පත",
+            "cash": "මුදල්",
+            "onlineWallet": "ඔන්ලයින් / ඩිජිටල් පසුම්බිය"
+          },
+          "bankDetails": "බැංකු විස්තර",
+          "completedProjects": "කලින් සම්පූර්ණ කළ ව්‍යාපෘති (පිරිවැය සමඟ)",
+          "fields": {
+            "bankName": "බැංකුවේ නම",
+            "branch": "ශාඛාව",
+            "accountHolderName": "ගිණුම් හිමියාගේ නම",
+            "accountNumber": "ගිණුම් අංකය",
+            "routingSwift": "Routing / SWIFT",
+            "tinNumber": "TIN අංකය",
+            "projectClientName": "ව්‍යාපෘතිය / සේවාදායකයාගේ නම",
+            "costLkr": "පිරිවැය (LKR)",
+            "ratingPlaceholder": "ශ්‍රේණිය…",
+            "duration": "කාලය (උදා. මාස 3)",
+            "contractType": "ගිවිසුම් වර්ගය (උදා. ස්ථාවර, T&M)",
+            "forbiddenActions": "සිදු කළ තහනම් ක්‍රියා / උල්ලංඝනය කිරීම් (විකල්ප)"
+          },
+          "actions": {
+            "add": "එක් කරන්න",
+            "removeProject": "ව්‍යාපෘතිය ඉවත් කරන්න"
+          }
+        },
+        "formSection5": {
+          "title": "මූලික ලේඛන",
+          "alreadyUploaded": "දැනටමත් උඩුගත කර ඇත",
+          "view": "බලන්න",
+          "dropzone": "ගොනු මෙහි අදින්න හෝ PDF, DOCX, JPG, PNG තෝරන්න",
+          "newUploads": "නව උඩුගත කිරීම්",
+          "removeFile": "ගොනුව ඉවත් කරන්න",
+          "note": "පසුව කොන්ත්‍රාත්කරු පැතිකඩෙන් තවත් ලේඛන එක් කළ හැක."
+        },
+        "list": {
+          "title": "කොන්ත්‍රාත්කරු ලේඛනය",
+          "summary": "කොන්ත්‍රාත්කරුවන් {{totalCount}} - සක්‍රිය {{activeCount}} - අවහිර {{blockedCount}}",
+          "loading": "කොන්ත්‍රාත්කරුවන් පූරණය වෙමින්...",
+          "empty": "කොන්ත්‍රාත්කරුවන් ලියාපදිංචි කර නැත. ඔබේ පළමු කොන්ත්‍රාත්කරු එක් කරන්න.",
+          "actions": {
+            "addContractor": "කොන්ත්‍රාත්කරුවෙකු එක් කරන්න"
+          }
+        },
+        "card": {
+          "jobCount_one": "රැකියා {{count}}",
+          "jobCount_other": "රැකියා {{count}}",
+          "viewProfile": "පැතිකඩ බලන්න"
+        },
+        "specializationTags": {
+          "electrical": "විදුලි",
+          "mechanical": "යාන්ත්‍රික",
+          "hydraulic": "හයිඩ්‍රොලික්",
+          "pneumatic": "නියුමැටික්",
+          "welding": "වෑල්ඩින්",
+          "plc_automation": "PLC / ස්වයංක්‍රීයකරණය",
+          "hvac": "HVAC",
+          "civil": "සිවිල්",
+          "oem_authorized": "OEM බලයලත්",
+          "calibration": "ක්‍රමාංකනය",
+          "inspection": "පරීක්ෂාව",
+          "pressure_vessel": "පීඩන භාජන",
+          "elevator": "සෝපාන",
+          "fire_safety": "ගිනි ආරක්ෂාව",
+          "other": "වෙනත්",
+          "moreCount_one": "+තවත් {{count}}",
+          "moreCount_other": "+තවත් {{count}}"
+        },
+        "analyticsTab": {
+          "jobsPerMonth": "මාසිකව රැකියා",
+          "ratingTrend": "ශ්‍රේණි ප්‍රවණතාව",
+          "costPerJob": "රැකියාවකට පිරිවැය",
+          "jobTypeDistribution": "රැකියා වර්ග ව්‍යාප්තිය",
+          "jobTypes": {
+            "breakdown": "බිඳවැටීම",
+            "preventive": "නිවාරණ",
+            "corrective": "නිවැරදි කිරීමේ",
+            "installation": "ස්ථාපනය",
+            "modification": "වෙනස් කිරීම",
+            "inspection": "පරීක්ෂාව",
+            "other": "වෙනත්"
+          }
+        },
+        "filterBar": {
+          "searchPlaceholder": "සමාගම, වෙළඳ නාමය, ලියාපදිංචිය සොයන්න",
+          "clear": "ඉවත් කරන්න",
+          "status": {
+            "all": "සියලු තත්ත්ව"
+          },
+          "rating": {
+            "any": "ඕනෑම ශ්‍රේණියක්",
+            "fourPlus": "තරු 4+",
+            "threePlus": "තරු 3+"
+          },
+          "docs": {
+            "all": "සියලු ලේඛන"
+          }
+        },
+        "listTable": {
+          "empty": "කොන්ත්‍රාත්කරුවන් ලියාපදිංචි කර නැත. ඔබේ පළමු කොන්ත්‍රාත්කරු එක් කරන්න.",
+          "columns": {
+            "company": "සමාගම",
+            "specializations": "විශේෂඥතා",
+            "status": "තත්ත්වය",
+            "rating": "ශ්‍රේණිය",
+            "jobs": "රැකියා",
+            "lastJob": "අවසන් රැකියාව",
+            "documents": "ලේඛන",
+            "actions": "ක්‍රියා"
+          },
+          "lastJob": {
+            "never": "කිසි විටෙක නැත",
+            "today": "අද",
+            "yesterday": "ඊයේ",
+            "daysAgo_one": "දින {{count}}කට පෙර",
+            "daysAgo_other": "දින {{count}}කට පෙර"
+          },
+          "actions": {
+            "view": "බලන්න",
+            "edit": "සංස්කරණය කරන්න"
+          }
+        },
+        "profileHeader": {
+          "jobCount_one": "රැකියා {{count}}",
+          "jobCount_other": "රැකියා {{count}}",
+          "actions": {
+            "rate": "ශ්‍රේණිගත කරන්න",
+            "edit": "සංස්කරණය කරන්න",
+            "moreActions": "තවත් ක්‍රියා"
+          },
+          "rateModal": {
+            "title": "{{companyName}} ශ්‍රේණිගත කරන්න",
+            "starLabel": "තරු {{count}}",
+            "cancel": "අවලංගු කරන්න",
+            "saving": "සුරකිමින්…",
+            "saveRating": "ශ්‍රේණිය සුරකින්න",
+            "errors": {
+              "selectRating": "තරු 1 සිට 5 දක්වා ශ්‍රේණියක් තෝරන්න.",
+              "updateFailed": "ශ්‍රේණිය යාවත්කාලීන කිරීමට නොහැකි විය."
+            }
+          }
+        },
+        "overviewTab": {
+          "companyInformation": {
+            "title": "සමාගම් තොරතුරු",
+            "legalName": "නීතිමය නම",
+            "tradeName": "වෙළඳ නාමය",
+            "registration": "ලියාපදිංචිය",
+            "companyType": "සමාගම් වර්ගය",
+            "established": "ආරම්භ කළේ",
+            "address": "ලිපිනය",
+            "website": "වෙබ් අඩවිය",
+            "notes": "සටහන්"
+          },
+          "contactDetails": {
+            "title": "සම්බන්ධතා විස්තර",
+            "primaryContact": "ප්‍රධාන සම්බන්ධතාව",
+            "primaryPhone": "ප්‍රධාන දුරකථනය",
+            "primaryEmail": "ප්‍රධාන ඊමේල්",
+            "secondaryContact": "ද්විතීයික සම්බන්ධතාව",
+            "secondaryPhone": "ද්විතීයික දුරකථනය",
+            "emergency": "හදිසි",
+            "whatsapp": "WhatsApp"
+          },
+          "serviceCapabilities": {
+            "title": "සේවා හැකියාවන්",
+            "specializations": "විශේෂඥතා",
+            "machineTypes": "යන්ත්‍ර වර්ග",
+            "industries": "කර්මාන්ත",
+            "coverage": "ආවරණය",
+            "serviceHours": "සේවා වේලාවන්",
+            "responseTime": "ප්‍රතිචාර කාලය",
+            "teamSize": "කණ්ඩායම් ප්‍රමාණය",
+            "languages": "භාෂා"
+          },
+          "financialDetails": {
+            "title": "මූල්‍ය විස්තර",
+            "paymentMethods": "ගෙවීම් ක්‍රම",
+            "bank": "බැංකුව",
+            "account": "ගිණුම",
+            "taxRegistration": "බදු ලියාපදිංචිය"
+          },
+          "completedProjects": {
+            "title": "කලින් සම්පූර්ණ කළ ව්‍යාපෘති",
+            "untitledProject": "නම් නොකළ ව්‍යාපෘතිය",
+            "cost": "පිරිවැය: {{cost}}",
+            "rating": "ශ්‍රේණිය: {{rating}} ★",
+            "duration": "කාලය: {{duration}}",
+            "type": "වර්ගය: {{type}}",
+            "violations": "උල්ලංඝනය කිරීම්: {{violations}}"
+          },
+          "performanceSummary": {
+            "title": "කාර්ය සාධන සාරාංශය",
+            "averageRating": "සාමාන්‍ය ශ්‍රේණිය",
+            "averageRatingValue": "{{rating}}/5 (ශ්‍රේණිගත කිරීම් {{count}})",
+            "totalJobs": "මුළු රැකියා",
+            "totalJobsValue": "{{total}} (බිඳවැටීම් {{breakdown}} | PM {{pm}} | ස්ථාපනය {{install}})",
+            "averageMttr": "සාමාන්‍ය MTTR",
+            "minutesValue": "මිනිත්තු {{minutes}}",
+            "slaCompliance": "SLA අනුකූලතාව",
+            "avgJobCost": "සාමාන්‍ය රැකියා පිරිවැය"
+          }
+        },
+        "jobHistoryTab": {
+          "stats": {
+            "totalJobs": "මුළු රැකියා",
+            "avgRating": "සාමාන්‍ය ශ්‍රේණිය",
+            "totalCost": "මුළු පිරිවැය",
+            "slaJobs": "SLA රැකියා"
+          },
+          "techniciansNotLogged": "කාර්මික ශිල්පීන් සටහන් කර නැත",
+          "onSite": "ස්ථානයේ: මිනිත්තු {{minutes}}",
+          "usedPartsCost": "භාවිත කළ කොටස් පිරිවැය",
+          "projectCost": "ව්‍යාපෘති පිරිවැය",
+          "totalCost": "මුළු පිරිවැය",
+          "jobRating": "රැකියා ශ්‍රේණිය: {{score}} / 5",
+          "ratingBreakdown": {
+            "speed": "වේගය: {{score}}",
+            "quality": "ගුණාත්මකභාවය: {{score}}",
+            "professionalism": "වෘත්තීයභාවය: {{score}}",
+            "communication": "සන්නිවේදනය: {{score}}"
+          },
+          "ratedBy": "{{name}} විසින් ශ්‍රේණිගත කළා",
+          "ratedOn": " {{date}}",
+          "unknown": "නොදන්නා",
+          "notRatedYet": "තවම ශ්‍රේණිගත කර නැත.",
+          "started": "ආරම්භ කළේ: {{date}}",
+          "completed": "සම්පූර්ණ කළේ: {{date}}",
+          "signedOff": "අනුමත කළේ: {{date}}",
+          "waitedForParts": "කොටස් සඳහා රැඳී සිටියේ: මිනිත්තු {{minutes}}",
+          "waitedForPermission": "අවසරය සඳහා රැඳී සිටියේ: මිනිත්තු {{minutes}}",
+          "contractorWo": "කොන්ත්‍රාත් වැඩ ඇණවුම",
+          "empty": "තවම රැකියා ඉතිහාසයක් නැත.",
+          "auditRatings": {
+            "title": "විගණන ශ්‍රේණිගත කිරීම්",
+            "subtitle": "කොන්ත්‍රාත්කරු විගණන අතරතුර ලබා ගත් එක් එක් රැකියාවේ තරු ශ්‍රේණි සහ සටහන්.",
+            "unlinkedJob": "සම්බන්ධ නොකළ රැකියාව",
+            "fromAudit": "{{date}} දින {{name}} විසින් කළ විගණනයෙන්"
+          },
+          "completedProjects": {
+            "title": "කලින් සම්පූර්ණ කළ ව්‍යාපෘති",
+            "subtitle": "කොන්ත්‍රාත්කරු පද්ධතියට ඇතුළත් කිරීමට පෙර සටහන් කළ ව්‍යාපෘති.",
+            "rating": "ශ්‍රේණිය: {{rating}}",
+            "projectCost": "ව්‍යාපෘති පිරිවැය: {{cost}}",
+            "duration": "කාලය: {{duration}}",
+            "forbiddenActions": "තහනම් ක්‍රියා: {{actions}}"
+          }
+        },
+        "formLayout": {
+          "loading": "කොන්ත්‍රාත්කරු පූරණය වෙමින්…",
+          "notFound": "කොන්ත්‍රාත්කරු හමු නොවීය.",
+          "actions": {
+            "cancel": "අවලංගු කරන්න",
+            "saving": "සුරකිමින්…",
+            "saveAndAddDocuments": "සුරකින්න සහ ලේඛන එක් කරන්න",
+            "saveContractor": "කොන්ත්‍රාත්කරු සුරකින්න",
+            "updateContractor": "කොන්ත්‍රාත්කරු යාවත්කාලීන කරන්න"
+          },
+          "errors": {
+            "missingCompanyContext": "සමාගම් තොරතුරු නැත. කරුණාකර නැවත පුරනය වන්න.",
+            "missingRequiredFields": "කරුණාකර සියලු අනිවාර්ය ක්ෂේත්‍ර පුරවන්න (සමාගමේ නම, ලියාපදිංචි අංකය, ප්‍රධාන සම්බන්ධතාව).",
+            "saveFailed": "කොන්ත්‍රාත්කරු සුරැකීමට නොහැකි විය."
+          }
+        }
+      },
+      "shared": {
+        "assignmentBlocker": {
+          "title": "කොන්ත්‍රාත්කරුට නව රැකියා පැවරිය නොහැක.",
+          "defaultReason": "වැදගත් අනුකූලතා ලේඛනයක් කල් ඉකුත් වී ඇත.",
+          "renewPrompt": "මෙම කොන්ත්‍රාත්කරුට පැවරීමට පෙර ලේඛනය අලුත් කරන්න."
+        },
+        "manualEntryFlag": {
+          "notRegistered": "{{contractorName}} ලියාපදිංචි කර නැත.",
+          "registerNow": "දැන් ලියාපදිංචි කරන්න"
+        },
+        "invitationStatusBadge": {
+          "email": "ඊමේල්",
+          "whatsapp": "WhatsApp"
+        },
+        "searchDropdown": {
+          "companyNameLabel": "කොන්ත්‍රාත් සමාගමේ නම",
+          "manualNamePlaceholder": "කොන්ත්‍රාත්කරුගේ නම අතින් ටයිප් කරන්න",
+          "searchPlaceholder": "කොන්ත්‍රාත්කරුවන් සොයන්න",
+          "blockedTitle": "වැදගත් අනුකූලතා ලේඛනය කල් ඉකුත් වී ඇත. පැවරීම සක්‍රිය කිරීමට අලුත් කරන්න.",
+          "lastJob": "අවසන් රැකියාව: {{date}}",
+          "never": "කිසි විටෙක නැත",
+          "notRegisteredPrompt": "කොන්ත්‍රාත්කරු ලියාපදිංචි කර නැද්ද? කොන්ත්‍රාත්කරුගේ නම අතින් ටයිප් කරන්න"
         }
       }
     },
@@ -1492,6 +2482,913 @@
         "minutes": "මිනිත්තු {{count}}කට පෙර",
         "hours": "පැය {{count}}කට පෙර",
         "days": "දින {{count}}කට පෙර"
+      }
+    },
+    "trainingShared": {
+      "statusBadge": {
+        "ariaLabel": "තත්ත්වය: {{label}}",
+        "statuses": {
+          "not_started": "ආරම්භ කර නැත",
+          "in_progress": "ක්‍රියාත්මක වෙමින්",
+          "quiz_passed": "ප්‍රශ්නාවලිය සමත්",
+          "quiz_failed": "අසමත් — නැවත උත්සාහ කරන්න",
+          "awaiting_practical": "අනුමැතිය බලාපොරොත්තුවෙන්",
+          "certified": "සහතික කළ ✓",
+          "expired": "කල් ඉකුත් වී ඇත",
+          "retraining_required": "නැවත පුහුණුව අවශ්‍යයි"
+        }
+      },
+      "assignForm": {
+        "title": "මොඩියුලය පවරන්න",
+        "closeAria": "වසන්න",
+        "modes": {
+          "users": "පරිශීලකයින්",
+          "roles": "භූමිකා",
+          "departments": "දෙපාර්තමේන්තු"
+        },
+        "searchPlaceholder": "පරිශීලකයින් සොයන්න…",
+        "invitePending": "ආරාධනාව පොරොත්තුවෙන්",
+        "noDepartments": "තවම දෙපාර්තමේන්තු සකසා නැත.",
+        "willBeAssigned_one": "පුද්ගලයින් {{count}} දෙනෙකුට පවරනු ලැබේ",
+        "willBeAssigned_other": "පුද්ගලයින් {{count}} දෙනෙකුට පවරනු ලැබේ",
+        "dueDate": "නියමිත දිනය",
+        "optional": "(විකල්ප)",
+        "notifyAssignees": "පවරන ලද අයට දැනුම් දෙන්න",
+        "cancel": "අවලංගු කරන්න",
+        "assign": "පවරන්න",
+        "result": {
+          "assignedTo_one": "පුද්ගලයින් {{count}} දෙනෙකුට පවරන ලදී.",
+          "assignedTo_other": "පුද්ගලයින් {{count}} දෙනෙකුට පවරන ලදී.",
+          "skipped": " {{count}} දෙනෙකුට මෙම මොඩියුලය සඳහා දැනටමත් සක්‍රිය පැවරුමක් තිබූ බැවින් මඟ හරින ලදී.",
+          "done": "අවසන්"
+        },
+        "roleLabels": {
+          "admin": "පරිපාලක",
+          "plant_manager": "කම්හල් කළමනාකරු",
+          "supervisor": "අධීක්ෂක",
+          "technician": "කාර්මික ශිල්පී",
+          "store_keeper": "ගබඩා භාරකරු",
+          "hr_officer": "මානව සම්පත් නිලධාරී",
+          "trainee": "අභ්‍යාසලාභී",
+          "floor_operator": "බිම් ක්‍රියාකරු",
+          "safety_officer": "ආරක්ෂක නිලධාරී"
+        },
+        "errors": {
+          "failed": "පුහුණුව පැවරීමට නොහැකි විය."
+        },
+        "notification": {
+          "message": "ඔබට නව පුහුණු මොඩියුලයක් පවරා ඇත: {{title}}",
+          "oversightMessage": "\"{{title}}\" {{name}} වෙත පැවරුවා"
+        },
+        "dueTime": "නියමිත වේලාව",
+        "dueTimeHint": "වේලාවක් නොතෝරන්නේ නම්, පුහුණුව නියමිත දිනයේ 23:59 ට නියමිත වේ."
+      },
+      "editorLayout": {
+        "tabs": {
+          "settings": "සැකසුම්",
+          "lessons_one": "පාඩම් ({{count}})",
+          "lessons_other": "පාඩම් ({{count}})",
+          "lessonsNoCount": "පාඩම්"
+        },
+        "newModule": "නව මොඩියුලය",
+        "lessonsSection": {
+          "title": "පාඩම්",
+          "count_one": "පාඩම් {{count}}",
+          "count_other": "පාඩම් {{count}}"
+        },
+        "quiz": {
+          "title": "ප්‍රශ්නාවලිය",
+          "untitled": "නම් නොකළ ප්‍රශ්නාවලිය",
+          "questions_one": "ප්‍රශ්න {{count}}",
+          "questions_other": "ප්‍රශ්න {{count}}",
+          "passLabel": "සමත් {{score}}%",
+          "editQuiz": "ප්‍රශ්නාවලිය සංස්කරණය කරන්න",
+          "noQuiz": "තවම ප්‍රශ්නාවලියක් නැත",
+          "noQuizHint": "ඉගෙනුම්කරුගේ අවබෝධය ඇගයීමට ප්‍රශ්නාවලියක් එක් කරන්න.",
+          "addQuiz": "ප්‍රශ්නාවලියක් එක් කරන්න"
+        }
+      },
+      "settingsForm": {
+        "sectionTitle": "මොඩියුල තොරතුරු",
+        "fields": {
+          "title": "මොඩියුලයේ මාතෘකාව",
+          "titlePlaceholder": "උදා. CNC යන්ත්‍ර ආරක්ෂක පුහුණුව",
+          "description": "විස්තරය",
+          "descriptionPlaceholder": "මෙම මොඩියුලය ආවරණය කරන දේ කෙටියෙන් විස්තර කරන්න…",
+          "trainingType": "පුහුණු වර්ගය",
+          "trainingTypePlaceholder": "උදා. ෆෝක්ලිෆ්ට් සහතිකය",
+          "chooseFromList": "ලැයිස්තුවෙන් තෝරන්න",
+          "selectTrainingType": "පුහුණු වර්ගය තෝරන්න…",
+          "addNewType": "+ නව වර්ගයක් එක් කරන්න…",
+          "mode": "ක්‍රමය",
+          "selectMode": "ක්‍රමය තෝරන්න…",
+          "passingScore": "සමත් ලකුණ",
+          "status": "තත්ත්වය",
+          "tags": "ටැග්",
+          "tagsPlaceholder": "ආරක්ෂාව, cnc, මට්ටම-1  (කොමා වලින් වෙන් කර)",
+          "tagsHint": "ටැග් කොමා වලින් වෙන් කරන්න"
+        },
+        "statuses": {
+          "draft": "කෙටුම්පත",
+          "active": "සක්‍රිය",
+          "archived": "සංරක්ෂිත"
+        },
+        "errors": {
+          "titleRequired": "මාතෘකාව අවශ්‍යයි",
+          "trainingTypeRequired": "පුහුණු වර්ගය අවශ්‍යයි",
+          "modeRequired": "ක්‍රමය අවශ්‍යයි"
+        },
+        "submit": "මොඩියුලය සුරකින්න"
+      },
+      "myModulesPage": {
+        "title": "මගේ පුහුණුව",
+        "fallbackName": "ඔබ",
+        "greetingPending_one": "ආයුබෝවන්, {{name}}. ඔබට සම්පූර්ණ කිරීමට මොඩියුල {{count}}ක් ඇත.",
+        "greetingPending_other": "ආයුබෝවන්, {{name}}. ඔබට සම්පූර්ණ කිරීමට මොඩියුල {{count}}ක් ඇත.",
+        "greetingCaughtUp": "ආයුබෝවන්, {{name}}. ඔබ සියල්ල සම්පූර්ණ කර ඇත!",
+        "loadError": "ඔබට පවරා ඇති පුහුණු පූරණය කිරීමට නොහැකි විය: {{error}}"
+      },
+      "moduleLearningPage": {
+        "notFound": "මොඩියුලය හමු නොවීය.",
+        "goBack": "ආපසු යන්න"
+      },
+      "quizPage": {
+        "notAvailable": "මෙම මොඩියුලය සඳහා ප්‍රශ්නාවලියක් නැත.",
+        "backToModule": "මොඩියුලයට ආපසු"
+      },
+      "myCertificatesPage": {
+        "title": "මගේ සහතික",
+        "earnedCount_one": "සහතික {{count}}ක් ලබා ඇත",
+        "earnedCount_other": "සහතික {{count}}ක් ලබා ඇත",
+        "programmeCertificateHeading": "වැඩසටහන් සහතිකය",
+        "programCertificatesHeading": "වැඩසටහන් සහතික"
+      },
+      "knowledgeWriteup": {
+        "firstModuleTitle": "පළමු මොඩියුලයේ දැනුම් ලිපිය",
+        "noProgramme": "දැනුම් ලිපියක් ඉදිරිපත් කිරීමට පෙර ඔබට සක්‍රිය පුහුණු වැඩසටහනක් අවශ්‍යයි.",
+        "title": "මොඩියුල දැනුම් ලිපිය",
+        "subtitle": "ඔබේ වැඩසටහනේ මොඩියුලයකින් ලැබූ දැනුම ලියන්න. ඇමුණුම් විකල්පයි.",
+        "moduleLabel": "මොඩියුලය",
+        "selectModulePlaceholder": "මොඩියුලයක් තෝරන්න…",
+        "whatYouLearned": "ඔබ ඉගෙන ගත් දේ",
+        "summaryPlaceholder": "පළමු මොඩියුලය අතරතුර ඔබ ලැබූ දැනුම සාරාංශ කරන්න...",
+        "attachmentsLabel": "ඇමුණුම් (විකල්ප)",
+        "submit": "ලිපිය ඉදිරිපත් කරන්න",
+        "submitting": "ඉදිරිපත් කරමින්…",
+        "pastSubmissions": "පෙර ඉදිරිපත් කිරීම්",
+        "loading": "පූරණය වෙමින්…",
+        "noSubmissions": "තවම ඉදිරිපත් කිරීම් නැත.",
+        "untitledSubmission": "දැනුම් ලිපිය",
+        "submittedOn": "{{date}} ඉදිරිපත් කළා",
+        "reviewStatus": {
+          "pending": "සමාලෝචනය පොරොත්තුවෙන්",
+          "reviewed": "සමාලෝචනය කළා",
+          "needsRevision": "සංශෝධනය අවශ්‍යයි"
+        },
+        "toasts": {
+          "submitted": "දැනුම් ලිපිය ඉදිරිපත් කළා.",
+          "submitFailed": "ලිපිය ඉදිරිපත් කිරීමට නොහැකි විය"
+        }
+      },
+      "certificateCard": {
+        "heading": "පුහුණු සහතිකය",
+        "certificateNo": "සහතික අංකය",
+        "provider": "සපයන්නා",
+        "machine": "යන්ත්‍රය",
+        "externalFallback": "බාහිර",
+        "module": "මොඩියුලය",
+        "issued": "{{date}} නිකුත් කළා",
+        "expiredOn": "{{date}} කල් ඉකුත් විය",
+        "expiresOn": "{{date}} කල් ඉකුත් වේ",
+        "score": "ලකුණ:",
+        "revoked": "අවලංගු කළ",
+        "downloadAria": "සහතිකය A4 PDF ලෙස බාගන්න",
+        "downloadButton": "A4 PDF බාගන්න",
+        "toasts": {
+          "pdfFailed": "සහතික PDF සෑදීමට නොහැකි විය."
+        }
+      },
+      "certificatePreview": {
+        "awardedTo": "ප්‍රදානය කළේ",
+        "providerLine": "සපයන්නා: {{name}}",
+        "machineLine": "යන්ත්‍රය: {{name}}",
+        "issuedLine": "නිකුත් කළේ: {{date}}",
+        "expiresLine": "කල් ඉකුත් වේ: {{date}}",
+        "expiredSuffix": "(කල් ඉකුත් වී ඇත)",
+        "issuedBy": "නිකුත් කළේ: {{name}}",
+        "downloadPdfAria": "සහතික PDF බාගන්න",
+        "downloadPdf": "PDF බාගන්න"
+      },
+      "lessonCompleteOverlay": {
+        "title": "පාඩම සම්පූර්ණයි!",
+        "remaining_one": "තව පාඩම් {{count}}ක් ඉතිරියි",
+        "remaining_other": "තව පාඩම් {{count}}ක් ඉතිරියි",
+        "allComplete": "සියලු පාඩම් සම්පූර්ණයි!",
+        "nextLesson": "ඊළඟ පාඩම",
+        "close": "වසන්න"
+      },
+      "lessonList": {
+        "completeToUnlock": "ප්‍රශ්නාවලිය විවෘත කිරීමට සියලු අනිවාර්ය පාඩම් සම්පූර්ණ කරන්න.",
+        "quizPassed": "ප්‍රශ්නාවලිය සමත්",
+        "quizPassedWithScore": "ප්‍රශ්නාවලිය {{score}}% කින් සමත්"
+      },
+      "lessonListItem": {
+        "pages_one": "පිටු {{count}}",
+        "pages_other": "පිටු {{count}}",
+        "reading": "කියවීම",
+        "slides_one": "ස්ලයිඩ {{count}}",
+        "slides_other": "ස්ලයිඩ {{count}}",
+        "gallery": "ගැලරිය",
+        "ariaLocked": "අගුළු දමා ඇත: ",
+        "ariaCompleted": "සම්පූර්ණයි: ",
+        "ariaCurrent": "වත්මන් පාඩම: "
+      },
+      "lessonViewer": {
+        "closeAria": "පාඩම වසන්න",
+        "documentAria": "ලේඛනය: {{title}}"
+      },
+      "moduleCard": {
+        "due": "නියමිත {{date}}",
+        "days_one": "දින {{count}}",
+        "days_other": "දින {{count}}",
+        "lessonsCompleted": "පාඩම් {{total}} න් {{completed}}",
+        "marks": "ලකුණු: {{score}}%",
+        "openAria": "පුහුණු මොඩියුලය විවෘත කරන්න: {{name}}"
+      },
+      "moduleLearningScreen": {
+        "backAria": "මගේ මොඩියුල වෙත ආපසු",
+        "lessonsCount": "{{total}} න් {{completed}}",
+        "trainingCompleted": "පුහුණුව සම්පූර්ණයි",
+        "saving": "සුරකිමින්…",
+        "markCompleteAcknowledge": "සම්පූර්ණ ලෙස සලකුණු කර පිළිගන්න"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "සියලු පාඩම් සම්පූර්ණයි! දැන් ඔබට ප්‍රශ්නාවලියට මුහුණ දිය හැක.",
+        "passMark": "සමත් ලකුණ: {{score}}%",
+        "attemptsRemaining_one": "තව උත්සාහ {{count}}ක් ඉතිරියි",
+        "attemptsRemaining_other": "තව උත්සාහ {{count}}ක් ඉතිරියි",
+        "noAttemptsRemaining": "උත්සාහ ඉතිරි නැත",
+        "startQuizAria": "ප්‍රශ්නාවලිය ආරම්භ කරන්න",
+        "startQuiz": "ප්‍රශ්නාවලිය ආරම්භ කරන්න"
+      },
+      "documentLesson": {
+        "downloadAria": "ලේඛනය බාගන්න",
+        "download": "බාගන්න",
+        "documentAria": "ලේඛනය: {{title}}",
+        "markedRead": "ඔබ මෙය කියවූ ලෙස සලකුණු කර ඇත",
+        "markAsReadAria": "ලේඛනය කියවූ ලෙස සලකුණු කරන්න",
+        "markAsRead": "කියවූ ලෙස සලකුණු කරන්න"
+      },
+      "imageGalleryLesson": {
+        "noImages": "මෙම පාඩමට රූප එක් කර නැත.",
+        "completed": "සම්පූර්ණයි",
+        "markComplete": "සම්පූර්ණ ලෙස සලකුණු කරන්න",
+        "previousImage": "පෙර රූපය",
+        "nextImage": "ඊළඟ රූපය",
+        "counter": "{{total}} න් {{current}}",
+        "goToImage": "රූපය {{index}} වෙත යන්න",
+        "viewAllHint": "මෙම පාඩම සම්පූර්ණ කිරීමට සියලු රූප බලන්න"
+      },
+      "textLesson": {
+        "noContent": "මෙම පාඩම සඳහා අන්තර්ගතයක් නැත.",
+        "markedRead": "ඔබ මෙය කියවූ ලෙස සලකුණු කර ඇත",
+        "markAsReadAria": "පාඩම කියවූ ලෙස සලකුණු කරන්න",
+        "markAsRead": "කියවූ ලෙස සලකුණු කරන්න",
+        "scrollToComplete": "සම්පූර්ණ කිරීමට පහළට අනුචලනය කරන්න"
+      },
+      "videoLesson": {
+        "buffering": "බෆර් වෙමින්",
+        "seekBack": "-10ත",
+        "seekForward": "+10ත",
+        "pauseVideo": "වීඩියෝව විරාම කරන්න",
+        "playVideo": "වීඩියෝව ධාවනය කරන්න",
+        "seekAria": "වීඩියෝවේ ස්ථානය වෙනස් කරන්න",
+        "pause": "විරාමය",
+        "play": "ධාවනය",
+        "disableSubtitles": "උපසිරැසි අක්‍රිය කරන්න",
+        "enableSubtitles": "උපසිරැසි සක්‍රිය කරන්න",
+        "ccLabel": "CC",
+        "unmute": "ශබ්දය සක්‍රිය කරන්න",
+        "mute": "නිහඬ කරන්න",
+        "playbackSpeed": "ධාවන වේගය",
+        "exitFullscreen": "පූර්ණ තිරයෙන් ඉවත් වන්න",
+        "enterFullscreen": "පූර්ණ තිරය",
+        "lessonComplete": "පාඩම සම්පූර්ණයි",
+        "markCompleteAria": "වීඩියෝ පාඩම සම්පූර්ණ ලෙස සලකුණු කරන්න",
+        "markAsComplete": "සම්පූර්ණ ලෙස සලකුණු කරන්න",
+        "watchToComplete": "සම්පූර්ණ කිරීමට {{pct}}% නරඹන්න"
+      },
+      "quiz": {
+        "answerReview": {
+          "title": "පිළිතුරු සමාලෝචනය",
+          "questionLabel": "ප්‍ර{{number}}",
+          "correct": "නිවැරදියි",
+          "incorrect": "වැරදියි",
+          "points": "+{{earned}}/{{total}} ලකුණු",
+          "yourAnswer": "ඔබේ පිළිතුර:",
+          "noAnswerSelected": "පිළිතුරක් තෝරා නැත",
+          "correctAnswer": "නිවැරදි පිළිතුර:"
+        },
+        "preScreen": {
+          "questionsCount_one": "ප්‍රශ්න {{count}}",
+          "questionsCount_other": "ප්‍රශ්න {{count}}",
+          "minutes_one": "මිනිත්තු {{count}}",
+          "minutes_other": "මිනිත්තු {{count}}",
+          "noTimeLimit": "කාල සීමාවක් නැත",
+          "passMark": "සමත් ලකුණ: {{score}}%",
+          "unlimitedAttempts": "අසීමිත උත්සාහ",
+          "noAttemptsRemaining": "උත්සාහ ඉතිරි නැත",
+          "attemptsRemaining_one": "තව උත්සාහ {{count}}ක් ඉතිරියි",
+          "attemptsRemaining_other": "තව උත්සාහ {{count}}ක් ඉතිරියි",
+          "instructionsHeading": "උපදෙස්",
+          "startQuizAria": "ප්‍රශ්නාවලිය ආරම්භ කරන්න",
+          "startQuiz": "ප්‍රශ්නාවලිය ආරම්භ කරන්න",
+          "noAttemptsRemainingCta": "උත්සාහ ඉතිරි නැත"
+        },
+        "progressBar": {
+          "questionOf": "ප්‍ර {{total}} න් {{current}}",
+          "answeredCount": "{{answered}}/{{total}}"
+        },
+        "question": {
+          "questionNumber": "ප්‍රශ්නය {{number}}",
+          "illustrationAlt": "ප්‍රශ්න නිදර්ශනය",
+          "illustrationAltShort": "ප්‍රශ්නය",
+          "explanationLabel": "පැහැදිලි කිරීම:",
+          "invalidTrueFalse": "අවලංගු සත්‍ය/අසත්‍ය ප්‍රශ්නයකි."
+        },
+        "results": {
+          "passedMessage": "✓ සුබ පැතුම්! ඔබ සමත් වුණා.",
+          "failedMessage": "✗ ඔබ සමත් වූයේ නැත. අවශ්‍ය ලකුණ: {{score}}%.",
+          "correct": "නිවැරදි",
+          "score": "ලකුණ",
+          "time": "කාලය",
+          "supervisorSignOff": "ඔබේ අධීක්ෂක ඔබේ ප්‍රායෝගික කුසලතා නිරීක්ෂණය කර අනුමත කරනු ඇත.",
+          "continue": "ඉදිරියට",
+          "retryAvailableIn": "නැවත උත්සාහ කළ හැකි වන්නේ",
+          "retryQuiz": "ප්‍රශ්නාවලිය නැවත උත්සාහ කරන්න",
+          "noAttemptsLeft": "ඔබ සියලු ප්‍රශ්නාවලි උත්සාහ භාවිත කර ඇත. ඔබේ අධීක්ෂක අමතන්න.",
+          "backToModule": "මොඩියුලයට ආපසු"
+        },
+        "review": {
+          "title": "ඔබේ පිළිතුරු සමාලෝචනය කරන්න",
+          "answeredCount": "ප්‍රශ්න {{total}} න් {{answered}}කට පිළිතුරු දී ඇත",
+          "unansweredWarning_one": "ප්‍රශ්න {{count}}කට පිළිතුරු දී නැත.",
+          "unansweredWarning_other": "ප්‍රශ්න {{count}}කට පිළිතුරු දී නැත.",
+          "answered": "පිළිතුරු දුන්",
+          "skipped": "මඟ හැරුණු",
+          "back": "ආපසු",
+          "submitQuiz": "ප්‍රශ්නාවලිය ඉදිරිපත් කරන්න",
+          "confirmTitle": "ප්‍රශ්නාවලිය ඉදිරිපත් කරන්නද?",
+          "confirmBody": "ඉදිරිපත් කළ පසු ඔබට පිළිතුරු වෙනස් කළ නොහැක.",
+          "cancel": "අවලංගු කරන්න",
+          "submitting": "ඉදිරිපත් කරමින්…",
+          "submit": "ඉදිරිපත් කරන්න"
+        },
+        "runner": {
+          "reviewAndSubmit": "සමාලෝචනය කර ඉදිරිපත් කරන්න",
+          "previousAria": "පෙර ප්‍රශ්නය",
+          "previous": "පෙර",
+          "nextAria": "ඊළඟ ප්‍රශ්නය",
+          "next": "ඊළඟ"
+        }
+      },
+      "moduleTypeBadge": {
+        "offboardAria": "කම්හලෙන් පිටත / බාහිර පුහුණුව",
+        "offboardLabel": "පිටත / බාහිර",
+        "machineAria": "යන්ත්‍රය: {{name}}"
+      },
+      "quizScoreBadge": {
+        "aria": "ප්‍රශ්නාවලි ලකුණ: {{score}}% — {{status}}",
+        "passed": "සමත්",
+        "failed": "අසමත්"
+      },
+      "retrainingBadge": {
+        "aria": "නැවත පුහුණුව අවශ්‍යයි",
+        "label": "නැවත පුහුණුව අවශ්‍යයි"
+      },
+      "progressBar": {
+        "aria": "ප්‍රගතිය: {{percent}}%"
+      },
+      "manager": {
+        "dashboard": {
+          "title": "පුහුණු උපකරණ පුවරුව",
+          "inviteTrainee": "අභ්‍යාසලාභියෙකුට ආරාධනා කරන්න",
+          "close": "වසන්න",
+          "cancel": "අවලංගු කරන්න",
+          "sending": "යවමින්…",
+          "sendInvitation": "ආරාධනාව යවන්න",
+          "errors": {
+            "fullNameRequired": "සම්පූර්ණ නම අවශ්‍යයි.",
+            "emailRequired": "ආරාධනාව යැවීමට ඊමේල් ලිපිනය අවශ්‍යයි.",
+            "inviteFailed": "අභ්‍යාසලාභියාට ආරාධනා කිරීමට නොහැකි විය."
+          },
+          "form": {
+            "fullNamePlaceholder": "සම්පූර්ණ නම *",
+            "emailPlaceholder": "ඊමේල් *",
+            "phonePlaceholder": "දුරකථනය",
+            "departmentPlaceholder": "දෙපාර්තමේන්තුව",
+            "employeeIdPlaceholder": "සේවක අංකය"
+          },
+          "alerts": {
+            "overdue_one": "පැවරුම් {{count}}ක් කල් ඉකුත් වී ඇත. සමාලෝචනය කර අභ්‍යාසලාභීන් සමඟ පසු විපරම් කරන්න.",
+            "overdue_other": "පැවරුම් {{count}}ක් කල් ඉකුත් වී ඇත. සමාලෝචනය කර අභ්‍යාසලාභීන් සමඟ පසු විපරම් කරන්න.",
+            "retrainingRequired_one": "අභ්‍යාසලාභීන් {{count}} දෙනෙකුට නැවත පුහුණුව අවශ්‍යයි.",
+            "retrainingRequired_other": "අභ්‍යාසලාභීන් {{count}} දෙනෙකුට නැවත පුහුණුව අවශ්‍යයි."
+          },
+          "stats": {
+            "totalTrainees": "මුළු අභ්‍යාසලාභීන්",
+            "activeAssignments": "සක්‍රිය පැවරුම්",
+            "certsThisMonth": "මෙම මාසයේ සහතික",
+            "overdue": "කල් ඉකුත්",
+            "retrainingRequired": "නැවත පුහුණුව අවශ්‍යයි",
+            "modulesCreated": "සෑදූ මොඩියුල",
+            "offboardThisQuarter": "මෙම කාර්තුවේ බාහිර පුහුණු",
+            "pendingKnowledgeReports": "පොරොත්තු දැනුම් වාර්තා"
+          },
+          "quickActions": {
+            "title": "ඉක්මන් ක්‍රියා",
+            "createModule": "මොඩියුලයක් සාදන්න",
+            "viewCompliance": "අනුකූලතාව බලන්න"
+          },
+          "recentActivity": "මෑත ක්‍රියාකාරකම්"
+        },
+        "moduleLibrary": {
+          "title": "පුහුණුව",
+          "createModule": "පුහුණු මොඩියුලයක් සාදන්න",
+          "tabs": {
+            "modules": "මොඩියුල",
+            "assigned": "පවරා ඇති"
+          }
+        },
+        "createModule": {
+          "untitledModule": "නම් නොකළ මොඩියුලය",
+          "savedToast": "මොඩියුලය සුරැකුවා. දැන් ඔබට ප්‍රශ්නාවලියක් එක් කිරීමට හෝ එය පැවරීමට හැක.",
+          "saveFailedToast": "මොඩියුලය සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.",
+          "back": "ආපසු",
+          "title": "පුහුණු මොඩියුලයක් සාදන්න"
+        },
+        "editModule": {
+          "updatedToast": "මොඩියුලය යාවත්කාලීන කළා.",
+          "saveFailedToast": "මොඩියුලය සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.",
+          "notFound": "මොඩියුලය හමු නොවීය.",
+          "back": "ආපසු",
+          "wrongLibrary": {
+            "title": "මෙම පුස්තකාලයේ හමු නොවීය.",
+            "description": "මෙම මොඩියුලය අභ්‍යාසලාභී කළමනාකරණ පුස්තකාලයට අයත්ය. එය අභ්‍යාසලාභී කළමනාකරණයෙන් විවෘත කරන්න."
+          },
+          "assign": "පවරන්න",
+          "quizBuilder": "ප්‍රශ්නාවලි සාදන්නා"
+        },
+        "quizBuilder": {
+          "notFound": "මොඩියුලය හමු නොවීය.",
+          "back": "ආපසු",
+          "backToEditor": "මොඩියුල සංස්කාරකයට ආපසු",
+          "titleWithModule": "ප්‍රශ්නාවලි සාදන්නා — {{moduleTitle}}",
+          "defaultQuizTitle": "{{moduleTitle}} ප්‍රශ්නාවලිය",
+          "layout": {
+            "header": "ප්‍රශ්නාවලි සාදන්නා",
+            "saveQuiz": "ප්‍රශ්නාවලිය සුරකින්න",
+            "questionsTab": "ප්‍රශ්න",
+            "questionsTabWithCount": "ප්‍රශ්න ({{count}})",
+            "editorTab": "සංස්කාරකය",
+            "selectQuestionPrompt": "සංස්කරණය කිරීමට ප්‍රශ්නයක් තෝරන්න",
+            "orAddNew": "නැතහොත් නව ප්‍රශ්නයක් එක් කරන්න."
+          },
+          "settingsBar": {
+            "quizTitle": "ප්‍රශ්නාවලි මාතෘකාව",
+            "quizTitlePlaceholder": "උදා. ආරක්ෂක ඇගයීම",
+            "passScore": "සමත් ලකුණ",
+            "timeLimit": "කාල සීමාව",
+            "minutesAbbrev": "මිනි.",
+            "maxAttempts": "උපරිම උත්සාහ",
+            "saveSettings": "සැකසුම් සුරකින්න"
+          }
+        },
+        "contentLibrary": {
+          "deleteConfirm": "මෙම අයිතමය පුස්තකාලයෙන් මකන්නද? මෙය අහෝසි කළ නොහැක.",
+          "back": "ආපසු",
+          "title": "අන්තර්ගත පුස්තකාලය",
+          "hideUpload": "උඩුගත කිරීම සඟවන්න",
+          "uploadButton": "+ උඩුගත කරන්න",
+          "searchPlaceholder": "ගොනු සොයන්න...",
+          "noneFound": "ගොනු හමු නොවීය.",
+          "select": "තෝරන්න",
+          "cannotDeleteInUse": "මැකිය නොහැක — මොඩියුලවල භාවිත වේ",
+          "deleteAction": "මකන්න",
+          "usedInModules_one": "මොඩියුල {{count}}ක භාවිත වේ",
+          "usedInModules_other": "මොඩියුල {{count}}ක භාවිත වේ",
+          "types": {
+            "video": "වීඩියෝ",
+            "document": "ලේඛනය",
+            "image": "රූපය"
+          },
+          "filters": {
+            "all": "සියල්ල"
+          },
+          "deleteModal": {
+            "title": "ගොනුව මකන්නද?",
+            "description": "මෙම ගොනුව ස්ථිරවම මැකෙන අතර නැවත ලබාගත නොහැක.",
+            "cancel": "අවලංගු කරන්න",
+            "confirmButton": "මකන්න"
+          },
+          "upload": {
+            "saveFailed": "සුරැකීම අසාර්ථකයි",
+            "dropHint": "ගොනු මෙහි දමන්න හෝ <u>පිරික්සන්න</u>",
+            "acceptedFormats": "MP4, MOV, AVI, PDF, DOCX, JPG, PNG, WEBP",
+            "uploadFailed": "උඩුගත කිරීම අසාර්ථකයි"
+          }
+        },
+        "certificatesManager": {
+          "back": "ආපසු",
+          "title": "සහතික",
+          "searchPlaceholder": "අභ්‍යාසලාභියා හෝ සහතික අංකය සොයන්න...",
+          "showRevoked": "අවලංගු කළ ඒවා පෙන්වන්න",
+          "noneFound": "සහතික හමු නොවීය.",
+          "pdf": "PDF",
+          "revoke": "අවලංගු කරන්න",
+          "filters": {
+            "all": "සියලු සහතික",
+            "valid": "වලංගු ඒවා පමණි",
+            "expired": "කල් ඉකුත්",
+            "expiringSoon": "ඉක්මනින් කල් ඉකුත් වන"
+          },
+          "columns": {
+            "certNumber": "සහතික අංකය",
+            "trainee": "අභ්‍යාසලාභියා",
+            "machine": "යන්ත්‍රය",
+            "module": "මොඩියුලය",
+            "issued": "නිකුත් කළ දිනය",
+            "expiry": "කල් ඉකුත් වීම",
+            "score": "ලකුණ",
+            "status": "තත්ත්වය",
+            "actions": "ක්‍රියා"
+          },
+          "status": {
+            "valid": "වලංගුයි",
+            "revoked": "අවලංගු කළ",
+            "expired": "කල් ඉකුත්",
+            "expiringSoon": "ඉක්මනින් කල් ඉකුත් වේ"
+          },
+          "revokeModal": {
+            "title": "සහතිකය අවලංගු කරන්න",
+            "description": "මෙය සහතිකය ස්ථිරවම අවලංගු කරයි. නැවත සහතිකය ලබා ගැනීමට අභ්‍යාසලාභියාට නැවත පැවරිය යුතුය.",
+            "reasonLabel": "හේතුව",
+            "reasonPlaceholder": "මෙම සහතිකය අවලංගු කරන්නේ ඇයිදැයි පැහැදිලි කරන්න...",
+            "reasonRequired": "අවලංගු කිරීමට හේතුවක් සපයන්න.",
+            "revocationFailed": "අවලංගු කිරීම අසාර්ථකයි",
+            "cancel": "අවලංගු කරන්න",
+            "confirmButton": "සහතිකය අවලංගු කරන්න"
+          }
+        },
+        "complianceReport": {
+          "back": "ආපසු",
+          "title": "අනුකූලතා වාර්තාව",
+          "loadFailed": "අනුකූලතා දත්ත පූරණය අසාර්ථකයි: {{error}}",
+          "export": "අපනයනය",
+          "noData": "අනුකූලතා දත්ත නොමැත.",
+          "matrixTitle": "අනුකූලතා න්‍යාසය",
+          "stats": {
+            "totalOperators": "මුළු ක්‍රියාකරුවන්",
+            "certified": "සහතික ලත්",
+            "notCertified": "සහතික නොලත්",
+            "expiringSoon": "ඉක්මනින් කල් ඉකුත් වන",
+            "overdue": "කල් ඉකුත්",
+            "retrainingPending": "නැවත පුහුණුව පොරොත්තුවෙන්"
+          },
+          "columns": {
+            "trainee": "අභ්‍යාසලාභියා",
+            "department": "දෙපාර්තමේන්තුව"
+          },
+          "legend": {
+            "certified": "සහතික ලත්",
+            "inProgress": "ක්‍රියාත්මක වෙමින්",
+            "other": "වෙනත්",
+            "expired": "කල් ඉකුත්",
+            "notAssigned": "පවරා නැත"
+          }
+        },
+        "assignWizard": {
+          "pageBack": "ආපසු",
+          "pageTitle": "පුහුණුව පවරන්න",
+          "optional": "(විකල්ප)",
+          "createFailed": "පැවරුම් සෑදීම අසාර්ථකයි",
+          "steps": {
+            "selectTrainees": "අභ්‍යාසලාභීන් තෝරන්න",
+            "selectModules": "මොඩියුල තෝරන්න",
+            "settings": "සැකසුම්",
+            "reviewConfirm": "සමාලෝචනය සහ තහවුරු කිරීම"
+          },
+          "notifications": {
+            "assignedMessage": "ඔබට නව පුහුණු මොඩියුලයක් පවරා ඇත: {{moduleTitle}}",
+            "oversightMessage": "\"{{moduleTitle}}\" {{traineeName}} වෙත පැවරුවා"
+          },
+          "done": {
+            "title": "පැවරුම් සාදන ලදී",
+            "createdCount_one": "පැවරුම් {{count}}ක් සාර්ථකව සාදන ලදී.",
+            "createdCount_other": "පැවරුම් {{count}}ක් සාර්ථකව සාදන ලදී.",
+            "skippedCount_one": "අනුපිටපත් {{count}}ක් මඟ හැරිණි.",
+            "skippedCount_other": "අනුපිටපත් {{count}}ක් මඟ හැරිණි.",
+            "doneButton": "අවසන්"
+          },
+          "selectTrainees": {
+            "searchPlaceholder": "අභ්‍යාසලාභීන් සොයන්න...",
+            "allDepartments": "සියලු දෙපාර්තමේන්තු",
+            "departmentHint": "<strong>{{department}}</strong> හි අභ්‍යාසලාභීන් පෙන්වයි. මුළු දෙපාර්තමේන්තුවටම පැවරීමට පහත \"සියල්ල තෝරන්න\" භාවිත කරන්න, නැතහොත් එක් පරිශීලකයෙකුට පැවරීමට තනි අභ්‍යාසලාභීන් සලකුණු කරන්න.",
+            "selectAll": "සියල්ල තෝරන්න ({{count}})",
+            "noneFound": "අභ්‍යාසලාභීන් හමු නොවීය.",
+            "noDepartment": "දෙපාර්තමේන්තුවක් නැත",
+            "selectedCount_one": "අභ්‍යාසලාභීන් {{count}} දෙනෙකු තෝරා ඇත",
+            "selectedCount_other": "අභ්‍යාසලාභීන් {{count}} දෙනෙකු තෝරා ඇත",
+            "details": {
+              "name": "නම",
+              "employeeId": "සේවක අංකය",
+              "role": "භූමිකාව",
+              "department": "දෙපාර්තමේන්තුව"
+            }
+          },
+          "selectModules": {
+            "filterByCategory": "කාණ්ඩය අනුව පෙරන්න",
+            "allCategories": "සියලු කාණ්ඩ",
+            "noneFound": "සක්‍රිය මොඩියුල හමු නොවීය.",
+            "noneFoundForCategory": "මෙම කාණ්ඩය සඳහා සක්‍රිය මොඩියුල හමු නොවීය.",
+            "offboard": "බාහිර",
+            "externalProvider": "බාහිර සැපයුම්කරු",
+            "durationDays_one": "දින {{count}}",
+            "durationDays_other": "දින {{count}}",
+            "lessonsCount_one": "පාඩම් {{count}}",
+            "lessonsCount_other": "පාඩම් {{count}}",
+            "estimatedMinutes_one": "මිනි. {{count}}",
+            "estimatedMinutes_other": "මිනි. {{count}}",
+            "selectedCount_one": "මොඩියුල {{count}}ක් තෝරා ඇත",
+            "selectedCount_other": "මොඩියුල {{count}}ක් තෝරා ඇත"
+          },
+          "settings": {
+            "dueDate": "නියමිත දිනය",
+            "notifyTrainee": "අභ්‍යාසලාභියාට දැනුම් දෙන්න",
+            "notifyTraineeHint": "පැවරුම සෑදූ විට දැනුම්දීමක් යවන්න",
+            "dueTime": "නියමිත වේලාව",
+            "dueTimeHint": "වේලාවක් තෝරා නැත්නම්, පුහුණුව නියමිත දිනයේ 23:59 ට නියමිතයි."
+          },
+          "review": {
+            "summary": "<strong>අභ්‍යාසලාභීන් {{traineeCount}}</strong> වෙත <strong>මොඩියුල {{moduleCount}}</strong> පවරයි (මුළු පැවරුම් {{totalCount}})",
+            "traineeColumn": "අභ්‍යාසලාභියා",
+            "moduleColumn": "මොඩියුලය"
+          },
+          "nav": {
+            "cancel": "අවලංගු කරන්න",
+            "back": "ආපසු",
+            "next": "ඊළඟ",
+            "confirmAssign": "පැවරීම තහවුරු කරන්න"
+          }
+        },
+        "lessonEditors": {
+          "titleRequired": "පාඩමේ මාතෘකාව අවශ්‍යයි.",
+          "editTitle": "පාඩම සංස්කරණය",
+          "newTitle": "නව පාඩම",
+          "lessonTitle": "පාඩමේ මාතෘකාව",
+          "lessonTitlePlaceholder": "උදා. යන්ත්‍ර ආරක්ෂාව පිළිබඳ දළ විශ්ලේෂණය",
+          "lessonType": "පාඩම් වර්ගය",
+          "description": "විස්තරය",
+          "descriptionPlaceholder": "මෙම පාඩමේ කෙටි විස්තරය…",
+          "requiredToComplete": "සම්පූර්ණ කිරීමට අවශ්‍යයි",
+          "content": "අන්තර්ගතය",
+          "saveLesson": "පාඩම සුරකින්න",
+          "cancel": "අවලංගු කරන්න",
+          "types": {
+            "video": "වීඩියෝ",
+            "document": "ලේඛනය",
+            "gallery": "ගැලරිය",
+            "text": "පෙළ"
+          },
+          "list": {
+            "dragToReorder": "නැවත පෙළගැස්වීමට අදින්න",
+            "untitledLesson": "නම් නොකළ පාඩම",
+            "required": "අවශ්‍යයි",
+            "editLesson": "පාඩම සංස්කරණය",
+            "deleteLesson": "පාඩම මකන්න",
+            "noneYet": "තවම පාඩම් නැත.",
+            "addFirst": "ඔබේ පළමු පාඩම එක් කරන්න.",
+            "addLesson": "පාඩමක් එක් කරන්න"
+          },
+          "documentEditor": {
+            "companyNotFound": "සමාගම හමු නොවීය.",
+            "exceedsLimit": "ගොනුව 100 MB සීමාව ඉක්මවයි.",
+            "uploadFailed": "උඩුගත කිරීම අසාර්ථකයි: {{message}}",
+            "currentUploaded": "වත්මන් ලේඛනය උඩුගත කර ඇත",
+            "replace": "ප්‍රතිස්ථාපනය",
+            "dropHint": "ලේඛනයක් මෙහි දමන්න හෝ පිරික්සීමට ක්ලික් කරන්න",
+            "acceptedFormats": "PDF, DOCX · උපරිම 100 MB",
+            "uploading": "උඩුගත කරමින්…",
+            "uploadedName": "ලේඛනය උඩුගත කළා: {{name}}"
+          },
+          "videoEditor": {
+            "companyNotFound": "සමාගම හමු නොවීය.",
+            "exceedsLimit": "ගොනුව 500 MB සීමාව ඉක්මවයි.",
+            "uploadFailed": "උඩුගත කිරීම අසාර්ථකයි: {{message}}",
+            "currentUploaded": "වත්මන් වීඩියෝව උඩුගත කර ඇත",
+            "replace": "ප්‍රතිස්ථාපනය",
+            "dropHint": "වීඩියෝවක් මෙහි දමන්න හෝ පිරික්සීමට ක්ලික් කරන්න",
+            "acceptedFormats": "MP4, MOV, AVI · උපරිම 500 MB",
+            "uploading": "උඩුගත කරමින්…",
+            "uploadedName": "වීඩියෝව උඩුගත කළා: {{name}}"
+          },
+          "galleryEditor": {
+            "fileExceedsLimit": "\"{{name}}\" 50 MB සීමාව ඉක්මවයි.",
+            "companyNotFound": "සමාගම හමු නොවීය.",
+            "maxImagesAllowed": "උපරිම රූප {{count}}කට ඉඩ ඇත.",
+            "addImages": "රූප එක් කරන්න",
+            "imagesCount": "රූප {{count}}/{{max}}",
+            "maxImagesReached": "උපරිම රූප {{count}} සීමාවට ළඟා විය.",
+            "clickToAdd": "රූප එක් කිරීමට ක්ලික් කරන්න",
+            "formatHint": "JPG, PNG, WEBP · එකක් උපරිම 50 MB · රූප {{count}} දක්වා",
+            "imageAltFallback": "රූපය {{number}}",
+            "removeImage": "රූපය ඉවත් කරන්න",
+            "captionPlaceholder": "සිරස්තලයක් එක් කරන්න…"
+          },
+          "textEditor": {
+            "toolbar": {
+              "bold": "තද",
+              "italic": "ඇල",
+              "heading2": "ශීර්ෂය 2",
+              "heading3": "ශීර්ෂය 3",
+              "bulletList": "බුලට් ලැයිස්තුව",
+              "numberedList": "අංකිත ලැයිස්තුව"
+            },
+            "editMode": "සංස්කරණය",
+            "previewMode": "පෙරදසුන",
+            "contentPlaceholder": "පාඩමේ අන්තර්ගතය මෙහි ලියන්න… පෙළ හැඩගැන්වීමට මෙවලම් තීරුව භාවිත කරන්න, නැතහොත් HTML සෘජුවම ලියන්න."
+          }
+        },
+        "questionEditors": {
+          "editTitle": "ප්‍රශ්නය සංස්කරණය",
+          "newTitle": "නව ප්‍රශ්නය",
+          "questionText": "ප්‍රශ්න පෙළ",
+          "questionTextPlaceholder": "ප්‍රශ්නය ඇතුළත් කරන්න…",
+          "questionType": "ප්‍රශ්න වර්ගය",
+          "imageUrl": "රූප URL",
+          "points": "ලකුණු",
+          "explanation": "පැහැදිලි කිරීම",
+          "explanationHint": "(ඉදිරිපත් කිරීමෙන් පසු පෙන්වයි)",
+          "explanationPlaceholder": "නිවැරදි පිළිතුර පැහැදිලි කරන්න…",
+          "saveQuestion": "ප්‍රශ්නය සුරකින්න",
+          "cancel": "අවලංගු කරන්න",
+          "textRequired": "ප්‍රශ්න පෙළ අවශ්‍යයි.",
+          "correctAnswerRequired": "අවම වශයෙන් එක් නිවැරදි පිළිතුරක් අවශ්‍යයි.",
+          "types": {
+            "singleChoice": {
+              "label": "තනි තේරීම",
+              "description": "එක් නිවැරදි පිළිතුරක්"
+            },
+            "multipleChoice": {
+              "label": "බහු තේරීම",
+              "description": "නිවැරදි පිළිතුරු කිහිපයක්"
+            },
+            "trueFalse": {
+              "label": "සත්‍ය / අසත්‍ය",
+              "description": "සත්‍ය හෝ අසත්‍ය"
+            }
+          },
+          "options": {
+            "answerOptions": "පිළිතුරු විකල්ප",
+            "true": "සත්‍ය",
+            "false": "අසත්‍ය",
+            "correct": "නිවැරදියි",
+            "explanationForPlaceholder": "{{label}} සඳහා පැහැදිලි කිරීම…",
+            "selectCorrectRequired": "නිවැරදි පිළිතුර තෝරන්න.",
+            "optionsCount": "විකල්ප {{count}}/{{max}}",
+            "markCorrect": "නිවැරදි පිළිතුර ලෙස සලකුණු කරන්න",
+            "optionPlaceholder": "විකල්පය {{number}}",
+            "removeOption": "විකල්පය ඉවත් කරන්න",
+            "explanationPlaceholder": "පැහැදිලි කිරීම (පිළිතුරෙන් පසු පෙන්වයි)…",
+            "markCorrectRequired": "අවම වශයෙන් එක් නිවැරදි පිළිතුරක් සලකුණු කරන්න.",
+            "addOption": "විකල්පයක් එක් කරන්න"
+          },
+          "list": {
+            "dragToReorder": "නැවත පෙළගැස්වීමට අදින්න",
+            "untitledQuestion": "නම් නොකළ ප්‍රශ්නය",
+            "deleteQuestion": "ප්‍රශ්නය මකන්න",
+            "pointsAbbrev_one": "ලකුණු {{count}}",
+            "pointsAbbrev_other": "ලකුණු {{count}}",
+            "questionCount_one": "ප්‍රශ්න {{count}}",
+            "questionCount_other": "ප්‍රශ්න {{count}}",
+            "pointsTotal": "මුළු ලකුණු {{count}}",
+            "noneYet": "තවම ප්‍රශ්න නැත.",
+            "addFirst": "ඔබේ පළමු ප්‍රශ්නය එක් කරන්න.",
+            "addQuestion": "ප්‍රශ්නයක් එක් කරන්න",
+            "typeAbbrev": {
+              "single_choice": "තනි",
+              "multiple_choice": "බහු",
+              "true_false": "ස/අ"
+            }
+          }
+        },
+        "trainingAssignedTab": {
+          "managerFallbackName": "කළමනාකරු",
+          "noneOpen": "කිසිවෙකුට විවෘත පුහුණු පැවරුමක් නැත.",
+          "modulesAssigned_one": "මොඩියුල {{count}}ක් පවරා ඇත",
+          "modulesAssigned_other": "මොඩියුල {{count}}ක් පවරා ඇත",
+          "signOffAndClose": "අනුමත කර වසන්න",
+          "columns": {
+            "module": "මොඩියුලය",
+            "type": "වර්ගය",
+            "mode": "ක්‍රමය",
+            "category": "කාණ්ඩය",
+            "progress": "ප්‍රගතිය",
+            "assigned": "පැවරූ දිනය",
+            "dueDate": "නියමිත දිනය",
+            "status": "තත්ත්වය",
+            "action": "ක්‍රියාව"
+          },
+          "categories": {
+            "machine": "යන්ත්‍රය",
+            "offboard": "බාහිර"
+          },
+          "signOffModal": {
+            "note": "සටහන",
+            "notePlaceholder": "නිරීක්ෂණ / අනුමත කිරීමේ සටහන...",
+            "cancel": "අවලංගු කරන්න",
+            "signingOff": "අනුමත කරමින්…",
+            "confirmButton": "අනුමැතිය තහවුරු කරන්න"
+          }
+        },
+        "assignmentsProgress": {
+          "title": "පුහුණු ප්‍රගතිය",
+          "noneAssigned": "තවම මොඩියුල පවරා නැත.",
+          "stats": {
+            "assignments": "පැවරුම්",
+            "inProgress": "ක්‍රියාත්මක වෙමින්",
+            "completed": "සම්පූර්ණයි"
+          },
+          "columns": {
+            "module": "මොඩියුලය",
+            "assignedTo": "පැවරුවේ",
+            "assignedBy": "පැවරූ අය",
+            "assigned": "පැවරූ දිනය",
+            "completed": "සම්පූර්ණ කළ දිනය",
+            "progress": "ප්‍රගතිය",
+            "marks": "ලකුණු",
+            "status": "තත්ත්වය"
+          }
+        },
+        "signOffPanel": {
+          "close": "වසන්න",
+          "assignedBySuffix": " · {{name}} විසින් පවරන ලදී",
+          "signedOffToast": "පුහුණුව අනුමත කළා.",
+          "failedToast": "පුහුණුව අසමත් ලෙස සලකුණු කළා.",
+          "signOffFailedToast": "අනුමත කිරීම අසාර්ථකයි.",
+          "notifications": {
+            "aManager": "කළමනාකරුවෙක්",
+            "passedMessage": "{{signerName}} ඔබේ පුහුණුව අනුමත කළා: {{moduleName}}",
+            "failedMessage": "ඔබේ පුහුණුව {{moduleName}} ප්‍රායෝගික ඇගයීමෙන් සමත් වූයේ නැත",
+            "passedOversight": "{{traineeName}} සඳහා \"{{moduleName}}\" අනුමත කළා",
+            "failedOversight": "\"{{moduleName}}\" ප්‍රායෝගිකයෙන් {{traineeName}} අසමත් කළා"
+          }
+        },
+        "library": {
+          "defaultTitle": "මොඩියුල පුස්තකාලය",
+          "deleteConfirm": "මෙම මොඩියුලය ස්ථිරවම මකන්නද? මෙය අහෝසි කළ නොහැක.",
+          "loadingSamples": "පූරණය වෙමින්…",
+          "loadSampleModules": "නියැදි මොඩියුල පූරණය කරන්න",
+          "createModule": "පුහුණු මොඩියුලයක් සාදන්න",
+          "searchPlaceholder": "මාතෘකාව අනුව මොඩියුල සොයන්න...",
+          "allModes": "සියලු ක්‍රම",
+          "allTrainingTypes": "සියලු පුහුණු වර්ග",
+          "allCategories": "සියලු කාණ්ඩ",
+          "externalProvider": "බාහිර සැපයුම්කරු",
+          "yes": "ඔව්",
+          "no": "නැත",
+          "completedCount_one": "{{count}}ක් සම්පූර්ණයි",
+          "completedCount_other": "{{count}}ක් සම්පූර්ණයි",
+          "assign": "පවරන්න",
+          "edit": "සංස්කරණය",
+          "delete": "මකන්න",
+          "lessonsCount_one": "පාඩම් {{count}}",
+          "lessonsCount_other": "පාඩම් {{count}}",
+          "hasQuiz": "ප්‍රශ්නාවලියක් ඇත",
+          "assignedCount_one": "{{count}}ක් පවරා ඇත",
+          "assignedCount_other": "{{count}}ක් පවරා ඇත",
+          "noneFound": "මොඩියුල හමු නොවීය.",
+          "categories": {
+            "machine": "යන්ත්‍රය",
+            "offboard": "බාහිර"
+          },
+          "moduleStatus": {
+            "draft": "කෙටුම්පත",
+            "active": "සක්‍රිය",
+            "archived": "සංරක්ෂිත"
+          },
+          "columns": {
+            "title": "මාතෘකාව",
+            "trainingType": "පුහුණු වර්ගය",
+            "mode": "ක්‍රමය",
+            "category": "කාණ්ඩය",
+            "lessons": "පාඩම්",
+            "hasQuiz": "ප්‍රශ්නාවලිය ඇත",
+            "assigned": "පවරා ඇත",
+            "status": "තත්ත්වය",
+            "actions": "ක්‍රියා"
+          }
+        }
       }
     }
   },
