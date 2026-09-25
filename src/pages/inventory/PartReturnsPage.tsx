@@ -6,6 +6,7 @@ import { usePartReturnActions } from '@/hooks/inventory/usePartReturnActions';
 import { PartReturnQueueRow } from '@/components/inventory/returns/PartReturnQueueRow';
 import type { PartReturnStatus } from '@/types/inventory';
 
+import { useTranslation } from 'react-i18next';
 type TabId = PartReturnStatus;
 
 const TABS: { id: TabId; label: string }[] = [
@@ -16,6 +17,7 @@ const TABS: { id: TabId; label: string }[] = [
 ];
 
 export function PartReturnsPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabId>('pending');
   const { returns, loading } = usePartReturns({ status: activeTab });
   const { confirmReturn: handleConfirm, rejectReturn: handleReject } = usePartReturnActions();
@@ -26,16 +28,16 @@ export function PartReturnsPage() {
         to="/app/inventory"
         className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors"
       >
-        <ChevronLeft className="w-4 h-4" /> Back to Inventory
+        <ChevronLeft className="w-4 h-4" /> {t('common.inventory.partReturnsPage.backToInventory')}
       </Link>
 
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Undo2 className="w-6 h-6 text-purple-600" />
-          Parts Returns
+          {t('common.inventory.partReturnsPage.partsReturns')}
         </h1>
         <p className="text-gray-500 text-sm mt-0.5">
-          Confirm parts being physically returned to stock by requesters.
+          {t('common.inventory.partReturnsPage.confirmPartsBeingPhysicallyReturned')}
         </p>
       </div>
 

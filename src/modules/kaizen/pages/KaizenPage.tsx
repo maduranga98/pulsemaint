@@ -20,9 +20,11 @@ import { KaizenForm } from '../components/KaizenForm';
 import type { KaizenCategory, KaizenPriority } from '../types/kaizen.types';
 import { KAIZEN_CATEGORY_META, KAIZEN_PRIORITY_META } from '../types/kaizen.types';
 
+import { useTranslation } from 'react-i18next';
 type ViewMode = 'board' | 'list' | 'stats' | 'digest';
 
 export function KaizenPage() {
+  const { t } = useTranslation();
   const role = useAuthStore((s) => s.userProfile?.role ?? 'technician');
   const isProPlan = true;
   const canReview = role === 'admin' || role === 'supervisor' || role === 'plant_manager';
@@ -61,7 +63,7 @@ export function KaizenPage() {
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex-shrink-0">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-gray-900">Kaizen Board</h1>
+            <h1 className="text-xl font-bold text-gray-900">{t('common.ui2.kaizen.kaizenPage.kaizenBoard')}</h1>
             {canReview && pendingReviewCount > 0 && (
               <span className="flex items-center gap-1 bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                 <Bell size={11} />
@@ -103,7 +105,7 @@ export function KaizenPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search Kaizens..."
+              placeholder={t('common.ui2.kaizen.kaizenPage.searchKaizens')}
               className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -132,7 +134,7 @@ export function KaizenPage() {
               onChange={(e) => setMyKaizens(e.target.checked)}
               className="rounded text-blue-600"
             />
-            My Kaizens
+            {t('common.ui2.kaizen.kaizenPage.myKaizens')}
           </label>
 
           {viewMode === 'board' && (
@@ -151,14 +153,14 @@ export function KaizenPage() {
           <div className="mt-2.5 flex flex-wrap gap-3">
             {/* Category chips */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs text-gray-500">Category:</span>
+              <span className="text-xs text-gray-500">{t('common.ui2.kaizen.kaizenPage.category')}</span>
               <button
                 onClick={() => setCategoryFilter('')}
                 className={`text-xs px-2 py-0.5 rounded-full border ${
                   categoryFilter === '' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-200 text-gray-600'
                 }`}
               >
-                All
+                {t('common.ui2.kaizen.kaizenPage.all')}
               </button>
               {CATEGORIES.map((cat) => (
                 <button
@@ -174,14 +176,14 @@ export function KaizenPage() {
             </div>
             {/* Priority chips */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs text-gray-500">Priority:</span>
+              <span className="text-xs text-gray-500">{t('common.ui2.kaizen.kaizenPage.priority')}</span>
               <button
                 onClick={() => setPriorityFilter('')}
                 className={`text-xs px-2 py-0.5 rounded-full border ${
                   priorityFilter === '' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-200 text-gray-600'
                 }`}
               >
-                All
+                {t('common.ui2.kaizen.kaizenPage.all')}
               </button>
               {PRIORITIES.map((p) => (
                 <button
@@ -244,7 +246,7 @@ export function KaizenPage() {
         onClick={() => setShowForm(true)}
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center z-40 transition-transform hover:scale-110 active:scale-95"
         style={{ background: 'linear-gradient(135deg, #1A56DB, #00C2FF)' }}
-        title="New Kaizen"
+        title={t('common.ui2.kaizen.kaizenPage.newKaizen')}
       >
         <Plus size={24} />
       </button>

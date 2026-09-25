@@ -8,6 +8,7 @@ import { SAFETY_TRAINING_TYPE, type TrainingModule } from '@/lib/training/traini
 import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
 import { usePlantFilter } from '@/hooks/usePlantFilter';
 
+import { useTranslation } from 'react-i18next';
 // Roles that can assign safety trainings to people from this schedule.
 const CAN_ASSIGN_ROLES = ['safety_officer', 'supervisor', 'plant_manager', 'admin'];
 
@@ -175,6 +176,7 @@ function useSafetyTrainingSchedule(companyId: string, userId: string, role: stri
 }
 
 export default function SafetyCalendarPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
@@ -214,12 +216,12 @@ export default function SafetyCalendarPage() {
         onClick={() => navigate('/app/training/manage/safety-trainings')}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#8BA3BF] hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" /> Back to Safety Trainings
+        <ArrowLeft className="h-4 w-4" /> {t('common.ui2.safety.safetyCalendarPage.backToSafetyTrainings')}
       </button>
 
       <div className="mb-4 flex items-center justify-between">
         <h1 className="flex items-center gap-2 text-xl font-bold">
-          <CalendarDays className="h-5 w-5 text-[#5B8DEF]" /> Safety Training Schedules
+          <CalendarDays className="h-5 w-5 text-[#5B8DEF]" /> {t('common.ui2.safety.safetyCalendarPage.safetyTrainingSchedules')}
         </h1>
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))} className="rounded-lg border border-[#1E3A5F] p-1.5 text-[#8BA3BF] hover:text-white"><ChevronLeft className="h-4 w-4" /></button>
@@ -275,7 +277,7 @@ export default function SafetyCalendarPage() {
             {new Date(selectedDate).toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
           </h2>
           {selectedLessons.length === 0 ? (
-            <p className="text-sm text-[#8BA3BF]">No safety trainings scheduled this day.</p>
+            <p className="text-sm text-[#8BA3BF]">{t('common.ui2.safety.safetyCalendarPage.noSafetyTrainingsScheduledThis')}</p>
           ) : (
             <div className="space-y-2">
               {selectedLessons.map((l, idx) => {
@@ -290,7 +292,7 @@ export default function SafetyCalendarPage() {
                           onClick={() => setAssigningModule(module)}
                           className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#1E3A5F] px-2 py-1 text-[11px] font-medium text-[#5B8DEF] hover:bg-[#5B8DEF]/10"
                         >
-                          <UserPlus className="h-3 w-3" /> Assign
+                          <UserPlus className="h-3 w-3" /> {t('common.ui2.safety.safetyCalendarPage.assign')}
                         </button>
                       )}
                     </div>

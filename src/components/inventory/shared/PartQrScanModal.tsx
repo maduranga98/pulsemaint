@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { QrCode, X } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface PartQrScanModalProps {
   title?: string;
   onScan: (partNumber: string) => void;
@@ -26,6 +27,7 @@ function extractPartNumber(decodedText: string): string {
 }
 
 export function PartQrScanModal({ title = 'Scan Part QR', onScan, onClose }: PartQrScanModalProps) {
+  const { t } = useTranslation();
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const handledRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +78,7 @@ export function PartQrScanModal({ title = 'Scan Part QR', onScan, onClose }: Par
             type="button"
             onClick={onClose}
             className="rounded-lg p-1 text-gray-400 hover:text-gray-700"
-            aria-label="Close"
+            aria-label={t('common.inventory.ui.partQrScanModal.close')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -92,7 +94,7 @@ export function PartQrScanModal({ title = 'Scan Part QR', onScan, onClose }: Par
           onClick={onClose}
           className="w-full py-2 text-sm text-gray-600 hover:text-gray-900"
         >
-          Cancel
+          {t('common.inventory.ui.partQrScanModal.cancel')}
         </button>
       </div>
     </div>

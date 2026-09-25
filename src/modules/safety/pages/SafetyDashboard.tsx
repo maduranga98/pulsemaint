@@ -7,7 +7,9 @@ import TodayMyTrainingsWidget from '@/components/dashboard/manager/TodayMyTraini
 import { useSafetyKpis } from '@/hooks/safety/useSafety';
 import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
 
+import { useTranslation } from 'react-i18next';
 export default function SafetyDashboard() {
+  const { t } = useTranslation();
   const profile = useAuthStore((s) => s.userProfile);
   const companyId = profile?.companyId ?? '';
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Safety Officer';
@@ -28,7 +30,7 @@ export default function SafetyDashboard() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold text-[#F0F4F8]">
-            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Dashboard
+            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {t('common.ui2.safety.safetyDashboard.safetyDashboard')}
           </h1>
           <p className="mt-0.5 text-sm text-[#8BA3BF]">Good {greeting()}, {firstName}</p>
         </div>
@@ -37,7 +39,7 @@ export default function SafetyDashboard() {
           onClick={() => setReporting(true)}
           className="inline-flex items-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-bold text-white"
         >
-          <Plus className="h-4 w-4" /> Report Safety Case
+          <Plus className="h-4 w-4" /> {t('common.ui2.safety.safetyDashboard.reportSafetyCase')}
         </button>
       </div>
 

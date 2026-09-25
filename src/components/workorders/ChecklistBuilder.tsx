@@ -230,7 +230,7 @@ export function ChecklistBuilder({
                     <div className="space-y-2">
                       {/* Type toggle */}
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-gray-500">Type:</span>
+                        <span className="text-xs text-gray-500">{t('common.ui2.workorders.checklistBuilder.type')}</span>
                         <button
                           type="button"
                           onClick={() => updateStep(index, 'inputType', 'checkbox')}
@@ -240,7 +240,7 @@ export function ChecklistBuilder({
                               : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          Checkbox
+                          {t('common.ui2.workorders.checklistBuilder.checkbox')}
                         </button>
                         <button
                           type="button"
@@ -251,7 +251,7 @@ export function ChecklistBuilder({
                               : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          Measurement
+                          {t('common.ui2.workorders.checklistBuilder.measurement')}
                         </button>
                       </div>
 
@@ -264,7 +264,7 @@ export function ChecklistBuilder({
                           onChange={(e) =>
                             updateStep(index, 'estimatedMinutes', e.target.value ? Number(e.target.value) : null)
                           }
-                          placeholder="Duration"
+                          placeholder={t('common.ui2.workorders.checklistBuilder.duration')}
                           className="w-20 text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                         />
                         <select
@@ -272,9 +272,9 @@ export function ChecklistBuilder({
                           onChange={(e) => updateStep(index, 'estimatedDurationUnit', e.target.value)}
                           className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                         >
-                          <option value="minutes">Minutes</option>
-                          <option value="hours">Hours</option>
-                          <option value="days">Days</option>
+                          <option value="minutes">{t('common.ui2.workorders.checklistBuilder.minutes')}</option>
+                          <option value="hours">{t('common.ui2.workorders.checklistBuilder.hours')}</option>
+                          <option value="days">{t('common.ui2.workorders.checklistBuilder.days')}</option>
                         </select>
                       </div>
 
@@ -285,7 +285,7 @@ export function ChecklistBuilder({
                             type="text"
                             value={item.method ?? ''}
                             onChange={(e) => updateStep(index, 'method', e.target.value || null)}
-                            placeholder="Method (e.g. Visual, Micrometer)"
+                            placeholder={t('common.ui2.workorders.checklistBuilder.methodEGVisualMicrometer')}
                             className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600 col-span-2"
                           />
                           <input
@@ -301,7 +301,7 @@ export function ChecklistBuilder({
                               step="any"
                               value={item.acceptableMin ?? ''}
                               onChange={(e) => updateStep(index, 'acceptableMin', e.target.value ? Number(e.target.value) : null)}
-                              placeholder="Min"
+                              placeholder={t('common.ui2.workorders.checklistBuilder.min')}
                               className="w-full text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                             />
                             <input
@@ -309,7 +309,7 @@ export function ChecklistBuilder({
                               step="any"
                               value={item.acceptableMax ?? ''}
                               onChange={(e) => updateStep(index, 'acceptableMax', e.target.value ? Number(e.target.value) : null)}
-                              placeholder="Max"
+                              placeholder={t('common.ui2.workorders.checklistBuilder.max')}
                               className="w-full text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                             />
                           </div>
@@ -318,7 +318,7 @@ export function ChecklistBuilder({
 
                       {technicianOptions.length > 0 && (
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Assign workers:</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('common.ui2.workorders.checklistBuilder.assignWorkers')}</p>
                           <div className="flex flex-wrap gap-1.5">
                             {technicianOptions.map((tech) => {
                               const isSelected = (item.assignedTechnicianIds ?? []).includes(tech.id);
@@ -358,7 +358,7 @@ export function ChecklistBuilder({
                       onClick={() => moveStep(index, 'up')}
                       disabled={index === 0}
                       className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      aria-label="Move up"
+                      aria-label={t('common.ui2.workorders.checklistBuilder.moveUp')}
                     >
                       ↑
                     </button>
@@ -367,7 +367,7 @@ export function ChecklistBuilder({
                       onClick={() => moveStep(index, 'down')}
                       disabled={index === items.length - 1}
                       className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      aria-label="Move down"
+                      aria-label={t('common.ui2.workorders.checklistBuilder.moveDown')}
                     >
                       ↓
                     </button>
@@ -375,7 +375,7 @@ export function ChecklistBuilder({
                       type="button"
                       onClick={() => removeStep(index)}
                       className="p-1 text-red-400 hover:text-red-600"
-                      aria-label="Remove step"
+                      aria-label={t('common.ui2.workorders.checklistBuilder.removeStep')}
                     >
                       ×
                     </button>
@@ -430,7 +430,7 @@ export function ChecklistBuilder({
               onClick={downloadTemplate}
               className="text-gray-500 hover:text-gray-700 underline"
             >
-              Download template
+              {t('common.ui2.workorders.checklistBuilder.downloadTemplate')}
             </button>
           </div>
           {importError && <p className="text-xs text-red-500">{importError}</p>}

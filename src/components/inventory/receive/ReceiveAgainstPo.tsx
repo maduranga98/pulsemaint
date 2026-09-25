@@ -22,6 +22,7 @@ import { getNextDeliveryRef } from '@/lib/inventory/deliveryRefGenerator';
 import { openPOPrintView } from '@/lib/inventory/poPrintView';
 import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
+import { useTranslation } from 'react-i18next';
 interface ItemRowData {
   quantityReceived: number;
   unitCost: number;
@@ -30,6 +31,7 @@ interface ItemRowData {
 }
 
 export function ReceiveAgainstPo() {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
   const companyId = userProfile?.companyId;
@@ -162,13 +164,13 @@ export function ReceiveAgainstPo() {
           status: 'invoice_received',
           updatedAt: serverTimestamp(),
         });
-        toast.success('Email resent with the current receipt details. PO moved back to Invoice Received.');
+        toast.success(t('common.inventory.ui.receiveAgainstPo.emailResentWithTheCurrent'));
       } else {
-        toast.error('Nothing to send — add a received/damaged quantity or check the supplier has an email on file.');
+        toast.error(t('common.inventory.ui.receiveAgainstPo.nothingToSendAddA'));
       }
     } catch (err) {
       console.error('Failed to resend receipt email', err);
-      toast.error('Failed to resend email.');
+      toast.error(t('common.inventory.ui.receiveAgainstPo.failedToResendEmail'));
     } finally {
       setIsResendingEmail(false);
     }
@@ -363,7 +365,7 @@ export function ReceiveAgainstPo() {
       {/* PO selector */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Select Purchase Order
+          {t('common.inventory.ui.receiveAgainstPo.selectPurchaseOrder')}
         </label>
         <select
           value={selectedPoId}
@@ -385,7 +387,7 @@ export function ReceiveAgainstPo() {
           {/* Metadata */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Receive Date</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{t('common.inventory.ui.receiveAgainstPo.receiveDate')}</label>
               <input
                 type="date"
                 value={receiveDate}
@@ -394,13 +396,13 @@ export function ReceiveAgainstPo() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Delivery Reference</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{t('common.inventory.ui.receiveAgainstPo.deliveryReference')}</label>
               <input
                 type="text"
                 value={deliveryRef}
                 readOnly
                 disabled
-                placeholder="Generating…"
+                placeholder={t('common.inventory.ui.receiveAgainstPo.generating')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-500"
               />
             </div>
@@ -430,7 +432,7 @@ export function ReceiveAgainstPo() {
           <div className="flex justify-end">
             <div className="w-full sm:w-72 border border-gray-200 rounded-xl px-4 py-3 bg-gray-50">
               <div className="flex items-center justify-between text-sm font-semibold text-gray-900">
-                <span>Final Cost Total</span>
+                <span>{t('common.inventory.ui.receiveAgainstPo.finalCostTotal')}</span>
                 <span>
                   {selectedPo.currency}{' '}
                   {selectedPo.items
@@ -448,13 +450,13 @@ export function ReceiveAgainstPo() {
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Notes (optional)</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('common.inventory.ui.receiveAgainstPo.notesOptional')}</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              placeholder="Any additional notes about this delivery…"
+              placeholder={t('common.inventory.ui.receiveAgainstPo.anyAdditionalNotesAboutThis')}
             />
           </div>
 
@@ -470,7 +472,7 @@ export function ReceiveAgainstPo() {
             <button
               onClick={handleResendEmail}
               disabled={isResendingEmail || isSubmitting}
-              title="Send the supplier an email with whatever is currently in this form — use this if you've changed a quantity, condition, or note after already confirming a receipt"
+              title={t('common.inventory.ui.receiveAgainstPo.sendTheSupplierAnEmail')}
               className="sm:flex-none px-5 py-3 rounded-xl bg-white border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isResendingEmail ? 'Sending…' : 'Resend Email'}

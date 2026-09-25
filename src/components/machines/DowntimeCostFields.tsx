@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { db } from '../../lib/firebase';
 import { computeEffectiveCostPerHour } from '../../lib/downtimeCost';
 
+import { useTranslation } from 'react-i18next';
 interface DowntimeCostFieldsProps {
   machine: any;
   canEdit: boolean;
@@ -14,6 +15,7 @@ type CostMode = 'direct' | 'units';
 type Currency = 'LKR' | 'USD' | 'AED' | 'SAR';
 
 export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -62,7 +64,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
       }
 
       await updateDoc(doc(db, 'machines', machine.id), updates);
-      toast.success('Downtime cost rates updated.');
+      toast.success(t('common.ui2.machines.downtimeCostFields.downtimeCostRatesUpdated'));
       setEditing(false);
     } catch (err: any) {
       toast.error(err?.message || 'Failed to save.');
@@ -83,14 +85,14 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900">Downtime Cost</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.ui2.machines.downtimeCostFields.downtimeCost')}</h3>
         {canEdit && !editing && (
           <button
             type="button"
             onClick={() => setEditing(true)}
             className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
           >
-            <Edit2 className="w-4 h-4" /> Edit
+            <Edit2 className="w-4 h-4" /> {t('common.ui2.machines.downtimeCostFields.edit')}
           </button>
         )}
       </div>
@@ -103,7 +105,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
                 {machine.costCurrency ?? 'LKR'} {effectiveRate.toLocaleString()}/hr
               </p>
               {machine.costPerHourDown != null ? (
-                <p className="text-gray-500 text-xs">Direct hourly rate</p>
+                <p className="text-gray-500 text-xs">{t('common.ui2.machines.downtimeCostFields.directHourlyRate')}</p>
               ) : (
                 <p className="text-gray-500 text-xs">
                   {machine.unitsPerHour} units/hr × {machine.costCurrency ?? 'LKR'}{' '}
@@ -120,7 +122,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
                   onClick={() => setEditing(true)}
                   className="text-blue-600 hover:underline"
                 >
-                  Configure now
+                  {t('common.ui2.machines.downtimeCostFields.configureNow')}
                 </button>
               )}
             </p>
@@ -137,7 +139,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
                 onChange={() => setMode('direct')}
                 className="text-blue-600"
               />
-              Direct hourly rate
+              {t('common.ui2.machines.downtimeCostFields.directHourlyRate')}
             </label>
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input
@@ -146,22 +148,22 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
                 onChange={() => setMode('units')}
                 className="text-blue-600"
               />
-              Units × value
+              {t('common.ui2.machines.downtimeCostFields.unitsValue')}
             </label>
           </div>
 
           {/* Currency */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Currency</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.ui2.machines.downtimeCostFields.currency')}</label>
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value as Currency)}
               className="w-32 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             >
-              <option value="LKR">LKR</option>
-              <option value="USD">USD</option>
-              <option value="AED">AED</option>
-              <option value="SAR">SAR</option>
+              <option value="LKR">{t('common.ui2.machines.downtimeCostFields.lkr')}</option>
+              <option value="USD">{t('common.ui2.machines.downtimeCostFields.usd')}</option>
+              <option value="AED">{t('common.ui2.machines.downtimeCostFields.aed')}</option>
+              <option value="SAR">{t('common.ui2.machines.downtimeCostFields.sar')}</option>
             </select>
           </div>
 
@@ -182,7 +184,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Units produced per hour
+                  {t('common.ui2.machines.downtimeCostFields.unitsProducedPerHour')}
                 </label>
                 <input
                   type="number"
@@ -230,7 +232,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
               disabled={saving}
               className="flex items-center gap-1 px-3 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
             >
-              <X className="w-4 h-4" /> Cancel
+              <X className="w-4 h-4" /> {t('common.ui2.machines.downtimeCostFields.cancel')}
             </button>
             <button
               type="button"

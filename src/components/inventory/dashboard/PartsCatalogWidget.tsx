@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import { Package, ChevronRight } from 'lucide-react';
 import type { InventoryPart } from '@/types/inventory';
 
+import { useTranslation } from 'react-i18next';
 interface PartsCatalogWidgetProps {
   parts: InventoryPart[];
   totalCount?: number;
 }
 
 export function PartsCatalogWidget({ parts, totalCount }: PartsCatalogWidgetProps) {
+  const { t } = useTranslation();
   const preview = parts.slice(0, 5);
 
   return (
@@ -15,7 +17,7 @@ export function PartsCatalogWidget({ parts, totalCount }: PartsCatalogWidgetProp
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Package className="w-5 h-5 text-blue-600" />
-          <h2 className="font-semibold text-gray-900">Parts Catalog</h2>
+          <h2 className="font-semibold text-gray-900">{t('common.inventory.ui.partsCatalogWidget.partsCatalog')}</h2>
           {typeof totalCount === 'number' && (
             <span className="text-xs text-gray-500">({totalCount} items)</span>
           )}
@@ -24,12 +26,12 @@ export function PartsCatalogWidget({ parts, totalCount }: PartsCatalogWidgetProp
           to="/app/inventory/catalog"
           className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
         >
-          View all <ChevronRight className="w-4 h-4" />
+          {t('common.inventory.ui.partsCatalogWidget.viewAll')} <ChevronRight className="w-4 h-4" />
         </Link>
       </div>
 
       {preview.length === 0 ? (
-        <p className="text-sm text-gray-400 py-4 text-center">No parts in catalog yet.</p>
+        <p className="text-sm text-gray-400 py-4 text-center">{t('common.inventory.ui.partsCatalogWidget.noPartsInCatalogYet')}</p>
       ) : (
         <ul className="divide-y divide-gray-100">
           {preview.map((part) => (

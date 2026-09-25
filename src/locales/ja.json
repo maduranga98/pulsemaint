@@ -800,7 +800,9 @@
         },
         "errors": {
           "unknown": "不明なエラー"
-        }
+        },
+        "inventoryItemLimitReached": "在庫品目の上限に達しました",
+        "upgradePlan": "プランをアップグレード"
       },
       "editPartPage": {
         "title": "部品を編集",
@@ -1133,6 +1135,242 @@
         "stockGauge": {
           "max": "最大",
           "min": "最小"
+        }
+      },
+      "suppliersPage": {
+        "toasts": {
+          "missingCompany": "会社情報がありません。再度ログインしてください。",
+          "noRows": "ファイルにデータ行がありません。サンプルを参考にしてください。",
+          "nameColumn": "ファイルには \"name\" 列が必要です（サンプルを参照）。",
+          "noValidRows": "ファイルに有効な仕入先行がありません。",
+          "imported_one": "{{count}} 件の仕入先をインポートしました。",
+          "imported_other": "{{count}} 件の仕入先をインポートしました。",
+          "importFailed": "仕入先をインポートできませんでした。CSV形式をサンプルと照らし合わせてください。",
+          "nameRequired": "仕入先名は必須です。",
+          "updated": "仕入先を更新しました。",
+          "added": "仕入先を追加しました（{{code}}）。",
+          "saveFailed": "仕入先を保存できませんでした。",
+          "removed": "仕入先を削除しました。",
+          "removeFailed": "仕入先を削除できませんでした。"
+        },
+        "confirmRemove": "仕入先 \"{{name}}\" を削除しますか？",
+        "title": "仕入先",
+        "sampleCsv": "サンプルCSV",
+        "importing": "インポート中…",
+        "import": "インポート（CSV/Excel）",
+        "addSupplier": "仕入先を追加",
+        "editSupplier": "仕入先を編集",
+        "empty": "仕入先がまだありません。最初の仕入先を追加すると、発注書作成時に選択できます。",
+        "noContact": "連絡先情報なし",
+        "editAria": "仕入先を編集",
+        "removeAria": "仕入先を削除",
+        "fields": {
+          "contactPerson": "担当者",
+          "phone": "電話",
+          "email": "メール",
+          "address": "住所",
+          "country": "国",
+          "website": "ウェブサイト",
+          "paymentMethod": "支払方法",
+          "bankDetails": "銀行情報",
+          "notes": "メモ",
+          "nameRequired": "名前 *"
+        },
+        "placeholders": {
+          "name": "仕入先 / 会社名",
+          "country": "例：LK または スリランカ",
+          "paymentMethod": "例：銀行振込",
+          "bankDetails": "銀行、口座番号"
+        },
+        "cancel": "キャンセル",
+        "saving": "保存中…",
+        "save": "仕入先を保存"
+      },
+      "movementLogPage": {
+        "stockMovementLog": "在庫移動ログ",
+        "completeAuditTrailReadOnly": "完全な監査証跡 · 読み取り専用",
+        "exportToExcel": "Excelにエクスポート",
+        "clear": "クリア",
+        "dateTime": "日時",
+        "part": "部品",
+        "type": "種類",
+        "change": "変動",
+        "beforeAfter": "変更前 → 変更後",
+        "reference": "参照",
+        "by": "担当",
+        "notes": "メモ",
+        "referenceType": "参照種別",
+        "workOrder": "作業指示",
+        "unitCostAtTime": "当時の単価",
+        "costImpact": "コスト影響",
+        "noMovementsFound": "移動記録が見つかりません",
+        "tryAdjustingYourSearchOr": "検索条件や期間を調整してください。",
+        "noMovementsFound2": "移動記録が見つかりません。",
+        "searchByPartOrPerson": "部品または担当者で検索…"
+      },
+      "inventoryDashboardPage": {
+        "inventory": "在庫",
+        "checkRequestStatusAndBrowse": "依頼状況を確認し、部品カタログを閲覧します。",
+        "requestParts": "部品を依頼",
+        "youAreCurrentlyOfflineShowing": "現在オフラインです。キャッシュデータを表示しています — 再接続時に変更が同期されます。",
+        "inventoryManagement": "在庫管理",
+        "addItem": "品目を追加",
+        "createPo": "発注書を作成",
+        "scanIssue": "スキャンして払出",
+        "partsReturns": "部品返却",
+        "suppliers": "仕入先",
+        "lowStockAlerts": "在庫不足アラート",
+        "purchaseOrders": "発注書",
+        "viewAll": "すべて表示",
+        "requestsAwaitingYourApprovalPurchase": "承認待ちの依頼、発注書、部品カタログ。",
+        "pendingPoRequests": "保留中の発注依頼",
+        "pendingReturn": "返却待ち"
+      },
+      "manualIssuePage": {
+        "scanIssueParts": "部品をスキャンして払出",
+        "scanAPartQrCode": "部品のQRコードをスキャンするか名前/番号で検索し、在庫から直接払い出します — 部品依頼がまだない場合（例：その場で対応した故障）に使用します。必要な部品をすべて追加し、数量を設定して一括で払い出します。",
+        "searchManually": "手動で検索",
+        "searching": "検索中…",
+        "clearBatch": "バッチをクリア",
+        "quantity": "数量",
+        "returnableExpectedBackInStock": "返却可能 — 作業完了後に在庫へ戻る予定",
+        "issuingTo": "払出先 *",
+        "theyLlBeNotifiedAnd": "本人に通知され、「受取待ち部品 / 返却待ち」に表示されます。",
+        "reason": "理由 *",
+        "workOrderOptional": "作業指示（任意）",
+        "appliedToEveryPartIn": "このバッチのすべての部品に適用されます。",
+        "searchByPartNameOr": "部品名または番号で検索…",
+        "describeTheReason": "理由を入力…",
+        "scanPartToIssue": "払い出す部品をスキャン",
+        "failedToLookUpPart": "部品を検索できませんでした。",
+        "enterAReasonForIssuing": "これらの部品を払い出す理由を入力してください。",
+        "fixTheHighlightedQuantitiesBefore": "払出前に強調表示された数量を修正してください。",
+        "selectWhoIsTakingThese": "部品を受け取る人を選択してください。"
+      },
+      "inventorySettingsPage": {
+        "inventorySettings": "在庫設定",
+        "configureApprovalThresholdsNotificationsAnd": "承認しきい値、通知などを設定します。",
+        "notifications": "通知",
+        "enableLowStockAlerts": "在庫不足アラートを有効化",
+        "notifyRoles": "通知するロール",
+        "numberingPrefixes": "採番プレフィックス",
+        "preview": "プレビュー：",
+        "returnPolicy": "返却ポリシー",
+        "requireTechniciansToLogUnused": "未使用部品の返却記録を技術者に義務付ける",
+        "supplierCommunication": "仕入先とのやり取り",
+        "purchaseOrderEmailLanguage": "発注書メールの言語",
+        "languageUsedForOutboundPo": "仕入先へ送信する発注メールの言語（発注書、価格、キャンセル、納品通知）。",
+        "settingsSaved": "設定を保存しました。",
+        "failedToSaveSettings": "設定を保存できませんでした。"
+      },
+      "inventoryReportsPage": {
+        "inventoryReports": "在庫レポート",
+        "generateAndExportInventoryReports": "在庫レポートを作成・エクスポートします。",
+        "generatePdf": "PDFを作成",
+        "exportExcel": "Excelをエクスポート",
+        "dateRange": "期間",
+        "start": "開始",
+        "month": "月",
+        "end": "終了",
+        "machineOptional": "設備（任意）",
+        "categoryOptional": "カテゴリ（任意）",
+        "cancel": "キャンセル",
+        "allMachines": "すべての設備",
+        "allCategories": "すべてのカテゴリ",
+        "reportGeneratedSuccessfully": "レポートを作成しました。"
+      },
+      "partReturnsPage": {
+        "backToInventory": "在庫に戻る",
+        "partsReturns": "部品返却",
+        "confirmPartsBeingPhysicallyReturned": "依頼者が実際に在庫へ返却した部品を確認します。"
+      },
+      "receiveStockPage": {
+        "receiveNewStock": "新しい在庫を受入"
+      },
+      "ui": {
+        "outOfStockWidget": {
+          "reorder": "再発注"
+        },
+        "partsCatalogWidget": {
+          "partsCatalog": "部品カタログ",
+          "viewAll": "すべて表示",
+          "noPartsInCatalogYet": "カタログに部品がまだありません。"
+        },
+        "pendingRequestsWidget": {
+          "viewAll": "すべて表示"
+        },
+        "recentMovementsWidget": {
+          "recentStockMovements": "最近の在庫移動",
+          "noRecentMovements": "最近の移動はありません"
+        },
+        "reservedStockWidget": {
+          "partsToCollect": "受取待ち部品",
+          "noPartsCurrentlyReserved": "現在予約中の部品はありません",
+          "confirmCollection": "受取を確認"
+        },
+        "receiveAgainstPo": {
+          "selectPurchaseOrder": "発注書を選択",
+          "receiveDate": "受入日",
+          "deliveryReference": "納品参照番号",
+          "finalCostTotal": "最終合計コスト",
+          "notesOptional": "メモ（任意）",
+          "generating": "作成中…",
+          "anyAdditionalNotesAboutThis": "この納品に関する追加メモ…",
+          "sendTheSupplierAnEmail": "現在のフォーム内容を仕入先にメールで送信します — 受入確認後に数量・状態・メモを変更した場合に使用します",
+          "emailResentWithTheCurrent": "現在の受入内容でメールを再送しました。発注書は「請求書受領」に戻りました。",
+          "nothingToSendAddA": "送信する内容がありません — 受入/破損数量を追加するか、仕入先のメールが登録されているか確認してください。",
+          "failedToResendEmail": "メールを再送できませんでした。"
+        },
+        "receiveItemRow": {
+          "ordered": "発注数：",
+          "unitCostLkr": "単価（LKR）",
+          "condition": "状態",
+          "notesOptional": "メモ（任意）",
+          "remove": "削除",
+          "anyNotesAboutThisItem": "この品目に関するメモ…"
+        },
+        "partReturnQueueRow": {
+          "returned": "返却済み",
+          "reject": "却下",
+          "conditionReceived": "受領時の状態",
+          "notesOptional": "メモ（任意）",
+          "reasonForDispute": "異議の理由"
+        },
+        "categorySelect": {
+          "selectCategory": "カテゴリを選択…",
+          "otherManuallyCreated": "その他（手動作成）…",
+          "enterCustomCategoryName": "カテゴリ名を入力"
+        },
+        "machineSelect": {
+          "loading": "読み込み中…",
+          "noMachinesFound": "設備が見つかりません。",
+          "searchMachines": "設備を検索…"
+        },
+        "partQrScanModal": {
+          "cancel": "キャンセル",
+          "close": "閉じる"
+        },
+        "partSearchInput": {
+          "searching": "検索中…",
+          "noPartsFound": "部品が見つかりません"
+        },
+        "quickStockAdjust": {
+          "adjust": "調整",
+          "quickAdjust": "クイック調整",
+          "current": "現在：",
+          "quantityChange": "数量変更",
+          "newStock": "新しい在庫：",
+          "reason": "理由",
+          "quickStockAdjust": "クイック在庫調整",
+          "eGCountedDuringStocktake": "例：棚卸時にカウント",
+          "reasonIsRequired": "理由は必須です。",
+          "adjustmentQuantityCannotBeZero": "調整数量は0にできません。",
+          "stockCannotGoBelowZero": "在庫を0未満にはできません。"
+        },
+        "stockLevelIndicator": {
+          "current": "現在",
+          "reserved": "予約済み",
+          "available": "利用可能"
         }
       }
     },
@@ -8903,6 +9141,426 @@
         "trialUntil": "無料トライアル期限：",
         "saving": "保存中...",
         "complete": "セットアップを完了"
+      }
+    },
+    "ui2": {
+      "auth": {
+        "authLoading": {
+          "firmi": "Firmi",
+          "core": "Core"
+        }
+      },
+      "contractors": {
+        "signOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "layout": {
+        "appLayout": {
+          "firmicore": "FirmiCore"
+        }
+      },
+      "machines": {
+        "breakdownHistoryList": {
+          "attemptedFixes": "試みた修理：",
+          "breakdownHistory": "故障履歴",
+          "noBreakdownHistoryForThis": "この設備の故障履歴はまだありません。"
+        },
+        "conditionMonitoringTab": {
+          "logNewReading": "新しい測定値を記録",
+          "parameter": "パラメーター",
+          "value": "値",
+          "unit": "単位",
+          "minOptional": "最小（任意）",
+          "maxOptional": "最大（任意）",
+          "loadingReadings": "測定値を読み込み中...",
+          "noReadingsLoggedYetUse": "測定値はまだありません。上のフォームで最初の値を記録してください。",
+          "eGBearingTempVibration": "例：軸受温度、振動",
+          "acceptableMin": "許容最小値",
+          "acceptableMax": "許容最大値",
+          "parameterNameIsRequired": "パラメーター名は必須です",
+          "valueIsRequired": "値は必須です",
+          "readingLogged": "測定値を記録しました"
+        },
+        "downtimeCostFields": {
+          "downtimeCost": "停止コスト",
+          "edit": "編集",
+          "directHourlyRate": "直接時間単価",
+          "configureNow": "今すぐ設定",
+          "unitsValue": "数量 × 単価",
+          "currency": "通貨",
+          "lkr": "LKR",
+          "usd": "USD",
+          "aed": "AED",
+          "sar": "SAR",
+          "unitsProducedPerHour": "時間あたり生産数",
+          "cancel": "キャンセル",
+          "downtimeCostRatesUpdated": "停止コストの単価を更新しました。"
+        },
+        "isolationPointsTab": {
+          "isolationPoints": "遮断ポイント",
+          "addIsolationPoint": "遮断ポイントを追加",
+          "noIsolationPointsDefinedFor": "この設備には遮断ポイントが定義されていません。",
+          "newIsolationPoint": "新しい遮断ポイント",
+          "label": "ラベル",
+          "location": "場所",
+          "edit": "編集",
+          "delete": "削除",
+          "labelEGMainPower": "ラベル（例：主電源ブレーカー）",
+          "locationEGPanelB": "場所（例：盤B、3列目）",
+          "isolationPointsUpdated": "遮断ポイントを更新しました",
+          "labelIsRequired": "ラベルは必須です",
+          "deleteThisIsolationPoint": "この遮断ポイントを削除しますか？"
+        },
+        "machineForm": {
+          "back": "戻る",
+          "next": "次へ",
+          "machineType": "設備タイプ *",
+          "selectAType": "タイプを選択...",
+          "otherEnterCustomType": "その他 — タイプを入力…",
+          "basicInformation": "基本情報",
+          "machineName": "設備名 *",
+          "manufacturer": "メーカー *",
+          "model": "型式",
+          "serialNumber": "シリアル番号",
+          "expectedLifespanYears": "想定寿命（年）",
+          "purchaseDate": "購入日",
+          "installationDate": "設置日",
+          "location": "場所",
+          "plant": "工場 *",
+          "department": "部門 *",
+          "floor": "階",
+          "bay": "ベイ",
+          "station": "ステーション",
+          "thisLocationDataWillAuto": "この場所情報は、この設備に紐づく作業指示に自動入力されます",
+          "statusCriticality": "状態と重要度",
+          "status": "状態 *",
+          "low": "低",
+          "missionCritical": "最重要",
+          "critical0": "危険（0）",
+          "perfect100": "完璧（100）",
+          "nextPmDate": "次回予防保全日",
+          "dateTheNextPreventiveMaintenance": "次回予防保全の期日。PM作業指示の完了時に自動更新されます。",
+          "documentsPhotos": "書類と写真",
+          "photos": "写真",
+          "clickOrDragPhotosHere": "クリックまたは写真をここにドラッグ",
+          "warrantyInformation": "保証情報",
+          "remove": "削除",
+          "warrantyExpiryDate": "保証期限",
+          "supplierReference": "仕入先 / 参照",
+          "modificationNotes": "改造メモ",
+          "additionalNotes": "追加メモ",
+          "selectAPlant": "工場を選択...",
+          "selectAPlantFirstTo": "先に工場を選択してから部門を選択または追加してください。",
+          "selectADepartment": "部門を選択...",
+          "add": "追加",
+          "loadingDepartments": "部門を読み込み中...",
+          "eGInjectionMolderPackaging": "例：射出成形機、包装ライン…",
+          "eGCncLatheMachine": "例：CNC旋盤 01",
+          "eGMazakCorporation": "例：ヤマザキマザック",
+          "eGQuickTurn200": "例：QUICK TURN 200",
+          "uniqueSerialNumber": "一意のシリアル番号",
+          "eGGround1st2nd": "例：1階、2階、3階",
+          "partComponentName": "部品 / コンポーネント名",
+          "eGWr2025001": "例：WR-2025-001",
+          "documentAnyModificationsMadeTo": "この設備への改造内容を記録...",
+          "anyOtherRelevantInformation": "その他の関連情報...",
+          "newDepartmentName": "新しい部門名"
+        },
+        "machineHealthScore": {
+          "healthScore": "健全性スコア"
+        },
+        "addMachinePage": {
+          "loading": "読み込み中...",
+          "machineLimitReached": "設備数の上限に達しました",
+          "upgradePlan": "プランをアップグレード"
+        },
+        "editMachinePage": {
+          "loading": "読み込み中...",
+          "loadingMachine": "設備を読み込み中...",
+          "machineNotFound": "設備が見つかりません"
+        },
+        "machineListPage": {
+          "plant": "工場 *",
+          "selectThePlantTheseMachines": "これらの設備が属する工場を選択..."
+        },
+        "machineQrPage": {
+          "firmicore": "FirmiCore"
+        },
+        "scanRedirectPage": {
+          "redirectingToBreakdownReport": "故障報告へリダイレクト中..."
+        }
+      },
+      "pm": {
+        "pMFilterBar": {
+          "clear": "クリア",
+          "pmType": "PMタイプ",
+          "status": "状態",
+          "dateFrom": "開始日",
+          "dateTo": "終了日"
+        }
+      },
+      "reports": {
+        "pdfOptionsSection": {
+          "letter": "レター"
+        }
+      },
+      "workorders": {
+        "checklistBuilder": {
+          "type": "タイプ：",
+          "checkbox": "チェックボックス",
+          "measurement": "測定",
+          "minutes": "分",
+          "hours": "時間",
+          "days": "日",
+          "assignWorkers": "作業者を割り当て：",
+          "downloadTemplate": "テンプレートをダウンロード",
+          "duration": "所要時間",
+          "methodEGVisualMicrometer": "方法（例：目視、マイクロメーター）",
+          "min": "最小",
+          "max": "最大",
+          "moveUp": "上へ移動",
+          "moveDown": "下へ移動",
+          "removeStep": "ステップを削除"
+        },
+        "documentUploadZone": {
+          "cadPdfImagesVideoZip": "CAD、PDF、画像、動画、ZIPに対応",
+          "removeFile": "ファイルを削除"
+        },
+        "machineHistoryTimeline": {
+          "rootCause": "根本原因：",
+          "contractor": "協力会社：",
+          "partsUsed": "使用部品："
+        },
+        "partsPreRequestPanel": {
+          "optionalNote": "任意のメモ…"
+        },
+        "qrCheckInModal": {
+          "checkInAtMachine": "設備でチェックイン",
+          "scanTheQrStickerOn": "次の設備のQRステッカーをスキャン：",
+          "toRecordYourArrivalAnd": "して到着を記録し、作業指示を開始します。",
+          "cancel": "キャンセル",
+          "close": "閉じる"
+        },
+        "signatureCanvas": {
+          "clear": "クリア",
+          "useSignature": "署名を使用"
+        },
+        "wOCard": {
+          "contractor": "協力会社"
+        },
+        "wOReviewSignOffPanel": {
+          "workDoneByTeam": "チームが行った作業",
+          "noIndividualTasksRecorded": "個別の作業は記録されていません。",
+          "partsUsed": "使用部品",
+          "totalPartsCost": "部品費合計：",
+          "evidence": "証拠",
+          "rootCauseAnalysisOptional": "根本原因分析（任意）",
+          "rootCauseCategory": "根本原因カテゴリ",
+          "rootCauseDescription": "根本原因の説明",
+          "correctiveAction": "是正処置",
+          "createACorrectiveWorkOrder": "この処置から是正作業指示を作成",
+          "continueToSignOff": "承認へ進む",
+          "workDone": "実施作業",
+          "machineStatusAfter": "作業後の設備状態",
+          "testRun": "試運転",
+          "checklist": "チェックリスト",
+          "testNotes": "テストメモ",
+          "describeTheUnderlyingRootCause": "根本原因を説明…",
+          "rootCauseDescriptionIsRequired": "分析を保存するには根本原因の説明が必要です。",
+          "correctiveWorkOrderCreated": "是正作業指示を作成しました。",
+          "rootCauseAnalysisSaved": "根本原因分析を保存しました。"
+        },
+        "wOSignOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "kaizen": {
+        "kaizenBoard": {
+          "newKaizen": "新しい改善",
+          "rejectedOnHold": "却下 / 保留"
+        },
+        "kaizenDetail": {
+          "loading": "読み込み中...",
+          "problem": "問題",
+          "suggestedSolution": "提案する解決策",
+          "beforePhotos": "改善前の写真",
+          "afterPhotos": "改善後の写真",
+          "rejectionReason": "却下理由",
+          "onHold": "保留",
+          "stateHistory": "状態履歴",
+          "comments": "コメント",
+          "noCommentsYet": "コメントはまだありません。",
+          "internal": "社内",
+          "internalSupervisorsOnly": "社内（監督者のみ）",
+          "benefitDataNotYetAvailable": "効果データはまだありません",
+          "estimatedCost": "見積コスト",
+          "actualCost": "実績コスト",
+          "estMonthlyBenefit": "見込み月間効果",
+          "actualMonthlyBenefit": "実績月間効果",
+          "paybackPeriod": "回収期間",
+          "putOnHold": "保留にする",
+          "reject": "却下",
+          "rejectionReasonRequired": "却下理由（必須）",
+          "cancel": "キャンセル",
+          "addAComment": "コメントを追加...",
+          "notesForThisTransitionOptional": "この遷移のメモ（任意）",
+          "whyIsThisBeingRejected": "却下する理由は？",
+          "reasonForHold": "保留理由",
+          "failedToVote": "投票できませんでした",
+          "rejectionReasonIsRequired": "却下理由は必須です",
+          "kaizenRejected": "改善を却下しました",
+          "kaizenPutOnHold": "改善を保留にしました",
+          "failedToAddComment": "コメントを追加できませんでした",
+          "photoUploaded": "写真をアップロードしました",
+          "uploadFailed": "アップロードに失敗しました"
+        },
+        "kaizenForm": {
+          "raiseAKaizen": "改善を提案",
+          "title": "タイトル",
+          "whatIsTheProblem": "問題は何ですか？",
+          "category": "カテゴリ",
+          "priority": "優先度",
+          "location": "場所",
+          "beforePhotos": "改善前の写真",
+          "suggestedSolution": "提案する解決策",
+          "estimatedCostLkr": "見積コスト（LKR）",
+          "monthlyBenefitLkr": "月間効果（LKR）",
+          "tags": "タグ",
+          "hereSHowYourKaizen": "ボード上での表示イメージ：",
+          "summary": "概要",
+          "category2": "カテゴリ：",
+          "priority2": "優先度：",
+          "estCost": "見積コスト：",
+          "monthlyBenefit": "月間効果：",
+          "back": "戻る",
+          "cancel": "キャンセル",
+          "next": "次へ",
+          "briefDescriptionOfTheIssue": "問題の簡単な説明",
+          "describeTheCurrentProblemClearly": "現在の問題を明確に説明...",
+          "machineNameOrId": "設備名またはID",
+          "departmentOrZoneEG": "部門またはエリア（例：組立ライン3）",
+          "describeHowYouSuggestFixing": "解決方法の提案を説明...",
+          "addATag": "タグを追加...",
+          "failedToUploadPhoto": "写真をアップロードできませんでした",
+          "kaizenRaisedSuccessfully": "改善を提案しました！"
+        },
+        "kaizenListView": {
+          "bulkApprove": "一括承認",
+          "bulkReject": "一括却下",
+          "confirm": "確認",
+          "exportExcel": "Excelをエクスポート",
+          "loading": "読み込み中...",
+          "noKaizenCardsYet": "改善カードはまだありません",
+          "raiseTheFirstImprovementIdea": "最初の改善アイデアを提案しましょう！",
+          "rejectionReason": "却下理由",
+          "title": "タイトル",
+          "category": "カテゴリ",
+          "status": "状態",
+          "priority": "優先度",
+          "raisedBy": "提案者",
+          "votes": "投票",
+          "estBenefit": "見込み効果",
+          "date": "日付",
+          "noReviewedCardsSelected": "レビュー済みのカードが選択されていません",
+          "rejectionReasonRequired": "却下理由が必要です"
+        },
+        "kaizenMonthlyDigest": {
+          "monthlyKaizenDigestFactoryPro": "月次改善ダイジェスト — Factory Pro",
+          "generatePdfReportsOfMonthly": "新規カード、実施状況、ROI、優秀貢献者の表彰を含む月次改善活動のPDFレポートを作成します。",
+          "upgradeToFactoryPro": "Factory Proにアップグレード",
+          "month": "月：",
+          "printExportPdf": "印刷 / PDFエクスポート",
+          "kaizenMonthlyDigest": "月次改善ダイジェスト",
+          "generatingDigest": "ダイジェストを作成中...",
+          "monthlySummary": "月次サマリー",
+          "title": "タイトル",
+          "category": "カテゴリ",
+          "priority": "優先度",
+          "raisedBy": "提案者",
+          "status": "状態",
+          "actualCostLkr": "実績コスト（LKR）",
+          "actualBenefitMoLkr": "実績効果/月（LKR）",
+          "topContributorThisMonth": "今月のトップ貢献者"
+        },
+        "kaizenStats": {
+          "byStatus": "状態別",
+          "byCategory": "カテゴリ別",
+          "topContributors": "トップ貢献者",
+          "noDataYet": "データはまだありません",
+          "monthlyKaizenTrend12Months": "月次改善トレンド（12か月）",
+          "roiPaybackDistribution": "ROI回収期間の分布",
+          "estimatedVsActualBenefit": "見込み効果と実績効果",
+          "roiAnalyticsFactoryPro": "ROI分析 — Factory Pro",
+          "upgradeToFactoryProTo": "Factory ProにアップグレードするとROI分布、回収分析、効果追跡が利用できます。",
+          "upgrade": "アップグレード"
+        },
+        "kaizenPage": {
+          "kaizenBoard": "改善ボード",
+          "myKaizens": "自分の改善",
+          "category": "カテゴリ：",
+          "all": "すべて",
+          "priority": "優先度：",
+          "searchKaizens": "改善を検索...",
+          "newKaizen": "新しい改善"
+        }
+      },
+      "safety": {
+        "safetyBlacklistPage": {
+          "safetyBlacklist": "安全ブラックリスト",
+          "currentlyBlacklisted": "現在ブラックリスト入り",
+          "from": "開始",
+          "to": "終了",
+          "blacklistedOnly": "ブラックリストのみ",
+          "name": "名前",
+          "type": "種類",
+          "points": "ポイント",
+          "cases": "件数",
+          "lastCase": "最新の事案",
+          "status": "状態",
+          "blacklisted": "ブラックリスト入り",
+          "ok": "OK",
+          "clearTo0": "0にリセット",
+          "minPoints": "最小ポイント",
+          "pointsByEntity": "対象別ポイント"
+        },
+        "safetyCalendarPage": {
+          "backToSafetyTrainings": "安全教育に戻る",
+          "safetyTrainingSchedules": "安全教育スケジュール",
+          "noSafetyTrainingsScheduledThis": "この日に予定されている安全教育はありません。",
+          "assign": "割り当て"
+        },
+        "safetyDashboard": {
+          "safetyDashboard": "安全ダッシュボード",
+          "reportSafetyCase": "安全事案を報告"
+        }
+      },
+      "breakdowns": {
+        "publicBreakdownReportPage": {
+          "firmi": "Firmi",
+          "core": "Core",
+          "reportABreakdownNoSign": "故障を報告 — ログイン不要",
+          "breakdownReported": "故障を報告しました",
+          "ticket": "チケット",
+          "hasBeenSentToThe": "が保全チームに送信されました。",
+          "youCanCloseThisPage": "このページを閉じて構いません。",
+          "thisIsTakingLongerThan": "通常より時間がかかっています。接続を確認して再試行してください。",
+          "retry": "再試行",
+          "loadingMachine": "設備を読み込み中…",
+          "reportingOn": "報告対象",
+          "whatHappened": "何が起きましたか？ *",
+          "machineIsStillRunningDegraded": "設備はまだ稼働中（性能低下だが運転可能）",
+          "signIn": "ログイン",
+          "firmicore": "FirmiCore",
+          "describeTheSymptomsErrorCodes": "症状、エラーコード、音などを説明してください。またはマイクをタップして状況を話してください。",
+          "machineInformationIsNotLoaded": "設備情報がまだ読み込まれていません。",
+          "pleaseDescribeTheBreakdownIn": "故障内容を10文字以上で説明してください。"
+        }
+      },
+      "dashboard": {
+        "floorOperatorDashboard": {
+          "dashboard": "ダッシュボード"
+        }
       }
     }
   },

@@ -972,7 +972,9 @@
         },
         "errors": {
           "unknown": "නොදන්නා දෝෂයකි"
-        }
+        },
+        "inventoryItemLimitReached": "තොග අයිතම සීමාවට ළඟා විය",
+        "upgradePlan": "සැලැස්ම උසස් කරන්න"
       },
       "editPartPage": {
         "title": "කොටස සංස්කරණය",
@@ -1305,6 +1307,242 @@
         "stockGauge": {
           "min": "අවම",
           "max": "උපරිම"
+        }
+      },
+      "suppliersPage": {
+        "toasts": {
+          "missingCompany": "සමාගම් තොරතුරු නැත. කරුණාකර නැවත පිවිසෙන්න.",
+          "noRows": "ගොනුවේ දත්ත පේළි නැත. ආරම්භයක් ලෙස නියැදිය භාවිත කරන්න.",
+          "nameColumn": "ගොනුවේ \"name\" තීරුවක් තිබිය යුතුය (නියැදිය බලන්න).",
+          "noValidRows": "ගොනුවේ වලංගු සැපයුම්කරු පේළි හමු නොවීය.",
+          "imported_one": "සැපයුම්කරුවන් {{count}} ආයාත කළා.",
+          "imported_other": "සැපයුම්කරුවන් {{count}} ආයාත කළා.",
+          "importFailed": "සැපයුම්කරුවන් ආයාත කිරීම අසාර්ථකයි. නියැදියට සාපේක්ෂව CSV ආකෘතිය පරීක්ෂා කරන්න.",
+          "nameRequired": "සැපයුම්කරුගේ නම අවශ්‍යයි.",
+          "updated": "සැපයුම්කරු යාවත්කාලීන කළා.",
+          "added": "සැපයුම්කරු එක් කළා ({{code}}).",
+          "saveFailed": "සැපයුම්කරු සුරැකීම අසාර්ථකයි.",
+          "removed": "සැපයුම්කරු ඉවත් කළා.",
+          "removeFailed": "සැපයුම්කරු ඉවත් කිරීම අසාර්ථකයි."
+        },
+        "confirmRemove": "සැපයුම්කරු \"{{name}}\" ඉවත් කරන්නද?",
+        "title": "සැපයුම්කරුවන්",
+        "sampleCsv": "නියැදි CSV",
+        "importing": "ආයාත කරමින්…",
+        "import": "ආයාත කරන්න (CSV/Excel)",
+        "addSupplier": "සැපයුම්කරුවෙකු එක් කරන්න",
+        "editSupplier": "සැපයුම්කරු සංස්කරණය",
+        "empty": "තවම සැපයුම්කරුවන් නැත. මිලදී ගැනීමේ ඇණවුමක් සාදන විට තෝරා ගැනීමට ඔබේ පළමු සැපයුම්කරු එක් කරන්න.",
+        "noContact": "සම්බන්ධතා විස්තර නැත",
+        "editAria": "සැපයුම්කරු සංස්කරණය",
+        "removeAria": "සැපයුම්කරු ඉවත් කරන්න",
+        "fields": {
+          "contactPerson": "සම්බන්ධතා පුද්ගලයා",
+          "phone": "දුරකථනය",
+          "email": "ඊමේල්",
+          "address": "ලිපිනය",
+          "country": "රට",
+          "website": "වෙබ් අඩවිය",
+          "paymentMethod": "ගෙවීම් ක්‍රමය",
+          "bankDetails": "බැංකු විස්තර",
+          "notes": "සටහන්",
+          "nameRequired": "නම *"
+        },
+        "placeholders": {
+          "name": "සැපයුම්කරු / සමාගම් නාමය",
+          "country": "උදා. LK හෝ ශ්‍රී ලංකාව",
+          "paymentMethod": "උදා. බැංකු මාරුව",
+          "bankDetails": "බැංකුව, ගිණුම් අංකය"
+        },
+        "cancel": "අවලංගු කරන්න",
+        "saving": "සුරකිමින්…",
+        "save": "සැපයුම්කරු සුරකින්න"
+      },
+      "movementLogPage": {
+        "stockMovementLog": "තොග චලන ලොගය",
+        "completeAuditTrailReadOnly": "සම්පූර්ණ විගණන මාර්ගය · කියවීමට පමණි",
+        "exportToExcel": "Excel වෙත අපනයනය",
+        "clear": "ඉවත් කරන්න",
+        "dateTime": "දිනය / වේලාව",
+        "part": "කොටස",
+        "type": "වර්ගය",
+        "change": "වෙනස",
+        "beforeAfter": "පෙර → පසු",
+        "reference": "යොමුව",
+        "by": "කළ අය",
+        "notes": "සටහන්",
+        "referenceType": "යොමු වර්ගය",
+        "workOrder": "වැඩ ඇණවුම",
+        "unitCostAtTime": "එකල ඒකක පිරිවැය",
+        "costImpact": "පිරිවැය බලපෑම",
+        "noMovementsFound": "චලන හමු නොවීය",
+        "tryAdjustingYourSearchOr": "ඔබේ සෙවීම හෝ දින පරාසය වෙනස් කර බලන්න.",
+        "noMovementsFound2": "චලන හමු නොවීය.",
+        "searchByPartOrPerson": "කොටස හෝ පුද්ගලයා අනුව සොයන්න…"
+      },
+      "inventoryDashboardPage": {
+        "inventory": "තොග",
+        "checkRequestStatusAndBrowse": "ඉල්ලීම් තත්ත්වය පරීක්ෂා කර කොටස් නාමාවලිය පිරික්සන්න.",
+        "requestParts": "කොටස් ඉල්ලන්න",
+        "youAreCurrentlyOfflineShowing": "ඔබ දැනට නොබැඳිව සිටී. හැඹිලිගත දත්ත පෙන්වයි — නැවත සම්බන්ධ වූ විට වෙනස්කම් සමමුහුර්ත වේ.",
+        "inventoryManagement": "තොග කළමනාකරණය",
+        "addItem": "අයිතමයක් එක් කරන්න",
+        "createPo": "PO සාදන්න",
+        "scanIssue": "ස්කෑන් කර නිකුත් කරන්න",
+        "partsReturns": "කොටස් ආපසු දීම්",
+        "suppliers": "සැපයුම්කරුවන්",
+        "lowStockAlerts": "අඩු තොග ඇඟවීම්",
+        "purchaseOrders": "මිලදී ගැනීමේ ඇණවුම්",
+        "viewAll": "සියල්ල බලන්න",
+        "requestsAwaitingYourApprovalPurchase": "ඔබේ අනුමැතිය බලාපොරොත්තුවෙන් ඇති ඉල්ලීම්, මිලදී ගැනීමේ ඇණවුම් සහ කොටස් නාමාවලිය.",
+        "pendingPoRequests": "පොරොත්තු PO ඉල්ලීම්",
+        "pendingReturn": "ආපසු දීම පොරොත්තුවෙන්"
+      },
+      "manualIssuePage": {
+        "scanIssueParts": "කොටස් ස්කෑන් කර නිකුත් කරන්න",
+        "scanAPartQrCode": "තොගයෙන් සෘජුවම නිකුත් කිරීමට කොටසක QR කේතය ස්කෑන් කරන්න හෝ නම/අංකය අනුව සොයන්න — තවම කොටස් ඉල්ලීමක් නොමැති අවස්ථා සඳහා (උදා. එතැනදීම හසුරුවන ලද බිඳවැටීමක්). ඔබට අවශ්‍ය සියලු කොටස් එක් කර, ප්‍රමාණ සකසා, සම්පූර්ණ කාණ්ඩයම එකවර නිකුත් කරන්න.",
+        "searchManually": "අතින් සොයන්න",
+        "searching": "සොයමින්…",
+        "clearBatch": "කාණ්ඩය හිස් කරන්න",
+        "quantity": "ප්‍රමාණය",
+        "returnableExpectedBackInStock": "ආපසු දිය හැකි — කාර්යය අවසන් වූ පසු නැවත තොගයට පැමිණෙනු ඇතැයි අපේක්ෂිතයි",
+        "issuingTo": "නිකුත් කරන්නේ *",
+        "theyLlBeNotifiedAnd": "ඔවුන්ට දැනුම් දෙනු ලබන අතර, මෙය ඔවුන්ගේම රැගෙන යා යුතු කොටස් / ආපසු දීම පොරොත්තුවෙන් යටතේ දිස්වේ.",
+        "reason": "හේතුව *",
+        "workOrderOptional": "වැඩ ඇණවුම (විකල්ප)",
+        "appliedToEveryPartIn": "මෙම කාණ්ඩයේ සියලු කොටස්වලට අදාළයි.",
+        "searchByPartNameOr": "කොටසේ නම හෝ අංකය අනුව සොයන්න…",
+        "describeTheReason": "හේතුව විස්තර කරන්න…",
+        "scanPartToIssue": "නිකුත් කිරීමට කොටස ස්කෑන් කරන්න",
+        "failedToLookUpPart": "කොටස සෙවීම අසාර්ථකයි.",
+        "enterAReasonForIssuing": "මෙම කොටස් නිකුත් කිරීමට හේතුවක් ඇතුළත් කරන්න.",
+        "fixTheHighlightedQuantitiesBefore": "නිකුත් කිරීමට පෙර ඉස්මතු කළ ප්‍රමාණ නිවැරදි කරන්න.",
+        "selectWhoIsTakingThese": "මෙම කොටස් රැගෙන යන්නේ කවුදැයි තෝරන්න."
+      },
+      "inventorySettingsPage": {
+        "inventorySettings": "තොග සැකසුම්",
+        "configureApprovalThresholdsNotificationsAnd": "අනුමැති සීමා, දැනුම්දීම් සහ තවත් දෑ වින්‍යාස කරන්න.",
+        "notifications": "දැනුම්දීම්",
+        "enableLowStockAlerts": "අඩු තොග ඇඟවීම් සක්‍රිය කරන්න",
+        "notifyRoles": "දැනුම් දිය යුතු භූමිකා",
+        "numberingPrefixes": "අංකනය උපසර්ග",
+        "preview": "පෙරදසුන:",
+        "returnPolicy": "ආපසු දීමේ ප්‍රතිපත්තිය",
+        "requireTechniciansToLogUnused": "භාවිත නොකළ කොටස් ආපසු දීම සටහන් කිරීම තාක්ෂණ ශිල්පීන්ට අනිවාර්ය කරන්න",
+        "supplierCommunication": "සැපයුම්කරු සන්නිවේදනය",
+        "purchaseOrderEmailLanguage": "මිලදී ගැනීමේ ඇණවුම් ඊමේල් භාෂාව",
+        "languageUsedForOutboundPo": "සැපයුම්කරුවන්ට යවන PO ඊමේල් සඳහා භාවිත භාෂාව (PO ලේඛනය, මිල ගණන්, අවලංගු කිරීම් සහ බෙදාහැරීමේ දැනුම්දීම්).",
+        "settingsSaved": "සැකසුම් සුරැකුවා.",
+        "failedToSaveSettings": "සැකසුම් සුරැකීම අසාර්ථකයි."
+      },
+      "inventoryReportsPage": {
+        "inventoryReports": "තොග වාර්තා",
+        "generateAndExportInventoryReports": "තොග වාර්තා සකසා අපනයනය කරන්න.",
+        "generatePdf": "PDF සකසන්න",
+        "exportExcel": "Excel අපනයනය",
+        "dateRange": "දින පරාසය",
+        "start": "ආරම්භය",
+        "month": "මාසය",
+        "end": "අවසානය",
+        "machineOptional": "යන්ත්‍රය (විකල්ප)",
+        "categoryOptional": "කාණ්ඩය (විකල්ප)",
+        "cancel": "අවලංගු කරන්න",
+        "allMachines": "සියලු යන්ත්‍ර",
+        "allCategories": "සියලු කාණ්ඩ",
+        "reportGeneratedSuccessfully": "වාර්තාව සාර්ථකව සකසන ලදී."
+      },
+      "partReturnsPage": {
+        "backToInventory": "තොග වෙත ආපසු",
+        "partsReturns": "කොටස් ආපසු දීම්",
+        "confirmPartsBeingPhysicallyReturned": "ඉල්ලුම්කරුවන් භෞතිකව තොගයට ආපසු දෙන කොටස් තහවුරු කරන්න."
+      },
+      "receiveStockPage": {
+        "receiveNewStock": "නව තොග ලබා ගන්න"
+      },
+      "ui": {
+        "outOfStockWidget": {
+          "reorder": "නැවත ඇණවුම් කරන්න"
+        },
+        "partsCatalogWidget": {
+          "partsCatalog": "කොටස් නාමාවලිය",
+          "viewAll": "සියල්ල බලන්න",
+          "noPartsInCatalogYet": "නාමාවලියේ තවම කොටස් නැත."
+        },
+        "pendingRequestsWidget": {
+          "viewAll": "සියල්ල බලන්න"
+        },
+        "recentMovementsWidget": {
+          "recentStockMovements": "මෑත තොග චලන",
+          "noRecentMovements": "මෑත චලන නැත"
+        },
+        "reservedStockWidget": {
+          "partsToCollect": "රැගෙන යා යුතු කොටස්",
+          "noPartsCurrentlyReserved": "දැනට වෙන් කළ කොටස් නැත",
+          "confirmCollection": "රැගෙන යාම තහවුරු කරන්න"
+        },
+        "receiveAgainstPo": {
+          "selectPurchaseOrder": "මිලදී ගැනීමේ ඇණවුම තෝරන්න",
+          "receiveDate": "ලැබුණු දිනය",
+          "deliveryReference": "බෙදාහැරීමේ යොමුව",
+          "finalCostTotal": "අවසන් මුළු පිරිවැය",
+          "notesOptional": "සටහන් (විකල්ප)",
+          "generating": "සකසමින්…",
+          "anyAdditionalNotesAboutThis": "මෙම බෙදාහැරීම පිළිබඳ අමතර සටහන්…",
+          "sendTheSupplierAnEmail": "මෙම පෝරමයේ දැනට ඇති දෑ සමඟ සැපයුම්කරුට ඊමේල් එකක් යවන්න — ලැබීම තහවුරු කළ පසු ප්‍රමාණයක්, තත්ත්වයක් හෝ සටහනක් වෙනස් කළේ නම් මෙය භාවිත කරන්න",
+          "emailResentWithTheCurrent": "වත්මන් ලැබීම් විස්තර සමඟ ඊමේල් නැවත යැවුවා. PO නැවත ඉන්වොයිසිය ලැබුණා වෙත ගෙන ගියා.",
+          "nothingToSendAddA": "යැවීමට කිසිවක් නැත — ලැබුණු/හානි වූ ප්‍රමාණයක් එක් කරන්න හෝ සැපයුම්කරුට ඊමේල් ලිපිනයක් ඇත්දැයි පරීක්ෂා කරන්න.",
+          "failedToResendEmail": "ඊමේල් නැවත යැවීම අසාර්ථකයි."
+        },
+        "receiveItemRow": {
+          "ordered": "ඇණවුම් කළ:",
+          "unitCostLkr": "ඒකක පිරිවැය (LKR)",
+          "condition": "තත්ත්වය",
+          "notesOptional": "සටහන් (විකල්ප)",
+          "remove": "ඉවත් කරන්න",
+          "anyNotesAboutThisItem": "මෙම අයිතමය පිළිබඳ සටහන්…"
+        },
+        "partReturnQueueRow": {
+          "returned": "ආපසු දුන්නා",
+          "reject": "ප්‍රතික්ෂේප කරන්න",
+          "conditionReceived": "ලැබුණු තත්ත්වය",
+          "notesOptional": "සටහන් (විකල්ප)",
+          "reasonForDispute": "ආරවුලට හේතුව"
+        },
+        "categorySelect": {
+          "selectCategory": "කාණ්ඩය තෝරන්න…",
+          "otherManuallyCreated": "වෙනත් (අතින් සාදන ලද)…",
+          "enterCustomCategoryName": "අභිරුචි කාණ්ඩ නාමය ඇතුළත් කරන්න"
+        },
+        "machineSelect": {
+          "loading": "පූරණය වෙමින්…",
+          "noMachinesFound": "යන්ත්‍ර හමු නොවීය.",
+          "searchMachines": "යන්ත්‍ර සොයන්න…"
+        },
+        "partQrScanModal": {
+          "cancel": "අවලංගු කරන්න",
+          "close": "වසන්න"
+        },
+        "partSearchInput": {
+          "searching": "සොයමින්…",
+          "noPartsFound": "කොටස් හමු නොවීය"
+        },
+        "quickStockAdjust": {
+          "adjust": "ගලපන්න",
+          "quickAdjust": "ඉක්මන් ගැලපීම",
+          "current": "වත්මන්:",
+          "quantityChange": "ප්‍රමාණ වෙනස",
+          "newStock": "නව තොගය:",
+          "reason": "හේතුව",
+          "quickStockAdjust": "ඉක්මන් තොග ගැලපීම",
+          "eGCountedDuringStocktake": "උදා. තොග ගණන් කිරීමේදී ගණන් කළා",
+          "reasonIsRequired": "හේතුව අවශ්‍යයි.",
+          "adjustmentQuantityCannotBeZero": "ගැලපීමේ ප්‍රමාණය ශුන්‍ය විය නොහැක.",
+          "stockCannotGoBelowZero": "තොගය ශුන්‍යයට වඩා අඩු විය නොහැක."
+        },
+        "stockLevelIndicator": {
+          "current": "වත්මන්",
+          "reserved": "වෙන් කළ",
+          "available": "ඇති"
         }
       }
     },
@@ -9073,6 +9311,426 @@
         "trialUntil": "ඔබේ නොමිලේ අත්හදා බැලීම පවතින්නේ",
         "saving": "සුරකිමින්...",
         "complete": "සැකසුම සම්පූර්ණ කරන්න"
+      }
+    },
+    "ui2": {
+      "auth": {
+        "authLoading": {
+          "firmi": "Firmi",
+          "core": "Core"
+        }
+      },
+      "contractors": {
+        "signOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "layout": {
+        "appLayout": {
+          "firmicore": "FirmiCore"
+        }
+      },
+      "machines": {
+        "breakdownHistoryList": {
+          "attemptedFixes": "උත්සාහ කළ විසඳුම්:",
+          "breakdownHistory": "බිඳවැටීම් ඉතිහාසය",
+          "noBreakdownHistoryForThis": "මෙම යන්ත්‍රයට තවම බිඳවැටීම් ඉතිහාසයක් නැත."
+        },
+        "conditionMonitoringTab": {
+          "logNewReading": "නව කියවීමක් සටහන් කරන්න",
+          "parameter": "පරාමිතිය",
+          "value": "අගය",
+          "unit": "ඒකකය",
+          "minOptional": "අවම (විකල්ප)",
+          "maxOptional": "උපරිම (විකල්ප)",
+          "loadingReadings": "කියවීම් පූරණය වෙමින්...",
+          "noReadingsLoggedYetUse": "තවම කියවීම් සටහන් කර නැත. පළමු කියවීම සටහන් කිරීමට ඉහත පෝරමය භාවිත කරන්න.",
+          "eGBearingTempVibration": "උදා. බෙයාරිං උෂ්ණත්වය, කම්පනය",
+          "acceptableMin": "පිළිගත හැකි අවම",
+          "acceptableMax": "පිළිගත හැකි උපරිම",
+          "parameterNameIsRequired": "පරාමිති නාමය අවශ්‍යයි",
+          "valueIsRequired": "අගය අවශ්‍යයි",
+          "readingLogged": "කියවීම සටහන් කළා"
+        },
+        "downtimeCostFields": {
+          "downtimeCost": "අක්‍රිය කාල පිරිවැය",
+          "edit": "සංස්කරණය",
+          "directHourlyRate": "සෘජු පැය ගාස්තුව",
+          "configureNow": "දැන් වින්‍යාස කරන්න",
+          "unitsValue": "ඒකක × අගය",
+          "currency": "මුදල් ඒකකය",
+          "lkr": "LKR",
+          "usd": "USD",
+          "aed": "AED",
+          "sar": "SAR",
+          "unitsProducedPerHour": "පැයකට නිපදවන ඒකක",
+          "cancel": "අවලංගු කරන්න",
+          "downtimeCostRatesUpdated": "අක්‍රිය කාල පිරිවැය ගාස්තු යාවත්කාලීන කළා."
+        },
+        "isolationPointsTab": {
+          "isolationPoints": "හුදකලා ස්ථාන",
+          "addIsolationPoint": "හුදකලා ස්ථානයක් එක් කරන්න",
+          "noIsolationPointsDefinedFor": "මෙම යන්ත්‍රය සඳහා හුදකලා ස්ථාන නිර්වචනය කර නැත.",
+          "newIsolationPoint": "නව හුදකලා ස්ථානය",
+          "label": "ලේබලය",
+          "location": "ස්ථානය",
+          "edit": "සංස්කරණය",
+          "delete": "මකන්න",
+          "labelEGMainPower": "ලේබලය (උදා. ප්‍රධාන විදුලි බ්‍රේකරය)",
+          "locationEGPanelB": "ස්ථානය (උදා. පැනලය B, පේළිය 3)",
+          "isolationPointsUpdated": "හුදකලා ස්ථාන යාවත්කාලීන කළා",
+          "labelIsRequired": "ලේබලය අවශ්‍යයි",
+          "deleteThisIsolationPoint": "මෙම හුදකලා ස්ථානය මකන්නද?"
+        },
+        "machineForm": {
+          "back": "ආපසු",
+          "next": "ඊළඟ",
+          "machineType": "යන්ත්‍ර වර්ගය *",
+          "selectAType": "වර්ගයක් තෝරන්න...",
+          "otherEnterCustomType": "වෙනත් — අභිරුචි වර්ගය ඇතුළත් කරන්න…",
+          "basicInformation": "මූලික තොරතුරු",
+          "machineName": "යන්ත්‍රයේ නම *",
+          "manufacturer": "නිෂ්පාදකයා *",
+          "model": "මාදිලිය",
+          "serialNumber": "අනුක්‍රමික අංකය",
+          "expectedLifespanYears": "අපේක්ෂිත ආයු කාලය (වසර)",
+          "purchaseDate": "මිලදී ගත් දිනය",
+          "installationDate": "ස්ථාපන දිනය",
+          "location": "ස්ථානය",
+          "plant": "කම්හල *",
+          "department": "දෙපාර්තමේන්තුව *",
+          "floor": "මහල",
+          "bay": "කොටස",
+          "station": "ස්ථානය",
+          "thisLocationDataWillAuto": "මෙම ස්ථාන දත්ත මෙම යන්ත්‍රයට සම්බන්ධ වැඩ ඇණවුම්වල ස්වයංක්‍රීයව පිරවේ",
+          "statusCriticality": "තත්ත්වය සහ තීරණාත්මකභාවය",
+          "status": "තත්ත්වය *",
+          "low": "අඩු",
+          "missionCritical": "අතිශය තීරණාත්මක",
+          "critical0": "තීරණාත්මක (0)",
+          "perfect100": "පරිපූර්ණ (100)",
+          "nextPmDate": "ඊළඟ PM දිනය",
+          "dateTheNextPreventiveMaintenance": "ඊළඟ වැළැක්වීමේ නඩත්තුව නියමිත දිනය. PM වැඩ ඇණවුමක් සම්පූර්ණ වූ විට ස්වයංක්‍රීයව යාවත්කාලීන වේ.",
+          "documentsPhotos": "ලේඛන සහ ඡායාරූප",
+          "photos": "ඡායාරූප",
+          "clickOrDragPhotosHere": "ක්ලික් කරන්න හෝ ඡායාරූප මෙහි අදින්න",
+          "warrantyInformation": "වගකීම් තොරතුරු",
+          "remove": "ඉවත් කරන්න",
+          "warrantyExpiryDate": "වගකීම කල් ඉකුත් වන දිනය",
+          "supplierReference": "සැපයුම්කරු / යොමුව",
+          "modificationNotes": "වෙනස් කිරීම් සටහන්",
+          "additionalNotes": "අමතර සටහන්",
+          "selectAPlant": "කම්හලක් තෝරන්න...",
+          "selectAPlantFirstTo": "දෙපාර්තමේන්තුව තේරීමට හෝ එක් කිරීමට පළමුව කම්හලක් තෝරන්න.",
+          "selectADepartment": "දෙපාර්තමේන්තුවක් තෝරන්න...",
+          "add": "එක් කරන්න",
+          "loadingDepartments": "දෙපාර්තමේන්තු පූරණය වෙමින්...",
+          "eGInjectionMolderPackaging": "උදා. එන්නත් අච්චු යන්ත්‍රය, ඇසුරුම් රේඛාව…",
+          "eGCncLatheMachine": "උදා. CNC ලේත් යන්ත්‍රය 01",
+          "eGMazakCorporation": "උදා. Mazak Corporation",
+          "eGQuickTurn200": "උදා. QUICK TURN 200",
+          "uniqueSerialNumber": "අද්විතීය අනුක්‍රමික අංකය",
+          "eGGround1st2nd": "උදා. බිම් මහල, 1 වන, 2 වන",
+          "partComponentName": "කොටස / සංරචක නාමය",
+          "eGWr2025001": "උදා. WR-2025-001",
+          "documentAnyModificationsMadeTo": "මෙම යන්ත්‍රයට කළ වෙනස් කිරීම් ලේඛනගත කරන්න...",
+          "anyOtherRelevantInformation": "වෙනත් අදාළ තොරතුරු...",
+          "newDepartmentName": "නව දෙපාර්තමේන්තු නාමය"
+        },
+        "machineHealthScore": {
+          "healthScore": "සෞඛ්‍ය ලකුණ"
+        },
+        "addMachinePage": {
+          "loading": "පූරණය වෙමින්...",
+          "machineLimitReached": "යන්ත්‍ර සීමාවට ළඟා විය",
+          "upgradePlan": "සැලැස්ම උසස් කරන්න"
+        },
+        "editMachinePage": {
+          "loading": "පූරණය වෙමින්...",
+          "loadingMachine": "යන්ත්‍රය පූරණය වෙමින්...",
+          "machineNotFound": "යන්ත්‍රය හමු නොවීය"
+        },
+        "machineListPage": {
+          "plant": "කම්හල *",
+          "selectThePlantTheseMachines": "මෙම යන්ත්‍ර අයත් කම්හල තෝරන්න..."
+        },
+        "machineQrPage": {
+          "firmicore": "FirmiCore"
+        },
+        "scanRedirectPage": {
+          "redirectingToBreakdownReport": "බිඳවැටීම් වාර්තාවට යොමු කරමින්..."
+        }
+      },
+      "pm": {
+        "pMFilterBar": {
+          "clear": "ඉවත් කරන්න",
+          "pmType": "PM වර්ගය",
+          "status": "තත්ත්වය",
+          "dateFrom": "දින සිට",
+          "dateTo": "දින දක්වා"
+        }
+      },
+      "reports": {
+        "pdfOptionsSection": {
+          "letter": "Letter"
+        }
+      },
+      "workorders": {
+        "checklistBuilder": {
+          "type": "වර්ගය:",
+          "checkbox": "සලකුණු කොටුව",
+          "measurement": "මිනුම",
+          "minutes": "මිනිත්තු",
+          "hours": "පැය",
+          "days": "දින",
+          "assignWorkers": "සේවකයින් පවරන්න:",
+          "downloadTemplate": "සැකිල්ල බාගන්න",
+          "duration": "කාලය",
+          "methodEGVisualMicrometer": "ක්‍රමය (උදා. දෘශ්‍ය, මයික්‍රොමීටරය)",
+          "min": "අවම",
+          "max": "උපරිම",
+          "moveUp": "ඉහළට",
+          "moveDown": "පහළට",
+          "removeStep": "පියවර ඉවත් කරන්න"
+        },
+        "documentUploadZone": {
+          "cadPdfImagesVideoZip": "CAD, PDF, රූප, වීඩියෝ, ZIP සහාය දක්වයි",
+          "removeFile": "ගොනුව ඉවත් කරන්න"
+        },
+        "machineHistoryTimeline": {
+          "rootCause": "මූල හේතුව:",
+          "contractor": "කොන්ත්‍රාත්කරු:",
+          "partsUsed": "භාවිත කළ කොටස්:"
+        },
+        "partsPreRequestPanel": {
+          "optionalNote": "විකල්ප සටහන…"
+        },
+        "qrCheckInModal": {
+          "checkInAtMachine": "යන්ත්‍රය ළඟ පැමිණීම සටහන් කරන්න",
+          "scanTheQrStickerOn": "මෙහි QR ස්ටිකරය ස්කෑන් කරන්න:",
+          "toRecordYourArrivalAnd": "ඔබේ පැමිණීම සටහන් කර වැඩ ඇණවුම ආරම්භ කිරීමට.",
+          "cancel": "අවලංගු කරන්න",
+          "close": "වසන්න"
+        },
+        "signatureCanvas": {
+          "clear": "ඉවත් කරන්න",
+          "useSignature": "අත්සන භාවිත කරන්න"
+        },
+        "wOCard": {
+          "contractor": "කොන්ත්‍රාත්කරු"
+        },
+        "wOReviewSignOffPanel": {
+          "workDoneByTeam": "කණ්ඩායම කළ වැඩ",
+          "noIndividualTasksRecorded": "තනි කාර්ය සටහන් කර නැත.",
+          "partsUsed": "භාවිත කළ කොටස්",
+          "totalPartsCost": "මුළු කොටස් පිරිවැය:",
+          "evidence": "සාක්ෂි",
+          "rootCauseAnalysisOptional": "මූල හේතු විශ්ලේෂණය (විකල්ප)",
+          "rootCauseCategory": "මූල හේතු කාණ්ඩය",
+          "rootCauseDescription": "මූල හේතු විස්තරය",
+          "correctiveAction": "නිවැරදි කිරීමේ ක්‍රියාමාර්ගය",
+          "createACorrectiveWorkOrder": "මෙම ක්‍රියාමාර්ගයෙන් නිවැරදි කිරීමේ වැඩ ඇණවුමක් සාදන්න",
+          "continueToSignOff": "අනුමැතියට ඉදිරියට යන්න",
+          "workDone": "කළ වැඩ",
+          "machineStatusAfter": "පසු යන්ත්‍ර තත්ත්වය",
+          "testRun": "පරීක්ෂණ ධාවනය",
+          "checklist": "පරීක්ෂණ ලැයිස්තුව",
+          "testNotes": "පරීක්ෂණ සටහන්",
+          "describeTheUnderlyingRootCause": "යටින් පවතින මූල හේතුව විස්තර කරන්න…",
+          "rootCauseDescriptionIsRequired": "විශ්ලේෂණය සුරැකීමට මූල හේතු විස්තරය අවශ්‍යයි.",
+          "correctiveWorkOrderCreated": "නිවැරදි කිරීමේ වැඩ ඇණවුම සාදන ලදී.",
+          "rootCauseAnalysisSaved": "මූල හේතු විශ්ලේෂණය සුරැකුවා."
+        },
+        "wOSignOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "kaizen": {
+        "kaizenBoard": {
+          "newKaizen": "නව කයිසන්",
+          "rejectedOnHold": "ප්‍රතික්ෂේපිත / රඳවා ඇත"
+        },
+        "kaizenDetail": {
+          "loading": "පූරණය වෙමින්...",
+          "problem": "ගැටලුව",
+          "suggestedSolution": "යෝජිත විසඳුම",
+          "beforePhotos": "පෙර ඡායාරූප",
+          "afterPhotos": "පසු ඡායාරූප",
+          "rejectionReason": "ප්‍රතික්ෂේප කිරීමට හේතුව",
+          "onHold": "රඳවා ඇත",
+          "stateHistory": "තත්ත්ව ඉතිහාසය",
+          "comments": "අදහස්",
+          "noCommentsYet": "තවම අදහස් නැත.",
+          "internal": "අභ්‍යන්තර",
+          "internalSupervisorsOnly": "අභ්‍යන්තර (අධීක්ෂකවරුන්ට පමණි)",
+          "benefitDataNotYetAvailable": "ප්‍රතිලාභ දත්ත තවම නොමැත",
+          "estimatedCost": "ඇස්තමේන්තුගත පිරිවැය",
+          "actualCost": "සැබෑ පිරිවැය",
+          "estMonthlyBenefit": "ඇස්ත. මාසික ප්‍රතිලාභය",
+          "actualMonthlyBenefit": "සැබෑ මාසික ප්‍රතිලාභය",
+          "paybackPeriod": "ආපසු ගෙවීමේ කාලය",
+          "putOnHold": "රඳවන්න",
+          "reject": "ප්‍රතික්ෂේප කරන්න",
+          "rejectionReasonRequired": "ප්‍රතික්ෂේප කිරීමට හේතුව (අවශ්‍යයි)",
+          "cancel": "අවලංගු කරන්න",
+          "addAComment": "අදහසක් එක් කරන්න...",
+          "notesForThisTransitionOptional": "මෙම සංක්‍රමණය සඳහා සටහන් (විකල්ප)",
+          "whyIsThisBeingRejected": "මෙය ප්‍රතික්ෂේප කරන්නේ ඇයි?",
+          "reasonForHold": "රඳවීමට හේතුව",
+          "failedToVote": "ඡන්දය දීම අසාර්ථකයි",
+          "rejectionReasonIsRequired": "ප්‍රතික්ෂේප කිරීමට හේතුව අවශ්‍යයි",
+          "kaizenRejected": "කයිසන් ප්‍රතික්ෂේප කළා",
+          "kaizenPutOnHold": "කයිසන් රඳවා ඇත",
+          "failedToAddComment": "අදහස එක් කිරීම අසාර්ථකයි",
+          "photoUploaded": "ඡායාරූපය උඩුගත කළා",
+          "uploadFailed": "උඩුගත කිරීම අසාර්ථකයි"
+        },
+        "kaizenForm": {
+          "raiseAKaizen": "කයිසන් එකක් ඉදිරිපත් කරන්න",
+          "title": "මාතෘකාව",
+          "whatIsTheProblem": "ගැටලුව කුමක්ද?",
+          "category": "කාණ්ඩය",
+          "priority": "ප්‍රමුඛතාව",
+          "location": "ස්ථානය",
+          "beforePhotos": "පෙර ඡායාරූප",
+          "suggestedSolution": "යෝජිත විසඳුම",
+          "estimatedCostLkr": "ඇස්තමේන්තුගත පිරිවැය (LKR)",
+          "monthlyBenefitLkr": "මාසික ප්‍රතිලාභය (LKR)",
+          "tags": "ටැග්",
+          "hereSHowYourKaizen": "ඔබේ කයිසන් පුවරුවේ දිස්වන්නේ මෙසේයි:",
+          "summary": "සාරාංශය",
+          "category2": "කාණ්ඩය:",
+          "priority2": "ප්‍රමුඛතාව:",
+          "estCost": "ඇස්ත. පිරිවැය:",
+          "monthlyBenefit": "මාසික ප්‍රතිලාභය:",
+          "back": "ආපසු",
+          "cancel": "අවලංගු කරන්න",
+          "next": "ඊළඟ",
+          "briefDescriptionOfTheIssue": "ගැටලුවේ කෙටි විස්තරය",
+          "describeTheCurrentProblemClearly": "වත්මන් ගැටලුව පැහැදිලිව විස්තර කරන්න...",
+          "machineNameOrId": "යන්ත්‍රයේ නම හෝ ID",
+          "departmentOrZoneEG": "දෙපාර්තමේන්තුව හෝ කලාපය (උදා. එකලස් රේඛාව 3)",
+          "describeHowYouSuggestFixing": "මෙය විසඳීමට ඔබ යෝජනා කරන ආකාරය විස්තර කරන්න...",
+          "addATag": "ටැගයක් එක් කරන්න...",
+          "failedToUploadPhoto": "ඡායාරූපය උඩුගත කිරීම අසාර්ථකයි",
+          "kaizenRaisedSuccessfully": "කයිසන් සාර්ථකව ඉදිරිපත් කළා!"
+        },
+        "kaizenListView": {
+          "bulkApprove": "තොග වශයෙන් අනුමත කරන්න",
+          "bulkReject": "තොග වශයෙන් ප්‍රතික්ෂේප කරන්න",
+          "confirm": "තහවුරු කරන්න",
+          "exportExcel": "Excel අපනයනය",
+          "loading": "පූරණය වෙමින්...",
+          "noKaizenCardsYet": "තවම කයිසන් කාඩ්පත් නැත",
+          "raiseTheFirstImprovementIdea": "පළමු වැඩිදියුණු කිරීමේ අදහස ඉදිරිපත් කරන්න!",
+          "rejectionReason": "ප්‍රතික්ෂේප කිරීමට හේතුව",
+          "title": "මාතෘකාව",
+          "category": "කාණ්ඩය",
+          "status": "තත්ත්වය",
+          "priority": "ප්‍රමුඛතාව",
+          "raisedBy": "ඉදිරිපත් කළ අය",
+          "votes": "ඡන්ද",
+          "estBenefit": "ඇස්ත. ප්‍රතිලාභය",
+          "date": "දිනය",
+          "noReviewedCardsSelected": "සමාලෝචනය කළ කාඩ්පත් තෝරා නැත",
+          "rejectionReasonRequired": "ප්‍රතික්ෂේප කිරීමට හේතුව අවශ්‍යයි"
+        },
+        "kaizenMonthlyDigest": {
+          "monthlyKaizenDigestFactoryPro": "මාසික කයිසන් සාරාංශය — Factory Pro",
+          "generatePdfReportsOfMonthly": "නව කාඩ්පත්, ක්‍රියාත්මක කිරීම්, ROI සහ ඉහළම දායකයින්ගේ ඇගයීම ඇතුළුව මාසික කයිසන් ක්‍රියාකාරකම්වල PDF වාර්තා සකසන්න.",
+          "upgradeToFactoryPro": "Factory Pro වෙත උසස් කරන්න",
+          "month": "මාසය:",
+          "printExportPdf": "මුද්‍රණය / PDF අපනයනය",
+          "kaizenMonthlyDigest": "කයිසන් මාසික සාරාංශය",
+          "generatingDigest": "සාරාංශය සකසමින්...",
+          "monthlySummary": "මාසික සාරාංශය",
+          "title": "මාතෘකාව",
+          "category": "කාණ්ඩය",
+          "priority": "ප්‍රමුඛතාව",
+          "raisedBy": "ඉදිරිපත් කළ අය",
+          "status": "තත්ත්වය",
+          "actualCostLkr": "සැබෑ පිරිවැය (LKR)",
+          "actualBenefitMoLkr": "සැබෑ ප්‍රතිලාභය/මාසය (LKR)",
+          "topContributorThisMonth": "මෙම මාසයේ ඉහළම දායකයා"
+        },
+        "kaizenStats": {
+          "byStatus": "තත්ත්වය අනුව",
+          "byCategory": "කාණ්ඩය අනුව",
+          "topContributors": "ඉහළම දායකයින්",
+          "noDataYet": "තවම දත්ත නැත",
+          "monthlyKaizenTrend12Months": "මාසික කයිසන් ප්‍රවණතාව (මාස 12)",
+          "roiPaybackDistribution": "ROI ආපසු ගෙවීමේ ව්‍යාප්තිය",
+          "estimatedVsActualBenefit": "ඇස්තමේන්තුගත එදිරිව සැබෑ ප්‍රතිලාභය",
+          "roiAnalyticsFactoryPro": "ROI විශ්ලේෂණ — Factory Pro",
+          "upgradeToFactoryProTo": "ROI ව්‍යාප්තිය, ආපසු ගෙවීමේ විශ්ලේෂණය සහ ප්‍රතිලාභ නිරීක්ෂණය විවෘත කිරීමට Factory Pro වෙත උසස් කරන්න.",
+          "upgrade": "උසස් කරන්න"
+        },
+        "kaizenPage": {
+          "kaizenBoard": "කයිසන් පුවරුව",
+          "myKaizens": "මගේ කයිසන්",
+          "category": "කාණ්ඩය:",
+          "all": "සියල්ල",
+          "priority": "ප්‍රමුඛතාව:",
+          "searchKaizens": "කයිසන් සොයන්න...",
+          "newKaizen": "නව කයිසන්"
+        }
+      },
+      "safety": {
+        "safetyBlacklistPage": {
+          "safetyBlacklist": "ආරක්ෂක කළු ලැයිස්තුව",
+          "currentlyBlacklisted": "දැනට කළු ලැයිස්තුගත",
+          "from": "සිට",
+          "to": "දක්වා",
+          "blacklistedOnly": "කළු ලැයිස්තුගත ඒවා පමණි",
+          "name": "නම",
+          "type": "වර්ගය",
+          "points": "ලකුණු",
+          "cases": "සිද්ධි",
+          "lastCase": "අවසන් සිද්ධිය",
+          "status": "තත්ත්වය",
+          "blacklisted": "කළු ලැයිස්තුගත",
+          "ok": "OK",
+          "clearTo0": "0 දක්වා ඉවත් කරන්න",
+          "minPoints": "අවම ලකුණු",
+          "pointsByEntity": "ආයතනය අනුව ලකුණු"
+        },
+        "safetyCalendarPage": {
+          "backToSafetyTrainings": "ආරක්ෂක පුහුණු වෙත ආපසු",
+          "safetyTrainingSchedules": "ආරක්ෂක පුහුණු කාලසටහන්",
+          "noSafetyTrainingsScheduledThis": "මෙම දිනයට ආරක්ෂක පුහුණු සැලසුම් කර නැත.",
+          "assign": "පවරන්න"
+        },
+        "safetyDashboard": {
+          "safetyDashboard": "ආරක්ෂක උපකරණ පුවරුව",
+          "reportSafetyCase": "ආරක්ෂක සිද්ධියක් වාර්තා කරන්න"
+        }
+      },
+      "breakdowns": {
+        "publicBreakdownReportPage": {
+          "firmi": "Firmi",
+          "core": "Core",
+          "reportABreakdownNoSign": "බිඳවැටීමක් වාර්තා කරන්න — පිවිසීම අවශ්‍ය නැත",
+          "breakdownReported": "බිඳවැටීම වාර්තා කළා",
+          "ticket": "ටිකට්පත",
+          "hasBeenSentToThe": "නඩත්තු කණ්ඩායමට යවා ඇත.",
+          "youCanCloseThisPage": "ඔබට මෙම පිටුව වැසිය හැක.",
+          "thisIsTakingLongerThan": "මෙය සාමාන්‍යයට වඩා වැඩි කාලයක් ගනී. ඔබේ සම්බන්ධතාව පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+          "retry": "නැවත උත්සාහ කරන්න",
+          "loadingMachine": "යන්ත්‍රය පූරණය වෙමින්…",
+          "reportingOn": "වාර්තා කරන්නේ",
+          "whatHappened": "සිදු වූයේ කුමක්ද? *",
+          "machineIsStillRunningDegraded": "යන්ත්‍රය තවමත් ක්‍රියාත්මකයි (දුර්වල නමුත් ක්‍රියාකාරී)",
+          "signIn": "පිවිසෙන්න",
+          "firmicore": "FirmiCore",
+          "describeTheSymptomsErrorCodes": "රෝග ලක්ෂණ, දෝෂ කේත, ශබ්ද ආදිය විස්තර කරන්න. නැතහොත් මයික් එක ඔබා සිදු වූ දේ අපට කියන්න.",
+          "machineInformationIsNotLoaded": "යන්ත්‍ර තොරතුරු තවම පූරණය වී නැත.",
+          "pleaseDescribeTheBreakdownIn": "බිඳවැටීම අවම වශයෙන් අක්ෂර 10කින් විස්තර කරන්න."
+        }
+      },
+      "dashboard": {
+        "floorOperatorDashboard": {
+          "dashboard": "උපකරණ පුවරුව"
+        }
       }
     }
   },

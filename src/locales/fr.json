@@ -800,7 +800,9 @@
         },
         "errors": {
           "unknown": "Erreur inconnue"
-        }
+        },
+        "inventoryItemLimitReached": "Limite d'articles d'inventaire atteinte",
+        "upgradePlan": "Changer de forfait"
       },
       "editPartPage": {
         "title": "Modifier la Pièce",
@@ -1133,6 +1135,242 @@
         "stockGauge": {
           "max": "Max",
           "min": "Min"
+        }
+      },
+      "suppliersPage": {
+        "toasts": {
+          "missingCompany": "Contexte de l'entreprise manquant. Veuillez vous reconnecter.",
+          "noRows": "Le fichier ne contient aucune ligne de données. Partez de l'exemple.",
+          "nameColumn": "Le fichier doit contenir une colonne \"name\" (voir l'exemple).",
+          "noValidRows": "Aucune ligne de fournisseur valide dans le fichier.",
+          "imported_one": "{{count}} fournisseur importé.",
+          "imported_other": "{{count}} fournisseurs importés.",
+          "importFailed": "Échec de l'import des fournisseurs. Comparez le format CSV avec l'exemple.",
+          "nameRequired": "Le nom du fournisseur est obligatoire.",
+          "updated": "Fournisseur mis à jour.",
+          "added": "Fournisseur ajouté ({{code}}).",
+          "saveFailed": "Échec de l'enregistrement du fournisseur.",
+          "removed": "Fournisseur supprimé.",
+          "removeFailed": "Échec de la suppression du fournisseur."
+        },
+        "confirmRemove": "Supprimer le fournisseur \"{{name}}\" ?",
+        "title": "Fournisseurs",
+        "sampleCsv": "CSV d'exemple",
+        "importing": "Importation…",
+        "import": "Importer (CSV/Excel)",
+        "addSupplier": "Ajouter un fournisseur",
+        "editSupplier": "Modifier le fournisseur",
+        "empty": "Aucun fournisseur. Ajoutez-en un pour pouvoir le sélectionner lors de la création d'un bon de commande.",
+        "noContact": "Aucune coordonnée",
+        "editAria": "Modifier le fournisseur",
+        "removeAria": "Supprimer le fournisseur",
+        "fields": {
+          "contactPerson": "Contact",
+          "phone": "Téléphone",
+          "email": "E-mail",
+          "address": "Adresse",
+          "country": "Pays",
+          "website": "Site web",
+          "paymentMethod": "Mode de paiement",
+          "bankDetails": "Coordonnées bancaires",
+          "notes": "Notes",
+          "nameRequired": "Nom *"
+        },
+        "placeholders": {
+          "name": "Nom du fournisseur / de l'entreprise",
+          "country": "ex. LK ou Sri Lanka",
+          "paymentMethod": "ex. Virement bancaire",
+          "bankDetails": "Banque, n° de compte"
+        },
+        "cancel": "Annuler",
+        "saving": "Enregistrement…",
+        "save": "Enregistrer le fournisseur"
+      },
+      "movementLogPage": {
+        "stockMovementLog": "Journal des mouvements de stock",
+        "completeAuditTrailReadOnly": "Piste d'audit complète · lecture seule",
+        "exportToExcel": "Exporter vers Excel",
+        "clear": "Effacer",
+        "dateTime": "Date / heure",
+        "part": "Pièce",
+        "type": "Type",
+        "change": "Variation",
+        "beforeAfter": "Avant → Après",
+        "reference": "Référence",
+        "by": "Par",
+        "notes": "Notes",
+        "referenceType": "Type de référence",
+        "workOrder": "Ordre de travail",
+        "unitCostAtTime": "Coût unitaire à ce moment",
+        "costImpact": "Impact sur le coût",
+        "noMovementsFound": "Aucun mouvement trouvé",
+        "tryAdjustingYourSearchOr": "Essayez d'ajuster votre recherche ou la période.",
+        "noMovementsFound2": "Aucun mouvement trouvé.",
+        "searchByPartOrPerson": "Rechercher par pièce ou personne…"
+      },
+      "inventoryDashboardPage": {
+        "inventory": "Inventaire",
+        "checkRequestStatusAndBrowse": "Consultez l'état des demandes et parcourez le catalogue de pièces.",
+        "requestParts": "Demander des pièces",
+        "youAreCurrentlyOfflineShowing": "Vous êtes hors ligne. Données en cache affichées — les modifications seront synchronisées à la reconnexion.",
+        "inventoryManagement": "Gestion des stocks",
+        "addItem": "Ajouter un article",
+        "createPo": "Créer un BC",
+        "scanIssue": "Scanner et sortir",
+        "partsReturns": "Retours de pièces",
+        "suppliers": "Fournisseurs",
+        "lowStockAlerts": "Alertes de stock bas",
+        "purchaseOrders": "Bons de commande",
+        "viewAll": "Tout voir",
+        "requestsAwaitingYourApprovalPurchase": "Demandes en attente de votre approbation, bons de commande et catalogue de pièces.",
+        "pendingPoRequests": "Demandes de BC en attente",
+        "pendingReturn": "Retour en attente"
+      },
+      "manualIssuePage": {
+        "scanIssueParts": "Scanner et sortir des pièces",
+        "scanAPartQrCode": "Scannez le code QR d'une pièce ou recherchez-la par nom/numéro pour la sortir directement du stock — lorsqu'aucune demande n'existe encore (ex. une panne traitée sur place). Ajoutez toutes les pièces nécessaires, fixez les quantités, puis sortez tout le lot en une fois.",
+        "searchManually": "Rechercher manuellement",
+        "searching": "Recherche…",
+        "clearBatch": "Vider le lot",
+        "quantity": "Quantité",
+        "returnableExpectedBackInStock": "Retournable — retour en stock attendu une fois le travail terminé",
+        "issuingTo": "Remis à *",
+        "theyLlBeNotifiedAnd": "La personne sera notifiée et cela apparaîtra dans ses Pièces à récupérer / Retours en attente.",
+        "reason": "Motif *",
+        "workOrderOptional": "Ordre de travail (facultatif)",
+        "appliedToEveryPartIn": "Appliqué à toutes les pièces de ce lot.",
+        "searchByPartNameOr": "Rechercher par nom ou numéro de pièce…",
+        "describeTheReason": "Décrivez le motif…",
+        "scanPartToIssue": "Scanner la pièce à sortir",
+        "failedToLookUpPart": "Échec de la recherche de la pièce.",
+        "enterAReasonForIssuing": "Saisissez un motif pour la sortie de ces pièces.",
+        "fixTheHighlightedQuantitiesBefore": "Corrigez les quantités surlignées avant la sortie.",
+        "selectWhoIsTakingThese": "Sélectionnez qui prend ces pièces."
+      },
+      "inventorySettingsPage": {
+        "inventorySettings": "Paramètres de l'inventaire",
+        "configureApprovalThresholdsNotificationsAnd": "Configurez les seuils d'approbation, les notifications, etc.",
+        "notifications": "Notifications",
+        "enableLowStockAlerts": "Activer les alertes de stock bas",
+        "notifyRoles": "Rôles à notifier",
+        "numberingPrefixes": "Préfixes de numérotation",
+        "preview": "Aperçu :",
+        "returnPolicy": "Politique de retour",
+        "requireTechniciansToLogUnused": "Exiger que les techniciens enregistrent les retours de pièces inutilisées",
+        "supplierCommunication": "Communication fournisseurs",
+        "purchaseOrderEmailLanguage": "Langue des e-mails de bon de commande",
+        "languageUsedForOutboundPo": "Langue des e-mails de BC envoyés aux fournisseurs (document de BC, tarifs, annulations et avis de livraison).",
+        "settingsSaved": "Paramètres enregistrés.",
+        "failedToSaveSettings": "Échec de l'enregistrement des paramètres."
+      },
+      "inventoryReportsPage": {
+        "inventoryReports": "Rapports d'inventaire",
+        "generateAndExportInventoryReports": "Générez et exportez des rapports d'inventaire.",
+        "generatePdf": "Générer un PDF",
+        "exportExcel": "Exporter Excel",
+        "dateRange": "Période",
+        "start": "Début",
+        "month": "Mois",
+        "end": "Fin",
+        "machineOptional": "Machine (facultatif)",
+        "categoryOptional": "Catégorie (facultatif)",
+        "cancel": "Annuler",
+        "allMachines": "Toutes les machines",
+        "allCategories": "Toutes les catégories",
+        "reportGeneratedSuccessfully": "Rapport généré avec succès."
+      },
+      "partReturnsPage": {
+        "backToInventory": "Retour à l'inventaire",
+        "partsReturns": "Retours de pièces",
+        "confirmPartsBeingPhysicallyReturned": "Confirmez les pièces physiquement retournées au stock par les demandeurs."
+      },
+      "receiveStockPage": {
+        "receiveNewStock": "Réceptionner du stock"
+      },
+      "ui": {
+        "outOfStockWidget": {
+          "reorder": "Réapprovisionner"
+        },
+        "partsCatalogWidget": {
+          "partsCatalog": "Catalogue de pièces",
+          "viewAll": "Tout voir",
+          "noPartsInCatalogYet": "Aucune pièce dans le catalogue."
+        },
+        "pendingRequestsWidget": {
+          "viewAll": "Tout voir"
+        },
+        "recentMovementsWidget": {
+          "recentStockMovements": "Mouvements de stock récents",
+          "noRecentMovements": "Aucun mouvement récent"
+        },
+        "reservedStockWidget": {
+          "partsToCollect": "Pièces à récupérer",
+          "noPartsCurrentlyReserved": "Aucune pièce réservée",
+          "confirmCollection": "Confirmer la récupération"
+        },
+        "receiveAgainstPo": {
+          "selectPurchaseOrder": "Sélectionner un bon de commande",
+          "receiveDate": "Date de réception",
+          "deliveryReference": "Référence de livraison",
+          "finalCostTotal": "Coût total final",
+          "notesOptional": "Notes (facultatif)",
+          "generating": "Génération…",
+          "anyAdditionalNotesAboutThis": "Notes supplémentaires sur cette livraison…",
+          "sendTheSupplierAnEmail": "Envoyer au fournisseur un e-mail avec le contenu actuel du formulaire — à utiliser si vous avez modifié une quantité, un état ou une note après avoir confirmé une réception",
+          "emailResentWithTheCurrent": "E-mail renvoyé avec les détails de réception actuels. Le BC est revenu à Facture reçue.",
+          "nothingToSendAddA": "Rien à envoyer — ajoutez une quantité reçue/endommagée ou vérifiez que le fournisseur a un e-mail enregistré.",
+          "failedToResendEmail": "Échec du renvoi de l'e-mail."
+        },
+        "receiveItemRow": {
+          "ordered": "Commandé :",
+          "unitCostLkr": "Coût unitaire (LKR)",
+          "condition": "État",
+          "notesOptional": "Notes (facultatif)",
+          "remove": "Retirer",
+          "anyNotesAboutThisItem": "Notes sur cet article…"
+        },
+        "partReturnQueueRow": {
+          "returned": "Retourné",
+          "reject": "Rejeter",
+          "conditionReceived": "État à la réception",
+          "notesOptional": "Notes (facultatif)",
+          "reasonForDispute": "Motif du litige"
+        },
+        "categorySelect": {
+          "selectCategory": "Sélectionnez une catégorie…",
+          "otherManuallyCreated": "Autre (créée manuellement)…",
+          "enterCustomCategoryName": "Saisissez un nom de catégorie"
+        },
+        "machineSelect": {
+          "loading": "Chargement…",
+          "noMachinesFound": "Aucune machine trouvée.",
+          "searchMachines": "Rechercher des machines…"
+        },
+        "partQrScanModal": {
+          "cancel": "Annuler",
+          "close": "Fermer"
+        },
+        "partSearchInput": {
+          "searching": "Recherche…",
+          "noPartsFound": "Aucune pièce trouvée"
+        },
+        "quickStockAdjust": {
+          "adjust": "Ajuster",
+          "quickAdjust": "Ajustement rapide",
+          "current": "Actuel :",
+          "quantityChange": "Variation de quantité",
+          "newStock": "Nouveau stock :",
+          "reason": "Motif",
+          "quickStockAdjust": "Ajustement rapide du stock",
+          "eGCountedDuringStocktake": "ex. Compté lors de l'inventaire",
+          "reasonIsRequired": "Le motif est obligatoire.",
+          "adjustmentQuantityCannotBeZero": "La quantité d'ajustement ne peut pas être nulle.",
+          "stockCannotGoBelowZero": "Le stock ne peut pas être négatif."
+        },
+        "stockLevelIndicator": {
+          "current": "Actuel",
+          "reserved": "Réservé",
+          "available": "Disponible"
         }
       }
     },
@@ -8903,6 +9141,426 @@
         "trialUntil": "Votre essai gratuit dure jusqu'au",
         "saving": "Enregistrement...",
         "complete": "Terminer la configuration"
+      }
+    },
+    "ui2": {
+      "auth": {
+        "authLoading": {
+          "firmi": "Firmi",
+          "core": "Core"
+        }
+      },
+      "contractors": {
+        "signOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "layout": {
+        "appLayout": {
+          "firmicore": "FirmiCore"
+        }
+      },
+      "machines": {
+        "breakdownHistoryList": {
+          "attemptedFixes": "Réparations tentées :",
+          "breakdownHistory": "Historique des pannes",
+          "noBreakdownHistoryForThis": "Aucun historique de panne pour cette machine."
+        },
+        "conditionMonitoringTab": {
+          "logNewReading": "Enregistrer une nouvelle mesure",
+          "parameter": "Paramètre",
+          "value": "Valeur",
+          "unit": "Unité",
+          "minOptional": "Min (facultatif)",
+          "maxOptional": "Max (facultatif)",
+          "loadingReadings": "Chargement des mesures...",
+          "noReadingsLoggedYetUse": "Aucune mesure enregistrée. Utilisez le formulaire ci-dessus pour enregistrer la première.",
+          "eGBearingTempVibration": "ex. Temp. roulement, vibrations",
+          "acceptableMin": "Minimum acceptable",
+          "acceptableMax": "Maximum acceptable",
+          "parameterNameIsRequired": "Le nom du paramètre est obligatoire",
+          "valueIsRequired": "La valeur est obligatoire",
+          "readingLogged": "Mesure enregistrée"
+        },
+        "downtimeCostFields": {
+          "downtimeCost": "Coût d'arrêt",
+          "edit": "Modifier",
+          "directHourlyRate": "Taux horaire direct",
+          "configureNow": "Configurer maintenant",
+          "unitsValue": "Unités × valeur",
+          "currency": "Devise",
+          "lkr": "LKR",
+          "usd": "USD",
+          "aed": "AED",
+          "sar": "SAR",
+          "unitsProducedPerHour": "Unités produites par heure",
+          "cancel": "Annuler",
+          "downtimeCostRatesUpdated": "Taux de coût d'arrêt mis à jour."
+        },
+        "isolationPointsTab": {
+          "isolationPoints": "Points d'isolement",
+          "addIsolationPoint": "Ajouter un point d'isolement",
+          "noIsolationPointsDefinedFor": "Aucun point d'isolement défini pour cette machine.",
+          "newIsolationPoint": "Nouveau point d'isolement",
+          "label": "Libellé",
+          "location": "Emplacement",
+          "edit": "Modifier",
+          "delete": "Supprimer",
+          "labelEGMainPower": "Libellé (ex. Disjoncteur principal)",
+          "locationEGPanelB": "Emplacement (ex. Armoire B, rangée 3)",
+          "isolationPointsUpdated": "Points d'isolement mis à jour",
+          "labelIsRequired": "Le libellé est obligatoire",
+          "deleteThisIsolationPoint": "Supprimer ce point d'isolement ?"
+        },
+        "machineForm": {
+          "back": "Retour",
+          "next": "Suivant",
+          "machineType": "Type de machine *",
+          "selectAType": "Sélectionnez un type...",
+          "otherEnterCustomType": "AUTRE — SAISIR UN TYPE…",
+          "basicInformation": "Informations de base",
+          "machineName": "Nom de la machine *",
+          "manufacturer": "Fabricant *",
+          "model": "Modèle",
+          "serialNumber": "Numéro de série",
+          "expectedLifespanYears": "Durée de vie prévue (ans)",
+          "purchaseDate": "Date d'achat",
+          "installationDate": "Date d'installation",
+          "location": "Emplacement",
+          "plant": "Usine *",
+          "department": "Service *",
+          "floor": "Étage",
+          "bay": "Travée",
+          "station": "Poste",
+          "thisLocationDataWillAuto": "Ces données d'emplacement rempliront automatiquement les ordres de travail liés à cette machine",
+          "statusCriticality": "Statut et criticité",
+          "status": "Statut *",
+          "low": "Faible",
+          "missionCritical": "Critique",
+          "critical0": "Critique (0)",
+          "perfect100": "Parfait (100)",
+          "nextPmDate": "Date de la prochaine MP",
+          "dateTheNextPreventiveMaintenance": "Date de la prochaine maintenance préventive. Mise à jour automatique à la clôture d'un OT de MP.",
+          "documentsPhotos": "Documents et photos",
+          "photos": "Photos",
+          "clickOrDragPhotosHere": "Cliquez ou glissez des photos ici",
+          "warrantyInformation": "Informations de garantie",
+          "remove": "Retirer",
+          "warrantyExpiryDate": "Date de fin de garantie",
+          "supplierReference": "Fournisseur / référence",
+          "modificationNotes": "Notes de modification",
+          "additionalNotes": "Notes supplémentaires",
+          "selectAPlant": "Sélectionnez une usine...",
+          "selectAPlantFirstTo": "Sélectionnez d'abord une usine pour choisir ou ajouter son service.",
+          "selectADepartment": "Sélectionnez un service...",
+          "add": "Ajouter",
+          "loadingDepartments": "Chargement des services...",
+          "eGInjectionMolderPackaging": "ex. Presse à injecter, ligne d'emballage…",
+          "eGCncLatheMachine": "ex. Tour CNC 01",
+          "eGMazakCorporation": "ex. Mazak Corporation",
+          "eGQuickTurn200": "ex. QUICK TURN 200",
+          "uniqueSerialNumber": "Numéro de série unique",
+          "eGGround1st2nd": "ex. RDC, 1er, 2e",
+          "partComponentName": "Nom de la pièce / du composant",
+          "eGWr2025001": "ex. WR-2025-001",
+          "documentAnyModificationsMadeTo": "Documentez les modifications apportées à cette machine...",
+          "anyOtherRelevantInformation": "Toute autre information utile...",
+          "newDepartmentName": "Nom du nouveau service"
+        },
+        "machineHealthScore": {
+          "healthScore": "Score de santé"
+        },
+        "addMachinePage": {
+          "loading": "Chargement...",
+          "machineLimitReached": "Limite de machines atteinte",
+          "upgradePlan": "Changer de forfait"
+        },
+        "editMachinePage": {
+          "loading": "Chargement...",
+          "loadingMachine": "Chargement de la machine...",
+          "machineNotFound": "Machine introuvable"
+        },
+        "machineListPage": {
+          "plant": "Usine *",
+          "selectThePlantTheseMachines": "Sélectionnez l'usine de ces machines..."
+        },
+        "machineQrPage": {
+          "firmicore": "FirmiCore"
+        },
+        "scanRedirectPage": {
+          "redirectingToBreakdownReport": "Redirection vers le signalement de panne..."
+        }
+      },
+      "pm": {
+        "pMFilterBar": {
+          "clear": "Effacer",
+          "pmType": "Type de MP",
+          "status": "Statut",
+          "dateFrom": "Du",
+          "dateTo": "Au"
+        }
+      },
+      "reports": {
+        "pdfOptionsSection": {
+          "letter": "Lettre"
+        }
+      },
+      "workorders": {
+        "checklistBuilder": {
+          "type": "Type :",
+          "checkbox": "Case à cocher",
+          "measurement": "Mesure",
+          "minutes": "Minutes",
+          "hours": "Heures",
+          "days": "Jours",
+          "assignWorkers": "Affecter des intervenants :",
+          "downloadTemplate": "Télécharger le modèle",
+          "duration": "Durée",
+          "methodEGVisualMicrometer": "Méthode (ex. visuelle, micromètre)",
+          "min": "Min",
+          "max": "Max",
+          "moveUp": "Monter",
+          "moveDown": "Descendre",
+          "removeStep": "Supprimer l'étape"
+        },
+        "documentUploadZone": {
+          "cadPdfImagesVideoZip": "CAO, PDF, images, vidéo, ZIP acceptés",
+          "removeFile": "Retirer le fichier"
+        },
+        "machineHistoryTimeline": {
+          "rootCause": "Cause racine :",
+          "contractor": "Prestataire :",
+          "partsUsed": "Pièces utilisées :"
+        },
+        "partsPreRequestPanel": {
+          "optionalNote": "Note facultative…"
+        },
+        "qrCheckInModal": {
+          "checkInAtMachine": "Pointer à la machine",
+          "scanTheQrStickerOn": "Scannez l'étiquette QR sur",
+          "toRecordYourArrivalAnd": "pour enregistrer votre arrivée et démarrer l'ordre de travail.",
+          "cancel": "Annuler",
+          "close": "Fermer"
+        },
+        "signatureCanvas": {
+          "clear": "Effacer",
+          "useSignature": "Utiliser la signature"
+        },
+        "wOCard": {
+          "contractor": "Prestataire"
+        },
+        "wOReviewSignOffPanel": {
+          "workDoneByTeam": "Travail réalisé par l'équipe",
+          "noIndividualTasksRecorded": "Aucune tâche individuelle enregistrée.",
+          "partsUsed": "Pièces utilisées",
+          "totalPartsCost": "Coût total des pièces :",
+          "evidence": "Preuves",
+          "rootCauseAnalysisOptional": "Analyse des causes racines (facultatif)",
+          "rootCauseCategory": "Catégorie de cause racine",
+          "rootCauseDescription": "Description de la cause racine",
+          "correctiveAction": "Action corrective",
+          "createACorrectiveWorkOrder": "Créer un ordre de travail correctif à partir de cette action",
+          "continueToSignOff": "Continuer vers la validation",
+          "workDone": "Travail effectué",
+          "machineStatusAfter": "État de la machine après",
+          "testRun": "Essai de fonctionnement",
+          "checklist": "Liste de contrôle",
+          "testNotes": "Notes d'essai",
+          "describeTheUnderlyingRootCause": "Décrivez la cause racine sous-jacente…",
+          "rootCauseDescriptionIsRequired": "La description de la cause racine est requise pour enregistrer l'analyse.",
+          "correctiveWorkOrderCreated": "Ordre de travail correctif créé.",
+          "rootCauseAnalysisSaved": "Analyse des causes racines enregistrée."
+        },
+        "wOSignOffForm": {
+          "lkr": "LKR"
+        }
+      },
+      "kaizen": {
+        "kaizenBoard": {
+          "newKaizen": "Nouveau Kaizen",
+          "rejectedOnHold": "Rejeté / En attente"
+        },
+        "kaizenDetail": {
+          "loading": "Chargement...",
+          "problem": "Problème",
+          "suggestedSolution": "Solution proposée",
+          "beforePhotos": "Photos avant",
+          "afterPhotos": "Photos après",
+          "rejectionReason": "Motif du rejet",
+          "onHold": "En attente",
+          "stateHistory": "Historique des états",
+          "comments": "Commentaires",
+          "noCommentsYet": "Aucun commentaire.",
+          "internal": "Interne",
+          "internalSupervisorsOnly": "Interne (superviseurs uniquement)",
+          "benefitDataNotYetAvailable": "Données de gain pas encore disponibles",
+          "estimatedCost": "Coût estimé",
+          "actualCost": "Coût réel",
+          "estMonthlyBenefit": "Gain mensuel est.",
+          "actualMonthlyBenefit": "Gain mensuel réel",
+          "paybackPeriod": "Délai de retour",
+          "putOnHold": "Mettre en attente",
+          "reject": "Rejeter",
+          "rejectionReasonRequired": "Motif du rejet (obligatoire)",
+          "cancel": "Annuler",
+          "addAComment": "Ajouter un commentaire...",
+          "notesForThisTransitionOptional": "Notes pour cette transition (facultatif)",
+          "whyIsThisBeingRejected": "Pourquoi est-ce rejeté ?",
+          "reasonForHold": "Motif de la mise en attente",
+          "failedToVote": "Échec du vote",
+          "rejectionReasonIsRequired": "Le motif du rejet est obligatoire",
+          "kaizenRejected": "Kaizen rejeté",
+          "kaizenPutOnHold": "Kaizen mis en attente",
+          "failedToAddComment": "Échec de l'ajout du commentaire",
+          "photoUploaded": "Photo téléversée",
+          "uploadFailed": "Échec du téléversement"
+        },
+        "kaizenForm": {
+          "raiseAKaizen": "Proposer un Kaizen",
+          "title": "Titre",
+          "whatIsTheProblem": "Quel est le problème ?",
+          "category": "Catégorie",
+          "priority": "Priorité",
+          "location": "Emplacement",
+          "beforePhotos": "Photos avant",
+          "suggestedSolution": "Solution proposée",
+          "estimatedCostLkr": "Coût estimé (LKR)",
+          "monthlyBenefitLkr": "Gain mensuel (LKR)",
+          "tags": "Étiquettes",
+          "hereSHowYourKaizen": "Voici comment votre Kaizen apparaîtra sur le tableau :",
+          "summary": "Résumé",
+          "category2": "Catégorie :",
+          "priority2": "Priorité :",
+          "estCost": "Coût est. :",
+          "monthlyBenefit": "Gain mensuel :",
+          "back": "Retour",
+          "cancel": "Annuler",
+          "next": "Suivant",
+          "briefDescriptionOfTheIssue": "Brève description du problème",
+          "describeTheCurrentProblemClearly": "Décrivez clairement le problème actuel...",
+          "machineNameOrId": "Nom ou ID de la machine",
+          "departmentOrZoneEG": "Service ou zone (ex. Ligne d'assemblage 3)",
+          "describeHowYouSuggestFixing": "Décrivez comment vous proposez de le résoudre...",
+          "addATag": "Ajouter une étiquette...",
+          "failedToUploadPhoto": "Échec du téléversement de la photo",
+          "kaizenRaisedSuccessfully": "Kaizen proposé avec succès !"
+        },
+        "kaizenListView": {
+          "bulkApprove": "Approuver en masse",
+          "bulkReject": "Rejeter en masse",
+          "confirm": "Confirmer",
+          "exportExcel": "Exporter Excel",
+          "loading": "Chargement...",
+          "noKaizenCardsYet": "Aucune carte Kaizen",
+          "raiseTheFirstImprovementIdea": "Proposez la première idée d'amélioration !",
+          "rejectionReason": "Motif du rejet",
+          "title": "Titre",
+          "category": "Catégorie",
+          "status": "Statut",
+          "priority": "Priorité",
+          "raisedBy": "Proposé par",
+          "votes": "Votes",
+          "estBenefit": "Gain est.",
+          "date": "Date",
+          "noReviewedCardsSelected": "Aucune carte EXAMINÉE sélectionnée",
+          "rejectionReasonRequired": "Motif du rejet obligatoire"
+        },
+        "kaizenMonthlyDigest": {
+          "monthlyKaizenDigestFactoryPro": "Synthèse Kaizen mensuelle — Factory Pro",
+          "generatePdfReportsOfMonthly": "Générez des rapports PDF de l'activité Kaizen mensuelle : nouvelles cartes, mises en œuvre, ROI et reconnaissance des meilleurs contributeurs.",
+          "upgradeToFactoryPro": "Passer à Factory Pro",
+          "month": "Mois :",
+          "printExportPdf": "Imprimer / exporter en PDF",
+          "kaizenMonthlyDigest": "Synthèse Kaizen mensuelle",
+          "generatingDigest": "Génération de la synthèse...",
+          "monthlySummary": "Résumé mensuel",
+          "title": "Titre",
+          "category": "Catégorie",
+          "priority": "Priorité",
+          "raisedBy": "Proposé par",
+          "status": "Statut",
+          "actualCostLkr": "Coût réel (LKR)",
+          "actualBenefitMoLkr": "Gain réel/mois (LKR)",
+          "topContributorThisMonth": "Meilleur contributeur du mois"
+        },
+        "kaizenStats": {
+          "byStatus": "Par statut",
+          "byCategory": "Par catégorie",
+          "topContributors": "Meilleurs contributeurs",
+          "noDataYet": "Pas encore de données",
+          "monthlyKaizenTrend12Months": "Tendance Kaizen mensuelle (12 mois)",
+          "roiPaybackDistribution": "Répartition du retour sur investissement",
+          "estimatedVsActualBenefit": "Gain estimé vs réel",
+          "roiAnalyticsFactoryPro": "Analyse du ROI — Factory Pro",
+          "upgradeToFactoryProTo": "Passez à Factory Pro pour débloquer la répartition du ROI, l'analyse du retour et le suivi des gains.",
+          "upgrade": "Mettre à niveau"
+        },
+        "kaizenPage": {
+          "kaizenBoard": "Tableau Kaizen",
+          "myKaizens": "Mes Kaizens",
+          "category": "Catégorie :",
+          "all": "Tous",
+          "priority": "Priorité :",
+          "searchKaizens": "Rechercher des Kaizens...",
+          "newKaizen": "Nouveau Kaizen"
+        }
+      },
+      "safety": {
+        "safetyBlacklistPage": {
+          "safetyBlacklist": "Liste noire sécurité",
+          "currentlyBlacklisted": "Actuellement sur liste noire",
+          "from": "Du",
+          "to": "Au",
+          "blacklistedOnly": "Liste noire uniquement",
+          "name": "Nom",
+          "type": "Type",
+          "points": "Points",
+          "cases": "Cas",
+          "lastCase": "Dernier cas",
+          "status": "Statut",
+          "blacklisted": "Sur liste noire",
+          "ok": "OK",
+          "clearTo0": "Remettre à 0",
+          "minPoints": "Points min.",
+          "pointsByEntity": "Points par entité"
+        },
+        "safetyCalendarPage": {
+          "backToSafetyTrainings": "Retour aux formations sécurité",
+          "safetyTrainingSchedules": "Plannings des formations sécurité",
+          "noSafetyTrainingsScheduledThis": "Aucune formation sécurité prévue ce jour.",
+          "assign": "Affecter"
+        },
+        "safetyDashboard": {
+          "safetyDashboard": "Tableau de bord sécurité",
+          "reportSafetyCase": "Signaler un cas de sécurité"
+        }
+      },
+      "breakdowns": {
+        "publicBreakdownReportPage": {
+          "firmi": "Firmi",
+          "core": "Core",
+          "reportABreakdownNoSign": "Signaler une panne — sans connexion",
+          "breakdownReported": "Panne signalée",
+          "ticket": "Ticket",
+          "hasBeenSentToThe": "a été envoyé à l'équipe de maintenance.",
+          "youCanCloseThisPage": "Vous pouvez fermer cette page.",
+          "thisIsTakingLongerThan": "Cela prend plus de temps que d'habitude. Vérifiez votre connexion et réessayez.",
+          "retry": "Réessayer",
+          "loadingMachine": "Chargement de la machine…",
+          "reportingOn": "Signalement pour",
+          "whatHappened": "Que s'est-il passé ? *",
+          "machineIsStillRunningDegraded": "La machine fonctionne encore (dégradée mais opérationnelle)",
+          "signIn": "Se connecter",
+          "firmicore": "FirmiCore",
+          "describeTheSymptomsErrorCodes": "Décrivez les symptômes, codes d'erreur, bruits, etc. Ou appuyez sur le micro et racontez-nous ce qui s'est passé.",
+          "machineInformationIsNotLoaded": "Les informations de la machine ne sont pas encore chargées.",
+          "pleaseDescribeTheBreakdownIn": "Décrivez la panne en au moins 10 caractères."
+        }
+      },
+      "dashboard": {
+        "floorOperatorDashboard": {
+          "dashboard": "Tableau de bord"
+        }
       }
     }
   },

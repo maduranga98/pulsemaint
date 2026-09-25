@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { PartsRequest, RequestStatus } from '@/types/inventory';
 import { RequestPriorityBadge } from '@/components/inventory/requests/RequestPriorityBadge';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   requests: PartsRequest[];
   title?: string;
@@ -31,6 +32,7 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
 };
 
 export function PendingRequestsWidget({ requests, title = 'Pending Requests', emptyMessage = 'No pending requests' }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -41,7 +43,7 @@ export function PendingRequestsWidget({ requests, title = 'Pending Requests', em
           to="/app/inventory/requests"
           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
         >
-          View All
+          {t('common.inventory.ui.pendingRequestsWidget.viewAll')}
         </Link>
       </div>
 

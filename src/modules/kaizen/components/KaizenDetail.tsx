@@ -29,6 +29,7 @@ import {
 } from '../types/kaizen.types';
 import type { KaizenStatus } from '../types/kaizen.types';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   cardId: string;
   onClose: () => void;
@@ -36,6 +37,7 @@ interface Props {
 }
 
 export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
+  const { t } = useTranslation();
   const plantId = useAuthStore((s) => s.userProfile?.companyId ?? '');
   const userId = useAuthStore((s) => s.userProfile?.id ?? '');
   const userName = useAuthStore((s) => s.userProfile?.fullName ?? '');
@@ -60,7 +62,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
     return (
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50">
         <div className="bg-white rounded-xl p-8 text-center text-gray-500 animate-pulse">
-          Loading...
+          {t('common.ui2.kaizen.kaizenDetail.loading')}
         </div>
       </div>
     );
@@ -88,7 +90,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
     try {
       await voteOnKaizen(plantId, cardId, userId);
     } catch {
-      toast.error('Failed to vote');
+      toast.error(t('common.ui2.kaizen.kaizenDetail.failedToVote'));
     }
   }
 
@@ -107,7 +109,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
 
   async function handleReject() {
     if (!rejectionReason.trim()) {
-      toast.error('Rejection reason is required');
+      toast.error(t('common.ui2.kaizen.kaizenDetail.rejectionReasonIsRequired'));
       return;
     }
     setTransitioning('REJECTED');
@@ -117,7 +119,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
         { rejectionReason }
       );
       setShowRejectForm(false);
-      toast.success('Kaizen rejected');
+      toast.success(t('common.ui2.kaizen.kaizenDetail.kaizenRejected'));
     } catch (e: unknown) {
       toast.error((e as Error).message);
     } finally {
@@ -133,7 +135,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
         { onHoldReason, onHoldUntil }
       );
       setShowHoldForm(false);
-      toast.success('Kaizen put on hold');
+      toast.success(t('common.ui2.kaizen.kaizenDetail.kaizenPutOnHold'));
     } catch (e: unknown) {
       toast.error((e as Error).message);
     } finally {
@@ -153,7 +155,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
       });
       setCommentText('');
     } catch {
-      toast.error('Failed to add comment');
+      toast.error(t('common.ui2.kaizen.kaizenDetail.failedToAddComment'));
     } finally {
       setSubmittingComment(false);
     }
@@ -165,9 +167,9 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
     setUploadingPhoto(true);
     try {
       await uploadKaizenPhoto(file, plantId, cardId, 'after');
-      toast.success('Photo uploaded');
+      toast.success(t('common.ui2.kaizen.kaizenDetail.photoUploaded'));
     } catch {
-      toast.error('Upload failed');
+      toast.error(t('common.ui2.kaizen.kaizenDetail.uploadFailed'));
     } finally {
       setUploadingPhoto(false);
     }
@@ -264,17 +266,17 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
           {activeTab === 'details' && (
             <>
               <section>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Problem</h3>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('common.ui2.kaizen.kaizenDetail.problem')}</h3>
                 <p className="text-sm text-gray-800 whitespace-pre-wrap">{card.problemStatement}</p>
               </section>
               <section>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Suggested Solution</h3>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('common.ui2.kaizen.kaizenDetail.suggestedSolution')}</h3>
                 <p className="text-sm text-gray-800 whitespace-pre-wrap">{card.suggestedSolution}</p>
               </section>
 
               {card.beforePhotos.length > 0 && (
                 <section>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Before Photos</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">{t('common.ui2.kaizen.kaizenDetail.beforePhotos')}</h3>
                   <div className="flex gap-2 flex-wrap">
                     {card.beforePhotos.map((url, i) => (
                       <a key={i} href={url} target="_blank" rel="noreferrer">
@@ -287,7 +289,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
 
               {card.afterPhotos.length > 0 && (
                 <section>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">After Photos</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">{t('common.ui2.kaizen.kaizenDetail.afterPhotos')}</h3>
                   <div className="flex gap-2 flex-wrap">
                     {card.afterPhotos.map((url, i) => (
                       <a key={i} href={url} target="_blank" rel="noreferrer">
@@ -310,14 +312,14 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
 
               {card.rejectionReason && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs font-semibold text-red-700 mb-0.5">Rejection Reason</p>
+                  <p className="text-xs font-semibold text-red-700 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.rejectionReason')}</p>
                   <p className="text-sm text-red-600">{card.rejectionReason}</p>
                 </div>
               )}
 
               {card.onHoldReason && (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-xs font-semibold text-amber-700 mb-0.5">On Hold</p>
+                  <p className="text-xs font-semibold text-amber-700 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.onHold')}</p>
                   <p className="text-sm text-amber-700">{card.onHoldReason}</p>
                   {card.onHoldUntil && (
                     <p className="text-xs text-amber-600 mt-0.5">Resume: {card.onHoldUntil}</p>
@@ -333,7 +335,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
               {/* State changes */}
               {card.stateHistory.length > 0 && (
                 <section>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-3">State History</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-3">{t('common.ui2.kaizen.kaizenDetail.stateHistory')}</h3>
                   <div className="space-y-3">
                     {[...card.stateHistory].reverse().map((change, i) => (
                       <div key={i} className="flex gap-3">
@@ -384,11 +386,11 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
               {/* Comments */}
               <section>
                 <h3 className="text-xs font-semibold text-gray-500 uppercase mb-3 flex items-center gap-1">
-                  <MessageSquare size={12} /> Comments
+                  <MessageSquare size={12} /> {t('common.ui2.kaizen.kaizenDetail.comments')}
                 </h3>
                 <div className="space-y-3">
                   {visibleComments.length === 0 && (
-                    <p className="text-xs text-gray-400 italic">No comments yet.</p>
+                    <p className="text-xs text-gray-400 italic">{t('common.ui2.kaizen.kaizenDetail.noCommentsYet')}</p>
                   )}
                   {visibleComments.map((c) => (
                     <div
@@ -404,7 +406,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                         <div className="flex items-center gap-1 text-xs text-gray-400">
                           {c.isInternal && (
                             <span className="flex items-center gap-0.5 text-amber-600">
-                              <Lock size={10} /> Internal
+                              <Lock size={10} /> {t('common.ui2.kaizen.kaizenDetail.internal')}
                             </span>
                           )}
                           <span>
@@ -424,7 +426,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                   <textarea
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Add a comment..."
+                    placeholder={t('common.ui2.kaizen.kaizenDetail.addAComment')}
                     rows={2}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -436,7 +438,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                           checked={isInternal}
                           onChange={(e) => setIsInternal(e.target.checked)}
                         />
-                        <Lock size={11} /> Internal (supervisors only)
+                        <Lock size={11} /> {t('common.ui2.kaizen.kaizenDetail.internalSupervisorsOnly')}
                       </label>
                     )}
                     <button
@@ -458,7 +460,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
               {daysSinceVerified !== null && daysSinceVerified < 30 ? (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center">
                   <Clock className="mx-auto mb-2 text-amber-500" size={24} />
-                  <p className="text-sm font-semibold text-amber-800">Benefit data not yet available</p>
+                  <p className="text-sm font-semibold text-amber-800">{t('common.ui2.kaizen.kaizenDetail.benefitDataNotYetAvailable')}</p>
                   <p className="text-xs text-amber-600 mt-1">
                     Actual benefit data will be available 30 days after verification.
                     ({30 - daysSinceVerified} days remaining)
@@ -468,7 +470,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-0.5">Estimated Cost</p>
+                      <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.estimatedCost')}</p>
                       <p className="text-lg font-bold text-gray-900">
                         {card.estimatedCost != null
                           ? `LKR ${card.estimatedCost.toLocaleString()}`
@@ -476,7 +478,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       </p>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-0.5">Actual Cost</p>
+                      <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.actualCost')}</p>
                       <p className="text-lg font-bold text-gray-900">
                         {card.actualCost != null
                           ? `LKR ${card.actualCost.toLocaleString()}`
@@ -484,7 +486,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       </p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-0.5">Est. Monthly Benefit</p>
+                      <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.estMonthlyBenefit')}</p>
                       <p className="text-lg font-bold text-emerald-700">
                         {card.estimatedBenefit != null
                           ? `LKR ${card.estimatedBenefit.toLocaleString()}`
@@ -492,7 +494,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       </p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-0.5">Actual Monthly Benefit</p>
+                      <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.actualMonthlyBenefit')}</p>
                       <p className="text-lg font-bold text-emerald-700">
                         {card.actualBenefit != null
                           ? `LKR ${card.actualBenefit.toLocaleString()}`
@@ -503,7 +505,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
 
                   {roi.roiMonths != null && (
                     <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                      <p className="text-xs text-blue-600 font-semibold uppercase mb-1">Payback Period</p>
+                      <p className="text-xs text-blue-600 font-semibold uppercase mb-1">{t('common.ui2.kaizen.kaizenDetail.paybackPeriod')}</p>
                       <p className="text-3xl font-bold text-blue-800">{roi.roiMonths} months</p>
                       <p className="text-xs text-blue-600 mt-1">
                         Annual benefit: LKR {roi.totalAnnualBenefit.toLocaleString()}
@@ -543,7 +545,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
             <input
               value={transitionNotes}
               onChange={(e) => setTransitionNotes(e.target.value)}
-              placeholder="Notes for this transition (optional)"
+              placeholder={t('common.ui2.kaizen.kaizenDetail.notesForThisTransitionOptional')}
               className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           )}
@@ -571,7 +573,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                   onClick={() => { setShowHoldForm(true); setShowRejectForm(false); }}
                   className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-800 border border-amber-200 rounded-lg px-2 py-1.5"
                 >
-                  <PauseCircle size={12} /> Put On Hold
+                  <PauseCircle size={12} /> {t('common.ui2.kaizen.kaizenDetail.putOnHold')}
                 </button>
               )}
               {availableTransitions.includes('REJECTED') && !showRejectForm && (
@@ -579,7 +581,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                   onClick={() => { setShowRejectForm(true); setShowHoldForm(false); }}
                   className="flex items-center gap-1 text-xs text-red-600 hover:text-red-800 border border-red-200 rounded-lg px-2 py-1.5"
                 >
-                  <AlertTriangle size={12} /> Reject
+                  <AlertTriangle size={12} /> {t('common.ui2.kaizen.kaizenDetail.reject')}
                 </button>
               )}
             </div>
@@ -588,12 +590,12 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
           {/* Reject form */}
           {showRejectForm && (
             <div className="border border-red-200 rounded-lg p-3 space-y-2 bg-red-50">
-              <p className="text-xs font-semibold text-red-700">Rejection Reason (required)</p>
+              <p className="text-xs font-semibold text-red-700">{t('common.ui2.kaizen.kaizenDetail.rejectionReasonRequired')}</p>
               <textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 rows={2}
-                placeholder="Why is this being rejected?"
+                placeholder={t('common.ui2.kaizen.kaizenDetail.whyIsThisBeingRejected')}
                 className="w-full border border-red-300 rounded px-2 py-1.5 text-xs focus:outline-none"
               />
               <div className="flex gap-2">
@@ -608,7 +610,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                   onClick={() => setShowRejectForm(false)}
                   className="text-xs text-gray-500 hover:text-gray-700"
                 >
-                  Cancel
+                  {t('common.ui2.kaizen.kaizenDetail.cancel')}
                 </button>
               </div>
             </div>
@@ -617,11 +619,11 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
           {/* Hold form */}
           {showHoldForm && (
             <div className="border border-amber-200 rounded-lg p-3 space-y-2 bg-amber-50">
-              <p className="text-xs font-semibold text-amber-700">Put On Hold</p>
+              <p className="text-xs font-semibold text-amber-700">{t('common.ui2.kaizen.kaizenDetail.putOnHold')}</p>
               <input
                 value={onHoldReason}
                 onChange={(e) => setOnHoldReason(e.target.value)}
-                placeholder="Reason for hold"
+                placeholder={t('common.ui2.kaizen.kaizenDetail.reasonForHold')}
                 className="w-full border border-amber-300 rounded px-2 py-1.5 text-xs focus:outline-none"
               />
               <input
@@ -642,7 +644,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                   onClick={() => setShowHoldForm(false)}
                   className="text-xs text-gray-500 hover:text-gray-700"
                 >
-                  Cancel
+                  {t('common.ui2.kaizen.kaizenDetail.cancel')}
                 </button>
               </div>
             </div>

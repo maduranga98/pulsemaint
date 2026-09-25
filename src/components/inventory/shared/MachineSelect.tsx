@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, useEffect } from 'react';
 import { ChevronDown, Search, X, Cpu } from 'lucide-react';
 import { useMachineOptions } from '@/hooks/inventory/useMachineOptions';
 
+import { useTranslation } from 'react-i18next';
 interface MachineSelectProps {
   values: string[];
   onChange: (values: string[]) => void;
@@ -12,6 +13,7 @@ interface MachineSelectProps {
 // part's compatibleMachineIds are always actual machine doc IDs instead of
 // free-typed strings unrelated to any real machine.
 export function MachineSelect({ values, onChange, className = '' }: MachineSelectProps) {
+  const { t } = useTranslation();
   const { machines, loading } = useMachineOptions();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -76,14 +78,14 @@ export function MachineSelect({ values, onChange, className = '' }: MachineSelec
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search machines…"
+              placeholder={t('common.inventory.ui.machineSelect.searchMachines')}
               className="w-full rounded-md border border-gray-200 pl-8 pr-3 py-2 text-sm outline-none focus:border-blue-500"
             />
           </div>
           <ul className="max-h-56 overflow-y-auto p-1">
-            {loading && <li className="px-3 py-2 text-sm text-gray-400">Loading…</li>}
+            {loading && <li className="px-3 py-2 text-sm text-gray-400">{t('common.inventory.ui.machineSelect.loading')}</li>}
             {!loading && filtered.length === 0 && (
-              <li className="px-3 py-2 text-sm text-gray-400">No machines found.</li>
+              <li className="px-3 py-2 text-sm text-gray-400">{t('common.inventory.ui.machineSelect.noMachinesFound')}</li>
             )}
             {!loading &&
               filtered.map((m) => {

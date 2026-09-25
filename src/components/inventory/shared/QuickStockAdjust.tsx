@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import type { PartUnit } from '@/types/inventory';
 import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
+import { useTranslation } from 'react-i18next';
 interface QuickStockAdjustProps {
   partId: string;
   currentStock: number;
@@ -22,6 +23,7 @@ type AllowedRole = 'store_keeper' | 'supervisor' | 'plant_manager' | 'admin';
 const ALLOWED_ROLES: AllowedRole[] = ['store_keeper', 'supervisor', 'plant_manager', 'admin'];
 
 export function QuickStockAdjust({ partId, currentStock, unit, onComplete }: QuickStockAdjustProps) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = userProfile?.role as string | undefined;
 
@@ -56,16 +58,16 @@ export function QuickStockAdjust({ partId, currentStock, unit, onComplete }: Qui
 
   async function handleSave() {
     if (!reason.trim()) {
-      setError('Reason is required.');
+      setError(t('common.inventory.ui.quickStockAdjust.reasonIsRequired'));
       return;
     }
     if (delta === 0) {
-      setError('Adjustment quantity cannot be zero.');
+      setError(t('common.inventory.ui.quickStockAdjust.adjustmentQuantityCannotBeZero'));
       return;
     }
     const newStock = currentStock + delta;
     if (newStock < 0) {
-      setError('Stock cannot go below zero.');
+      setError(t('common.inventory.ui.quickStockAdjust.stockCannotGoBelowZero'));
       return;
     }
 
@@ -131,28 +133,28 @@ export function QuickStockAdjust({ partId, currentStock, unit, onComplete }: Qui
       <button
         onClick={open}
         className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded border border-amber-200 transition-colors"
-        title="Quick Stock Adjust"
+        title={t('common.inventory.ui.quickStockAdjust.quickStockAdjust')}
       >
         <RefreshCw className="w-3 h-3" />
-        Adjust
+        {t('common.inventory.ui.quickStockAdjust.adjust')}
       </button>
 
       {isOpen && (
         <div className="absolute z-50 right-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-gray-900">Quick Adjust</h4>
+            <h4 className="text-sm font-semibold text-gray-900">{t('common.inventory.ui.quickStockAdjust.quickAdjust')}</h4>
             <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600">
               <X className="w-4 h-4" />
             </button>
           </div>
 
           <div className="text-xs text-gray-500">
-            Current: <span className="font-semibold text-gray-900">{currentStock} {unit}</span>
+            {t('common.inventory.ui.quickStockAdjust.current')} <span className="font-semibold text-gray-900">{currentStock} {unit}</span>
           </div>
 
           {/* Delta input */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Quantity Change</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">{t('common.inventory.ui.quickStockAdjust.quantityChange')}</label>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setDelta((d) => d - 1)}
@@ -174,20 +176,20 @@ export function QuickStockAdjust({ partId, currentStock, unit, onComplete }: Qui
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              New stock: <span className={`font-semibold ${newStock < 0 ? 'text-red-600' : 'text-gray-900'}`}>{newStock} {unit}</span>
+              {t('common.inventory.ui.quickStockAdjust.newStock')} <span className={`font-semibold ${newStock < 0 ? 'text-red-600' : 'text-gray-900'}`}>{newStock} {unit}</span>
             </p>
           </div>
 
           {/* Reason */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Reason <span className="text-red-500">*</span>
+              {t('common.inventory.ui.quickStockAdjust.reason')} <span className="text-red-500">*</span>
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={2}
-              placeholder="e.g. Counted during stocktake"
+              placeholder={t('common.inventory.ui.quickStockAdjust.eGCountedDuringStocktake')}
               className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

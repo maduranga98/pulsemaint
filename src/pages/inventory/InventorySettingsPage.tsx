@@ -6,9 +6,11 @@ import { useInventorySettings } from '@/hooks/inventory/useInventorySettings';
 import { useToast } from '@/hooks/useToast';
 import { SUPPORTED_LANGUAGES } from '@/lib/i18n';
 
+import { useTranslation } from 'react-i18next';
 const ROLE_OPTIONS = ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician'];
 
 export function InventorySettingsPage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const canAccess = useAuthStore((s) =>
     s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin'])
@@ -46,9 +48,9 @@ export function InventorySettingsPage() {
     setSaving(section);
     try {
       await updateSettings(updates);
-      addToast('Settings saved.', 'success');
+      addToast(t('common.inventory.inventorySettingsPage.settingsSaved'), 'success');
     } catch {
-      addToast('Failed to save settings.', 'error');
+      addToast(t('common.inventory.inventorySettingsPage.failedToSaveSettings'), 'error');
     } finally {
       setSaving(null);
     }
@@ -67,13 +69,13 @@ export function InventorySettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Inventory Settings</h1>
-        <p className="text-gray-500 text-sm mt-0.5">Configure approval thresholds, notifications, and more.</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.inventorySettingsPage.inventorySettings')}</h1>
+        <p className="text-gray-500 text-sm mt-0.5">{t('common.inventory.inventorySettingsPage.configureApprovalThresholdsNotificationsAnd')}</p>
       </div>
 
       {/* 2. Notifications */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-        <h3 className="font-semibold text-gray-900">Notifications</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.inventory.inventorySettingsPage.notifications')}</h3>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setNotifEnabled((v) => !v)}
@@ -85,12 +87,12 @@ export function InventorySettingsPage() {
               className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${notifEnabled ? 'left-6' : 'left-1'}`}
             />
           </button>
-          <span className="text-sm font-medium text-gray-700">Enable low stock alerts</span>
+          <span className="text-sm font-medium text-gray-700">{t('common.inventory.inventorySettingsPage.enableLowStockAlerts')}</span>
         </div>
 
         {notifEnabled && (
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Notify roles</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">{t('common.inventory.inventorySettingsPage.notifyRoles')}</p>
             <div className="flex flex-wrap gap-2">
               {ROLE_OPTIONS.map((role) => (
                 <button
@@ -126,7 +128,7 @@ export function InventorySettingsPage() {
 
       {/* 3. Numbering Prefixes */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-        <h3 className="font-semibold text-gray-900">Numbering Prefixes</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.inventory.inventorySettingsPage.numberingPrefixes')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'Part Number Prefix', value: partPrefix, onChange: setPartPrefix },
@@ -145,7 +147,7 @@ export function InventorySettingsPage() {
           ))}
         </div>
         <p className="text-xs text-gray-400">
-          Preview: <span className="font-mono font-semibold">{partPrefix}-0001</span> · {' '}
+          {t('common.inventory.inventorySettingsPage.preview')} <span className="font-mono font-semibold">{partPrefix}-0001</span> · {' '}
           <span className="font-mono font-semibold">{poPrefix}-{new Date().getFullYear()}-0001</span> · {' '}
           <span className="font-mono font-semibold">{reqPrefix}-{new Date().getFullYear()}-0001</span>
         </p>
@@ -165,7 +167,7 @@ export function InventorySettingsPage() {
 
       {/* 4. Return Policy */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-        <h3 className="font-semibold text-gray-900">Return Policy</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.inventory.inventorySettingsPage.returnPolicy')}</h3>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setRequireReturn((v) => !v)}
@@ -178,7 +180,7 @@ export function InventorySettingsPage() {
             />
           </button>
           <span className="text-sm font-medium text-gray-700">
-            Require technicians to log unused part returns
+            {t('common.inventory.inventorySettingsPage.requireTechniciansToLogUnused')}
           </span>
         </div>
         <button
@@ -193,13 +195,13 @@ export function InventorySettingsPage() {
 
       {/* 5. Supplier Communication */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-        <h3 className="font-semibold text-gray-900">Supplier Communication</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.inventory.inventorySettingsPage.supplierCommunication')}</h3>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Purchase order email language
+            {t('common.inventory.inventorySettingsPage.purchaseOrderEmailLanguage')}
           </label>
           <p className="text-xs text-gray-400 mb-2">
-            Language used for outbound PO emails sent to suppliers (PO document, pricing, cancellation, and delivery notices).
+            {t('common.inventory.inventorySettingsPage.languageUsedForOutboundPo')}
           </p>
           <select
             value={poEmailLanguage}

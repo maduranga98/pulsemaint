@@ -433,9 +433,9 @@ export default function AppLayout() {
         }`}
       >
         <div className="h-14 flex items-center px-5 border-b border-[#1E3A5F] shrink-0">
-          <img src="/logo.svg" alt="FirmiCore" className="w-7 h-7 rounded-md mr-2 object-contain" />
+          <img src="/logo.svg" alt={t('common.ui2.layout.appLayout.firmicore')} className="w-7 h-7 rounded-md mr-2 object-contain" />
           <span className="text-sm font-semibold tracking-tight text-[#F0F4F8]">
-            FirmiCore
+            {t('common.ui2.layout.appLayout.firmicore')}
           </span>
         </div>
 

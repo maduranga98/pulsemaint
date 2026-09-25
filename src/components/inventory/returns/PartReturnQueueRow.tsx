@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CheckCircle, XCircle } from 'lucide-react';
 import type { PartReturn } from '@/types/inventory';
 
+import { useTranslation } from 'react-i18next';
 type Condition = 'good' | 'damaged' | 'wrong_item';
 
 interface Props {
@@ -31,6 +32,7 @@ const CONDITION_LABEL: Record<string, string> = {
 };
 
 export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState<'confirm' | 'reject' | null>(null);
   const [receiving, setReceiving] = useState(false);
   const [condition, setCondition] = useState<Condition>('good');
@@ -84,7 +86,7 @@ export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 disabled:opacity-50"
               >
                 <CheckCircle className="w-3.5 h-3.5" />
-                Returned
+                {t('common.inventory.ui.partReturnQueueRow.returned')}
               </button>
               <button
                 disabled={!!busy}
@@ -92,12 +94,12 @@ export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-xs font-semibold hover:bg-red-50 disabled:opacity-50"
               >
                 <XCircle className="w-3.5 h-3.5" />
-                Reject
+                {t('common.inventory.ui.partReturnQueueRow.reject')}
               </button>
             </div>
             {receiving && (
               <div className="w-full sm:w-72 bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
-                <label className="block text-xs font-medium text-gray-600">Condition received</label>
+                <label className="block text-xs font-medium text-gray-600">{t('common.inventory.ui.partReturnQueueRow.conditionReceived')}</label>
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value as Condition)}
@@ -111,7 +113,7 @@ export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
                   type="text"
                   value={receiveNotes}
                   onChange={(e) => setReceiveNotes(e.target.value)}
-                  placeholder="Notes (optional)"
+                  placeholder={t('common.inventory.ui.partReturnQueueRow.notesOptional')}
                   className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs"
                 />
                 <button
@@ -137,7 +139,7 @@ export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
                   type="text"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="Reason for dispute"
+                  placeholder={t('common.inventory.ui.partReturnQueueRow.reasonForDispute')}
                   className="border border-gray-300 rounded px-2 py-1 text-xs"
                 />
                 <button

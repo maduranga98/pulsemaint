@@ -14,6 +14,8 @@ import { useDepartments } from '../../hooks/useDepartments';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { usePlants } from '../../hooks/usePlants';
 
+import { useTranslation } from 'react-i18next';
+import i18n from '../../lib/i18n';
 const CUSTOM_TYPE_OPTION = '__custom__';
 
 const MACHINE_TYPES: MachineType[] = [
@@ -61,6 +63,7 @@ export function MachineForm({
   error: externalError,
   siteId,
 }: MachineFormProps) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
@@ -293,7 +296,7 @@ export function MachineForm({
                     onClick={() => setCurrentStep(currentStep - 1)}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
                   >
-                    Back
+                    {t('common.ui2.machines.machineForm.back')}
                   </button>
                 )}
                 {currentStep < FORM_STEPS.length - 1 ? (
@@ -302,7 +305,7 @@ export function MachineForm({
                     onClick={() => setCurrentStep(currentStep + 1)}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                   >
-                    Next
+                    {t('common.ui2.machines.machineForm.next')}
                   </button>
                 ) : (
                   <button
@@ -323,11 +326,12 @@ export function MachineForm({
 }
 
 function MachineTypeField({ control, errors }: { control: any; errors: any }) {
+  const { t } = useTranslation();
   const [customSelected, setCustomSelected] = useState(false);
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Machine Type *</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.machineType')}</label>
       <Controller
         name="type"
         control={control}
@@ -350,13 +354,13 @@ function MachineTypeField({ control, errors }: { control: any; errors: any }) {
                 onBlur={field.onBlur}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select a type...</option>
+                <option value="">{t('common.ui2.machines.machineForm.selectAType')}</option>
                 {MACHINE_TYPES.map((type) => (
                   <option key={type} value={type}>
                     {type.replace(/_/g, ' ').toUpperCase()}
                   </option>
                 ))}
-                <option value={CUSTOM_TYPE_OPTION}>OTHER — ENTER CUSTOM TYPE…</option>
+                <option value={CUSTOM_TYPE_OPTION}>{t('common.ui2.machines.machineForm.otherEnterCustomType')}</option>
               </select>
               {isCustom && (
                 <input
@@ -364,7 +368,7 @@ function MachineTypeField({ control, errors }: { control: any; errors: any }) {
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value)}
                   onBlur={field.onBlur}
-                  placeholder="e.g. Injection Molder, Packaging Line…"
+                  placeholder={t('common.ui2.machines.machineForm.eGInjectionMolderPackaging')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -393,14 +397,17 @@ function renderFormSection(
   formPlantId: string | null,
   showPlantPicker: boolean
 ): React.ReactNode {
+  // Plain render helper (not a component) — the parent's useTranslation
+  // subscription re-renders it on language change.
+  const t = i18n.t.bind(i18n);
   switch (stepIndex) {
     case 0: // Basic Information
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.ui2.machines.machineForm.basicInformation')}</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Machine Name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.machineName')}</label>
             <Controller
               name="name"
               control={control}
@@ -408,7 +415,7 @@ function renderFormSection(
                 <input
                   {...field}
                   type="text"
-                  placeholder="e.g. CNC Lathe Machine 01"
+                  placeholder={t('common.ui2.machines.machineForm.eGCncLatheMachine')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -420,7 +427,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Manufacturer *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.manufacturer')}</label>
               <Controller
                 name="manufacturer"
                 control={control}
@@ -428,7 +435,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. Mazak Corporation"
+                    placeholder={t('common.ui2.machines.machineForm.eGMazakCorporation')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -439,7 +446,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.model')}</label>
               <Controller
                 name="model"
                 control={control}
@@ -447,7 +454,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. QUICK TURN 200"
+                    placeholder={t('common.ui2.machines.machineForm.eGQuickTurn200')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -457,7 +464,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.serialNumber')}</label>
               <Controller
                 name="serialNumber"
                 control={control}
@@ -465,7 +472,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="Unique serial number"
+                    placeholder={t('common.ui2.machines.machineForm.uniqueSerialNumber')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -473,7 +480,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Expected Lifespan (years)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.expectedLifespanYears')}</label>
               <Controller
                 name="expectedLifespanYears"
                 control={control}
@@ -494,7 +501,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.purchaseDate')}</label>
               <Controller
                 name="purchaseDate"
                 control={control}
@@ -510,7 +517,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Installation Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.installationDate')}</label>
               <Controller
                 name="installationDate"
                 control={control}
@@ -531,11 +538,11 @@ function renderFormSection(
     case 1: // Location
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Location</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.ui2.machines.machineForm.location')}</h2>
 
           {showPlantPicker && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Plant *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.plant')}</label>
               <Controller
                 name={'plantId' as never}
                 control={control}
@@ -547,7 +554,7 @@ function renderFormSection(
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.department')}</label>
             <Controller
               name="department"
               control={control}
@@ -567,7 +574,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Floor</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.floor')}</label>
               <Controller
                 name="floor"
                 control={control}
@@ -575,7 +582,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. Ground, 1st, 2nd"
+                    placeholder={t('common.ui2.machines.machineForm.eGGround1st2nd')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -583,7 +590,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bay</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.bay')}</label>
               <Controller
                 name="bay"
                 control={control}
@@ -599,7 +606,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Station</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.station')}</label>
               <Controller
                 name="station"
                 control={control}
@@ -615,17 +622,17 @@ function renderFormSection(
             </div>
           </div>
 
-          <p className="text-xs text-gray-500">This location data will auto-fill Work Orders linked to this machine</p>
+          <p className="text-xs text-gray-500">{t('common.ui2.machines.machineForm.thisLocationDataWillAuto')}</p>
         </div>
       );
 
     case 2: // Status & Criticality
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Status & Criticality</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.ui2.machines.machineForm.statusCriticality')}</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Status *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-3">{t('common.ui2.machines.machineForm.status')}</label>
             <Controller
               name="status"
               control={control}
@@ -669,9 +676,9 @@ function renderFormSection(
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>Low</span>
+                    <span>{t('common.ui2.machines.machineForm.low')}</span>
                     <span>Medium ({field.value})</span>
-                    <span>Mission Critical</span>
+                    <span>{t('common.ui2.machines.machineForm.missionCritical')}</span>
                   </div>
                 </>
               )}
@@ -696,11 +703,11 @@ function renderFormSection(
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>Critical (0)</span>
+                    <span>{t('common.ui2.machines.machineForm.critical0')}</span>
                     <span className={`font-medium ${(field.value ?? 100) >= 70 ? 'text-green-600' : (field.value ?? 100) >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
                       {field.value ?? 100}%
                     </span>
-                    <span>Perfect (100)</span>
+                    <span>{t('common.ui2.machines.machineForm.perfect100')}</span>
                   </div>
                 </>
               )}
@@ -711,7 +718,7 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Next PM Date</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.nextPmDate')}</label>
             <Controller
               name="nextPmDue"
               control={control}
@@ -725,7 +732,7 @@ function renderFormSection(
               )}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Date the next preventive maintenance is due. Auto-updated when a PM work order is completed.
+              {t('common.ui2.machines.machineForm.dateTheNextPreventiveMaintenance')}
             </p>
           </div>
         </div>
@@ -734,15 +741,15 @@ function renderFormSection(
     case 3: // Documents & Photos
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Documents & Photos</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.ui2.machines.machineForm.documentsPhotos')}</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Photos</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.ui2.machines.machineForm.photos')}</label>
             <div
               className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition"
               onClick={() => photoInputRef.current?.click()}
             >
-              <p className="text-gray-600 text-sm mb-2">Click or drag photos here</p>
+              <p className="text-gray-600 text-sm mb-2">{t('common.ui2.machines.machineForm.clickOrDragPhotosHere')}</p>
               <input
                 ref={photoInputRef}
                 type="file"
@@ -843,7 +850,7 @@ function renderFormSection(
 
           {/* Warranty Items */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Warranty Information</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.ui2.machines.machineForm.warrantyInformation')}</label>
             <Controller
               name="warrantyItems"
               control={control}
@@ -865,7 +872,7 @@ function renderFormSection(
                             type="text"
                             value={item.partName}
                             onChange={(e) => updateItem(idx, 'partName', e.target.value)}
-                            placeholder="Part / component name"
+                            placeholder={t('common.ui2.machines.machineForm.partComponentName')}
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                           />
                           <button
@@ -873,12 +880,12 @@ function renderFormSection(
                             onClick={() => removeItem(idx)}
                             className="text-xs text-red-600 hover:text-red-800 px-2"
                           >
-                            Remove
+                            {t('common.ui2.machines.machineForm.remove')}
                           </button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Warranty Expiry Date</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('common.ui2.machines.machineForm.warrantyExpiryDate')}</label>
                             <input
                               type="date"
                               value={item.expiryDate instanceof Date ? item.expiryDate.toISOString().split('T')[0] : ''}
@@ -887,12 +894,12 @@ function renderFormSection(
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Supplier / Reference</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('common.ui2.machines.machineForm.supplierReference')}</label>
                             <input
                               type="text"
                               value={item.supplierWarrantyRef}
                               onChange={(e) => updateItem(idx, 'supplierWarrantyRef', e.target.value)}
-                              placeholder="e.g. WR-2025-001"
+                              placeholder={t('common.ui2.machines.machineForm.eGWr2025001')}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             />
                           </div>
@@ -913,7 +920,7 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Modification Notes</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.modificationNotes')}</label>
             <Controller
               name="modificationNotes"
               control={control}
@@ -922,7 +929,7 @@ function renderFormSection(
                   rows={4}
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value || null)}
-                  placeholder="Document any modifications made to this machine..."
+                  placeholder={t('common.ui2.machines.machineForm.documentAnyModificationsMadeTo')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -933,7 +940,7 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineForm.additionalNotes')}</label>
             <Controller
               name="additionalNotes"
               control={control}
@@ -942,7 +949,7 @@ function renderFormSection(
                   rows={4}
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value || null)}
-                  placeholder="Any other relevant information..."
+                  placeholder={t('common.ui2.machines.machineForm.anyOtherRelevantInformation')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -960,6 +967,7 @@ function renderFormSection(
 }
 
 function PlantSelect({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { activePlants } = usePlants(companyId);
   return (
@@ -968,7 +976,7 @@ function PlantSelect({ value, onChange }: { value: string; onChange: (val: strin
       onChange={(e) => onChange(e.target.value)}
       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
     >
-      <option value="">Select a plant...</option>
+      <option value="">{t('common.ui2.machines.machineForm.selectAPlant')}</option>
       {activePlants.map((p) => (
         <option key={p.id} value={p.id}>{p.name}</option>
       ))}
@@ -983,6 +991,7 @@ interface DepartmentComboBoxProps {
 }
 
 function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProps) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { departments, loading, addDepartment } = useDepartments(companyId, plantId);
   const [adding, setAdding] = useState(false);
@@ -999,7 +1008,7 @@ function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProp
 
   // Departments belong to a plant — nothing to list or add until one is set.
   if (!plantId) {
-    return <p className="text-sm text-amber-600">Select a plant first to choose or add its department.</p>;
+    return <p className="text-sm text-amber-600">{t('common.ui2.machines.machineForm.selectAPlantFirstTo')}</p>;
   }
 
   return (
@@ -1018,7 +1027,7 @@ function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProp
             autoComplete="off"
             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select a department...</option>
+            <option value="">{t('common.ui2.machines.machineForm.selectADepartment')}</option>
             {departments.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
@@ -1032,7 +1041,7 @@ function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProp
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAdd(); } }}
-            placeholder="New department name"
+            placeholder={t('common.ui2.machines.machineForm.newDepartmentName')}
             autoFocus
             className="flex-1 px-3 py-2 border border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -1041,7 +1050,7 @@ function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProp
             onClick={handleAdd}
             className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            Add
+            {t('common.ui2.machines.machineForm.add')}
           </button>
           <button
             type="button"
@@ -1052,7 +1061,7 @@ function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProp
           </button>
         </div>
       )}
-      {loading && <p className="text-xs text-gray-400">Loading departments...</p>}
+      {loading && <p className="text-xs text-gray-400">{t('common.ui2.machines.machineForm.loadingDepartments')}</p>}
     </div>
   );
 }

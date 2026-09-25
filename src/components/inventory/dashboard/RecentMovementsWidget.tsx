@@ -1,6 +1,7 @@
 import type { StockMovement } from '@/types/inventory';
 import { StockMovementIcon } from '@/components/inventory/shared/StockMovementIcon';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   movements: StockMovement[];
 }
@@ -14,16 +15,17 @@ function formatTime(ts: { seconds: number } | null | undefined): string {
 }
 
 export function RecentMovementsWidget({ movements }: Props) {
+  const { t } = useTranslation();
   const items = movements.slice(0, 20);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100">
-        <h2 className="font-semibold text-gray-900">Recent Stock Movements</h2>
+        <h2 className="font-semibold text-gray-900">{t('common.inventory.ui.recentMovementsWidget.recentStockMovements')}</h2>
       </div>
 
       {items.length === 0 ? (
-        <div className="px-4 py-8 text-center text-gray-400 text-sm">No recent movements</div>
+        <div className="px-4 py-8 text-center text-gray-400 text-sm">{t('common.inventory.ui.recentMovementsWidget.noRecentMovements')}</div>
       ) : (
         <div className="divide-y divide-gray-100">
           {items.map((m) => {

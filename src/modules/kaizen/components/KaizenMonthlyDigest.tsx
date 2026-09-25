@@ -10,12 +10,14 @@ import {
   KAIZEN_PRIORITY_META,
 } from '../types/kaizen.types';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   isProPlan?: boolean;
   defaultMonth?: string; // YYYY-MM
 }
 
 export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const companyName = useAuthStore((s) => s.company?.name ?? 'Plant');
   const [selectedMonth, setSelectedMonth] = useState(
@@ -53,16 +55,15 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 flex flex-col items-center text-center gap-3">
         <Lock size={28} className="text-gray-400" />
-        <p className="text-base font-semibold text-gray-700">Monthly Kaizen Digest — Factory Pro</p>
+        <p className="text-base font-semibold text-gray-700">{t('common.ui2.kaizen.kaizenMonthlyDigest.monthlyKaizenDigestFactoryPro')}</p>
         <p className="text-sm text-gray-500 max-w-sm">
-          Generate PDF reports of monthly Kaizen activity, including new cards, implementations, ROI,
-          and top contributor recognition.
+          {t('common.ui2.kaizen.kaizenMonthlyDigest.generatePdfReportsOfMonthly')}
         </p>
         <button
           onClick={() => navigate('/app/billing')}
           className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
         >
-          Upgrade to Factory Pro
+          {t('common.ui2.kaizen.kaizenMonthlyDigest.upgradeToFactoryPro')}
         </button>
       </div>
     );
@@ -73,7 +74,7 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
       {/* Controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Month:</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.ui2.kaizen.kaizenMonthlyDigest.month')}</label>
           <input
             type="month"
             value={selectedMonth}
@@ -85,7 +86,7 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
           onClick={() => window.print()}
           className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
         >
-          <Printer size={14} /> Print / Export PDF
+          <Printer size={14} /> {t('common.ui2.kaizen.kaizenMonthlyDigest.printExportPdf')}
         </button>
       </div>
 
@@ -98,7 +99,7 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
         <div className="bg-[#0A1628] text-white px-8 py-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-blue-300 uppercase font-semibold mb-1">Kaizen Monthly Digest</p>
+              <p className="text-xs text-blue-300 uppercase font-semibold mb-1">{t('common.ui2.kaizen.kaizenMonthlyDigest.kaizenMonthlyDigest')}</p>
               <h1 className="text-2xl font-bold">{companyName}</h1>
               <p className="text-blue-200 mt-0.5">
                 {format(parse(selectedMonth, 'yyyy-MM', new Date()), 'MMMM yyyy')}
@@ -112,13 +113,13 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
 
         <div className="p-6 space-y-6">
           {loading ? (
-            <div className="py-8 text-center text-gray-400 animate-pulse">Generating digest...</div>
+            <div className="py-8 text-center text-gray-400 animate-pulse">{t('common.ui2.kaizen.kaizenMonthlyDigest.generatingDigest')}</div>
           ) : (
             <>
               {/* KPI summary */}
               <section>
                 <h2 className="text-base font-bold text-gray-900 mb-3 pb-1 border-b border-gray-200">
-                  Monthly Summary
+                  {t('common.ui2.kaizen.kaizenMonthlyDigest.monthlySummary')}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
@@ -147,11 +148,11 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
-                        <th className="py-1.5 pr-3">Title</th>
-                        <th className="py-1.5 pr-3">Category</th>
-                        <th className="py-1.5 pr-3">Priority</th>
-                        <th className="py-1.5 pr-3">Raised By</th>
-                        <th className="py-1.5">Status</th>
+                        <th className="py-1.5 pr-3">{t('common.ui2.kaizen.kaizenMonthlyDigest.title')}</th>
+                        <th className="py-1.5 pr-3">{t('common.ui2.kaizen.kaizenMonthlyDigest.category')}</th>
+                        <th className="py-1.5 pr-3">{t('common.ui2.kaizen.kaizenMonthlyDigest.priority')}</th>
+                        <th className="py-1.5 pr-3">{t('common.ui2.kaizen.kaizenMonthlyDigest.raisedBy')}</th>
+                        <th className="py-1.5">{t('common.ui2.kaizen.kaizenMonthlyDigest.status')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -200,10 +201,10 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
-                        <th className="py-1.5 pr-3">Title</th>
-                        <th className="py-1.5 pr-3">Category</th>
-                        <th className="py-1.5 pr-3">Actual Cost (LKR)</th>
-                        <th className="py-1.5">Actual Benefit/mo (LKR)</th>
+                        <th className="py-1.5 pr-3">{t('common.ui2.kaizen.kaizenMonthlyDigest.title')}</th>
+                        <th className="py-1.5 pr-3">{t('common.ui2.kaizen.kaizenMonthlyDigest.category')}</th>
+                        <th className="py-1.5 pr-3">{t('common.ui2.kaizen.kaizenMonthlyDigest.actualCostLkr')}</th>
+                        <th className="py-1.5">{t('common.ui2.kaizen.kaizenMonthlyDigest.actualBenefitMoLkr')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -233,7 +234,7 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
                     {topContributor.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-xs text-blue-600 font-semibold uppercase">Top Contributor This Month</p>
+                    <p className="text-xs text-blue-600 font-semibold uppercase">{t('common.ui2.kaizen.kaizenMonthlyDigest.topContributorThisMonth')}</p>
                     <p className="text-base font-bold text-blue-900">{topContributor.name}</p>
                     <p className="text-sm text-blue-700">{topContributor.count} Kaizen card{topContributor.count !== 1 ? 's' : ''} raised</p>
                   </div>

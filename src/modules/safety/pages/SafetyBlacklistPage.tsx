@@ -8,6 +8,7 @@ import { useSafetyBlacklist } from '@/hooks/safety/useSafety';
 import { clearSafetyBlacklistEntry } from '@/services/safety.service';
 import { BLACKLIST_THRESHOLD, type BlacklistEntityType } from '@/lib/safety/blacklist';
 
+import { useTranslation } from 'react-i18next';
 const TYPE_LABEL: Record<BlacklistEntityType, string> = {
   technician: 'Technician',
   contractor: 'Contractor',
@@ -31,6 +32,7 @@ function fmtDate(ms: number | null): string {
 }
 
 export default function SafetyBlacklistPage() {
+  const { t } = useTranslation();
   const profile = useAuthStore((s) => s.userProfile);
   const companyId = profile?.companyId ?? '';
   const { entries, loading } = useSafetyBlacklist(companyId);
@@ -90,7 +92,7 @@ export default function SafetyBlacklistPage() {
         <div className="flex items-center gap-2">
           <ShieldOff className="h-6 w-6 text-red-600" />
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Safety Blacklist</h1>
+            <h1 className="text-xl font-bold text-slate-900">{t('common.ui2.safety.safetyBlacklistPage.safetyBlacklist')}</h1>
             <p className="text-sm text-slate-500">
               Technicians, contractors, operators, and machines that reached {BLACKLIST_THRESHOLD}+ safety-case points are
               automatically blocked from new work order assignment.
@@ -99,7 +101,7 @@ export default function SafetyBlacklistPage() {
         </div>
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-center">
           <div className="text-2xl font-bold text-red-700">{blacklistedCount}</div>
-          <div className="text-xs text-red-600">Currently blacklisted</div>
+          <div className="text-xs text-red-600">{t('common.ui2.safety.safetyBlacklistPage.currentlyBlacklisted')}</div>
         </div>
       </div>
 
@@ -112,22 +114,22 @@ export default function SafetyBlacklistPage() {
         <input
           type="number"
           min={0}
-          placeholder="Min points"
+          placeholder={t('common.ui2.safety.safetyBlacklistPage.minPoints')}
           value={minPoints}
           onChange={(e) => setMinPoints(e.target.value)}
           className={`${field} w-32`}
         />
-        <label className="text-xs text-slate-500">From</label>
+        <label className="text-xs text-slate-500">{t('common.ui2.safety.safetyBlacklistPage.from')}</label>
         <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className={field} />
-        <label className="text-xs text-slate-500">To</label>
+        <label className="text-xs text-slate-500">{t('common.ui2.safety.safetyBlacklistPage.to')}</label>
         <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className={field} />
         <label className="ml-auto inline-flex items-center gap-1.5 text-sm text-slate-600">
           <input type="checkbox" checked={onlyBlacklisted} onChange={(e) => setOnlyBlacklisted(e.target.checked)} />
-          Blacklisted only
+          {t('common.ui2.safety.safetyBlacklistPage.blacklistedOnly')}
         </label>
       </div>
 
-      <DashboardWidget title="Points by entity" loading={loading}>
+      <DashboardWidget title={t('common.ui2.safety.safetyBlacklistPage.pointsByEntity')} loading={loading}>
         {filtered.length === 0 ? (
           <EmptyState message="No entities match the current filters." />
         ) : (
@@ -135,12 +137,12 @@ export default function SafetyBlacklistPage() {
             <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
-                  <th className="py-2 pr-3 font-medium">Name</th>
-                  <th className="py-2 pr-3 font-medium">Type</th>
-                  <th className="py-2 pr-3 font-medium">Points</th>
-                  <th className="py-2 pr-3 font-medium">Cases</th>
-                  <th className="py-2 pr-3 font-medium">Last case</th>
-                  <th className="py-2 pr-3 font-medium">Status</th>
+                  <th className="py-2 pr-3 font-medium">{t('common.ui2.safety.safetyBlacklistPage.name')}</th>
+                  <th className="py-2 pr-3 font-medium">{t('common.ui2.safety.safetyBlacklistPage.type')}</th>
+                  <th className="py-2 pr-3 font-medium">{t('common.ui2.safety.safetyBlacklistPage.points')}</th>
+                  <th className="py-2 pr-3 font-medium">{t('common.ui2.safety.safetyBlacklistPage.cases')}</th>
+                  <th className="py-2 pr-3 font-medium">{t('common.ui2.safety.safetyBlacklistPage.lastCase')}</th>
+                  <th className="py-2 pr-3 font-medium">{t('common.ui2.safety.safetyBlacklistPage.status')}</th>
                   <th className="py-2 pr-3 font-medium" />
                 </tr>
               </thead>
@@ -157,10 +159,10 @@ export default function SafetyBlacklistPage() {
                       <td className="py-2.5 pr-3">
                         {e.isBlacklisted ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-                            <Ban className="h-3 w-3" /> Blacklisted
+                            <Ban className="h-3 w-3" /> {t('common.ui2.safety.safetyBlacklistPage.blacklisted')}
                           </span>
                         ) : (
-                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">OK</span>
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">{t('common.ui2.safety.safetyBlacklistPage.ok')}</span>
                         )}
                       </td>
                       <td className="py-2.5 pr-3 text-right">
@@ -170,7 +172,7 @@ export default function SafetyBlacklistPage() {
                           onClick={() => handleClear(e.entityType, e.entityId, e.entityName)}
                           className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40"
                         >
-                          Clear to 0
+                          {t('common.ui2.safety.safetyBlacklistPage.clearTo0')}
                         </button>
                       </td>
                     </tr>

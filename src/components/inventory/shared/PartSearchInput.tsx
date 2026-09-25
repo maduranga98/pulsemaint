@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import type { InventoryPart } from '@/types/inventory';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 
+import { useTranslation } from 'react-i18next';
 interface PartSearchInputProps {
   onSelect: (part: InventoryPart) => void;
   placeholder?: string;
@@ -21,6 +22,7 @@ export function PartSearchInput({
   placeholder = 'Search parts by number or name…',
   excludePartIds = EMPTY_IDS,
 }: PartSearchInputProps) {
+  const { t } = useTranslation();
   // Derive a stable key so callers passing inline arrays don't re-trigger search.
   const excludeKey = excludePartIds.join(',');
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
@@ -132,10 +134,10 @@ export function PartSearchInput({
       {isOpen && (
         <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
           {isLoading && (
-            <div className="px-4 py-3 text-sm text-gray-500">Searching…</div>
+            <div className="px-4 py-3 text-sm text-gray-500">{t('common.inventory.ui.partSearchInput.searching')}</div>
           )}
           {!isLoading && results.length === 0 && (
-            <div className="px-4 py-3 text-sm text-gray-500">No parts found</div>
+            <div className="px-4 py-3 text-sm text-gray-500">{t('common.inventory.ui.partSearchInput.noPartsFound')}</div>
           )}
           {!isLoading &&
             results.map((part) => (

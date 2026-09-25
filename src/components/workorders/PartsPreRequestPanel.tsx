@@ -141,7 +141,7 @@ export function PartsPreRequestPanel({
                   type="text"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="Optional note…"
+                  placeholder={t('common.ui2.workorders.partsPreRequestPanel.optionalNote')}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                 />
               </div>

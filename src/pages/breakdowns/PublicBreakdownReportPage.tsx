@@ -9,6 +9,7 @@ import { signInAnonymouslyForReport } from '../../lib/auth';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
 
+import { useTranslation } from 'react-i18next';
 interface MachineInfo {
   id: string;
   name: string;
@@ -66,6 +67,7 @@ function clearRecentTicket(machineId: string): void {
  * enough to satisfy Firestore's write rule, then signs back out.
  */
 export default function PublicBreakdownReportPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const machineId = searchParams.get('machineId') || '';
 
@@ -160,11 +162,11 @@ export default function PublicBreakdownReportPage() {
     e.preventDefault();
     setError(null);
     if (!machine) {
-      setError('Machine information is not loaded yet.');
+      setError(t('common.ui2.breakdowns.publicBreakdownReportPage.machineInformationIsNotLoaded'));
       return;
     }
     if (description.trim().length < 10) {
-      setError('Please describe the breakdown in at least 10 characters.');
+      setError(t('common.ui2.breakdowns.publicBreakdownReportPage.pleaseDescribeTheBreakdownIn'));
       return;
     }
     setSubmitting(true);
@@ -226,21 +228,21 @@ export default function PublicBreakdownReportPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6 flex flex-col items-center gap-2">
-          <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto" />
+          <img src="/logo.svg" alt={t('common.ui2.breakdowns.publicBreakdownReportPage.firmicore')} className="h-14 w-auto" />
           <div className="text-2xl font-bold">
-            <span className="text-white">Firmi</span>
-            <span className="text-[#00C2FF]">Core</span>
+            <span className="text-white">{t('common.ui2.breakdowns.publicBreakdownReportPage.firmi')}</span>
+            <span className="text-[#00C2FF]">{t('common.ui2.breakdowns.publicBreakdownReportPage.core')}</span>
           </div>
-          <p className="text-slate-300 text-sm">Report a breakdown — no sign-in required</p>
+          <p className="text-slate-300 text-sm">{t('common.ui2.breakdowns.publicBreakdownReportPage.reportABreakdownNoSign')}</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           {ticketNumber ? (
             <div className="text-center py-4 flex flex-col items-center gap-1.5">
               <CheckCircle2 className="w-12 h-12 text-emerald-500 mb-1" />
-              <p className="text-lg font-semibold text-slate-900">Breakdown reported</p>
-              <p className="text-sm text-slate-500">Ticket <span className="font-mono font-medium">{ticketNumber}</span> has been sent to the maintenance team.</p>
-              <p className="text-xs text-slate-400 mt-2">You can close this page.</p>
+              <p className="text-lg font-semibold text-slate-900">{t('common.ui2.breakdowns.publicBreakdownReportPage.breakdownReported')}</p>
+              <p className="text-sm text-slate-500">{t('common.ui2.breakdowns.publicBreakdownReportPage.ticket')} <span className="font-mono font-medium">{ticketNumber}</span> {t('common.ui2.breakdowns.publicBreakdownReportPage.hasBeenSentToThe')}</p>
+              <p className="text-xs text-slate-400 mt-2">{t('common.ui2.breakdowns.publicBreakdownReportPage.youCanCloseThisPage')}</p>
               <button
                 type="button"
                 onClick={() => {
@@ -259,18 +261,18 @@ export default function PublicBreakdownReportPage() {
             <div className="text-center py-4">
               <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
               <p className="text-slate-700 text-sm mb-4">
-                This is taking longer than usual. Check your connection and try again.
+                {t('common.ui2.breakdowns.publicBreakdownReportPage.thisIsTakingLongerThan')}
               </p>
               <button
                 type="button"
                 onClick={() => setRetryKey((k) => k + 1)}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
               >
-                Retry
+                {t('common.ui2.breakdowns.publicBreakdownReportPage.retry')}
               </button>
             </div>
           ) : loadingMachine ? (
-            <p className="text-sm text-slate-500 text-center py-6">Loading machine…</p>
+            <p className="text-sm text-slate-500 text-center py-6">{t('common.ui2.breakdowns.publicBreakdownReportPage.loadingMachine')}</p>
           ) : machineError ? (
             <div className="text-center py-4">
               <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
@@ -281,7 +283,7 @@ export default function PublicBreakdownReportPage() {
               <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
                 <QrCode className="w-4 h-4 flex-shrink-0" />
                 <span>
-                  Reporting on <strong>{machine?.name}</strong>
+                  {t('common.ui2.breakdowns.publicBreakdownReportPage.reportingOn')} <strong>{machine?.name}</strong>
                   {machine?.department ? ` — ${machine.department}` : ''}
                   {machine?.location ? ` · ${machine.location}` : ''}
                 </span>
@@ -296,7 +298,7 @@ export default function PublicBreakdownReportPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">What happened? *</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('common.ui2.breakdowns.publicBreakdownReportPage.whatHappened')}</label>
                   <VoiceDictationButton
                     disabled={submitting}
                     className="w-8 h-8"
@@ -310,7 +312,7 @@ export default function PublicBreakdownReportPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
                   disabled={submitting}
-                  placeholder="Describe the symptoms, error codes, sounds, etc. Or tap the mic and tell us what happened."
+                  placeholder={t('common.ui2.breakdowns.publicBreakdownReportPage.describeTheSymptomsErrorCodes')}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
                 />
               </div>
@@ -323,7 +325,7 @@ export default function PublicBreakdownReportPage() {
                   disabled={submitting}
                   className="rounded"
                 />
-                Machine is still running (degraded but operational)
+                {t('common.ui2.breakdowns.publicBreakdownReportPage.machineIsStillRunningDegraded')}
               </label>
 
               <button
@@ -340,7 +342,7 @@ export default function PublicBreakdownReportPage() {
         <p className="text-center text-slate-400 text-xs mt-6">
           Work here?{' '}
           <Link to="/login" className="text-[#00C2FF] hover:underline font-medium">
-            Sign in
+            {t('common.ui2.breakdowns.publicBreakdownReportPage.signIn')}
           </Link>{' '}
           to see the full Breakdowns board.
         </p>

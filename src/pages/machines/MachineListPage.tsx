@@ -382,13 +382,13 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
 
         {!done && !plantId && (
           <div className="px-6 pt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Plant *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineListPage.plant')}</label>
             <select
               value={pickedPlantId}
               onChange={(e) => setPickedPlantId(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
             >
-              <option value="">Select the plant these machines belong to...</option>
+              <option value="">{t('common.ui2.machines.machineListPage.selectThePlantTheseMachines')}</option>
               {activePlants.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
