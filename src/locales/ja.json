@@ -3534,7 +3534,9 @@
         "notification": {
           "message": "新しいトレーニングモジュールが割り当てられました: {{title}}",
           "oversightMessage": "「{{title}}」を{{name}}に割り当てました"
-        }
+        },
+        "dueTime": "期限時刻",
+        "dueTimeHint": "時刻を選択しない場合、期限日の 23:59 が期限になります。"
       },
       "editorLayout": {
         "tabs": {
@@ -4118,7 +4120,9 @@
           "settings": {
             "dueDate": "期限日",
             "notifyTrainee": "研修生に通知する",
-            "notifyTraineeHint": "割り当て作成時に通知を送信します"
+            "notifyTraineeHint": "割り当て作成時に通知を送信します",
+            "dueTime": "期限時刻",
+            "dueTimeHint": "時刻を選択しない場合、期限日の 23:59 が期限になります。"
           },
           "review": {
             "summary": "<strong>{{moduleCount}}件のモジュール</strong>を<strong>{{traineeCount}}名の研修生</strong>に割り当てます（合計{{totalCount}}件の割り当て）",

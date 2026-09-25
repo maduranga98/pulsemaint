@@ -3538,7 +3538,9 @@
         "notification": {
           "message": "Un nouveau module de formation vous a été assigné : {{title}}",
           "oversightMessage": "a assigné « {{title}} » à {{name}}"
-        }
+        },
+        "dueTime": "Heure d'Échéance",
+        "dueTimeHint": "Sans heure choisie, l'échéance est à 23:59 le jour indiqué."
       },
       "editorLayout": {
         "tabs": {
@@ -4122,7 +4124,9 @@
           "settings": {
             "dueDate": "Date d'échéance",
             "notifyTrainee": "Notifier le stagiaire",
-            "notifyTraineeHint": "Envoyer une notification à la création de l'affectation"
+            "notifyTraineeHint": "Envoyer une notification à la création de l'affectation",
+            "dueTime": "Heure d'Échéance",
+            "dueTimeHint": "Sans heure choisie, l'échéance est à 23:59 le jour indiqué."
           },
           "review": {
             "summary": "Attribution de <strong>{{moduleCount}} modules</strong> à <strong>{{traineeCount}} stagiaires</strong> ({{totalCount}} affectations au total)",

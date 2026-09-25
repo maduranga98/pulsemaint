@@ -9,6 +9,7 @@ import { notifyUsers } from '@/services/notifications.service';
 import type { UserProfile, UserRole } from '@/types/auth';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import { getModuleCategory } from '@/lib/training/offboardTraining';
+import { combineDueDateTime } from '@/lib/training/dueDateTime';
 import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 
 const ROLE_OPTIONS = [
@@ -58,6 +59,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
   const [selectedDepartments, setSelectedDepartments] = useState<Set<string>>(new Set());
   const [userSearch, setUserSearch] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [dueTime, setDueTime] = useState('');
   const [notifyTrainee, setNotifyTrainee] = useState(true);
 
   const [submitting, setSubmitting] = useState(false);
@@ -77,13 +79,16 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
           snap.docs
             .map((d) => ({ ...d.data(), id: d.id }) as UserProfile)
             .filter((u) => u.status !== 'inactive')
+            // Only people registered under the caller's plant (admin: the
+            // selected plant tab) — never another plant's staff.
+            .filter((u) => !departmentPlantId || u.plantId === departmentPlantId)
         );
         setUsersLoading(false);
       },
       () => setUsersLoading(false)
     );
     return () => unsub();
-  }, [companyId]);
+  }, [companyId, departmentPlantId]);
 
   const filteredUsers = useMemo(() => {
     const term = userSearch.trim().toLowerCase();
@@ -143,7 +148,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
           assignedBy: userProfile.id,
           assignedByName: userProfile.fullName ?? '',
           assignedAt: serverTimestamp(),
-          dueDate: dueDate ? new Date(dueDate) : null,
+          dueDate: combineDueDateTime(dueDate, dueTime),
           trainingType: module.trainingType ?? null,
           trainingPeriodMonths: null,
           status: 'not_started',
@@ -334,12 +339,24 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
                 {t('common.trainingShared.assignForm.dueDate')}{' '}
                 <span className="text-gray-400 font-normal">{t('common.trainingShared.assignForm.optional')}</span>
               </label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  aria-label={t('common.trainingShared.assignForm.dueDate')}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="time"
+                  value={dueTime}
+                  onChange={(e) => setDueTime(e.target.value)}
+                  disabled={!dueDate}
+                  aria-label={t('common.trainingShared.assignForm.dueTime')}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">{t('common.trainingShared.assignForm.dueTimeHint')}</p>
             </div>
 
             <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer">

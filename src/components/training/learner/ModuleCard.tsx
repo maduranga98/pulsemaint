@@ -6,6 +6,7 @@ import TrainingStatusBadge from '../shared/TrainingStatusBadge';
 import TrainingProgressBar from '../shared/TrainingProgressBar';
 import ModuleTypeBadge from '../shared/ModuleTypeBadge';
 import RetrainingBadge from '../shared/RetrainingBadge';
+import { formatDueDateTime } from '@/lib/training/dueDateTime';
 
 interface ModuleCardProps {
   assignment: TrainingAssignment;
@@ -21,7 +22,7 @@ function formatDueDate(dueDate: { seconds: number } | null, t: TFunction): {
   const now = new Date();
   const overdue = date < now;
   const label = t('common.trainingShared.moduleCard.due', {
-    date: date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    date: formatDueDateTime(date),
   });
   return { label, overdue };
 }

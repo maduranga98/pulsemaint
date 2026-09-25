@@ -4892,7 +4892,9 @@
         "notification": {
           "message": "You've been assigned a new training module: {{title}}",
           "oversightMessage": "assigned \"{{title}}\" to {{name}}"
-        }
+        },
+        "dueTime": "Due Time",
+        "dueTimeHint": "If no time is picked, the training is due at 23:59 on the due date."
       },
       "editorLayout": {
         "tabs": {
@@ -5476,7 +5478,9 @@
           "settings": {
             "dueDate": "Due Date",
             "notifyTrainee": "Notify Trainee",
-            "notifyTraineeHint": "Send notification when assignment is created"
+            "notifyTraineeHint": "Send notification when assignment is created",
+            "dueTime": "Due Time",
+            "dueTimeHint": "If no time is picked, the training is due at 23:59 on the due date."
           },
           "review": {
             "summary": "Assigning <strong>{{moduleCount}} modules</strong> to <strong>{{traineeCount}} trainees</strong> ({{totalCount}} total assignments)",

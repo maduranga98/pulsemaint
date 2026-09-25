@@ -3534,7 +3534,9 @@
         "notification": {
           "message": "系统已为您分配新的培训模块：{{title}}",
           "oversightMessage": "将“{{title}}”分配给了 {{name}}"
-        }
+        },
+        "dueTime": "截止时间",
+        "dueTimeHint": "未选择时间时，截止于截止日期当天 23:59。"
       },
       "editorLayout": {
         "tabs": {
@@ -4118,7 +4120,9 @@
           "settings": {
             "dueDate": "截止日期",
             "notifyTrainee": "通知学员",
-            "notifyTraineeHint": "创建分配时发送通知"
+            "notifyTraineeHint": "创建分配时发送通知",
+            "dueTime": "截止时间",
+            "dueTimeHint": "未选择时间时，截止于截止日期当天 23:59。"
           },
           "review": {
             "summary": "将 <strong>{{moduleCount}} 个模块</strong>分配给 <strong>{{traineeCount}} 名学员</strong>（共 {{totalCount}} 项分配）",

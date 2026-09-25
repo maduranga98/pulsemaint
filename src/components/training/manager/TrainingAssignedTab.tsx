@@ -22,6 +22,7 @@ import {
 } from '@/lib/training/trainingTypes';
 import type { TrainingAssignment, TrainingModule } from '@/lib/training/trainingTypes';
 import { usePlantFilter } from '@/hooks/usePlantFilter';
+import { formatDueDateTime } from '@/lib/training/dueDateTime';
 
 function categoryLabel(category: 'machine' | 'offboard', t: TFunction): string {
   return t(`common.trainingShared.manager.trainingAssignedTab.categories.${category}`);
@@ -183,7 +184,7 @@ export default function TrainingAssignedTab() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(a.assignedAt)}</td>
-                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(a.dueDate)}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDueDateTime(a.dueDate, '—')}</td>
                       <td className="px-4 py-3"><TrainingStatusBadge status={a.status} /></td>
                       <td className="px-4 py-3 text-right">
                         {isReadyToSignOff(a) && (

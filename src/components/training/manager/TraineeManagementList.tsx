@@ -6,6 +6,7 @@ import type { Timestamp } from 'firebase/firestore';
 import type { TrainingAssignment, AssignmentStatus } from '@/lib/training/trainingTypes';
 import type { UserProfile } from '@/types/auth';
 import { isOffboardAssignment } from '@/lib/training/offboardTraining';
+import { formatDueDateTime } from '@/lib/training/dueDateTime';
 
 interface TraineeManagementListProps {
   trainees: UserProfile[];
@@ -223,7 +224,7 @@ export default function TraineeManagementList({
                             ? t('common.traineeManagement.managementList.periodMonths', { count: a.trainingPeriodMonths })
                             : t('common.traineeManagement.managementList.notAvailable')}
                           <div className="text-[11px] text-gray-400">
-                            {formatTs(a.assignedAt)} → {formatTs(a.dueDate)}
+                            {formatTs(a.assignedAt)} → {formatDueDateTime(a.dueDate, '—')}
                           </div>
                         </td>
                         <td className="px-3 py-2">
