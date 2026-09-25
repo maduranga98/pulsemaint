@@ -14,7 +14,7 @@ export default function QuizUnlockBanner({
 }: QuizUnlockBannerProps) {
   const { t } = useTranslation();
   return (
-    <div className="mx-4 my-3 rounded-xl bg-blue-50 border border-blue-200 p-4 space-y-3">
+    <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 space-y-3">
       <div className="flex items-start gap-2">
         <CheckCircle size={18} className="text-blue-600 mt-0.5 shrink-0" aria-hidden="true" />
         <p className="text-sm font-medium text-blue-800">
