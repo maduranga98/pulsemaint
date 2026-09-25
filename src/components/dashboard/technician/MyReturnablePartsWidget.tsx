@@ -12,7 +12,7 @@ import type { PartsRequest, RequestItem } from '../../../types/inventory';
 import type { UserRole } from '../../../types/auth';
 import { useTranslation } from 'react-i18next';
 
-const WRITE_OFF_NOTIFY_ROLES: UserRole[] = ['store_keeper', 'supervisor', 'plant_manager', 'admin'];
+const WRITE_OFF_NOTIFY_ROLES: UserRole[] = ['store_keeper', 'plant_manager', 'admin'];
 
 interface ReturnableRow {
   request: PartsRequest;
