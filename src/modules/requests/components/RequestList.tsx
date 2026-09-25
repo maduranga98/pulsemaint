@@ -1,15 +1,25 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/store/authStore';
 import type { StaffRequest, StaffRequestCategory, StaffRequestStatus } from '@/types/staffRequest';
 import { STAFF_REQUEST_CATEGORIES } from '@/types/staffRequest';
 import RequestCard from './RequestCard';
 import { categoryLabel, field, statusLabel } from '../requestUi';
 
 type StatusFilter = 'all' | StaffRequestStatus;
+
+/** Closed requests drop off every list this long after closing — except for plant managers, who keep the full record. */
+const CLOSED_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function isExpiredClosed(r: StaffRequest, now = Date.now()): boolean {
+  if (r.status !== 'closed') return false;
+  const closedAt = r.closedAt?.toMillis?.() ?? r.updatedAt?.toMillis?.() ?? 0;
+  return closedAt > 0 && now - closedAt > CLOSED_RETENTION_MS;
+}
 const STATUS_FILTERS: StatusFilter[] = ['all', 'open', 'answered', 'closed'];
 
 export default function RequestList({
-  requests,
+  requests: allRequests,
   loading,
   error,
   mode,
@@ -22,6 +32,11 @@ export default function RequestList({
   emptyText: string;
 }) {
   const { t } = useTranslation();
+  const role = useAuthStore((s) => s.userProfile?.role);
+  const requests = useMemo(
+    () => (role === 'plant_manager' ? allRequests : allRequests.filter((r) => !isExpiredClosed(r))),
+    [allRequests, role],
+  );
   const [status, setStatus] = useState<StatusFilter>('all');
   const [category, setCategory] = useState<'all' | StaffRequestCategory>('all');
   const [search, setSearch] = useState('');
