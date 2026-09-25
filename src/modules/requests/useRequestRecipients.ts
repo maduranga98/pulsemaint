@@ -1,4 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useCompanyUsers, type CompanyUserOption } from '@/hooks/useCompanyUsers';
 import { sameDepartment } from '@/hooks/useRecordPlantMatcher';
@@ -35,14 +37,43 @@ export function useRequestRecipients() {
  * People the signed-in user may send a request to, by name: supervisors of
  * their own plant + department, plant managers of their own plant, and the
  * company's admins — limited to the roles their own role may address.
+ *
+ * Loaded through the `listRequestRecipients` Cloud Function, because
+ * technicians / trainees / floor operators can't read the company user
+ * roster under firestore.rules. Falls back to the roster for roles that can,
+ * if the function call fails.
  */
-export function useEligibleRequestRecipients(): CompanyUserOption[] {
+export function useEligibleRequestRecipients(): { recipients: CompanyUserOption[]; loading: boolean } {
   const profile = useAuthStore((s) => s.userProfile);
   const { users } = useCompanyUsers(profile?.companyId, { includeAdmins: true });
-  return useMemo(() => {
+  const [remote, setRemote] = useState<CompanyUserOption[] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    let cancelled = false;
+    setLoading(true);
+    httpsCallable<unknown, { recipients: Omit<CompanyUserOption, 'shiftId'>[] }>(functions, 'listRequestRecipients')({})
+      .then((res) => {
+        if (!cancelled) setRemote(res.data.recipients.map((r) => ({ ...r, shiftId: null })));
+      })
+      .catch((err) => {
+        console.error('listRequestRecipients failed; using the roster instead', err);
+        if (!cancelled) setRemote(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.id]);
+
+  const recipients = useMemo(() => {
     const allowed = recipientOptionsFor(profile?.role) as string[];
     const order = ['supervisor', 'plant_manager', 'admin'];
-    return users
+    const source = remote ?? users;
+    return source
       .filter((u) => {
         if (u.id === profile?.id || !allowed.includes(u.role)) return false;
         if (u.role === 'admin') return true;
@@ -50,5 +81,7 @@ export function useEligibleRequestRecipients(): CompanyUserOption[] {
         return u.role === 'plant_manager' || sameDepartment(u.department, profile?.department);
       })
       .sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.fullName.localeCompare(b.fullName));
-  }, [users, profile?.id, profile?.role, profile?.plantId, profile?.department]);
+  }, [remote, users, profile?.id, profile?.role, profile?.plantId, profile?.department]);
+
+  return { recipients, loading };
 }

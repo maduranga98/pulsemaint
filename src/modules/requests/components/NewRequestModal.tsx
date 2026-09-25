@@ -23,7 +23,7 @@ export default function NewRequestModal({ onClose }: Props) {
   const { t } = useTranslation();
   const toast = useToast();
   const profile = useAuthStore((s) => s.userProfile);
-  const recipients = useEligibleRequestRecipients();
+  const { recipients, loading: recipientsLoading } = useEligibleRequestRecipients();
 
   const [category, setCategory] = useState<StaffRequestCategory>('work');
   const [recipientId, setRecipientId] = useState('');
@@ -110,12 +110,14 @@ export default function NewRequestModal({ onClose }: Props) {
           <div>
             <label className={labelCls}>{t('common.staffRequests.newRequest.sendTo')}</label>
             <select value={recipientId} onChange={(e) => setRecipientId(e.target.value)} className={field}>
-              <option value="">{t('common.staffRequests.newRequest.choosePerson')}</option>
+              <option value="">
+                {recipientsLoading ? t('common.staffRequests.newRequest.loadingPeople') : t('common.staffRequests.newRequest.choosePerson')}
+              </option>
               {recipients.map((u) => (
                 <option key={u.id} value={u.id}>{u.fullName} ({roleLabel(u.role, t)})</option>
               ))}
             </select>
-            {recipients.length === 0 && (
+            {!recipientsLoading && recipients.length === 0 && (
               <p className="mt-1 text-xs text-[#FBBF24]">{t('common.staffRequests.newRequest.noRecipients')}</p>
             )}
           </div>

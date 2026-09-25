@@ -208,6 +208,14 @@ const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail")
 exports.sendInvitationEmail = sendInvitationEmail;
 
 // ---------------------------------------------------------------------------
+// Staff Requests — recipient directory for roles that can't read the roster
+// ---------------------------------------------------------------------------
+
+const { listRequestRecipients } = require("./src/requests/listRequestRecipients");
+
+exports.listRequestRecipients = listRequestRecipients;
+
+// ---------------------------------------------------------------------------
 // Billing Module — Stripe Cloud Functions
 // ---------------------------------------------------------------------------
 
