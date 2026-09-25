@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useContractor } from '@/hooks/contractors/useContractor';
 import { useContractorDocuments } from '@/hooks/contractors/useContractorDocuments';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 import ContractorFormSection1 from './ContractorFormSection1';
 import ContractorFormSection2 from './ContractorFormSection2';
@@ -41,6 +42,9 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
+  // The registering user's plant (admin: the selected plant tab; null on
+  // "All Plants" = company-wide contractor).
+  const { plantId: scopedPlantId } = useDepartmentScope();
   const access = useContractorAccess();
   const companyId = userProfile?.companyId;
   const { contractorId } = useParams<{ contractorId: string }>();
@@ -198,6 +202,7 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
     const createPayload: Record<string, unknown> = {
       ...payload,
       companyId,
+      plantId: scopedPlantId ?? null,
       status: 'active',
       avgRating: 0,
       ratingCount: 0,

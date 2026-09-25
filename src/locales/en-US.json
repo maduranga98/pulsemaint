@@ -3973,7 +3973,9 @@
         "noContractorTeamMembers": "No team members registered for this contractor yet. Add them on the contractor's Team Members tab.",
         "assignInternalTechniciansLabel": "Assign internal technicians",
         "optionalLabel": "(optional)",
-        "activeWOsInline": "{{count}} active WOs"
+        "activeWOsInline": "{{count}} active WOs",
+        "chooseContactPerson": "Choose a contact person…",
+        "primaryContactOption": "{{name}} (primary contact)"
       },
       "signOffForm": {
         "starLabel": "{{count}} star",
