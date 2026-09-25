@@ -70,6 +70,8 @@ export interface CreateStaffRequestInput {
   message: string;
   reference: string | null;
   recipientRole: StaffRequestRecipientRole;
+  recipientUserId: string;
+  recipientName: string;
   files: File[];
 }
 
@@ -165,6 +167,7 @@ export function subscribeMyStaffRequests(
 export function subscribeRequestInbox(
   opts: {
     companyId: string;
+    userId: string;
     role: StaffRequestRecipientRole;
     plantId: string | null;
     department: string | null;
@@ -183,10 +186,13 @@ export function subscribeRequestInbox(
     constraints,
     (rows) =>
       cb(
-        opts.role === 'supervisor'
-          // Departments compared the way people read them (case/spacing-insensitive).
-          ? rows.filter((r) => sameDepartment(r.department, opts.department))
-          : rows,
+        rows.filter((r) => {
+          // Sent to a named person — only that person's inbox.
+          if (r.recipientUserId) return r.recipientUserId === opts.userId;
+          // Older role-group requests: supervisors of the department
+          // (compared case/spacing-insensitively), otherwise the whole role.
+          return opts.role !== 'supervisor' || sameDepartment(r.department, opts.department);
+        }),
       ),
     onError,
   );

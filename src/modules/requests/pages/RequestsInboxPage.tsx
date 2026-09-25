@@ -29,6 +29,7 @@ export default function RequestsInboxPage() {
     return subscribeRequestInbox(
       {
         companyId: profile.companyId,
+        userId: profile.id,
         role,
         plantId: role === 'admin' ? plantId : profile.plantId ?? null,
         department: profile.department ?? null,
@@ -36,7 +37,7 @@ export default function RequestsInboxPage() {
       (rows) => { setRequests(rows); setError(null); setLoading(false); },
       (msg) => { setError(msg); setLoading(false); },
     );
-  }, [profile?.companyId, profile?.plantId, profile?.department, role, isHandler, plantId]);
+  }, [profile?.companyId, profile?.id, profile?.plantId, profile?.department, role, isHandler, plantId]);
 
   const scopeKey =
     role === 'supervisor' ? 'supervisor' : role === 'plant_manager' ? 'plantManager' : 'admin';

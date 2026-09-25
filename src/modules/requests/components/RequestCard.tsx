@@ -108,7 +108,11 @@ export default function RequestCard({ request: r, mode }: Props) {
   const who =
     mode === 'handler'
       ? `${r.requesterName} (${roleLabel(r.requesterRole, t)})${r.department ? ` · ${r.department}` : ''}`
-      : t('common.staffRequests.card.sentTo', { to: recipientLabel(r.recipientRole, t) });
+      : t('common.staffRequests.card.sentTo', {
+          to: r.recipientName
+            ? `${r.recipientName} (${roleLabel(r.recipientRole, t)})`
+            : recipientLabel(r.recipientRole, t),
+        });
 
   return (
     <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35]">

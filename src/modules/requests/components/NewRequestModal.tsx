@@ -8,13 +8,12 @@ import { notifyUsers } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
 import {
   STAFF_REQUEST_CATEGORIES,
-  recipientOptionsFor,
   type StaffRequestCategory,
   type StaffRequestRecipientRole,
 } from '@/types/staffRequest';
 import { AttachmentPicker } from './Attachments';
-import { useRequestRecipients } from '../useRequestRecipients';
-import { categoryLabel, field, labelCls, recipientLabel } from '../requestUi';
+import { useEligibleRequestRecipients } from '../useRequestRecipients';
+import { categoryLabel, field, labelCls, roleLabel } from '../requestUi';
 
 interface Props {
   onClose: () => void;
@@ -24,13 +23,10 @@ export default function NewRequestModal({ onClose }: Props) {
   const { t } = useTranslation();
   const toast = useToast();
   const profile = useAuthStore((s) => s.userProfile);
-  const recipientOptions = recipientOptionsFor(profile?.role);
-  const resolveRecipients = useRequestRecipients();
+  const recipients = useEligibleRequestRecipients();
 
   const [category, setCategory] = useState<StaffRequestCategory>('work');
-  const [recipientRole, setRecipientRole] = useState<StaffRequestRecipientRole>(
-    recipientOptions[0] ?? 'admin',
-  );
+  const [recipientId, setRecipientId] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [reference, setReference] = useState('');
@@ -39,19 +35,24 @@ export default function NewRequestModal({ onClose }: Props) {
 
   async function submit() {
     if (!profile?.companyId) return;
+    const recipient = recipients.find((u) => u.id === recipientId);
+    if (!recipient) {
+      toast.error(t('common.staffRequests.newRequest.errors.recipient'));
+      return;
+    }
     if (!subject.trim() || !message.trim()) {
       toast.error(t('common.staffRequests.newRequest.errors.required'));
       return;
     }
+    const recipientRole = recipient.role as StaffRequestRecipientRole;
     setSaving(true);
     try {
-      const base = {
+      await createStaffRequest({
         plantId: profile.plantId ?? null,
         department: profile.department ?? null,
         recipientRole,
-      };
-      await createStaffRequest({
-        ...base,
+        recipientUserId: recipient.id,
+        recipientName: recipient.fullName,
         companyId: profile.companyId,
         requesterId: profile.id,
         requesterName: profile.fullName ?? '',
@@ -62,7 +63,7 @@ export default function NewRequestModal({ onClose }: Props) {
         reference: category === 'record_access' && reference.trim() ? reference.trim() : null,
         files,
       });
-      void notifyUsers(profile.companyId, resolveRecipients(base), {
+      void notifyUsers(profile.companyId, [recipient.id], {
         type: 'request',
         message: t('common.staffRequests.notifications.newRequest', {
           name: profile.fullName ?? '',
@@ -108,17 +109,14 @@ export default function NewRequestModal({ onClose }: Props) {
 
           <div>
             <label className={labelCls}>{t('common.staffRequests.newRequest.sendTo')}</label>
-            <select
-              value={recipientRole}
-              onChange={(e) => setRecipientRole(e.target.value as StaffRequestRecipientRole)}
-              className={field}
-            >
-              {recipientOptions.map((r) => (
-                <option key={r} value={r}>{recipientLabel(r, t)}</option>
+            <select value={recipientId} onChange={(e) => setRecipientId(e.target.value)} className={field}>
+              <option value="">{t('common.staffRequests.newRequest.choosePerson')}</option>
+              {recipients.map((u) => (
+                <option key={u.id} value={u.id}>{u.fullName} ({roleLabel(u.role, t)})</option>
               ))}
             </select>
-            {recipientRole === 'supervisor' && !profile?.department && (
-              <p className="mt-1 text-xs text-[#FBBF24]">{t('common.staffRequests.newRequest.noDepartment')}</p>
+            {recipients.length === 0 && (
+              <p className="mt-1 text-xs text-[#FBBF24]">{t('common.staffRequests.newRequest.noRecipients')}</p>
             )}
           </div>
 
