@@ -757,6 +757,25 @@
         "pending": "{{count}}ක් පොරොත්තුවෙන්",
         "title": "අනුමැතිය අවශ්‍යයි",
         "viewMore": "තවත් {{count}}ක් බලන්න…"
+      },
+      "kpiCard": {
+        "trendVsLastPeriod": "පසුගිය කාලයට සාපේක්ෂව {{trend}}%"
+      },
+      "safetyBlacklistWidget": {
+        "title": "කළු ලැයිස්තුගත (ආරක්ෂක සිද්ධි ලකුණු {{threshold}}+)",
+        "empty": "දැනට කිසිවෙකු කළු ලැයිස්තුගත කර නැත",
+        "columns": {
+          "name": "නම",
+          "type": "වර්ගය",
+          "points": "ලකුණු",
+          "cases": "සිද්ධි"
+        },
+        "entityTypes": {
+          "technician": "තාක්ෂණ ශිල්පී",
+          "contractor": "කොන්ත්‍රාත්කරු",
+          "operator": "ක්‍රියාකරු",
+          "machine": "යන්ත්‍රය"
+        }
       }
     },
     "machines": {
@@ -4860,6 +4879,1222 @@
         "dateRangeMetric": "දින පරාසය",
         "dateRangeValue": "{{from}} සිට {{to}} දක්වා",
         "rowsMetric": "පේළි"
+      }
+    },
+    "evaluation": {
+      "roles": {
+        "operator": "ක්‍රියාකරු",
+        "technician": "තාක්ෂණ ශිල්පී",
+        "supervisor": "අධීක්ෂක",
+        "plantManager": "කම්හල් කළමනාකරු",
+        "hrOfficer": "මානව සම්පත් නිලධාරී",
+        "safetyOfficer": "ආරක්ෂක නිලධාරී",
+        "trainee": "අභ්‍යාසලාභී",
+        "other": "වෙනත්"
+      },
+      "criteria": {
+        "operator": {
+          "machineCompliance": {
+            "label": "යන්ත්‍ර ක්‍රියාකරණ අනුකූලතාව",
+            "description": "පවරා ඇති යන්ත්‍ර සඳහා SOP සහ ආරක්ෂිත ක්‍රියාකරණ ක්‍රියාපටිපාටි අනුගමනය."
+          },
+          "oeeContribution": {
+            "label": "OEE දායකත්වය",
+            "description": "මුර තුළ සමස්ත උපකරණ කාර්යක්ෂමතා (OEE) මිනුම් සඳහා දායකත්වය."
+          },
+          "shiftReporting": {
+            "label": "මුර නිෂ්පාදන වාර්තාකරණ නිරවද්‍යතාව",
+            "description": "මුර නිෂ්පාදන ලොග සහ වාර්තාවල නිරවද්‍යතාව සහ කාලෝචිතභාවය."
+          },
+          "downtimeReporting": {
+            "label": "අක්‍රිය කාල සිද්ධි වාර්තාකරණය",
+            "description": "යන්ත්‍ර අක්‍රිය කාලය සහ සිද්ධි වාර්තා කිරීමේ ඉක්මන්බව සහ නිරවද්‍යතාව."
+          },
+          "safetyAdherence": {
+            "label": "ආරක්ෂාව අනුගමනය",
+            "description": "ආරක්ෂක ප්‍රොටෝකෝල, PPE භාවිතය සහ උපද්‍රව දැනුවත්භාවය නිරන්තරයෙන් අනුගමනය."
+          }
+        },
+        "technician": {
+          "technicalSkill": {
+            "label": "තාක්ෂණික කුසලතා",
+            "description": "පවරා ඇති උපකරණවලට අදාළ නඩත්තු සහ අලුත්වැඩියා කාර්යවල පෙන්වූ ප්‍රවීණත්වය."
+          },
+          "woQuality": {
+            "label": "වැඩ ඇණවුම් සම්පූර්ණ කිරීමේ ගුණාත්මකභාවය",
+            "description": "පවරා ඇති වැඩ ඇණවුම්වල කළ වැඩවල ගුණාත්මකභාවය සහ සම්පූර්ණත්වය."
+          },
+          "breakdownResponse": {
+            "label": "බිඳවැටීම් ප්‍රතිචාර කාලය",
+            "description": "යන්ත්‍ර බිඳවැටීම් සඳහා ප්‍රතිචාරයේ වේගය සහ ඵලදායීතාව."
+          },
+          "safetyProtocol": {
+            "label": "ආරක්ෂක ප්‍රොටෝකෝල අනුගමනය",
+            "description": "නඩත්තු කාර්යයේදී LOTO, PPE සහ සියලු ආරක්ෂක ක්‍රියාපටිපාටි අනුගමනය."
+          },
+          "toolHandling": {
+            "label": "මෙවලම් සහ උපකරණ හැසිරවීම",
+            "description": "මෙවලම් සහ නඩත්තු උපකරණ නිසි ලෙස රැකබලා ගැනීම, ගබඩා කිරීම සහ භාවිතය."
+          }
+        },
+        "supervisor": {
+          "teamLeadership": {
+            "label": "කණ්ඩායම් නායකත්වය",
+            "description": "කණ්ඩායම් සාමාජිකයින් ඵලදායී ලෙස මෙහෙයවීමට, පෙළඹවීමට සහ සංවර්ධනය කිරීමට ඇති හැකියාව."
+          },
+          "taskDelegation": {
+            "label": "කාර්ය පැවරීමේ ඵලදායීතාව",
+            "description": "කුසලතා සහ වැඩ බර සමතුලිත කිරීම මත පදනම්ව කාර්ය නිසි ලෙස පැවරීම."
+          },
+          "safetyEnforcement": {
+            "label": "ආරක්ෂාව බලාත්මක කිරීම",
+            "description": "ආරක්ෂක නීති නිරන්තරයෙන් බලාත්මක කිරීම සහ උපද්‍රව කලින් හඳුනා ගැනීම."
+          },
+          "shiftHandover": {
+            "label": "මුර භාරදීමේ ගුණාත්මකභාවය",
+            "description": "මුර භාරදීමේ ලේඛන සහ සන්නිවේදනයේ සම්පූර්ණත්වය සහ පැහැදිලිභාවය."
+          },
+          "kpiMonitoring": {
+            "label": "KPI නිරීක්ෂණය",
+            "description": "මුරය සඳහා ප්‍රධාන කාර්ය සාධන දර්ශක නිරීක්ෂණය කර ක්‍රියා කිරීම."
+          },
+          "escalationHandling": {
+            "label": "ගැටලු යොමු කිරීම",
+            "description": "ගැටලු කළමනාකාරිත්වයට ඵලදායී ලෙස යොමු කිරීම සහ විසඳුම් සම්බන්ධීකරණය."
+          }
+        },
+        "plantManager": {
+          "plantEfficiency": {
+            "label": "සමස්ත කම්හල් කාර්යක්ෂමතාව",
+            "description": "කම්හල් මට්ටමේ නිෂ්පාදනය, ප්‍රතිදානය සහ කාර්යක්ෂමතා ඉලක්ක සපුරා ගැනීම."
+          },
+          "downtimeReduction": {
+            "label": "අක්‍රිය කාලය අඩු කිරීමේ ජයග්‍රහණ",
+            "description": "සැලසුම් නොකළ අක්‍රිය කාලය අඩු කිරීමේ මැනිය හැකි දියුණුව."
+          },
+          "budgetAdherence": {
+            "label": "නඩත්තු අයවැය අනුගමනය",
+            "description": "නඩත්තු අයවැය තුළ ක්‍රියා කිරීම හෝ එය ප්‍රශස්ත කිරීම."
+          },
+          "teamDevelopment": {
+            "label": "කණ්ඩායම් සංවර්ධනය",
+            "description": "පුහුණුව, උපදේශනය සහ කාර්ය මණ්ඩල සංවර්ධනය සඳහා ආයෝජනය."
+          },
+          "regulatoryCompliance": {
+            "label": "නියාමන අනුකූලතාව",
+            "description": "සියලු මෙහෙයුම් නීතිමය, ආරක්ෂක සහ නියාමන ප්‍රමිතීන්ට අනුකූල බව සහතික කිරීම."
+          },
+          "oeeTracking": {
+            "label": "OEE ඉලක්ක නිරීක්ෂණය",
+            "description": "ඉලක්ක එදිරිව OEE නිරීක්ෂණය කර වැඩිදියුණු කිරීමේ වැඩසටහන් මෙහෙයවීම."
+          }
+        },
+        "trainee": {
+          "learningProgress": {
+            "label": "ඉගෙනීමේ ප්‍රගතිය",
+            "description": "පවරා ඇති පුහුණු මොඩියුල සහ ද්‍රව්‍ය හරහා ප්‍රගතියේ වේගය."
+          },
+          "practicalSkills": {
+            "label": "ප්‍රායෝගික කුසලතා සංවර්ධනය",
+            "description": "න්‍යායාත්මක දැනුම ප්‍රායෝගික තත්ත්වයන්හි යෙදීම."
+          },
+          "attendance": {
+            "label": "පැමිණීම සහ නියමිත වේලාව",
+            "description": "පුහුණු සැසිවලදී පැමිණීමේ අනුපාතය සහ නියමිත වේලාවට පැමිණීම."
+          },
+          "attitude": {
+            "label": "ආකල්පය සහ සහභාගිත්වය",
+            "description": "පුහුණුවේදී පෙළඹවීම, උද්යෝගය සහ සක්‍රිය සහභාගිත්වය."
+          },
+          "safetyAwareness": {
+            "label": "ආරක්ෂක දැනුවත්භාවය",
+            "description": "සේවා ස්ථාන ආරක්ෂක පිළිවෙත් අවබෝධය සහ ප්‍රදර්ශනය."
+          }
+        },
+        "hrOfficer": {
+          "recruitmentOnboarding": {
+            "label": "බඳවා ගැනීම සහ හඳුන්වාදීම",
+            "description": "බඳවා ගැනීම, හඳුන්වාදීම සහ ශ්‍රම බලකා සැලසුම් සහායේ ඵලදායීතාව."
+          },
+          "trainingCompliance": {
+            "label": "පුහුණු සහ අනුකූලතා කළමනාකරණය",
+            "description": "පුහුණු සම්පූර්ණ කිරීම, සහතික සහ අනුකූලතා අනුපාත නිරීක්ෂණය."
+          },
+          "recordsAccuracy": {
+            "label": "වාර්තා සහ ලේඛන නිරවද්‍යතාව",
+            "description": "සේවක වාර්තා, ගිවිසුම් සහ HR ලේඛනවල නිරවද්‍යතාව සහ යාවත්කාලීනභාවය."
+          },
+          "employeeRelations": {
+            "label": "සේවක සබඳතා සහ පැමිණිලි හැසිරවීම",
+            "description": "පැමිණිලි, සහභාගිත්වය සහ කාර්ය මණ්ඩල සුභසාධනය සාධාරණව සහ ඉක්මනින් හැසිරවීම."
+          },
+          "policyAdherence": {
+            "label": "ප්‍රතිපත්ති සහ නියාමන අනුගමනය",
+            "description": "HR ප්‍රතිපත්ති සහ කම්කරු/නියාමන අවශ්‍යතා අනුගමනය වන බව සහතික කිරීම."
+          }
+        },
+        "safetyOfficer": {
+          "incidentManagement": {
+            "label": "සිද්ධි සහ ආසන්න අනතුරු කළමනාකරණය",
+            "description": "සිද්ධි කාලෝචිතව සටහන් කිරීම, විමර්ශනය සහ නිවැරදි කිරීමේ ක්‍රියාමාර්ග පසු විපරම."
+          },
+          "inspectionsAudits": {
+            "label": "ආරක්ෂක පරීක්ෂා සහ විගණන",
+            "description": "සැලසුම් කළ ආරක්ෂක පරීක්ෂා සහ විගණන සම්පූර්ණ කිරීම සහ ගුණාත්මකභාවය."
+          },
+          "hazardRisk": {
+            "label": "උපද්‍රව හඳුනා ගැනීම සහ අවදානම් තක්සේරුව",
+            "description": "උපද්‍රව කලින් හඳුනා ගැනීම සහ අවදානම් තක්සේරුවල දැඩිභාවය."
+          },
+          "permitCompliance": {
+            "label": "වැඩ අවසර අනුකූලතාව",
+            "description": "වැඩ අවසර (උණුසුම් වැඩ, සීමිත අවකාශ, LOTO) නිවැරදිව නිකුත් කිරීම, සමාලෝචනය සහ වසා දැමීම."
+          },
+          "trainingAwareness": {
+            "label": "ආරක්ෂක පුහුණුව සහ දැනුවත් කිරීම",
+            "description": "මෙවලම් පෙට්ටි සාකච්ඡා පැවැත්වීම සහ ධනාත්මක ආරක්ෂක සංස්කෘතියක් ගොඩනැගීම."
+          }
+        },
+        "other": {
+          "jobKnowledge": {
+            "label": "රැකියා දැනුම",
+            "description": "භූමිකාවට අදාළ රාජකාරි සහ වගකීම් පිළිබඳ දැනුම."
+          },
+          "qualityOfWork": {
+            "label": "වැඩවල ගුණාත්මකභාවය",
+            "description": "වැඩ ප්‍රතිදානයේ නිරවද්‍යතාව, සවිස්තරාත්මකභාවය සහ විශ්වසනීයත්වය."
+          },
+          "teamwork": {
+            "label": "කණ්ඩායම් වැඩ සහ සහයෝගීතාව",
+            "description": "සහයෝගය සහ කණ්ඩායම් ඉලක්ක සඳහා දායකත්වය."
+          },
+          "safetyCompliance": {
+            "label": "ආරක්ෂක අනුකූලතාව",
+            "description": "ආරක්ෂක නීති සහ ආරක්ෂිත වැඩ පිළිවෙත් අනුගමනය."
+          },
+          "initiative": {
+            "label": "ආරම්භක ශක්තිය සහ ගැටලු විසඳීම",
+            "description": "ගැටලු කලින් හඳුනා ගැනීම සහ විසඳීම."
+          }
+        },
+        "department": {
+          "deptOutput": {
+            "label": "ප්‍රතිදානය සහ ඵලදායිතාව",
+            "description": "දෙපාර්තමේන්තුව අදාළ කාලය සඳහා නිෂ්පාදන/ප්‍රතිදාන ඉලක්ක සපුරා ඇත."
+          },
+          "deptSafety": {
+            "label": "ආරක්ෂක වාර්තාව",
+            "description": "දෙපාර්තමේන්තුව පුරා සිද්ධි රහිත මෙහෙයුම සහ ආරක්ෂක ප්‍රොටෝකෝල අනුගමනය."
+          },
+          "deptQuality": {
+            "label": "ගුණාත්මක ප්‍රමිතීන්",
+            "description": "ගුණාත්මක ප්‍රමිතීන් සපුරාලීමේ සහ දෝෂ/නැවත වැඩ අඩු කිරීමේ අඛණ්ඩතාව."
+          },
+          "deptCoordination": {
+            "label": "කණ්ඩායම් අතර සම්බන්ධීකරණය",
+            "description": "වෙනත් දෙපාර්තමේන්තු සහ මුර සමඟ සම්බන්ධීකරණයේ ඵලදායීතාව."
+          },
+          "deptCompliance": {
+            "label": "ක්‍රියාවලි සහ අනුකූලතා අනුගමනය",
+            "description": "SOP, විගණන සහ නියාමන අවශ්‍යතා අනුගමනය."
+          }
+        }
+      },
+      "scoreLabels": {
+        "1": "1 – අසතුටුදායක",
+        "2": "2 – වැඩිදියුණු විය යුතුය",
+        "3": "3 – අපේක්ෂා සපුරයි",
+        "4": "4 – අපේක්ෂා ඉක්මවයි",
+        "5": "5 – විශිෂ්ටයි"
+      },
+      "page": {
+        "title": "කාර්ය සාධන ඇගයීම්",
+        "subtitle": "සියලු භූමිකා සඳහා විධිමත් කාර්ය සාධන ඇගයීම් පවත්වන්න.",
+        "customFormsButton": "අභිරුචි පෝරම",
+        "hint": "ඇගයීමක් ආරම්භ කිරීමට පහත කාණ්ඩයක් ක්ලික් කරන්න.",
+        "loadError": "ඇගයීම් පූරණය අසාර්ථකයි: {{message}}",
+        "loadErrorFallback": "ඇගයීම් පූරණය අසාර්ථකයි.",
+        "tabs": {
+          "byRole": "භූමිකාව අනුව",
+          "byDepartment": "දෙපාර්තමේන්තුව අනුව",
+          "completed": "සම්පූර්ණ කළ"
+        },
+        "empty": {
+          "noCompleted": "තවම සම්පූර්ණ කළ ඇගයීම් නැත.",
+          "noDepartments": "තවම දෙපාර්තමේන්තු සකසා නැත — දෙපාර්තමේන්තු ඇගයීමක් සාදන විට දෙපාර්තමේන්තු තේරීමෙන් එකක් එක් කරන්න."
+        },
+        "all": "සියල්ල",
+        "allDepartments": "සියලු දෙපාර්තමේන්තු",
+        "evaluationCount": "ඇගයීම් {{count}}",
+        "evaluationCount_plural": "ඇගයීම් {{count}}",
+        "department": "දෙපාර්තමේන්තුව",
+        "close": "වසන්න",
+        "overallScore": "සමස්ත ලකුණ",
+        "overallComments": "සමස්ත අදහස්",
+        "developmentPlan": "සංවර්ධන සැලැස්ම",
+        "attachments": "ඇමුණුම්",
+        "exportPdf": "PDF අපනයනය",
+        "evaluatedBy": "{{name}} විසින් ඇගයීම"
+      },
+      "form": {
+        "steps": {
+          "info": "සේවක තොරතුරු",
+          "criteria": "ලකුණු දීම",
+          "summary": "සාරාංශය"
+        },
+        "departmentLabel": "දෙපාර්තමේන්තුව *",
+        "selectDepartmentPlaceholder": "— දෙපාර්තමේන්තුවක් තෝරන්න —",
+        "evaluationDateLabel": "ඇගයීම් දිනය",
+        "peopleInDepartment": "{{department}} හි පුද්ගලයින්",
+        "noUsersInDepartment": "මෙම දෙපාර්තමේන්තුව යටතේ ලියාපදිංචි පරිශීලකයින් හමු නොවීය.",
+        "nextScoring": "ඊළඟ: ලකුණු දීම →",
+        "selectEmployeeLabel": "සේවකයා තෝරන්න *",
+        "selectEmployeePlaceholder": "— ලියාපදිංචි සේවකයෙකු තෝරන්න —",
+        "noUsersForRole": "{{role}} සඳහා ලියාපදිංචි පරිශීලකයින් හමු නොවීය. ඔබට තවමත් පහත ක්ෂේත්‍ර අතින් පිරවිය හැක.",
+        "onlyRegisteredUsersHint": "මෙම භූමිකාව යටතේ ලියාපදිංචි සේවකයින් පමණක් ලැයිස්තුගත වේ. එකක් තේරීමෙන් ඔවුන්ගේ විස්තර ස්වයංක්‍රීයව පිරවේ — ඔබට තවමත් පහත ක්ෂේත්‍ර සකස් කළ හැක.",
+        "employeeNameLabel": "සේවකයාගේ නම *",
+        "employeeNamePlaceholder": "සම්පූර්ණ නම",
+        "employeeIdLabel": "සේවක අංකය",
+        "employeeIdPlaceholder": "උදා. EMP-001",
+        "roleLabel": "භූමිකාව *",
+        "evaluationFormLabel": "ඇගයීම් පෝරමය",
+        "defaultCriteria": "පෙරනිමි — {{role}} නිර්ණායක",
+        "customSuffix": " (අභිරුචි)",
+        "jobTitleLabel": "තනතුර",
+        "jobTitlePlaceholder": "උදා. ජ්‍යෙෂ්ඨ තාක්ෂණ ශිල්පී",
+        "customRoleLabel": "අභිරුචි භූමිකා නාමය",
+        "customRolePlaceholder": "උදා. QC පරීක්ෂක, විදුලි කාර්මික",
+        "evaluatingDepartment": "{{name}} දෙපාර්තමේන්තුව ඇගයීම",
+        "evaluatingAs": "{{name}} {{role}} ලෙස ඇගයීම",
+        "weight": "බර: {{weight}}%",
+        "commentsPlaceholder": "විකල්ප අදහස්…",
+        "back": "← ආපසු",
+        "nextSummary": "ඊළඟ: සාරාංශය →",
+        "summary": {
+          "overallScore": "සමස්ත ලකුණ",
+          "outstanding": "විශිෂ්ටයි",
+          "satisfactory": "සතුටුදායකයි",
+          "needsImprovement": "වැඩිදියුණු විය යුතුය",
+          "unsatisfactory": "අසතුටුදායකයි",
+          "overallCommentsLabel": "සමස්ත අදහස්",
+          "overallCommentsPlaceholder": "සමස්ත කාර්ය සාධන සාරාංශය…",
+          "developmentPlanLabel": "සංවර්ධන සැලැස්ම",
+          "developmentPlanPlaceholder": "නිර්දේශිත සංවර්ධන ක්‍රියාමාර්ග, පුහුණු හෝ ඉලක්ක…",
+          "attachmentsLabel": "ඇමුණුම්",
+          "attachmentsHint": "සහාය සාක්ෂි උඩුගත කරන්න: ලේඛන (PDF/DOCX), රූප හෝ වීඩියෝ.",
+          "attachmentSizeKb": "{{size}} KB",
+          "addAttachment": "ඇමුණුමක් එක් කරන්න",
+          "uploading": "උඩුගත කරමින්…",
+          "cancel": "අවලංගු කරන්න",
+          "saveDraft": "කෙටුම්පතක් ලෙස සුරකින්න (ක්‍රියාත්මක)",
+          "savingDraft": "සුරකිමින්…",
+          "exportPdf": "PDF අපනයනය",
+          "submit": "ඇගයීම ඉදිරිපත් කරන්න",
+          "submitting": "ඉදිරිපත් කරමින්…"
+        },
+        "errors": {
+          "uploadFailed": "ඇමුණුම උඩුගත කිරීම අසාර්ථකයි.",
+          "nameRequired": "ඇගයීමට ලක්වන්නාගේ නම අවශ්‍යයි.",
+          "allCriteriaRequired": "ඉදිරිපත් කිරීමට පෙර සියලු නිර්ණායකවලට ලකුණු දෙන්න.",
+          "submitFailed": "ඇගයීම ඉදිරිපත් කිරීම අසාර්ථකයි.",
+          "saveDraftFailed": "කෙටුම්පත සුරැකීම අසාර්ථකයි."
+        }
+      },
+      "templateBuilder": {
+        "title": "අභිරුචි ඇගයීම් පෝරම සාදන්නා",
+        "subtitle": "භූමිකා හෝ විශේෂ ඇගයීම් සඳහා අභිරුචි ලකුණු නිර්ණායක සාදන්න.",
+        "newTemplate": "නව අභිරුචි සැකිල්ල",
+        "sampleTemplatesTitle": "භූමිකා පදනම් නියැදි සැකිලි",
+        "sampleTemplateName": "{{role}} ඇගයීම (නියැදිය)",
+        "sampleTemplateMeta": "{{role}} · නිර්ණායක {{count}} · ගොඩනගා ඇති",
+        "customize": "අභිරුචිකරණය",
+        "customTemplatesTitle": "අභිරුචි සැකිලි",
+        "noCustomTemplates": "තවම අභිරුචි සැකිලි නැත.",
+        "templateMeta": "{{role}} · නිර්ණායක {{count}}",
+        "customRoleOption": "අභිරුචි (විශේෂ භූමිකාවක් නැත)",
+        "customRoleFallback": "අභිරුචි",
+        "confirmDelete": "මෙම ඇගයීම් සැකිල්ල මකන්නද?",
+        "templateNameLabel": "සැකිල්ලේ නම *",
+        "templateNamePlaceholder": "උදා. QC පරීක්ෂක ඇගයීම",
+        "appliesToRoleLabel": "අදාළ භූමිකාව",
+        "criteriaLabel": "නිර්ණායක",
+        "totalWeight": "මුළු බර: {{weight}}%",
+        "totalWeightHint": " (එකතුව 100% විය යුතුය)",
+        "criterionLabelPlaceholder": "නිර්ණායක නාමය",
+        "criterionDescriptionPlaceholder": "ඇගයුම්කරුට පෙන්වන විස්තරය (විකල්ප)",
+        "addCriterion": "නිර්ණායකයක් එක් කරන්න",
+        "back": "← ආපසු",
+        "saving": "සුරකිමින්…",
+        "saveChanges": "වෙනස්කම් සුරකින්න",
+        "createTemplate": "සැකිල්ල සාදන්න",
+        "errors": {
+          "nameRequired": "සැකිල්ලේ නම අවශ්‍යයි.",
+          "criterionRequired": "අවම වශයෙන් එක් නිර්ණායකයක් එක් කරන්න.",
+          "saveFailed": "සැකිල්ල සුරැකීම අසාර්ථකයි."
+        }
+      },
+      "service": {
+        "submittedNotification": "{{evaluator}} විසින් {{evaluatee}} සඳහා නව ඇගයීමක් ඉදිරිපත් කළා",
+        "submittedOversightNotification": "{{evaluatee}} සඳහා ඇගයීමක් ඉදිරිපත් කළා"
+      },
+      "pdf": {
+        "titleForRole": "{{role}} කාර්ය සාධන ඇගයීම් වාර්තාව",
+        "titleForDepartment": "{{department}} දෙපාර්තමේන්තුව — කාර්ය සාධන ඇගයීම් වාර්තාව",
+        "subtitleDepartment": "දෙපාර්තමේන්තුව: {{department}}",
+        "subtitleIndividual": "{{name}} · {{role}}",
+        "subtitleIndividualWithJob": "{{name}} · {{role}} · {{jobTitle}}",
+        "overallScoreBadge": "සමස්ත ලකුණ",
+        "sections": {
+          "details": "ඇගයීම් විස්තර",
+          "criteriaScores": "නිර්ණායක ලකුණු",
+          "overallComments": "සමස්ත අදහස්",
+          "developmentPlan": "සංවර්ධන සැලැස්ම",
+          "actionsTaken": "ගත් ක්‍රියාමාර්ග",
+          "attachments": "ඇමුණුම්"
+        },
+        "fields": {
+          "evaluationDate": "ඇගයීම් දිනය",
+          "status": "තත්ත්වය",
+          "evaluator": "ඇගයුම්කරු",
+          "employeeId": "සේවක අංකය",
+          "formTemplate": "පෝරමය / සැකිල්ල"
+        },
+        "status": {
+          "completed": "සම්පූර්ණයි",
+          "ongoingDraft": "ක්‍රියාත්මක (කෙටුම්පත)"
+        },
+        "emptyValue": "—",
+        "columns": {
+          "criterion": "නිර්ණායකය",
+          "score": "ලකුණ",
+          "comments": "අදහස්",
+          "action": "ක්‍රියාව",
+          "note": "සටහන",
+          "by": "කළ අය",
+          "type": "වර්ගය",
+          "file": "ගොනුව",
+          "name": "නම",
+          "category": "කාණ්ඩය",
+          "date": "දිනය",
+          "evaluator": "ඇගයුම්කරු",
+          "score2": "ලකුණ"
+        },
+        "actionTypes": {
+          "trainingAssigned": "පුහුණුව පවරා ඇත",
+          "positionUpgraded": "තනතුර උසස් කළා",
+          "positionDegraded": "තනතුර පහත හෙළුවා"
+        },
+        "footer": {
+          "generated": "සකසන ලදී {{date}}",
+          "page": "පිටුව {{page}} / {{total}}"
+        },
+        "scoreDisplay": "{{score}} / 5",
+        "summary": {
+          "title": "කාර්ය සාධන ඇගයීම් සාරාංශය",
+          "generated": "සකසන ලදී {{date}} · ඇගයීම් {{count}}",
+          "generated_plural": "සකසන ලදී {{date}} · ඇගයීම් {{count}}",
+          "departmentCategory": "දෙපාර්තමේන්තුව"
+        }
+      },
+      "fallbacks": {
+        "unknownUser": "නොදනී",
+        "evaluation": "ඇගයීම",
+        "audit": "විගණනය",
+        "other": "වෙනත්"
+      }
+    },
+    "settings": {
+      "page": {
+        "title": "සැකසුම්",
+        "subtitle": "FirmiCore ඔබේ කම්හල සඳහා ක්‍රියා කරන ආකාරය වින්‍යාස කරන්න.",
+        "company": {
+          "heading": "සමාගම",
+          "editProfile": "පැතිකඩ සංස්කරණය",
+          "logoAlt": "{{name}} ලාංඡනය",
+          "name": "නම",
+          "industry": "කර්මාන්තය",
+          "country": "රට",
+          "timezone": "වේලා කලාපය",
+          "currency": "මුදල් ඒකකය",
+          "plan": "සැලැස්ම",
+          "planWithStatus": "{{plan}} ({{status}})",
+          "phone": "දුරකථනය",
+          "email": "ඊමේල්",
+          "address": "ලිපිනය"
+        },
+        "tiles": {
+          "users": {
+            "title": "පරිශීලකයින්",
+            "description": "කණ්ඩායම් සාමාජිකයින්, භූමිකා සහ ආරාධනා කළමනාකරණය කරන්න."
+          },
+          "plants": {
+            "title": "කම්හල්",
+            "description": "පරිශීලකයින්, යන්ත්‍ර, කොන්ත්‍රාත්කරුවන් සහ තොග වෙන් කිරීම සඳහා කම්හල් කළමනාකරණය කරන්න."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "සමාගම් පැතිකඩ සංස්කරණය",
+        "close": "වසන්න",
+        "uploadLogo": "ලාංඡනය උඩුගත කරන්න",
+        "noLogo": "ලාංඡනයක් නැත",
+        "logoAlt": "සමාගම් ලාංඡනය",
+        "fields": {
+          "name": "සමාගමේ නම",
+          "tradeName": "වෙළඳ නාමය",
+          "industry": "කර්මාන්තය",
+          "country": "රට",
+          "timezone": "වේලා කලාපය",
+          "currency": "මුදල් ඒකකය",
+          "phone": "දුරකථනය",
+          "email": "ඊමේල්",
+          "address": "ලිපිනය",
+          "description": "විස්තරය",
+          "descriptionHint": "(සේවා ලිපි සහ සකසන ලේඛනවල භාවිත වේ)",
+          "descriptionPlaceholder": "සමාගම පිළිබඳ කෙටි විස්තරයක්…"
+        },
+        "cancel": "අවලංගු කරන්න",
+        "save": "වෙනස්කම් සුරකින්න",
+        "saving": "සුරකිමින්…",
+        "successToast": "සමාගම් පැතිකඩ යාවත්කාලීන කළා.",
+        "errorToast": "සමාගම් පැතිකඩ යාවත්කාලීන කිරීම අසාර්ථකයි."
+      },
+      "users": {
+        "header": {
+          "title": "කණ්ඩායම් කළමනාකරණය",
+          "memberCount_one": "{{company}} හි කණ්ඩායම් සාමාජිකයින් {{count}}",
+          "memberCount_other": "{{company}} හි කණ්ඩායම් සාමාජිකයින් {{count}}",
+          "importUsers": "පරිශීලකයින් ආයාත කරන්න",
+          "serviceLetter": "සේවා ලිපිය",
+          "inviteMember": "සාමාජිකයෙකුට ආරාධනා කරන්න",
+          "defaultCompanyName": "ඔබේ සමාගම"
+        },
+        "tabs": {
+          "users": "පරිශීලකයින් ({{count}})",
+          "invitations": "ආරාධනා ({{count}} පොරොත්තුවෙන්)",
+          "serviceLetters": "සේවා ලිපි ඉතිහාසය"
+        },
+        "searchPlaceholderUsers": "නම, ඊමේල්, දුරකථනය හෝ භූමිකාව අනුව සොයන්න...",
+        "searchPlaceholderInvitations": "ආරාධනා සොයන්න...",
+        "table": {
+          "name": "නම",
+          "role": "භූමිකාව",
+          "contact": "සම්බන්ධතා",
+          "status": "තත්ත්වය",
+          "shifts": "මුර",
+          "lastLogin": "අවසන් පිවිසුම",
+          "login": "පිවිසුම",
+          "actions": "ක්‍රියා",
+          "never": "කිසිදා නැත",
+          "view": "බලන්න",
+          "edit": "සංස්කරණය",
+          "noShifts": "—"
+        },
+        "invitationsTable": {
+          "invitee": "ආරාධිතයා",
+          "role": "භූමිකාව",
+          "status": "තත්ත්වය",
+          "sent": "යැවූ දිනය",
+          "expires": "කල් ඉකුත් වේ",
+          "actions": "ක්‍රියා",
+          "copyLink": "ආරාධනා සබැඳිය පිටපත් කරන්න",
+          "copyLinkShort": "සබැඳිය පිටපත් කරන්න",
+          "copied": "පිටපත් කළා",
+          "revoke": "අවලංගු කරන්න",
+          "resend": "ආරාධනාව නැවත යවන්න",
+          "resendShort": "නැවත යවන්න"
+        },
+        "empty": {
+          "noUsers": "තවම පරිශීලකයින් නැත. ඔබේ පළමු කණ්ඩායම් සාමාජිකයාට ආරාධනා කිරීමට \"සාමාජිකයෙකුට ආරාධනා කරන්න\" ක්ලික් කරන්න.",
+          "noUsersMatch": "ඔබේ සෙවීමට ගැළපෙන පරිශීලකයින් නැත.",
+          "noInvitations": "තවම ආරාධනා යවා නැත. ආරම්භ කිරීමට \"සාමාජිකයෙකුට ආරාධනා කරන්න\" ක්ලික් කරන්න.",
+          "noInvitationsMatch": "ඔබේ සෙවීමට ගැළපෙන ආරාධනා නැත."
+        },
+        "statuses": {
+          "pending": "පොරොත්තුවෙන්",
+          "accepted": "පිළිගත්තා",
+          "expired": "කල් ඉකුත්",
+          "revoked": "අවලංගු කළා",
+          "active": "සක්‍රිය",
+          "inactive": "අක්‍රිය"
+        },
+        "modal": {
+          "viewTitle": "පරිශීලක විස්තර",
+          "editTitle": "පරිශීලකයා සංස්කරණය",
+          "close": "වසන්න",
+          "cancel": "අවලංගු කරන්න",
+          "save": "වෙනස්කම් සුරකින්න",
+          "saving": "සුරකිමින්...",
+          "fields": {
+            "fullName": "සම්පූර්ණ නම",
+            "email": "ඊමේල්",
+            "phone": "දුරකථනය",
+            "role": "භූමිකාව",
+            "status": "තත්ත්වය",
+            "designation": "තනතුර",
+            "designationPlaceholder": "උදා. ජ්‍යෙෂ්ඨ තාක්ෂණ ශිල්පී",
+            "department": "දෙපාර්තමේන්තුව",
+            "employeeId": "සේවක අංකය",
+            "shift": "මුරය",
+            "noShiftAssigned": "මුරයක් පවරා නැත",
+            "address": "ලිපිනය",
+            "addressPlaceholder": "උදා. 123 ප්‍රධාන වීදිය, කොළඹ",
+            "noDepartment": "දෙපාර්තමේන්තුවක් නැත"
+          },
+          "errors": {
+            "fullNameRequired": "සම්පූර්ණ නම අවශ්‍යයි.",
+            "contactRequired": "පරිශීලකයාට පිවිසීමට ඊමේල් හෝ දුරකථන අංකයක් සපයන්න.",
+            "saveFailed": "පරිශීලකයා සුරැකීම අසාර්ථකයි"
+          }
+        },
+        "invite": {
+          "title": "කණ්ඩායම් සාමාජිකයෙකුට ආරාධනා කරන්න",
+          "subtitle": "භූමිකාවක් පවරා ඊමේල් හරහා ආරාධනාවක් යවන්න",
+          "close": "වසන්න",
+          "fields": {
+            "email": "ඊමේල් ලිපිනය",
+            "emailPlaceholder": "teammate@company.com",
+            "fullName": "සම්පූර්ණ නම",
+            "fullNamePlaceholder": "නිමල් පෙරේරා",
+            "role": "භූමිකාව පවරන්න",
+            "department": "දෙපාර්තමේන්තුව",
+            "jobTitle": "තනතුර",
+            "jobTitlePlaceholder": "උදා. ජ්‍යෙෂ්ඨ තාක්ෂණ ශිල්පී",
+            "address": "ලිපිනය",
+            "addressPlaceholder": "උදා. 123 ප්‍රධාන වීදිය, කොළඹ"
+          },
+          "trainingPeriod": {
+            "label": "පුහුණු කාලය",
+            "startDate": "ලියාපදිංචි / ආරම්භක දිනය",
+            "months": "මාස {{count}}",
+            "custom": "අභිරුචි",
+            "endDate": "අභිරුචි අවසන් දිනය",
+            "autoEndsOn": "<strong>{{date}}</strong> දින ස්වයංක්‍රීයව අවසන් වේ"
+          },
+          "howItWorksTitle": "එය ක්‍රියා කරන ආකාරය:",
+          "howItWorks": "අද්විතීය ආරාධනා සබැඳියක් සකසනු ලැබේ. එය සාමාජිකයා සමඟ බෙදාගන්න — ඔවුන්ට පවරා ඇති භූමිකාවෙන් ඔබේ කණ්ඩායමට සම්බන්ධ වීමට ඊමේල්/මුරපදය හෝ Google සමඟ ලියාපදිංචි විය හැක.",
+          "cancel": "අවලංගු කරන්න",
+          "send": "ආරාධනාව යවන්න",
+          "sending": "යවමින්...",
+          "errors": {
+            "emailRequired": "ඊමේල් අවශ්‍යයි.",
+            "fullNameRequired": "සම්පූර්ණ නම අවශ්‍යයි.",
+            "invalidEmail": "වලංගු ඊමේල් ලිපිනයක් ඇතුළත් කරන්න.",
+            "trainingStartRequired": "අභ්‍යාසලාභීන් සඳහා පුහුණු ආරම්භක දිනය අවශ්‍යයි.",
+            "customEndRequired": "අභිරුචි පුහුණු අවසන් දිනය අවශ්‍යයි.",
+            "endAfterStart": "පුහුණු අවසන් දිනය ආරම්භක දිනයට පසු විය යුතුය.",
+            "sendFailed": "ආරාධනාව යැවීම අසාර්ථකයි"
+          },
+          "success": {
+            "title": "ආරාධනාව සාදන ලදී!",
+            "message": "<strong>{{email}}</strong> සඳහා <strong>{{role}}</strong> ලෙස ආරාධනාවක් සාදා ඇත.",
+            "shareHint": "පහත සබැඳිය කණ්ඩායම් සාමාජිකයා සමඟ බෙදාගන්න. ආරාධනාව දින 7කින් කල් ඉකුත් වේ.",
+            "inviteAnother": "තවත් අයෙකුට ආරාධනා කරන්න",
+            "done": "අවසන්",
+            "copy": "පිටපත් කරන්න",
+            "copied": "පිටපත් කළා!"
+          }
+        },
+        "bulkImport": {
+          "title": "පරිශීලකයින් ආයාත කරන්න",
+          "subtitle": "Excel සැකිල්ලකින් ආරාධනා තොග වශයෙන් සාදන්න",
+          "close": "වසන්න",
+          "downloadTemplate": "Excel සැකිල්ල බාගන්න",
+          "uploadPrompt": ".xlsx / .csv උඩුගත කිරීමට ක්ලික් කරන්න",
+          "parsing": "විග්‍රහ කරමින්…",
+          "cancel": "අවලංගු කරන්න",
+          "import": "පරිශීලකයින් {{count}} ආයාත කරන්න",
+          "importing": "ආයාත කරමින්…",
+          "done": "අවසන්",
+          "resultImported_one": "පරිශීලකයින් {{count}} ආයාත කළා",
+          "resultImported_other": "පරිශීලකයින් {{count}} ආයාත කළා",
+          "resultFailed": "පේළි {{count}}ක් අසාර්ථක විය.",
+          "validSummary": "වලංගු {{valid}} · දෝෂ සහිත {{invalid}}",
+          "ready": "සූදානම්",
+          "noRowsFound": "උඩුගත කළ ගොනුවේ පේළි හමු නොවීය.",
+          "parseFailed": "ගොනුව විග්‍රහ කිරීම අසාර්ථකයි.",
+          "importFailed": "ආයාත කිරීම අසාර්ථකයි.",
+          "tableHeaders": {
+            "name": "නම",
+            "email": "ඊමේල්",
+            "role": "භූමිකාව",
+            "status": "තත්ත්වය"
+          },
+          "rowErrors": {
+            "fullNameRequired": "සම්පූර්ණ නම අවශ්‍යයි",
+            "emailRequired": "ඊමේල් අවශ්‍යයි",
+            "invalidEmail": "අවලංගු ඊමේල්",
+            "invalidRole": "අවලංගු භූමිකාව \"{{role}}\""
+          }
+        },
+        "invitations": {
+          "emailAlreadyRegistered": "මෙම ඊමේල් දැනටමත් සක්‍රිය පරිශීලකයෙකුට ලියාපදිංචි කර ඇත.",
+          "activeInvitationExists": "මෙම ඊමේල් සඳහා සක්‍රිය ආරාධනාවක් දැනටමත් පවතී.",
+          "invitationNotFound": "ආරාධනාව හමු නොවීය.",
+          "loadFailed": "ආරාධනා පූරණය අසාර්ථකයි",
+          "revokedToast": "ආරාධනාව අවලංගු කළා",
+          "revokeFailedToast": "අවලංගු කිරීම අසාර්ථකයි",
+          "resendCreatedToast": "නව ආරාධනාවක් සාදන ලදී",
+          "resendFailedToast": "නැවත යැවීම අසාර්ථකයි",
+          "invitationSentToast": "{{email}} වෙත ආරාධනාව යැවුවා",
+          "bulkCreatedToast_one": "ආරාධනා {{count}}ක් සාදන ලදී",
+          "bulkCreatedToast_other": "ආරාධනා {{count}}ක් සාදන ලදී",
+          "googleEmailMismatch": "කරුණාකර {{expected}} සමඟ පිවිසෙන්න. ඔබ පිවිසුණේ {{actual}} සමඟය."
+        },
+        "userUpdatedToast": "පරිශීලකයා යාවත්කාලීන කළා",
+        "roles": {
+          "admin": "පරිපාලක",
+          "plantManager": "කම්හල් කළමනාකරු",
+          "supervisor": "අධීක්ෂක",
+          "technician": "තාක්ෂණ ශිල්පී",
+          "storeKeeper": "ගබඩා භාරකරු",
+          "hrOfficer": "මානව සම්පත් නිලධාරී",
+          "trainee": "අභ්‍යාසලාභී",
+          "floorOperator": "බිම් ක්‍රියාකරු",
+          "safetyOfficer": "ආරක්ෂක නිලධාරී"
+        }
+      },
+      "serviceLetter": {
+        "modalTitle": "සේවා ලිපියක් සකසන්න",
+        "defaultSubject": "Service Letter",
+        "close": "වසන්න",
+        "selectUser": "පරිශීලකයා තෝරන්න",
+        "selectUserPlaceholder": "— පරිශීලකයෙකු තෝරන්න —",
+        "employeeId": "සේවක අංකය:",
+        "role": "භූමිකාව:",
+        "department": "දෙපාර්තමේන්තුව:",
+        "designation": "තනතුර:",
+        "subject": "විෂය",
+        "addressedTo": "ලිපිනය කරන්නේ",
+        "letterBody": "ලිපියේ අන්තර්ගතය",
+        "remarks": "සටහන් (විකල්ප)",
+        "signatureLabel": "ඩිජිටල් අත්සන",
+        "signatureHint": "ඔබේ අත්සන පහතින් අතින් අඳින්න. ඒ වෙනුවට ටයිප් කළ නම <color>තද නිල්</color> පාටින් අත්සන් කිරීමට හිස්ව තබන්න.",
+        "cancel": "අවලංගු කරන්න",
+        "generate": "ලිපිය සකසන්න",
+        "generating": "සකසමින්…",
+        "errors": {
+          "missingFields": "විෂය සහ ලිපියේ අන්තර්ගතය අවශ්‍යයි.",
+          "generateFailed": "සේවා ලිපිය සැකසීම අසාර්ථකයි."
+        },
+        "success": {
+          "generated": "සේවා ලිපිය සකසන ලදී.",
+          "logoNotEmbedded": "සේවා ලිපිය සකසන ලදී, නමුත් සමාගම් ලාංඡනය ඇතුළත් කළ නොහැකි විය — සැකසුම් තුළ එය නැවත උඩුගත කර බලන්න."
+        },
+        "defaultBody": "This is to certify that {{name}} has been employed with {{company}} as {{roleOrTitle}}{{departmentClause}} since {{joinedDate}}. During this period, their conduct and performance have been found to be satisfactory.\n\nThis letter is issued upon the employee's request for whatever purpose it may serve.",
+        "defaultBodyDepartmentClause": " in the {{department}} department",
+        "defaultBodyJoinedFallback": "their date of joining",
+        "signaturePad": {
+          "hint": "මූසිකය, ට්‍රැක්පෑඩය හෝ ඇඟිල්ලෙන් අත්සන් කරන්න.",
+          "clear": "මකන්න"
+        },
+        "history": {
+          "exportCsv": "CSV අපනයනය",
+          "empty": "තවම සේවා ලිපි සකසා නැත.",
+          "columns": {
+            "issuedDate": "නිකුත් කළ දිනය",
+            "subject": "විෂය",
+            "issuedTo": "නිකුත් කළේ",
+            "issuedBy": "නිකුත් කළ අය"
+          }
+        },
+        "fallbackCompanyName": "our company",
+        "pdf": {
+          "company": "Company",
+          "toWhomItMayConcern": "To Whom It May Concern",
+          "subjectLabel": "Subject: {{subject}}",
+          "remarksHeading": "Remarks"
+        }
+      },
+      "plants": {
+        "title": "කම්හල්",
+        "subtitle": "පරිශීලකයින්, යන්ත්‍ර, කොන්ත්‍රාත්කරුවන් සහ තොග ලියාපදිංචි කර ඇති කම්හල් කළමනාකරණය කරන්න.",
+        "addPlant": "කම්හලක් එක් කරන්න",
+        "editPlant": "කම්හල සංස්කරණය",
+        "empty": "තවම කම්හල් නැත. කම්හල අනුව පරිශීලකයින්, යන්ත්‍ර, කොන්ත්‍රාත්කරුවන් සහ තොග වෙන් කිරීම ආරම්භ කිරීමට ඔබේ පළමු කම්හල එක් කරන්න.",
+        "name": "කම්හලේ නම",
+        "namePlaceholder": "උදා. කොළඹ කම්හල",
+        "code": "කේතය (විකල්ප)",
+        "address": "ලිපිනය (විකල්ප)",
+        "addressPlaceholder": "උදා. 123 ප්‍රධාන වීදිය, කොළඹ",
+        "contactPerson": "සම්බන්ධතා පුද්ගලයා (විකල්ප)",
+        "contactName": "නම",
+        "contactPhone": "දුරකථනය",
+        "contactDesignation": "තනතුර",
+        "contactEmail": "ඊමේල්"
+      }
+    },
+    "audit": {
+      "categories": {
+        "tpm": "TPM විගණනය",
+        "fives": "5S විගණනය",
+        "moe": "MOE විගණනය",
+        "contractor": "කොන්ත්‍රාත්කරු විගණනය"
+      },
+      "answerTypes": {
+        "yesNo": "ඔව් / නැත",
+        "scale": "පරිමාණය (0–5)",
+        "text": "පෙළ"
+      },
+      "scopes": {
+        "machines": "යන්ත්‍ර",
+        "contractors": "කොන්ත්‍රාත්කරුවන්",
+        "inventory": "තොග / කොටස්",
+        "workOrders": "වැඩ ඇණවුම්",
+        "departments": "දෙපාර්තමේන්තු"
+      },
+      "findingKinds": {
+        "loss": "නිෂ්පාදන අලාභය",
+        "breakdown": "බිඳවැටීම",
+        "safety": "ආරක්ෂක ගැටලුව",
+        "maintenance": "නඩත්තු ගැටලුව"
+      },
+      "answers": {
+        "yes": "ඔව්",
+        "no": "නැත"
+      },
+      "aiRootCause": {
+        "empty": "ගැටලු හමු නොවීය — මූල හේතු විශ්ලේෂණය අවශ්‍ය කිසිවක් AI හට හමු නොවීය.",
+        "summary": "AI සොයාගැනීම් {{count}}ක් විශ්ලේෂණය කර මෙසේ යෝජනා කරයි:",
+        "unlabeledFinding": "(නම් නොකළ සොයාගැනීම)",
+        "probableCauses": "විය හැකි හේතු",
+        "recommendedActions": "නිර්දේශිත ක්‍රියාමාර්ග"
+      },
+      "attachments": {
+        "types": {
+          "document": "ලේඛනය",
+          "image": "රූපය",
+          "video": "වීඩියෝ"
+        },
+        "addButton": "{{type}} එක් කරන්න",
+        "empty": "සහාය ගොනු අමුණා නැත"
+      },
+      "detail": {
+        "backToHistory": "ඉතිහාසයට ආපසු",
+        "pdfReport": "PDF වාර්තාව",
+        "downloadPdf": "PDF බාගන්න",
+        "conductedBy": "පැවැත්වූ අය",
+        "department": "දෙපාර්තමේන්තුව",
+        "locationZone": "ස්ථානය / කලාපය",
+        "contractors": "කොන්ත්‍රාත්කරුවන්",
+        "machines": "යන්ත්‍ර",
+        "participants": "සහභාගිවන්නන්",
+        "checklistResponses": "පරීක්ෂණ ලැයිස්තු ප්‍රතිචාර",
+        "findings": "සොයාගැනීම්",
+        "reason": "හේතුව:",
+        "solution": "විසඳුම:",
+        "attachments": "ඇමුණුම්",
+        "aiRootCauseAnalysis": "AI මූල හේතු විශ්ලේෂණය"
+      },
+      "taskConfigurator": {
+        "errors": {
+          "nameRequired": "නව කාණ්ඩයට නමක් දෙන්න.",
+          "taskRequired": "අවම වශයෙන් එක් කාර්යයක්/ප්‍රශ්නයක් එක් කරන්න."
+        },
+        "categoryNameLabel": "කාණ්ඩය / පෝරමයේ නම",
+        "templateNameLabel": "සැකිල්ලේ නම",
+        "categoryNamePlaceholder": "උදා. ගබඩා ආරක්ෂක විගණනය",
+        "findingTypesAllowed": "ඉඩ දෙන සොයාගැනීම් වර්ග",
+        "findingTypesHint": "පෙරනිමියෙන් කිසිවක් සක්‍රිය නැත — මෙම පෝරමය ලබා දිය යුතු සොයාගැනීම් වර්ග සලකුණු කරන්න.",
+        "taskPlaceholder": "කාර්යය {{number}} — ප්‍රශ්නය / පරීක්ෂාව",
+        "criticalLabel": "තීරණාත්මක (අසාර්ථක වුවහොත් හේතුව සහ විසඳුම අවශ්‍යයි)",
+        "addTask": "කාර්යයක් එක් කරන්න",
+        "createCategory": "කාණ්ඩය සාදන්න",
+        "saveConfiguration": "වින්‍යාසය සුරකින්න",
+        "cancel": "අවලංගු කරන්න"
+      },
+      "contractorSelect": {
+        "empty": "තවම කොන්ත්‍රාත්කරුවන් සම්බන්ධ කර නැත",
+        "searchPlaceholder": "සමාගම හෝ වෙළඳ නාමය අනුව කොන්ත්‍රාත්කරුවන් සොයන්න…",
+        "noneFound": "කොන්ත්‍රාත්කරුවන් හමු නොවීය."
+      },
+      "machineSelect": {
+        "empty": "තවම යන්ත්‍ර සම්බන්ධ කර නැත",
+        "searchPlaceholder": "නම, අනුක්‍රමික අංකය, දෙපාර්තමේන්තුව අනුව යන්ත්‍ර සොයන්න…",
+        "noneFound": "යන්ත්‍ර හමු නොවීය."
+      },
+      "inventorySelect": {
+        "empty": "තවම කොටස් සම්බන්ධ කර නැත",
+        "searchPlaceholder": "නම හෝ කොටස් අංකය අනුව කොටස් සොයන්න…",
+        "noneFound": "කොටස් හමු නොවීය."
+      },
+      "workOrderSelect": {
+        "empty": "තවම වැඩ ඇණවුම් සම්බන්ධ කර නැත",
+        "searchPlaceholder": "අංකය හෝ යන්ත්‍රය අනුව වැඩ ඇණවුම් සොයන්න…",
+        "noneFound": "වැඩ ඇණවුම් හමු නොවීය."
+      },
+      "participantSelector": {
+        "empty": "සහභාගිවන්නන් සලකුණු කර නැත",
+        "searchPlaceholder": "නම හෝ භූමිකාව අනුව සොයන්න (විදුලි කාර්මික, තාක්ෂණ ශිල්පී, අධීක්ෂක…)",
+        "noneFound": "පරිශීලකයින් හමු නොවීය.",
+        "roles": {
+          "admin": "පරිපාලක",
+          "plantManager": "කම්හල් කළමනාකරු",
+          "supervisor": "අධීක්ෂක",
+          "technician": "තාක්ෂණ ශිල්පී",
+          "storeKeeper": "ගබඩා භාරකරු",
+          "hrOfficer": "මානව සම්පත් නිලධාරී",
+          "floorOperator": "ක්‍රියාකරු",
+          "trainee": "අභ්‍යාසලාභී"
+        }
+      },
+      "findings": {
+        "empty": "හමු වූ අලාභ, බිඳවැටීම්, ආරක්ෂක හෝ නඩත්තු ගැටලු එක් කරන්න.",
+        "descriptionPlaceholder": "සිදු වූයේ කුමක්ද? (විස්තරය)",
+        "reasonPlaceholder": "හේතුව / මූල හේතුව",
+        "solutionPlaceholder": "විසඳුම / ගත් නිවැරදි කිරීමේ ක්‍රියාමාර්ගය"
+      },
+      "sessionForm": {
+        "configureTasks": "කාර්ය වින්‍යාස කරන්න",
+        "conductedBy": "පැවැත්වූ අය",
+        "unknownAuditor": "නොදනී",
+        "errors": {
+          "answerRequired": "ඉදිරිපත් කිරීමට පෙර අවම වශයෙන් එක් කාර්යයකට පිළිතුරු දෙන්න."
+        },
+        "success": {
+          "title": "විගණනය ඉදිරිපත් කළා",
+          "scoreSummary": "ලකුණ {{score}}% · කාර්ය {{passed}}/{{total}} සමත්",
+          "viewPdf": "PDF වාර්තාව බලන්න",
+          "downloadPdf": "PDF වාර්තාව බාගන්න",
+          "done": "අවසන්"
+        },
+        "scope": {
+          "title": "විෂය පථය",
+          "contractors": "කොන්ත්‍රාත්කරුවන්",
+          "inventory": "තොග / කොටස්",
+          "workOrders": "වැඩ ඇණවුම්",
+          "machines": "යන්ත්‍ර",
+          "department": "දෙපාර්තමේන්තුව",
+          "departmentPlaceholder": "උදා. නිෂ්පාදනය, නඩත්තුව, ගුණාත්මකභාවය",
+          "locationZone": "ස්ථානය / කලාපය",
+          "locationAutoFilled": "යන්ත්‍රයෙන් ස්වයංක්‍රීයව පිරවේ · සංස්කරණය කළ හැක",
+          "locationPlaceholder": "උදා. කර්මාන්තශාලා බිම A, කොටස 3, සම්පීඩක කාමරය"
+        },
+        "participants": {
+          "title": "සහභාගිවන්නන්"
+        },
+        "checklist": {
+          "title": "පරීක්ෂණ ලැයිස්තුව",
+          "critical": "(තීරණාත්මක)",
+          "responsePlaceholder": "ප්‍රතිචාරය ඇතුළත් කරන්න…",
+          "nonConformancePlaceholder": "මෙම අනනුකූලතාවයට හේතුව සටහන් කරන්න…"
+        },
+        "findings": {
+          "title": "අලාභ, බිඳවැටීම්, ආරක්ෂක සහ නඩත්තු සොයාගැනීම්"
+        },
+        "attachments": {
+          "title": "සාක්ෂි සහ ඇමුණුම්"
+        },
+        "aiPreview": {
+          "title": "AI මූල හේතු විශ්ලේෂණය (පෙරදසුන)"
+        },
+        "submitBar": {
+          "scoreLabel": "ලකුණ:",
+          "passedSummary": "{{passed}}/{{total}} සමත්",
+          "submit": "ඉදිරිපත් කර PDF සකසන්න"
+        },
+        "contractorJobHistory": {
+          "completedOn": "සම්පූර්ණ කළේ {{date}}",
+          "startedOn": "ආරම්භ කළේ {{date}}",
+          "notesPlaceholder": "විශේෂ සටහන් (විකල්ප)…",
+          "title": "{{name}} — වැඩ ඇණවුම්",
+          "notCompleted": "සම්පූර්ණ නැත",
+          "loading": "පූරණය වෙමින්…",
+          "noActiveJobs": "සක්‍රිය කාර්ය නැත.",
+          "previouslyCompleted": "කලින් සම්පූර්ණ කළ",
+          "noCompletedJobs": "තවම සම්පූර්ණ කළ කාර්ය නැත."
+        }
+      },
+      "page": {
+        "title": "විගණන",
+        "subtitle": "AI මූල හේතු විශ්ලේෂණය සහිත TPM · 5S · MOE · කොන්ත්‍රාත්කරු විගණන",
+        "loading": "පූරණය වෙමින්…",
+        "tabs": {
+          "inProgress": "ක්‍රියාත්මක වෙමින්",
+          "library": "විගණන පුස්තකාලය",
+          "completed": "සම්පූර්ණ කළ"
+        },
+        "inProgress": {
+          "empty": "ක්‍රියාත්මක විගණන නැත.",
+          "lastSaved": "අවසන් වරට සුරැකුවේ {{when}}",
+          "resumeAudit": "විගණනය නැවත ආරම්භ කරන්න",
+          "inProgressBy": "{{name}} විසින් ක්‍රියාත්මක කරමින්"
+        },
+        "newCategory": "නව විගණන කාණ්ඩය",
+        "loadingTemplates": "විගණන සැකිලි පූරණය වෙමින්…",
+        "taskCount": "කාර්ය {{count}}",
+        "startAudit": "විගණනය ආරම්භ කරන්න",
+        "completed": {
+          "empty": "තවම සම්පූර්ණ කළ විගණන නැත."
+        },
+        "accessRestricted": {
+          "title": "ප්‍රවේශය සීමා කර ඇත",
+          "description": "විගණන මොඩියුලය අධීක්ෂකවරුන්, කම්හල් කළමනාකරුවන්, පරිපාලකයින්, මානව සම්පත් නිලධාරීන් සහ ආරක්ෂක නිලධාරීන් සඳහා පමණක් ලබා ගත හැක."
+        },
+        "configureTitle": "{{category}} වින්‍යාස කරන්න",
+        "configureDescription": "කාර්ය එක් කරන්න හෝ ඉවත් කරන්න, සහ එක් එක් කාර්යය සඳහා පිළිතුරු වර්ගය (ඔව්/නැත, පරිමාණය, පෙළ) තෝරන්න.",
+        "createTitle": "නව විගණන කාණ්ඩය",
+        "createDescription": "තමන්ගේම පරීක්ෂණ ලැයිස්තුවක් සහිත අභිරුචි විගණන කාණ්ඩයක් සාදන්න. එය විගණන ප්‍රවේශය ඇති සියලු දෙනාට විගණන මුල් පිටුවේ පෙන්වනු ඇත; පසුව එහි කාර්ය සංස්කරණය කළ හැක්කේ පරිපාලකයින්ට පමණි.",
+        "categoryDescriptions": {
+          "tpm": "සම්පූර්ණ ඵලදායී නඩත්තු පරීක්ෂා",
+          "fives": "සේවා ස්ථාන 5S සංවිධාන විගණනය",
+          "moe": "ලබා ගත හැකි බව, කාර්ය සාධනය සහ ගුණාත්මක අලාභ",
+          "contractor": "කොන්ත්‍රාත්කරු ආරක්ෂාව සහ වැඩ ගුණාත්මක විගණනය",
+          "custom": "අභිරුචි විගණන පරීක්ෂණ ලැයිස්තුව"
+        }
+      },
+      "pdf": {
+        "reportTitle": "{{category}} වාර්තාව",
+        "template": "සැකිල්ල: {{name}}",
+        "dateScoreSummary": "දිනය: {{date}}    ලකුණ: {{score}}%    ({{passed}}/{{total}} සමත්)",
+        "conductedBy": "පැවැත්වූ අය",
+        "department": "දෙපාර්තමේන්තුව",
+        "locationZone": "ස්ථානය / කලාපය",
+        "contractors": "කොන්ත්‍රාත්කරුවන්",
+        "machines": "යන්ත්‍ර",
+        "participants": "සහභාගිවන්නන්",
+        "checklistResponses": "පරීක්ෂණ ලැයිස්තු ප්‍රතිචාර",
+        "resultFail": "අසමත්",
+        "resultOk": "හරි",
+        "findingsTitle": "සොයාගැනීම් — හේතු සහ විසඳුම්",
+        "aiRootCauseTitle": "AI මූල හේතු විශ්ලේෂණය",
+        "attachmentsTitle": "ඇමුණුම්",
+        "columns": {
+          "number": "#",
+          "task": "කාර්යය",
+          "answer": "පිළිතුර",
+          "result": "ප්‍රතිඵලය",
+          "notes": "සටහන්",
+          "type": "වර්ගය",
+          "description": "විස්තරය",
+          "reason": "හේතුව",
+          "solution": "විසඳුම",
+          "finding": "සොයාගැනීම",
+          "priority": "ප්‍රමුඛතාව",
+          "probableCauses": "විය හැකි හේතු",
+          "recommendedActions": "නිර්දේශිත ක්‍රියාමාර්ග",
+          "file": "ගොනුව"
+        }
+      }
+    },
+    "analytics": {
+      "durationOptions": {
+        "days_one": "දින {{count}}",
+        "days_other": "දින {{count}}"
+      },
+      "mainPage": {
+        "title": "විශ්ලේෂණ",
+        "subtitle": "ඔබේ යන්ත්‍ර සමූහය පුරා මෙහෙයුම් කාර්ය සාධනය, විශ්වසනීයත්වය සහ පිරිවැය ප්‍රවණතා.",
+        "kpis": {
+          "totalBreakdowns": "මුළු බිඳවැටීම්",
+          "maintenanceCost": "නඩත්තු පිරිවැය",
+          "hoursLost": "අහිමි වූ පැය",
+          "safetyCases": "ආරක්ෂක සිද්ධි"
+        },
+        "tabs": {
+          "breakdowns": "බිඳවැටීම්",
+          "pm": "වැළැක්වීමේ නඩත්තුව",
+          "workorders": "වැඩ ඇණවුම්",
+          "machines": "යන්ත්‍ර",
+          "safety": "ආරක්ෂාව",
+          "team": "කණ්ඩායම් කාර්ය සාධනය"
+        }
+      },
+      "inventoryPage": {
+        "title": "තොග විශ්ලේෂණ",
+        "subtitle": "තෝරාගත් කාලය තුළ තොග සෞඛ්‍යය, කොටස් ඉල්ලීම් හේතු, චලනය සහ සැපයුම්කරු/PO ක්‍රියාකාරකම්.",
+        "tabs": {
+          "lowStock": "අඩු තොග කොටස්",
+          "reasons": "හේතුව අනුව ඉල්ලූ කොටස්",
+          "mostMoved": "වැඩිපුරම චලනය වූ කොටස්",
+          "suppliers": "සැපයුම්කරු අනුව මිලදී ගැනීමේ ඇණවුම්",
+          "receiptQuality": "ලැබුණු කොටස්: හොඳ එදිරිව ප්‍රතික්ෂේපිත/හානි වූ"
+        }
+      },
+      "hrPage": {
+        "title": "මානව සම්පත් විශ්ලේෂණ",
+        "subtitle": "කණ්ඩායම් කාර්ය සාධනය, පුහුණු ක්‍රියාකාරකම් සහ කාර්ය මණ්ඩල ප්‍රගතිය.",
+        "tabs": {
+          "topPerformers": "ඉහළම කාර්ය සාධකයින් 10",
+          "staffHeadcount": "භූමිකාව අනුව සේවකයින්",
+          "trainingCategories": "පුහුණු",
+          "audits": "විගණන",
+          "evaluations": "ඇගයීම්"
+        },
+        "empty": {
+          "trainings": "තවම පුහුණු ක්‍රියාකාරකම් නැත",
+          "audits": "තවම විගණන ක්‍රියාකාරකම් නැත",
+          "evaluations": "තවම ඇගයීම් ක්‍රියාකාරකම් නැත"
+        }
+      },
+      "safetyPage": {
+        "title": "ආරක්ෂක විශ්ලේෂණ",
+        "subtitle": "කර්මාන්තශාලාව පුරා සිද්ධි ප්‍රවණතා, වර්ග, බරපතළකම සහ සම්බන්ධවීම.",
+        "kpis": {
+          "notClosed": "වසා නැති",
+          "open": "විවෘත",
+          "investigating": "විමර්ශනය කරමින්"
+        },
+        "tabs": {
+          "severity": "බරපතළකම අනුව සිද්ධි",
+          "type": "වර්ගය අනුව සිද්ධි",
+          "technicians": "ඉහළම තාක්ෂණ ශිල්පීන් 5",
+          "machines": "ඉහළම යන්ත්‍ර 5",
+          "blacklist": "කළු ලැයිස්තුගත"
+        },
+        "charts": {
+          "topTechnicians": "ආරක්ෂක සිද්ධි අනුව ඉහළම තාක්ෂණ ශිල්පීන් 5",
+          "topMachines": "ආරක්ෂක සිද්ධි අනුව ඉහළම යන්ත්‍ර 5",
+          "blacklisted": "කළු ලැයිස්තුගත (ලකුණු {{threshold}}+)",
+          "safetyCasesSeriesName": "ආරක්ෂක සිද්ධි"
+        },
+        "empty": {
+          "noTechnicianCases": "තවම තාක්ෂණ ශිල්පීන්ට සම්බන්ධ සිද්ධි නැත",
+          "noMachineCases": "තවම යන්ත්‍රවලට සම්බන්ධ සිද්ධි නැත",
+          "noOneBlacklisted": "දැනට කිසිවෙකු කළු ලැයිස්තුගත කර නැත"
+        },
+        "table": {
+          "name": "නම",
+          "type": "වර්ගය",
+          "points": "ලකුණු",
+          "cases": "සිද්ධි"
+        },
+        "entityTypes": {
+          "technician": "තාක්ෂණ ශිල්පී",
+          "contractor": "කොන්ත්‍රාත්කරු",
+          "operator": "ක්‍රියාකරු",
+          "machine": "යන්ත්‍රය"
+        }
+      }
+    },
+    "myShift": {
+      "title": "මගේ මුරය",
+      "subtitle": "ඔබේ මුර සැලසුම්, වත්මන් මුරය සහ වැඩ කළ පැය.",
+      "errors": {
+        "loadRecentFailed": "මෑත මුර පූරණය අසාර්ථකයි",
+        "startFailed": "මුරය ආරම්භ කිරීම අසාර්ථකයි",
+        "endFailed": "මුරය අවසන් කිරීම අසාර්ථකයි"
+      },
+      "currentShift": {
+        "title": "වත්මන් මුරය",
+        "scheduledStarted": "සැලසුම් කළ {{range}} · ආරම්භ කළේ {{time}}",
+        "onShiftFor": "මුරයේ {{duration}}ක් සිටී",
+        "otBadge": "අතිකාල {{duration}}",
+        "ending": "අවසන් කරමින්…",
+        "endShift": "මුරය අවසන් කරන්න",
+        "happeningNow": "{{range}} · දැන් ක්‍රියාත්මකයි",
+        "starting": "ආරම්භ කරමින්…",
+        "startShift": "මුරය ආරම්භ කරන්න",
+        "noPlansAssigned": "ඔබ තවම කිසිදු මුර සැලැස්මකට සැලසුම් කර නැත. සැකසුම් → මුර හෝ සැකසුම් → පරිශීලකයින් තුළ ඔබව පවරන ලෙස පරිපාලකයෙකුගෙන් ඉල්ලන්න.",
+        "noPlanRunning": "ඔබේ මුර සැලසුම් කිසිවක් දැන් ක්‍රියාත්මක නැත. ඔබට පහත ලැයිස්තුවෙන් ඊළඟ මුරය ආරම්භ කළ හැක."
+      },
+      "plans": {
+        "title": "මගේ මුර සැලසුම්",
+        "loading": "මුර සැලසුම් පූරණය වෙමින්…",
+        "noneAssigned": "ඔබට මුර සැලසුම් පවරා නැත.",
+        "noneActive": "ඔබේ මුර සැලසුම් කිසිවක් දැන් සක්‍රිය නැත.",
+        "allDepartments": "සියලු දෙපාර්තමේන්තු",
+        "activeNow": "දැන් සක්‍රියයි",
+        "startThisShift": "මෙම මුරය ආරම්භ කරන්න"
+      },
+      "recent": {
+        "title": "මෑත මුර",
+        "empty": "තවම සම්පූර්ණ කළ මුර නැත.",
+        "columns": {
+          "shift": "මුරය",
+          "started": "ආරම්භ විය",
+          "ended": "අවසන් විය",
+          "totalHours": "මුළු පැය",
+          "ot": "අතිකාල"
+        }
+      },
+      "summaryModal": {
+        "title": "මුරය අවසන් විය",
+        "closeAria": "වසන්න",
+        "totalHours": "මුළු පැය",
+        "overtime": "අතිකාල",
+        "none": "නැත",
+        "scheduled": "සැලසුම් කළ",
+        "started": "ආරම්භ විය",
+        "ended": "අවසන් විය",
+        "close": "වසන්න",
+        "handOverToNext": "ඊළඟ පුද්ගලයාට භාරදෙන්න"
+      }
+    },
+    "safetyTrainings": {
+      "pageTitle": "ආරක්ෂක පුහුණු",
+      "viewSchedules": "පුහුණු කාලසටහන් බලන්න",
+      "createModule": "ආරක්ෂක පුහුණු මොඩියුලයක් සාදන්න",
+      "stats": {
+        "modules": "ආරක්ෂක මොඩියුල",
+        "assignments": "පැවරුම්",
+        "peopleAssigned": "පවරා ඇති පුද්ගලයින්"
+      },
+      "list": {
+        "empty": "තවම ආරක්ෂක පුහුණු නැත. ඉහත \"ආරක්ෂක පුහුණු මොඩියුලයක් සාදන්න\" භාවිත කර, පසුව එය පවරන්න.",
+        "assigned_one": "{{count}} දෙනෙකුට පවරා ඇත",
+        "assigned_other": "{{count}} දෙනෙකුට පවරා ඇත",
+        "notAssigned": "තවම කිසිවෙකුට පවරා නැත.",
+        "assign": "පවරන්න",
+        "edit": "සංස්කරණය",
+        "delete": "මකන්න",
+        "defaultTitle": "ආරක්ෂක පුහුණුව",
+        "completed": "සම්පූර්ණ කළේ {{date}}"
+      },
+      "table": {
+        "attendee": "සහභාගිවන්නා",
+        "assignedBy": "පැවරූ අය",
+        "assignedAt": "පැවරූ දිනය",
+        "completionStatus": "සම්පූර්ණ කිරීමේ තත්ත්වය"
+      },
+      "deleteConfirm": "\"{{title}}\" මකන්නද? මෙය අහෝසි කළ නොහැක.",
+      "toasts": {
+        "deleted": "ආරක්ෂක පුහුණු මොඩියුලය මැකුවා.",
+        "deleteFailed": "මොඩියුලය මැකීම අසාර්ථකයි. නැවත උත්සාහ කරන්න.",
+        "saveFailed": "මොඩියුලය සුරැකීම අසාර්ථකයි. නැවත උත්සාහ කරන්න.",
+        "saved": "ආරක්ෂක පුහුණු මොඩියුලය සුරැකුවා. දැන් ඔබට ප්‍රශ්නාවලියක් එක් කිරීමට හෝ එය පැවරීමට හැක."
+      },
+      "createPage": {
+        "backAria": "ආරක්ෂක පුහුණු වෙත ආපසු",
+        "title": "ආරක්ෂක පුහුණු මොඩියුලයක් සාදන්න",
+        "untitled": "නම් නොකළ ආරක්ෂක පුහුණුව"
+      }
+    },
+    "moe": {
+      "filter": {
+        "allMachines": "සියලු යන්ත්‍ර",
+        "presets": {
+          "sevenDays": "දින 7",
+          "thirtyDays": "දින 30",
+          "quarter": "කාර්තුව",
+          "year": "වසර",
+          "custom": "අභිරුචි"
+        },
+        "to": "දක්වා"
+      },
+      "rangeLabels": {
+        "last7Days": "පසුගිය දින 7",
+        "last30Days": "පසුගිය දින 30",
+        "lastQuarter": "පසුගිය කාර්තුව",
+        "lastYear": "පසුගිය වසර",
+        "customRange": "අභිරුචි පරාසය"
+      },
+      "dashboard": {
+        "title": "MOE (යන්ත්‍ර සමස්ත ඵලදායීතාව)",
+        "subtitle": "පද්ධතියේ දැනටමත් ඇති ලබා ගත හැකි බව, නඩත්තු අනුකූලතාව, විශ්වසනීයත්වය සහ සෞඛ්‍ය දත්ත වලින් සංයුක්ත ලකුණ.",
+        "calculating": "MOE ගණනය කරමින්…",
+        "plantAverageMoe": "කම්හල් සාමාන්‍ය MOE",
+        "vsPrevious": "එදිරිව {{value}}",
+        "criticalityWeighted": "තීරණාත්මකභාවය අනුව බර තැබූ, {{range}}",
+        "criticalMachines": "තීරණාත්මක යන්ත්‍ර",
+        "criticalThresholdNote": "තීරණාත්මකභාවය 4–5 සහ සීමාවට පහළ",
+        "machinesTracked": "නිරීක්ෂණය කරන යන්ත්‍ර",
+        "excellent": "විශිෂ්ට (≥85)",
+        "topBestMachines": "හොඳම යන්ත්‍ර 10",
+        "topWorstMachines": "නරකම යන්ත්‍ර 10",
+        "noDataYet": "තවම දත්ත නැත.",
+        "departmentCriticality": "{{department}} · තීරණාත්මකභාවය {{criticality}}",
+        "criticalBadge": "තීරණාත්මක"
       }
     }
   },
