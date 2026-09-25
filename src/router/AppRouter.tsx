@@ -101,6 +101,7 @@ import SafetyCalendarPage from '../modules/safety/pages/SafetyCalendarPage';
 import SafetyAnalyticsPage from '../modules/safety/pages/SafetyAnalyticsPage';
 import SafetyCasesPage from '../modules/safety/pages/SafetyCasesPage';
 import MyRequestsPage from '../modules/requests/pages/MyRequestsPage';
+import MaintenanceHistoryPage from '../pages/history/MaintenanceHistoryPage';
 import RequestsInboxPage from '../modules/requests/pages/RequestsInboxPage';
 import SafetyBlacklistPage from '../modules/safety/pages/SafetyBlacklistPage';
 
@@ -575,6 +576,9 @@ export default function AppRouter() {
         <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer']}><WorkPermitsPage /></ProtectedRoute>} />
         {/* Safety Training Schedules — the company-wide safety-training
             calendar, available to every signed-in role. */}
+        {/* Maintenance History — every signed-off WO and closed breakdown of
+            the plant, all time, filterable by department, with PDF export. */}
+        <Route path="maintenance-history" element={<ProtectedRoute requiredRoles={['plant_manager', 'admin']}><MaintenanceHistoryPage /></ProtectedRoute>} />
         {/* Staff requests — every role except admin raises them (personal,
             work, service letter, access to past WO/breakdown details, other);
             supervisors, plant managers and admins answer them in the inbox. */}
