@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useNavigate } from 'react-router-dom';
-import { Bell, AlertTriangle, Wrench, Package, Calendar, GraduationCap, ClipboardCheck, FileText, CheckCheck, BellRing, Volume2, VolumeX } from 'lucide-react';
+import { Bell, AlertTriangle, Wrench, Package, Calendar, GraduationCap, ClipboardCheck, FileText, CheckCheck, BellRing, Volume2, VolumeX, MessageSquare } from 'lucide-react';
 import { useMyNotifications } from '@/hooks/useMyNotifications';
 import { useDerivedAlerts } from '@/hooks/useDerivedAlerts';
 import { relativeTime } from '@/utils/analytics.utils';
@@ -25,6 +25,7 @@ const ICON_MAP: Record<DashboardNotificationType, typeof Bell> = {
   training: GraduationCap,
   evaluation: ClipboardCheck,
   document: FileText,
+  request: MessageSquare,
 };
 
 const SEVERITY_COLOR: Record<string, string> = {

@@ -1355,7 +1355,9 @@
         "audit": "Audit",
         "evaluations": "Evaluations",
         "settings": "Settings",
-        "billing": "Billing & Plan"
+        "billing": "Billing & Plan",
+        "myRequests": "My Requests",
+        "requestsInbox": "Requests Inbox"
       },
       "help": "Help & Support"
     },
@@ -8605,6 +8607,106 @@
     "layout": {
       "plantTabs": {
         "allPlants": "All Plants"
+      }
+    },
+    "staffRequests": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "sending": "Sending…",
+      "categories": {
+        "personal": "Personal",
+        "work": "Work",
+        "service_letter": "Service letter",
+        "record_access": "Access to past WO / breakdown details",
+        "other": "Other"
+      },
+      "recipients": {
+        "supervisor": "My department supervisor",
+        "plant_manager": "My plant manager",
+        "admin": "Admin"
+      },
+      "statuses": {
+        "open": "Open",
+        "answered": "Answered",
+        "closed": "Closed"
+      },
+      "roles": {
+        "admin": "Admin",
+        "plant_manager": "Plant Manager",
+        "supervisor": "Supervisor",
+        "technician": "Technician",
+        "store_keeper": "Store Keeper",
+        "hr_officer": "HR Officer",
+        "trainee": "Trainee",
+        "floor_operator": "Operator",
+        "safety_officer": "Safety Officer"
+      },
+      "attachments": {
+        "add": "Attach files",
+        "remove": "Remove {{name}}",
+        "tooLarge": "{{name}} is larger than 25 MB and was not attached."
+      },
+      "newRequest": {
+        "title": "New request",
+        "category": "Request type",
+        "sendTo": "Send to",
+        "noDepartment": "You have no registered department, so no supervisor will receive this. Choose your plant manager or admin instead.",
+        "reference": "WO / breakdown number",
+        "referencePlaceholder": "e.g. WO-2026-0142 or BD-0098",
+        "subject": "Subject",
+        "message": "Message",
+        "send": "Send request",
+        "sent": "Request sent.",
+        "failed": "Couldn't send the request. Please try again.",
+        "errors": {
+          "required": "Add a subject and a message."
+        }
+      },
+      "reply": {
+        "headingHandler": "Reply",
+        "headingRequester": "Add a follow-up",
+        "placeholder": "Write a reply…",
+        "send": "Send reply",
+        "sendAndClose": "Reply & close",
+        "close": "Close request",
+        "reopen": "Reopen",
+        "sent": "Reply sent.",
+        "failed": "Couldn't update the request. Please try again.",
+        "errors": {
+          "empty": "Write a message or attach a file."
+        }
+      },
+      "card": {
+        "sentTo": "To: {{to}}",
+        "replies_one": "{{count}} reply",
+        "replies_other": "{{count}} replies",
+        "reference": "Reference: {{reference}}",
+        "closedOn": "Closed {{date}}"
+      },
+      "filters": {
+        "all": "All",
+        "search": "Search requests…",
+        "allCategories": "All request types"
+      },
+      "myPage": {
+        "title": "My Requests",
+        "subtitle": "Ask your supervisor, plant manager or admin for personal or work matters, a service letter, or access to past work order / breakdown details.",
+        "newRequest": "New request",
+        "empty": "You haven't sent any requests yet."
+      },
+      "inbox": {
+        "title": "Requests Inbox",
+        "scope": {
+          "supervisor": "Requests sent to the supervisors of your department ({{department}}).",
+          "plantManager": "Requests sent to the plant manager of your plant.",
+          "admin": "Requests sent to admin."
+        },
+        "empty": "No requests here."
+      },
+      "notifications": {
+        "newRequest": "New {{category}} request from {{name}}: {{subject}}",
+        "newReply": "{{name}} replied to the request \"{{subject}}\"",
+        "closed": "{{name}} closed the request \"{{subject}}\""
       }
     }
   },

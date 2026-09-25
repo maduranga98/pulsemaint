@@ -64,6 +64,8 @@ Authentication is Firebase Auth + a Firestore `users` collection; state is held 
 | Shift Config | ✓ | ✓ | — | — | — | — | — | — |
 | Settings | ✓ | — | — | — | — | — | — | — |
 | Billing & Plan | ✓ | — | — | — | — | — | — | — |
+| My Requests (raise requests) | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Requests Inbox (reply) | ✓ | ✓ | ✓ | — | — | — | — | — |
 
 \* Technicians can view PM Schedules but cannot edit them.
 \*\* Supervisors can view/participate but module authoring (create/edit modules, quizzes, compliance reports) is restricted to `plant_manager`, `admin`, `hr_officer`.
@@ -95,6 +97,9 @@ Role-specific landing dashboards, each showing relevant KPIs:
 | View Analytics | — | — | — | ✓ | ✓ | — | — | — |
 
 *(Per the current router, `trainee` does have machine view access; `MODULE_3_MACHINES_README.md`'s table predates that and should be treated as stale.)*
+
+### Staff Requests
+Every role except admin raises requests from **My Requests** (`/app/requests`): personal, work, service letter, access to past WO / breakdown details, or other, with attachments. A request goes to a role group: the supervisors of the requester's plant **and** department, the plant manager(s) of the requester's plant, or admin. Supervisors can send to plant manager/admin; plant managers to admin. Handlers reply with text and attachments from the **Requests Inbox** (`/app/requests/inbox`) and can close/reopen; the requester can follow up. Stored in `staff_requests`; attachments under `companies/{companyId}/staff_requests/{requestId}/` in Storage.
 
 ### Breakdowns
 Report, track, and resolve equipment breakdowns. Kanban-style status board, severity/type/root-cause tracking, notification log (push/SMS/email/in-app), QR-triggered check-in/report flows, optional WhatsApp integration. Open to `floor_operator`, `technician`, `supervisor`, `plant_manager`, `admin`, `trainee` (editing excludes trainee).
