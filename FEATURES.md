@@ -64,6 +64,7 @@ Authentication is Firebase Auth + a Firestore `users` collection; state is held 
 | Shift Config | ✓ | ✓ | — | — | — | — | — | — |
 | Settings | ✓ | — | — | — | — | — | — | — |
 | Billing & Plan | ✓ | — | — | — | — | — | — | — |
+| Maintenance History (signed-off WOs / closed breakdowns, PDF export) | ✓ | ✓ | — | — | — | — | — | — |
 | My Requests (raise requests) | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Requests Inbox (reply) | ✓ | ✓ | ✓ | — | — | — | — | — |
 
@@ -97,6 +98,9 @@ Role-specific landing dashboards, each showing relevant KPIs:
 | View Analytics | — | — | — | ✓ | ✓ | — | — | — |
 
 *(Per the current router, `trainee` does have machine view access; `MODULE_3_MACHINES_README.md`'s table predates that and should be treated as stale.)*
+
+### Maintenance History
+Plant managers (and admin, per selected plant tab) get `/app/maintenance-history`: every signed-off/closed work order and every closed breakdown of their own plant — all time, from every supervisor and department. Filter by department (clickable counts), supervisor, date range, WO type and search; each record has **Export PDF** for a full-detail report (summary, team, execution, checklist, work logs, parts & cost, sign-off, AI RCA, status history, photos). Built by `src/utils/reports/pdf/maintenanceRecordPdf.ts`.
 
 ### Staff Requests
 Every role except admin raises requests from **My Requests** (`/app/requests`): personal, work, service letter, access to past WO / breakdown details, or other, with attachments. A request goes to a role group: the supervisors of the requester's plant **and** department, the plant manager(s) of the requester's plant, or admin. Supervisors can send to plant manager/admin; plant managers to admin. Handlers reply with text and attachments from the **Requests Inbox** (`/app/requests/inbox`) and can close/reopen; the requester can follow up. Stored in `staff_requests`; attachments under `companies/{companyId}/staff_requests/{requestId}/` in Storage.

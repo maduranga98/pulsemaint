@@ -1357,7 +1357,8 @@
         "settings": "Settings",
         "billing": "Billing & Plan",
         "myRequests": "My Requests",
-        "requestsInbox": "Requests Inbox"
+        "requestsInbox": "Requests Inbox",
+        "maintenanceHistory": "Maintenance History"
       },
       "help": "Help & Support"
     },
@@ -8708,6 +8709,67 @@
         "newReply": "{{name}} replied to the request \"{{subject}}\"",
         "closed": "{{name}} closed the request \"{{subject}}\""
       }
+    },
+    "maintenanceHistory": {
+      "title": "Maintenance History",
+      "subtitle": "Every signed-off work order and closed breakdown in your plant, from all supervisors and departments. Export any record as a detailed PDF report.",
+      "tabs": {
+        "workOrders": "Signed-off Work Orders",
+        "breakdowns": "Closed Breakdowns"
+      },
+      "allDepartments": "All departments",
+      "filters": {
+        "search": "Search number, machine, description…",
+        "department": "Department",
+        "supervisor": "Supervisor",
+        "allSupervisors": "All supervisors",
+        "from": "From",
+        "to": "To",
+        "woType": "Work order type",
+        "allTypes": "All types",
+        "clear": "Clear filters"
+      },
+      "columns": {
+        "wo": "Work order",
+        "ticket": "Ticket",
+        "machine": "Machine",
+        "department": "Department",
+        "supervisor": "Supervisor",
+        "signedOff": "Signed off",
+        "outcome": "Outcome",
+        "rootCause": "Root cause",
+        "closed": "Closed",
+        "attendedBy": "Attended by",
+        "actions": "Actions"
+      },
+      "outcomes": {
+        "complete": "Complete",
+        "not_complete": "Not complete",
+        "failed": "Failed"
+      },
+      "rootCauses": {
+        "wear_and_tear": "Wear & Tear",
+        "operator_error": "Operator Error",
+        "manufacturing_defect": "Manufacturing Defect",
+        "lack_of_maintenance": "Lack of Maintenance",
+        "external_damage": "External Damage",
+        "unknown": "Unknown"
+      },
+      "woTypes": {
+        "BREAKDOWN": "Breakdown Repair",
+        "CORRECTIVE": "Corrective",
+        "PREVENTIVE": "Preventive Maintenance",
+        "INSTALLATION": "Installation",
+        "MODIFICATION": "Modification",
+        "INSPECTION": "Inspection",
+        "CONTRACTOR": "Contractor",
+        "OTHER": "Other"
+      },
+      "view": "Open",
+      "exportPdf": "Export PDF",
+      "exportFailed": "Couldn't create the PDF. Please try again.",
+      "empty": "No records match these filters.",
+      "showMore": "Show more ({{shown}} of {{total}})"
     }
   },
   "help": {

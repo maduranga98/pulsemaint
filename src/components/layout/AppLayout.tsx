@@ -109,6 +109,9 @@ const NAV_GROUPS: NavGroup[] = [
       { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.workOrders', to: '/app/work-orders', icon: Icon.wrench, roles: ['supervisor', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['plant_manager'] },
+      // Every signed-off WO / closed breakdown of the plant, all time, with
+      // department filters and per-record PDF export.
+      { labelKey: 'common.nav.items.maintenanceHistory', to: '/app/maintenance-history', icon: Icon.report, roles: ['plant_manager', 'admin'] },
       {
         labelKey: 'common.nav.items.pmSchedules',
         to: '/app/pm-schedules',
