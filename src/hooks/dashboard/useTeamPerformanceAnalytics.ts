@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   fetchTeamPerformanceByUser,
   type UserPerformanceSummary,
@@ -14,21 +14,27 @@ export function useTeamPerformanceAnalytics(companyId: string, dateRange?: DateR
   const [error, setError] = useState<string | null>(null);
   // Only people in the caller's plant (admin: selected plant tab).
   const plantUserIds = usePlantUserIds(companyId);
+  const requestRef = useRef(0);
 
   const fetch = useCallback(async () => {
+    const requestId = ++requestRef.current;
+    const isLatest = () => requestId === requestRef.current;
     if (!companyId) {
       setLoading(false);
       return;
     }
     setLoading(true);
     setError(null);
+    // Several fetches overlap while the plant roster loads (null → empty
+    // placeholder → real ids); only the newest one may write its result, or
+    // a slower, stale one leaves the chart empty or unscoped.
     try {
       const rows = await fetchTeamPerformanceByUser(companyId, dateRange);
-      setData(plantUserIds ? rows.filter((r) => plantUserIds.has(r.userId)) : rows);
+      if (isLatest()) setData(plantUserIds ? rows.filter((r) => plantUserIds.has(r.userId)) : rows);
     } catch (err) {
-      setError((err as Error).message);
+      if (isLatest()) setError((err as Error).message);
     } finally {
-      setLoading(false);
+      if (isLatest()) setLoading(false);
     }
   }, [companyId, dateRange?.from, dateRange?.to, plantUserIds]);
 
