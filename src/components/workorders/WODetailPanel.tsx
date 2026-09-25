@@ -275,6 +275,35 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
           {/* ── Overview ── */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/* Completion and sign-off live on Overview only (with the AI
+                  root-cause analysis inside the sign-off form) — they used
+                  to render under every tab, repeating the same details. */}
+              {/* Completion form (inline) */}
+              {showCompletionForm && (
+                <WOCompletionForm
+                  workOrder={workOrder}
+                  onCompleted={() => setShowCompletionForm(false)}
+                  onCancel={() => setShowCompletionForm(false)}
+                />
+              )}
+
+              {/* Sign-off panel */}
+              {showSignOff && (
+                <div className="bg-white border-2 border-blue-100 rounded-xl p-5 space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{t('common.workOrders.copy.signOffTitle')}</h3>
+                    <p className="text-sm text-gray-600">{t('common.workOrders.copy.signOffInstructions')}</p>
+                  </div>
+                  <WOSignOffForm
+                    workOrder={workOrder}
+                    onCancel={() => setShowSignOff(false)}
+                    onDone={() => {
+                      setShowSignOff(false);
+                      onClose();
+                    }}
+                  />
+                </div>
+              )}
               {isSignedOff && (
                 <WOSignOffSummary workOrder={workOrder} permits={workPermits} canRegenerateRca={isSupervisor} />
               )}
@@ -910,33 +939,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
             </div>
           )}
 
-          {/* Completion form (inline) */}
-          {showCompletionForm && (
-            <WOCompletionForm
-              workOrder={workOrder}
-              onCompleted={() => setShowCompletionForm(false)}
-              onCancel={() => setShowCompletionForm(false)}
-            />
-          )}
-
-          {/* Sign-off panel */}
-          {showSignOff && (
-            <div className="bg-white border-2 border-blue-100 rounded-xl p-5 space-y-4">
-              <div>
-                <h3 className="font-semibold text-gray-900">{t('common.workOrders.copy.signOffTitle')}</h3>
-                <p className="text-sm text-gray-600">{t('common.workOrders.copy.signOffInstructions')}</p>
-              </div>
-              <WOSignOffForm
-                workOrder={workOrder}
-                onCancel={() => setShowSignOff(false)}
-                onDone={() => {
-                  setShowSignOff(false);
-                  onClose();
-                }}
-              />
-            </div>
-          )}
-
           {/* Cancel confirm */}
           {showCancelConfirm && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
@@ -1000,7 +1002,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
               {workOrder.status === 'COMPLETED' && (
                 <button
                   type="button"
-                  onClick={() => setShowSignOff(true)}
+                  onClick={() => { setActiveTab('overview'); setShowSignOff(true); }}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
                 >
                   {t('common.workOrders.detailPanel.signOffCloseButton')}
@@ -1009,7 +1011,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
               {['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
                 <button
                   type="button"
-                  onClick={() => setShowCompletionForm(true)}
+                  onClick={() => { setActiveTab('overview'); setShowCompletionForm(true); }}
                   disabled={!everyoneDone}
                   title={everyoneDone ? undefined : t('common.workOrders.detailPanel.allTeamMustComplete')}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1079,7 +1081,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                   {everyoneDone && (
                     <button
                       type="button"
-                      onClick={() => setShowCompletionForm(true)}
+                      onClick={() => { setActiveTab('overview'); setShowCompletionForm(true); }}
                       className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700"
                     >
                       {t('common.workOrders.copy.completeButton')}
