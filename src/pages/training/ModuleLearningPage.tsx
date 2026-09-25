@@ -20,7 +20,7 @@ export default function ModuleLearningPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-full py-24">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
       </div>
     );
@@ -28,7 +28,7 @@ export default function ModuleLearningPage() {
 
   if (error || !assignment || !module) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
+      <div className="flex flex-col items-center justify-center min-h-full py-24 gap-3 text-slate-600">
         <p className="text-lg font-medium">{t('common.trainingShared.moduleLearningPage.notFound')}</p>
         <button onClick={goBack} className="text-blue-600 hover:underline text-sm">
           {t('common.trainingShared.moduleLearningPage.goBack')}
@@ -39,7 +39,7 @@ export default function ModuleLearningPage() {
 
   if (isOffboardAssignment(assignment)) {
     return (
-      <div className="min-h-screen bg-gray-50 py-6 px-4">
+      <div className="min-h-full bg-gray-50 py-6 px-4">
         <OffboardTrainingCompletionForm
           assignment={assignment}
           module={module}

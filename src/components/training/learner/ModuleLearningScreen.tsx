@@ -47,8 +47,10 @@ export default function ModuleLearningScreen({
       setFinalizing(false);
     }
   };
+  // A certified assignment is finished — never offer "Start Quiz" on it, even
+  // when the quizPassed flag wasn't set (e.g. certified by sign-off).
   const quizStatus: 'locked' | 'available' | 'passed' =
-    assignment.quizPassed
+    assignment.quizPassed || isCertified
       ? 'passed'
       : allRequiredDone
       ? 'available'
@@ -104,9 +106,11 @@ export default function ModuleLearningScreen({
   const completedCount = Object.values(lessonProgress).filter((p) => p.completed).length;
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      {/* Top bar */}
-      <div className="sticky top-14 z-10 bg-white border-b border-slate-200 flex items-center gap-3 px-4 h-12">
+    <div className="flex flex-col min-h-full bg-slate-50">
+      {/* Top bar — sticks to the top of the app's scrolling <main>, which
+          already sits below the header (top-14 left a gap the cover image
+          scrolled through, overlapping the title). */}
+      <div className="sticky top-0 z-20 bg-white border-b border-slate-200 flex items-center gap-3 px-4 h-12">
         <button
           onClick={onBack}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
@@ -117,12 +121,14 @@ export default function ModuleLearningScreen({
         <h1 className="flex-1 font-semibold text-slate-900 text-sm truncate">
           {module.title}
         </h1>
-        <span className="text-xs text-slate-500 shrink-0">
-          {t('common.trainingShared.moduleLearningScreen.lessonsCount', {
-            completed: completedCount,
-            total: lessons.length,
-          })}
-        </span>
+        {lessons.length > 0 && (
+          <span className="text-xs text-slate-500 shrink-0">
+            {t('common.trainingShared.moduleLearningScreen.lessonsCount', {
+              completed: completedCount,
+              total: lessons.length,
+            })}
+          </span>
+        )}
       </div>
 
       {/* Module header card */}
@@ -135,9 +141,11 @@ export default function ModuleLearningScreen({
         <h2 className="font-bold text-slate-900 text-xl leading-tight">{module.title}</h2>
 
         <div className="flex flex-wrap items-center gap-2 mt-2">
-          <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-full font-medium">
-            {module.machineName}
-          </span>
+          {module.machineName && (
+            <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-full font-medium">
+              {module.machineName}
+            </span>
+          )}
           {module.estimatedMinutes > 0 && (
             <span className="inline-flex items-center gap-1 text-xs text-slate-500">
               <Clock size={12} />
@@ -159,7 +167,8 @@ export default function ModuleLearningScreen({
           lessonProgress={lessonProgress}
           currentLessonId={activeLesson?.id}
           quizStatus={quizStatus}
-          quizScore={assignment.bestScore}
+          hasQuiz={hasQuiz}
+          quizScore={assignment.bestScore > 0 ? assignment.bestScore : undefined}
           passingScore={module.quiz?.passingScore ?? module.passingScore}
           onLessonClick={(lesson) => setActiveLesson(lesson)}
           onStartQuiz={onStartQuiz}

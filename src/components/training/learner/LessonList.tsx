@@ -8,6 +8,8 @@ interface LessonListProps {
   lessonProgress: Record<string, LessonProgress>;
   currentLessonId?: string;
   quizStatus: 'locked' | 'available' | 'passed';
+  /** False for modules without a quiz — the quiz section is hidden entirely. */
+  hasQuiz?: boolean;
   quizScore?: number;
   passingScore?: number;
   onLessonClick?: (lesson: LessonItem) => void;
@@ -19,6 +21,7 @@ export default function LessonList({
   lessonProgress,
   currentLessonId,
   quizStatus,
+  hasQuiz = true,
   quizScore,
   passingScore = 70,
   onLessonClick,
@@ -58,30 +61,32 @@ export default function LessonList({
       })}
 
       {/* Quiz section */}
-      <div className="p-4">
-        {quizStatus === 'locked' && (
-          <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-4 text-center">
-            <p className="text-slate-500 text-sm">
-              {t('common.trainingShared.lessonList.completeToUnlock')}
-            </p>
-          </div>
-        )}
-        {quizStatus === 'available' && onStartQuiz && (
-          <QuizUnlockBanner onStartQuiz={onStartQuiz} passingScore={passingScore} />
-        )}
-        {quizStatus === 'passed' && (
-          <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-4">
-            <div className="flex items-center gap-2 text-green-700 font-medium">
-              <span className="text-lg">✓</span>
-              <span>
-                {quizScore !== undefined
-                  ? t('common.trainingShared.lessonList.quizPassedWithScore', { score: quizScore })
-                  : t('common.trainingShared.lessonList.quizPassed')}
-              </span>
+      {hasQuiz && (
+        <div className="p-4">
+          {quizStatus === 'locked' && (
+            <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-4 text-center">
+              <p className="text-slate-500 text-sm">
+                {t('common.trainingShared.lessonList.completeToUnlock')}
+              </p>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+          {quizStatus === 'available' && onStartQuiz && (
+            <QuizUnlockBanner onStartQuiz={onStartQuiz} passingScore={passingScore} />
+          )}
+          {quizStatus === 'passed' && (
+            <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-4">
+              <div className="flex items-center gap-2 text-green-700 font-medium">
+                <span className="text-lg">✓</span>
+                <span>
+                  {quizScore !== undefined
+                    ? t('common.trainingShared.lessonList.quizPassedWithScore', { score: quizScore })
+                    : t('common.trainingShared.lessonList.quizPassed')}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
