@@ -1,4 +1,5 @@
 import { CheckCircle2, Circle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PasswordStrengthProps {
   password: string;
@@ -6,23 +7,24 @@ interface PasswordStrengthProps {
 }
 
 export default function PasswordStrength({ password, confirmPassword }: PasswordStrengthProps) {
+  const { t } = useTranslation();
   const checks = [
     {
-      label: 'At least 8 characters',
+      label: t('common.auth.password.minLength'),
       passed: password.length >= 8,
     },
     {
-      label: 'At least 1 uppercase letter',
+      label: t('common.auth.password.uppercase'),
       passed: /[A-Z]/.test(password),
     },
     {
-      label: 'At least 1 number',
+      label: t('common.auth.password.number'),
       passed: /\d/.test(password),
     },
     ...(confirmPassword !== undefined
       ? [
           {
-            label: 'Passwords match',
+            label: t('common.auth.password.match'),
             passed: password === confirmPassword && password.length > 0,
           },
         ]

@@ -8866,6 +8866,216 @@
         "hours": "{{count}}h ago",
         "days": "{{count}}d ago"
       }
+    },
+    "auth": {
+      "login": {
+        "errors": {
+          "invalidEmail": "Please enter a valid email address.",
+          "passwordRequired": "Password is required.",
+          "invalidQrMachine": "QR code did not contain a valid machine ID.",
+          "unrecognizedQr": "Unrecognized QR code.",
+          "cameraFailed": "Failed to open camera.",
+          "loginFailed": "Login failed. Please try again.",
+          "googleFailed": "Google login failed."
+        },
+        "heroLine1": "Turn breakdowns into",
+        "heroLine2": "resolved work orders.",
+        "heroBody": "Collect, track, and resolve every machine breakdown in one place. Built for maintenance teams that want accountability, not just paperwork.",
+        "features": {
+          "realtime": "Real-time tracking",
+          "workflow": "End-to-end workflow",
+          "secure": "Secure & reliable",
+          "plants": "Built for plants"
+        },
+        "copyright": "© {{year}} FirmiCore. All rights reserved.",
+        "title": "Sign In",
+        "subtitle": "Sign in to your FirmiCore account",
+        "orEmail": "or sign in with email",
+        "emailLabel": "Email Address",
+        "passwordLabel": "Password",
+        "forgot": "Forgot?",
+        "rememberMe": "Remember me",
+        "signingIn": "Signing in...",
+        "noAccount": "Don't have an account?",
+        "createOne": "Create one",
+        "reportByQr": "Report a breakdown by QR",
+        "scanTitle": "Scan Machine QR Code",
+        "scanHint": "Point your camera at a machine QR code to report a breakdown instantly."
+      },
+      "errors": {
+        "auth_user_not_found": "No account found with this email address.",
+        "auth_wrong_password": "Incorrect password. Please try again.",
+        "auth_invalid_email": "Please enter a valid email address.",
+        "auth_email_already_in_use": "An account with this email already exists.",
+        "auth_weak_password": "Password must be at least 8 characters.",
+        "auth_too_many_requests": "Too many attempts. Please try again later.",
+        "auth_network_request_failed": "Network error. Check your connection.",
+        "auth_popup_closed_by_user": "Sign-in was cancelled.",
+        "auth_invalid_verification_code": "Invalid OTP. Please try again.",
+        "auth_code_expired": "OTP has expired. Please request a new one.",
+        "auth_user_disabled": "This account has been disabled. Contact your administrator.",
+        "PIN_CHANGE_REQUIRED": "You must change your PIN before continuing.",
+        "PIN_INVALID": "Invalid PIN. Please try again.",
+        "INVITE_EXPIRED": "This invitation has expired.",
+        "INVITE_USED": "This invitation has already been used.",
+        "ACCOUNT_INACTIVE": "Your account has been deactivated. Contact your administrator."
+      },
+      "forgot": {
+        "errors": {
+          "sendFailed": "Failed to send reset email."
+        },
+        "checkEmailTitle": "Check your email",
+        "sentPrefix": "We sent a password reset link to",
+        "linkExpires": "Link expires in 1 hour.",
+        "tryDifferent": "Try a different email",
+        "backToSignIn": "Back to Sign In",
+        "title": "Forgot your password?",
+        "subtitle": "Enter your email and we'll send you a reset link.",
+        "sending": "Sending...",
+        "send": "Send Reset Link"
+      },
+      "unauthorized": {
+        "title": "Access Denied",
+        "message": "You don't have permission to view this page.",
+        "goToDashboard": "Go to Dashboard"
+      },
+      "password": {
+        "minLength": "At least 8 characters",
+        "uppercase": "At least 1 uppercase letter",
+        "number": "At least 1 number",
+        "match": "Passwords match"
+      },
+      "invite": {
+        "errors": {
+          "fullNameRequired": "Full name is required.",
+          "uppercase": "Must contain uppercase letter.",
+          "number": "Must contain a number.",
+          "mismatch": "Passwords do not match.",
+          "acceptFailed": "Failed to accept invitation.",
+          "googleFailed": "Google sign-up failed."
+        },
+        "verifying": "Verifying invitation...",
+        "expiredTitle": "Invitation Expired",
+        "expiredMessage": "This invitation has expired. Please contact your administrator for a new one.",
+        "usedTitle": "Invitation Already Used",
+        "usedMessage": "This invitation has already been accepted. Try signing in.",
+        "title": "You're invited!",
+        "invitedToJoin": "You've been invited to join",
+        "asRole": "as a",
+        "invitedBy": "Invited by {{name}}",
+        "emailLabel": "Email:",
+        "connecting": "Connecting...",
+        "continueWithGoogle": "Continue with Google",
+        "orEmailPassword": "or set up with email & password",
+        "fullNameLabel": "Full Name",
+        "passwordPlaceholder": "Min 8 chars, 1 uppercase, 1 number",
+        "confirmPasswordLabel": "Confirm Password",
+        "confirmPlaceholder": "Re-enter password",
+        "creating": "Creating account...",
+        "accept": "Accept & Create Account",
+        "haveAccount": "Already have an account?",
+        "signInInstead": "Sign in instead"
+      },
+      "register": {
+        "errors": {
+          "companyName": "Company name must be at least 2 characters.",
+          "industry": "Please select an industry.",
+          "country": "Please select a country.",
+          "fullName": "Full name must be at least 2 characters.",
+          "jobTitle": "Job title is required.",
+          "phone": "Please enter a valid phone number.",
+          "uppercase": "Password must contain at least 1 uppercase letter.",
+          "number": "Password must contain at least 1 number.",
+          "terms": "You must agree to the terms.",
+          "failed": "Registration failed."
+        },
+        "subtitle": "Create your free account",
+        "stepOf": "Step {{step}} of {{total}}",
+        "companyInfo": "Company Information",
+        "companyName": "Company / Factory Name",
+        "companyNamePlaceholder": "Enter your company name",
+        "industry": "Industry",
+        "selectIndustry": "Select an industry",
+        "industries": {
+          "manufacturing": "Manufacturing",
+          "foodBeverage": "Food & Beverage",
+          "textile": "Textile & Garment",
+          "pharmaceutical": "Pharmaceutical",
+          "warehouse": "Industrial Warehouse",
+          "electronics": "Electronics Assembly",
+          "heavyEngineering": "Heavy Engineering",
+          "other": "Other"
+        },
+        "country": "Country",
+        "selectCountry": "Select a country",
+        "countries": {
+          "LK": "Sri Lanka",
+          "US": "United States",
+          "GB": "United Kingdom",
+          "IN": "India",
+          "AE": "United Arab Emirates",
+          "SA": "Saudi Arabia"
+        },
+        "yourDetails": "Your Details",
+        "fullNamePlaceholder": "Your full name",
+        "jobTitle": "Job Title",
+        "jobTitlePlaceholder": "Your job title",
+        "workEmail": "Work Email",
+        "phone": "Phone Number",
+        "setPassword": "Set Your Password",
+        "agreement": "Agreement",
+        "agreePrefix": "I agree to the",
+        "terms": "Terms of Service",
+        "and": "and",
+        "privacy": "Privacy Policy",
+        "back": "Back",
+        "creating": "Creating Account...",
+        "create": "Create Free Account",
+        "continue": "Continue",
+        "signIn": "Sign in"
+      },
+      "onboarding": {
+        "errors": {
+          "generic": "Something went wrong. Please try again.",
+          "completeFailed": "Failed to complete setup."
+        },
+        "subtitle": "Complete your setup",
+        "companySetup": "Company Setup",
+        "companyLogo": "Company Logo",
+        "logoPreview": "Logo preview",
+        "changeLogo": "Change logo",
+        "clickToUpload": "Click to upload",
+        "orDragDrop": "or drag and drop",
+        "language": "Language",
+        "languages": {
+          "en": "English",
+          "si": "Sinhala",
+          "ta": "Tamil"
+        },
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "addFirstMachine": "Add First Machine",
+        "addFirstMachineHint": "Optional — you can do this later from the Machines page.",
+        "machineName": "Machine Name",
+        "machineNamePlaceholder": "e.g., CNC Machine #1",
+        "machineType": "Machine Type",
+        "selectType": "Select type",
+        "types": {
+          "cnc": "CNC Machine",
+          "conveyor": "Conveyor",
+          "hydraulicPress": "Hydraulic Press",
+          "lathe": "Lathe",
+          "compressor": "Compressor",
+          "other": "Other"
+        },
+        "location": "Location / Department",
+        "locationPlaceholder": "e.g., Building A, Floor 2",
+        "skip": "Skip for now",
+        "allSet": "You're all set, {{name}}!",
+        "trialUntil": "Your free trial runs until",
+        "saving": "Saving...",
+        "complete": "Complete Setup"
+      }
     }
   },
   "help": {

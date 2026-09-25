@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc, addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { getDashboardRoute } from '../../lib/auth';
@@ -11,6 +12,7 @@ import { getTimezoneOptions } from '../../lib/timezones';
 type StepError = { message: string } | null;
 
 export default function OnboardingWizard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -53,7 +55,7 @@ export default function OnboardingWizard() {
   if (!userProfile || !company) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="text-white">{t('common.ui.loading')}</div>
       </div>
     );
   }
@@ -126,7 +128,7 @@ export default function OnboardingWizard() {
       }
     } catch (err: any) {
       console.error('Onboarding step failed:', err);
-      setError({ message: err?.message || 'Something went wrong. Please try again.' });
+      setError({ message: err?.message || t('common.auth.onboarding.errors.generic') });
     } finally {
       setLoading(false);
     }
@@ -142,7 +144,7 @@ export default function OnboardingWizard() {
       }
     } catch (err: any) {
       console.error('Onboarding skip failed:', err);
-      setError({ message: err?.message || 'Failed to complete setup.' });
+      setError({ message: err?.message || t('common.auth.onboarding.errors.completeFailed') });
     } finally {
       setLoading(false);
     }
@@ -159,7 +161,7 @@ export default function OnboardingWizard() {
             <span className="text-white">Firmi</span>
             <span className="text-[#00C2FF]">Core</span>
           </div>
-          <p className="text-gray-300">Complete your setup</p>
+          <p className="text-gray-300">{t('common.auth.onboarding.subtitle')}</p>
         </div>
 
         <div className="mb-8">
@@ -173,7 +175,7 @@ export default function OnboardingWizard() {
               />
             ))}
           </div>
-          <p className="text-gray-400 text-xs text-center">Step {Math.min(step, 3)} of 3</p>
+          <p className="text-gray-400 text-xs text-center">{t('common.auth.register.stepOf', { step: Math.min(step, 3), total: 3 })}</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
@@ -186,10 +188,10 @@ export default function OnboardingWizard() {
 
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-gray-900">Company Setup</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{t('common.auth.onboarding.companySetup')}</h2>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.onboarding.companyLogo')}</label>
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
                   onDragOver={(e) => e.preventDefault()}
@@ -208,9 +210,9 @@ export default function OnboardingWizard() {
                   />
                   {logoPreview ? (
                     <div>
-                      <img src={logoPreview} alt="Logo preview" className="h-24 mx-auto mb-2 object-contain" />
+                      <img src={logoPreview} alt={t('common.auth.onboarding.logoPreview')} className="h-24 mx-auto mb-2 object-contain" />
                       <label htmlFor="logo-input" className="text-sm text-[#1A56DB] hover:underline cursor-pointer">
-                        Change logo
+                        {t('common.auth.onboarding.changeLogo')}
                       </label>
                     </div>
                   ) : (
@@ -219,29 +221,29 @@ export default function OnboardingWizard() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <label htmlFor="logo-input" className="text-sm text-[#1A56DB] hover:underline cursor-pointer">
-                        Click to upload
+                        {t('common.auth.onboarding.clickToUpload')}
                       </label>
-                      <p className="text-xs text-gray-500 mt-1">or drag and drop</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('common.auth.onboarding.orDragDrop')}</p>
                     </>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.onboarding.language')}</label>
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 >
-                  <option value="en">English</option>
-                  <option value="si">Sinhala</option>
-                  <option value="ta">Tamil</option>
+                  <option value="en">{t('common.auth.onboarding.languages.en')}</option>
+                  <option value="si">{t('common.auth.onboarding.languages.si')}</option>
+                  <option value="ta">{t('common.auth.onboarding.languages.ta')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.onboarding.timezone')}</label>
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
@@ -257,7 +259,7 @@ export default function OnboardingWizard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.onboarding.currency')}</label>
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value as typeof currency)}
@@ -274,44 +276,44 @@ export default function OnboardingWizard() {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-gray-900">Add First Machine</h2>
-              <p className="text-sm text-gray-500">Optional — you can do this later from the Machines page.</p>
+              <h2 className="text-2xl font-bold text-gray-900">{t('common.auth.onboarding.addFirstMachine')}</h2>
+              <p className="text-sm text-gray-500">{t('common.auth.onboarding.addFirstMachineHint')}</p>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Machine Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.onboarding.machineName')}</label>
                 <input
                   type="text"
                   value={machineName}
                   onChange={(e) => setMachineName(e.target.value)}
-                  placeholder="e.g., CNC Machine #1"
+                  placeholder={t('common.auth.onboarding.machineNamePlaceholder')}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Machine Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.onboarding.machineType')}</label>
                 <select
                   value={machineType}
                   onChange={(e) => setMachineType(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 >
-                  <option value="">Select type</option>
-                  <option value="cnc_machine">CNC Machine</option>
-                  <option value="conveyor">Conveyor</option>
-                  <option value="hydraulic_press">Hydraulic Press</option>
-                  <option value="lathe">Lathe</option>
-                  <option value="compressor">Compressor</option>
-                  <option value="other">Other</option>
+                  <option value="">{t('common.auth.onboarding.selectType')}</option>
+                  <option value="cnc_machine">{t('common.auth.onboarding.types.cnc')}</option>
+                  <option value="conveyor">{t('common.auth.onboarding.types.conveyor')}</option>
+                  <option value="hydraulic_press">{t('common.auth.onboarding.types.hydraulicPress')}</option>
+                  <option value="lathe">{t('common.auth.onboarding.types.lathe')}</option>
+                  <option value="compressor">{t('common.auth.onboarding.types.compressor')}</option>
+                  <option value="other">{t('common.auth.onboarding.types.other')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location / Department</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.onboarding.location')}</label>
                 <input
                   type="text"
                   value={machineLocation}
                   onChange={(e) => setMachineLocation(e.target.value)}
-                  placeholder="e.g., Building A, Floor 2"
+                  placeholder={t('common.auth.onboarding.locationPlaceholder')}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 />
               </div>
@@ -322,7 +324,7 @@ export default function OnboardingWizard() {
                 disabled={loading}
                 className="w-full text-[#1A56DB] hover:underline text-sm disabled:opacity-50"
               >
-                Skip for now
+                {t('common.auth.onboarding.skip')}
               </button>
             </div>
           )}
@@ -334,10 +336,10 @@ export default function OnboardingWizard() {
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">You're all set, {userProfile.fullName}!</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.onboarding.allSet', { name: userProfile.fullName })}</h2>
                 {trialEndsAt && (
                   <p className="text-gray-600">
-                    Your free trial runs until <strong>{trialEndsAt}</strong>
+                    {t('common.auth.onboarding.trialUntil')} <strong>{trialEndsAt}</strong>
                   </p>
                 )}
               </div>
@@ -346,7 +348,7 @@ export default function OnboardingWizard() {
                 onClick={() => navigate(getDashboardRoute(userProfile.role), { replace: true })}
                 className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11"
               >
-                Go to Dashboard
+                {t('common.auth.unauthorized.goToDashboard')}
               </button>
             </div>
           )}
@@ -360,7 +362,7 @@ export default function OnboardingWizard() {
                   disabled={loading}
                   className="flex-1 border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11 disabled:opacity-50"
                 >
-                  Back
+                  {t('common.auth.register.back')}
                 </button>
               )}
               <button
@@ -369,7 +371,7 @@ export default function OnboardingWizard() {
                 disabled={loading}
                 className="flex-1 bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50 h-11 flex items-center justify-center gap-2"
               >
-                {loading ? 'Saving...' : step === 2 ? 'Complete Setup' : 'Continue'}
+                {loading ? t('common.auth.onboarding.saving') : step === 2 ? t('common.auth.onboarding.complete') : t('common.auth.register.continue')}
                 {!loading && <ChevronRight className="w-4 h-4" />}
               </button>
             </div>

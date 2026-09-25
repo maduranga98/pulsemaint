@@ -5,34 +5,37 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import PasswordStrength from '../../components/auth/PasswordStrength';
-import { registerCompany, authErrorMessages } from '../../lib/auth';
+import { useTranslation } from 'react-i18next';
+import { registerCompany, authErrorMessages, authErrorKey } from '../../lib/auth';
+import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 import { useAuthStore } from '../../store/authStore';
 import { auth } from '../../lib/firebase';
 
 const registerSchema = z
   .object({
-    companyName: z.string().min(2, 'Company name must be at least 2 characters.'),
-    industry: z.string().min(1, 'Please select an industry.'),
-    country: z.string().min(1, 'Please select a country.'),
-    fullName: z.string().min(2, 'Full name must be at least 2 characters.'),
-    jobTitle: z.string().min(2, 'Job title is required.'),
-    email: z.string().email('Please enter a valid email address.'),
-    phone: z.string().min(10, 'Please enter a valid phone number.'),
+    companyName: z.string().min(2, 'common.auth.register.errors.companyName'),
+    industry: z.string().min(1, 'common.auth.register.errors.industry'),
+    country: z.string().min(1, 'common.auth.register.errors.country'),
+    fullName: z.string().min(2, 'common.auth.register.errors.fullName'),
+    jobTitle: z.string().min(2, 'common.auth.register.errors.jobTitle'),
+    email: z.string().email('common.auth.login.errors.invalidEmail'),
+    phone: z.string().min(10, 'common.auth.register.errors.phone'),
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters.')
-      .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter.')
-      .regex(/\d/, 'Password must contain at least 1 number.'),
+      .min(8, 'common.auth.errors.auth_weak_password')
+      .regex(/[A-Z]/, 'common.auth.register.errors.uppercase')
+      .regex(/\d/, 'common.auth.register.errors.number'),
     confirmPassword: z.string(),
-    terms: z.boolean().refine((val) => val === true, 'You must agree to the terms.'),
+    terms: z.boolean().refine((val) => val === true, 'common.auth.register.errors.terms'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match.',
+    message: 'common.auth.invite.errors.mismatch',
     path: ['confirmPassword'],
   });
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
+// Stored values stay English; labels are translated at render.
 const INDUSTRIES = [
   'Manufacturing',
   'Food & Beverage',
@@ -53,7 +56,19 @@ const COUNTRIES = [
   { code: 'SA', name: 'Saudi Arabia' },
 ];
 
+const INDUSTRY_KEYS: Record<string, string> = {
+  Manufacturing: 'manufacturing',
+  'Food & Beverage': 'foodBeverage',
+  'Textile & Garment': 'textile',
+  Pharmaceutical: 'pharmaceutical',
+  'Industrial Warehouse': 'warehouse',
+  'Electronics Assembly': 'electronics',
+  'Heavy Engineering': 'heavyEngineering',
+  Other: 'other',
+};
+
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -92,7 +107,9 @@ export default function RegisterPage() {
       navigate('/app/onboarding', { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
-      const errorMessage = authErrorMessages[errorCode] || err.message || 'Registration failed.';
+      const errorMessage = authErrorMessages[errorCode]
+        ? t(authErrorKey(errorCode), { defaultValue: authErrorMessages[errorCode] })
+        : err.message || t('common.auth.register.errors.failed');
       form.setError('email', { message: errorMessage });
     } finally {
       setLoading(false);
@@ -108,7 +125,10 @@ export default function RegisterPage() {
             <span className="text-white">Firmi</span>
             <span className="text-[#00C2FF]">Core</span>
           </div>
-          <p className="text-gray-300">Create your free account</p>
+          <p className="text-gray-300">{t('common.auth.register.subtitle')}</p>
+          <div className="mt-3">
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* Progress */}
@@ -123,67 +143,67 @@ export default function RegisterPage() {
               />
             ))}
           </div>
-          <p className="text-gray-400 text-xs text-center">Step {step} of 4</p>
+          <p className="text-gray-400 text-xs text-center">{t('common.auth.register.stepOf', { step, total: 4 })}</p>
         </div>
 
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           {form.formState.errors.email?.message && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span className="text-sm">{form.formState.errors.email.message}</span>
+              <span className="text-sm">{t(form.formState.errors.email.message ?? '')}</span>
             </div>
           )}
 
           <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
             {step === 1 && (
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Company Information</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.companyInfo')}</h2>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Company / Factory Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.companyName')}</label>
                   <input
                     {...form.register('companyName')}
-                    placeholder="Enter your company name"
+                    placeholder={t('common.auth.register.companyNamePlaceholder')}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                   />
                   {form.formState.errors.companyName && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.companyName.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.companyName.message ?? '')}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.industry')}</label>
                   <select
                     {...form.register('industry')}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                   >
-                    <option value="">Select an industry</option>
+                    <option value="">{t('common.auth.register.selectIndustry')}</option>
                     {INDUSTRIES.map((ind) => (
                       <option key={ind} value={ind}>
-                        {ind}
+                        {t(`common.auth.register.industries.${INDUSTRY_KEYS[ind]}`, { defaultValue: ind })}
                       </option>
                     ))}
                   </select>
                   {form.formState.errors.industry && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.industry.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.industry.message ?? '')}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.country')}</label>
                   <select
                     {...form.register('country')}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                   >
-                    <option value="">Select a country</option>
+                    <option value="">{t('common.auth.register.selectCountry')}</option>
                     {COUNTRIES.map((country) => (
                       <option key={country.code} value={country.code}>
-                        {country.name}
+                        {t(`common.auth.register.countries.${country.code}`, { defaultValue: country.name })}
                       </option>
                     ))}
                   </select>
                   {form.formState.errors.country && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.country.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.country.message ?? '')}</p>
                   )}
                 </div>
               </div>
@@ -191,34 +211,34 @@ export default function RegisterPage() {
 
             {step === 2 && (
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Your Details</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.yourDetails')}</h2>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.invite.fullNameLabel')}</label>
                   <input
                     {...form.register('fullName')}
-                    placeholder="Your full name"
+                    placeholder={t('common.auth.register.fullNamePlaceholder')}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                   />
                   {form.formState.errors.fullName && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.fullName.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.fullName.message ?? '')}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.jobTitle')}</label>
                   <input
                     {...form.register('jobTitle')}
-                    placeholder="Your job title"
+                    placeholder={t('common.auth.register.jobTitlePlaceholder')}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                   />
                   {form.formState.errors.jobTitle && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.jobTitle.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.jobTitle.message ?? '')}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Work Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.workEmail')}</label>
                   <input
                     {...form.register('email')}
                     type="email"
@@ -226,12 +246,12 @@ export default function RegisterPage() {
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                   />
                   {form.formState.errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.email.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.email.message ?? '')}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.phone')}</label>
                   <input
                     {...form.register('phone')}
                     type="tel"
@@ -239,7 +259,7 @@ export default function RegisterPage() {
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                   />
                   {form.formState.errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.phone.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.phone.message ?? '')}</p>
                   )}
                 </div>
               </div>
@@ -247,10 +267,10 @@ export default function RegisterPage() {
 
             {step === 3 && (
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Set Your Password</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.setPassword')}</h2>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.login.passwordLabel')}</label>
                   <div className="relative">
                     <input
                       {...form.register('password')}
@@ -267,7 +287,7 @@ export default function RegisterPage() {
                     </button>
                   </div>
                   {form.formState.errors.password && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.password.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.password.message ?? '')}</p>
                   )}
                 </div>
 
@@ -277,7 +297,7 @@ export default function RegisterPage() {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.invite.confirmPasswordLabel')}</label>
                   <div className="relative">
                     <input
                       {...form.register('confirmPassword')}
@@ -294,7 +314,7 @@ export default function RegisterPage() {
                     </button>
                   </div>
                   {form.formState.errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.confirmPassword.message}</p>
+                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.confirmPassword.message ?? '')}</p>
                   )}
                 </div>
               </div>
@@ -302,7 +322,7 @@ export default function RegisterPage() {
 
             {step === 4 && (
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Agreement</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.agreement')}</h2>
 
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
@@ -311,18 +331,18 @@ export default function RegisterPage() {
                     className="mt-1 rounded"
                   />
                   <span className="text-sm text-gray-700">
-                    I agree to the{' '}
+                    {t('common.auth.register.agreePrefix')}{' '}
                     <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#1A56DB] hover:underline">
-                      Terms of Service
+                      {t('common.auth.register.terms')}
                     </a>{' '}
-                    and{' '}
+                    {t('common.auth.register.and')}{' '}
                     <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#1A56DB] hover:underline">
-                      Privacy Policy
+                      {t('common.auth.register.privacy')}
                     </a>
                   </span>
                 </label>
                 {form.formState.errors.terms && (
-                  <p className="text-red-500 text-sm">{form.formState.errors.terms.message}</p>
+                  <p className="text-red-500 text-sm">{t(form.formState.errors.terms.message ?? '')}</p>
                 )}
               </div>
             )}
@@ -335,7 +355,7 @@ export default function RegisterPage() {
                 onClick={() => setStep(step - 1)}
                 className="flex-1 border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11"
               >
-                Back
+                {t('common.auth.register.back')}
               </button>
             )}
 
@@ -361,16 +381,16 @@ export default function RegisterPage() {
               disabled={loading && step === 4}
               className="flex-1 bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11 flex items-center justify-center gap-2"
             >
-              {step === 4 ? (loading ? 'Creating Account...' : 'Create Free Account') : 'Continue'}
+              {step === 4 ? (loading ? t('common.auth.register.creating') : t('common.auth.register.create')) : t('common.auth.register.continue')}
               {step < 4 && <ChevronRight className="w-4 h-4" />}
             </button>
           </div>
         </form>
 
         <p className="text-center text-gray-400 text-sm mt-6">
-          Already have an account?{' '}
+          {t('common.auth.invite.haveAccount')}{' '}
           <a href="/login" className="text-[#1A56DB] hover:underline font-medium">
-            Sign in
+            {t('common.auth.register.signIn')}
           </a>
         </p>
       </div>

@@ -8694,6 +8694,216 @@
         "hours": "{{count}} 時間前",
         "days": "{{count}} 日前"
       }
+    },
+    "auth": {
+      "login": {
+        "errors": {
+          "invalidEmail": "有効なメールアドレスを入力してください。",
+          "passwordRequired": "パスワードは必須です。",
+          "invalidQrMachine": "QRコードに有効な設備IDが含まれていません。",
+          "unrecognizedQr": "認識できないQRコードです。",
+          "cameraFailed": "カメラを起動できませんでした。",
+          "loginFailed": "ログインに失敗しました。もう一度お試しください。",
+          "googleFailed": "Googleログインに失敗しました。"
+        },
+        "heroLine1": "故障を",
+        "heroLine2": "解決済みの作業指示に。",
+        "heroBody": "すべての設備故障を一か所で収集・追跡・解決。書類仕事ではなく、責任ある運用を求める保全チームのために作られました。",
+        "features": {
+          "realtime": "リアルタイム追跡",
+          "workflow": "エンドツーエンドのワークフロー",
+          "secure": "安全で信頼性が高い",
+          "plants": "工場向けに設計"
+        },
+        "copyright": "© {{year}} FirmiCore. All rights reserved.",
+        "title": "ログイン",
+        "subtitle": "FirmiCoreアカウントにログイン",
+        "orEmail": "またはメールでログイン",
+        "emailLabel": "メールアドレス",
+        "passwordLabel": "パスワード",
+        "forgot": "お忘れですか？",
+        "rememberMe": "ログイン状態を保持",
+        "signingIn": "ログイン中...",
+        "noAccount": "アカウントをお持ちでないですか？",
+        "createOne": "作成する",
+        "reportByQr": "QRで故障を報告",
+        "scanTitle": "設備のQRコードをスキャン",
+        "scanHint": "設備のQRコードにカメラを向けると、すぐに故障を報告できます。"
+      },
+      "errors": {
+        "auth_user_not_found": "このメールアドレスのアカウントが見つかりません。",
+        "auth_wrong_password": "パスワードが正しくありません。もう一度お試しください。",
+        "auth_invalid_email": "有効なメールアドレスを入力してください。",
+        "auth_email_already_in_use": "このメールアドレスのアカウントは既に存在します。",
+        "auth_weak_password": "パスワードは8文字以上にしてください。",
+        "auth_too_many_requests": "試行回数が多すぎます。しばらくしてからお試しください。",
+        "auth_network_request_failed": "ネットワークエラーです。接続を確認してください。",
+        "auth_popup_closed_by_user": "ログインがキャンセルされました。",
+        "auth_invalid_verification_code": "OTPが無効です。もう一度お試しください。",
+        "auth_code_expired": "OTPの有効期限が切れました。新しいものをリクエストしてください。",
+        "auth_user_disabled": "このアカウントは無効化されています。管理者に連絡してください。",
+        "PIN_CHANGE_REQUIRED": "続行する前にPINを変更する必要があります。",
+        "PIN_INVALID": "PINが無効です。もう一度お試しください。",
+        "INVITE_EXPIRED": "この招待は期限切れです。",
+        "INVITE_USED": "この招待は既に使用されています。",
+        "ACCOUNT_INACTIVE": "アカウントが無効化されました。管理者に連絡してください。"
+      },
+      "forgot": {
+        "errors": {
+          "sendFailed": "リセットメールを送信できませんでした。"
+        },
+        "checkEmailTitle": "メールを確認してください",
+        "sentPrefix": "パスワードリセットのリンクを送信しました：",
+        "linkExpires": "リンクの有効期限は1時間です。",
+        "tryDifferent": "別のメールアドレスを試す",
+        "backToSignIn": "ログインに戻る",
+        "title": "パスワードをお忘れですか？",
+        "subtitle": "メールアドレスを入力すると、リセット用リンクをお送りします。",
+        "sending": "送信中...",
+        "send": "リセットリンクを送信"
+      },
+      "unauthorized": {
+        "title": "アクセス拒否",
+        "message": "このページを表示する権限がありません。",
+        "goToDashboard": "ダッシュボードへ"
+      },
+      "password": {
+        "minLength": "8文字以上",
+        "uppercase": "大文字を1文字以上",
+        "number": "数字を1文字以上",
+        "match": "パスワードが一致"
+      },
+      "invite": {
+        "errors": {
+          "fullNameRequired": "氏名は必須です。",
+          "uppercase": "大文字を含める必要があります。",
+          "number": "数字を含める必要があります。",
+          "mismatch": "パスワードが一致しません。",
+          "acceptFailed": "招待を承諾できませんでした。",
+          "googleFailed": "Googleでの登録に失敗しました。"
+        },
+        "verifying": "招待を確認中...",
+        "expiredTitle": "招待の期限切れ",
+        "expiredMessage": "この招待は期限切れです。新しい招待を管理者に依頼してください。",
+        "usedTitle": "使用済みの招待",
+        "usedMessage": "この招待は既に承諾されています。ログインしてください。",
+        "title": "招待されました！",
+        "invitedToJoin": "次の組織への参加に招待されました：",
+        "asRole": "役割：",
+        "invitedBy": "招待者：{{name}}",
+        "emailLabel": "メール：",
+        "connecting": "接続中...",
+        "continueWithGoogle": "Googleで続行",
+        "orEmailPassword": "またはメールとパスワードで設定",
+        "fullNameLabel": "氏名",
+        "passwordPlaceholder": "8文字以上、大文字1つ、数字1つ",
+        "confirmPasswordLabel": "パスワードの確認",
+        "confirmPlaceholder": "パスワードを再入力",
+        "creating": "アカウントを作成中...",
+        "accept": "承諾してアカウントを作成",
+        "haveAccount": "既にアカウントをお持ちですか？",
+        "signInInstead": "ログインする"
+      },
+      "register": {
+        "errors": {
+          "companyName": "会社名は2文字以上にしてください。",
+          "industry": "業種を選択してください。",
+          "country": "国を選択してください。",
+          "fullName": "氏名は2文字以上にしてください。",
+          "jobTitle": "役職は必須です。",
+          "phone": "有効な電話番号を入力してください。",
+          "uppercase": "パスワードには大文字を1文字以上含めてください。",
+          "number": "パスワードには数字を1文字以上含めてください。",
+          "terms": "利用規約に同意する必要があります。",
+          "failed": "登録に失敗しました。"
+        },
+        "subtitle": "無料アカウントを作成",
+        "stepOf": "ステップ {{step}} / {{total}}",
+        "companyInfo": "会社情報",
+        "companyName": "会社名 / 工場名",
+        "companyNamePlaceholder": "会社名を入力",
+        "industry": "業種",
+        "selectIndustry": "業種を選択",
+        "industries": {
+          "manufacturing": "製造業",
+          "foodBeverage": "食品・飲料",
+          "textile": "繊維・アパレル",
+          "pharmaceutical": "製薬",
+          "warehouse": "産業倉庫",
+          "electronics": "電子機器組立",
+          "heavyEngineering": "重工業",
+          "other": "その他"
+        },
+        "country": "国",
+        "selectCountry": "国を選択",
+        "countries": {
+          "LK": "スリランカ",
+          "US": "アメリカ合衆国",
+          "GB": "イギリス",
+          "IN": "インド",
+          "AE": "アラブ首長国連邦",
+          "SA": "サウジアラビア"
+        },
+        "yourDetails": "あなたの情報",
+        "fullNamePlaceholder": "氏名",
+        "jobTitle": "役職",
+        "jobTitlePlaceholder": "役職",
+        "workEmail": "勤務先メール",
+        "phone": "電話番号",
+        "setPassword": "パスワードを設定",
+        "agreement": "同意",
+        "agreePrefix": "次に同意します：",
+        "terms": "利用規約",
+        "and": "および",
+        "privacy": "プライバシーポリシー",
+        "back": "戻る",
+        "creating": "アカウントを作成中...",
+        "create": "無料アカウントを作成",
+        "continue": "続行",
+        "signIn": "ログイン"
+      },
+      "onboarding": {
+        "errors": {
+          "generic": "問題が発生しました。もう一度お試しください。",
+          "completeFailed": "設定を完了できませんでした。"
+        },
+        "subtitle": "セットアップを完了",
+        "companySetup": "会社の設定",
+        "companyLogo": "会社ロゴ",
+        "logoPreview": "ロゴのプレビュー",
+        "changeLogo": "ロゴを変更",
+        "clickToUpload": "クリックしてアップロード",
+        "orDragDrop": "またはドラッグ＆ドロップ",
+        "language": "言語",
+        "languages": {
+          "en": "英語",
+          "si": "シンハラ語",
+          "ta": "タミル語"
+        },
+        "timezone": "タイムゾーン",
+        "currency": "通貨",
+        "addFirstMachine": "最初の設備を追加",
+        "addFirstMachineHint": "任意 — 後から設備ページで追加できます。",
+        "machineName": "設備名",
+        "machineNamePlaceholder": "例：CNC機 1号",
+        "machineType": "設備タイプ",
+        "selectType": "タイプを選択",
+        "types": {
+          "cnc": "CNC機",
+          "conveyor": "コンベヤー",
+          "hydraulicPress": "油圧プレス",
+          "lathe": "旋盤",
+          "compressor": "コンプレッサー",
+          "other": "その他"
+        },
+        "location": "場所 / 部門",
+        "locationPlaceholder": "例：A棟 2階",
+        "skip": "今はスキップ",
+        "allSet": "準備完了です、{{name}}さん！",
+        "trialUntil": "無料トライアル期限：",
+        "saving": "保存中...",
+        "complete": "セットアップを完了"
+      }
     }
   },
   "triage": {
