@@ -3,15 +3,17 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { sendPasswordReset, authErrorMessages } from '../../lib/auth';
+import { useTranslation } from 'react-i18next';
+import { sendPasswordReset, authErrorMessages, authErrorKey } from '../../lib/auth';
 
 const forgotSchema = z.object({
-  email: z.string().email('Please enter a valid email address.'),
+  email: z.string().email('common.auth.login.errors.invalidEmail'),
 });
 
 type ForgotForm = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
@@ -30,7 +32,9 @@ export default function ForgotPasswordPage() {
       setResendCountdown(60);
     } catch (err: any) {
       const errorCode = err.code || err.message;
-      const errorMessage = authErrorMessages[errorCode] || err.message || 'Failed to send reset email.';
+      const errorMessage = authErrorMessages[errorCode]
+        ? t(authErrorKey(errorCode), { defaultValue: authErrorMessages[errorCode] })
+        : err.message || t('common.auth.forgot.errors.sendFailed');
       form.setError('email', { message: errorMessage });
     } finally {
       setLoading(false);
@@ -47,9 +51,9 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.forgot.checkEmailTitle')}</h2>
               <p className="text-gray-600">
-                We sent a password reset link to <strong>{submittedEmail}</strong>. Link expires in 1 hour.
+                {t('common.auth.forgot.sentPrefix')} <strong>{submittedEmail}</strong>. {t('common.auth.forgot.linkExpires')}
               </p>
             </div>
 
@@ -61,14 +65,14 @@ export default function ForgotPasswordPage() {
                 }}
                 className="w-full border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11"
               >
-                Try a different email
+                {t('common.auth.forgot.tryDifferent')}
               </button>
 
               <a
                 href="/login"
                 className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11 flex items-center justify-center"
               >
-                Back to Sign In
+                {t('common.auth.forgot.backToSignIn')}
               </a>
             </div>
           </div>
@@ -82,20 +86,20 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Forgot your password?</h2>
-            <p className="text-gray-600">Enter your email and we'll send you a reset link.</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.forgot.title')}</h2>
+            <p className="text-gray-600">{t('common.auth.forgot.subtitle')}</p>
           </div>
 
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {form.formState.errors.email && (
               <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-3">
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span className="text-sm">{form.formState.errors.email.message}</span>
+                <span className="text-sm">{t(form.formState.errors.email.message ?? '')}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.login.emailLabel')}</label>
               <input
                 {...form.register('email')}
                 type="email"
@@ -109,12 +113,12 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50 h-11"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? t('common.auth.forgot.sending') : t('common.auth.forgot.send')}
             </button>
           </form>
 
           <a href="/login" className="text-center text-sm text-[#1A56DB] hover:underline block">
-            Back to Sign In
+            {t('common.auth.forgot.backToSignIn')}
           </a>
         </div>
       </div>

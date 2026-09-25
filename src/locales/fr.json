@@ -8694,6 +8694,216 @@
         "hours": "il y a {{count}} h",
         "days": "il y a {{count}} j"
       }
+    },
+    "auth": {
+      "login": {
+        "errors": {
+          "invalidEmail": "Veuillez saisir une adresse e-mail valide.",
+          "passwordRequired": "Le mot de passe est obligatoire.",
+          "invalidQrMachine": "Le code QR ne contenait pas d'identifiant de machine valide.",
+          "unrecognizedQr": "Code QR non reconnu.",
+          "cameraFailed": "Impossible d'ouvrir la caméra.",
+          "loginFailed": "Échec de la connexion. Veuillez réessayer.",
+          "googleFailed": "Échec de la connexion Google."
+        },
+        "heroLine1": "Transformez les pannes en",
+        "heroLine2": "ordres de travail résolus.",
+        "heroBody": "Collectez, suivez et résolvez chaque panne de machine en un seul endroit. Conçu pour les équipes de maintenance qui veulent de la responsabilité, pas seulement de la paperasse.",
+        "features": {
+          "realtime": "Suivi en temps réel",
+          "workflow": "Flux de bout en bout",
+          "secure": "Sûr et fiable",
+          "plants": "Conçu pour les usines"
+        },
+        "copyright": "© {{year}} FirmiCore. Tous droits réservés.",
+        "title": "Se connecter",
+        "subtitle": "Connectez-vous à votre compte FirmiCore",
+        "orEmail": "ou connectez-vous par e-mail",
+        "emailLabel": "Adresse e-mail",
+        "passwordLabel": "Mot de passe",
+        "forgot": "Oublié ?",
+        "rememberMe": "Se souvenir de moi",
+        "signingIn": "Connexion...",
+        "noAccount": "Vous n'avez pas de compte ?",
+        "createOne": "Créez-en un",
+        "reportByQr": "Signaler une panne par QR",
+        "scanTitle": "Scanner le code QR de la machine",
+        "scanHint": "Pointez votre caméra vers le code QR d'une machine pour signaler une panne instantanément."
+      },
+      "errors": {
+        "auth_user_not_found": "Aucun compte trouvé avec cette adresse e-mail.",
+        "auth_wrong_password": "Mot de passe incorrect. Veuillez réessayer.",
+        "auth_invalid_email": "Veuillez saisir une adresse e-mail valide.",
+        "auth_email_already_in_use": "Un compte existe déjà avec cet e-mail.",
+        "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères.",
+        "auth_too_many_requests": "Trop de tentatives. Réessayez plus tard.",
+        "auth_network_request_failed": "Erreur réseau. Vérifiez votre connexion.",
+        "auth_popup_closed_by_user": "La connexion a été annulée.",
+        "auth_invalid_verification_code": "OTP invalide. Veuillez réessayer.",
+        "auth_code_expired": "L'OTP a expiré. Demandez-en un nouveau.",
+        "auth_user_disabled": "Ce compte a été désactivé. Contactez votre administrateur.",
+        "PIN_CHANGE_REQUIRED": "Vous devez changer votre PIN avant de continuer.",
+        "PIN_INVALID": "PIN invalide. Veuillez réessayer.",
+        "INVITE_EXPIRED": "Cette invitation a expiré.",
+        "INVITE_USED": "Cette invitation a déjà été utilisée.",
+        "ACCOUNT_INACTIVE": "Votre compte a été désactivé. Contactez votre administrateur."
+      },
+      "forgot": {
+        "errors": {
+          "sendFailed": "Échec de l'envoi de l'e-mail de réinitialisation."
+        },
+        "checkEmailTitle": "Vérifiez vos e-mails",
+        "sentPrefix": "Nous avons envoyé un lien de réinitialisation du mot de passe à",
+        "linkExpires": "Le lien expire dans 1 heure.",
+        "tryDifferent": "Essayer une autre adresse",
+        "backToSignIn": "Retour à la connexion",
+        "title": "Mot de passe oublié ?",
+        "subtitle": "Saisissez votre e-mail et nous vous enverrons un lien de réinitialisation.",
+        "sending": "Envoi...",
+        "send": "Envoyer le lien"
+      },
+      "unauthorized": {
+        "title": "Accès refusé",
+        "message": "Vous n'avez pas l'autorisation de voir cette page.",
+        "goToDashboard": "Aller au tableau de bord"
+      },
+      "password": {
+        "minLength": "Au moins 8 caractères",
+        "uppercase": "Au moins 1 majuscule",
+        "number": "Au moins 1 chiffre",
+        "match": "Les mots de passe correspondent"
+      },
+      "invite": {
+        "errors": {
+          "fullNameRequired": "Le nom complet est obligatoire.",
+          "uppercase": "Doit contenir une majuscule.",
+          "number": "Doit contenir un chiffre.",
+          "mismatch": "Les mots de passe ne correspondent pas.",
+          "acceptFailed": "Impossible d'accepter l'invitation.",
+          "googleFailed": "Échec de l'inscription Google."
+        },
+        "verifying": "Vérification de l'invitation...",
+        "expiredTitle": "Invitation expirée",
+        "expiredMessage": "Cette invitation a expiré. Contactez votre administrateur pour en obtenir une nouvelle.",
+        "usedTitle": "Invitation déjà utilisée",
+        "usedMessage": "Cette invitation a déjà été acceptée. Essayez de vous connecter.",
+        "title": "Vous êtes invité !",
+        "invitedToJoin": "Vous avez été invité à rejoindre",
+        "asRole": "en tant que",
+        "invitedBy": "Invité par {{name}}",
+        "emailLabel": "E-mail :",
+        "connecting": "Connexion...",
+        "continueWithGoogle": "Continuer avec Google",
+        "orEmailPassword": "ou configurez avec e-mail et mot de passe",
+        "fullNameLabel": "Nom complet",
+        "passwordPlaceholder": "Min. 8 caractères, 1 majuscule, 1 chiffre",
+        "confirmPasswordLabel": "Confirmer le mot de passe",
+        "confirmPlaceholder": "Ressaisissez le mot de passe",
+        "creating": "Création du compte...",
+        "accept": "Accepter et créer le compte",
+        "haveAccount": "Vous avez déjà un compte ?",
+        "signInInstead": "Connectez-vous"
+      },
+      "register": {
+        "errors": {
+          "companyName": "Le nom de l'entreprise doit contenir au moins 2 caractères.",
+          "industry": "Veuillez sélectionner un secteur.",
+          "country": "Veuillez sélectionner un pays.",
+          "fullName": "Le nom complet doit contenir au moins 2 caractères.",
+          "jobTitle": "Le poste est obligatoire.",
+          "phone": "Veuillez saisir un numéro de téléphone valide.",
+          "uppercase": "Le mot de passe doit contenir au moins 1 majuscule.",
+          "number": "Le mot de passe doit contenir au moins 1 chiffre.",
+          "terms": "Vous devez accepter les conditions.",
+          "failed": "Échec de l'inscription."
+        },
+        "subtitle": "Créez votre compte gratuit",
+        "stepOf": "Étape {{step}} sur {{total}}",
+        "companyInfo": "Informations sur l'entreprise",
+        "companyName": "Nom de l'entreprise / usine",
+        "companyNamePlaceholder": "Saisissez le nom de votre entreprise",
+        "industry": "Secteur",
+        "selectIndustry": "Sélectionnez un secteur",
+        "industries": {
+          "manufacturing": "Industrie manufacturière",
+          "foodBeverage": "Agroalimentaire",
+          "textile": "Textile et habillement",
+          "pharmaceutical": "Pharmaceutique",
+          "warehouse": "Entrepôt industriel",
+          "electronics": "Assemblage électronique",
+          "heavyEngineering": "Ingénierie lourde",
+          "other": "Autre"
+        },
+        "country": "Pays",
+        "selectCountry": "Sélectionnez un pays",
+        "countries": {
+          "LK": "Sri Lanka",
+          "US": "États-Unis",
+          "GB": "Royaume-Uni",
+          "IN": "Inde",
+          "AE": "Émirats arabes unis",
+          "SA": "Arabie saoudite"
+        },
+        "yourDetails": "Vos informations",
+        "fullNamePlaceholder": "Votre nom complet",
+        "jobTitle": "Poste",
+        "jobTitlePlaceholder": "Votre poste",
+        "workEmail": "E-mail professionnel",
+        "phone": "Numéro de téléphone",
+        "setPassword": "Définissez votre mot de passe",
+        "agreement": "Accord",
+        "agreePrefix": "J'accepte les",
+        "terms": "Conditions d'utilisation",
+        "and": "et la",
+        "privacy": "Politique de confidentialité",
+        "back": "Retour",
+        "creating": "Création du compte...",
+        "create": "Créer un compte gratuit",
+        "continue": "Continuer",
+        "signIn": "Se connecter"
+      },
+      "onboarding": {
+        "errors": {
+          "generic": "Une erreur s'est produite. Veuillez réessayer.",
+          "completeFailed": "Impossible de terminer la configuration."
+        },
+        "subtitle": "Terminez votre configuration",
+        "companySetup": "Configuration de l'entreprise",
+        "companyLogo": "Logo de l'entreprise",
+        "logoPreview": "Aperçu du logo",
+        "changeLogo": "Changer le logo",
+        "clickToUpload": "Cliquez pour téléverser",
+        "orDragDrop": "ou glissez-déposez",
+        "language": "Langue",
+        "languages": {
+          "en": "Anglais",
+          "si": "Cingalais",
+          "ta": "Tamoul"
+        },
+        "timezone": "Fuseau horaire",
+        "currency": "Devise",
+        "addFirstMachine": "Ajouter la première machine",
+        "addFirstMachineHint": "Facultatif — vous pourrez le faire plus tard depuis la page Machines.",
+        "machineName": "Nom de la machine",
+        "machineNamePlaceholder": "ex. Machine CNC n° 1",
+        "machineType": "Type de machine",
+        "selectType": "Sélectionnez le type",
+        "types": {
+          "cnc": "Machine CNC",
+          "conveyor": "Convoyeur",
+          "hydraulicPress": "Presse hydraulique",
+          "lathe": "Tour",
+          "compressor": "Compresseur",
+          "other": "Autre"
+        },
+        "location": "Emplacement / Service",
+        "locationPlaceholder": "ex. Bâtiment A, étage 2",
+        "skip": "Passer pour l'instant",
+        "allSet": "Tout est prêt, {{name}} !",
+        "trialUntil": "Votre essai gratuit dure jusqu'au",
+        "saving": "Enregistrement...",
+        "complete": "Terminer la configuration"
+      }
     }
   },
   "triage": {

@@ -25,7 +25,7 @@ function flatten(o: Tree, prefix = ''): Map<string, string> {
 
 const placeholders = (s: string) => (s.match(/\{\{\s*[\w.]+\s*\}\}/g) ?? []).map((p) => p.replace(/\s/g, '')).sort();
 
-const en = flatten(enUS as Tree);
+const en = flatten(enUS as unknown as Tree);
 const LOCALES: Record<string, Tree> = { es, fr, de, zh, ja, si } as unknown as Record<string, Tree>;
 
 describe.each(Object.entries(LOCALES))('locale %s', (_code, tree) => {

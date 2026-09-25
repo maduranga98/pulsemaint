@@ -4,6 +4,8 @@ import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
+import { roleLabel } from '../../modules/requests/requestUi';
 import PasswordStrength from '../../components/auth/PasswordStrength';
 import {
   validateInviteToken,
@@ -16,22 +18,23 @@ import type { Invitation } from '../../types/auth';
 
 const inviteSchema = z
   .object({
-    fullName: z.string().min(2, 'Full name is required.'),
+    fullName: z.string().min(2, 'common.auth.invite.errors.fullNameRequired'),
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters.')
-      .regex(/[A-Z]/, 'Must contain uppercase letter.')
-      .regex(/\d/, 'Must contain a number.'),
+      .min(8, 'common.auth.errors.auth_weak_password')
+      .regex(/[A-Z]/, 'common.auth.invite.errors.uppercase')
+      .regex(/\d/, 'common.auth.invite.errors.number'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match.',
+    message: 'common.auth.invite.errors.mismatch',
     path: ['confirmPassword'],
   });
 
 type InviteForm = z.infer<typeof inviteSchema>;
 
 export default function InvitePage() {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'valid' | 'expired' | 'used'>('loading');
@@ -70,7 +73,7 @@ export default function InvitePage() {
       const profile = await acceptInviteWithPassword(invitation, data.password, data.fullName);
       navigate(getDashboardRoute(profile.role), { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Failed to accept invitation.');
+      setError(err.message || t('common.auth.invite.errors.acceptFailed'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +87,7 @@ export default function InvitePage() {
       const profile = await acceptInviteWithGoogle(invitation);
       navigate(getDashboardRoute(profile.role), { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Google sign-up failed.');
+      setError(err.message || t('common.auth.invite.errors.googleFailed'));
     } finally {
       setGoogleLoading(false);
     }
@@ -95,7 +98,7 @@ export default function InvitePage() {
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center">
         <div className="animate-pulse text-white text-center">
           <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-          Verifying invitation...
+          {t('common.auth.invite.verifying')}
         </div>
       </div>
     );
@@ -106,15 +109,15 @@ export default function InvitePage() {
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invitation Expired</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.invite.expiredTitle')}</h2>
           <p className="text-gray-600 mb-6">
-            This invitation has expired. Please contact your administrator for a new one.
+            {t('common.auth.invite.expiredMessage')}
           </p>
           <a
             href="/login"
             className="inline-block bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
           >
-            Back to Sign In
+            {t('common.auth.forgot.backToSignIn')}
           </a>
         </div>
       </div>
@@ -126,13 +129,13 @@ export default function InvitePage() {
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 text-center">
           <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Invitation Already Used</h2>
-          <p className="text-gray-600 mb-6">This invitation has already been accepted. Try signing in.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.invite.usedTitle')}</h2>
+          <p className="text-gray-600 mb-6">{t('common.auth.invite.usedMessage')}</p>
           <a
             href="/login"
             className="inline-block bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
           >
-            Sign In
+            {t('common.auth.login.title')}
           </a>
         </div>
       </div>
@@ -152,15 +155,15 @@ export default function InvitePage() {
 
         <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">You're invited!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.invite.title')}</h2>
             <p className="text-gray-600">
-              You've been invited to join <strong>{invitation?.companyName}</strong> as a{' '}
+              {t('common.auth.invite.invitedToJoin')} <strong>{invitation?.companyName}</strong> {t('common.auth.invite.asRole')}{' '}
               <span className="inline-block bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-sm font-medium">
-                {invitation?.role?.replace('_', ' ')}
+                {invitation?.role ? roleLabel(invitation.role, t) : ''}
               </span>
             </p>
             <p className="text-sm text-gray-500 mt-2">
-              Invited by {invitation?.invitedByName}
+              {t('common.auth.invite.invitedBy', { name: invitation?.invitedByName ?? '' })}
             </p>
           </div>
 
@@ -172,7 +175,7 @@ export default function InvitePage() {
           )}
 
           <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
-            <span className="font-medium text-gray-700">Email: </span>
+            <span className="font-medium text-gray-700">{t('common.auth.invite.emailLabel')} </span>
             {invitation?.email}
           </div>
 
@@ -199,7 +202,7 @@ export default function InvitePage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {googleLoading ? 'Connecting...' : 'Continue with Google'}
+            {googleLoading ? t('common.auth.invite.connecting') : t('common.auth.invite.continueWithGoogle')}
           </button>
 
           <div className="relative">
@@ -207,29 +210,29 @@ export default function InvitePage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">or set up with email &amp; password</span>
+              <span className="px-2 bg-white text-gray-500">{t('common.auth.invite.orEmailPassword')}</span>
             </div>
           </div>
 
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.auth.invite.fullNameLabel')}</label>
               <input
                 {...form.register('fullName')}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
               />
               {form.formState.errors.fullName && (
-                <p className="text-red-500 text-sm mt-1">{form.formState.errors.fullName.message}</p>
+                <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.fullName.message ?? '')}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.auth.login.passwordLabel')}</label>
               <div className="relative">
                 <input
                   {...form.register('password')}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Min 8 chars, 1 uppercase, 1 number"
+                  placeholder={t('common.auth.invite.passwordPlaceholder')}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none pr-10"
                 />
                 <button
@@ -241,7 +244,7 @@ export default function InvitePage() {
                 </button>
               </div>
               {form.formState.errors.password && (
-                <p className="text-red-500 text-sm mt-1">{form.formState.errors.password.message}</p>
+                <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.password.message ?? '')}</p>
               )}
             </div>
 
@@ -251,15 +254,15 @@ export default function InvitePage() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.auth.invite.confirmPasswordLabel')}</label>
               <input
                 {...form.register('confirmPassword')}
                 type="password"
-                placeholder="Re-enter password"
+                placeholder={t('common.auth.invite.confirmPlaceholder')}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
               />
               {form.formState.errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">{form.formState.errors.confirmPassword.message}</p>
+                <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.confirmPassword.message ?? '')}</p>
               )}
             </div>
 
@@ -268,14 +271,14 @@ export default function InvitePage() {
               disabled={loading || googleLoading}
               className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50 h-11"
             >
-              {loading ? 'Creating account...' : 'Accept & Create Account'}
+              {loading ? t('common.auth.invite.creating') : t('common.auth.invite.accept')}
             </button>
           </form>
 
           <p className="text-center text-xs text-gray-500">
-            Already have an account?{' '}
+            {t('common.auth.invite.haveAccount')}{' '}
             <a href="/login" className="text-[#1A56DB] hover:underline font-medium">
-              Sign in instead
+              {t('common.auth.invite.signInInstead')}
             </a>
           </p>
         </div>

@@ -5,22 +5,26 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Html5Qrcode } from 'html5-qrcode';
+import { useTranslation } from 'react-i18next';
 import {
   loginWithEmail,
   loginWithGoogle,
   authErrorMessages,
+  authErrorKey,
   getDashboardRoute,
 } from '../../lib/auth';
+import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 import { consumePostLoginRedirect } from '../../lib/scanTarget';
 
 const emailLoginSchema = z.object({
-  email: z.string().email('Please enter a valid email address.'),
-  password: z.string().min(1, 'Password is required.'),
+  email: z.string().email('common.auth.login.errors.invalidEmail'),
+  password: z.string().min(1, 'common.auth.login.errors.passwordRequired'),
 });
 
 type EmailLoginForm = z.infer<typeof emailLoginSchema>;
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   // Deep link (e.g. a scanned machine QR) the user was heading to before
@@ -60,16 +64,16 @@ export default function LoginPage() {
               if (machineId) {
                 navigate(`/report-breakdown?machineId=${machineId}`);
               } else {
-                setError('QR code did not contain a valid machine ID.');
+                setError(t('common.auth.login.errors.invalidQrMachine'));
               }
             } catch {
-              setError('Unrecognized QR code.');
+              setError(t('common.auth.login.errors.unrecognizedQr'));
             }
           },
           () => {},
         );
       } catch (err: any) {
-        setError(err?.message || 'Failed to open camera.');
+        setError(err?.message || t('common.auth.login.errors.cameraFailed'));
         setShowQrScanner(false);
       }
     }, 100);
@@ -107,7 +111,9 @@ export default function LoginPage() {
       navigate(postLoginRoute(profile.role), { replace: true, state: { postLogin: true } });
     } catch (err: any) {
       const errorCode = err.code || err.message;
-      const errorMessage = authErrorMessages[errorCode] || err.message || 'Login failed. Please try again.';
+      const errorMessage = authErrorMessages[errorCode]
+        ? t(authErrorKey(errorCode), { defaultValue: authErrorMessages[errorCode] })
+        : err.message || t('common.auth.login.errors.loginFailed');
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -122,7 +128,9 @@ export default function LoginPage() {
       navigate(postLoginRoute(profile.role), { replace: true, state: { postLogin: true } });
     } catch (err: any) {
       const errorCode = err.code || err.message;
-      const errorMessage = authErrorMessages[errorCode] || err.message || 'Google login failed.';
+      const errorMessage = authErrorMessages[errorCode]
+        ? t(authErrorKey(errorCode), { defaultValue: authErrorMessages[errorCode] })
+        : err.message || t('common.auth.login.errors.googleFailed');
       setError(errorMessage);
     } finally {
       setGoogleLoading(false);
@@ -155,35 +163,34 @@ export default function LoginPage() {
               className="text-4xl leading-tight max-w-lg"
               style={{ color: '#ffffff', fontWeight: 700, letterSpacing: '-0.01em' }}
             >
-              Turn breakdowns into<br />resolved work orders.
+              {t('common.auth.login.heroLine1')}<br />{t('common.auth.login.heroLine2')}
             </h1>
             <p className="text-slate-300 text-base leading-relaxed max-w-md">
-              Collect, track, and resolve every machine breakdown in one place. Built for
-              maintenance teams that want accountability, not just paperwork.
+              {t('common.auth.login.heroBody')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 max-w-md">
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3.5">
               <Zap className="w-5 h-5 text-[#00C2FF] shrink-0" />
-              <span className="text-white text-sm font-medium">Real-time tracking</span>
+              <span className="text-white text-sm font-medium">{t('common.auth.login.features.realtime')}</span>
             </div>
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3.5">
               <Workflow className="w-5 h-5 text-[#00C2FF] shrink-0" />
-              <span className="text-white text-sm font-medium">End-to-end workflow</span>
+              <span className="text-white text-sm font-medium">{t('common.auth.login.features.workflow')}</span>
             </div>
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3.5">
               <ShieldCheck className="w-5 h-5 text-[#00C2FF] shrink-0" />
-              <span className="text-white text-sm font-medium">Secure &amp; reliable</span>
+              <span className="text-white text-sm font-medium">{t('common.auth.login.features.secure')}</span>
             </div>
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3.5">
               <Target className="w-5 h-5 text-[#00C2FF] shrink-0" />
-              <span className="text-white text-sm font-medium">Built for plants</span>
+              <span className="text-white text-sm font-medium">{t('common.auth.login.features.plants')}</span>
             </div>
           </div>
         </div>
 
-        <p className="relative text-slate-400 text-xs">© {new Date().getFullYear()} FirmiCore. All rights reserved.</p>
+        <p className="relative text-slate-400 text-xs">{t('common.auth.login.copyright', { year: new Date().getFullYear() })}</p>
       </div>
 
       {/* Login form. Vertically centering short content is fine on desktop,
@@ -201,14 +208,18 @@ export default function LoginPage() {
           </div>
         </div>
 
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher />
+        </div>
+
         <div className="flex flex-col gap-1 mb-6">
           <h2
             className="text-3xl"
             style={{ color: '#ffffff', fontWeight: 700 }}
           >
-            Sign In
+            {t('common.auth.login.title')}
           </h2>
-          <p className="text-slate-400 text-sm">Sign in to your FirmiCore account</p>
+          <p className="text-slate-400 text-sm">{t('common.auth.login.subtitle')}</p>
         </div>
 
         {error && (
@@ -251,13 +262,13 @@ export default function LoginPage() {
                 <div className="w-full border-t border-white/10"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-[#0D1B33] text-slate-500">or sign in with email</span>
+                <span className="px-3 bg-[#0D1B33] text-slate-500">{t('common.auth.login.orEmail')}</span>
               </div>
             </div>
 
             <div className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">{t('common.auth.login.emailLabel')}</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -268,15 +279,15 @@ export default function LoginPage() {
                   />
                 </div>
                 {emailForm.formState.errors.email && (
-                  <p className="text-red-400 text-sm mt-1">{emailForm.formState.errors.email.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{t(emailForm.formState.errors.email.message ?? '')}</p>
                 )}
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-sm font-medium text-slate-300">Password</label>
+                  <label className="block text-sm font-medium text-slate-300">{t('common.auth.login.passwordLabel')}</label>
                   <a href="/forgot-password" className="text-sm text-[#00C2FF] hover:underline">
-                    Forgot?
+                    {t('common.auth.login.forgot')}
                   </a>
                 </div>
                 <div className="relative">
@@ -296,7 +307,7 @@ export default function LoginPage() {
                   </button>
                 </div>
                 {emailForm.formState.errors.password && (
-                  <p className="text-red-400 text-sm mt-1">{emailForm.formState.errors.password.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{t(emailForm.formState.errors.password.message ?? '')}</p>
                 )}
               </div>
 
@@ -307,7 +318,7 @@ export default function LoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="rounded"
                 />
-                <span className="text-sm text-slate-400">Remember me</span>
+                <span className="text-sm text-slate-400">{t('common.auth.login.rememberMe')}</span>
               </label>
 
               <button
@@ -315,16 +326,16 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50 h-12 flex items-center justify-center"
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? t('common.auth.login.signingIn') : t('common.auth.login.title')}
               </button>
             </div>
           </div>
         )}
 
         <p className="text-center text-slate-400 text-sm mt-6">
-          Don't have an account?{' '}
+          {t('common.auth.login.noAccount')}{' '}
           <a href="/register" className="text-[#00C2FF] hover:underline font-medium">
-            Create one
+            {t('common.auth.login.createOne')}
           </a>
         </p>
 
@@ -334,7 +345,7 @@ export default function LoginPage() {
           className="w-full mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 bg-[#0B1526] text-slate-200 text-sm font-medium rounded-xl hover:bg-white/5 transition-colors"
         >
           <QrCode className="w-4 h-4 text-[#00C2FF]" />
-          Report a breakdown by QR
+          {t('common.auth.login.reportByQr')}
         </button>
       </div>
       </div>
@@ -343,13 +354,13 @@ export default function LoginPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Scan Machine QR Code</h3>
+              <h3 className="text-lg font-semibold text-slate-900">{t('common.auth.login.scanTitle')}</h3>
               <button type="button" onClick={closeQrScanner} className="p-1 rounded-lg hover:bg-slate-100">
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
             <div id="login-qr-reader" className="w-full" />
-            <p className="text-xs text-slate-500 mt-3 text-center">Point your camera at a machine QR code to report a breakdown instantly.</p>
+            <p className="text-xs text-slate-500 mt-3 text-center">{t('common.auth.login.scanHint')}</p>
           </div>
         </div>
       )}

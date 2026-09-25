@@ -8694,6 +8694,216 @@
         "hours": "hace {{count}} h",
         "days": "hace {{count}} d"
       }
+    },
+    "auth": {
+      "login": {
+        "errors": {
+          "invalidEmail": "Introduce una dirección de correo válida.",
+          "passwordRequired": "La contraseña es obligatoria.",
+          "invalidQrMachine": "El código QR no contenía un ID de máquina válido.",
+          "unrecognizedQr": "Código QR no reconocido.",
+          "cameraFailed": "No se pudo abrir la cámara.",
+          "loginFailed": "Error al iniciar sesión. Inténtalo de nuevo.",
+          "googleFailed": "Error al iniciar sesión con Google."
+        },
+        "heroLine1": "Convierte las averías en",
+        "heroLine2": "órdenes de trabajo resueltas.",
+        "heroBody": "Recoge, sigue y resuelve cada avería de máquina en un solo lugar. Creado para equipos de mantenimiento que buscan responsabilidad, no solo papeleo.",
+        "features": {
+          "realtime": "Seguimiento en tiempo real",
+          "workflow": "Flujo de trabajo completo",
+          "secure": "Seguro y fiable",
+          "plants": "Hecho para plantas"
+        },
+        "copyright": "© {{year}} FirmiCore. Todos los derechos reservados.",
+        "title": "Iniciar sesión",
+        "subtitle": "Inicia sesión en tu cuenta de FirmiCore",
+        "orEmail": "o inicia sesión con correo",
+        "emailLabel": "Correo electrónico",
+        "passwordLabel": "Contraseña",
+        "forgot": "¿La olvidaste?",
+        "rememberMe": "Recordarme",
+        "signingIn": "Iniciando sesión...",
+        "noAccount": "¿No tienes cuenta?",
+        "createOne": "Crea una",
+        "reportByQr": "Reportar una avería por QR",
+        "scanTitle": "Escanear código QR de la máquina",
+        "scanHint": "Apunta la cámara a un código QR de máquina para reportar una avería al instante."
+      },
+      "errors": {
+        "auth_user_not_found": "No existe ninguna cuenta con este correo.",
+        "auth_wrong_password": "Contraseña incorrecta. Inténtalo de nuevo.",
+        "auth_invalid_email": "Introduce una dirección de correo válida.",
+        "auth_email_already_in_use": "Ya existe una cuenta con este correo.",
+        "auth_weak_password": "La contraseña debe tener al menos 8 caracteres.",
+        "auth_too_many_requests": "Demasiados intentos. Inténtalo más tarde.",
+        "auth_network_request_failed": "Error de red. Revisa tu conexión.",
+        "auth_popup_closed_by_user": "Se canceló el inicio de sesión.",
+        "auth_invalid_verification_code": "OTP no válido. Inténtalo de nuevo.",
+        "auth_code_expired": "El OTP ha caducado. Solicita uno nuevo.",
+        "auth_user_disabled": "Esta cuenta está deshabilitada. Contacta con tu administrador.",
+        "PIN_CHANGE_REQUIRED": "Debes cambiar tu PIN antes de continuar.",
+        "PIN_INVALID": "PIN no válido. Inténtalo de nuevo.",
+        "INVITE_EXPIRED": "Esta invitación ha caducado.",
+        "INVITE_USED": "Esta invitación ya se ha utilizado.",
+        "ACCOUNT_INACTIVE": "Tu cuenta ha sido desactivada. Contacta con tu administrador."
+      },
+      "forgot": {
+        "errors": {
+          "sendFailed": "No se pudo enviar el correo de restablecimiento."
+        },
+        "checkEmailTitle": "Revisa tu correo",
+        "sentPrefix": "Hemos enviado un enlace para restablecer la contraseña a",
+        "linkExpires": "El enlace caduca en 1 hora.",
+        "tryDifferent": "Probar otro correo",
+        "backToSignIn": "Volver a iniciar sesión",
+        "title": "¿Olvidaste tu contraseña?",
+        "subtitle": "Introduce tu correo y te enviaremos un enlace de restablecimiento.",
+        "sending": "Enviando...",
+        "send": "Enviar enlace"
+      },
+      "unauthorized": {
+        "title": "Acceso denegado",
+        "message": "No tienes permiso para ver esta página.",
+        "goToDashboard": "Ir al panel"
+      },
+      "password": {
+        "minLength": "Al menos 8 caracteres",
+        "uppercase": "Al menos 1 letra mayúscula",
+        "number": "Al menos 1 número",
+        "match": "Las contraseñas coinciden"
+      },
+      "invite": {
+        "errors": {
+          "fullNameRequired": "El nombre completo es obligatorio.",
+          "uppercase": "Debe contener una letra mayúscula.",
+          "number": "Debe contener un número.",
+          "mismatch": "Las contraseñas no coinciden.",
+          "acceptFailed": "No se pudo aceptar la invitación.",
+          "googleFailed": "Error al registrarse con Google."
+        },
+        "verifying": "Verificando invitación...",
+        "expiredTitle": "Invitación caducada",
+        "expiredMessage": "Esta invitación ha caducado. Contacta con tu administrador para obtener una nueva.",
+        "usedTitle": "Invitación ya utilizada",
+        "usedMessage": "Esta invitación ya fue aceptada. Prueba a iniciar sesión.",
+        "title": "¡Estás invitado!",
+        "invitedToJoin": "Te han invitado a unirte a",
+        "asRole": "como",
+        "invitedBy": "Invitado por {{name}}",
+        "emailLabel": "Correo:",
+        "connecting": "Conectando...",
+        "continueWithGoogle": "Continuar con Google",
+        "orEmailPassword": "o configura con correo y contraseña",
+        "fullNameLabel": "Nombre completo",
+        "passwordPlaceholder": "Mín. 8 caracteres, 1 mayúscula, 1 número",
+        "confirmPasswordLabel": "Confirmar contraseña",
+        "confirmPlaceholder": "Vuelve a introducir la contraseña",
+        "creating": "Creando cuenta...",
+        "accept": "Aceptar y crear cuenta",
+        "haveAccount": "¿Ya tienes cuenta?",
+        "signInInstead": "Inicia sesión"
+      },
+      "register": {
+        "errors": {
+          "companyName": "El nombre de la empresa debe tener al menos 2 caracteres.",
+          "industry": "Selecciona un sector.",
+          "country": "Selecciona un país.",
+          "fullName": "El nombre completo debe tener al menos 2 caracteres.",
+          "jobTitle": "El cargo es obligatorio.",
+          "phone": "Introduce un número de teléfono válido.",
+          "uppercase": "La contraseña debe contener al menos 1 letra mayúscula.",
+          "number": "La contraseña debe contener al menos 1 número.",
+          "terms": "Debes aceptar los términos.",
+          "failed": "Error en el registro."
+        },
+        "subtitle": "Crea tu cuenta gratuita",
+        "stepOf": "Paso {{step}} de {{total}}",
+        "companyInfo": "Información de la empresa",
+        "companyName": "Nombre de la empresa / fábrica",
+        "companyNamePlaceholder": "Introduce el nombre de tu empresa",
+        "industry": "Sector",
+        "selectIndustry": "Selecciona un sector",
+        "industries": {
+          "manufacturing": "Fabricación",
+          "foodBeverage": "Alimentos y bebidas",
+          "textile": "Textil y confección",
+          "pharmaceutical": "Farmacéutica",
+          "warehouse": "Almacén industrial",
+          "electronics": "Montaje electrónico",
+          "heavyEngineering": "Ingeniería pesada",
+          "other": "Otro"
+        },
+        "country": "País",
+        "selectCountry": "Selecciona un país",
+        "countries": {
+          "LK": "Sri Lanka",
+          "US": "Estados Unidos",
+          "GB": "Reino Unido",
+          "IN": "India",
+          "AE": "Emiratos Árabes Unidos",
+          "SA": "Arabia Saudí"
+        },
+        "yourDetails": "Tus datos",
+        "fullNamePlaceholder": "Tu nombre completo",
+        "jobTitle": "Cargo",
+        "jobTitlePlaceholder": "Tu cargo",
+        "workEmail": "Correo de trabajo",
+        "phone": "Número de teléfono",
+        "setPassword": "Establece tu contraseña",
+        "agreement": "Acuerdo",
+        "agreePrefix": "Acepto los",
+        "terms": "Términos del servicio",
+        "and": "y la",
+        "privacy": "Política de privacidad",
+        "back": "Atrás",
+        "creating": "Creando cuenta...",
+        "create": "Crear cuenta gratuita",
+        "continue": "Continuar",
+        "signIn": "Inicia sesión"
+      },
+      "onboarding": {
+        "errors": {
+          "generic": "Algo salió mal. Inténtalo de nuevo.",
+          "completeFailed": "No se pudo completar la configuración."
+        },
+        "subtitle": "Completa la configuración",
+        "companySetup": "Configuración de la empresa",
+        "companyLogo": "Logotipo de la empresa",
+        "logoPreview": "Vista previa del logotipo",
+        "changeLogo": "Cambiar logotipo",
+        "clickToUpload": "Haz clic para subir",
+        "orDragDrop": "o arrastra y suelta",
+        "language": "Idioma",
+        "languages": {
+          "en": "Inglés",
+          "si": "Cingalés",
+          "ta": "Tamil"
+        },
+        "timezone": "Zona horaria",
+        "currency": "Moneda",
+        "addFirstMachine": "Añadir la primera máquina",
+        "addFirstMachineHint": "Opcional: puedes hacerlo más tarde desde la página de Máquinas.",
+        "machineName": "Nombre de la máquina",
+        "machineNamePlaceholder": "p. ej., Máquina CNC n.º 1",
+        "machineType": "Tipo de máquina",
+        "selectType": "Selecciona el tipo",
+        "types": {
+          "cnc": "Máquina CNC",
+          "conveyor": "Cinta transportadora",
+          "hydraulicPress": "Prensa hidráulica",
+          "lathe": "Torno",
+          "compressor": "Compresor",
+          "other": "Otro"
+        },
+        "location": "Ubicación / Departamento",
+        "locationPlaceholder": "p. ej., Edificio A, planta 2",
+        "skip": "Omitir por ahora",
+        "allSet": "¡Todo listo, {{name}}!",
+        "trialUntil": "Tu prueba gratuita dura hasta",
+        "saving": "Guardando...",
+        "complete": "Completar configuración"
+      }
     }
   },
   "triage": {

@@ -44,6 +44,11 @@ export const authErrorMessages: Record<string, string> = {
   ACCOUNT_INACTIVE: 'Your account has been deactivated. Contact your administrator.',
 };
 
+/** i18n key for an auth error code (e.g. `auth/user-not-found` → `common.auth.errors.auth_user_not_found`). */
+export function authErrorKey(code: string): string {
+  return `common.auth.errors.${code.replace(/[^A-Za-z0-9]+/g, '_')}`;
+}
+
 /**
  * Marking a user inactive in Settings → Users should put a temporary hold
  * on their login rather than just hiding the row — every login path that
