@@ -166,7 +166,10 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
         priorityLevel,
         isUrgent,
       });
-      void notifyRoles(userProfile.companyId, ['store_keeper', 'supervisor', 'plant_manager'], {
+      // Inventory belongs to store keepers (plant manager / admin are copied
+      // as oversight). Supervisors only hear about a request if a store keeper
+      // escalates it to them for approval (see RequestDetailPage).
+      void notifyRoles(userProfile.companyId, ['store_keeper', 'plant_manager'], {
         type: 'parts',
         message: `New parts request from ${userProfile.fullName}${isUrgent ? ' (urgent)' : ''}`,
         oversightMessage: `raised a${isUrgent ? 'n urgent' : ''} parts request`,
