@@ -58,6 +58,10 @@ async function ensureStripeCustomer(ctx, email) {
  * invalid API key or a card decline) instead of a generic failure.
  */
 function stripeErrorMessage(err, fallback) {
+  // Never echo Stripe's auth error: it quotes part of the configured key.
+  if (err?.type === "StripeAuthenticationError") {
+    return `${fallback}: the STRIPE_SECRET_KEY secret is not a valid Stripe secret key (it must start with sk_test_ or sk_live_). Reset it with "firebase functions:secrets:set STRIPE_SECRET_KEY" and redeploy functions.`;
+  }
   return err?.type && typeof err.message === "string" ? `${fallback}: ${err.message}` : fallback;
 }
 
