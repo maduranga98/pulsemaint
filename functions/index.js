@@ -227,8 +227,10 @@ const { createCheckoutSession } = require("./src/billing/createCheckoutSession")
 const { createPortalSession } = require("./src/billing/createPortalSession");
 const { stripeWebhook } = require("./src/billing/stripeWebhook");
 const {
-  createSetupSession,
-  createTopUpSession,
+  createCardSetup,
+  finalizeCardSetup,
+  createTopUpPayment,
+  confirmTopUp,
   getBillingOverview,
   updatePaymentMethod,
 } = require("./src/billing/billingAccount");
@@ -236,8 +238,10 @@ const {
 exports.createCheckoutSession = createCheckoutSession;
 exports.createPortalSession = createPortalSession;
 exports.stripeWebhook = stripeWebhook;
-exports.createSetupSession = createSetupSession;
-exports.createTopUpSession = createTopUpSession;
+exports.createCardSetup = createCardSetup;
+exports.finalizeCardSetup = finalizeCardSetup;
+exports.createTopUpPayment = createTopUpPayment;
+exports.confirmTopUp = confirmTopUp;
 exports.getBillingOverview = getBillingOverview;
 exports.updatePaymentMethod = updatePaymentMethod;
 

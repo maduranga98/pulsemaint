@@ -2,6 +2,7 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey, stripeWebhookSecret, planAndCycleForPrice } = require("./stripeClient");
+const { creditTopUpPayment } = require("./billingAccount");
 
 const db = getFirestore("default");
 
@@ -115,8 +116,8 @@ async function creditTopUp(session) {
  * Stripe webhook endpoint. Configure this function's URL as the endpoint in
  * the Stripe Dashboard, subscribed to: checkout.session.completed,
  * customer.subscription.updated, customer.subscription.deleted,
- * invoice.paid. checkout.session.completed also covers the add-card
- * window (setup mode) and account credit top-ups (payment mode). This is the only path (besides direct Firestore admin
+ * invoice.paid — and, optionally, payment_intent.succeeded as a safety net
+ * for in-page account credit top-ups (normally credited by confirmTopUp). This is the only path (besides direct Firestore admin
  * access) allowed to write plan/subscription fields on a company doc —
  * firestore.rules blocks clients from writing them directly.
  */
@@ -160,6 +161,15 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
             status: "suspended",
             updatedAt: FieldValue.serverTimestamp(),
           });
+        }
+        break;
+      }
+      case "payment_intent.succeeded": {
+        // In-page top-ups: normally credited by confirmTopUp; this is the
+        // safety net (same idempotency key) if the browser closed first.
+        const intent = event.data.object;
+        if (intent.metadata?.type === "topup" && intent.customer) {
+          await creditTopUpPayment(getStripe(), intent);
         }
         break;
       }

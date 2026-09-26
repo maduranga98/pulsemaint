@@ -1,16 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  CreditCard, Plus, Wallet, Receipt, ExternalLink, Download, Trash2, Star, RefreshCw, X, CheckCircle2,
+  CreditCard, Plus, Wallet, Receipt, ExternalLink, Download, Trash2, Star, RefreshCw, X, CheckCircle2, Lock,
 } from 'lucide-react';
 import {
+  billingErrorMessage,
+  confirmTopUp,
+  createCardSetup,
   createPortalSession,
-  createSetupSession,
-  createTopUpSession,
+  createTopUpPayment,
+  finalizeCardSetup,
   getBillingOverview,
   updatePaymentMethod,
   type BillingOverview,
 } from '../../services/billingService';
+import StripeCardWindow, { getStripeJs } from './StripeCardWindow';
 
 const TOPUP_PRESETS = [50, 100, 250, 500];
 const TOPUP_MIN = 10;
@@ -37,6 +41,11 @@ const STATUS_STYLES: Record<string, string> = {
 
 type Busy = 'card' | 'topup' | 'portal' | `pm:${string}` | null;
 
+/** The open in-page Stripe card window, if any. */
+type CardWindow =
+  | { kind: 'setup'; clientSecret: string; publishableKey: string }
+  | { kind: 'topup'; clientSecret: string; publishableKey: string; amount: number };
+
 /**
  * Admin-only billing account section: saved cards (add through Stripe's
  * hosted window, set default, remove), prepaid account credit with a top-up
@@ -53,6 +62,9 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [amount, setAmount] = useState<number>(100);
   const [customAmount, setCustomAmount] = useState('');
+  // Which card pays a top-up: a saved card's id, or 'new' for the card window.
+  const [payWith, setPayWith] = useState<string>('new');
+  const [cardWindow, setCardWindow] = useState<CardWindow | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -60,40 +72,89 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
       setOverview(await getBillingOverview());
       setError('');
     } catch (err: any) {
-      setError(err?.message || t('common.billing.account.errors.loadFailed'));
+      setError(billingErrorMessage(err, t('common.billing.account.errors.loadFailed')));
     } finally {
       setLoading(false);
     }
   }, [t]);
 
-  // Returning from a Stripe window: show the outcome, then reload. Stripe's
-  // webhook (default card / credit) can land a moment after the redirect,
-  // so reload once more shortly after.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const card = params.get('card');
-    const topup = params.get('topup');
-    if (card === 'added') setNotice(t('common.billing.account.notices.cardAdded'));
-    if (topup === 'success') setNotice(t('common.billing.account.notices.topUpDone'));
     void load();
-    if (card || topup) {
-      params.delete('card');
-      params.delete('topup');
-      const qs = params.toString();
-      window.history.replaceState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
-      const id = window.setTimeout(() => void load(), 4000);
-      return () => window.clearTimeout(id);
-    }
-    return undefined;
-  }, [load, t]);
+  }, [load]);
 
-  async function redirect(kind: 'card' | 'topup' | 'portal', getUrl: () => Promise<string>, failKey: string) {
+  async function openPortal() {
     setError('');
-    setBusy(kind);
+    setBusy('portal');
     try {
-      window.location.href = await getUrl();
-    } catch (err: any) {
-      setError(err?.message || t(failKey));
+      window.location.href = await createPortalSession();
+    } catch (err) {
+      setError(billingErrorMessage(err, t('common.billing.errors.portalFailed')));
+      setBusy(null);
+    }
+  }
+
+  function requireKey(key: string | null): key is string {
+    if (key) return true;
+    setError(t('common.billing.account.errors.notConfigured'));
+    return false;
+  }
+
+  async function startAddCard() {
+    setError('');
+    setNotice('');
+    setBusy('card');
+    try {
+      const { clientSecret, publishableKey } = await createCardSetup();
+      if (requireKey(publishableKey)) setCardWindow({ kind: 'setup', clientSecret, publishableKey });
+    } catch (err) {
+      setError(billingErrorMessage(err, t('common.billing.account.errors.cardWindowFailed')));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function openTopUp() {
+    setError('');
+    setNotice('');
+    const def = overview?.paymentMethods.find((pm) => pm.isDefault) ?? overview?.paymentMethods[0];
+    setPayWith(def?.id ?? 'new');
+    setTopUpOpen(true);
+  }
+
+  async function finishTopUp(paymentIntentId: string) {
+    await confirmTopUp(paymentIntentId);
+    setCardWindow(null);
+    setTopUpOpen(false);
+    setNotice(t('common.billing.account.notices.topUpDone'));
+    await load();
+  }
+
+  async function startTopUp() {
+    setError('');
+    setBusy('topup');
+    try {
+      const savedCard = payWith !== 'new' ? payWith : null;
+      const payment = await createTopUpPayment(effectiveAmount, savedCard);
+      if (savedCard) {
+        // Saved card: charged server-side; only a bank check (3-D Secure)
+        // needs the browser, shown as Stripe's overlay on this page.
+        if (payment.status === 'requires_action') {
+          if (!requireKey(payment.publishableKey)) return;
+          const stripe = await getStripeJs(payment.publishableKey);
+          const result = await stripe?.handleNextAction({ clientSecret: payment.clientSecret });
+          if (!result || result.error) throw result?.error ?? new Error(t('common.billing.account.window.failed'));
+          if (result.paymentIntent?.status !== 'succeeded') throw new Error(t('common.billing.account.window.notConfirmed'));
+        } else if (payment.status !== 'succeeded') {
+          throw new Error(t('common.billing.account.window.notConfirmed'));
+        }
+        await finishTopUp(payment.paymentIntentId);
+      } else if (requireKey(payment.publishableKey)) {
+        // New card: pay in the card window (the card is saved for next time).
+        setCardWindow({ kind: 'topup', clientSecret: payment.clientSecret, publishableKey: payment.publishableKey, amount: effectiveAmount });
+      }
+    } catch (err) {
+      setError(billingErrorMessage(err, t('common.billing.account.errors.topUpWindowFailed')));
+    } finally {
       setBusy(null);
     }
   }
@@ -106,7 +167,7 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
       await updatePaymentMethod(id, action);
       await load();
     } catch (err: any) {
-      setError(err?.message || t('common.billing.account.errors.cardUpdateFailed'));
+      setError(billingErrorMessage(err, t('common.billing.account.errors.cardUpdateFailed')));
     } finally {
       setBusy(null);
     }
@@ -138,7 +199,7 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
               <p className="text-xs text-slate-400 mt-1">{t('common.billing.account.cards.subtitle')}</p>
             </div>
             <button
-              onClick={() => void redirect('card', createSetupSession, 'common.billing.account.errors.cardWindowFailed')}
+              onClick={() => void startAddCard()}
               disabled={!!busy}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-60 whitespace-nowrap"
             >
@@ -200,7 +261,7 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
 
           {hasSubscription && (
             <button
-              onClick={() => void redirect('portal', createPortalSession, 'common.billing.errors.portalFailed')}
+              onClick={() => void openPortal()}
               disabled={!!busy}
               className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 disabled:opacity-60"
             >
@@ -220,7 +281,7 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
               <p className="text-xs text-slate-400 mt-1">{t('common.billing.account.credit.subtitle')}</p>
             </div>
             <button
-              onClick={() => setTopUpOpen(true)}
+              onClick={openTopUp}
               disabled={!!busy}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-emerald-700 hover:bg-emerald-600 text-white disabled:opacity-60 whitespace-nowrap"
             >
@@ -302,28 +363,30 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
         )}
       </section>
 
-      {/* Top-up window */}
-      {topUpOpen && (
+      {/* Top-up window — step 1: amount and card; a new card continues in
+          the Stripe card window below. */}
+      {topUpOpen && !cardWindow && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-6 max-w-md w-full space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white! flex items-center gap-2">
-                <Wallet className="h-5 w-5 text-emerald-400" /> {t('common.billing.account.topUp.title')}
-              </h3>
-              <button onClick={() => setTopUpOpen(false)} className="p-1 rounded text-slate-400 hover:text-white">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl space-y-5">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900!">{t('common.billing.account.topUp.title')}</h3>
+                <p className="mt-1 text-sm text-slate-500!">{t('common.billing.account.topUp.body')}</p>
+              </div>
+              <button onClick={() => setTopUpOpen(false)} className="-mr-1 rounded p-1 text-slate-500 hover:text-slate-900" aria-label="Close">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <p className="text-sm text-slate-400">{t('common.billing.account.topUp.body')}</p>
+
             <div className="grid grid-cols-4 gap-2">
               {TOPUP_PRESETS.map((preset) => (
                 <button
                   key={preset}
                   onClick={() => { setAmount(preset); setCustomAmount(''); }}
-                  className={`py-2 rounded-lg text-sm font-semibold border ${
+                  className={`py-2.5 rounded-lg text-sm font-semibold border ${
                     !customAmount && amount === preset
-                      ? 'bg-emerald-700 border-emerald-600 text-white'
-                      : 'bg-[#0A1628] border-[#1E3A5F] text-slate-300 hover:border-slate-500'
+                      ? 'bg-[#0074FF] border-[#0074FF] text-white'
+                      : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
                   }`}
                 >
                   ${preset}
@@ -331,9 +394,9 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
               ))}
             </div>
             <label className="block">
-              <span className="text-xs text-slate-400">{t('common.billing.account.topUp.custom')}</span>
-              <div className="mt-1 flex items-center rounded-lg bg-[#0A1628] border border-[#1E3A5F] px-3">
-                <span className="text-slate-500 text-sm">$</span>
+              <span className="text-sm font-medium text-slate-500">{t('common.billing.account.topUp.custom')}</span>
+              <div className="mt-1 flex items-center rounded-lg border border-slate-300 px-3 focus-within:border-[#0074FF]">
+                <span className="text-slate-400 text-sm">$</span>
                 <input
                   type="number"
                   inputMode="numeric"
@@ -343,35 +406,90 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                   placeholder={String(amount)}
-                  className="w-full bg-transparent py-2 pl-1 text-sm text-white outline-none"
+                  className="w-full bg-transparent py-2.5 pl-1 text-sm text-slate-900 outline-none"
                 />
               </div>
               {!amountValid && (
-                <span className="text-xs text-red-300">
+                <span className="text-xs text-red-600">
                   {t('common.billing.account.topUp.range', { min: TOPUP_MIN, max: TOPUP_MAX.toLocaleString() })}
                 </span>
               )}
             </label>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setTopUpOpen(false)}
-                className="px-4 py-2 text-sm font-medium border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800"
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-500">{t('common.billing.account.topUp.payWith')}</p>
+              {(overview?.paymentMethods ?? []).map((pm) => (
+                <label
+                  key={pm.id}
+                  className={`flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer ${
+                    payWith === pm.id ? 'border-[#0074FF] ring-1 ring-[#0074FF]' : 'border-slate-300 hover:border-slate-400'
+                  }`}
+                >
+                  <input type="radio" name="payWith" checked={payWith === pm.id} onChange={() => setPayWith(pm.id)} className="accent-[#0074FF]" />
+                  <CreditCard className="h-5 w-5 text-slate-700" />
+                  <span className="text-sm font-medium text-slate-900">{brandLabel(pm.brand)} •••• {pm.last4}</span>
+                  {pm.expMonth && pm.expYear && (
+                    <span className="ml-auto text-xs text-slate-400">{String(pm.expMonth).padStart(2, '0')}/{String(pm.expYear).slice(-2)}</span>
+                  )}
+                </label>
+              ))}
+              <label
+                className={`flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer ${
+                  payWith === 'new' ? 'border-[#0074FF] ring-1 ring-[#0074FF]' : 'border-slate-300 hover:border-slate-400'
+                }`}
               >
-                {t('common.actions.cancel')}
-              </button>
-              <button
-                onClick={() => void redirect('topup', () => createTopUpSession(effectiveAmount), 'common.billing.account.errors.topUpWindowFailed')}
-                disabled={!amountValid || !!busy}
-                className="px-4 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg disabled:opacity-60"
-              >
-                {busy === 'topup'
-                  ? t('common.billing.cta.redirecting')
-                  : t('common.billing.account.topUp.pay', { amount: amountValid ? `$${effectiveAmount.toLocaleString()}` : '' })}
-              </button>
+                <input type="radio" name="payWith" checked={payWith === 'new'} onChange={() => setPayWith('new')} className="accent-[#0074FF]" />
+                <CreditCard className="h-5 w-5 text-slate-700" />
+                <span className="text-sm font-medium text-slate-900">{t('common.billing.account.topUp.newCard')}</span>
+                <Plus className="ml-auto h-4 w-4 text-slate-400" />
+              </label>
             </div>
-            <p className="text-[11px] text-slate-500">{t('common.billing.account.topUp.secure')}</p>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <button
+              onClick={() => void startTopUp()}
+              disabled={!amountValid || !!busy}
+              className="relative w-full rounded-lg bg-[#0074FF] py-3 text-base font-semibold text-white hover:bg-[#0062d9] disabled:opacity-60"
+            >
+              {busy === 'topup'
+                ? t('common.billing.account.window.processing')
+                : payWith === 'new'
+                  ? t('common.billing.account.topUp.continueToCard')
+                  : t('common.billing.account.topUp.payAmount', { amount: amountValid ? `$${effectiveAmount.toLocaleString()}` : '' })}
+              <Lock className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 opacity-80" />
+            </button>
+            <p className="text-center text-xs text-slate-400">{t('common.billing.account.topUp.secure')}</p>
           </div>
         </div>
+      )}
+
+      {/* Stripe card window — add a card, or pay a top-up with a new card. */}
+      {cardWindow && (
+        <StripeCardWindow
+          publishableKey={cardWindow.publishableKey}
+          clientSecret={cardWindow.clientSecret}
+          mode={cardWindow.kind === 'setup' ? 'setup' : 'payment'}
+          title={t('common.billing.account.window.addCardTitle')}
+          subtitle={cardWindow.kind === 'topup'
+            ? t('common.billing.account.window.topUpSubtitle', { amount: `$${cardWindow.amount.toLocaleString()}` })
+            : t('common.billing.account.window.setupSubtitle')}
+          submitLabel={cardWindow.kind === 'topup'
+            ? t('common.billing.account.topUp.payAmount', { amount: `$${cardWindow.amount.toLocaleString()}` })
+            : t('common.billing.account.window.saveCard')}
+          onBack={cardWindow.kind === 'topup' ? () => setCardWindow(null) : undefined}
+          onClose={() => { setCardWindow(null); setTopUpOpen(false); }}
+          onSuccess={async (intentId) => {
+            if (cardWindow.kind === 'setup') {
+              await finalizeCardSetup(intentId);
+              setCardWindow(null);
+              setNotice(t('common.billing.account.notices.cardAdded'));
+              await load();
+            } else {
+              await finishTopUp(intentId);
+            }
+          }}
+        />
       )}
     </div>
   );

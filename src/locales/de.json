@@ -8679,13 +8679,14 @@
         "portal": "Stripe-Abrechnungsportal öffnen (Abo ändern oder kündigen)",
         "notices": {
           "cardAdded": "Karte gespeichert. Sie wird für Ihre nächsten Rechnungen verwendet.",
-          "topUpDone": "Zahlung erhalten. Ihr Guthaben wird gleich aktualisiert."
+          "topUpDone": "Aufladung abgeschlossen – das Guthaben wurde Ihrem Konto gutgeschrieben."
         },
         "errors": {
           "loadFailed": "Abrechnungsdaten konnten nicht geladen werden. Bitte erneut versuchen.",
           "cardWindowFailed": "Das Fenster zum Hinzufügen der Karte konnte nicht geöffnet werden. Bitte erneut versuchen.",
           "topUpWindowFailed": "Das Aufladefenster konnte nicht geöffnet werden. Bitte erneut versuchen.",
-          "cardUpdateFailed": "Die Karte konnte nicht aktualisiert werden. Bitte erneut versuchen."
+          "cardUpdateFailed": "Die Karte konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+          "notConfigured": "Kartenzahlungen sind noch nicht eingerichtet: Der öffentliche Stripe-Schlüssel fehlt. Bitte wenden Sie sich an den Support."
         },
         "cards": {
           "title": "Zahlungsmethoden",
@@ -8706,11 +8707,15 @@
         },
         "topUp": {
           "title": "Kontoguthaben aufladen",
-          "body": "Wählen Sie einen Betrag. Sie zahlen im sicheren Stripe-Fenster, und das Guthaben wird mit Ihren nächsten Rechnungen verrechnet.",
+          "body": "Wählen Sie einen Betrag und eine Karte. Das Guthaben wird automatisch mit Ihren nächsten Rechnungen verrechnet.",
           "custom": "Oder Betrag eingeben (USD)",
           "range": "Geben Sie einen ganzen Betrag zwischen {{min}} $ und {{max}} $ ein.",
           "pay": "Weiter zur Zahlung von {{amount}}",
-          "secure": "Zahlungen werden sicher über Stripe abgewickelt."
+          "secure": "Zahlungen werden sicher über Stripe abgewickelt.",
+          "payWith": "Bezahlen mit",
+          "newCard": "Neue Karte",
+          "continueToCard": "Weiter zu den Kartendaten",
+          "payAmount": "{{amount}} bezahlen"
         },
         "history": {
           "title": "Abrechnungsverlauf",
@@ -8727,6 +8732,17 @@
             "uncollectible": "Fehlgeschlagen",
             "void": "Storniert"
           }
+        },
+        "window": {
+          "addCardTitle": "Karte hinzufügen",
+          "setupSubtitle": "Speichern Sie eine Karte für Ihre FirmiCore-Rechnungen und Aufladungen.",
+          "topUpSubtitle": "{{amount}} Guthaben aufladen. Diese Karte wird für das nächste Mal gespeichert.",
+          "cardInformation": "Kartendaten",
+          "saveCard": "Karte speichern",
+          "processing": "Wird verarbeitet…",
+          "failed": "Die Karte konnte nicht verarbeitet werden. Bitte erneut versuchen.",
+          "notConfirmed": "Die Karte wurde nicht bestätigt. Bitte erneut versuchen.",
+          "loadFailed": "Das sichere Kartenformular konnte nicht geladen werden. Prüfen Sie Ihre Verbindung oder deaktivieren Sie Werbeblocker für diese Seite und versuchen Sie es erneut."
         }
       }
     },

@@ -8679,13 +8679,14 @@
         "portal": "Ouvrir le portail de facturation Stripe (modifier ou résilier l'abonnement)",
         "notices": {
           "cardAdded": "Carte enregistrée. Elle sera utilisée pour vos prochaines factures.",
-          "topUpDone": "Paiement reçu. Votre crédit sera mis à jour dans un instant."
+          "topUpDone": "Recharge effectuée : le crédit a été ajouté à votre compte."
         },
         "errors": {
           "loadFailed": "Impossible de charger les informations de facturation. Veuillez réessayer.",
           "cardWindowFailed": "Impossible d'ouvrir la fenêtre d'ajout de carte. Veuillez réessayer.",
           "topUpWindowFailed": "Impossible d'ouvrir la fenêtre de recharge. Veuillez réessayer.",
-          "cardUpdateFailed": "Impossible de mettre à jour la carte. Veuillez réessayer."
+          "cardUpdateFailed": "Impossible de mettre à jour la carte. Veuillez réessayer.",
+          "notConfigured": "Les paiements par carte ne sont pas encore configurés : la clé publique Stripe est manquante. Contactez le support."
         },
         "cards": {
           "title": "Moyens de paiement",
@@ -8706,11 +8707,15 @@
         },
         "topUp": {
           "title": "Recharger le crédit du compte",
-          "body": "Choisissez un montant. Vous paierez dans la fenêtre sécurisée de Stripe et le crédit sera appliqué à vos prochaines factures.",
+          "body": "Choisissez un montant et une carte. Le crédit est appliqué automatiquement à vos prochaines factures.",
           "custom": "Ou saisissez un montant (USD)",
           "range": "Saisissez un montant entier entre {{min}} $ et {{max}} $.",
           "pay": "Continuer pour payer {{amount}}",
-          "secure": "Les paiements sont traités en toute sécurité par Stripe."
+          "secure": "Les paiements sont traités en toute sécurité par Stripe.",
+          "payWith": "Payer avec",
+          "newCard": "Nouvelle carte",
+          "continueToCard": "Continuer vers la carte",
+          "payAmount": "Payer {{amount}}"
         },
         "history": {
           "title": "Historique de facturation",
@@ -8727,6 +8732,17 @@
             "uncollectible": "Échouée",
             "void": "Annulée"
           }
+        },
+        "window": {
+          "addCardTitle": "Ajouter une carte",
+          "setupSubtitle": "Enregistrez une carte pour vos factures et recharges FirmiCore.",
+          "topUpSubtitle": "Rechargez {{amount}} de crédit. Cette carte sera enregistrée pour la prochaine fois.",
+          "cardInformation": "Informations de la carte",
+          "saveCard": "Enregistrer la carte",
+          "processing": "Traitement…",
+          "failed": "La carte n'a pas pu être traitée. Veuillez réessayer.",
+          "notConfirmed": "La carte n'a pas été confirmée. Veuillez réessayer.",
+          "loadFailed": "Le formulaire de carte sécurisé n'a pas pu se charger. Vérifiez votre connexion ou désactivez les bloqueurs de publicité sur cette page, puis réessayez."
         }
       }
     },

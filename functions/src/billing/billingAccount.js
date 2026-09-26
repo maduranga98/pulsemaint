@@ -9,90 +9,159 @@ const TOPUP_CURRENCY = "usd";
 const TOPUP_MIN = 10;
 const TOPUP_MAX = 10000;
 
-function assertReturnUrl(url, field) {
-  let parsed;
-  try {
-    parsed = new URL(url);
-  } catch {
-    throw new HttpsError("invalid-argument", `${field} must be a valid URL`);
-  }
-  if (parsed.protocol !== "https:" && parsed.hostname !== "localhost") {
-    throw new HttpsError("invalid-argument", `${field} must be an https URL`);
+// Stripe publishable key for the in-page card window (Stripe Elements).
+// Public by design — kept in functions/.env next to the price IDs and handed
+// to the client, so the web app needs no extra build-time config.
+const publishableKey = () => process.env.STRIPE_PUBLISHABLE_KEY || null;
+
+async function makeDefaultCard(stripe, company, customer, paymentMethodId) {
+  await stripe.customers.update(customer, { invoice_settings: { default_payment_method: paymentMethodId } });
+  if (company.stripeSubscriptionId && company.subscriptionStatus !== "canceled") {
+    try {
+      await stripe.subscriptions.update(company.stripeSubscriptionId, { default_payment_method: paymentMethodId });
+    } catch (err) {
+      logger.warn(`Could not set default card on subscription ${company.stripeSubscriptionId}`, err);
+    }
   }
 }
 
 /**
- * Opens Stripe Checkout in setup mode — Stripe's hosted window for saving a
- * card to the company's customer, without charging it. Works before any
- * subscription exists (the customer is created on demand). The webhook makes
- * the new card the default for future invoices.
+ * Starts saving a card in the in-page Stripe card window: returns a
+ * SetupIntent client secret for Stripe Elements. Works before any plan is
+ * subscribed (the Stripe customer is created on demand).
  */
-exports.createSetupSession = onCall({ secrets: [stripeSecretKey] }, async (request) => {
-  const { successUrl, cancelUrl } = request.data ?? {};
-  assertReturnUrl(successUrl, "successUrl");
-  assertReturnUrl(cancelUrl, "cancelUrl");
+exports.createCardSetup = onCall({ secrets: [stripeSecretKey] }, async (request) => {
   const ctx = await requireBillingAdmin(request);
-
   try {
     const customer = await ensureStripeCustomer(ctx, request.auth.token?.email);
-    const session = await getStripe().checkout.sessions.create({
-      mode: "setup",
+    const intent = await getStripe().setupIntents.create({
       customer,
-      currency: TOPUP_CURRENCY,
       payment_method_types: ["card"],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: { companyId: ctx.companyId, type: "add_card" },
-      setup_intent_data: { metadata: { companyId: ctx.companyId } },
+      usage: "off_session",
+      metadata: { companyId: ctx.companyId },
     });
-    return { url: session.url };
+    return { clientSecret: intent.client_secret, publishableKey: publishableKey() };
   } catch (err) {
-    logger.error("createSetupSession failed", err);
-    throw new HttpsError("internal", "Failed to open the add-card window");
+    logger.error("createCardSetup failed", err);
+    throw new HttpsError("internal", "Failed to start adding the card");
   }
 });
 
 /**
- * Opens Stripe Checkout in payment mode for a one-off account credit top-up.
- * On payment the webhook credits the amount to the customer's Stripe balance,
- * which Stripe applies automatically to the next subscription invoices.
+ * Called after the card window confirms the SetupIntent: verifies it belongs
+ * to this company and succeeded, then makes the card the default for
+ * invoices (and the active subscription).
  */
-exports.createTopUpSession = onCall({ secrets: [stripeSecretKey] }, async (request) => {
-  const { amount, successUrl, cancelUrl } = request.data ?? {};
+exports.finalizeCardSetup = onCall({ secrets: [stripeSecretKey] }, async (request) => {
+  const { setupIntentId } = request.data ?? {};
+  if (typeof setupIntentId !== "string" || !setupIntentId.startsWith("seti_")) {
+    throw new HttpsError("invalid-argument", "setupIntentId is required");
+  }
+  const { company } = await requireBillingAdmin(request);
+  const stripe = getStripe();
+  const intent = await stripe.setupIntents.retrieve(setupIntentId);
+  if (!company.stripeCustomerId || intent.customer !== company.stripeCustomerId) {
+    throw new HttpsError("permission-denied", "Card setup belongs to another account");
+  }
+  if (intent.status !== "succeeded") throw new HttpsError("failed-precondition", "The card was not confirmed");
+  const pm = typeof intent.payment_method === "string" ? intent.payment_method : intent.payment_method?.id;
+  if (pm) await makeDefaultCard(stripe, company, company.stripeCustomerId, pm);
+  return { ok: true };
+});
+
+/**
+ * Starts an account credit top-up. With `paymentMethodId` (a saved card) the
+ * charge is confirmed server-side straight away; otherwise the returned
+ * client secret is confirmed in the in-page card window, which also saves
+ * the card for next time. Either way `confirmTopUp` credits the balance.
+ */
+exports.createTopUpPayment = onCall({ secrets: [stripeSecretKey] }, async (request) => {
+  const { amount, paymentMethodId } = request.data ?? {};
   if (!Number.isInteger(amount) || amount < TOPUP_MIN || amount > TOPUP_MAX) {
     throw new HttpsError("invalid-argument", `Top-up amount must be a whole number between ${TOPUP_MIN} and ${TOPUP_MAX}`);
   }
-  assertReturnUrl(successUrl, "successUrl");
-  assertReturnUrl(cancelUrl, "cancelUrl");
   const ctx = await requireBillingAdmin(request);
+  const stripe = getStripe();
+  const customer = await ensureStripeCustomer(ctx, request.auth.token?.email);
+
+  if (paymentMethodId !== undefined && paymentMethodId !== null) {
+    if (typeof paymentMethodId !== "string" || !paymentMethodId.startsWith("pm_")) {
+      throw new HttpsError("invalid-argument", "Invalid card");
+    }
+    const pm = await stripe.paymentMethods.retrieve(paymentMethodId).catch(() => null);
+    if (!pm || pm.customer !== customer) throw new HttpsError("permission-denied", "Card belongs to another account");
+  }
 
   try {
-    const customer = await ensureStripeCustomer(ctx, request.auth.token?.email);
-    const amountCents = amount * 100;
-    const session = await getStripe().checkout.sessions.create({
-      mode: "payment",
+    const intent = await stripe.paymentIntents.create({
+      amount: amount * 100,
+      currency: TOPUP_CURRENCY,
       customer,
-      line_items: [{
-        quantity: 1,
-        price_data: {
-          currency: TOPUP_CURRENCY,
-          unit_amount: amountCents,
-          product_data: { name: "FirmiCore account credit top-up" },
-        },
-      }],
-      // An invoice (with receipt PDF) for the top-up, so it shows in the
-      // company's billing history next to subscription invoices.
-      invoice_creation: { enabled: true, invoice_data: { metadata: { companyId: ctx.companyId, type: "topup" } } },
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: { companyId: ctx.companyId, type: "topup", amountCents: String(amountCents) },
+      description: "FirmiCore account credit top-up",
+      payment_method_types: ["card"],
+      metadata: { companyId: ctx.companyId, type: "topup" },
+      receipt_email: request.auth.token?.email ?? undefined,
+      ...(paymentMethodId
+        ? { payment_method: paymentMethodId, confirm: true }
+        : { setup_future_usage: "off_session" }),
     });
-    return { url: session.url };
+    return {
+      paymentIntentId: intent.id,
+      clientSecret: intent.client_secret,
+      status: intent.status,
+      publishableKey: publishableKey(),
+    };
   } catch (err) {
-    logger.error("createTopUpSession failed", err);
-    throw new HttpsError("internal", "Failed to open the top-up window");
+    logger.error("createTopUpPayment failed", err);
+    // Card declines surface Stripe's own reason (e.g. insufficient funds).
+    const message = err?.type === "StripeCardError" ? err.message : "Failed to start the top-up payment";
+    throw new HttpsError(err?.type === "StripeCardError" ? "failed-precondition" : "internal", message);
   }
 });
+
+/**
+ * Credits a succeeded top-up payment to the customer's balance (applied
+ * automatically to upcoming invoices). Idempotent per PaymentIntent, and
+ * also run by the webhook, so the credit lands even if the browser closes
+ * before calling this.
+ */
+exports.confirmTopUp = onCall({ secrets: [stripeSecretKey] }, async (request) => {
+  const { paymentIntentId } = request.data ?? {};
+  if (typeof paymentIntentId !== "string" || !paymentIntentId.startsWith("pi_")) {
+    throw new HttpsError("invalid-argument", "paymentIntentId is required");
+  }
+  const { company } = await requireBillingAdmin(request);
+  const stripe = getStripe();
+  const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
+  if (!company.stripeCustomerId || intent.customer !== company.stripeCustomerId || intent.metadata?.type !== "topup") {
+    throw new HttpsError("permission-denied", "Payment belongs to another account");
+  }
+  if (intent.status !== "succeeded") throw new HttpsError("failed-precondition", "The payment has not completed");
+  await creditTopUpPayment(stripe, intent);
+
+  // First card on the account? Make the one just used the default.
+  const customer = await stripe.customers.retrieve(company.stripeCustomerId);
+  const pm = typeof intent.payment_method === "string" ? intent.payment_method : intent.payment_method?.id;
+  if (pm && !customer.deleted && !customer.invoice_settings?.default_payment_method) {
+    await makeDefaultCard(stripe, company, company.stripeCustomerId, pm).catch((err) => logger.warn("default card update failed", err));
+  }
+  return { ok: true };
+});
+
+/** Idempotent balance credit for a succeeded top-up PaymentIntent (shared with the webhook). */
+async function creditTopUpPayment(stripe, intent) {
+  await stripe.customers.createBalanceTransaction(
+    intent.customer,
+    {
+      amount: -intent.amount_received,
+      currency: intent.currency,
+      description: "Account credit top-up",
+      metadata: { paymentIntentId: intent.id, companyId: intent.metadata?.companyId ?? "" },
+    },
+    { idempotencyKey: `topup-credit-${intent.id}` },
+  );
+}
+exports.creditTopUpPayment = creditTopUpPayment;
 
 function describeCard(pm, defaultId) {
   return {
@@ -112,43 +181,63 @@ function describeCard(pm, defaultId) {
  */
 exports.getBillingOverview = onCall({ secrets: [stripeSecretKey] }, async (request) => {
   const { company } = await requireBillingAdmin(request);
-  if (!company.stripeCustomerId) {
-    return { hasCustomer: false, paymentMethods: [], creditBalance: 0, currency: TOPUP_CURRENCY, invoices: [] };
-  }
+  const empty = {
+    hasCustomer: false, paymentMethods: [], creditBalance: 0, currency: TOPUP_CURRENCY, invoices: [],
+    publishableKey: publishableKey(),
+  };
+  if (!company.stripeCustomerId) return empty;
 
   try {
     const stripe = getStripe();
-    const [customer, methods, invoices] = await Promise.all([
+    const [customer, methods, invoices, payments] = await Promise.all([
       stripe.customers.retrieve(company.stripeCustomerId),
       stripe.paymentMethods.list({ customer: company.stripeCustomerId, type: "card", limit: 20 }),
       stripe.invoices.list({ customer: company.stripeCustomerId, limit: 24 }),
+      stripe.paymentIntents.list({ customer: company.stripeCustomerId, limit: 24, expand: ["data.latest_charge"] }),
     ]);
-    if (customer.deleted) {
-      return { hasCustomer: false, paymentMethods: [], creditBalance: 0, currency: TOPUP_CURRENCY, invoices: [] };
-    }
+    if (customer.deleted) return empty;
     const defaultId = customer.invoice_settings?.default_payment_method ?? null;
+
+    const invoiceRows = invoices.data
+      .filter((inv) => inv.status !== "draft")
+      .map((inv) => ({
+        id: inv.id,
+        number: inv.number ?? null,
+        description: inv.lines?.data?.[0]?.description ?? null,
+        created: inv.created * 1000,
+        total: inv.total,
+        amountPaid: inv.amount_paid,
+        currency: inv.currency,
+        status: inv.status,
+        hostedInvoiceUrl: inv.hosted_invoice_url ?? null,
+        invoicePdf: inv.invoice_pdf ?? null,
+      }));
+    // In-page top-ups are plain payments (no invoice); list them with their
+    // Stripe receipt so they sit in the same history.
+    const topUpRows = payments.data
+      .filter((pi) => pi.metadata?.type === "topup" && pi.status === "succeeded")
+      .map((pi) => ({
+        id: pi.id,
+        number: null,
+        description: "Account credit top-up",
+        created: pi.created * 1000,
+        total: pi.amount_received,
+        amountPaid: pi.amount_received,
+        currency: pi.currency,
+        status: "paid",
+        hostedInvoiceUrl: typeof pi.latest_charge === "object" ? pi.latest_charge?.receipt_url ?? null : null,
+        invoicePdf: null,
+      }));
 
     return {
       hasCustomer: true,
+      publishableKey: publishableKey(),
       paymentMethods: methods.data.map((pm) => describeCard(pm, typeof defaultId === "string" ? defaultId : defaultId?.id)),
       // Stripe stores credit as a negative balance; expose it as a positive
       // amount in cents.
       creditBalance: Math.max(0, -(customer.balance ?? 0)),
       currency: customer.currency ?? TOPUP_CURRENCY,
-      invoices: invoices.data
-        .filter((inv) => inv.status !== "draft")
-        .map((inv) => ({
-          id: inv.id,
-          number: inv.number ?? null,
-          description: inv.lines?.data?.[0]?.description ?? null,
-          created: inv.created * 1000,
-          total: inv.total,
-          amountPaid: inv.amount_paid,
-          currency: inv.currency,
-          status: inv.status,
-          hostedInvoiceUrl: inv.hosted_invoice_url ?? null,
-          invoicePdf: inv.invoice_pdf ?? null,
-        })),
+      invoices: [...invoiceRows, ...topUpRows].sort((x, y) => y.created - x.created),
     };
   } catch (err) {
     logger.error("getBillingOverview failed", err);
