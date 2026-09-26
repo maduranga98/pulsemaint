@@ -487,8 +487,43 @@ service cloud.firestore {
       allow update: if isAuthenticated()
         && (resource.data.requesterId == request.auth.uid || canHandleRequest(resource.data))
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['replies', 'status', 'updatedAt', 'closedAt']);
+             .hasOnly(['replies', 'status', 'updatedAt', 'closedAt', 'decision'])
+        // Only the handler records a record_access decision (granted / rejected).
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['decision'])
+            || canHandleRequest(resource.data));
       allow delete: if isAdmin();
+    }
+
+    // Time-limited shares of a work order / breakdown with the person who
+    // raised a record_access staff request. The record is copied into the
+    // grant (`snapshot`), so the grantee needs no access to workOrders /
+    // breakdown_tickets. Only plant managers and admins share; the grantee
+    // must be that request's requester. The grantee can't read a single grant
+    // past its expiry; expired grants are deleted by the
+    // purgeExpiredRecordGrants scheduled function and hidden client-side
+    // until then. Revoking = deleting.
+    match /record_access_grants/{grantId} {
+      function canShareRecords() {
+        return isAdmin() || isPlantManager();
+      }
+
+      allow get: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (canShareRecords()
+            || (resource.data.granteeId == request.auth.uid && resource.data.expiresAt > request.time));
+      allow list: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (canShareRecords() || resource.data.granteeId == request.auth.uid);
+      allow create: if isAuthenticated()
+        && belongsToCompany(request.resource.data.companyId)
+        && canShareRecords()
+        && request.resource.data.grantedBy == request.auth.uid
+        && request.resource.data.recordType in ['work_order', 'breakdown']
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt > request.time
+        && get(/databases/$(database)/documents/staff_requests/$(request.resource.data.requestId)).data.companyId == request.resource.data.companyId
+        && get(/databases/$(database)/documents/staff_requests/$(request.resource.data.requestId)).data.category == 'record_access'
+        && get(/databases/$(database)/documents/staff_requests/$(request.resource.data.requestId)).data.requesterId == request.resource.data.granteeId;
+      allow update: if false;
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canShareRecords();
     }
 
     // Company-added work permit categories, layered on top of the 7 seeded

@@ -11,6 +11,7 @@ import {
   type StaffRequestCategory,
   type StaffRequestRecipientRole,
 } from '@/types/staffRequest';
+import { canGrantRecords } from '@/types/recordAccessGrant';
 import { AttachmentPicker } from './Attachments';
 import { useEligibleRequestRecipients } from '../useRequestRecipients';
 import { categoryLabel, field, labelCls, roleLabel } from '../requestUi';
@@ -23,7 +24,7 @@ export default function NewRequestModal({ onClose }: Props) {
   const { t } = useTranslation();
   const toast = useToast();
   const profile = useAuthStore((s) => s.userProfile);
-  const { recipients, loading: recipientsLoading } = useEligibleRequestRecipients();
+  const { recipients: eligible, loading: recipientsLoading } = useEligibleRequestRecipients();
 
   const [category, setCategory] = useState<StaffRequestCategory>('work');
   const [recipientId, setRecipientId] = useState('');
@@ -32,6 +33,8 @@ export default function NewRequestModal({ onClose }: Props) {
   const [reference, setReference] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
+  // Only plant managers and admins can share past WO / breakdown records.
+  const recipients = category === 'record_access' ? eligible.filter((u) => canGrantRecords(u.role)) : eligible;
 
   async function submit() {
     if (!profile?.companyId) return;
@@ -100,7 +103,16 @@ export default function NewRequestModal({ onClose }: Props) {
         <div className="space-y-4 px-5 py-4">
           <div>
             <label className={labelCls}>{t('common.staffRequests.newRequest.category')}</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value as StaffRequestCategory)} className={field}>
+            <select
+              value={category}
+              onChange={(e) => {
+                const next = e.target.value as StaffRequestCategory;
+                setCategory(next);
+                const current = eligible.find((u) => u.id === recipientId);
+                if (next === 'record_access' && current && !canGrantRecords(current.role)) setRecipientId('');
+              }}
+              className={field}
+            >
               {STAFF_REQUEST_CATEGORIES.map((c) => (
                 <option key={c} value={c}>{categoryLabel(c, t)}</option>
               ))}
@@ -117,6 +129,9 @@ export default function NewRequestModal({ onClose }: Props) {
                 <option key={u.id} value={u.id}>{u.fullName} ({roleLabel(u.role, t)})</option>
               ))}
             </select>
+            {category === 'record_access' && (
+              <p className="mt-1 text-xs text-[#8BA3BF]">{t('common.staffRequests.records.recipientHint')}</p>
+            )}
             {!recipientsLoading && recipients.length === 0 && (
               <p className="mt-1 text-xs text-[#FBBF24]">{t('common.staffRequests.newRequest.noRecipients')}</p>
             )}
