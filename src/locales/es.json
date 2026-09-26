@@ -8970,10 +8970,11 @@
         },
         "search": "Buscar por número o máquina…",
         "error": "No se pudieron cargar tus órdenes de trabajo y averías. Cierra e inténtalo de nuevo.",
-        "none": "No se encontraron órdenes de trabajo ni averías de tu planta / departamento.",
+        "none": "No hay órdenes de trabajo cerradas ni averías cerradas de más de 30 días en tu planta / departamento.",
         "noMatches": "No hay registros que coincidan.",
         "refine": "Se muestran los primeros {{count}}; busca para encontrar otros.",
-        "required": "Selecciona la orden de trabajo o avería que necesitas."
+        "required": "Selecciona la orden de trabajo o avería que necesitas.",
+        "hint": "Solo se muestran órdenes de trabajo cerradas y averías cerradas finalizadas hace más de 30 días."
       }
     },
     "ui": {

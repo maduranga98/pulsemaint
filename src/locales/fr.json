@@ -8970,10 +8970,11 @@
         },
         "search": "Rechercher par numéro ou machine…",
         "error": "Impossible de charger vos ordres de travail et pannes. Fermez et réessayez.",
-        "none": "Aucun ordre de travail ni panne trouvé pour votre usine / service.",
+        "none": "Aucun ordre de travail validé ni panne clôturée de plus de 30 jours pour votre usine / service.",
         "noMatches": "Aucun enregistrement correspondant.",
         "refine": "Affichage des {{count}} premiers — recherchez pour en trouver d'autres.",
-        "required": "Sélectionnez l'ordre de travail ou la panne souhaité."
+        "required": "Sélectionnez l'ordre de travail ou la panne souhaité.",
+        "hint": "Seuls les ordres de travail validés et les pannes clôturées terminés depuis plus de 30 jours sont listés."
       }
     },
     "ui": {

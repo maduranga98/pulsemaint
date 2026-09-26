@@ -2,16 +2,19 @@ const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore} = require("firebase-admin/firestore");
 
 // Staff Requests: the work orders and breakdowns a user may pick as the
-// subject of a "record_access" request — their own plant's, and for
-// department-scoped roles only their own department's (or ones they were
-// assigned to). Frontline roles can't list workOrders under firestore.rules,
+// subject of a "record_access" request — only finished ones (WOs signed off
+// or closed, breakdowns closed) at least 30 days after they were finished —
+// from their own plant, and for department-scoped roles only their own
+// department's (or ones they were assigned to). The 30-day rule mirrors
+// src/lib/recordReferences.ts. Frontline roles can't list workOrders under firestore.rules,
 // so the client can't build this itself. Returns only number, machine,
 // date and status (via select()), never the record's details — those are
 // shared separately by a plant manager / admin through record_access_grants.
 // Mirrors src/hooks/useDepartmentScope.ts + useRecordPlantMatcher.ts.
 
 const DEPARTMENT_SCOPED_ROLES = ["technician", "trainee", "supervisor", "floor_operator"];
-const MAX_PER_TYPE = 500;
+const MAX_PER_TYPE = 1000;
+const MIN_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 function normDept(v) {
   return String(v || "").trim().replace(/\s+/g, " ").toLowerCase();
@@ -39,20 +42,24 @@ exports.listRecordReferences = onCall(async (request) => {
   const myPlant = me.plantId || null;
   const myDept = DEPARTMENT_SCOPED_ROLES.includes(me.role) ? normDept(me.department) : "";
 
+  const cutoff = Date.now() - MIN_AGE_MS;
   const [woSnap, bdSnap] = await Promise.all([
+    // Uses the existing (siteId, status, createdAt desc) index.
     db.collection("workOrders")
         .where("siteId", "==", siteId)
+        .where("status", "in", ["SIGNED_OFF", "CLOSED"])
         .orderBy("createdAt", "desc")
         .limit(MAX_PER_TYPE)
         .select("woNumber", "machineId", "machineName", "machinePlantId", "machineDepartment",
-            "assignedTechnicianIds", "status", "createdAt")
+            "assignedTechnicianIds", "supervisorSignOffAt", "closedAt", "updatedAt")
         .get(),
+    // Equality filters only - served without a composite index.
     db.collection("breakdown_tickets")
         .where("siteId", "==", siteId)
-        .orderBy("reportedAt", "desc")
+        .where("status", "==", "closed")
         .limit(MAX_PER_TYPE)
         .select("ticketNumber", "machineId", "machineName", "machinePlantId", "machineDepartment",
-            "assignedTechnicianIds", "status", "reportedAt")
+            "assignedTechnicianIds", "closedAt", "resolvedAt")
         .get(),
   ]);
 
@@ -84,15 +91,15 @@ exports.listRecordReferences = onCall(async (request) => {
   const records = [];
   woSnap.docs.forEach((d) => {
     const r = d.data();
-    if (!r.woNumber || !inScope(r)) return;
-    records.push({type: "work_order", id: d.id, number: r.woNumber, machineName: r.machineName || "",
-      status: r.status || "", at: millis(r.createdAt)});
+    const at = millis(r.supervisorSignOffAt) || millis(r.closedAt) || millis(r.updatedAt);
+    if (!r.woNumber || !at || at > cutoff || !inScope(r)) return;
+    records.push({type: "work_order", id: d.id, number: r.woNumber, machineName: r.machineName || "", at});
   });
   bdSnap.docs.forEach((d) => {
     const r = d.data();
-    if (!r.ticketNumber || !inScope(r)) return;
-    records.push({type: "breakdown", id: d.id, number: r.ticketNumber, machineName: r.machineName || "",
-      status: r.status || "", at: millis(r.reportedAt)});
+    const at = millis(r.closedAt) || millis(r.resolvedAt);
+    if (!r.ticketNumber || !at || at > cutoff || !inScope(r)) return;
+    records.push({type: "breakdown", id: d.id, number: r.ticketNumber, machineName: r.machineName || "", at});
   });
   records.sort((a, b) => b.at - a.at);
   return {records};
