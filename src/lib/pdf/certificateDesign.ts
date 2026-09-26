@@ -2,34 +2,38 @@ import type { jsPDF } from 'jspdf';
 import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
 
 /**
- * Shared drawing kit for the navy/sky-blue certificate design (the
- * "Professional Certificate Template": Classic A4 landscape for training
- * certificates, the A4 portrait layout for Trainee Programme certificates).
+ * Shared drawing kit for the navy "wave" certificate designs: the A4 portrait
+ * Trainee Programme certificate (wave header) and the A4 landscape training
+ * certificate (curved side panel). Both share the Montserrat / Playfair
+ * Display type, the teal check-marked module list and the gold award seal.
  *
- * Every coordinate/size is written in the template's own CSS pixels (A4 at
- * 96dpi: 1123×794 landscape, 794×1123 portrait) and scaled to PDF points by
- * `K`, so the layouts below can be read side by side with the template.
+ * Coordinates and sizes are written in A4 CSS pixels (96dpi: 794×1123
+ * portrait, 1123×794 landscape) and scaled to PDF points by `K`.
  */
 
-/** CSS px → PDF pt (A4 is 841.89pt wide vs 1123px in the template). */
+/** CSS px → PDF pt (A4 is 841.89pt wide vs 1123px). */
 export const K = 841.89 / 1123;
 
-export const NAVY = '#0B2A5B';
-export const ACCENT = '#6EC1F2';
-export const INK = '#0B0D12';
-export const MUTED = '#3A4150';
-export const FOOTER_LABEL = '#8FD3FF';
+export const NAVY = '#133A5C';
+export const INK = '#1B2433';
+export const MUTED = '#4A5363';
+export const TEAL = '#22B5CE';
+export const LIGHT_TEAL = '#5CCBE6';
+export const PAPER = '#F4F6F9';
+export const WAVE_LIGHT = '#FFFFFF';
+export const WAVE_SHADE = '#EAEEF2';
+const GOLD_DARK = '#C8932F';
+const GOLD_LIGHT = '#EDC263';
 
-type FontKey = 'cinzel' | 'cormorantItalic' | 'manrope' | 'manropeSemi' | 'manropeBold' | 'pinyon' | 'noto' | 'notoBold';
+type FontKey = 'display' | 'bold' | 'semi' | 'medium' | 'script' | 'noto' | 'notoBold';
 
 const FONT_FILES: Record<FontKey, { file: string; family: string; style: string }> = {
-  cinzel: { file: '/fonts/certificate/Cinzel-Bold.ttf', family: 'Cinzel', style: 'bold' },
-  cormorantItalic: { file: '/fonts/certificate/CormorantGaramond-MediumItalic.ttf', family: 'Cormorant', style: 'italic' },
-  manrope: { file: '/fonts/certificate/Manrope-Regular.ttf', family: 'Manrope', style: 'normal' },
-  manropeSemi: { file: '/fonts/certificate/Manrope-SemiBold.ttf', family: 'ManropeSemi', style: 'normal' },
-  manropeBold: { file: '/fonts/certificate/Manrope-Bold.ttf', family: 'Manrope', style: 'bold' },
-  pinyon: { file: '/fonts/certificate/PinyonScript-Regular.ttf', family: 'Pinyon', style: 'normal' },
-  // Fallback for names/text outside the design fonts' Latin coverage.
+  display: { file: '/fonts/certificate/Montserrat-ExtraBold.ttf', family: 'MontserratX', style: 'bold' },
+  bold: { file: '/fonts/certificate/Montserrat-Bold.ttf', family: 'Montserrat', style: 'bold' },
+  semi: { file: '/fonts/certificate/Montserrat-SemiBold.ttf', family: 'MontserratSemi', style: 'normal' },
+  medium: { file: '/fonts/certificate/Montserrat-Medium.ttf', family: 'Montserrat', style: 'normal' },
+  script: { file: '/fonts/certificate/PlayfairDisplay-BoldItalic.ttf', family: 'Playfair', style: 'bolditalic' },
+  // Fallback for text outside the design fonts' Latin coverage.
   noto: { file: '/fonts/NotoSans-Regular.ttf', family: 'NotoSans', style: 'normal' },
   notoBold: { file: '/fonts/NotoSans-Bold.ttf', family: 'NotoSans', style: 'bold' },
 };
@@ -37,15 +41,16 @@ const FONT_FILES: Record<FontKey, { file: string; family: string; style: string 
 // Built-in jsPDF fonts used when a font file can't be fetched (offline,
 // tests) — the certificate still generates, just without the design fonts.
 const BUILTIN_FALLBACK: Record<FontKey, [string, string]> = {
-  cinzel: ['times', 'bold'],
-  cormorantItalic: ['times', 'italic'],
-  manrope: ['helvetica', 'normal'],
-  manropeSemi: ['helvetica', 'bold'],
-  manropeBold: ['helvetica', 'bold'],
-  pinyon: ['times', 'bolditalic'],
+  display: ['helvetica', 'bold'],
+  bold: ['helvetica', 'bold'],
+  semi: ['helvetica', 'bold'],
+  medium: ['helvetica', 'normal'],
+  script: ['times', 'bolditalic'],
   noto: ['helvetica', 'normal'],
   notoBold: ['helvetica', 'bold'],
 };
+
+const BOLD_KEYS = new Set<FontKey>(['display', 'bold', 'semi', 'script']);
 
 const fontDataCache = new Map<FontKey, Promise<string | null>>();
 
@@ -116,9 +121,7 @@ function isDesignFontSafe(text: string): boolean {
 
 export function setFont(c: CertificateCanvas, key: FontKey, text = ''): void {
   let use = key;
-  if (text && !isDesignFontSafe(text)) {
-    use = key === 'manropeBold' || key === 'manropeSemi' || key === 'cinzel' ? 'notoBold' : 'noto';
-  }
+  if (text && !isDesignFontSafe(text)) use = BOLD_KEYS.has(key) ? 'notoBold' : 'noto';
   if (c.loaded.has(use)) {
     c.doc.setFont(FONT_FILES[use].family, FONT_FILES[use].style);
   } else {
@@ -128,37 +131,34 @@ export function setFont(c: CertificateCanvas, key: FontKey, text = ''): void {
 }
 
 // ---------------------------------------------------------------------------
-// Shapes (template px in, PDF pt out)
+// Shapes (px in, PDF pt out)
 // ---------------------------------------------------------------------------
 
-export function polygon(c: CertificateCanvas, points: [number, number][], color: string, opacity = 1): void {
-  const { doc } = c;
-  const [x0, y0] = points[0];
-  const deltas: [number, number][] = points.slice(1).map(([x, y], i) => {
-    const [px, py] = points[i];
-    return [(x - px) * K, (y - py) * K];
+export type PathCmd = ['M', number, number] | ['L', number, number] | ['C', number, number, number, number, number, number];
+
+/** Fills a closed path made of straight and cubic-Bézier segments (absolute px, like SVG M/L/C). */
+export function fillPath(c: CertificateCanvas, cmds: PathCmd[], color: string): void {
+  const [, x0, y0] = cmds[0] as ['M', number, number];
+  let cx = x0;
+  let cy = y0;
+  const segments: number[][] = [];
+  cmds.slice(1).forEach((cmd) => {
+    if (cmd[0] === 'L') {
+      segments.push([(cmd[1] - cx) * K, (cmd[2] - cy) * K]);
+      [cx, cy] = [cmd[1], cmd[2]];
+    } else if (cmd[0] === 'C') {
+      const [, x1, y1, x2, y2, x, y] = cmd;
+      // jsPDF curve control points are relative to the segment's start.
+      segments.push([(x1 - cx) * K, (y1 - cy) * K, (x2 - cx) * K, (y2 - cy) * K, (x - cx) * K, (y - cy) * K]);
+      [cx, cy] = [x, y];
+    }
   });
-  if (opacity < 1) doc.setGState(doc.GState({ opacity }));
-  doc.setFillColor(color);
-  doc.lines(deltas, x0 * K, y0 * K, [1, 1], 'F', true);
-  if (opacity < 1) doc.setGState(doc.GState({ opacity: 1 }));
+  c.doc.setFillColor(color);
+  c.doc.lines(segments, x0 * K, y0 * K, [1, 1], 'F', true);
 }
 
-/** Clip everything drawn in `draw` to the given px rectangle (like an <svg> box). */
-export function clipped(c: CertificateCanvas, x: number, y: number, w: number, h: number, draw: () => void): void {
-  const { doc } = c;
-  doc.saveGraphicsState();
-  doc.rect(x * K, y * K, w * K, h * K, null);
-  doc.clip();
-  doc.discardPath();
-  draw();
-  doc.restoreGraphicsState();
-}
-
-export function strokeRect(c: CertificateCanvas, x: number, y: number, w: number, h: number, color: string, widthPx: number): void {
-  c.doc.setDrawColor(color);
-  c.doc.setLineWidth(widthPx * K);
-  c.doc.rect(x * K, y * K, w * K, h * K, 'S');
+export function polygon(c: CertificateCanvas, points: [number, number][], color: string): void {
+  fillPath(c, [['M', ...points[0]], ...points.slice(1).map(([x, y]) => ['L', x, y] as PathCmd)], color);
 }
 
 export function fillRect(c: CertificateCanvas, x: number, y: number, w: number, h: number, color: string): void {
@@ -171,51 +171,75 @@ export function circle(c: CertificateCanvas, cx: number, cy: number, r: number, 
   c.doc.circle(cx * K, cy * K, r * K, 'F');
 }
 
-/** Diamond divider: two rules with a small rotated square between them. */
-export function diamondDivider(c: CertificateCanvas, cx: number, y: number, ruleWidth: number): void {
-  fillRect(c, cx - 10 - ruleWidth, y, ruleWidth, 1, INK);
-  fillRect(c, cx + 10, y, ruleWidth, 1, INK);
-  polygon(c, [[cx, y - 5.6], [cx + 5.6, y], [cx, y + 5.6], [cx - 5.6, y]], ACCENT);
+function star(c: CertificateCanvas, cx: number, cy: number, r: number, color: string): void {
+  const pts: [number, number][] = [];
+  for (let i = 0; i < 10; i++) {
+    const radius = i % 2 === 0 ? r : r * 0.42;
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    pts.push([cx + radius * Math.cos(a), cy + radius * Math.sin(a)]);
+  }
+  polygon(c, pts, color);
+}
+
+/** Teal disc with a white tick — the module-list bullet. */
+export function checkBadge(c: CertificateCanvas, cx: number, cy: number, r = 8): void {
+  circle(c, cx, cy, r, TEAL);
+  c.doc.setDrawColor('#FFFFFF');
+  c.doc.setLineWidth(r * 0.24 * K);
+  c.doc.setLineCap('round');
+  c.doc.setLineJoin('round');
+  const s = r / 8;
+  c.doc.lines(
+    [[3 * s * K, 3 * s * K], [5.6 * s * K, -6 * s * K]],
+    (cx - 3.8 * s) * K,
+    (cy + 0.2 * s) * K,
+    [1, 1],
+    'S',
+    false,
+  );
+  c.doc.setLineCap('butt');
+  c.doc.setLineJoin('miter');
 }
 
 /**
- * The template's rosette: navy disc, dotted accent ring, ink core, star and
- * "EXCELLENCE". The portrait layout's version sits on a white rim (r=64) with
- * each ring 1px tighter; the landscape one has no rim.
+ * Gold award rosette: two navy ribbon tails, a bevelled gold ring, navy disc
+ * with a dotted gold ring, a star, the award year and "AWARD". `scale` 1 is
+ * the portrait size (r=64px).
  */
-export function seal(c: CertificateCanvas, cx: number, cy: number, withWhiteRim = false): void {
-  const inset = withWhiteRim ? 1 : 0;
-  if (withWhiteRim) circle(c, cx, cy, 64, '#FFFFFF');
-  circle(c, cx, cy, 58 - inset, NAVY);
-  c.doc.setDrawColor(ACCENT);
-  c.doc.setLineWidth(1.5 * K);
-  c.doc.setLineDashPattern([2 * K, 3 * K], 0);
-  c.doc.circle(cx * K, cy * K, (50 - inset) * K, 'S');
+export function awardSeal(c: CertificateCanvas, cx: number, cy: number, year: string, scale = 1): void {
+  const s = scale;
+  const at = (pts: [number, number][]) => pts.map(([x, y]) => [cx + x * s, cy + y * s] as [number, number]);
+  polygon(c, at([[-38, 46], [-10, 50], [-18, 108], [-30, 94], [-46, 106]]), NAVY);
+  polygon(c, at([[10, 50], [38, 46], [46, 106], [30, 94], [18, 108]]), INK);
+
+  circle(c, cx, cy, 64 * s, GOLD_DARK);
+  circle(c, cx - 1.6 * s, cy - 1.6 * s, 61.5 * s, GOLD_LIGHT);
+  circle(c, cx, cy, 56 * s, NAVY);
+  c.doc.setDrawColor(GOLD_LIGHT);
+  c.doc.setLineWidth(1.1 * s * K);
+  c.doc.setLineDashPattern([1.6 * s * K, 2.6 * s * K], 0);
+  c.doc.circle(cx * K, cy * K, 50 * s * K, 'S');
   c.doc.setLineDashPattern([], 0);
-  circle(c, cx, cy, 40 - inset, INK);
-  const star: [number, number][] = [
-    [0, -18], [2.94, -10.05], [11.41, -9.71], [4.76, -4.45], [7.05, 3.71],
-    [0, -1], [-7.05, 3.71], [-4.76, -4.45], [-11.41, -9.71], [-2.94, -10.05],
-  ];
-  polygon(c, star.map(([x, y]) => [cx + x, cy + y]), ACCENT);
-  spacedText(c, 'EXCELLENCE', cx, cy + 16, { key: 'manropeBold', size: 8.5, spacing: 1.5, color: '#FFFFFF' });
+
+  star(c, cx, cy - 22 * s, 7 * s, GOLD_LIGHT);
+  spacedText(c, year, cx, cy + 3 * s, { key: 'display', size: 19 * s, color: GOLD_LIGHT });
+  spacedText(c, 'AWARD', cx, cy + 24 * s, { key: 'bold', size: 7.5 * s, spacing: 2 * s, color: '#FFFFFF' });
 }
 
-/** Small hexagon brand mark used when the company has no logo. */
-export function hexMark(c: CertificateCanvas, x: number, y: number, outer: string, inner: string, outline = false): void {
-  const big: [number, number][] = [[15, 1], [28, 8], [28, 22], [15, 29], [2, 22], [2, 8]];
-  const small: [number, number][] = [[15, 8], [22, 12], [22, 18], [15, 22], [8, 18], [8, 12]];
-  const at = (pts: [number, number][]) => pts.map(([px, py]) => [x + px, y + py] as [number, number]);
-  if (outline) {
-    c.doc.setDrawColor(outer);
-    c.doc.setLineWidth(1.5 * K);
-    const pts = at(big);
-    const deltas = pts.slice(1).map(([px, py], i) => [(px - pts[i][0]) * K, (py - pts[i][1]) * K] as [number, number]);
-    c.doc.lines(deltas, pts[0][0] * K, pts[0][1] * K, [1, 1], 'S', true);
-  } else {
-    polygon(c, at(big), outer);
-  }
-  polygon(c, at(small), inner);
+/** Hexagon brand mark (teal outline around a white hexagon) used when the company has no logo. */
+export function hexMark(c: CertificateCanvas, cx: number, cy: number, size: number): void {
+  const hex = (r: number) => Array.from({ length: 6 }, (_, i) => {
+    const a = -Math.PI / 2 + (i * Math.PI) / 3;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)] as [number, number];
+  });
+  const outer = hex(size / 2);
+  c.doc.setDrawColor(LIGHT_TEAL);
+  c.doc.setLineWidth((size / 16) * K);
+  c.doc.setLineJoin('round');
+  const deltas = outer.slice(1).map(([x, y], i) => [(x - outer[i][0]) * K, (y - outer[i][1]) * K]);
+  c.doc.lines(deltas, outer[0][0] * K, outer[0][1] * K, [1, 1], 'S', true);
+  c.doc.setLineJoin('miter');
+  polygon(c, hex(size * 0.26), '#FFFFFF');
 }
 
 /** Draws an image scaled to fit (contain) a px box. Returns false if the image couldn't be drawn. */
@@ -232,15 +256,27 @@ export function imageContain(c: CertificateCanvas, dataUrl: string, x: number, y
   }
 }
 
+/** Company logo on a white rounded tile (so dark logos stay visible on navy), or the hex mark. */
+export function brandMark(c: CertificateCanvas, cx: number, cy: number, size: number, logo?: string | null): void {
+  if (logo) {
+    c.doc.setFillColor('#FFFFFF');
+    c.doc.roundedRect((cx - size / 2) * K, (cy - size / 2) * K, size * K, size * K, 6 * K, 6 * K, 'F');
+    if (imageContain(c, logo, cx - size / 2 + 4, cy - size / 2 + 4, size - 8, size - 8)) return;
+    // Unreadable logo — fall through to the hex mark on the navy background.
+    circle(c, cx, cy, size / 2 + 1, NAVY);
+  }
+  hexMark(c, cx, cy, Math.min(size, 44));
+}
+
 // ---------------------------------------------------------------------------
 // Text
 // ---------------------------------------------------------------------------
 
-interface TextStyle {
+export interface TextStyle {
   key: FontKey;
-  /** Font size in template px. */
+  /** Font size in px. */
   size: number;
-  /** CSS letter-spacing in template px. */
+  /** CSS letter-spacing in px. */
   spacing?: number;
   color: string;
 }
@@ -260,14 +296,17 @@ function needsRaster(text: string): boolean {
 
 const RASTER_SCALE = 4;
 
+function rasterSize(style: TextStyle): number {
+  // The script face's size is set for Latin display type; a regular face at
+  // the same size would dwarf the layout, so script-styled text is smaller.
+  return style.key === 'script' ? style.size * 0.75 : style.size;
+}
+
 function canvasFont(style: TextStyle): string {
-  const bold = style.key === 'manropeBold' || style.key === 'manropeSemi' || style.key === 'cinzel';
-  const italic = style.key === 'cormorantItalic' || style.key === 'pinyon';
-  const family = style.key === 'cinzel' || style.key === 'cormorantItalic' || style.key === 'pinyon' ? 'serif' : 'sans-serif';
-  // Pinyon Script's sizes are optically tiny; a regular face at the same px
-  // size would dwarf the layout, so script-styled text is drawn smaller.
-  const size = style.key === 'pinyon' ? style.size * 0.6 : style.size;
-  return `${italic ? 'italic ' : ''}${bold ? '700 ' : ''}${size * RASTER_SCALE}px ${family}`;
+  const bold = BOLD_KEYS.has(style.key) || style.key === 'notoBold';
+  const italic = style.key === 'script';
+  const family = style.key === 'script' ? 'serif' : 'sans-serif';
+  return `${italic ? 'italic ' : ''}${bold ? '700 ' : ''}${rasterSize(style) * RASTER_SCALE}px ${family}`;
 }
 
 function rasterContext(): CanvasRenderingContext2D | null {
@@ -293,7 +332,7 @@ function drawRasterText(c: CertificateCanvas, text: string, left: number, cy: nu
   if (!ctx) return false;
   ctx.font = canvasFont(style);
   const widthPx = Math.ceil(ctx.measureText(text).width) + 8;
-  const heightPx = Math.ceil((style.key === 'pinyon' ? style.size * 0.6 : style.size) * RASTER_SCALE * 1.8);
+  const heightPx = Math.ceil(rasterSize(style) * RASTER_SCALE * 1.8);
   const canvas = ctx.canvas;
   canvas.width = widthPx;
   canvas.height = heightPx;
@@ -312,19 +351,18 @@ function drawRasterText(c: CertificateCanvas, text: string, left: number, cy: nu
   }
 }
 
-/** Width in template px of `text` in the given style (letter-spacing included, like CSS). */
+/** Width in px of `text` in the given style (letter-spacing included, like CSS). */
 export function textWidth(c: CertificateCanvas, text: string, style: TextStyle): number {
   const raster = rasterMeasure(text, style);
   if (raster !== null) return raster;
   setFont(c, style.key, text);
   c.doc.setFontSize(style.size * K);
-  const spacing = style.spacing ?? 0;
-  return c.doc.getTextWidth(text) / K + spacing * [...text].length;
+  return c.doc.getTextWidth(text) / K + (style.spacing ?? 0) * [...text].length;
 }
 
 /**
  * Letter-spaced single line, vertically centred on `cy`. `align` positions
- * the line's box at `x` like CSS text-align would.
+ * the line's box at `x` like CSS text-align would. Returns the width drawn.
  */
 export function spacedText(
   c: CertificateCanvas,
@@ -359,99 +397,54 @@ export function truncate(c: CertificateCanvas, text: string, style: TextStyle, m
   return `${out.trimEnd()}…`;
 }
 
-export interface TextRun {
-  text: string;
-  key: FontKey;
-  color: string;
+/** Word-wraps `text` to `maxWidth` px, at most `maxLines` lines (the last ends in "…" if cut). */
+export function wrapLines(c: CertificateCanvas, text: string, style: TextStyle, maxWidth: number, maxLines: number): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let line = '';
+  words.forEach((word) => {
+    const next = line ? `${line} ${word}` : word;
+    if (line && textWidth(c, next, style) > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  });
+  if (line) lines.push(line);
+  if (lines.length <= maxLines) return lines.map((l) => truncate(c, l, style, maxWidth));
+  const kept = lines.slice(0, maxLines);
+  kept[maxLines - 1] = truncate(c, `${kept[maxLines - 1]} ${lines.slice(maxLines).join(' ')}`, style, maxWidth);
+  return kept;
+}
+
+/** Checklist item: teal tick badge followed by the label, truncated to `width`. */
+export function checkItem(c: CertificateCanvas, x: number, cy: number, label: string, width: number, size = 13): void {
+  checkBadge(c, x + 8, cy, 8);
+  const style = { key: 'medium' as const, size, color: INK };
+  spacedText(c, truncate(c, label, style, width - 28), x + 26, cy, style, 'left');
 }
 
 /**
- * Centred paragraph built from mixed-weight runs (e.g. body text with a bold
- * programme name), word-wrapped to `maxWidth` px. Returns the y (px) just
- * below the last line. Lines past `maxLines` are dropped, ending in "…".
+ * Footer block in the design's style: value (date or signatory name) above a
+ * rule, spaced caption below. A captured signature is drawn above the name.
  */
-export function richParagraph(
+export function footerBlock(
   c: CertificateCanvas,
-  runs: TextRun[],
   cx: number,
-  firstLineCy: number,
-  maxWidth: number,
-  size: number,
-  lineHeight: number,
-  maxLines = 4,
-): number {
-  type Word = { text: string; run: TextRun; space: boolean };
-  const words: Word[] = [];
-  runs.forEach((run) => {
-    run.text.split(/(\s+)/).forEach((part) => {
-      if (!part) return;
-      if (/^\s+$/.test(part)) {
-        if (words.length) words[words.length - 1].space = true;
-      } else {
-        words.push({ text: part, run, space: false });
-      }
-    });
-  });
-
-  const width = (w: Word) => textWidth(c, w.text, { key: w.run.key, size, color: w.run.color });
-  const spaceW = textWidth(c, ' ', { key: 'manrope', size, color: INK });
-
-  const lines: Word[][] = [];
-  let line: Word[] = [];
-  let lineW = 0;
-  words.forEach((w) => {
-    const prev = line[line.length - 1];
-    const add = (prev?.space ? spaceW : 0) + width(w);
-    if (line.length && lineW + add > maxWidth) {
-      lines.push(line);
-      line = [w];
-      lineW = width(w);
-    } else {
-      line.push(w);
-      lineW += add;
-    }
-  });
-  if (line.length) lines.push(line);
-
-  const shown = lines.slice(0, maxLines);
-  if (lines.length > maxLines) {
-    const last = shown[shown.length - 1];
-    last[last.length - 1] = { ...last[last.length - 1], text: `${last[last.length - 1].text}…` };
-  }
-
-  shown.forEach((ln, i) => {
-    const total = ln.reduce((sum, w, j) => sum + width(w) + (j > 0 && ln[j - 1].space ? spaceW : 0), 0);
-    let x = cx - total / 2;
-    const cy = firstLineCy + i * lineHeight;
-    ln.forEach((w, j) => {
-      if (j > 0 && ln[j - 1].space) x += spaceW;
-      x += spacedText(c, w.text, x, cy, { key: w.run.key, size, color: w.run.color }, 'left');
-    });
-  });
-  return firstLineCy + (shown.length - 1) * lineHeight + lineHeight / 2;
-}
-
-/** Signature block: optional captured signature above a rule, then name and caption. */
-export function signatureBlock(
-  c: CertificateCanvas,
-  left: number,
   width: number,
   ruleY: number,
-  name: string,
+  value: string,
   caption: string,
   signatureImageDataUrl?: string | null,
 ): void {
-  const cx = left + width / 2;
-  if (signatureImageDataUrl) {
-    imageContain(c, signatureImageDataUrl, cx - 80, ruleY - 50, 160, 44);
-  }
-  fillRect(c, left, ruleY, width, 1, INK);
-  const nameStyle = { key: 'manropeBold' as const, size: 14, color: INK };
-  const nameSize = fitSize(c, name || '—', nameStyle, width, 10);
-  const nameText = truncate(c, name || '—', { ...nameStyle, size: nameSize }, width);
-  spacedText(c, nameText, cx, ruleY + 20.5, { ...nameStyle, size: nameSize });
-  const cap = truncate(c, caption.toUpperCase(), { key: 'manropeSemi', size: 11, spacing: 2, color: MUTED }, width + 20);
-  spacedText(c, cap, cx, ruleY + 41.5, { key: 'manropeSemi', size: 11, spacing: 2, color: MUTED });
+  if (signatureImageDataUrl) imageContain(c, signatureImageDataUrl, cx - 75, ruleY - 68, 150, 40);
+  const valueStyle = { key: 'bold' as const, size: 14.5, color: INK };
+  const size = fitSize(c, value || '—', valueStyle, width, 10);
+  spacedText(c, truncate(c, value || '—', { ...valueStyle, size }, width), cx, ruleY - 18, { ...valueStyle, size });
+  fillRect(c, cx - width / 2, ruleY, width, 1, INK);
+  const capStyle = { key: 'semi' as const, size: 10.5, spacing: 3.5, color: MUTED };
+  spacedText(c, truncate(c, caption.toUpperCase(), capStyle, width + 30), cx, ruleY + 17, capStyle);
 }
 
 export function formatCertificateDate(date: Date): string {
