@@ -112,7 +112,7 @@ export default function WorkPermitsPage() {
     }
     setExtendSaving(true);
     try {
-      await extendWorkPermit(extending.id, extendValue);
+      await extendWorkPermit(extending, extendValue, profile ? { id: profile.id, name: profile.fullName ?? '' } : null);
       toast.success(t('common.workPermits.extendModal.toasts.extended'));
       setExtending(null);
     } catch {
