@@ -384,9 +384,12 @@ service cloud.firestore {
       // floor_operator needs read access: scanning a machine QR opens the
       // breakdown report form, which loads machines to auto-select the one
       // scanned (PM-093).
+      // hr_officer: the HR dashboard's Contractor Scoreboard and HR Analytics
+      // scope contractor jobs/WOs to a plant via the machine registry; without
+      // machine reads that lookup came back empty and dropped every row.
       allow read: if isAuthenticated() && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
-        'plant_manager', 'store_keeper', 'trainee', 'admin'
+        'plant_manager', 'store_keeper', 'trainee', 'admin', 'hr_officer'
       ]);
       // Public, no-login QR breakdown report: a single machine lookup by id
       // (never a list query) under an anonymous session, so a scanned QR can
