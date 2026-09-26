@@ -122,7 +122,7 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
         </div>
       )}
       {error && (
-        <div className="rounded-xl bg-red-900/20 border border-red-700/50 p-4 text-sm text-red-300">{error}</div>
+        <div className="rounded-xl bg-red-900/20 border border-red-700/50 p-4 text-sm text-red-300 break-words [overflow-wrap:anywhere]">{error}</div>
       )}
 
       {/* Payment methods */}
