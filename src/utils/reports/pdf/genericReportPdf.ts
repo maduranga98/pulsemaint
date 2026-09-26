@@ -7,13 +7,19 @@ import { imageFormatFromDataUrl, resolveCompanyLogoDataUrl } from '../../../lib/
 import type { TFunction } from 'i18next';
 import { REPORT_DEFINITIONS, getReportName } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
-import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '../../../services/reports.service';
+import {
+  fetchReportRows,
+  fetchMachineProfile,
+  BREAKDOWN_SUMMARY_FREE_TEXT_KEYS,
+  type MachineProfileField,
+} from '../../../services/reports.service';
+import { translateForDisplay } from '../../../lib/voiceTranslate';
 import type { ReportConfig, ReportType } from '../../../types/reports.types';
 import { resolveColumns, formatCell } from '../reportColumns';
 import type { ReportColumn } from '../reportColumns';
 import { formatShortDateTime, formatMonthYear } from '../../../lib/i18nDate';
 import { renderBarChart, type ChartDatum } from './chartRenderer';
-import { registerUnicodeFont, pdfSafeText } from './pdfFonts';
+import { registerUnicodeFont, pdfSafeText, isPdfRenderable } from './pdfFonts';
 import {
   topHealthScores,
   totalCostByWoType,
@@ -386,6 +392,20 @@ export async function exportGenericReportPdf(
       const perTicketColumns = columns.filter(
         (c) => c.key !== 'machineName' && c.key !== 'machineDepartment' && c.key !== 'ticketNumber',
       );
+      // Free text arrives already translated into the viewer's language, but
+      // no embedded font covers some of them (e.g. Sinhala) — those cells
+      // would draw blank, so fall back to English for just those.
+      await Promise.all(
+        rows.flatMap((row) =>
+          BREAKDOWN_SUMMARY_FREE_TEXT_KEYS.map(async (key) => {
+            const value = row[key];
+            if (typeof value !== 'string' || !value.trim() || isPdfRenderable(value)) return;
+            const english = await translateForDisplay(value, 'en-US');
+            row[key] = isPdfRenderable(english) ? english : '';
+          }),
+        ),
+      );
+
       const groups: { machineName: string; department: string; rows: Record<string, unknown>[] }[] = [];
       for (const row of rows) {
         const machineName = String(row.machineName ?? tr('common.reports.pdf.unknownMachine', 'Unknown Machine'));
