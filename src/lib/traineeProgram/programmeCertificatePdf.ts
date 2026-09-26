@@ -1,5 +1,10 @@
 import { jsPDF } from 'jspdf';
-import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
+import {
+  ACCENT, FOOTER_LABEL, INK, MUTED, NAVY,
+  circle, diamondDivider, fillRect, fitSize, formatCertificateDate, hexMark, imageContain,
+  polygon, registerCertificateFonts, richParagraph, seal, signatureBlock, spacedText,
+  strokeRect, textWidth, truncate,
+} from '@/lib/pdf/certificateDesign';
 import type { ProgrammeDuration, ProgrammeDurationPreset, ProgrammeModuleResult } from '../../types/traineeProgram';
 import { formatDurationLabel } from './programmeDuration';
 
@@ -26,197 +31,146 @@ export interface ProgrammeCertificateInput {
   signatureImageDataUrl?: string | null;
 }
 
-const INK = { r: 15, g: 23, b: 42 };
-const MUTED = { r: 100, g: 116, b: 139 };
-const GOLD = { r: 180, g: 138, b: 22 };
-const NAVY = { r: 30, g: 58, b: 95 };
+const W = 794;
+const CX = W / 2;
 
 /**
- * Builds a Certificate of Completion for the trainee programme on the
- * company's own letterhead — logo, name, and contact details, matching the
- * same structure as the training-module certificate (see
- * src/lib/training/certificatePdf.ts): A4 portrait, gold border, the
- * trainee's name as the centerpiece, a plain list of completed modules
- * (no per-module marks — only the overall final mark), and the
- * authorizer's captured digital signature.
+ * Builds the Trainee Programme Certificate of Completion in the portrait
+ * navy/sky-blue design (template "Recommended — A4 portrait"): angled header
+ * band with the company's logo and name, the seal, the trainee's name in
+ * script, duration / final mark / date awarded, the modules completed month
+ * by month, the recommendation, the authorizer's captured digital signature,
+ * and the certificate ID in the footer band. Every value comes from the
+ * programme record — no placeholder copy.
  */
-export function buildProgrammeCertificatePdf(input: ProgrammeCertificateInput): jsPDF {
+export async function buildProgrammeCertificatePdf(input: ProgrammeCertificateInput): Promise<jsPDF> {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const centre = pageWidth / 2;
-  const marginX = 56;
+  const c = await registerCertificateFonts(doc);
 
-  // Outer decorative border
-  doc.setDrawColor(GOLD.r, GOLD.g, GOLD.b);
-  doc.setLineWidth(2.5);
-  doc.rect(20, 20, pageWidth - 40, pageHeight - 40);
-  doc.setLineWidth(0.75);
-  doc.rect(28, 28, pageWidth - 56, pageHeight - 56);
+  strokeRect(c, 32, 32, W - 64, 1123 - 64, NAVY, 1.5);
+  strokeRect(c, 41, 41, W - 82, 1123 - 82, ACCENT, 1);
 
-  let y = 74;
+  // Header and footer bands.
+  polygon(c, [[0, 0], [794, 0], [794, 200], [0, 280]], NAVY);
+  polygon(c, [[0, 252], [794, 172], [794, 180], [0, 260]], ACCENT);
+  polygon(c, [[0, 0], [794, 0], [794, 160], [0, 240]], INK);
+  polygon(c, [[520, 0], [560, 0], [290, 229], [250, 233]], NAVY, 0.55);
+  polygon(c, [[600, 0], [612, 0], [350, 223], [338, 224]], ACCENT, 0.6);
+  polygon(c, [[0, 943 + 56], [794, 943 + 6], [794, 943 + 12], [0, 943 + 62]], ACCENT);
+  polygon(c, [[0, 943 + 70], [794, 943 + 20], [794, 1123], [0, 1123]], NAVY);
+  polygon(c, [[0, 943 + 110], [794, 943 + 50], [794, 1123], [0, 1123]], INK);
 
-  // Letterhead — logo centered above the company name, matching the
-  // training-certificate letterhead.
+  // Organisation (white on the dark band); the logo sits on a white badge so
+  // dark logos stay visible.
+  const orgStyle = { key: 'manropeBold' as const, size: 13, spacing: 4, color: '#FFFFFF' };
+  const orgLabel = truncate(c, (input.companyName || 'FirmiCore').toUpperCase(), orgStyle, 520);
+  const markSize = input.companyLogoDataUrl ? 38 : 30;
+  const orgLeft = CX - (markSize + 12 + textWidth(c, orgLabel, orgStyle)) / 2;
+  let drewLogo = false;
   if (input.companyLogoDataUrl) {
-    try {
-      doc.addImage(input.companyLogoDataUrl, imageFormatFromDataUrl(input.companyLogoDataUrl), centre - 24, y - 10, 48, 48);
-      y += 46;
-    } catch {
-      // Malformed/unsupported image data — carry on without the logo rather
-      // than failing the download.
-    }
+    circle(c, orgLeft + markSize / 2, 67, markSize / 2, '#FFFFFF');
+    drewLogo = imageContain(c, input.companyLogoDataUrl, orgLeft + 6, 67 - markSize / 2 + 6, markSize - 12, markSize - 12);
   }
+  if (!drewLogo) hexMark(c, orgLeft + (markSize - 30) / 2, 52, ACCENT, '#FFFFFF', true);
+  spacedText(c, orgLabel, orgLeft + markSize + 12, 67, orgStyle, 'left');
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-  doc.text((input.companyName || 'FirmiCore').toUpperCase(), centre, y + 12, { align: 'center' });
+  seal(c, 397, 240, true);
 
-  const contactBits = [input.companyAddress, input.companyPhone, input.companyEmail]
-    .map((v) => (v ?? '').trim())
-    .filter(Boolean);
-  if (contactBits.length > 0) {
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
-    doc.text(contactBits.join('  ·  '), centre, y + 25, { align: 'center' });
-  }
+  spacedText(c, 'CERTIFICATE', CX, 364, { key: 'cinzel', size: 56, spacing: 8, color: INK });
+  const subStyle = { key: 'manropeSemi' as const, size: 15, spacing: 6, color: NAVY };
+  const subtitle = 'OF COMPLETION';
+  const subW = textWidth(c, subtitle, subStyle);
+  spacedText(c, subtitle, CX, 414, subStyle);
+  fillRect(c, CX - subW / 2 - 16 - 56, 413, 56, 2, ACCENT);
+  fillRect(c, CX + subW / 2 + 16, 413, 56, 2, ACCENT);
 
-  y += 50;
-  doc.setFont('times', 'bold');
-  doc.setFontSize(24);
-  doc.setTextColor(INK.r, INK.g, INK.b);
-  doc.text('Certificate of Completion', centre, y, { align: 'center' });
+  spacedText(c, 'This certificate is proudly presented to', CX, 464, { key: 'cormorantItalic', size: 22, color: MUTED });
+  const nameStyle = { key: 'pinyon' as const, size: 72, color: NAVY };
+  spacedText(c, input.traineeName, CX, 514, { ...nameStyle, size: fitSize(c, input.traineeName, nameStyle, 600, 36) });
+  diamondDivider(c, CX, 562, 220);
 
-  y += 14;
-  doc.setDrawColor(GOLD.r, GOLD.g, GOLD.b);
-  doc.setLineWidth(1);
-  doc.line(centre - 90, y, centre + 90, y);
-
-  y += 26;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
-  doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
-  doc.text('This certifies that', centre, y, { align: 'center' });
-
-  y += 30;
-  doc.setFont('times', 'bolditalic');
-  doc.setFontSize(22);
-  doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-  doc.text(input.traineeName, centre, y, { align: 'center' });
-
+  let y = 600;
   if (input.traineeEmployeeId) {
-    y += 15;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
-    doc.text(`Employee ID: ${input.traineeEmployeeId}`, centre, y, { align: 'center' });
+    spacedText(c, `EMPLOYEE ID: ${input.traineeEmployeeId}`, CX, 579, { key: 'manropeSemi', size: 10.5, spacing: 2, color: MUTED });
+    y = 606;
   }
 
-  y += 24;
   const durationLabel = formatDurationLabel(input.durationPreset, input.durationMonths);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10.5);
-  doc.setTextColor(51, 65, 85);
-  doc.text(
-    `has successfully completed the ${durationLabel} Trainee Training Programme`,
-    centre,
-    y,
-    { align: 'center' },
-  );
-  y += 15;
-  doc.text(
-    `from ${input.startDate.toLocaleDateString('en-GB')} to ${input.completedDate.toLocaleDateString('en-GB')}, with a final mark of ${input.finalMark}%.`,
-    centre,
-    y,
-    { align: 'center' },
-  );
+  y = richParagraph(c, [
+    { text: 'In recognition of outstanding performance, dedication and professional excellence in successfully completing the ', key: 'manrope', color: MUTED },
+    { text: `${durationLabel} Trainee Training Programme`, key: 'manropeBold', color: INK },
+    { text: `, from ${formatCertificateDate(input.startDate)} to ${formatCertificateDate(input.completedDate)}.`, key: 'manrope', color: MUTED },
+  ], CX, y, 560, 15, 23, 3);
 
-  // Modules completed — a plain list (module name only, no per-module
-  // marks), not a table.
-  y += 30;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(INK.r, INK.g, INK.b);
-  doc.text('Modules Completed', marginX, y);
-  y += 16;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(51, 65, 85);
-  input.moduleResults.forEach((r) => {
-    if (y > pageHeight - 150) {
-      doc.addPage('a4', 'portrait');
-      y = 60;
-    }
-    doc.text(`•  Month ${r.month} — ${r.moduleName}`, marginX + 4, y, { maxWidth: pageWidth - marginX * 2 - 4 });
-    y += 16;
+  // Recommendation, quoted — the programme's closing assessment.
+  const recommendation = input.recommendation?.trim();
+  if (recommendation) {
+    y = richParagraph(c, [{ text: `“${recommendation}”`, key: 'cormorantItalic', color: MUTED }], CX, y + 12, 560, 15.5, 19, 2);
+  }
+
+  // Duration · Final mark · Date awarded.
+  const gridTop = Math.max(676, y + 12);
+  const cols: { left: number; color: string; label: string; value: string }[] = [
+    { left: 88, color: ACCENT, label: 'DURATION', value: durationLabel },
+    { left: 299.3, color: NAVY, label: 'FINAL MARK', value: `${input.finalMark}%` },
+    { left: 510.6, color: INK, label: 'DATE AWARDED', value: formatCertificateDate(input.completedDate) },
+  ];
+  cols.forEach((col) => {
+    fillRect(c, col.left, gridTop, 195.4, 3, col.color);
+    spacedText(c, col.label, col.left + 97.7, gridTop + 22.5, { key: 'manropeSemi', size: 11, spacing: 2, color: MUTED });
+    const valueStyle = { key: 'manropeBold' as const, size: 15, color: NAVY };
+    spacedText(c, truncate(c, col.value, valueStyle, 190), col.left + 97.7, gridTop + 46.5, valueStyle);
   });
 
-  y += 14;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(INK.r, INK.g, INK.b);
-  doc.text('Recommendation', marginX, y);
-  y += 15;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9.5);
-  doc.setTextColor(51, 65, 85);
-  const lines = doc.splitTextToSize(input.recommendation, pageWidth - marginX * 2);
-  doc.text(lines, marginX, y);
-  y += lines.length * 12 + 20;
-
-  // Footer block: certificate number left, signature right.
-  const footerY = Math.max(y + 20, pageHeight - 110);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
-  doc.text(`Certificate No. ${input.certificateNumber}`, marginX, footerY);
-  doc.text(`Issued: ${new Date().toLocaleDateString('en-GB')}`, marginX, footerY + 14);
-
-  const sigWidth = 180;
-  const sigX = pageWidth - marginX - sigWidth;
-  if (input.signatureImageDataUrl) {
-    // The authorizer's actual digital signature, captured at issue time.
-    try {
-      doc.addImage(input.signatureImageDataUrl, 'PNG', sigX + 30, footerY - 44, 120, 38);
-    } catch {
-      // A malformed data URL shouldn't block certificate generation — fall back
-      // to the script-font name below.
-      doc.setFont('times', 'bolditalic');
-      doc.setFontSize(18);
-      doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-      doc.text(input.recommendedByName, sigX + sigWidth / 2, footerY - 10, { align: 'center' });
-    }
-  } else {
-    // No captured signature: render the name in a bold script (italic) font
-    // so it still reads as a handwritten authorization.
-    doc.setFont('times', 'bolditalic');
-    doc.setFontSize(18);
-    doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-    doc.text(input.recommendedByName, sigX + sigWidth / 2, footerY - 10, { align: 'center' });
-  }
-
-  doc.setDrawColor(INK.r, INK.g, INK.b);
-  doc.setLineWidth(0.75);
-  doc.line(sigX, footerY, sigX + sigWidth, footerY);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.setTextColor(INK.r, INK.g, INK.b);
-  doc.text(input.recommendedByName, sigX + sigWidth / 2, footerY + 13, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
-  doc.text(input.recommendedByRole, sigX + sigWidth / 2, footerY + 25, { align: 'center' });
-
-  if (input.companyDescription?.trim()) {
-    doc.setFontSize(7);
-    doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
-    doc.text(input.companyDescription.trim(), centre, pageHeight - 40, {
-      align: 'center',
-      maxWidth: pageWidth - marginX * 2,
+  // Modules completed, month by month, in up to three columns.
+  const sigRule = 905;
+  const modules = [...input.moduleResults].sort((a, b) => a.month - b.month);
+  if (modules.length) {
+    const headY = gridTop + 74;
+    spacedText(c, 'MODULES COMPLETED', CX, headY, { key: 'manropeSemi', size: 10.5, spacing: 2, color: MUTED });
+    const rowH = 14;
+    // Rows stop clear of the captured signature drawn above the signature rule.
+    const maxRows = Math.max(1, Math.floor((sigRule - 58 - (headY + 16)) / rowH) + 1);
+    const colCount = modules.length <= maxRows ? 1 : modules.length <= maxRows * 2 ? 2 : 3;
+    const colW = 618 / colCount;
+    const capacity = maxRows * colCount;
+    const shown = modules.length > capacity ? modules.slice(0, capacity - 1) : modules;
+    const entries = shown.map((m) => `Month ${m.month} — ${m.moduleName}`);
+    if (modules.length > capacity) entries.push(`+ ${modules.length - shown.length} more`);
+    const rows = Math.ceil(entries.length / colCount);
+    const itemStyle = { key: 'manrope' as const, size: 10.5, color: INK };
+    entries.forEach((text, i) => {
+      const col = Math.floor(i / rows);
+      const row = i % rows;
+      const cellX = 88 + col * colW;
+      const label = truncate(c, text, itemStyle, colW - 12);
+      if (colCount === 1) {
+        spacedText(c, label, CX, headY + 16 + row * rowH, itemStyle);
+      } else {
+        spacedText(c, label, cellX, headY + 16 + row * rowH, itemStyle, 'left');
+      }
     });
   }
+
+  // Signatures: the authorizer (with their captured signature) and the
+  // issuing company.
+  signatureBlock(c, 88, 240, sigRule, input.recommendedByName, input.recommendedByRole, input.signatureImageDataUrl);
+  signatureBlock(c, 466, 240, sigRule, input.companyName || 'FirmiCore', 'Issuing Organisation');
+
+  // Footer band: certificate ID and a verification contact.
+  const labelStyle = { key: 'manropeSemi' as const, size: 11, spacing: 2, color: FOOTER_LABEL };
+  const valueStyle = { key: 'manropeSemi' as const, size: 11, spacing: 2, color: '#FFFFFF' };
+  const idW = spacedText(c, 'CERTIFICATE ID: ', 64, 1071.5, labelStyle, 'left');
+  spacedText(c, input.certificateNumber, 64 + idW, 1071.5, valueStyle, 'left');
+
+  const contact = (input.companyEmail || input.companyPhone || '').trim();
+  const [rLabel, rValue] = contact
+    ? ['VERIFY: ', truncate(c, contact, valueStyle, 260)]
+    : ['ISSUED: ', formatCertificateDate(input.completedDate).toUpperCase()];
+  const rValueW = textWidth(c, rValue, valueStyle);
+  const rLabelW = textWidth(c, rLabel, labelStyle);
+  spacedText(c, rLabel, 730 - rValueW - rLabelW, 1071.5, labelStyle, 'left');
+  spacedText(c, rValue, 730 - rValueW, 1071.5, valueStyle, 'left');
 
   return doc;
 }

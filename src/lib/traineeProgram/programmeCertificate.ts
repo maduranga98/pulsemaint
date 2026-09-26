@@ -60,7 +60,7 @@ export async function issueProgrammeCertificate(input: IssueProgrammeCertificate
   const { company } = input;
   const companyLogoDataUrl = company.logoDataUrl || (company.logoUrl ? await fetchImageAsDataUrl(company.logoUrl) : null);
 
-  const pdf = buildProgrammeCertificatePdf({
+  const pdf = await buildProgrammeCertificatePdf({
     certificateNumber,
     companyName: company.name,
     companyDescription: company.description,
