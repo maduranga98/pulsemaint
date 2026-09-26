@@ -8960,6 +8960,20 @@
           "correctiveActions": "Actions correctives",
           "preventive": "Recommandations préventives"
         }
+      },
+      "recordPicker": {
+        "change": "Modifier",
+        "types": {
+          "all": "Tous",
+          "work_order": "Ordres de travail",
+          "breakdown": "Pannes"
+        },
+        "search": "Rechercher par numéro ou machine…",
+        "error": "Impossible de charger vos ordres de travail et pannes. Fermez et réessayez.",
+        "none": "Aucun ordre de travail ni panne trouvé pour votre usine / service.",
+        "noMatches": "Aucun enregistrement correspondant.",
+        "refine": "Affichage des {{count}} premiers — recherchez pour en trouver d'autres.",
+        "required": "Sélectionnez l'ordre de travail ou la panne souhaité."
       }
     },
     "ui": {

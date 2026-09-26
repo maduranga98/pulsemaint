@@ -8960,6 +8960,20 @@
           "correctiveActions": "Acciones correctivas",
           "preventive": "Recomendaciones preventivas"
         }
+      },
+      "recordPicker": {
+        "change": "Cambiar",
+        "types": {
+          "all": "Todos",
+          "work_order": "Órdenes de trabajo",
+          "breakdown": "Averías"
+        },
+        "search": "Buscar por número o máquina…",
+        "error": "No se pudieron cargar tus órdenes de trabajo y averías. Cierra e inténtalo de nuevo.",
+        "none": "No se encontraron órdenes de trabajo ni averías de tu planta / departamento.",
+        "noMatches": "No hay registros que coincidan.",
+        "refine": "Se muestran los primeros {{count}}; busca para encontrar otros.",
+        "required": "Selecciona la orden de trabajo o avería que necesitas."
       }
     },
     "ui": {

@@ -213,9 +213,11 @@ exports.sendInvitationEmail = sendInvitationEmail;
 
 const { listRequestRecipients } = require("./src/requests/listRequestRecipients");
 const { purgeExpiredRecordGrants } = require("./src/requests/purgeExpiredRecordGrants");
+const { listRecordReferences } = require("./src/requests/listRecordReferences");
 
 exports.listRequestRecipients = listRequestRecipients;
 exports.purgeExpiredRecordGrants = purgeExpiredRecordGrants;
+exports.listRecordReferences = listRecordReferences;
 
 // ---------------------------------------------------------------------------
 // Billing Module — Stripe Cloud Functions

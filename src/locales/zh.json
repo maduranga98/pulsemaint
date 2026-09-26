@@ -8960,6 +8960,20 @@
           "correctiveActions": "纠正措施",
           "preventive": "预防建议"
         }
+      },
+      "recordPicker": {
+        "change": "更改",
+        "types": {
+          "all": "全部",
+          "work_order": "工单",
+          "breakdown": "故障"
+        },
+        "search": "按编号或设备搜索…",
+        "error": "无法加载您的工单和故障。请关闭后重试。",
+        "none": "未找到您所在工厂/部门的工单或故障。",
+        "noMatches": "没有匹配的记录。",
+        "refine": "仅显示前 {{count}} 条 — 请搜索以查找其他记录。",
+        "required": "请选择您需要的工单或故障。"
       }
     },
     "ui": {

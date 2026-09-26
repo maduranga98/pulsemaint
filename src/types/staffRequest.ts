@@ -64,6 +64,10 @@ export interface StaffRequest {
   message: string;
   /** For record_access: the WO / breakdown number the requester wants to see. */
   reference: string | null;
+  /** For record_access: the picked record behind `reference`. Absent on older requests (free-text reference). */
+  referenceType?: 'work_order' | 'breakdown' | null;
+  referenceId?: string | null;
+  referenceMachineName?: string | null;
   attachments: StaffRequestAttachment[];
 
   recipientRole: StaffRequestRecipientRole;
