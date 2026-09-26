@@ -301,6 +301,62 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Custom integrations & API",
         "dedicatedSupportSla": "Dedicated support & SLA"
+      },
+      "account": {
+        "loading": "Loading billing details…",
+        "refresh": "Refresh",
+        "portal": "Open Stripe billing portal (change or cancel subscription)",
+        "notices": {
+          "cardAdded": "Card saved. It will be used for your upcoming invoices.",
+          "topUpDone": "Payment received. Your account credit will update in a moment."
+        },
+        "errors": {
+          "loadFailed": "Failed to load billing details. Please try again.",
+          "cardWindowFailed": "Failed to open the add-card window. Please try again.",
+          "topUpWindowFailed": "Failed to open the top-up window. Please try again.",
+          "cardUpdateFailed": "Failed to update the card. Please try again."
+        },
+        "cards": {
+          "title": "Payment Methods",
+          "subtitle": "Cards are added in Stripe's secure window — FirmiCore never sees your full card number.",
+          "add": "Add Card",
+          "empty": "No cards saved yet.",
+          "default": "Default",
+          "expires": "Expires {{date}}",
+          "makeDefault": "Make default",
+          "remove": "Remove card",
+          "confirmRemove": "Remove this card from your account?"
+        },
+        "credit": {
+          "title": "Account Credit",
+          "subtitle": "Prepaid credit is applied automatically to your upcoming invoices.",
+          "topUp": "Top Up",
+          "balance": "Available credit"
+        },
+        "topUp": {
+          "title": "Top Up Account Credit",
+          "body": "Choose an amount. You'll pay in Stripe's secure window, and the credit is applied to your upcoming invoices.",
+          "custom": "Or enter an amount (USD)",
+          "range": "Enter a whole amount between ${{min}} and ${{max}}.",
+          "pay": "Continue to pay {{amount}}",
+          "secure": "Payments are processed securely by Stripe."
+        },
+        "history": {
+          "title": "Billing History",
+          "date": "Date",
+          "description": "Description",
+          "amount": "Amount",
+          "status": "Status",
+          "invoice": "Invoice",
+          "view": "View",
+          "empty": "No invoices yet.",
+          "statuses": {
+            "paid": "Paid",
+            "open": "Due",
+            "uncollectible": "Failed",
+            "void": "Void"
+          }
+        }
       }
     },
     "contractors": {

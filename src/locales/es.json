@@ -8672,6 +8672,62 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Integraciones personalizadas y API",
         "dedicatedSupportSla": "Soporte dedicado y SLA"
+      },
+      "account": {
+        "loading": "Cargando detalles de facturación…",
+        "refresh": "Actualizar",
+        "portal": "Abrir el portal de facturación de Stripe (cambiar o cancelar la suscripción)",
+        "notices": {
+          "cardAdded": "Tarjeta guardada. Se usará para tus próximas facturas.",
+          "topUpDone": "Pago recibido. Tu crédito se actualizará en un momento."
+        },
+        "errors": {
+          "loadFailed": "No se pudieron cargar los detalles de facturación. Inténtalo de nuevo.",
+          "cardWindowFailed": "No se pudo abrir la ventana para añadir tarjeta. Inténtalo de nuevo.",
+          "topUpWindowFailed": "No se pudo abrir la ventana de recarga. Inténtalo de nuevo.",
+          "cardUpdateFailed": "No se pudo actualizar la tarjeta. Inténtalo de nuevo."
+        },
+        "cards": {
+          "title": "Métodos de pago",
+          "subtitle": "Las tarjetas se añaden en la ventana segura de Stripe: FirmiCore nunca ve el número completo.",
+          "add": "Añadir tarjeta",
+          "empty": "Aún no hay tarjetas guardadas.",
+          "default": "Predeterminada",
+          "expires": "Vence {{date}}",
+          "makeDefault": "Hacer predeterminada",
+          "remove": "Eliminar tarjeta",
+          "confirmRemove": "¿Eliminar esta tarjeta de tu cuenta?"
+        },
+        "credit": {
+          "title": "Crédito de la cuenta",
+          "subtitle": "El crédito prepagado se aplica automáticamente a tus próximas facturas.",
+          "topUp": "Recargar",
+          "balance": "Crédito disponible"
+        },
+        "topUp": {
+          "title": "Recargar crédito de la cuenta",
+          "body": "Elige un importe. Pagarás en la ventana segura de Stripe y el crédito se aplicará a tus próximas facturas.",
+          "custom": "O introduce un importe (USD)",
+          "range": "Introduce un importe entero entre ${{min}} y ${{max}}.",
+          "pay": "Continuar para pagar {{amount}}",
+          "secure": "Los pagos se procesan de forma segura con Stripe."
+        },
+        "history": {
+          "title": "Historial de facturación",
+          "date": "Fecha",
+          "description": "Descripción",
+          "amount": "Importe",
+          "status": "Estado",
+          "invoice": "Factura",
+          "view": "Ver",
+          "empty": "Aún no hay facturas.",
+          "statuses": {
+            "paid": "Pagada",
+            "open": "Pendiente",
+            "uncollectible": "Fallida",
+            "void": "Anulada"
+          }
+        }
       }
     },
     "actions": {

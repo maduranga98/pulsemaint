@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Lock, Zap, Building2, Factory, Star, CreditCard, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Check, Lock, Zap, Building2, Factory, Star, AlertTriangle } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
 import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
+import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
 
 type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
@@ -221,7 +222,7 @@ export default function BillingPage() {
   // changes which price the next checkout/upgrade uses.
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(company?.billingCycle ?? 'monthly');
 
-  const [redirecting, setRedirecting] = useState<Plan | 'portal' | null>(null);
+  const [redirecting, setRedirecting] = useState<Plan | null>(null);
   const [error, setError] = useState('');
   const [pendingDowngrade, setPendingDowngrade] = useState<PlanDef | null>(null);
 
@@ -261,24 +262,11 @@ export default function BillingPage() {
     setPendingDowngrade(null);
   }
 
-  async function handleManageBilling() {
-    if (!company || !isAdmin) return;
-    setError('');
-    setRedirecting('portal');
-    try {
-      const url = await createPortalSession();
-      window.location.href = url;
-    } catch (err: any) {
-      setError(err?.message || t('common.billing.errors.portalFailed'));
-      setRedirecting(null);
-    }
-  }
-
   return (
     <div className="min-h-full space-y-6">
       {/* Header */}
       <div className="bg-[#0F1E35] border-b border-[#1E3A5F] -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 px-4 sm:px-6 lg:px-8 py-5">
-        <h1 className="text-2xl font-bold text-white">{t('common.billing.header.title')}</h1>
+        <h1 className="text-2xl font-bold text-white!">{t('common.billing.header.title')}</h1>
         <p className="text-sm text-slate-400 mt-1">{t('common.billing.header.subtitle')}</p>
       </div>
 
@@ -382,7 +370,7 @@ export default function BillingPage() {
               {/* Plan header */}
               <div>
                 <div className={`mb-2 ${plan.color}`}>{plan.icon}</div>
-                <h3 className="text-base font-bold text-white">{planName}</h3>
+                <h3 className="text-base font-bold text-white!">{planName}</h3>
                 <div className="flex items-baseline gap-1 mt-1 flex-wrap">
                   {price === null ? (
                     <span className="text-2xl font-bold text-white">{t('common.billing.customPrice')}</span>
@@ -495,29 +483,9 @@ export default function BillingPage() {
         })}
       </div>
 
-      {/* Payment methods & invoices — handled entirely by Stripe's hosted
-          Billing Portal, so FirmiCore never stores card data. */}
-      {isAdmin && (
-        <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5 space-y-3">
-          <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-blue-400" /> {t('common.billing.payment.title')}
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">{t('common.billing.payment.subtitle')}</p>
-          </div>
-          <button
-            onClick={() => void handleManageBilling()}
-            disabled={!!redirecting || !company?.stripeCustomerId}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-60"
-          >
-            <ExternalLink className="h-4 w-4" />
-            {redirecting === 'portal' ? t('common.billing.cta.redirecting') : t('common.billing.payment.manage')}
-          </button>
-          {!company?.stripeCustomerId && (
-            <p className="text-xs text-slate-500">{t('common.billing.payment.subscribeFirst')}</p>
-          )}
-        </div>
-      )}
+      {/* Payment methods, account credit & billing history. Cards are only
+          entered on Stripe's hosted pages, so FirmiCore never stores card data. */}
+      {isAdmin && <BillingAccountPanel hasSubscription={!!company?.stripeCustomerId} />}
 
       {/* Note */}
       <p className="text-xs text-slate-500 text-center pb-4">
@@ -534,7 +502,7 @@ export default function BillingPage() {
           <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-6 max-w-md w-full space-y-4">
             <div className="flex items-center gap-2 text-amber-400">
               <AlertTriangle className="h-5 w-5" />
-              <h3 className="text-base font-bold text-white">{t('common.billing.downgrade.title')}</h3>
+              <h3 className="text-base font-bold text-white!">{t('common.billing.downgrade.title')}</h3>
             </div>
             <p className="text-sm text-slate-300">
               {t('common.billing.downgrade.body', {

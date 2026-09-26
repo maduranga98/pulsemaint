@@ -8672,6 +8672,62 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Individuelle Integrationen & API",
         "dedicatedSupportSla": "Dedizierter Support & SLA"
+      },
+      "account": {
+        "loading": "Abrechnungsdaten werden geladen…",
+        "refresh": "Aktualisieren",
+        "portal": "Stripe-Abrechnungsportal öffnen (Abo ändern oder kündigen)",
+        "notices": {
+          "cardAdded": "Karte gespeichert. Sie wird für Ihre nächsten Rechnungen verwendet.",
+          "topUpDone": "Zahlung erhalten. Ihr Guthaben wird gleich aktualisiert."
+        },
+        "errors": {
+          "loadFailed": "Abrechnungsdaten konnten nicht geladen werden. Bitte erneut versuchen.",
+          "cardWindowFailed": "Das Fenster zum Hinzufügen der Karte konnte nicht geöffnet werden. Bitte erneut versuchen.",
+          "topUpWindowFailed": "Das Aufladefenster konnte nicht geöffnet werden. Bitte erneut versuchen.",
+          "cardUpdateFailed": "Die Karte konnte nicht aktualisiert werden. Bitte erneut versuchen."
+        },
+        "cards": {
+          "title": "Zahlungsmethoden",
+          "subtitle": "Karten werden im sicheren Stripe-Fenster hinzugefügt – FirmiCore sieht nie die vollständige Kartennummer.",
+          "add": "Karte hinzufügen",
+          "empty": "Noch keine Karten gespeichert.",
+          "default": "Standard",
+          "expires": "Gültig bis {{date}}",
+          "makeDefault": "Als Standard festlegen",
+          "remove": "Karte entfernen",
+          "confirmRemove": "Diese Karte aus Ihrem Konto entfernen?"
+        },
+        "credit": {
+          "title": "Kontoguthaben",
+          "subtitle": "Vorausbezahltes Guthaben wird automatisch mit Ihren nächsten Rechnungen verrechnet.",
+          "topUp": "Aufladen",
+          "balance": "Verfügbares Guthaben"
+        },
+        "topUp": {
+          "title": "Kontoguthaben aufladen",
+          "body": "Wählen Sie einen Betrag. Sie zahlen im sicheren Stripe-Fenster, und das Guthaben wird mit Ihren nächsten Rechnungen verrechnet.",
+          "custom": "Oder Betrag eingeben (USD)",
+          "range": "Geben Sie einen ganzen Betrag zwischen {{min}} $ und {{max}} $ ein.",
+          "pay": "Weiter zur Zahlung von {{amount}}",
+          "secure": "Zahlungen werden sicher über Stripe abgewickelt."
+        },
+        "history": {
+          "title": "Abrechnungsverlauf",
+          "date": "Datum",
+          "description": "Beschreibung",
+          "amount": "Betrag",
+          "status": "Status",
+          "invoice": "Rechnung",
+          "view": "Ansehen",
+          "empty": "Noch keine Rechnungen.",
+          "statuses": {
+            "paid": "Bezahlt",
+            "open": "Fällig",
+            "uncollectible": "Fehlgeschlagen",
+            "void": "Storniert"
+          }
+        }
       }
     },
     "actions": {
