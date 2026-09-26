@@ -9,6 +9,8 @@ import TrainingProgressBar from '@/components/training/shared/TrainingProgressBa
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { formatDueDateTime } from '@/lib/training/dueDateTime';
+import { downloadProgrammeCertificate } from '@/lib/traineeProgram/programmeCertificate';
+import { useAuthStore } from '@/store/authStore';
 
 function formatDate(ts: { toDate?: () => Date } | null | undefined): string {
   if (!ts?.toDate) return '';
@@ -21,6 +23,7 @@ export default function MyProgramPage() {
   const { programme, loading } = useMyProgramme();
   const { assignments } = useMyAssignments();
   const { certificate } = useProgrammeCertificate(programme?.certificateId ?? null);
+  const company = useAuthStore((s) => s.company);
 
   const assignmentByModuleId = new Map<string, TrainingAssignment>();
   for (const a of assignments) assignmentByModuleId.set(a.moduleId, a);
@@ -129,10 +132,19 @@ export default function MyProgramPage() {
             {programme.finalMark != null
               ? t('common.traineeManagement.myProgramPage.completedWithMark', { mark: programme.finalMark })
               : t('common.traineeManagement.myProgramPage.completed')}{' '}
-            {certificate?.pdfUrl && (
-              <a href={certificate.pdfUrl} target="_blank" rel="noreferrer" className="underline">
+            {certificate && (
+              <button
+                type="button"
+                className="underline"
+                onClick={() => {
+                  downloadProgrammeCertificate(certificate, company).catch((err) => {
+                    console.error('Failed to build programme certificate PDF', err);
+                    if (certificate.pdfUrl) window.open(certificate.pdfUrl, '_blank', 'noopener');
+                  });
+                }}
+              >
                 {t('common.traineeManagement.myProgramPage.downloadCertificate')}
-              </a>
+              </button>
             )}
           </p>
         )}

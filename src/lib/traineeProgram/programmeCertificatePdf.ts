@@ -39,9 +39,10 @@ const CX = W / 2;
  * navy wave design: wave header with the company's mark and name, the
  * CERTIFICATE heading, the trainee's name in Playfair italic over a teal
  * rule, the programme (duration, dates, final mark), the modules completed
- * as a teal checklist, and a date · award seal · signature footer with the
- * authorizer's captured signature and the certificate ID. Every value comes
- * from the programme record — no placeholder copy.
+ * as a teal checklist, the recommender's recommendation, and a date · award
+ * seal · signature footer with the authorizer's captured signature and the
+ * certificate ID. Every value comes from the programme record — no
+ * placeholder copy.
  */
 export async function buildProgrammeCertificatePdf(input: ProgrammeCertificateInput): Promise<jsPDF> {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
@@ -74,20 +75,20 @@ export async function buildProgrammeCertificatePdf(input: ProgrammeCertificateIn
   brandMark(c, orgLeft + markSize / 2, 65, markSize, input.companyLogoDataUrl);
   spacedText(c, orgLabel, orgLeft + markSize + 14, 65, orgStyle, 'left');
 
-  spacedText(c, 'CERTIFICATE', CX, 359, { key: 'display', size: 62, spacing: 2.5, color: INK });
-  spacedText(c, 'OF COMPLETION', CX, 409, { key: 'semi', size: 15.5, spacing: 8.5, color: NAVY });
-  spacedText(c, 'PROUDLY PRESENTED TO', CX, 463, { key: 'medium', size: 12.4, spacing: 5.5, color: MUTED });
+  spacedText(c, 'CERTIFICATE', CX, 300, { key: 'display', size: 60, spacing: 2.5, color: INK });
+  spacedText(c, 'OF COMPLETION', CX, 347, { key: 'semi', size: 15.5, spacing: 8.5, color: NAVY });
+  spacedText(c, 'PROUDLY PRESENTED TO', CX, 392, { key: 'medium', size: 12.4, spacing: 5.5, color: MUTED });
 
-  const nameStyle = { key: 'script' as const, size: 56, color: NAVY };
-  spacedText(c, input.traineeName, CX, 518, { ...nameStyle, size: fitSize(c, input.traineeName, nameStyle, 560, 30) });
-  fillRect(c, 187, 560, 420, 1.8, TEAL);
+  const nameStyle = { key: 'script' as const, size: 54, color: NAVY };
+  spacedText(c, input.traineeName, CX, 441, { ...nameStyle, size: fitSize(c, input.traineeName, nameStyle, 560, 30) });
+  fillRect(c, 187, 481, 420, 1.8, TEAL);
 
-  spacedText(c, 'HAS SUCCESSFULLY COMPLETED THE', CX, 594, { key: 'semi', size: 11.5, spacing: 5, color: MUTED });
+  spacedText(c, 'HAS SUCCESSFULLY COMPLETED THE', CX, 511, { key: 'semi', size: 11.5, spacing: 5, color: MUTED });
   const durationLabel = formatDurationLabel(input.durationPreset, input.durationMonths);
   const titleStyle = { key: 'display' as const, size: 22, color: NAVY };
   const titleLines = wrapLines(c, `${durationLabel} Trainee Training Programme`.toUpperCase(), titleStyle, 600, 2);
-  titleLines.forEach((line, i) => spacedText(c, line, CX, 623 + i * 27, titleStyle));
-  let y = 623 + (titleLines.length - 1) * 27;
+  titleLines.forEach((line, i) => spacedText(c, line, CX, 539 + i * 27, titleStyle));
+  let y = 539 + (titleLines.length - 1) * 27;
 
   const details = [
     `${formatCertificateDate(input.startDate)} – ${formatCertificateDate(input.completedDate)}`,
@@ -98,23 +99,42 @@ export async function buildProgrammeCertificatePdf(input: ProgrammeCertificateIn
   spacedText(c, truncate(c, details, detailStyle, 640), CX, y + 25, detailStyle);
   y += 25;
 
+  // The recommender's recommendation sits under the module checklist; it is
+  // measured first so the checklist knows where it has to stop. Everything
+  // must finish above the seal's gold ring (top ≈ 836px).
+  const recStyle = { key: 'medium' as const, size: 11, color: INK };
+  const recommendation = input.recommendation?.trim().replace(/\s+/g, ' ') ?? '';
+  const recLines = recommendation ? wrapLines(c, `“${recommendation}”`, recStyle, 540, 4) : [];
+  const recLineH = 16;
+  const recBlockH = recLines.length ? 24 + recLines.length * recLineH : 0;
+  const recTop = 824 - recBlockH;
+
   // Completed modules, month order, as the design's two-column checklist.
   const modules = [...input.moduleResults].sort((a, b) => a.month - b.month).map((m) => m.moduleName).filter(Boolean);
+  let listEnd = y;
   if (modules.length) {
     const headY = y + 32;
     spacedText(c, 'COMPLETED MODULES', 137, headY, { key: 'bold', size: 10, spacing: 5, color: INK }, 'left');
-    // Rows must finish above the seal's gold ring (top ≈ 836px).
+    const limit = (recLines.length ? recTop - 22 : 822);
     const colCount = modules.length > 12 ? 3 : 2;
     const colX = colCount === 2 ? [137, 412] : [137, 317, 497];
     const colW = colCount === 2 ? 265 : 175;
-    const firstRow = headY + 26;
-    const rowH = Math.min(26, Math.max(18, (822 - firstRow) / Math.max(1, Math.ceil(modules.length / colCount) - 1)));
-    const maxRows = Math.floor((822 - firstRow) / rowH) + 1;
+    const firstRow = headY + 24;
+    const rowH = Math.min(24, Math.max(17, (limit - firstRow) / Math.max(1, Math.ceil(modules.length / colCount) - 1)));
+    const maxRows = Math.max(1, Math.floor((limit - firstRow) / rowH) + 1);
     const capacity = maxRows * colCount;
     const shown = modules.length > capacity ? [...modules.slice(0, capacity - 1), `+ ${modules.length - capacity + 1} more`] : modules;
     shown.forEach((label, i) => {
-      checkItem(c, colX[i % colCount], firstRow + Math.floor(i / colCount) * rowH, label, colW, colCount === 2 ? 13 : 11.5);
+      checkItem(c, colX[i % colCount], firstRow + Math.floor(i / colCount) * rowH, label, colW, colCount === 2 ? 12.5 : 11);
     });
+    listEnd = firstRow + (Math.ceil(shown.length / colCount) - 1) * rowH + 10;
+  }
+
+  if (recLines.length) {
+    // Sit right under the checklist when it is short; never lower than recTop.
+    const top = Math.min(recTop, Math.max(listEnd + 22, y + 32));
+    spacedText(c, 'RECOMMENDATION', CX, top, { key: 'bold', size: 10, spacing: 5, color: INK });
+    recLines.forEach((line, i) => spacedText(c, line, CX, top + 24 + i * recLineH, recStyle));
   }
 
   awardSeal(c, CX, 900, String(input.completedDate.getFullYear()));
