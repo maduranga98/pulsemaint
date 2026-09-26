@@ -229,8 +229,6 @@ const { stripeWebhook } = require("./src/billing/stripeWebhook");
 const {
   createCardSetup,
   finalizeCardSetup,
-  createTopUpPayment,
-  confirmTopUp,
   getBillingOverview,
   updatePaymentMethod,
 } = require("./src/billing/billingAccount");
@@ -240,8 +238,6 @@ exports.createPortalSession = createPortalSession;
 exports.stripeWebhook = stripeWebhook;
 exports.createCardSetup = createCardSetup;
 exports.finalizeCardSetup = finalizeCardSetup;
-exports.createTopUpPayment = createTopUpPayment;
-exports.confirmTopUp = confirmTopUp;
 exports.getBillingOverview = getBillingOverview;
 exports.updatePaymentMethod = updatePaymentMethod;
 

@@ -2,7 +2,6 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey, stripeWebhookSecret, planAndCycleForPrice } = require("./stripeClient");
-const { creditTopUpPayment } = require("./billingAccount");
 
 const db = getFirestore("default");
 
@@ -90,34 +89,11 @@ async function makeSetupCardDefault(session) {
 }
 
 /**
- * A paid top-up (Checkout payment mode) is credited to the customer's Stripe
- * balance, which Stripe applies automatically to upcoming invoices. The
- * session ID is the idempotency key so a redelivered webhook never credits
- * twice.
- */
-async function creditTopUp(session) {
-  if (session.payment_status !== "paid" || !session.customer) return;
-  const amount = session.amount_total ?? Number(session.metadata?.amountCents ?? 0);
-  if (!amount) return;
-  await getStripe().customers.createBalanceTransaction(
-    session.customer,
-    {
-      amount: -amount,
-      currency: session.currency ?? "usd",
-      description: "Account credit top-up",
-      metadata: { checkoutSessionId: session.id, companyId: session.metadata?.companyId ?? "" },
-    },
-    { idempotencyKey: `topup-credit-${session.id}` },
-  );
-  logger.info(`Credited ${amount} ${session.currency} top-up to customer ${session.customer}`);
-}
-
-/**
  * Stripe webhook endpoint. Configure this function's URL as the endpoint in
  * the Stripe Dashboard, subscribed to: checkout.session.completed,
  * customer.subscription.updated, customer.subscription.deleted,
- * invoice.paid — and, optionally, payment_intent.succeeded as a safety net
- * for in-page account credit top-ups (normally credited by confirmTopUp). This is the only path (besides direct Firestore admin
+ * invoice.paid. checkout.session.completed also covers any legacy add-card
+ * Checkout (setup mode) session. This is the only path (besides direct Firestore admin
  * access) allowed to write plan/subscription fields on a company doc —
  * firestore.rules blocks clients from writing them directly.
  */
@@ -139,8 +115,6 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
         const session = event.data.object;
         if (session.mode === "setup") {
           await makeSetupCardDefault(session);
-        } else if (session.mode === "payment" && session.metadata?.type === "topup") {
-          await creditTopUp(session);
         } else if (session.subscription) {
           const subscription = await getStripe().subscriptions.retrieve(session.subscription);
           await syncSubscriptionToCompany(subscription);
@@ -161,15 +135,6 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
             status: "suspended",
             updatedAt: FieldValue.serverTimestamp(),
           });
-        }
-        break;
-      }
-      case "payment_intent.succeeded": {
-        // In-page top-ups: normally credited by confirmTopUp; this is the
-        // safety net (same idempotency key) if the browser closed first.
-        const intent = event.data.object;
-        if (intent.metadata?.type === "topup" && intent.customer) {
-          await creditTopUpPayment(getStripe(), intent);
         }
         break;
       }

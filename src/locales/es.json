@@ -8678,13 +8678,11 @@
         "refresh": "Actualizar",
         "portal": "Abrir el portal de facturación de Stripe (cambiar o cancelar la suscripción)",
         "notices": {
-          "cardAdded": "Tarjeta guardada. Se usará para tus próximas facturas.",
-          "topUpDone": "Recarga completada: el crédito se añadió a tu cuenta."
+          "cardAdded": "Tarjeta guardada. Se usará para tus próximas facturas."
         },
         "errors": {
           "loadFailed": "No se pudieron cargar los detalles de facturación. Inténtalo de nuevo.",
           "cardWindowFailed": "No se pudo abrir la ventana para añadir tarjeta. Inténtalo de nuevo.",
-          "topUpWindowFailed": "No se pudo abrir la ventana de recarga. Inténtalo de nuevo.",
           "cardUpdateFailed": "No se pudo actualizar la tarjeta. Inténtalo de nuevo.",
           "notConfigured": "Los pagos con tarjeta aún no están configurados: falta la clave publicable de Stripe. Contacta con soporte."
         },
@@ -8698,24 +8696,6 @@
           "makeDefault": "Hacer predeterminada",
           "remove": "Eliminar tarjeta",
           "confirmRemove": "¿Eliminar esta tarjeta de tu cuenta?"
-        },
-        "credit": {
-          "title": "Crédito de la cuenta",
-          "subtitle": "El crédito prepagado se aplica automáticamente a tus próximas facturas.",
-          "topUp": "Recargar",
-          "balance": "Crédito disponible"
-        },
-        "topUp": {
-          "title": "Recargar crédito de la cuenta",
-          "body": "Elige un importe y una tarjeta. El crédito se aplica automáticamente a tus próximas facturas.",
-          "custom": "O introduce un importe (USD)",
-          "range": "Introduce un importe entero entre ${{min}} y ${{max}}.",
-          "pay": "Continuar para pagar {{amount}}",
-          "secure": "Los pagos se procesan de forma segura con Stripe.",
-          "payWith": "Pagar con",
-          "newCard": "Tarjeta nueva",
-          "continueToCard": "Continuar a los datos de la tarjeta",
-          "payAmount": "Pagar {{amount}}"
         },
         "history": {
           "title": "Historial de facturación",
@@ -8736,13 +8716,13 @@
         "window": {
           "addCardTitle": "Añadir tarjeta",
           "setupSubtitle": "Guarda una tarjeta para tus facturas y recargas de FirmiCore.",
-          "topUpSubtitle": "Recarga {{amount}} de crédito. Esta tarjeta se guardará para la próxima vez.",
           "cardInformation": "Datos de la tarjeta",
           "saveCard": "Guardar tarjeta",
           "processing": "Procesando…",
           "failed": "No se pudo procesar la tarjeta. Inténtalo de nuevo.",
           "notConfirmed": "La tarjeta no se confirmó. Inténtalo de nuevo.",
-          "loadFailed": "No se pudo cargar el formulario seguro de tarjeta. Revisa tu conexión o desactiva los bloqueadores de anuncios en esta página e inténtalo de nuevo."
+          "loadFailed": "No se pudo cargar el formulario seguro de tarjeta. Revisa tu conexión o desactiva los bloqueadores de anuncios en esta página e inténtalo de nuevo.",
+          "secure": "Los pagos se procesan de forma segura con Stripe."
         }
       }
     },

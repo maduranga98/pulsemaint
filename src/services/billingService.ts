@@ -65,8 +65,6 @@ export interface BillingOverview {
   /** Stripe publishable key for the in-page card window (null until configured). */
   publishableKey: string | null;
   paymentMethods: BillingCard[];
-  /** Account credit in minor units (cents); applied to upcoming invoices. */
-  creditBalance: number;
   currency: string;
   invoices: BillingInvoice[];
 }
@@ -85,30 +83,6 @@ export async function createCardSetup(): Promise<{ clientSecret: string; publish
 export async function finalizeCardSetup(setupIntentId: string): Promise<void> {
   const fn = httpsCallable<{ setupIntentId: string }, { ok: boolean }>(functions, 'finalizeCardSetup');
   await fn({ setupIntentId });
-}
-
-export interface TopUpPayment {
-  paymentIntentId: string;
-  clientSecret: string;
-  status: string;
-  publishableKey: string | null;
-}
-
-/**
- * Starts a top-up (whole USD, 10–10,000). With a saved card's id it is
- * charged straight away; otherwise the client secret is confirmed in the
- * card window (which also saves the card).
- */
-export async function createTopUpPayment(amount: number, paymentMethodId?: string | null): Promise<TopUpPayment> {
-  const fn = httpsCallable<{ amount: number; paymentMethodId?: string | null }, TopUpPayment>(functions, 'createTopUpPayment');
-  const { data } = await fn({ amount, paymentMethodId: paymentMethodId ?? null });
-  return data;
-}
-
-/** Credits a succeeded top-up to the account balance. */
-export async function confirmTopUp(paymentIntentId: string): Promise<void> {
-  const fn = httpsCallable<{ paymentIntentId: string }, { ok: boolean }>(functions, 'confirmTopUp');
-  await fn({ paymentIntentId });
 }
 
 /**
