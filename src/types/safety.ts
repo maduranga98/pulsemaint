@@ -182,6 +182,17 @@ export const WORK_PERMIT_CATEGORIES: {
   },
 ];
 
+/** One push-out of a permit's validity end (see extendWorkPermit). */
+export interface WorkPermitExtension {
+  /** validTo before this extension ('YYYY-MM-DDTHH:mm'). */
+  from: string;
+  /** validTo after it. */
+  to: string;
+  at: Timestamp;
+  by: string | null;
+  byName: string | null;
+}
+
 export interface WorkPermit {
   id: string;
   companyId: string;
@@ -223,6 +234,12 @@ export interface WorkPermit {
   requestedBy: string;
   requestedByName: string;
   requestedByRole: string;
+  /** Where the permit was raised: alongside a new work order, or from the
+   *  Work Permits tab. Absent on permits created before this was recorded. */
+  source?: 'work_order' | 'manual' | null;
+  /** The validity end as first issued — set on the first extension. */
+  originalValidTo?: string | null;
+  extensions?: WorkPermitExtension[];
   createdAt: Timestamp | null;
   updatedAt: Timestamp | null;
   closedAt: Timestamp | null;
