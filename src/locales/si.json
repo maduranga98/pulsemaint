@@ -1693,7 +1693,9 @@
         "workingNow": "{{count}} දැන් වැඩ කරයි",
         "yesterday": "ඊයේ",
         "footer_one": "සජීවී මුර {{shifts}} · වැඩ කරන පුද්ගලයින් {{people}}",
-        "footer_other": "සජීවී මුර {{shifts}} · වැඩ කරන පුද්ගලයින් {{people}}"
+        "footer_other": "සජීවී මුර {{shifts}} · වැඩ කරන පුද්ගලයින් {{people}}",
+        "noDepartment": "දෙපාර්තමේන්තුවක් නැත",
+        "footerDepartments": "දෙපාර්තමේන්තු {{departments}} · {{people}} දෙනෙක් වැඩ කරමින්"
       },
       "lowStockAlertTable": {
         "category": "ප්‍රවර්ගය",

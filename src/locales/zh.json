@@ -1521,7 +1521,9 @@
         "workingNow": "{{count}} 人正在工作",
         "yesterday": "昨天",
         "footer_one": "{{shifts}} 个班次进行中 · {{people}} 人在岗",
-        "footer_other": "{{shifts}} 个班次进行中 · {{people}} 人在岗"
+        "footer_other": "{{shifts}} 个班次进行中 · {{people}} 人在岗",
+        "noDepartment": "无部门",
+        "footerDepartments": "{{departments}} 个部门 · {{people}} 人在岗"
       },
       "lowStockAlertTable": {
         "category": "类别",

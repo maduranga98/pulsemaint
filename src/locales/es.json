@@ -1521,7 +1521,9 @@
         "sinceTime": "desde {{time}}",
         "title": "Estado de turno en vivo",
         "workingNow": "{{count}} trabajando ahora",
-        "yesterday": "ayer"
+        "yesterday": "ayer",
+        "noDepartment": "Sin departamento",
+        "footerDepartments": "{{departments}} departamentos · {{people}} personas trabajando"
       },
       "lowStockAlertTable": {
         "category": "Categoría",

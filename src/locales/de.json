@@ -1521,7 +1521,9 @@
         "sinceTime": "seit {{time}}",
         "title": "Live-Schichtstatus",
         "workingNow": "{{count}} jetzt im Einsatz",
-        "yesterday": "gestern"
+        "yesterday": "gestern",
+        "noDepartment": "Keine Abteilung",
+        "footerDepartments": "{{departments}} Abteilungen · {{people}} Personen im Einsatz"
       },
       "lowStockAlertTable": {
         "category": "Kategorie",

@@ -1521,7 +1521,9 @@
         "workingNow": "{{count}}人が現在作業中",
         "yesterday": "昨日",
         "footer_one": "稼働中のシフト {{shifts}} 件 · 作業中 {{people}} 名",
-        "footer_other": "稼働中のシフト {{shifts}} 件 · 作業中 {{people}} 名"
+        "footer_other": "稼働中のシフト {{shifts}} 件 · 作業中 {{people}} 名",
+        "noDepartment": "部署なし",
+        "footerDepartments": "{{departments}} 部署 · {{people}} 人が勤務中"
       },
       "lowStockAlertTable": {
         "category": "カテゴリー",
