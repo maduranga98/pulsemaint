@@ -203,7 +203,9 @@ export default function RequestCard({ request: r, mode }: Props) {
             </div>
             {r.reference && (
               <div className="mt-1 text-xs text-[#93C5FD]">
-                {t('common.staffRequests.card.reference', { reference: r.reference })}
+                {t('common.staffRequests.card.reference', {
+                  reference: r.referenceMachineName ? `${r.reference} · ${r.referenceMachineName}` : r.reference,
+                })}
               </div>
             )}
             <p className="mt-1 whitespace-pre-wrap text-sm text-[#F0F4F8]">{r.message}</p>

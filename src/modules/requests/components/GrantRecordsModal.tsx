@@ -43,7 +43,7 @@ export default function GrantRecordsModal({ request: r, onClose }: { request: St
   const siteId = profile?.siteIds?.[0] || profile?.companyId;
   const inScopedPlant = useRecordPlantMatcher();
 
-  const [tab, setTab] = useState<Tab>('work_order');
+  const [tab, setTab] = useState<Tab>(r.referenceType ?? 'work_order');
   const [search, setSearch] = useState(r.reference ?? '');
   const [selected, setSelected] = useState<Map<string, SharedRecordInput>>(new Map());
   const [expiry, setExpiry] = useState(() => toDateTimeLocalValue(Date.now() + 7 * 24 * HOUR));
@@ -70,6 +70,22 @@ export default function GrantRecordsModal({ request: r, onClose }: { request: St
     );
   }, [siteId]);
   const breakdowns = useMemo(() => allBreakdowns.filter((b) => inScopedPlant(b)), [allBreakdowns, inScopedPlant]);
+
+  // Preselect the record the requester picked, once it has loaded.
+  const [preselected, setPreselected] = useState(false);
+  useEffect(() => {
+    if (preselected || !r.referenceId || !r.referenceType) return;
+    if (r.referenceType === 'work_order') {
+      if (woLoading) return;
+      const w = workOrders.find((x) => x.id === r.referenceId);
+      if (w) setSelected((prev) => new Map(prev).set(`work_order:${w.id}`, woInput(w)));
+    } else {
+      if (bdLoading) return;
+      const b = allBreakdowns.find((x) => x.id === r.referenceId);
+      if (b) setSelected((prev) => new Map(prev).set(`breakdown:${b.id}`, bdInput(b)));
+    }
+    setPreselected(true);
+  }, [preselected, r.referenceId, r.referenceType, woLoading, bdLoading, workOrders, allBreakdowns]);
 
   const term = search.trim().toLowerCase();
   const woRows = useMemo(

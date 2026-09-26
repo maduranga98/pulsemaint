@@ -8960,6 +8960,20 @@
           "correctiveActions": "Korrekturmaßnahmen",
           "preventive": "Präventive Empfehlungen"
         }
+      },
+      "recordPicker": {
+        "change": "Ändern",
+        "types": {
+          "all": "Alle",
+          "work_order": "Arbeitsaufträge",
+          "breakdown": "Störungen"
+        },
+        "search": "Nach Nummer oder Maschine suchen…",
+        "error": "Ihre Arbeitsaufträge und Störungen konnten nicht geladen werden. Schließen und erneut versuchen.",
+        "none": "Keine Arbeitsaufträge oder Störungen für Ihr Werk / Ihre Abteilung gefunden.",
+        "noMatches": "Keine passenden Datensätze.",
+        "refine": "Die ersten {{count}} werden angezeigt — suchen, um weitere zu finden.",
+        "required": "Wählen Sie den benötigten Arbeitsauftrag oder die Störung."
       }
     },
     "ui": {

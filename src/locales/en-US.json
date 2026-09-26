@@ -9071,6 +9071,20 @@
           "correctiveActions": "Corrective actions",
           "preventive": "Preventive recommendations"
         }
+      },
+      "recordPicker": {
+        "change": "Change",
+        "types": {
+          "all": "All",
+          "work_order": "Work orders",
+          "breakdown": "Breakdowns"
+        },
+        "search": "Search by number or machine…",
+        "error": "Couldn't load your work orders and breakdowns. Close and try again.",
+        "none": "No work orders or breakdowns found for your plant / department.",
+        "noMatches": "No matching records.",
+        "refine": "Showing the first {{count}} — search to find others.",
+        "required": "Select the work order or breakdown you need."
       }
     },
     "maintenanceHistory": {
