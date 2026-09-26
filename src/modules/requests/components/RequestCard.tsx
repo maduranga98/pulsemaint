@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, Send, CheckCircle2, RotateCcw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronDown, ChevronRight, Send, CheckCircle2, RotateCcw, Share2, Ban } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
@@ -7,8 +7,15 @@ import { addStaffRequestReply, setStaffRequestStatus } from '@/services/staffReq
 import { notifyUsers } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
 import type { StaffRequest, StaffRequestStatus } from '@/types/staffRequest';
+import { canGrantRecords, type RecordAccessGrant } from '@/types/recordAccessGrant';
+import { isGrantActive } from '@/lib/recordAccess';
+import { rejectRecordRequest, subscribeRequestRecordGrants } from '@/services/recordAccessGrants.service';
 import { AttachmentList, AttachmentPicker } from './Attachments';
+import GrantRecordsModal from './GrantRecordsModal';
+import SharedRecordsPanel from './SharedRecordsPanel';
 import { useRequestRecipients } from '../useRequestRecipients';
+import { useMyGrants } from '../myGrantsContext';
+import { useNow } from '../useNow';
 import {
   categoryLabel,
   field,
@@ -37,6 +44,44 @@ export default function RequestCard({ request: r, mode }: Props) {
   const [saving, setSaving] = useState(false);
 
   const isClosed = r.status === 'closed';
+  const isRecordAccess = r.category === 'record_access';
+  const isGrantor = mode === 'handler' && isRecordAccess && canGrantRecords(profile?.role);
+  const [showGrant, setShowGrant] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const now = useNow();
+
+  // Requester: shares come from the page-level subscription (grantees can
+  // only query by their own id). Grantor: this request's shares, once opened.
+  const myGrants = useMyGrants();
+  const [requestGrants, setRequestGrants] = useState<RecordAccessGrant[]>([]);
+  useEffect(() => {
+    if (!isGrantor || !open || !profile?.companyId) return;
+    return subscribeRequestRecordGrants(profile.companyId, r.id, setRequestGrants, (msg) => console.error(msg));
+  }, [isGrantor, open, profile?.companyId, r.id]);
+  const grants = mode === 'requester' ? myGrants.filter((g) => g.requestId === r.id) : requestGrants;
+  const activeShares = mode === 'requester' ? grants.filter((g) => isGrantActive(g, now)).length : 0;
+
+  async function reject() {
+    if (!profile?.companyId) return;
+    setSaving(true);
+    try {
+      await rejectRecordRequest({
+        requestId: r.id,
+        author: { id: profile.id, name: profile.fullName ?? '', role: profile.role },
+        message: rejectReason.trim() || t('common.staffRequests.records.reject.defaultMessage'),
+      });
+      notifyOtherSide(t('common.staffRequests.records.reject.notification', { name: profile.fullName ?? '', subject: r.subject }));
+      setRejecting(false);
+      setRejectReason('');
+      toast.success(t('common.staffRequests.records.reject.done'));
+    } catch (err) {
+      console.error(err);
+      toast.error(t('common.staffRequests.reply.failed'));
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function notifyOtherSide(message: string) {
     if (!profile?.companyId) return;
@@ -134,6 +179,16 @@ export default function RequestCard({ request: r, mode }: Props) {
             {t('common.staffRequests.card.replies', { count: r.replies.length })}
           </span>
         )}
+        {activeShares > 0 && (
+          <span className="shrink-0 rounded-full bg-[#10B981]/15 px-2 py-0.5 text-xs font-medium text-[#34D399]">
+            {t('common.staffRequests.records.sharedCount', { count: activeShares })}
+          </span>
+        )}
+        {isRecordAccess && r.decision === 'rejected' && (
+          <span className="shrink-0 rounded-full bg-[#EF4444]/15 px-2 py-0.5 text-xs font-medium text-[#F87171]">
+            {t('common.staffRequests.records.decision.rejected')}
+          </span>
+        )}
         <span className="hidden shrink-0 text-xs text-[#8BA3BF] md:inline">{fmtTs(r.updatedAt ?? r.createdAt)}</span>
         <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[r.status]}`}>
           {statusLabel(r.status, t)}
@@ -173,6 +228,69 @@ export default function RequestCard({ request: r, mode }: Props) {
                 );
               })}
             </ul>
+          )}
+
+          {isRecordAccess && grants.length > 0 && (mode === 'handler' || activeShares > 0) && (
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-[#8BA3BF]">
+                {mode === 'handler' ? t('common.staffRequests.records.sharedHeadingGrantor') : t('common.staffRequests.records.sharedHeading')}
+              </div>
+              <SharedRecordsPanel grants={grants} mode={mode === 'handler' ? 'grantor' : 'viewer'} />
+            </div>
+          )}
+
+          {isGrantor && !isClosed && (
+            <div className="space-y-2 rounded-lg border border-[#10B981]/30 bg-[#10B981]/5 p-3">
+              <div className="text-xs font-medium text-[#8BA3BF]">{t('common.staffRequests.records.decisionHeading')}</div>
+              {rejecting ? (
+                <>
+                  <textarea
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    rows={2}
+                    placeholder={t('common.staffRequests.records.reject.placeholder')}
+                    className={field}
+                  />
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRejecting(false)}
+                      disabled={saving}
+                      className="rounded-lg border border-[#1E3A5F] px-3 py-2 text-sm font-medium text-[#B8C7DB] hover:border-[#2E5A8F]"
+                    >
+                      {t('common.staffRequests.cancel')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void reject()}
+                      disabled={saving}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#DC2626] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+                    >
+                      <Ban className="h-4 w-4" /> {t('common.staffRequests.records.reject.confirm')}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowGrant(true)}
+                    disabled={saving}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#10B981] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+                  >
+                    <Share2 className="h-4 w-4" /> {t('common.staffRequests.records.shareButton')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRejecting(true)}
+                    disabled={saving}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#7F1D1D] px-4 py-2 text-sm font-medium text-[#F87171] hover:bg-[#7F1D1D]/20 disabled:opacity-60"
+                  >
+                    <Ban className="h-4 w-4" /> {t('common.staffRequests.records.reject.button')}
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           {isClosed ? (
@@ -239,6 +357,7 @@ export default function RequestCard({ request: r, mode }: Props) {
           )}
         </div>
       )}
+      {showGrant && <GrantRecordsModal request={r} onClose={() => setShowGrant(false)} />}
     </div>
   );
 }

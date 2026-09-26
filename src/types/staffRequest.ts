@@ -27,6 +27,9 @@ export type StaffRequestRecipientRole = 'supervisor' | 'plant_manager' | 'admin'
 
 export type StaffRequestStatus = 'open' | 'answered' | 'closed';
 
+/** Outcome of a record_access request, set by the plant manager / admin handling it. */
+export type StaffRequestDecision = 'granted' | 'rejected';
+
 export interface StaffRequestAttachment {
   id: string;
   name: string;
@@ -70,6 +73,8 @@ export interface StaffRequest {
   recipientName?: string | null;
 
   status: StaffRequestStatus;
+  /** record_access only: whether records were shared or the request was declined. */
+  decision?: StaffRequestDecision | null;
   replies: StaffRequestReply[];
 
   createdAt: Timestamp;
