@@ -1,6 +1,6 @@
 import type { jsPDF } from 'jspdf';
-import { buildClassicCertificatePdf } from '@/lib/pdf/classicCertificateLayout';
-import { INK, MUTED, formatCertificateDate } from '@/lib/pdf/certificateDesign';
+import { buildLandscapeCertificatePdf } from '@/lib/pdf/landscapeCertificateLayout';
+import { formatCertificateDate } from '@/lib/pdf/certificateDesign';
 
 export interface TrainingCertificatePdfInput {
   certificateNumber: string;
@@ -27,43 +27,41 @@ export interface TrainingCertificatePdfInput {
 }
 
 /**
- * A4 landscape training certificate in the Classic navy/sky-blue design (see
- * src/lib/pdf/classicCertificateLayout.ts): the issuing company's logo and
- * name at the top, the trainee's name in script as the centrepiece, the
- * module, machine/provider and assessment score as the citation, and a
- * date · seal · signature footer carrying the signing-off manager's captured
- * signature.
+ * A4 landscape training certificate in the navy side-panel design (see
+ * src/lib/pdf/landscapeCertificateLayout.ts): the issuing company's logo,
+ * name and the certificate ID in the side panel, the trainee's name as the
+ * centrepiece, the module as the completed item with its training details
+ * (machine/provider, score, validity) as a checklist, and a date · award
+ * seal · signature footer carrying the signing-off manager's signature.
  *
  * Built entirely client-side so a trainee can download their certificate the
  * moment it is issued, without waiting on a Cloud Function to render one.
  */
 export async function buildTrainingCertificatePdf(input: TrainingCertificatePdfInput): Promise<jsPDF> {
   const details = [
-    `${input.subjectLabel}: ${input.subjectValue || '—'}` +
-      (input.expiryDate ? `   ·   Valid until ${formatCertificateDate(input.expiryDate)}` : ''),
-    input.practicalObservations?.trim() ? `Practical assessment: ${input.practicalObservations.trim()}` : '',
+    `${input.subjectLabel}: ${input.subjectValue || '—'}`,
+    `Assessment score: ${input.quizScore}%`,
+    input.expiryDate ? `Valid until ${formatCertificateDate(input.expiryDate)}` : '',
+    input.practicalObservations?.trim() ? 'Practical assessment passed' : '',
   ];
 
-  return buildClassicCertificatePdf({
+  return buildLandscapeCertificatePdf({
     companyName: input.companyName,
     companyLogoDataUrl: input.companyLogoDataUrl,
     subtitle: 'OF TRAINING',
     recipientName: input.traineeName,
     recipientCaption: input.traineeDesignation,
-    citation: [
-      { text: 'In recognition of successfully completing the training module ', key: 'manrope', color: MUTED },
-      { text: input.moduleName, key: 'manropeBold', color: INK },
-      { text: ' with an assessment score of ', key: 'manrope', color: MUTED },
-      { text: `${input.quizScore}%`, key: 'manropeBold', color: INK },
-      { text: '.', key: 'manrope', color: MUTED },
-    ],
-    detailLines: details,
+    completedLine: 'HAS SUCCESSFULLY COMPLETED THE TRAINING MODULE',
+    title: input.moduleName,
+    listHeading: 'TRAINING DETAILS',
+    listItems: details,
     dateValue: formatCertificateDate(input.issuedAt),
-    dateLabel: 'Date Issued',
+    dateLabel: 'Date',
     signatoryName: input.issuedByName,
-    signatoryCaption: 'Authorised Signatory',
+    signatoryCaption: 'Signature',
     signatureImageDataUrl: input.signatureImageDataUrl,
     certificateNumber: input.certificateNumber,
+    awardYear: String(input.issuedAt.getFullYear()),
   });
 }
 

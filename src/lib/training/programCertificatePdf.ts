@@ -1,6 +1,6 @@
 import type { jsPDF } from 'jspdf';
-import { buildClassicCertificatePdf } from '@/lib/pdf/classicCertificateLayout';
-import { INK, MUTED, formatCertificateDate, type TextRun } from '@/lib/pdf/certificateDesign';
+import { buildLandscapeCertificatePdf } from '@/lib/pdf/landscapeCertificateLayout';
+import { formatCertificateDate } from '@/lib/pdf/certificateDesign';
 import type { ProgramCertificateModuleResult } from '@/types/trainingProgram';
 
 export interface ProgramCertificatePdfInput {
@@ -24,44 +24,28 @@ export interface ProgramCertificatePdfInput {
 
 /**
  * Certificate of Completion for a trainee's assigned training program
- * (`programAssignments`), in the same Classic A4-landscape design as the
- * module certificate (src/lib/training/certificatePdf.ts): company logo and
- * name, the trainee's name in script, the program and its completed modules
- * as the citation, and the signing-off manager's captured signature.
+ * (`programAssignments`), in the same navy side-panel landscape design as
+ * the module certificate (src/lib/training/certificatePdf.ts): the program
+ * as the completed item, its modules as a checklist, and the signing-off
+ * manager's captured signature.
  */
 export async function buildProgramCertificatePdf(input: ProgramCertificatePdfInput): Promise<jsPDF> {
-  const scores = input.moduleResults.map((r) => r.score).filter((n) => Number.isFinite(n));
-  const average = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
-  const modules = input.moduleResults.map((r) => r.moduleName).filter(Boolean);
-
-  const citation: TextRun[] = [
-    { text: 'In recognition of successfully completing the training program ', key: 'manrope', color: MUTED },
-    { text: input.programName, key: 'manropeBold', color: INK },
-  ];
-  if (average !== null) {
-    citation.push(
-      { text: ' with an average assessment score of ', key: 'manrope', color: MUTED },
-      { text: `${average}%`, key: 'manropeBold', color: INK },
-    );
-  }
-  citation.push({ text: '.', key: 'manrope', color: MUTED });
-
-  return buildClassicCertificatePdf({
+  return buildLandscapeCertificatePdf({
     companyName: input.companyName,
     companyLogoDataUrl: input.companyLogoDataUrl,
     subtitle: 'OF COMPLETION',
     recipientName: input.traineeName,
-    citation,
-    detailLines: [
-      modules.length ? `Modules completed (${modules.length}): ${modules.join(', ')}` : '',
-      input.note?.trim() ? `Note: ${input.note.trim()}` : '',
-    ],
+    completedLine: 'HAS SUCCESSFULLY COMPLETED THE PROGRAM',
+    title: input.programName,
+    listHeading: 'COMPLETED MODULES',
+    listItems: input.moduleResults.map((r) => r.moduleName).filter(Boolean),
     dateValue: formatCertificateDate(input.issuedAt),
-    dateLabel: 'Date Issued',
+    dateLabel: 'Date',
     signatoryName: input.signedOffByName,
-    signatoryCaption: (input.signedOffByRole || 'Authorised Signatory').replace(/_/g, ' '),
+    signatoryCaption: (input.signedOffByRole || 'Signature').replace(/_/g, ' '),
     signatureImageDataUrl: input.signatureImageDataUrl,
     certificateNumber: input.certificateNumber,
+    awardYear: String(input.issuedAt.getFullYear()),
   });
 }
 
