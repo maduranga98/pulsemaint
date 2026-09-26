@@ -7,7 +7,8 @@ const logger = require("firebase-functions/logger");
 // expiresAt. The client already hides them the moment they expire; this
 // deletes the expired copies so the record data is actually gone.
 exports.purgeExpiredRecordGrants = onSchedule("every 15 minutes", async () => {
-  const db = getFirestore();
+  // This project's Firestore database is named "default" (see firebase.json).
+  const db = getFirestore("default");
   const now = Timestamp.now();
   let total = 0;
   for (;;) {

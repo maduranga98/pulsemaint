@@ -7,10 +7,6 @@ import { field } from '../requestUi';
 type TypeFilter = 'all' | RecordReference['type'];
 const MAX_SHOWN = 50;
 
-function fmtDate(ms: number): string {
-  return ms ? new Date(ms).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-}
-
 /** Searchable list of the user's plant / department WOs and breakdowns — pick one. */
 export default function RecordReferencePicker({
   records,
@@ -61,6 +57,7 @@ export default function RecordReferencePicker({
 
   return (
     <div className="space-y-2">
+      <p className="text-xs text-[#8BA3BF]">{t('common.staffRequests.recordPicker.hint')}</p>
       <div className="flex gap-2">
         {(['all', 'work_order', 'breakdown'] as TypeFilter[]).map((k) => (
           <button
@@ -107,15 +104,9 @@ export default function RecordReferencePicker({
                     className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[#142849]"
                   >
                     <I className="h-4 w-4 shrink-0 text-[#5B8DEF]" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm text-[#F0F4F8]">
-                        <span className="font-medium">{r.number}</span>
-                        {r.machineName && <span className="text-[#B8C7DB]"> · {r.machineName}</span>}
-                      </div>
-                      <div className="truncate text-xs text-[#8BA3BF]">
-                        {fmtDate(r.at)}
-                        {r.status ? ` · ${r.status.replace(/_/g, ' ').toLowerCase()}` : ''}
-                      </div>
+                    <div className="min-w-0 flex-1 truncate text-sm text-[#F0F4F8]">
+                      <span className="font-medium">{r.number}</span>
+                      {r.machineName && <span className="text-[#B8C7DB]"> · {r.machineName}</span>}
                     </div>
                   </button>
                 </li>

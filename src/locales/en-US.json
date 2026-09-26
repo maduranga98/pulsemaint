@@ -9081,10 +9081,11 @@
         },
         "search": "Search by number or machine…",
         "error": "Couldn't load your work orders and breakdowns. Close and try again.",
-        "none": "No work orders or breakdowns found for your plant / department.",
+        "none": "No signed-off work orders or closed breakdowns older than 30 days for your plant / department.",
         "noMatches": "No matching records.",
         "refine": "Showing the first {{count}} — search to find others.",
-        "required": "Select the work order or breakdown you need."
+        "required": "Select the work order or breakdown you need.",
+        "hint": "Only signed-off work orders and closed breakdowns finished more than 30 days ago are listed."
       }
     },
     "maintenanceHistory": {
