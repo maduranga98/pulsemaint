@@ -8672,6 +8672,62 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "カスタム連携とAPI",
         "dedicatedSupportSla": "専任サポートとSLA"
+      },
+      "account": {
+        "loading": "請求情報を読み込んでいます…",
+        "refresh": "更新",
+        "portal": "Stripe の請求ポータルを開く（サブスクリプションの変更・解約）",
+        "notices": {
+          "cardAdded": "カードを保存しました。今後の請求に使用されます。",
+          "topUpDone": "お支払いを受け付けました。クレジット残高はまもなく更新されます。"
+        },
+        "errors": {
+          "loadFailed": "請求情報を読み込めませんでした。もう一度お試しください。",
+          "cardWindowFailed": "カード追加画面を開けませんでした。もう一度お試しください。",
+          "topUpWindowFailed": "チャージ画面を開けませんでした。もう一度お試しください。",
+          "cardUpdateFailed": "カードを更新できませんでした。もう一度お試しください。"
+        },
+        "cards": {
+          "title": "支払い方法",
+          "subtitle": "カードは Stripe の安全な画面で追加されます。FirmiCore がカード番号全体を見ることはありません。",
+          "add": "カードを追加",
+          "empty": "保存されたカードはまだありません。",
+          "default": "デフォルト",
+          "expires": "有効期限 {{date}}",
+          "makeDefault": "デフォルトに設定",
+          "remove": "カードを削除",
+          "confirmRemove": "このカードをアカウントから削除しますか？"
+        },
+        "credit": {
+          "title": "アカウントクレジット",
+          "subtitle": "前払いのクレジットは今後の請求に自動的に充当されます。",
+          "topUp": "チャージ",
+          "balance": "利用可能なクレジット"
+        },
+        "topUp": {
+          "title": "アカウントクレジットをチャージ",
+          "body": "金額を選択してください。Stripe の安全な画面でお支払いいただき、クレジットは今後の請求に充当されます。",
+          "custom": "または金額を入力（USD）",
+          "range": "${{min}}〜${{max}} の整数で入力してください。",
+          "pay": "{{amount}} の支払いへ進む",
+          "secure": "お支払いは Stripe により安全に処理されます。"
+        },
+        "history": {
+          "title": "請求履歴",
+          "date": "日付",
+          "description": "内容",
+          "amount": "金額",
+          "status": "ステータス",
+          "invoice": "請求書",
+          "view": "表示",
+          "empty": "請求書はまだありません。",
+          "statuses": {
+            "paid": "支払済み",
+            "open": "未払い",
+            "uncollectible": "失敗",
+            "void": "無効"
+          }
+        }
       }
     },
     "actions": {

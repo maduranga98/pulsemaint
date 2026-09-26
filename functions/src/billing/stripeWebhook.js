@@ -62,10 +62,61 @@ async function recordInvoice(invoice) {
 }
 
 /**
+ * A card saved through the add-card window (Checkout setup mode) becomes the
+ * customer's default for invoices — and the active subscription's, if any —
+ * so the next renewal charges it.
+ */
+async function makeSetupCardDefault(session) {
+  if (!session.setup_intent || !session.customer) return;
+  const stripe = getStripe();
+  const setupIntent = await stripe.setupIntents.retrieve(session.setup_intent);
+  const paymentMethod = typeof setupIntent.payment_method === "string"
+    ? setupIntent.payment_method
+    : setupIntent.payment_method?.id;
+  if (!paymentMethod) return;
+  await stripe.customers.update(session.customer, { invoice_settings: { default_payment_method: paymentMethod } });
+
+  const companyId = session.metadata?.companyId;
+  if (!companyId) return;
+  const company = (await db.collection("companies").doc(companyId).get()).data();
+  if (company?.stripeSubscriptionId && company.subscriptionStatus !== "canceled") {
+    try {
+      await stripe.subscriptions.update(company.stripeSubscriptionId, { default_payment_method: paymentMethod });
+    } catch (err) {
+      logger.warn(`Could not set default card on subscription ${company.stripeSubscriptionId}`, err);
+    }
+  }
+}
+
+/**
+ * A paid top-up (Checkout payment mode) is credited to the customer's Stripe
+ * balance, which Stripe applies automatically to upcoming invoices. The
+ * session ID is the idempotency key so a redelivered webhook never credits
+ * twice.
+ */
+async function creditTopUp(session) {
+  if (session.payment_status !== "paid" || !session.customer) return;
+  const amount = session.amount_total ?? Number(session.metadata?.amountCents ?? 0);
+  if (!amount) return;
+  await getStripe().customers.createBalanceTransaction(
+    session.customer,
+    {
+      amount: -amount,
+      currency: session.currency ?? "usd",
+      description: "Account credit top-up",
+      metadata: { checkoutSessionId: session.id, companyId: session.metadata?.companyId ?? "" },
+    },
+    { idempotencyKey: `topup-credit-${session.id}` },
+  );
+  logger.info(`Credited ${amount} ${session.currency} top-up to customer ${session.customer}`);
+}
+
+/**
  * Stripe webhook endpoint. Configure this function's URL as the endpoint in
  * the Stripe Dashboard, subscribed to: checkout.session.completed,
  * customer.subscription.updated, customer.subscription.deleted,
- * invoice.paid. This is the only path (besides direct Firestore admin
+ * invoice.paid. checkout.session.completed also covers the add-card
+ * window (setup mode) and account credit top-ups (payment mode). This is the only path (besides direct Firestore admin
  * access) allowed to write plan/subscription fields on a company doc —
  * firestore.rules blocks clients from writing them directly.
  */
@@ -85,7 +136,11 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        if (session.subscription) {
+        if (session.mode === "setup") {
+          await makeSetupCardDefault(session);
+        } else if (session.mode === "payment" && session.metadata?.type === "topup") {
+          await creditTopUp(session);
+        } else if (session.subscription) {
           const subscription = await getStripe().subscriptions.retrieve(session.subscription);
           await syncSubscriptionToCompany(subscription);
         }

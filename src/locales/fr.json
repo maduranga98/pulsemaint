@@ -8672,6 +8672,62 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Intégrations personnalisées et API",
         "dedicatedSupportSla": "Support dédié et SLA"
+      },
+      "account": {
+        "loading": "Chargement des informations de facturation…",
+        "refresh": "Actualiser",
+        "portal": "Ouvrir le portail de facturation Stripe (modifier ou résilier l'abonnement)",
+        "notices": {
+          "cardAdded": "Carte enregistrée. Elle sera utilisée pour vos prochaines factures.",
+          "topUpDone": "Paiement reçu. Votre crédit sera mis à jour dans un instant."
+        },
+        "errors": {
+          "loadFailed": "Impossible de charger les informations de facturation. Veuillez réessayer.",
+          "cardWindowFailed": "Impossible d'ouvrir la fenêtre d'ajout de carte. Veuillez réessayer.",
+          "topUpWindowFailed": "Impossible d'ouvrir la fenêtre de recharge. Veuillez réessayer.",
+          "cardUpdateFailed": "Impossible de mettre à jour la carte. Veuillez réessayer."
+        },
+        "cards": {
+          "title": "Moyens de paiement",
+          "subtitle": "Les cartes sont ajoutées dans la fenêtre sécurisée de Stripe — FirmiCore ne voit jamais le numéro complet.",
+          "add": "Ajouter une carte",
+          "empty": "Aucune carte enregistrée.",
+          "default": "Par défaut",
+          "expires": "Expire {{date}}",
+          "makeDefault": "Définir par défaut",
+          "remove": "Supprimer la carte",
+          "confirmRemove": "Supprimer cette carte de votre compte ?"
+        },
+        "credit": {
+          "title": "Crédit du compte",
+          "subtitle": "Le crédit prépayé est appliqué automatiquement à vos prochaines factures.",
+          "topUp": "Recharger",
+          "balance": "Crédit disponible"
+        },
+        "topUp": {
+          "title": "Recharger le crédit du compte",
+          "body": "Choisissez un montant. Vous paierez dans la fenêtre sécurisée de Stripe et le crédit sera appliqué à vos prochaines factures.",
+          "custom": "Ou saisissez un montant (USD)",
+          "range": "Saisissez un montant entier entre {{min}} $ et {{max}} $.",
+          "pay": "Continuer pour payer {{amount}}",
+          "secure": "Les paiements sont traités en toute sécurité par Stripe."
+        },
+        "history": {
+          "title": "Historique de facturation",
+          "date": "Date",
+          "description": "Description",
+          "amount": "Montant",
+          "status": "Statut",
+          "invoice": "Facture",
+          "view": "Voir",
+          "empty": "Aucune facture pour le moment.",
+          "statuses": {
+            "paid": "Payée",
+            "open": "À payer",
+            "uncollectible": "Échouée",
+            "void": "Annulée"
+          }
+        }
       }
     },
     "actions": {

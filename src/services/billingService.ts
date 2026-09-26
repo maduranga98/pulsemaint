@@ -35,3 +35,77 @@ export async function createPortalSession(): Promise<string> {
   const { data } = await fn({ returnUrl: `${window.location.origin}/app/billing` });
   return data.url;
 }
+
+export interface BillingCard {
+  id: string;
+  brand: string;
+  last4: string;
+  expMonth: number | null;
+  expYear: number | null;
+  isDefault: boolean;
+}
+
+export interface BillingInvoice {
+  id: string;
+  number: string | null;
+  description: string | null;
+  /** Epoch millis. */
+  created: number;
+  /** Minor units (cents). */
+  total: number;
+  amountPaid: number;
+  currency: string;
+  status: string | null;
+  hostedInvoiceUrl: string | null;
+  invoicePdf: string | null;
+}
+
+export interface BillingOverview {
+  hasCustomer: boolean;
+  paymentMethods: BillingCard[];
+  /** Account credit in minor units (cents); applied to upcoming invoices. */
+  creditBalance: number;
+  currency: string;
+  invoices: BillingInvoice[];
+}
+
+const billingReturnUrl = (flag: string) => `${window.location.origin}/app/billing?${flag}`;
+
+/**
+ * Opens Stripe's hosted add-card window (Checkout in setup mode). Works
+ * before any plan is subscribed; the saved card becomes the default for
+ * future invoices.
+ */
+export async function createSetupSession(): Promise<string> {
+  const fn = httpsCallable<{ successUrl: string; cancelUrl: string }, { url: string }>(functions, 'createSetupSession');
+  const { data } = await fn({ successUrl: billingReturnUrl('card=added'), cancelUrl: billingReturnUrl('card=cancelled') });
+  return data.url;
+}
+
+/**
+ * Opens Stripe's hosted payment window to buy account credit (whole USD,
+ * 10–10,000). The credit is applied automatically to upcoming invoices.
+ */
+export async function createTopUpSession(amount: number): Promise<string> {
+  const fn = httpsCallable<{ amount: number; successUrl: string; cancelUrl: string }, { url: string }>(
+    functions,
+    'createTopUpSession',
+  );
+  const { data } = await fn({ amount, successUrl: billingReturnUrl('topup=success'), cancelUrl: billingReturnUrl('topup=cancelled') });
+  return data.url;
+}
+
+/** Saved cards, account credit and invoice history, read live from Stripe. */
+export async function getBillingOverview(): Promise<BillingOverview> {
+  const fn = httpsCallable<void, BillingOverview>(functions, 'getBillingOverview');
+  const { data } = await fn();
+  return data;
+}
+
+export async function updatePaymentMethod(paymentMethodId: string, action: 'setDefault' | 'remove'): Promise<void> {
+  const fn = httpsCallable<{ paymentMethodId: string; action: 'setDefault' | 'remove' }, { ok: boolean }>(
+    functions,
+    'updatePaymentMethod',
+  );
+  await fn({ paymentMethodId, action });
+}

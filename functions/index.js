@@ -226,10 +226,20 @@ exports.listRecordReferences = listRecordReferences;
 const { createCheckoutSession } = require("./src/billing/createCheckoutSession");
 const { createPortalSession } = require("./src/billing/createPortalSession");
 const { stripeWebhook } = require("./src/billing/stripeWebhook");
+const {
+  createSetupSession,
+  createTopUpSession,
+  getBillingOverview,
+  updatePaymentMethod,
+} = require("./src/billing/billingAccount");
 
 exports.createCheckoutSession = createCheckoutSession;
 exports.createPortalSession = createPortalSession;
 exports.stripeWebhook = stripeWebhook;
+exports.createSetupSession = createSetupSession;
+exports.createTopUpSession = createTopUpSession;
+exports.getBillingOverview = getBillingOverview;
+exports.updatePaymentMethod = updatePaymentMethod;
 
 // ---------------------------------------------------------------------------
 // AI — Claude proxy (keeps ANTHROPIC_API_KEY server-side)
