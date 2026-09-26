@@ -1521,7 +1521,9 @@
         "sinceTime": "depuis {{time}}",
         "title": "Statut d'équipe en direct",
         "workingNow": "{{count}} au travail maintenant",
-        "yesterday": "hier"
+        "yesterday": "hier",
+        "noDepartment": "Sans service",
+        "footerDepartments": "{{departments}} services · {{people}} personnes au travail"
       },
       "lowStockAlertTable": {
         "category": "Catégorie",

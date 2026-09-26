@@ -2834,7 +2834,9 @@
         "sinceTime": "since {{time}}",
         "title": "Live Shift Status",
         "workingNow": "{{count}} working now",
-        "yesterday": "yesterday"
+        "yesterday": "yesterday",
+        "noDepartment": "No department",
+        "footerDepartments": "{{departments}} departments · {{people}} people working"
       },
       "lowStockAlertTable": {
         "category": "Category",

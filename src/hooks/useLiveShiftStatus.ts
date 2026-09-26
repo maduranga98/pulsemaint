@@ -21,6 +21,7 @@ interface CompanyUser {
   role: string;
   shiftId?: string | null;
   department?: string | null;
+  plantId?: string | null;
 }
 
 export interface ShiftMemberStatus {
@@ -32,6 +33,9 @@ export interface ShiftMemberStatus {
   workingSince: Date | null;
   /** When they clocked out, for a member who ended their shift earlier today. */
   endedAt: Date | null;
+  /** From their user profile — null when not set (or no profile found). */
+  department: string | null;
+  plantId: string | null;
 }
 
 export interface ShiftLiveStatus {
@@ -54,6 +58,7 @@ function deriveStatus(
   // individually-set shiftId, bulk-scheduled roles, or a department-wide
   // plan — so "Not Working" is a real roster entry, not just whoever
   // happens to have a session on file.
+  const byId = new Map(users.map((u) => [u.id, u]));
   const rosterUsers = users.filter((u) => isUserAssignedToShift(shift, u));
   const rosterIds = new Set(rosterUsers.map((u) => u.id));
   const rosterMembers: ShiftMemberStatus[] = rosterUsers.map((u) => {
@@ -66,6 +71,8 @@ function deriveStatus(
       status: active ? 'working' : 'not_working',
       workingSince: active?.actualStart ?? null,
       endedAt: ended?.actualEnd ?? null,
+      department: u.department ?? null,
+      plantId: u.plantId ?? null,
     };
   });
 
@@ -84,6 +91,8 @@ function deriveStatus(
         status: active ? 'working' : 'not_working',
         workingSince: active?.actualStart ?? null,
         endedAt: ended?.actualEnd ?? null,
+        department: byId.get(s.userId)?.department ?? null,
+        plantId: byId.get(s.userId)?.plantId ?? null,
       });
       return acc;
     }, []);
@@ -153,6 +162,7 @@ export function useLiveShiftStatus(companyId: string | undefined) {
             role: data.role ?? '',
             shiftId: data.shiftId ?? null,
             department: data.department ?? null,
+            plantId: data.plantId ?? null,
           };
         });
         rebuild();
