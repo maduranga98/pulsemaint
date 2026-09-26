@@ -21,19 +21,44 @@ async function requireBillingAdmin(request) {
   return { companyId: userData.companyId, companyRef, company: companyDoc.data() };
 }
 
+/** True when Stripe says the object doesn't exist (e.g. an ID from the other test/live mode). */
+function isMissingResource(err) {
+  return err?.code === "resource_missing" || err?.statusCode === 404;
+}
+
 /**
  * Returns the company's Stripe customer ID, creating the customer on first
- * use — so cards and credit can be added before any plan is subscribed.
+ * use — so cards can be added before any plan is subscribed. A stored ID
+ * that the current Stripe key can't see (deleted, or created under the other
+ * test/live mode) is replaced with a fresh customer rather than failing.
  */
-async function ensureStripeCustomer({ companyId, companyRef, company }, email) {
-  if (company.stripeCustomerId) return company.stripeCustomerId;
-  const customer = await getStripe().customers.create({
+async function ensureStripeCustomer(ctx, email) {
+  const { companyId, companyRef, company } = ctx;
+  const stripe = getStripe();
+  if (company.stripeCustomerId) {
+    try {
+      const existing = await stripe.customers.retrieve(company.stripeCustomerId);
+      if (!existing.deleted) return company.stripeCustomerId;
+    } catch (err) {
+      if (!isMissingResource(err)) throw err;
+    }
+  }
+  const customer = await stripe.customers.create({
     email: email ?? undefined,
     name: company.name,
     metadata: { companyId },
   });
   await companyRef.update({ stripeCustomerId: customer.id, updatedAt: FieldValue.serverTimestamp() });
+  ctx.company = { ...company, stripeCustomerId: customer.id };
   return customer.id;
 }
 
-module.exports = { requireBillingAdmin, ensureStripeCustomer };
+/**
+ * A billing error the admin can act on: Stripe's own message (e.g. an
+ * invalid API key or a card decline) instead of a generic failure.
+ */
+function stripeErrorMessage(err, fallback) {
+  return err?.type && typeof err.message === "string" ? `${fallback}: ${err.message}` : fallback;
+}
+
+module.exports = { requireBillingAdmin, ensureStripeCustomer, isMissingResource, stripeErrorMessage };

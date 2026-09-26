@@ -1,7 +1,8 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey, priceIdFor } = require("./stripeClient");
+const { ensureStripeCustomer, stripeErrorMessage } = require("./billingAccess");
 
 const db = getFirestore("default");
 
@@ -44,16 +45,10 @@ exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (re
   try {
     const stripe = getStripe();
 
-    let customerId = company.stripeCustomerId ?? null;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: request.auth.token?.email ?? undefined,
-        name: company.name,
-        metadata: { companyId: userData.companyId },
-      });
-      customerId = customer.id;
-      await companyRef.update({ stripeCustomerId: customerId, updatedAt: FieldValue.serverTimestamp() });
-    }
+    const customerId = await ensureStripeCustomer(
+      { companyId: userData.companyId, companyRef, company },
+      request.auth.token?.email,
+    );
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -71,6 +66,6 @@ exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (re
     return { url: session.url };
   } catch (err) {
     logger.error("createCheckoutSession failed", err);
-    throw new HttpsError("internal", "Failed to create checkout session");
+    throw new HttpsError("internal", stripeErrorMessage(err, "Failed to create checkout session"));
   }
 });
