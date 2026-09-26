@@ -8679,13 +8679,14 @@
         "portal": "打开 Stripe 账单门户（更改或取消订阅）",
         "notices": {
           "cardAdded": "银行卡已保存，将用于您接下来的账单。",
-          "topUpDone": "已收到付款，您的账户余额稍后更新。"
+          "topUpDone": "充值完成，余额已添加到您的账户。"
         },
         "errors": {
           "loadFailed": "无法加载账单信息，请重试。",
           "cardWindowFailed": "无法打开添加银行卡窗口，请重试。",
           "topUpWindowFailed": "无法打开充值窗口，请重试。",
-          "cardUpdateFailed": "无法更新银行卡，请重试。"
+          "cardUpdateFailed": "无法更新银行卡，请重试。",
+          "notConfigured": "银行卡支付尚未配置：缺少 Stripe 可发布密钥，请联系支持。"
         },
         "cards": {
           "title": "支付方式",
@@ -8706,11 +8707,15 @@
         },
         "topUp": {
           "title": "充值账户余额",
-          "body": "选择金额。您将在 Stripe 的安全窗口中付款，余额会自动抵扣接下来的账单。",
+          "body": "选择金额和银行卡，余额会自动抵扣您接下来的账单。",
           "custom": "或输入金额（美元）",
           "range": "请输入 ${{min}} 到 ${{max}} 之间的整数金额。",
           "pay": "继续支付 {{amount}}",
-          "secure": "付款由 Stripe 安全处理。"
+          "secure": "付款由 Stripe 安全处理。",
+          "payWith": "支付方式",
+          "newCard": "新银行卡",
+          "continueToCard": "继续填写银行卡信息",
+          "payAmount": "支付 {{amount}}"
         },
         "history": {
           "title": "账单记录",
@@ -8727,6 +8732,17 @@
             "uncollectible": "失败",
             "void": "已作废"
           }
+        },
+        "window": {
+          "addCardTitle": "添加银行卡",
+          "setupSubtitle": "保存一张银行卡，用于 FirmiCore 账单和充值。",
+          "topUpSubtitle": "充值 {{amount}} 账户余额，此卡将保存以便下次使用。",
+          "cardInformation": "银行卡信息",
+          "saveCard": "保存银行卡",
+          "processing": "处理中…",
+          "failed": "无法处理此银行卡，请重试。",
+          "notConfirmed": "银行卡未确认，请重试。",
+          "loadFailed": "无法加载安全银行卡表单。请检查网络或为此页面关闭广告拦截器后重试。"
         }
       }
     },

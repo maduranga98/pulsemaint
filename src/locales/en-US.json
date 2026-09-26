@@ -308,13 +308,14 @@
         "portal": "Open Stripe billing portal (change or cancel subscription)",
         "notices": {
           "cardAdded": "Card saved. It will be used for your upcoming invoices.",
-          "topUpDone": "Payment received. Your account credit will update in a moment."
+          "topUpDone": "Top-up complete — the credit has been added to your account."
         },
         "errors": {
           "loadFailed": "Failed to load billing details. Please try again.",
           "cardWindowFailed": "Failed to open the add-card window. Please try again.",
           "topUpWindowFailed": "Failed to open the top-up window. Please try again.",
-          "cardUpdateFailed": "Failed to update the card. Please try again."
+          "cardUpdateFailed": "Failed to update the card. Please try again.",
+          "notConfigured": "Card payments aren't set up yet: the Stripe publishable key is missing. Please contact support."
         },
         "cards": {
           "title": "Payment Methods",
@@ -335,11 +336,15 @@
         },
         "topUp": {
           "title": "Top Up Account Credit",
-          "body": "Choose an amount. You'll pay in Stripe's secure window, and the credit is applied to your upcoming invoices.",
+          "body": "Choose an amount and a card. The credit is applied automatically to your upcoming invoices.",
           "custom": "Or enter an amount (USD)",
           "range": "Enter a whole amount between ${{min}} and ${{max}}.",
           "pay": "Continue to pay {{amount}}",
-          "secure": "Payments are processed securely by Stripe."
+          "secure": "Payments are processed securely by Stripe.",
+          "payWith": "Pay with",
+          "newCard": "New card",
+          "continueToCard": "Continue to card details",
+          "payAmount": "Pay {{amount}}"
         },
         "history": {
           "title": "Billing History",
@@ -356,6 +361,17 @@
             "uncollectible": "Failed",
             "void": "Void"
           }
+        },
+        "window": {
+          "addCardTitle": "Add card",
+          "setupSubtitle": "Save a card for your FirmiCore invoices and top-ups.",
+          "topUpSubtitle": "Top up {{amount}} of account credit. This card is saved for next time.",
+          "cardInformation": "Card information",
+          "saveCard": "Save card",
+          "processing": "Processing…",
+          "failed": "The card could not be processed. Please try again.",
+          "notConfirmed": "The card was not confirmed. Please try again.",
+          "loadFailed": "The secure card form couldn't load. Check your connection or disable ad blockers for this page, then try again."
         }
       }
     },
