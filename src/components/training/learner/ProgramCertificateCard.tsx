@@ -39,7 +39,7 @@ export default function ProgramCertificateCard({ programAssignment: pa }: Progra
       // "undefined" on the certificate.
       const certificateNumber = cert.certificateNumber || buildProgramCertificateNumber();
       const companyLogoDataUrl = await resolveCompanyLogoDataUrl(company);
-      const doc = buildProgramCertificatePdf({
+      const doc = await buildProgramCertificatePdf({
         certificateNumber,
         companyName: company?.name || '',
         companyDescription: company?.description ?? null,
