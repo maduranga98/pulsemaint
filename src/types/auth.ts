@@ -64,6 +64,8 @@ export interface CompanyProfile {
   stripeSubscriptionId?: string | null;
   subscriptionStatus?: string | null;
   currentPeriodEnd?: Timestamp | null;
+  /** Cancelled in Stripe, still active until currentPeriodEnd. */
+  cancelAtPeriodEnd?: boolean;
   tenantId: string;
   createdAt: Timestamp;
   adminUserId: string;
@@ -77,6 +79,14 @@ export interface CompanyProfile {
   /** Defaults to 'monthly' on legacy companies. */
   billingCycle?: 'monthly' | 'yearly';
   paymentMethods?: PaymentMethod[];
+  /** Terms of Service version accepted at registration, and when/by whom. */
+  termsVersion?: string;
+  termsAcceptedAt?: Timestamp | null;
+  termsAcceptedBy?: string;
+  /** Latest Terms acceptance given when adding a card or subscribing (written by Cloud Functions). */
+  billingTermsVersion?: string;
+  billingTermsAcceptedAt?: Timestamp | null;
+  billingTermsAcceptedBy?: string;
 }
 
 export interface PaymentMethod {

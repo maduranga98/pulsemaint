@@ -40,6 +40,7 @@ import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import InvitePage from '../pages/auth/InvitePage';
 import OnboardingWizard from '../pages/auth/OnboardingWizard';
+import SubscriptionEndedPage from '../pages/auth/SubscriptionEndedPage';
 import UnauthorizedPage from '../pages/auth/UnauthorizedPage';
 
 // Machine pages
@@ -207,6 +208,10 @@ export default function AppRouter() {
       <Route
         path="/app/unauthorized"
         element={<ProtectedRoute><UnauthorizedPage /></ProtectedRoute>}
+      />
+      <Route
+        path="/app/subscription-ended"
+        element={<ProtectedRoute><SubscriptionEndedPage /></ProtectedRoute>}
       />
 
       {/* Triage runner — full-screen, outside AppLayout */}

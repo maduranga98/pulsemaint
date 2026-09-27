@@ -2,6 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey } = require("./stripeClient");
+const { recordBillingTerms } = require("./billingAccess");
 
 const db = getFirestore("default");
 
@@ -13,7 +14,7 @@ const db = getFirestore("default");
 exports.createPortalSession = onCall({ secrets: [stripeSecretKey] }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
 
-  const { returnUrl } = request.data ?? {};
+  const { returnUrl, termsVersion } = request.data ?? {};
   if (!returnUrl) throw new HttpsError("invalid-argument", "returnUrl is required");
 
   const userDoc = await db.collection("users").doc(request.auth.uid).get();
@@ -21,11 +22,15 @@ exports.createPortalSession = onCall({ secrets: [stripeSecretKey] }, async (requ
   if (!userData?.companyId) throw new HttpsError("failed-precondition", "No company on user profile");
   if (userData.role !== "admin") throw new HttpsError("permission-denied", "Only admins can manage billing");
 
-  const companyDoc = await db.collection("companies").doc(userData.companyId).get();
+  const companyRef = db.collection("companies").doc(userData.companyId);
+  const companyDoc = await companyRef.get();
   const company = companyDoc.data();
   if (!company?.stripeCustomerId) {
     throw new HttpsError("failed-precondition", "No Stripe customer yet — subscribe to a plan first");
   }
+
+  // Opened to change plan or billing cycle: the admin ticked the Terms first.
+  if (termsVersion !== undefined) await recordBillingTerms(companyRef, request.auth.uid, termsVersion);
 
   try {
     const session = await getStripe().billingPortal.sessions.create({

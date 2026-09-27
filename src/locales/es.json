@@ -8573,7 +8573,9 @@
         "label": "Plan actual",
         "status": "Estado:",
         "billed": "Facturado",
-        "trialEnds": "La prueba termina"
+        "trialEnds": "La prueba termina",
+        "renewsOn": "Se renueva automáticamente el {{date}}",
+        "endsOn": "Cancelada: el acceso de todos los usuarios termina el {{date}}"
       },
       "errors": {
         "checkoutFailed": "No se pudo iniciar el pago. Inténtalo de nuevo.",
@@ -8582,7 +8584,10 @@
       "cycle": {
         "monthly": "Mensual",
         "yearly": "Anual",
-        "save20": "Ahorra 20%"
+        "save20": "Ahorra 20%",
+        "monthlyPlans": "Planes mensuales",
+        "yearlyPlans": "Planes anuales",
+        "separateNote": "Los planes mensuales y anuales son suscripciones distintas: los mensuales se cobran cada mes y los anuales una vez cada 12 meses."
       },
       "mostPopular": "Más popular",
       "customPrice": "Personalizado",
@@ -8605,7 +8610,8 @@
         "redirecting": "Redirigiendo…",
         "downgradeTo": "Bajar a {{name}}",
         "upgradeTo": "Mejorar a {{name}}",
-        "adminOnly": "Solo administrador"
+        "adminOnly": "Solo administrador",
+        "switchCycle": "Cambiar a facturación {{cycle}}"
       },
       "payment": {
         "title": "Pagos y facturas",
@@ -8724,6 +8730,17 @@
           "loadFailed": "No se pudo cargar el formulario seguro de tarjeta. Revisa tu conexión o desactiva los bloqueadores de anuncios en esta página e inténtalo de nuevo.",
           "secure": "Los pagos se procesan de forma segura con Stripe."
         }
+      },
+      "cycleNote": {
+        "monthly": "Facturado cada mes · se renueva automáticamente hasta que lo cancele",
+        "yearly": "${{price}} facturados una vez al año (≈ ${{perMonth}}/mes) · se renueva cada 12 meses"
+      },
+      "confirm": {
+        "title": "Confirme su suscripción",
+        "chargeMonthly": "Se cobrarán ${{price}} a la tarjeta de su empresa ahora y cada mes a partir de entonces hasta que la cancele.",
+        "chargeYearly": "Se cobrarán ${{price}} a la tarjeta de su empresa ahora y cada 12 meses a partir de entonces hasta que la cancele.",
+        "companyWide": "Esta suscripción cubre a toda su empresa: todos los usuarios y roles. Si la cancela, el acceso de todos termina al finalizar el periodo pagado; sus datos se conservan.",
+        "continue": "Continuar al pago"
       }
     },
     "actions": {
@@ -9744,6 +9761,29 @@
           "dashboard": "Panel"
         }
       }
+    },
+    "legal": {
+      "terms": {
+        "title": "Términos del servicio",
+        "effective": "Vigente desde {{date}} · versión {{version}}",
+        "close": "Cerrar",
+        "agree": "Acepto",
+        "summary": "En resumen: su suscripción cubre a toda su empresa (todos los usuarios y roles) y se renueva automáticamente —los planes mensuales se cobran cada mes y los anuales una vez al año— hasta que la cancele. Cuando una suscripción cancelada o impagada llega al final de su periodo pagado, se suspende el acceso de todos los usuarios de la empresa. Sus datos no se eliminan.",
+        "agreePrefix": "He leído y acepto los",
+        "linkLabel": "Términos del servicio y de facturación",
+        "registerStatement": "Confirmo que estoy autorizado para registrar esta empresa.",
+        "cardStatement": "Autorizo a FirmiCore (a través de Stripe) a guardar esta tarjeta y cobrarla automáticamente por la suscripción de mi empresa en cada periodo de facturación hasta que se cancele.",
+        "subscribeStatementMonthly": "Entiendo que este plan se renueva automáticamente y que la tarjeta de mi empresa se cobrará cada mes hasta que lo cancele.",
+        "subscribeStatementYearly": "Entiendo que este plan se renueva automáticamente y que la tarjeta de mi empresa se cobrará cada año hasta que lo cancele."
+      }
+    },
+    "subscriptionEnded": {
+      "title": "Suscripción finalizada",
+      "body": "La suscripción de FirmiCore de su empresa ha finalizado, por lo que el acceso está en pausa para todos los usuarios. Sus datos no se han eliminado: todo volverá a estar disponible en cuanto comience una nueva suscripción.",
+      "adminHint": "Como administrador de la empresa, puede iniciar una nueva suscripción desde Facturación y plan.",
+      "memberHint": "Pida al administrador de su empresa que renueve la suscripción.",
+      "renew": "Ir a Facturación y plan",
+      "signOut": "Cerrar sesión"
     }
   },
   "triage": {

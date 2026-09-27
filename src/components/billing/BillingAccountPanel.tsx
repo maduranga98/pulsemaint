@@ -12,6 +12,7 @@ import {
   updatePaymentMethod,
   type BillingOverview,
 } from '../../services/billingService';
+import { TERMS_VERSION } from '@/lib/legal/terms';
 import StripeCardWindow from './StripeCardWindow';
 
 function formatMoney(minor: number, currency: string): string {
@@ -280,7 +281,7 @@ export default function BillingAccountPanel({ hasSubscription }: { hasSubscripti
           clientSecret={cardWindow.clientSecret}
           onClose={() => setCardWindow(null)}
           onSuccess={async (setupIntentId) => {
-            await finalizeCardSetup(setupIntentId);
+            await finalizeCardSetup(setupIntentId, TERMS_VERSION);
             setCardWindow(null);
             setNotice(t('common.billing.account.notices.cardAdded'));
             await load();

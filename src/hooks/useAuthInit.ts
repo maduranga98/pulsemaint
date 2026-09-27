@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { getCompanyIdFromUser } from '../lib/auth';
@@ -22,6 +22,7 @@ export function useAuthInit() {
   // admin (e.g. reassigning a shift in Settings → Users) are reflected
   // immediately instead of requiring the user to log out and back in.
   const profileUnsubscribeRef = useRef<(() => void) | null>(null);
+  const companyUnsubscribeRef = useRef<(() => void) | null>(null);
 
   // A dedicated function (rather than inlining the check at each call site)
   // so TypeScript's control-flow narrowing of `.current` in one branch of
@@ -31,6 +32,8 @@ export function useAuthInit() {
   function unsubscribeProfile() {
     profileUnsubscribeRef.current?.();
     profileUnsubscribeRef.current = null;
+    companyUnsubscribeRef.current?.();
+    companyUnsubscribeRef.current = null;
   }
 
   useEffect(() => {
@@ -124,13 +127,21 @@ export function useAuthInit() {
                     siteId: userProfile.siteIds[0] ?? companyId,
                   }, { merge: true }).catch(() => {});
 
+                  // Live, so plan/subscription changes written by the Stripe
+                  // webhook (including suspension when a subscription ends)
+                  // reach every signed-in user without a reload.
                   const companyRef = doc(db, `companies/${companyId}`);
-                  getDoc(companyRef).then((companySnap) => {
-                    if (companySnap.exists()) {
-                      setCompany(companySnap.data() as CompanyProfile);
-                    }
-                  }).catch(() => {});
-                  // If company doc isn't readable yet, keep whatever the caller hydrated.
+                  companyUnsubscribeRef.current?.();
+                  companyUnsubscribeRef.current = onSnapshot(
+                    companyRef,
+                    (companySnap) => {
+                      if (companySnap.exists()) {
+                        setCompany(companySnap.data() as CompanyProfile);
+                      }
+                    },
+                    // If company doc isn't readable yet, keep whatever the caller hydrated.
+                    () => {},
+                  );
                 }
               },
               (err) => {

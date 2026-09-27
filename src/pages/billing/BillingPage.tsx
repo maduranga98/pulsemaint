@@ -7,6 +7,8 @@ import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
 import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
+import TermsCheckbox from '../../components/legal/TermsCheckbox';
+import { TERMS_VERSION } from '../../lib/legal/terms';
 
 type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
@@ -166,6 +168,19 @@ function planPrice(plan: PlanDef, cycle: BillingCycle): number | null {
   return cycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
 }
 
+/** What choosing a plan card does, relative to the subscription in force. */
+type ChangeKind = 'upgrade' | 'downgrade' | 'switchCycle';
+
+interface PendingChange {
+  plan: PlanDef;
+  cycle: BillingCycle;
+  kind: ChangeKind;
+}
+
+function formatDate(ts: Timestamp | null | undefined): string {
+  return ts ? ts.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+}
+
 function TrialBanner({
   status,
   trialEndsAt,
@@ -217,14 +232,20 @@ export default function BillingPage() {
   const isAdmin = useAuthStore((s) => s.isAdmin);
 
   const currentPlan = company?.plan ?? 'starter';
-  // Local display preference only — the billing cycle actually charged is
-  // whatever the active Stripe subscription is on. Changing it here just
-  // changes which price the next checkout/upgrade uses.
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>(company?.billingCycle ?? 'monthly');
+  // Monthly and yearly plans are separate subscriptions (different price,
+  // billing period and renewal date). subscribedCycle is the one actually
+  // charged; billingCycle is only which set of plans is being browsed.
+  const subscribedCycle: BillingCycle = company?.billingCycle ?? 'monthly';
+  const hasSubscription = !!company?.stripeSubscriptionId && company.subscriptionStatus !== 'canceled';
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(subscribedCycle);
 
   const [redirecting, setRedirecting] = useState<Plan | null>(null);
   const [error, setError] = useState('');
-  const [pendingDowngrade, setPendingDowngrade] = useState<PlanDef | null>(null);
+  const [pending, setPending] = useState<PendingChange | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const cycleLabel = (cycle: BillingCycle) =>
+    cycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly');
 
   async function startCheckout(plan: Plan, cycle: BillingCycle) {
     if (!company || !isAdmin || plan === 'enterprise') return;
@@ -236,9 +257,9 @@ export default function BillingPage() {
       // Checkout in subscription mode would otherwise start a second,
       // duplicate subscription. Requires "customer can switch plans" to be
       // enabled in the Stripe Dashboard's Billing Portal configuration.
-      const url = company.stripeSubscriptionId
-        ? await createPortalSession()
-        : await createCheckoutSession(plan, cycle);
+      const url = hasSubscription
+        ? await createPortalSession(TERMS_VERSION)
+        : await createCheckoutSession(plan, cycle, TERMS_VERSION);
       window.location.href = url;
     } catch (err: any) {
       setError(err?.message || t('common.billing.errors.checkoutFailed'));
@@ -246,20 +267,24 @@ export default function BillingPage() {
     }
   }
 
-  function handlePlanClick(plan: PlanDef) {
-    if (!company || !isAdmin || plan.id === currentPlan || plan.id === 'enterprise') return;
-    const isDowngrade = PLAN_RANK[plan.id] < PLAN_RANK[currentPlan];
-    if (isDowngrade) {
-      setPendingDowngrade(plan);
-      return;
-    }
-    void startCheckout(plan.id, billingCycle);
+  function changeKind(plan: PlanDef): ChangeKind {
+    if (plan.id === currentPlan) return 'switchCycle';
+    return PLAN_RANK[plan.id] < PLAN_RANK[currentPlan] ? 'downgrade' : 'upgrade';
   }
 
-  async function confirmDowngrade() {
-    if (!pendingDowngrade) return;
-    await startCheckout(pendingDowngrade.id, billingCycle);
-    setPendingDowngrade(null);
+  // Every paid change goes through a confirmation that states the amount,
+  // how often it is charged, and requires the Terms to be ticked.
+  function handlePlanClick(plan: PlanDef) {
+    if (!company || !isAdmin || plan.id === 'enterprise') return;
+    if (plan.id === currentPlan && billingCycle === subscribedCycle) return;
+    setAcceptedTerms(false);
+    setPending({ plan, cycle: billingCycle, kind: changeKind(plan) });
+  }
+
+  async function confirmPending() {
+    if (!pending || !acceptedTerms) return;
+    await startCheckout(pending.plan.id, pending.cycle);
+    setPending(null);
   }
 
   return (
@@ -291,10 +316,15 @@ export default function BillingPage() {
               <span className="font-medium text-slate-300 capitalize">{company?.status ?? ''}</span>
               {' · '}
               {t('common.billing.currentPlan.billed')}{' '}
-              <span className="font-medium text-slate-300">
-                {billingCycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly')}
-              </span>
+              <span className="font-medium text-slate-300">{cycleLabel(subscribedCycle)}</span>
             </p>
+            {hasSubscription && company?.currentPeriodEnd && (
+              <p className={`text-sm mt-0.5 ${company.cancelAtPeriodEnd ? 'text-amber-300' : 'text-slate-400'}`}>
+                {company.cancelAtPeriodEnd
+                  ? t('common.billing.currentPlan.endsOn', { date: formatDate(company.currentPeriodEnd) })
+                  : t('common.billing.currentPlan.renewsOn', { date: formatDate(company.currentPeriodEnd) })}
+              </p>
+            )}
           </div>
           {company?.trialEndsAt && company.status === 'trial' && (
             <div className="text-right">
@@ -319,7 +349,7 @@ export default function BillingPage() {
       )}
 
       {/* Billing cycle toggle */}
-      <div className="flex items-center justify-center gap-3">
+      <div className="flex flex-col items-center justify-center gap-2">
         <div className="inline-flex items-center bg-[#0F1E35] border border-[#1E3A5F] rounded-full p-1">
           {(['monthly', 'yearly'] as BillingCycle[]).map((cycle) => (
             <button
@@ -332,20 +362,24 @@ export default function BillingPage() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {cycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly')}
+              {cycle === 'yearly' ? t('common.billing.cycle.yearlyPlans') : t('common.billing.cycle.monthlyPlans')}
               {cycle === 'yearly' && (
                 <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">{t('common.billing.cycle.save20')}</span>
               )}
             </button>
           ))}
         </div>
+        <p className="text-xs text-slate-400 text-center max-w-xl">{t('common.billing.cycle.separateNote')}</p>
       </div>
 
       {/* Plan cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {PLANS.map((plan) => {
-          const isCurrent = plan.id === currentPlan;
-          const isDowngrade = PLAN_RANK[plan.id] < PLAN_RANK[currentPlan];
+          // A plan is current only on the cycle actually subscribed to —
+          // Factory Pro yearly is a different package from Factory Pro monthly.
+          const isCurrent = plan.id === currentPlan && billingCycle === subscribedCycle;
+          const kind = changeKind(plan);
+          const isDowngrade = kind === 'downgrade';
           const isEnterprise = plan.id === 'enterprise';
           const price = planPrice(plan, billingCycle);
           const planName = t(plan.nameKey);
@@ -385,6 +419,13 @@ export default function BillingPage() {
                     </>
                   )}
                 </div>
+                {price !== null && price > 0 && (
+                  <p className="text-[11px] font-medium text-slate-300 mt-1">
+                    {billingCycle === 'yearly'
+                      ? t('common.billing.cycleNote.yearly', { price, perMonth: Math.round(price / 12) })
+                      : t('common.billing.cycleNote.monthly')}
+                  </p>
+                )}
                 <p className="text-xs text-slate-400 mt-1.5">{t(plan.descriptionKey)}</p>
               </div>
 
@@ -467,6 +508,8 @@ export default function BillingPage() {
                   >
                     {redirecting === plan.id
                       ? t('common.billing.cta.redirecting')
+                      : kind === 'switchCycle'
+                      ? t('common.billing.cta.switchCycle', { cycle: cycleLabel(billingCycle) })
                       : isDowngrade
                       ? t('common.billing.cta.downgradeTo', { name: planName })
                       : t('common.billing.cta.upgradeTo', { name: planName })}
@@ -496,42 +539,76 @@ export default function BillingPage() {
         {t('common.billing.footer.forQuestions')}
       </p>
 
-      {/* Downgrade confirmation */}
-      {pendingDowngrade && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-6 max-w-md w-full space-y-4">
-            <div className="flex items-center gap-2 text-amber-400">
-              <AlertTriangle className="h-5 w-5" />
-              <h3 className="text-base font-bold text-white!">{t('common.billing.downgrade.title')}</h3>
-            </div>
-            <p className="text-sm text-slate-300">
-              {t('common.billing.downgrade.body', {
-                fromName: (() => {
-                  const plan = PLANS.find((p) => p.id === currentPlan);
-                  return plan ? t(plan.nameKey) : currentPlan;
-                })(),
-                toName: t(pendingDowngrade.nameKey),
-                period: billingCycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly'),
-              })}
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setPendingDowngrade(null)}
-                className="px-4 py-2 text-sm font-medium border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800"
-              >
-                {t('common.actions.cancel')}
-              </button>
-              <button
-                onClick={() => void confirmDowngrade()}
-                disabled={!!redirecting}
-                className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg disabled:opacity-60"
-              >
-                {redirecting ? t('common.billing.cta.redirecting') : t('common.billing.downgrade.confirm')}
-              </button>
+      {/* Subscription confirmation: amount, charge frequency, company-wide
+          scope, and the required Terms tick box. */}
+      {pending && (() => {
+        const price = planPrice(pending.plan, pending.cycle) ?? 0;
+        const planName = t(pending.plan.nameKey);
+        const currentName = (() => {
+          const plan = PLANS.find((p) => p.id === currentPlan);
+          return plan ? t(plan.nameKey) : currentPlan;
+        })();
+        return (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-6 max-w-lg w-full space-y-4">
+                <div className="flex items-center gap-2">
+                  {pending.kind === 'downgrade' && <AlertTriangle className="h-5 w-5 text-amber-400" />}
+                  <h3 className="text-base font-bold text-white!">{t('common.billing.confirm.title')}</h3>
+                </div>
+
+                <div className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] p-4">
+                  <p className="text-sm font-semibold text-white">{planName} · {cycleLabel(pending.cycle)}</p>
+                  <p className="text-2xl font-bold text-white mt-1">
+                    ${price}
+                    <span className="text-sm font-normal text-slate-400">
+                      {' '}/{pending.cycle === 'yearly' ? t('common.billing.perYear') : t('common.billing.perMonth')}
+                    </span>
+                  </p>
+                  <p className="text-sm text-slate-300 mt-2">
+                    {pending.cycle === 'yearly'
+                      ? t('common.billing.confirm.chargeYearly', { price })
+                      : t('common.billing.confirm.chargeMonthly', { price })}
+                  </p>
+                </div>
+
+                {pending.kind === 'downgrade' && (
+                  <p className="text-sm text-amber-200">
+                    {t('common.billing.downgrade.body', { fromName: currentName, toName: planName, period: cycleLabel(pending.cycle) })}
+                  </p>
+                )}
+                <p className="text-sm text-slate-300">{t('common.billing.confirm.companyWide')}</p>
+
+                <TermsCheckbox
+                  checked={acceptedTerms}
+                  onChange={setAcceptedTerms}
+                  statement={
+                    pending.cycle === 'yearly'
+                      ? t('common.legal.terms.subscribeStatementYearly')
+                      : t('common.legal.terms.subscribeStatementMonthly')
+                  }
+                />
+
+                <div className="flex justify-end gap-3 pt-1">
+                  <button
+                    onClick={() => setPending(null)}
+                    className="px-4 py-2 text-sm font-medium border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800"
+                  >
+                    {t('common.actions.cancel')}
+                  </button>
+                  <button
+                    onClick={() => void confirmPending()}
+                    disabled={!!redirecting || !acceptedTerms}
+                    className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-50"
+                  >
+                    {redirecting ? t('common.billing.cta.redirecting') : t('common.billing.confirm.continue')}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

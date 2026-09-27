@@ -2,7 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey, priceIdFor } = require("./stripeClient");
-const { ensureStripeCustomer, stripeErrorMessage } = require("./billingAccess");
+const { ensureStripeCustomer, stripeErrorMessage, recordBillingTerms } = require("./billingAccess");
 
 const db = getFirestore("default");
 
@@ -16,7 +16,7 @@ const db = getFirestore("default");
 exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
 
-  const { plan, billingCycle, successUrl, cancelUrl } = request.data ?? {};
+  const { plan, billingCycle, termsVersion, successUrl, cancelUrl } = request.data ?? {};
   if (!["starter", "workshop", "factory"].includes(plan)) {
     throw new HttpsError("invalid-argument", "Unknown plan");
   }
@@ -41,6 +41,7 @@ exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (re
   const companyDoc = await companyRef.get();
   if (!companyDoc.exists) throw new HttpsError("not-found", "Company not found");
   const company = companyDoc.data();
+  await recordBillingTerms(companyRef, request.auth.uid, termsVersion);
 
   try {
     const stripe = getStripe();
@@ -58,9 +59,9 @@ exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (re
       cancel_url: cancelUrl,
       client_reference_id: userData.companyId,
       subscription_data: {
-        metadata: { companyId: userData.companyId, plan, billingCycle },
+        metadata: { companyId: userData.companyId, plan, billingCycle, termsVersion },
       },
-      metadata: { companyId: userData.companyId, plan, billingCycle },
+      metadata: { companyId: userData.companyId, plan, billingCycle, termsVersion },
     });
 
     return { url: session.url };

@@ -1,7 +1,9 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey } = require("./stripeClient");
-const { requireBillingAdmin, ensureStripeCustomer, isMissingResource, stripeErrorMessage } = require("./billingAccess");
+const {
+  requireBillingAdmin, ensureStripeCustomer, isMissingResource, stripeErrorMessage, recordBillingTerms,
+} = require("./billingAccess");
 
 // Plan prices are in USD.
 const CURRENCY = "usd";
@@ -57,11 +59,12 @@ exports.createCardSetup = onCall({ secrets: [stripeSecretKey] }, async (request)
  * invoices (and the active subscription).
  */
 exports.finalizeCardSetup = onCall({ secrets: [stripeSecretKey] }, async (request) => {
-  const { setupIntentId } = request.data ?? {};
+  const { setupIntentId, termsVersion } = request.data ?? {};
   if (typeof setupIntentId !== "string" || !setupIntentId.startsWith("seti_")) {
     throw new HttpsError("invalid-argument", "setupIntentId is required");
   }
-  const { company } = await requireBillingAdmin(request);
+  const { company, companyRef } = await requireBillingAdmin(request);
+  await recordBillingTerms(companyRef, request.auth.uid, termsVersion);
   const stripe = getStripe();
   const intent = await stripe.setupIntents.retrieve(setupIntentId);
   if (!company.stripeCustomerId || intent.customer !== company.stripeCustomerId) {

@@ -54,6 +54,22 @@ async function ensureStripeCustomer(ctx, email) {
 }
 
 /**
+ * Records that the admin accepted the Terms of Service (auto-renewal,
+ * company-wide charging, suspension on cancellation) when adding a card or
+ * subscribing. The client only sends this after the Terms box is ticked.
+ */
+async function recordBillingTerms(companyRef, uid, termsVersion) {
+  if (typeof termsVersion !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(termsVersion)) {
+    throw new HttpsError("failed-precondition", "You must accept the Terms of Service first");
+  }
+  await companyRef.update({
+    billingTermsVersion: termsVersion,
+    billingTermsAcceptedAt: FieldValue.serverTimestamp(),
+    billingTermsAcceptedBy: uid,
+  });
+}
+
+/**
  * A billing error the admin can act on: Stripe's own message (e.g. an
  * invalid API key or a card decline) instead of a generic failure.
  */
@@ -65,4 +81,4 @@ function stripeErrorMessage(err, fallback) {
   return err?.type && typeof err.message === "string" ? `${fallback}: ${err.message}` : fallback;
 }
 
-module.exports = { requireBillingAdmin, ensureStripeCustomer, isMissingResource, stripeErrorMessage };
+module.exports = { requireBillingAdmin, ensureStripeCustomer, isMissingResource, stripeErrorMessage, recordBillingTerms };

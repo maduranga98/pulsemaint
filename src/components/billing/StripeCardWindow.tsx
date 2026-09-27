@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { loadStripe, type Stripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { Lock, X } from 'lucide-react';
+import TermsCheckbox from '@/components/legal/TermsCheckbox';
 
 // One Stripe.js instance per publishable key for the page's lifetime.
 const stripeCache = new Map<string, Promise<Stripe | null>>();
@@ -31,10 +32,11 @@ function CardForm({ onSuccess }: Pick<StripeCardWindowProps, 'onSuccess'>) {
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !acceptedTerms) return;
     setSubmitting(true);
     setError('');
     try {
@@ -63,10 +65,17 @@ function CardForm({ onSuccess }: Pick<StripeCardWindowProps, 'onSuccess'>) {
         // Card only, without Link's "save my info" block, keeps the window short.
         options={{ layout: 'tabs', wallets: { link: 'never' }, fields: { billingDetails: { address: 'auto' } } }}
       />
+      <div className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] p-3">
+        <TermsCheckbox
+          checked={acceptedTerms}
+          onChange={setAcceptedTerms}
+          statement={t('common.legal.terms.cardStatement')}
+        />
+      </div>
       {error && <p className="text-sm text-red-400! break-words">{error}</p>}
       <button
         type="submit"
-        disabled={!stripe || !ready || submitting}
+        disabled={!stripe || !ready || submitting || !acceptedTerms}
         className="relative w-full rounded-lg bg-[#0074FF] py-3 text-base font-semibold text-white! hover:bg-[#0062d9] disabled:opacity-60"
       >
         {submitting ? t('common.billing.account.window.processing') : t('common.billing.account.window.saveCard')}
