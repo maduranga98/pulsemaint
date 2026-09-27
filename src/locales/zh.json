@@ -6834,7 +6834,8 @@
           "workorders": "工单",
           "machines": "设备",
           "safety": "安全",
-          "team": "团队绩效"
+          "team": "团队绩效",
+          "plants": "工厂效率"
         }
       },
       "inventoryPage": {
@@ -6901,6 +6902,31 @@
           "contractor": "承包商",
           "operator": "操作员",
           "machine": "设备"
+        }
+      },
+      "plantEfficiency": {
+        "title": "工厂效率",
+        "loadFailed": "无法加载工厂效率。",
+        "empty": "此期间暂无工厂数据。",
+        "compare": "比较工厂",
+        "unassigned": "未分配工厂",
+        "table": "所有工厂 — 数据",
+        "plant": "工厂",
+        "machines": "{{count}} 台设备",
+        "countsTitle": "故障与工单 · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "维护成本",
+          "downtimeHours": "停机时间（小时）",
+          "downtimeCost": "停机成本",
+          "breakdowns": "故障",
+          "workOrders": "工单"
+        },
+        "health": {
+          "title": "工厂健康度",
+          "good": "良好",
+          "watch": "关注",
+          "poor": "较差",
+          "none": "无数据"
         }
       }
     },

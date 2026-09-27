@@ -6834,7 +6834,8 @@
           "workorders": "作業指示書",
           "machines": "設備",
           "safety": "安全",
-          "team": "チーム実績"
+          "team": "チーム実績",
+          "plants": "工場効率"
         }
       },
       "inventoryPage": {
@@ -6901,6 +6902,31 @@
           "contractor": "請負業者",
           "operator": "オペレーター",
           "machine": "設備"
+        }
+      },
+      "plantEfficiency": {
+        "title": "工場効率",
+        "loadFailed": "工場効率を読み込めませんでした。",
+        "empty": "この期間の工場データはまだありません。",
+        "compare": "工場を比較",
+        "unassigned": "工場未割り当て",
+        "table": "全工場 — 数値",
+        "plant": "工場",
+        "machines": "設備 {{count}} 台",
+        "countsTitle": "故障・作業指示 · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "保全コスト",
+          "downtimeHours": "ダウンタイム（時間）",
+          "downtimeCost": "ダウンタイムコスト",
+          "breakdowns": "故障",
+          "workOrders": "作業指示"
+        },
+        "health": {
+          "title": "工場の健全性",
+          "good": "良好",
+          "watch": "要注意",
+          "poor": "不良",
+          "none": "データなし"
         }
       }
     },

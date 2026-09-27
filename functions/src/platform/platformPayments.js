@@ -2,7 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { FieldValue } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { getStripe, stripeSecretKey, planAndCycleForPrice } = require("../billing/stripeClient");
+const { getStripe, stripeSecretKey, isFirmicoreInvoice } = require("../billing/stripeClient");
 const { stripeErrorMessage } = require("../billing/billingAccess");
 const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
 const { db, PLATFORM_ALERT_EMAIL, requireSuperadmin, audit, toMillis } = require("./platformAccess");
@@ -12,18 +12,10 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", 
 const APP_URL = "https://app.firmicore.com";
 
 /** Recent Stripe invoices across every customer, matched to their company. */
-function linePriceIds(invoice) {
-  return (invoice.lines?.data ?? [])
-    .map((l) => l.price?.id ?? l.pricing?.price_details?.price ?? null)
-    .filter(Boolean);
-}
-
 /**
- * Recent Stripe invoices for FirmiCore CMMS only — the Stripe account may
- * also bill other Lumora Ventures products. An invoice counts as FirmiCore
- * when it belongs to a FirmiCore company's Stripe customer, carries a
- * FirmiCore companyId in its subscription metadata, or bills a FirmiCore
- * plan price.
+ * FirmiCore CMMS payments received — paid invoices that bill a FirmiCore plan
+ * price. Everything else on the shared Stripe account (other Lumora Ventures
+ * products, unpaid or void invoices) is left out.
  */
 exports.platformListPayments = onCall({ secrets: [stripeSecretKey] }, async (request) => {
   requireSuperadmin(request);
@@ -39,20 +31,18 @@ exports.platformListPayments = onCall({ secrets: [stripeSecretKey] }, async (req
   try {
     const payments = [];
     let scanned = 0;
-    for await (const i of getStripe().invoices.list({ limit: 100 })) {
-      if (++scanned > 1000 || payments.length >= 100) break;
-      if (i.status === "draft") continue;
+    for await (const i of getStripe().invoices.list({ limit: 100, status: "paid" })) {
+      if (++scanned > 2000 || payments.length >= 100) break;
+      if (!(i.amount_paid > 0) || !isFirmicoreInvoice(i)) continue;
       const customer = typeof i.customer === "string" ? i.customer : i.customer?.id;
       const metaCompanyId = i.subscription_details?.metadata?.companyId ?? i.metadata?.companyId ?? null;
       const company = byCustomer.get(customer) ?? (metaCompanyId ? byId.get(metaCompanyId) : null) ?? null;
-      const firmicorePrice = linePriceIds(i).some((id) => planAndCycleForPrice(id));
-      if (!company && !metaCompanyId && !firmicorePrice) continue;
       payments.push({
         id: i.id,
         number: i.number ?? null,
         companyId: company?.id ?? metaCompanyId,
         companyName: company?.name ?? i.customer_name ?? i.customer_email ?? null,
-        created: i.created * 1000,
+        created: (i.status_transitions?.paid_at ?? i.created) * 1000,
         total: i.total,
         amountPaid: i.amount_paid,
         amountDue: i.amount_due,

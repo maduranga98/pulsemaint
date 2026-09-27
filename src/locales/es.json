@@ -6834,7 +6834,8 @@
           "workorders": "Órdenes de trabajo",
           "machines": "Máquinas",
           "safety": "Seguridad",
-          "team": "Desempeño del equipo"
+          "team": "Desempeño del equipo",
+          "plants": "Eficiencia de planta"
         }
       },
       "inventoryPage": {
@@ -6901,6 +6902,31 @@
           "contractor": "Contratista",
           "operator": "Operador",
           "machine": "Máquina"
+        }
+      },
+      "plantEfficiency": {
+        "title": "Eficiencia de planta",
+        "loadFailed": "No se pudo cargar la eficiencia de planta.",
+        "empty": "Aún no hay datos de planta para este periodo.",
+        "compare": "Comparar plantas",
+        "unassigned": "Sin planta asignada",
+        "table": "Todas las plantas — cifras",
+        "plant": "Planta",
+        "machines": "{{count}} máquinas",
+        "countsTitle": "Averías y órdenes de trabajo · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "Costo de mantenimiento",
+          "downtimeHours": "Tiempo de inactividad (horas)",
+          "downtimeCost": "Costo de inactividad",
+          "breakdowns": "Averías",
+          "workOrders": "Órdenes de trabajo"
+        },
+        "health": {
+          "title": "Salud de la fábrica",
+          "good": "Buena",
+          "watch": "Vigilar",
+          "poor": "Mala",
+          "none": "Sin datos"
         }
       }
     },

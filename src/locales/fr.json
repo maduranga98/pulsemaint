@@ -6834,7 +6834,8 @@
           "workorders": "Ordres de travail",
           "machines": "Machines",
           "safety": "Sécurité",
-          "team": "Performance de l'équipe"
+          "team": "Performance de l'équipe",
+          "plants": "Efficacité des sites"
         }
       },
       "inventoryPage": {
@@ -6901,6 +6902,31 @@
           "contractor": "Contractant",
           "operator": "Opérateur",
           "machine": "Machine"
+        }
+      },
+      "plantEfficiency": {
+        "title": "Efficacité des sites",
+        "loadFailed": "Impossible de charger l'efficacité des sites.",
+        "empty": "Aucune donnée de site pour cette période.",
+        "compare": "Comparer les sites",
+        "unassigned": "Aucun site attribué",
+        "table": "Tous les sites — chiffres",
+        "plant": "Site",
+        "machines": "{{count}} machines",
+        "countsTitle": "Pannes et ordres de travail · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "Coût de maintenance",
+          "downtimeHours": "Arrêts (heures)",
+          "downtimeCost": "Coût des arrêts",
+          "breakdowns": "Pannes",
+          "workOrders": "Ordres de travail"
+        },
+        "health": {
+          "title": "Santé de l'usine",
+          "good": "Bonne",
+          "watch": "À surveiller",
+          "poor": "Mauvaise",
+          "none": "Aucune donnée"
         }
       }
     },

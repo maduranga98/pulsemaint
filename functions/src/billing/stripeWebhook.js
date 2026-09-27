@@ -1,7 +1,7 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { getStripe, stripeSecretKey, stripeWebhookSecret, planAndCycleForPrice } = require("./stripeClient");
+const { getStripe, stripeSecretKey, stripeWebhookSecret, planAndCycleForPrice, isFirmicoreInvoice } = require("./stripeClient");
 
 const db = getFirestore("default");
 
@@ -63,6 +63,26 @@ async function recordInvoice(invoice) {
       periodEnd: invoice.period_end ? Timestamp.fromMillis(invoice.period_end * 1000) : null,
       createdAt: FieldValue.serverTimestamp(),
     });
+}
+
+/** Payment received → notification for Lumora superadmins (platform console). */
+async function notifyPaymentReceived(invoice) {
+  const companyId = invoice.subscription_details?.metadata?.companyId ?? invoice.metadata?.companyId ?? null;
+  let companyName = invoice.customer_name ?? invoice.customer_email ?? null;
+  if (companyId) {
+    const snap = await db.collection("companies").doc(companyId).get();
+    if (snap.exists) companyName = snap.get("name") ?? companyName;
+  }
+  await db.collection("platformNotifications").doc(`payment_${invoice.id}`).set({
+    type: "payment",
+    invoiceId: invoice.id,
+    companyId,
+    companyName,
+    amount: invoice.amount_paid,
+    currency: invoice.currency,
+    read: false,
+    createdAt: FieldValue.serverTimestamp(),
+  });
 }
 
 /**
@@ -146,7 +166,12 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
         break;
       }
       case "invoice.paid": {
-        await recordInvoice(event.data.object);
+        const invoice = event.data.object;
+        // The Stripe account also bills other Lumora products — only
+        // FirmiCore plan invoices are recorded and announced.
+        if (!isFirmicoreInvoice(invoice)) break;
+        await recordInvoice(invoice);
+        if (invoice.amount_paid > 0) await notifyPaymentReceived(invoice);
         break;
       }
       default:
