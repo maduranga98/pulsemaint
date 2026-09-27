@@ -52,7 +52,8 @@
         "maintenanceHistory": "Historique de maintenance",
         "myRequests": "Mes demandes",
         "requestsInbox": "Boîte des demandes",
-        "safetyBlacklist": "Liste noire"
+        "safetyBlacklist": "Liste noire",
+        "supportRequests": "Avis et demandes"
       },
       "help": "Aide et assistance"
     },
@@ -9875,6 +9876,44 @@
       "memberHint": "Demandez à l'administrateur de votre entreprise de renouveler l'abonnement.",
       "renew": "Aller à Facturation et formule",
       "signOut": "Se déconnecter"
+    },
+    "supportRequests": {
+      "title": "Avis et demandes",
+      "subtitle": "Envoyez vos avis, idées de fonctionnalités et demandes spéciales à l'équipe FirmiCore de Lumora Ventures, et suivez nos réponses ici.",
+      "new": "Nouvelle demande",
+      "sent": "Envoyé. L'équipe FirmiCore répondra ici et par e-mail.",
+      "send": "Envoyer",
+      "sending": "Envoi…",
+      "empty": "Aucune demande pour l'instant. Partagez votre avis ou demandez quelque chose de spécial pour votre entreprise.",
+      "back": "Toutes les demandes",
+      "reply": "Répondre",
+      "replyPlaceholder": "Écrire une réponse…",
+      "newReply": "Nouvelle réponse",
+      "lumoraTeam": "Équipe FirmiCore (Lumora Ventures)",
+      "contact": "Vous pouvez aussi nous contacter à",
+      "form": {
+        "type": "Type",
+        "subject": "Objet",
+        "message": "Message",
+        "placeholder": "Dites-nous ce dont vous avez besoin ou ce que nous pourrions améliorer…"
+      },
+      "types": {
+        "feedback": "Avis",
+        "feature": "Idée de fonctionnalité",
+        "special": "Demande spéciale",
+        "billing": "Question de facturation",
+        "support": "Assistance / problème"
+      },
+      "statuses": {
+        "open": "Ouverte",
+        "in_progress": "En cours",
+        "resolved": "Résolue",
+        "closed": "Fermée"
+      },
+      "errors": {
+        "load": "Impossible de charger vos demandes.",
+        "send": "Échec de l'envoi. Veuillez réessayer."
+      }
     }
   },
   "triage": {

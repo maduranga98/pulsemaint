@@ -52,7 +52,8 @@
         "maintenanceHistory": "Wartungsverlauf",
         "myRequests": "Meine Anfragen",
         "requestsInbox": "Anfragen-Posteingang",
-        "safetyBlacklist": "Sperrliste"
+        "safetyBlacklist": "Sperrliste",
+        "supportRequests": "Feedback & Anfragen"
       },
       "help": "Hilfe & Support"
     },
@@ -9875,6 +9876,44 @@
       "memberHint": "Bitten Sie den Administrator Ihres Unternehmens, das Abonnement zu erneuern.",
       "renew": "Zu Abrechnung & Plan",
       "signOut": "Abmelden"
+    },
+    "supportRequests": {
+      "title": "Feedback & Anfragen",
+      "subtitle": "Senden Sie Feedback, Funktionsideen und Sonderanfragen an das FirmiCore-Team von Lumora Ventures und verfolgen Sie hier unsere Antworten.",
+      "new": "Neue Anfrage",
+      "sent": "Gesendet. Das FirmiCore-Team antwortet hier und per E-Mail.",
+      "send": "Senden",
+      "sending": "Wird gesendet…",
+      "empty": "Noch keine Anfragen. Teilen Sie Feedback oder bitten Sie um etwas Besonderes für Ihr Unternehmen.",
+      "back": "Alle Anfragen",
+      "reply": "Antworten",
+      "replyPlaceholder": "Antwort schreiben…",
+      "newReply": "Neue Antwort",
+      "lumoraTeam": "FirmiCore-Team (Lumora Ventures)",
+      "contact": "Sie erreichen uns auch unter",
+      "form": {
+        "type": "Art",
+        "subject": "Betreff",
+        "message": "Nachricht",
+        "placeholder": "Sagen Sie uns, was Sie brauchen oder was wir verbessern können…"
+      },
+      "types": {
+        "feedback": "Feedback",
+        "feature": "Funktionsidee",
+        "special": "Sonderanfrage",
+        "billing": "Abrechnungsfrage",
+        "support": "Support / Problem"
+      },
+      "statuses": {
+        "open": "Offen",
+        "in_progress": "In Bearbeitung",
+        "resolved": "Gelöst",
+        "closed": "Geschlossen"
+      },
+      "errors": {
+        "load": "Ihre Anfragen konnten nicht geladen werden.",
+        "send": "Senden fehlgeschlagen. Bitte erneut versuchen."
+      }
     }
   },
   "triage": {

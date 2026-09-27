@@ -62,6 +62,13 @@ service cloud.firestore {
       return isRole('admin');
     }
 
+    // Lumora Ventures staff (Firebase Auth custom claim, granted by the
+    // platform* Cloud Functions). Most console data is served by callables;
+    // rules only grant what the console reads directly.
+    function isSuperadmin() {
+      return request.auth != null && request.auth.token.superadmin == true;
+    }
+
     // A trainingModules doc must declare which of the two module libraries
     // it belongs to. On an update request.resource.data is the merged
     // result, so a doc that already carries a scope stays writable without
@@ -1816,6 +1823,52 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(plantId);
       allow write: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    // ---------------------------------------------------------------------------
+    // Feedback & special requests from company admins to Lumora Ventures.
+    // A company admin creates and follows its own company's requests; Lumora
+    // superadmins see all of them, change their status and reply.
+    // ---------------------------------------------------------------------------
+    match /supportRequests/{requestId} {
+      allow read: if isSuperadmin()
+        || (isAdmin() && belongsToCompany(resource.data.companyId));
+      allow create: if isAdmin()
+        && belongsToCompany(request.resource.data.companyId)
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.status == 'open'
+        && request.resource.data.type in ['feedback', 'feature', 'special', 'billing', 'support']
+        && request.resource.data.subject is string && request.resource.data.subject.size() <= 200
+        && request.resource.data.message is string && request.resource.data.message.size() <= 5000;
+      // Company admins may only bump lastMessageAt/updatedAt when replying;
+      // status and everything else is Lumora's to change.
+      allow update: if isSuperadmin()
+        || (isAdmin() && belongsToCompany(resource.data.companyId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt', 'lastMessageAt', 'lastMessageBy']));
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSuperadmin()
+          || (isAdmin() && belongsToCompany(get(/databases/$(database)/documents/supportRequests/$(requestId)).data.companyId));
+        allow create: if request.resource.data.body is string && request.resource.data.body.size() <= 5000
+          && request.resource.data.authorUid == request.auth.uid
+          && (
+            (isSuperadmin() && request.resource.data.authorType == 'lumora')
+            || (isAdmin() && request.resource.data.authorType == 'company'
+              && belongsToCompany(get(/databases/$(database)/documents/supportRequests/$(requestId)).data.companyId))
+          );
+        allow update, delete: if false;
+      }
+    }
+
+    // Written only by the platform Cloud Functions (Admin SDK).
+    match /platformAdmins/{uid} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
+    match /platformAuditLog/{entryId} {
+      allow read: if isSuperadmin();
+      allow write: if false;
     }
   }
 }

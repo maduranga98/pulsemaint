@@ -54,7 +54,8 @@ export default function ProtectedRoute({
   if (companySuspended) {
     const path = location.pathname;
     const allowed =
-      path === SUBSCRIPTION_ENDED_PATH || (userRole === 'admin' && path.startsWith('/app/billing'));
+      path === SUBSCRIPTION_ENDED_PATH
+      || (userRole === 'admin' && (path.startsWith('/app/billing') || path.startsWith('/app/support-requests')));
     if (!allowed) return <Navigate to={SUBSCRIPTION_ENDED_PATH} replace />;
   }
 
@@ -118,6 +119,13 @@ export function PublicRoute({ children }: PublicRouteProps) {
     const from =
       (location.state as { from?: string } | null)?.from ?? peekPostLoginRedirect();
     return <RedirectAuthedUser to={from ?? getDashboardRoute(userRole)} />;
+  }
+
+  // Signed in on the way to the platform console: go there even if this
+  // account has no company profile (Lumora staff accounts may not).
+  const platformFrom = (location.state as { from?: string } | null)?.from;
+  if (isAuthenticated && platformFrom?.startsWith('/platform')) {
+    return <Navigate to={platformFrom} replace />;
   }
 
   return <>{children}</>;

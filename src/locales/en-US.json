@@ -1439,7 +1439,8 @@
         "billing": "Billing & Plan",
         "myRequests": "My Requests",
         "requestsInbox": "Requests Inbox",
-        "maintenanceHistory": "Maintenance History"
+        "maintenanceHistory": "Maintenance History",
+        "supportRequests": "Feedback & Requests"
       },
       "help": "Help & Support"
     },
@@ -10047,6 +10048,44 @@
       "memberHint": "Please ask your company admin to renew the subscription.",
       "renew": "Go to Billing & Plan",
       "signOut": "Sign out"
+    },
+    "supportRequests": {
+      "title": "Feedback & Requests",
+      "subtitle": "Send feedback, feature ideas and special requests to the FirmiCore team at Lumora Ventures, and follow our replies here.",
+      "new": "New request",
+      "sent": "Sent. The FirmiCore team will reply here and by email.",
+      "send": "Send",
+      "sending": "Sending…",
+      "empty": "No requests yet. Share feedback or ask for something special for your company.",
+      "back": "All requests",
+      "reply": "Reply",
+      "replyPlaceholder": "Write a reply…",
+      "newReply": "New reply",
+      "lumoraTeam": "FirmiCore team (Lumora Ventures)",
+      "contact": "You can also contact us at",
+      "form": {
+        "type": "Type",
+        "subject": "Subject",
+        "message": "Message",
+        "placeholder": "Tell us what you need or what we could improve…"
+      },
+      "types": {
+        "feedback": "Feedback",
+        "feature": "Feature idea",
+        "special": "Special request",
+        "billing": "Billing question",
+        "support": "Support / problem"
+      },
+      "statuses": {
+        "open": "Open",
+        "in_progress": "In progress",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      },
+      "errors": {
+        "load": "Could not load your requests.",
+        "send": "Could not send. Please try again."
+      }
     }
   },
   "help": {

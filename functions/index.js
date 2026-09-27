@@ -843,3 +843,30 @@ exports.generateContractorInvitation = onCall(async (request) => {
     );
   }
 });
+
+// Platform console (Lumora Ventures superadmins): companies, subscriptions,
+// payments, reminders, login support, and company feedback / requests.
+const {platformClaimSuperadmin, platformSetSuperadmin, platformListSuperadmins} = require("./src/platform/platformAdmins");
+const {
+  platformOverview, platformListCompanies, platformGetCompany, platformUpdateCompany, platformManageUser, platformAuditLog,
+} = require("./src/platform/platformCompanies");
+const {
+  platformListPayments, platformListReminders, platformSendPaymentReminder, platformDailyBillingDigest,
+} = require("./src/platform/platformPayments");
+const {onSupportRequestCreated, onSupportMessageCreated} = require("./src/platform/supportRequests");
+
+exports.platformClaimSuperadmin = platformClaimSuperadmin;
+exports.platformSetSuperadmin = platformSetSuperadmin;
+exports.platformListSuperadmins = platformListSuperadmins;
+exports.platformOverview = platformOverview;
+exports.platformListCompanies = platformListCompanies;
+exports.platformGetCompany = platformGetCompany;
+exports.platformUpdateCompany = platformUpdateCompany;
+exports.platformManageUser = platformManageUser;
+exports.platformAuditLog = platformAuditLog;
+exports.platformListPayments = platformListPayments;
+exports.platformListReminders = platformListReminders;
+exports.platformSendPaymentReminder = platformSendPaymentReminder;
+exports.platformDailyBillingDigest = platformDailyBillingDigest;
+exports.onSupportRequestCreated = onSupportRequestCreated;
+exports.onSupportMessageCreated = onSupportMessageCreated;
