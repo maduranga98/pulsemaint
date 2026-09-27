@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { FileText, X } from 'lucide-react';
-import { TERMS_EFFECTIVE_DATE, TERMS_SECTIONS, TERMS_VERSION } from '@/lib/legal/terms';
+import { Globe, Mail, MapPin, Phone, X } from 'lucide-react';
+import { PROVIDER, TERMS_EFFECTIVE_DATE, TERMS_SECTIONS, TERMS_VERSION } from '@/lib/legal/terms';
 
 interface TermsDialogProps {
   onClose: () => void;
@@ -33,7 +33,7 @@ export default function TermsDialog({ onClose, onAccept }: TermsDialogProps) {
         <div className="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] shadow-2xl">
           <div className="flex items-start justify-between gap-4 border-b border-[#1E3A5F] px-6 pt-5 pb-4">
             <div className="flex items-start gap-3">
-              <FileText className="mt-1 h-5 w-5 shrink-0 text-blue-400" />
+              <img src="/brand/lumora-logo.svg" alt="Lumora Ventures" className="h-10 w-10 shrink-0 rounded-full bg-white p-0.5" />
               <div>
                 <h2 id="terms-title" className="text-xl font-bold text-white!">{t('common.legal.terms.title')}</h2>
                 <p className="mt-1 text-xs text-slate-400!">
@@ -50,11 +50,25 @@ export default function TermsDialog({ onClose, onAccept }: TermsDialogProps) {
             <p className="rounded-lg border border-amber-700/50 bg-amber-900/20 p-3 text-sm text-amber-200!">
               {t('common.legal.terms.summary')}
             </p>
+            <div className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] p-3 text-xs text-slate-300! space-y-1.5">
+              <p className="font-semibold text-white!">
+                {t('common.legal.terms.providedBy')} {PROVIDER.name} · Companies House no. {PROVIDER.companyNumber}
+              </p>
+              <p className="flex items-start gap-1.5"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" />UK: {PROVIDER.ukOffice}</p>
+              <p className="flex items-start gap-1.5"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" />Sri Lanka: {PROVIDER.lkOffice}</p>
+              <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <a href={`mailto:${PROVIDER.email}`} className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Mail className="h-3.5 w-3.5" />{PROVIDER.email}</a>
+                <a href={`tel:${PROVIDER.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Phone className="h-3.5 w-3.5" />{PROVIDER.phone}</a>
+                <a href={PROVIDER.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Globe className="h-3.5 w-3.5" />lumoraventures.com</a>
+              </p>
+            </div>
             {TERMS_SECTIONS.map((section) => (
               <section key={section.id} className="space-y-2">
-                <h3 className="text-sm font-semibold text-white!">{section.title}</h3>
-                {section.paragraphs.map((p, i) => (
-                  <p key={i} className="text-sm leading-relaxed text-slate-300!">{p}</p>
+                <h3 className="text-sm font-semibold text-white!">{t(`common.legal.termsContent.${section.id}.title`)}</h3>
+                {Array.from({ length: section.paragraphs }, (_, i) => (
+                  <p key={i} className="text-sm leading-relaxed text-slate-300!">
+                    {t(`common.legal.termsContent.${section.id}.p${i + 1}`, PROVIDER)}
+                  </p>
                 ))}
               </section>
             ))}
