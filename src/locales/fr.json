@@ -8741,6 +8741,11 @@
         "chargeYearly": "{{price}} $ seront débités de la carte de votre entreprise maintenant, puis tous les 12 mois jusqu'à résiliation.",
         "companyWide": "Cet abonnement couvre toute votre entreprise — tous les utilisateurs et rôles. En cas de résiliation, l'accès de tous prend fin à la fin de la période payée ; vos données sont conservées.",
         "continue": "Continuer vers le paiement"
+      },
+      "statusValues": {
+        "active": "Actif",
+        "trial": "Essai",
+        "suspended": "Suspendu"
       }
     },
     "actions": {
@@ -9774,7 +9779,93 @@
         "registerStatement": "Je confirme être autorisé(e) à inscrire cette entreprise.",
         "cardStatement": "J'autorise FirmiCore (via Stripe) à enregistrer cette carte et à la débiter automatiquement pour l'abonnement de mon entreprise à chaque période de facturation jusqu'à sa résiliation.",
         "subscribeStatementMonthly": "Je comprends que cette formule se renouvelle automatiquement et que la carte de mon entreprise sera débitée chaque mois jusqu'à résiliation.",
-        "subscribeStatementYearly": "Je comprends que cette formule se renouvelle automatiquement et que la carte de mon entreprise sera débitée chaque année jusqu'à résiliation."
+        "subscribeStatementYearly": "Je comprends que cette formule se renouvelle automatiquement et que la carte de mon entreprise sera débitée chaque année jusqu'à résiliation.",
+        "providedBy": "Fourni par"
+      },
+      "termsContent": {
+        "provider": {
+          "title": "1. Qui sommes-nous",
+          "p1": "FirmiCore est fourni par {{name}} (« Lumora Ventures », « nous »), société à responsabilité limitée immatriculée en Angleterre et au pays de Galles sous le numéro {{companyNumber}}, dont le siège social est situé {{ukOffice}}. Notre bureau au Sri Lanka est situé {{lkOffice}}.",
+          "p2": "Contact : {{email}} · {{phone}} · {{website}}",
+          "p3": "Ces informations sont fournies conformément à la section 82 du Companies Act 2006, aux Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) et à l'article 6 des Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013)."
+        },
+        "agreement": {
+          "title": "2. Accord",
+          "p1": "Les présentes Conditions d'utilisation (les « Conditions ») constituent un contrat contraignant entre Lumora Ventures et la société ou l'organisation qui crée un compte FirmiCore (la « Société », « vous »). La personne qui crée le compte ou accepte ces Conditions au nom de la Société confirme être habilitée à engager la Société.",
+          "p2": "En cochant « J'accepte », en vous inscrivant, en ajoutant une carte de paiement ou en souscrivant une formule payante, vous acceptez ces Conditions. Si vous n'êtes pas d'accord, n'utilisez pas FirmiCore.",
+          "p3": "FirmiCore est fourni aux entreprises pour un usage professionnel. La Société confirme agir dans le cadre de son activité professionnelle et non en tant que consommateur ; le Consumer Rights Act 2015 (c. 15) et les Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013 (SI 2013/3134) ne s'appliquent donc pas. Rien dans ces Conditions ne supprime un droit qui ne peut légalement être exclu."
+        },
+        "accounts": {
+          "title": "3. Compte de la Société, utilisateurs et rôles",
+          "p1": "Un compte FirmiCore appartient à la Société, et non à une personne. L'administrateur de la Société peut inviter des utilisateurs et leur attribuer des rôles (par exemple administrateur, directeur d'usine, superviseur, technicien, magasinier, responsable RH, stagiaire, opérateur et responsable sécurité).",
+          "p2": "La Société est responsable de chaque utilisateur qu'elle invite, de la sécurité des identifiants de connexion et de toute activité réalisée avec son compte. Les limites de la formule (nombre d'utilisateurs, de machines, d'articles de stock, de plans de maintenance préventive et d'ordres de travail) s'appliquent à l'ensemble de la Société."
+        },
+        "plans": {
+          "title": "4. Formules et cycles de facturation",
+          "p1": "Les formules payantes sont proposées sous forme d'abonnements Mensuels et Annuels distincts. Un abonnement Mensuel est facturé chaque mois ; un abonnement Annuel est facturé une fois tous les 12 mois au prix annuel affiché lors de la souscription. Les deux cycles sont des produits distincts : le prix, la date de renouvellement et la période de facturation diffèrent, et le choix de l'un n'inclut pas l'autre.",
+          "p2": "Les prix sont indiqués en dollars américains et n'incluent pas les taxes ni les frais bancaires ou de conversion de devises, qui sont à la charge de la Société. Les limites et fonctionnalités applicables sont celles affichées sur la page Facturation et formule pour la formule et le cycle souscrits."
+        },
+        "autoRenewal": {
+          "title": "5. Renouvellement automatique et autorisation de prélèvement",
+          "p1": "Les abonnements se renouvellent automatiquement. En souscrivant, la Société nous autorise, par l'intermédiaire de notre prestataire de paiement Stripe, à débiter la carte de paiement par défaut du prix de la formule au début de chaque période de facturation — chaque mois pour un abonnement Mensuel, chaque année pour un abonnement Annuel — jusqu'à la résiliation de l'abonnement.",
+          "p2": "Un seul abonnement couvre toute la Société ainsi que tous ses utilisateurs et rôles ; les utilisateurs ne sont pas facturés individuellement. Les prélèvements se poursuivent quel que soit le nombre d'utilisateurs connectés ou l'utilisation du service au cours d'une période.",
+          "p3": "En ajoutant une carte, vous autorisez Stripe à l'enregistrer de manière sécurisée et à la débiter pour cet abonnement et ses renouvellements futurs conformément à ces Conditions. FirmiCore ne reçoit ni ne conserve jamais le numéro complet de votre carte."
+        },
+        "changes": {
+          "title": "6. Montée en gamme, rétrogradation et changement de cycle",
+          "p1": "L'administrateur de la Société peut changer de formule ou passer de la facturation Mensuelle à Annuelle (ou inversement) depuis la page Facturation et formule. Les changements prennent effet comme indiqué au moment du changement ; Stripe peut calculer la différence au prorata, la facturer immédiatement ou appliquer un crédit sur la facture suivante."
+        },
+        "failedPayments": {
+          "title": "7. Paiements échoués ou en retard",
+          "p1": "Si un prélèvement de renouvellement échoue, nous pouvons (via Stripe) le retenter et en informer la Société. Si le paiement ne peut toujours pas être encaissé, l'abonnement peut être résilié et l'accès suspendu comme décrit à la section 9.",
+          "p2": "Les sommes restant impayées après leur échéance constituent une dette de la Société. Nous pouvons appliquer des intérêts légaux et une indemnité pour retard de paiement en vertu du Late Payment of Commercial Debts (Interest) Act 1998 (c. 20), et recouvrer la dette en justice."
+        },
+        "cancellation": {
+          "title": "8. Résiliation",
+          "p1": "L'administrateur de la Société peut résilier l'abonnement à tout moment depuis la page Facturation et formule (Gérer l'abonnement). La résiliation met fin aux renouvellements futurs et prend effet à la fin de la période de facturation déjà payée.",
+          "p2": "Les sommes déjà payées ne sont pas remboursables, y compris pour la durée non utilisée d'une période Mensuelle ou Annuelle, sauf lorsque la loi impose un remboursement."
+        },
+        "suspension": {
+          "title": "9. Perte d'accès à la fin de l'abonnement ou en cas d'échec de paiement",
+          "p1": "L'accès à FirmiCore est automatiquement suspendu pour tous les utilisateurs et tous les rôles de la Société lorsque la période payée prend fin après la résiliation de l'abonnement, lorsqu'un renouvellement reste impayé ou lorsqu'un problème de paiement empêche la poursuite de l'abonnement. Seul l'administrateur de la Société peut encore ouvrir la page Facturation et formule pour souscrire un nouvel abonnement.",
+          "p2": "La suspension ne fait que retirer l'accès. Elle ne supprime jamais les données de la Société : tous les enregistrements restent stockés en toute sécurité, sans modification, et redeviennent accessibles à tous les utilisateurs dès qu'un nouvel abonnement est actif."
+        },
+        "dataRetention": {
+          "title": "10. Vos données sont conservées jusqu'à ce que vous demandiez leur suppression",
+          "p1": "Les données de la Société sont conservées en toute sécurité — que l'abonnement soit actif, résilié, impayé, suspendu ou affecté par un problème de paiement — tant que le compte existe, jusqu'à ce que l'administrateur de la Société nous demande de les supprimer. Nous ne supprimerons pas les données de la Société parce qu'un abonnement a pris fin ou qu'un paiement a échoué.",
+          "p2": "Seul l'administrateur de la Société (ou une autre personne autorisée par écrit par la Société) peut demander la suppression définitive de toutes les données de la Société, en écrivant à {{email}} depuis l'adresse e-mail enregistrée de l'administrateur. Nous pouvons vérifier la demande avant d'agir. Nous supprimons les données du service en production dans les 30 jours suivant une demande vérifiée, puis des sauvegardes dans un délai supplémentaire de 90 jours, et le confirmons par écrit. La suppression est définitive et irréversible.",
+          "p3": "Avant la suppression — ou à tout moment — l'administrateur de la Société peut nous demander un export des données de la Société dans un format courant et lisible par machine.",
+          "p4": "Nous pouvons conserver uniquement les enregistrements limités que la loi nous oblige à garder (par exemple les factures et justificatifs de paiement conservés à des fins fiscales et comptables), et rien d'autre."
+        },
+        "privacy": {
+          "title": "11. Protection des données et confidentialité",
+          "p1": "La Société est propriétaire des données qu'elle saisit dans FirmiCore. Pour les données personnelles de ses utilisateurs et de son personnel, la Société est le responsable du traitement et Lumora Ventures son sous-traitant au sens du UK General Data Protection Regulation (UK GDPR) et du Data Protection Act 2018 (c. 12). Nous traitons ces données uniquement sur instruction de la Société pour fournir, sécuriser et assister le service, et nous ne les vendons pas. La conservation des données pendant une suspension (section 10) est effectuée pour le compte de la Société afin de permettre la reprise du service ; la Société peut nous demander de les supprimer à tout moment.",
+          "p2": "Nous préservons la confidentialité des données, les protégeons par des mesures de sécurité techniques et organisationnelles appropriées et ne faisons appel à des sous-traitants ultérieurs que lorsque cela est nécessaire au fonctionnement du service : Google Firebase (hébergement, base de données et stockage) et Stripe (paiements ; les données de carte sont traitées par Stripe conformément à la norme PCI-DSS). Nous informerons la Société dans les meilleurs délais si nous avons connaissance d'une violation de données personnelles affectant ses données, et nous aidons la Société à répondre aux demandes des personnes (articles 15 à 22 du UK GDPR), notamment l'effacement (article 17) et la portabilité des données (article 20).",
+          "p3": "Lorsque la Société ou ses utilisateurs se trouvent au Sri Lanka, nous traitons également les données personnelles conformément au Personal Data Protection Act, No. 9 of 2022. Les personnes peuvent déposer une plainte auprès de l'Information Commissioner's Office du Royaume-Uni (ico.org.uk)."
+        },
+        "acceptableUse": {
+          "title": "12. Utilisation acceptable et nos droits",
+          "p1": "La Société et ses utilisateurs ne doivent pas : accéder ou tenter d'accéder sans autorisation aux données d'une autre société ou à une partie de FirmiCore ; attaquer, surcharger, sonder le service ou interférer avec lui ; introduire des logiciels malveillants ; copier, revendre, faire de l'ingénierie inverse ou créer un produit concurrent à partir de FirmiCore (sauf dans la mesure permise par la section 50B du Copyright, Designs and Patents Act 1988) ; utiliser de fausses identités ou de fausses données de paiement, ou effectuer des rétrofacturations abusives ; ni utiliser FirmiCore à des fins illicites.",
+          "p2": "FirmiCore, son logiciel, sa conception et son contenu appartiennent à Lumora Ventures et sont protégés par le Copyright, Designs and Patents Act 1988 (c. 48) et d'autres lois sur la propriété intellectuelle. La Société reçoit un droit non exclusif et non cessible d'utiliser FirmiCore pendant son abonnement ; aucune propriété ne lui est transférée."
+        },
+        "breach": {
+          "title": "13. En cas de violation de ces Conditions ou de préjudice subi par nous",
+          "p1": "Si la Société ou l'un de ses utilisateurs enfreint ces Conditions, ou agit d'une manière qui nuit à Lumora Ventures, à FirmiCore ou à d'autres clients, nous pouvons immédiatement suspendre ou résilier le compte, sans remboursement des sommes déjà payées. La suspension ou la résiliation pour violation n'entraîne pas à elle seule la suppression des données de la Société (section 10), sauf si la suppression est nécessaire pour faire cesser un contenu illicite ou est exigée par la loi.",
+          "p2": "La Société est responsable des pertes, dommages, frais et honoraires d'avocat raisonnables que nous subissons du fait de la violation de ces Conditions par la Société ou ses utilisateurs, d'une utilisation abusive du service ou d'une atteinte à nos droits, et nous en indemnisera. Nous pouvons engager une action en dommages-intérêts ou demander une injonction devant les tribunaux.",
+          "p3": "Certains comportements constituent également une infraction pénale ; nous pouvons les signaler à la police (y compris Action Fraud) et aux autorités compétentes, et coopérer à toute enquête. Cela inclut l'accès non autorisé à des systèmes ou données informatiques, ou l'interférence avec ceux-ci, au sens du Computer Misuse Act 1990 (c. 18) — sections 1 (accès non autorisé), 2 (accès en vue de commettre d'autres infractions) et 3 (actes non autorisés portant atteinte à un ordinateur) — ainsi que la fraude, par exemple l'utilisation de fausses données de paiement ou l'obtention malhonnête du service, au sens du Fraud Act 2006 (c. 35), sections 2 et 11. Lorsque les faits se produisent au Sri Lanka, ils peuvent aussi constituer une infraction au titre du Computer Crimes Act, No. 24 of 2007."
+        },
+        "liability": {
+          "title": "14. Service et responsabilité",
+          "p1": "FirmiCore est un outil de gestion de la maintenance ; il ne remplace pas les procédures de sécurité propres à la Société, les inspections réglementaires ni le jugement professionnel. Nous fournissons le service avec une compétence et un soin raisonnables, mais il est pour le reste fourni « en l'état », et nous ne garantissons pas qu'il sera ininterrompu ou exempt d'erreurs.",
+          "p2": "Rien dans ces Conditions ne limite la responsabilité en cas de décès ou de dommage corporel causé par une négligence, de fraude ou de déclaration frauduleuse, ni pour tout ce qui ne peut être limité par la loi (y compris en vertu de la section 2(1) de l'Unfair Contract Terms Act 1977 (c. 50)). Sous cette réserve, notre responsabilité totale pour toutes les réclamations au titre de ces Conditions ou en lien avec elles est limitée aux sommes payées par la Société au cours des 12 mois précédant la réclamation, et nous ne sommes pas responsables des pertes de bénéfices, de chiffre d'affaires, d'activité ou de clientèle, ni des pertes indirectes ou consécutives. La Société reconnaît que ces limites sont raisonnables au sens de cette loi."
+        },
+        "law": {
+          "title": "15. Dispositions générales, droit applicable et contact",
+          "p1": "Nous pouvons mettre à jour ces Conditions. Les modifications importantes seront annoncées dans l'application ou par e-mail avant leur entrée en vigueur, et il pourra être demandé à la Société d'accepter la nouvelle version. Continuer à utiliser FirmiCore après l'entrée en vigueur des modifications vaut acceptation par la Société.",
+          "p2": "Seules la Société et Lumora Ventures ont des droits au titre de ces Conditions ; le Contracts (Rights of Third Parties) Act 1999 (c. 31) ne s'applique pas. Si une partie de ces Conditions est jugée inapplicable, le reste demeure en vigueur. Ces Conditions sont conclues et peuvent être conservées sous forme électronique, conformément aux Electronic Commerce (EC Directive) Regulations 2002 ; au Sri Lanka, elles sont également valables en vertu de l'Electronic Transactions Act, No. 19 of 2006.",
+          "p3": "Ces Conditions, et tout litige qui en découle, sont régis par le droit de l'Angleterre et du pays de Galles, et les tribunaux d'Angleterre et du pays de Galles ont une compétence exclusive. Cela n'affecte pas les droits impératifs dont la Société bénéficie en vertu du droit de son propre pays. Les traductions sont fournies à titre indicatif ; la version anglaise prévaut.",
+          "p4": "Questions sur ces Conditions, la facturation, l'export ou la suppression des données : {{email}} · {{phone}} · {{name}}, {{ukOffice}} · Bureau au Sri Lanka : {{lkOffice}}."
+        }
       }
     },
     "subscriptionEnded": {

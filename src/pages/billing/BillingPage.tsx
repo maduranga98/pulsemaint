@@ -313,7 +313,9 @@ export default function BillingPage() {
             </p>
             <p className="text-sm text-slate-400 mt-0.5">
               {t('common.billing.currentPlan.status')}{' '}
-              <span className="font-medium text-slate-300 capitalize">{company?.status ?? ''}</span>
+              <span className="font-medium text-slate-300">
+                {company?.status ? t(`common.billing.statusValues.${company.status}`, { defaultValue: company.status }) : ''}
+              </span>
               {' · '}
               {t('common.billing.currentPlan.billed')}{' '}
               <span className="font-medium text-slate-300">{cycleLabel(subscribedCycle)}</span>
