@@ -9,6 +9,7 @@ import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
 import AuthLoading from '@/components/auth/AuthLoading';
 import SuperadminActivatePage from './SuperadminActivatePage';
+import PlatformBell from './PlatformBell';
 
 const NAV = [
   { to: '/platform', label: 'Overview', icon: Gauge, end: true },
@@ -92,9 +93,12 @@ export default function PlatformLayout() {
       </aside>
       {open && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setOpen(false)} />}
       <main className="min-w-0 flex-1 px-4 py-6 sm:px-8">
-        <button className="mb-4 inline-flex items-center gap-2 text-sm text-slate-300 lg:hidden" onClick={() => setOpen(true)}>
-          <Menu className="h-5 w-5" /> Menu
-        </button>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <button className="inline-flex items-center gap-2 text-sm text-slate-300 lg:invisible" onClick={() => setOpen(true)}>
+            <Menu className="h-5 w-5" /> Menu
+          </button>
+          <PlatformBell paymentAlerts={paymentAlerts} requests={unread} />
+        </div>
         <Outlet context={{ paymentAlerts }} />
       </main>
     </div>

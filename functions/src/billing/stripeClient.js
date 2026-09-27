@@ -53,8 +53,18 @@ function isFirmicoreInvoice(invoice) {
   return invoicePriceIds(invoice).some((id) => planAndCycleForPrice(id) !== null);
 }
 
+/** FirmiCore plan + billing cycle an invoice bills, or null. */
+function firmicorePlanOfInvoice(invoice) {
+  for (const id of invoicePriceIds(invoice)) {
+    const mapped = planAndCycleForPrice(id);
+    if (mapped) return mapped;
+  }
+  return null;
+}
+
 module.exports = {
   isFirmicoreInvoice,
+  firmicorePlanOfInvoice,
   getStripe,
   stripeSecretKey,
   stripeWebhookSecret,

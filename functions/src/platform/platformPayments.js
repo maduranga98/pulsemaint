@@ -2,7 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { FieldValue } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { getStripe, stripeSecretKey, isFirmicoreInvoice } = require("../billing/stripeClient");
+const { getStripe, stripeSecretKey, firmicorePlanOfInvoice } = require("../billing/stripeClient");
 const { stripeErrorMessage } = require("../billing/billingAccess");
 const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
 const { db, PLATFORM_ALERT_EMAIL, requireSuperadmin, audit, toMillis } = require("./platformAccess");
@@ -11,11 +11,12 @@ const DAY = 86_400_000;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[ch]);
 const APP_URL = "https://app.firmicore.com";
 
-/** Recent Stripe invoices across every customer, matched to their company. */
 /**
  * FirmiCore CMMS payments received — paid invoices that bill a FirmiCore plan
  * price. Everything else on the shared Stripe account (other Lumora Ventures
- * products, unpaid or void invoices) is left out.
+ * products, unpaid or void invoices) is left out. Returns up to 1,000 of
+ * the most recent, each tagged with its plan and monthly/yearly cycle so the
+ * console can total and filter them.
  */
 exports.platformListPayments = onCall({ secrets: [stripeSecretKey] }, async (request) => {
   requireSuperadmin(request);
@@ -32,8 +33,10 @@ exports.platformListPayments = onCall({ secrets: [stripeSecretKey] }, async (req
     const payments = [];
     let scanned = 0;
     for await (const i of getStripe().invoices.list({ limit: 100, status: "paid" })) {
-      if (++scanned > 2000 || payments.length >= 100) break;
-      if (!(i.amount_paid > 0) || !isFirmicoreInvoice(i)) continue;
+      if (++scanned > 5000 || payments.length >= 1000) break;
+      if (!(i.amount_paid > 0)) continue;
+      const plan = firmicorePlanOfInvoice(i);
+      if (!plan) continue;
       const customer = typeof i.customer === "string" ? i.customer : i.customer?.id;
       const metaCompanyId = i.subscription_details?.metadata?.companyId ?? i.metadata?.companyId ?? null;
       const company = byCustomer.get(customer) ?? (metaCompanyId ? byId.get(metaCompanyId) : null) ?? null;
@@ -52,6 +55,8 @@ exports.platformListPayments = onCall({ secrets: [stripeSecretKey] }, async (req
         nextAttempt: i.next_payment_attempt ? i.next_payment_attempt * 1000 : null,
         hostedInvoiceUrl: i.hosted_invoice_url ?? null,
         description: i.lines?.data?.[0]?.description ?? null,
+        plan: plan.plan,
+        billingCycle: plan.billingCycle,
       });
     }
     return { payments };
