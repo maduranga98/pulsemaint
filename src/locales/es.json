@@ -9768,7 +9768,7 @@
         "effective": "Vigente desde {{date}} · versión {{version}}",
         "close": "Cerrar",
         "agree": "Acepto",
-        "summary": "En resumen: su suscripción cubre a toda su empresa (todos los usuarios y roles) y se renueva automáticamente —los planes mensuales se cobran cada mes y los anuales una vez al año— hasta que la cancele. Cuando una suscripción cancelada o impagada llega al final de su periodo pagado, se suspende el acceso de todos los usuarios de la empresa. Sus datos no se eliminan.",
+        "summary": "En resumen: FirmiCore lo ofrece Lumora Ventures PVT Ltd (registrada en Inglaterra y Gales, n.º 16159220). Su suscripción cubre a toda su empresa (todos los usuarios y roles) y se renueva automáticamente —los planes mensuales se cobran cada mes y los anuales una vez al año— hasta que la cancele. Si la suscripción se cancela, queda impagada o tiene un problema de pago, se suspende el acceso de todos los usuarios de la empresa, pero sus datos nunca se eliminan: permanecen almacenados de forma segura hasta que el administrador de su empresa nos pida borrarlos.",
         "agreePrefix": "He leído y acepto los",
         "linkLabel": "Términos del servicio y de facturación",
         "registerStatement": "Confirmo que estoy autorizado para registrar esta empresa.",
@@ -9779,7 +9779,7 @@
     },
     "subscriptionEnded": {
       "title": "Suscripción finalizada",
-      "body": "La suscripción de FirmiCore de su empresa ha finalizado, por lo que el acceso está en pausa para todos los usuarios. Sus datos no se han eliminado: todo volverá a estar disponible en cuanto comience una nueva suscripción.",
+      "body": "La suscripción de FirmiCore de su empresa ha finalizado o tiene un problema de pago, por lo que el acceso está en pausa para todos los usuarios. Sus datos no se han eliminado y permanecen almacenados de forma segura hasta que el administrador de su empresa solicite borrarlos; todo volverá a estar disponible en cuanto comience una nueva suscripción.",
       "adminHint": "Como administrador de la empresa, puede iniciar una nueva suscripción desde Facturación y plan.",
       "memberHint": "Pida al administrador de su empresa que renueve la suscripción.",
       "renew": "Ir a Facturación y plan",
