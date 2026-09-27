@@ -8741,6 +8741,11 @@
         "chargeYearly": "Die Karte Ihres Unternehmens wird jetzt und danach alle 12 Monate bis zur Kündigung mit {{price}} $ belastet.",
         "companyWide": "Dieses Abonnement gilt für Ihr gesamtes Unternehmen – alle Benutzer und Rollen. Bei Kündigung endet der Zugang für alle mit Ablauf des bezahlten Zeitraums; Ihre Daten bleiben erhalten.",
         "continue": "Weiter zur Zahlung"
+      },
+      "statusValues": {
+        "active": "Aktiv",
+        "trial": "Testphase",
+        "suspended": "Gesperrt"
       }
     },
     "actions": {
@@ -9774,7 +9779,93 @@
         "registerStatement": "Ich bestätige, dass ich berechtigt bin, dieses Unternehmen zu registrieren.",
         "cardStatement": "Ich ermächtige FirmiCore (über Stripe), diese Karte zu speichern und für das Abonnement meines Unternehmens in jedem Abrechnungszeitraum bis zur Kündigung automatisch zu belasten.",
         "subscribeStatementMonthly": "Mir ist bewusst, dass sich dieser Plan automatisch verlängert und die Karte meines Unternehmens bis zur Kündigung jeden Monat belastet wird.",
-        "subscribeStatementYearly": "Mir ist bewusst, dass sich dieser Plan automatisch verlängert und die Karte meines Unternehmens bis zur Kündigung jedes Jahr belastet wird."
+        "subscribeStatementYearly": "Mir ist bewusst, dass sich dieser Plan automatisch verlängert und die Karte meines Unternehmens bis zur Kündigung jedes Jahr belastet wird.",
+        "providedBy": "Bereitgestellt von"
+      },
+      "termsContent": {
+        "provider": {
+          "title": "1. Wer wir sind",
+          "p1": "FirmiCore wird bereitgestellt von {{name}} („Lumora Ventures“, „wir“), einer in England und Wales unter der Nummer {{companyNumber}} eingetragenen Gesellschaft mit beschränkter Haftung mit Sitz in {{ukOffice}}. Unser Büro in Sri Lanka befindet sich in {{lkOffice}}.",
+          "p2": "Kontakt: {{email}} · {{phone}} · {{website}}",
+          "p3": "Diese Angaben erfolgen gemäß Section 82 des Companies Act 2006, den Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) und Regulation 6 der Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013)."
+        },
+        "agreement": {
+          "title": "2. Vereinbarung",
+          "p1": "Diese Nutzungsbedingungen („Bedingungen“) sind ein verbindlicher Vertrag zwischen Lumora Ventures und dem Unternehmen oder der Organisation, das bzw. die ein FirmiCore-Konto registriert („das Unternehmen“, „Sie“). Die Person, die das Konto registriert oder diese Bedingungen im Namen des Unternehmens annimmt, bestätigt, dass sie berechtigt ist, das Unternehmen zu verpflichten.",
+          "p2": "Indem Sie „Ich stimme zu“ ankreuzen, sich registrieren, eine Zahlungskarte hinzufügen oder einen kostenpflichtigen Plan beginnen, akzeptieren Sie diese Bedingungen. Wenn Sie nicht einverstanden sind, nutzen Sie FirmiCore nicht.",
+          "p3": "FirmiCore wird Unternehmen zur geschäftlichen Nutzung bereitgestellt. Das Unternehmen bestätigt, dass es im Rahmen seiner geschäftlichen Tätigkeit und nicht als Verbraucher handelt; der Consumer Rights Act 2015 (c. 15) und die Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013 (SI 2013/3134) finden daher keine Anwendung. Diese Bedingungen schließen keine Rechte aus, die gesetzlich nicht ausgeschlossen werden können."
+        },
+        "accounts": {
+          "title": "3. Unternehmenskonto, Benutzer und Rollen",
+          "p1": "Ein FirmiCore-Konto gehört dem Unternehmen, nicht einer Einzelperson. Der Administrator des Unternehmens kann Benutzer einladen und ihnen Rollen zuweisen (zum Beispiel Administrator, Werksleiter, Vorgesetzter, Techniker, Lagerverwalter, HR-Verantwortlicher, Auszubildender, Maschinenbediener und Sicherheitsbeauftragter).",
+          "p2": "Das Unternehmen ist für jeden eingeladenen Benutzer, für die sichere Aufbewahrung der Zugangsdaten und für alle Aktivitäten unter seinem Konto verantwortlich. Planlimits (etwa die Anzahl der Benutzer, Maschinen, Lagerartikel, Wartungspläne und Arbeitsaufträge) gelten für das gesamte Unternehmen."
+        },
+        "plans": {
+          "title": "4. Pläne und Abrechnungszeiträume",
+          "p1": "Kostenpflichtige Pläne werden als getrennte Monats- und Jahresabonnements angeboten. Ein Monatsabonnement wird jeden Monat abgerechnet; ein Jahresabonnement wird einmal alle 12 Monate zu dem beim Abschluss angezeigten Jahrespreis abgerechnet. Die beiden Zeiträume sind getrennte Produkte: Preis, Verlängerungsdatum und Abrechnungszeitraum unterscheiden sich, und die Wahl des einen umfasst nicht den anderen.",
+          "p2": "Die Preise werden in US-Dollar angegeben und enthalten keine Steuern, Bank- oder Währungsumrechnungsgebühren; diese trägt das Unternehmen. Es gelten die Planlimits und Funktionen, die auf der Seite „Abrechnung & Plan“ für den abonnierten Plan und Zeitraum angezeigt werden."
+        },
+        "autoRenewal": {
+          "title": "5. Automatische Verlängerung und Belastungsermächtigung",
+          "p1": "Abonnements verlängern sich automatisch. Mit dem Abschluss ermächtigt das Unternehmen uns, über unseren Zahlungsdienstleister Stripe die hinterlegte Standardkarte zu Beginn jedes Abrechnungszeitraums mit dem Planpreis zu belasten – bei einem Monatsabonnement jeden Monat, bei einem Jahresabonnement jedes Jahr –, bis das Abonnement gekündigt wird.",
+          "p2": "Ein Abonnement gilt für das gesamte Unternehmen mit allen Benutzern und Rollen; einzelne Benutzer werden nicht gesondert abgerechnet. Die Belastungen erfolgen unabhängig davon, wie viele Benutzer sich anmelden oder wie stark der Dienst in einem Zeitraum genutzt wird.",
+          "p3": "Mit dem Hinzufügen einer Karte ermächtigen Sie Stripe, diese sicher zu speichern und für dieses Abonnement und künftige Verlängerungen gemäß diesen Bedingungen zu belasten. FirmiCore erhält oder speichert niemals Ihre vollständige Kartennummer."
+        },
+        "changes": {
+          "title": "6. Upgrades, Downgrades und Wechsel des Abrechnungszeitraums",
+          "p1": "Der Administrator des Unternehmens kann auf der Seite „Abrechnung & Plan“ den Plan ändern oder zwischen monatlicher und jährlicher Abrechnung wechseln. Änderungen werden wie zum Zeitpunkt der Änderung angezeigt wirksam; Stripe kann die Differenz anteilig berechnen, sofort belasten oder der nächsten Rechnung gutschreiben."
+        },
+        "failedPayments": {
+          "title": "7. Fehlgeschlagene oder verspätete Zahlungen",
+          "p1": "Schlägt eine Verlängerungsbelastung fehl, können wir (über Stripe) die Belastung wiederholen und das Unternehmen benachrichtigen. Kann die Zahlung weiterhin nicht eingezogen werden, kann das Abonnement gekündigt und der Zugang gemäß Abschnitt 9 gesperrt werden.",
+          "p2": "Nach Fälligkeit unbezahlte Beträge sind eine Schuld des Unternehmens. Wir können gesetzliche Zinsen und eine Entschädigung für verspätete Zahlungen nach dem Late Payment of Commercial Debts (Interest) Act 1998 (c. 20) verlangen und die Forderung gerichtlich geltend machen."
+        },
+        "cancellation": {
+          "title": "8. Kündigung",
+          "p1": "Der Administrator des Unternehmens kann das Abonnement jederzeit auf der Seite „Abrechnung & Plan“ (Abonnement verwalten) kündigen. Die Kündigung beendet künftige Verlängerungen und wird zum Ende des bereits bezahlten Abrechnungszeitraums wirksam.",
+          "p2": "Bereits gezahlte Gebühren werden nicht erstattet, auch nicht für ungenutzte Zeit eines Monats- oder Jahreszeitraums, es sei denn, eine Erstattung ist gesetzlich vorgeschrieben."
+        },
+        "suspension": {
+          "title": "9. Verlust des Zugangs bei Ende des Abonnements oder Zahlungsproblemen",
+          "p1": "Der Zugang zu FirmiCore wird für alle Benutzer und alle Rollen des Unternehmens automatisch gesperrt, wenn der bezahlte Zeitraum nach Kündigung des Abonnements endet, wenn eine Verlängerung unbezahlt bleibt oder wenn ein Zahlungsproblem die Fortsetzung des Abonnements verhindert. Nur der Administrator des Unternehmens kann weiterhin die Seite „Abrechnung & Plan“ öffnen, um ein neues Abonnement abzuschließen.",
+          "p2": "Die Sperrung entzieht nur den Zugang. Sie löscht niemals die Daten des Unternehmens: Alle Datensätze bleiben sicher und unverändert gespeichert und stehen allen Benutzern wieder zur Verfügung, sobald ein neues Abonnement aktiv ist."
+        },
+        "dataRetention": {
+          "title": "10. Ihre Daten bleiben erhalten, bis Sie deren Löschung verlangen",
+          "p1": "Die Daten des Unternehmens werden sicher aufbewahrt – ob das Abonnement aktiv, gekündigt, unbezahlt, gesperrt oder von einem Zahlungsproblem betroffen ist –, solange das Konto besteht und bis der Administrator des Unternehmens uns um Löschung bittet. Wir löschen die Daten des Unternehmens nicht, weil ein Abonnement geendet hat oder eine Zahlung fehlgeschlagen ist.",
+          "p2": "Nur der Administrator des Unternehmens (oder eine vom Unternehmen schriftlich bevollmächtigte Person) kann die endgültige Löschung aller Unternehmensdaten verlangen, indem er von der registrierten E-Mail-Adresse des Administrators an {{email}} schreibt. Wir können die Anfrage vor der Bearbeitung überprüfen. Wir löschen die Daten innerhalb von 30 Tagen nach einer bestätigten Anfrage aus dem Live-Dienst und innerhalb weiterer 90 Tage aus Sicherungskopien und bestätigen dies schriftlich. Die Löschung ist endgültig und kann nicht rückgängig gemacht werden.",
+          "p3": "Vor der Löschung – oder jederzeit – kann der Administrator des Unternehmens einen Export der Unternehmensdaten in einem gängigen, maschinenlesbaren Format anfordern.",
+          "p4": "Wir bewahren nur die begrenzten Aufzeichnungen auf, zu deren Aufbewahrung wir gesetzlich verpflichtet sind (zum Beispiel Rechnungen und Zahlungsbelege für Steuer- und Buchhaltungszwecke), und nichts anderes."
+        },
+        "privacy": {
+          "title": "11. Datenschutz und Privatsphäre",
+          "p1": "Das Unternehmen ist Eigentümer der Daten, die es in FirmiCore eingibt. Für personenbezogene Daten seiner Benutzer und Mitarbeiter ist das Unternehmen Verantwortlicher und Lumora Ventures sein Auftragsverarbeiter im Sinne der UK General Data Protection Regulation (UK GDPR) und des Data Protection Act 2018 (c. 12). Wir verarbeiten diese Daten nur auf Weisung des Unternehmens, um den Dienst bereitzustellen, abzusichern und zu unterstützen, und wir verkaufen sie nicht. Die Aufbewahrung von Daten während einer Sperrung (Abschnitt 10) erfolgt im Auftrag des Unternehmens, damit der Dienst wieder aufgenommen werden kann; das Unternehmen kann jederzeit die Löschung anweisen.",
+          "p2": "Wir behandeln die Daten vertraulich, schützen sie durch geeignete technische und organisatorische Sicherheitsmaßnahmen und setzen Unterauftragsverarbeiter nur ein, soweit dies für den Betrieb des Dienstes erforderlich ist: Google Firebase (Hosting, Datenbank und Speicher) und Stripe (Zahlungen; Kartendaten werden von Stripe gemäß PCI-DSS verarbeitet). Wir informieren das Unternehmen unverzüglich, wenn uns eine Verletzung des Schutzes personenbezogener Daten bekannt wird, die seine Daten betrifft, und unterstützen das Unternehmen bei der Beantwortung von Anfragen betroffener Personen (Artikel 15 bis 22 UK GDPR), einschließlich Löschung (Artikel 17) und Datenübertragbarkeit (Artikel 20).",
+          "p3": "Befinden sich das Unternehmen oder seine Benutzer in Sri Lanka, verarbeiten wir personenbezogene Daten zusätzlich gemäß dem Personal Data Protection Act, No. 9 of 2022. Betroffene Personen können sich beim britischen Information Commissioner's Office (ico.org.uk) beschweren."
+        },
+        "acceptableUse": {
+          "title": "12. Zulässige Nutzung und unsere Rechte",
+          "p1": "Das Unternehmen und seine Benutzer dürfen nicht: ohne Berechtigung auf Daten eines anderen Unternehmens oder Teile von FirmiCore zugreifen oder dies versuchen; den Dienst angreifen, überlasten, ausspähen oder stören; Schadsoftware einschleusen; FirmiCore kopieren, weiterverkaufen, zurückentwickeln oder daraus ein Konkurrenzprodukt erstellen (außer soweit nach Section 50B des Copyright, Designs and Patents Act 1988 zulässig); falsche Identitäten oder Zahlungsdaten verwenden oder unredliche Rückbuchungen veranlassen; oder FirmiCore für rechtswidrige Zwecke nutzen.",
+          "p2": "FirmiCore, seine Software, sein Design und seine Inhalte gehören Lumora Ventures und sind durch den Copyright, Designs and Patents Act 1988 (c. 48) und andere Gesetze zum geistigen Eigentum geschützt. Das Unternehmen erhält ein nicht ausschließliches, nicht übertragbares Recht zur Nutzung von FirmiCore während seines Abonnements; Eigentum geht nicht auf das Unternehmen über."
+        },
+        "breach": {
+          "title": "13. Folgen von Verstößen gegen diese Bedingungen oder einer Schädigung von uns",
+          "p1": "Verstößt das Unternehmen oder einer seiner Benutzer gegen diese Bedingungen oder handelt in einer Weise, die Lumora Ventures, FirmiCore oder anderen Kunden schadet, können wir das Konto sofort sperren oder kündigen, ohne bereits gezahlte Gebühren zu erstatten. Eine Sperrung oder Kündigung wegen eines Verstoßes löscht für sich genommen nicht die Daten des Unternehmens (Abschnitt 10), es sei denn, die Löschung ist erforderlich, um rechtswidrige Inhalte zu beseitigen, oder gesetzlich vorgeschrieben.",
+          "p2": "Das Unternehmen haftet für Verluste, Schäden, Kosten und angemessene Anwaltsgebühren, die uns durch einen Verstoß des Unternehmens oder seiner Benutzer gegen diese Bedingungen, durch Missbrauch des Dienstes oder durch Verletzung unserer Rechte entstehen, und stellt uns hiervon frei. Wir können Schadensersatz oder eine gerichtliche Unterlassungsverfügung geltend machen.",
+          "p3": "Manches Verhalten ist zudem strafbar; wir können es der Polizei (einschließlich Action Fraud) und den zuständigen Behörden melden und bei Ermittlungen mitwirken. Dazu gehören der unbefugte Zugriff auf Computersysteme oder Daten bzw. deren Beeinträchtigung nach dem Computer Misuse Act 1990 (c. 18) – Sections 1 (unbefugter Zugriff), 2 (Zugriff mit der Absicht, weitere Straftaten zu begehen) und 3 (unbefugte Handlungen, die einen Computer beeinträchtigen) – sowie Betrug, etwa durch falsche Zahlungsdaten oder die unredliche Erlangung des Dienstes, nach dem Fraud Act 2006 (c. 35), Sections 2 und 11. Findet das Verhalten in Sri Lanka statt, kann es auch eine Straftat nach dem Computer Crimes Act, No. 24 of 2007 sein."
+        },
+        "liability": {
+          "title": "14. Leistung und Haftung",
+          "p1": "FirmiCore ist ein Werkzeug für das Instandhaltungsmanagement; es ersetzt nicht die eigenen Sicherheitsverfahren des Unternehmens, gesetzliche Prüfungen oder fachliches Urteilsvermögen. Wir erbringen den Dienst mit angemessener Sorgfalt und Fachkenntnis, ansonsten wird er „wie besehen“ bereitgestellt, und wir sichern keinen unterbrechungs- oder fehlerfreien Betrieb zu.",
+          "p2": "Diese Bedingungen beschränken nicht die Haftung für Tod oder Körperverletzung infolge von Fahrlässigkeit, für Betrug oder arglistige Täuschung oder für sonstige Fälle, in denen eine Beschränkung gesetzlich unzulässig ist (einschließlich nach Section 2(1) des Unfair Contract Terms Act 1977 (c. 50)). Vorbehaltlich dessen ist unsere Gesamthaftung für alle Ansprüche aus oder im Zusammenhang mit diesen Bedingungen auf die Gebühren begrenzt, die das Unternehmen in den 12 Monaten vor dem Anspruch gezahlt hat, und wir haften nicht für entgangenen Gewinn, Umsatz, Geschäft oder Firmenwert oder für indirekte oder Folgeschäden. Das Unternehmen erkennt diese Begrenzungen im Sinne dieses Gesetzes als angemessen an."
+        },
+        "law": {
+          "title": "15. Allgemeines, anwendbares Recht und Kontakt",
+          "p1": "Wir können diese Bedingungen aktualisieren. Wesentliche Änderungen werden vor ihrem Inkrafttreten in der App oder per E-Mail angekündigt, und das Unternehmen kann gebeten werden, die neue Fassung zu akzeptieren. Die weitere Nutzung von FirmiCore nach Inkrafttreten der Änderungen gilt als Zustimmung des Unternehmens.",
+          "p2": "Rechte aus diesen Bedingungen haben nur das Unternehmen und Lumora Ventures; der Contracts (Rights of Third Parties) Act 1999 (c. 31) findet keine Anwendung. Sollte ein Teil dieser Bedingungen unwirksam sein, bleibt der Rest wirksam. Diese Bedingungen werden elektronisch geschlossen und können elektronisch gespeichert werden, gemäß den Electronic Commerce (EC Directive) Regulations 2002; in Sri Lanka sind sie zudem nach dem Electronic Transactions Act, No. 19 of 2006 gültig.",
+          "p3": "Diese Bedingungen und alle daraus entstehenden Streitigkeiten unterliegen dem Recht von England und Wales; ausschließlich zuständig sind die Gerichte von England und Wales. Zwingende Rechte des Unternehmens nach dem Recht seines eigenen Landes bleiben unberührt. Übersetzungen dienen nur der Orientierung; maßgeblich ist die englische Fassung.",
+          "p4": "Fragen zu diesen Bedingungen, zur Abrechnung, zum Datenexport oder zur Löschung: {{email}} · {{phone}} · {{name}}, {{ukOffice}} · Büro in Sri Lanka: {{lkOffice}}."
+        }
       }
     },
     "subscriptionEnded": {

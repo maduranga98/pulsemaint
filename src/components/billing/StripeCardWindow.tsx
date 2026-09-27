@@ -107,7 +107,7 @@ export default function StripeCardWindow(props: StripeCardWindowProps) {
               <h3 className="text-xl font-bold text-white!">{t('common.billing.account.window.addCardTitle')}</h3>
               <p className="mt-1 text-sm text-slate-300!">{t('common.billing.account.window.setupSubtitle')}</p>
             </div>
-            <button onClick={onClose} className="-mr-1 rounded p-1 text-slate-300 hover:text-white" aria-label="Close">
+            <button onClick={onClose} className="-mr-1 rounded p-1 text-slate-300 hover:text-white" aria-label={t('common.legal.terms.close')}>
               <X className="h-5 w-5" />
             </button>
           </div>

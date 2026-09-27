@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Lumora Ventures">
+  <!-- Recreated from the Lumora Ventures mark: navy outer ring (open at the
+       upper left), gold inner arc around a navy "L", teal and gold dots. -->
+  <path d="M30.5 13.2 A41 41 0 1 0 50 9" fill="none" stroke="#1B2A4A" stroke-width="7" stroke-linecap="round"/>
+  <path d="M46 25.5 A24.5 24.5 0 1 1 46 74.5" fill="none" stroke="#F2B23E" stroke-width="7" stroke-linecap="round"/>
+  <path d="M37 28 V70 H57" fill="none" stroke="#1B2A4A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="25" cy="21" r="5" fill="#2A9DB0"/>
+  <circle cx="79" cy="77" r="4.2" fill="#F2B23E"/>
+</svg>
