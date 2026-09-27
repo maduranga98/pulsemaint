@@ -9768,7 +9768,7 @@
         "effective": "En vigueur le {{date}} · version {{version}}",
         "close": "Fermer",
         "agree": "J'accepte",
-        "summary": "En bref : votre abonnement couvre toute votre entreprise (tous les utilisateurs et rôles) et se renouvelle automatiquement — les formules mensuelles sont facturées chaque mois, les formules annuelles une fois par an — jusqu'à résiliation. Lorsqu'un abonnement résilié ou impayé atteint la fin de sa période payée, l'accès est suspendu pour tous les utilisateurs de l'entreprise. Vos données ne sont pas supprimées.",
+        "summary": "En bref : FirmiCore est fourni par Lumora Ventures PVT Ltd (immatriculée en Angleterre et au pays de Galles, n° 16159220). Votre abonnement couvre toute votre entreprise (tous les utilisateurs et rôles) et se renouvelle automatiquement — les formules mensuelles sont facturées chaque mois, les annuelles une fois par an — jusqu'à résiliation. Si l'abonnement est résilié, impayé ou rencontre un problème de paiement, l'accès est suspendu pour tous les utilisateurs de l'entreprise, mais vos données ne sont jamais supprimées : elles restent stockées en toute sécurité jusqu'à ce que l'administrateur de votre entreprise nous demande de les effacer.",
         "agreePrefix": "J'ai lu et j'accepte les",
         "linkLabel": "Conditions d'utilisation et de facturation",
         "registerStatement": "Je confirme être autorisé(e) à inscrire cette entreprise.",
@@ -9779,7 +9779,7 @@
     },
     "subscriptionEnded": {
       "title": "Abonnement terminé",
-      "body": "L'abonnement FirmiCore de votre entreprise est terminé : l'accès est suspendu pour tous les utilisateurs. Vos données n'ont pas été supprimées — tout sera de nouveau disponible dès qu'un nouvel abonnement commencera.",
+      "body": "L'abonnement FirmiCore de votre entreprise est terminé ou rencontre un problème de paiement : l'accès est suspendu pour tous les utilisateurs. Vos données n'ont pas été supprimées et restent stockées en toute sécurité jusqu'à ce que l'administrateur de votre entreprise demande leur suppression — tout sera de nouveau disponible dès qu'un nouvel abonnement commencera.",
       "adminHint": "En tant qu'administrateur de l'entreprise, vous pouvez souscrire un nouvel abonnement depuis Facturation et formule.",
       "memberHint": "Demandez à l'administrateur de votre entreprise de renouveler l'abonnement.",
       "renew": "Aller à Facturation et formule",

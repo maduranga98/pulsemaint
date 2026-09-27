@@ -9768,7 +9768,7 @@
         "effective": "Gültig ab {{date}} · Version {{version}}",
         "close": "Schließen",
         "agree": "Ich stimme zu",
-        "summary": "Kurz gesagt: Ihr Abonnement gilt für Ihr gesamtes Unternehmen (alle Benutzer und Rollen) und verlängert sich automatisch – Monatspläne werden jeden Monat, Jahrespläne einmal im Jahr abgerechnet –, bis Sie kündigen. Wenn ein gekündigtes oder unbezahltes Abonnement das Ende des bezahlten Zeitraums erreicht, wird der Zugang für alle Benutzer des Unternehmens gesperrt. Ihre Daten werden nicht gelöscht.",
+        "summary": "Kurz gesagt: FirmiCore wird von der Lumora Ventures PVT Ltd bereitgestellt (eingetragen in England und Wales, Nr. 16159220). Ihr Abonnement gilt für Ihr gesamtes Unternehmen (alle Benutzer und Rollen) und verlängert sich automatisch – Monatspläne werden jeden Monat, Jahrespläne einmal im Jahr abgerechnet –, bis Sie kündigen. Ist das Abonnement gekündigt, unbezahlt oder gibt es ein Zahlungsproblem, wird der Zugang für alle Benutzer gesperrt, Ihre Daten werden jedoch nie gelöscht: Sie bleiben sicher gespeichert, bis der Administrator Ihres Unternehmens uns um Löschung bittet.",
         "agreePrefix": "Ich habe die folgenden Bedingungen gelesen und stimme ihnen zu:",
         "linkLabel": "Nutzungs- und Abrechnungsbedingungen",
         "registerStatement": "Ich bestätige, dass ich berechtigt bin, dieses Unternehmen zu registrieren.",
@@ -9779,7 +9779,7 @@
     },
     "subscriptionEnded": {
       "title": "Abonnement beendet",
-      "body": "Das FirmiCore-Abonnement Ihres Unternehmens ist beendet, daher ist der Zugang für alle Benutzer pausiert. Ihre Daten wurden nicht gelöscht – alles ist wieder verfügbar, sobald ein neues Abonnement beginnt.",
+      "body": "Das FirmiCore-Abonnement Ihres Unternehmens ist beendet oder hat ein Zahlungsproblem, daher ist der Zugang für alle Benutzer pausiert. Ihre Daten wurden nicht gelöscht und bleiben sicher gespeichert, bis der Administrator Ihres Unternehmens die Löschung verlangt – alles ist wieder verfügbar, sobald ein neues Abonnement beginnt.",
       "adminHint": "Als Unternehmensadministrator können Sie unter „Abrechnung & Plan“ ein neues Abonnement abschließen.",
       "memberHint": "Bitten Sie den Administrator Ihres Unternehmens, das Abonnement zu erneuern.",
       "renew": "Zu Abrechnung & Plan",

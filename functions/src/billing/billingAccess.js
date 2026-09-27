@@ -59,7 +59,7 @@ async function ensureStripeCustomer(ctx, email) {
  * subscribing. The client only sends this after the Terms box is ticked.
  */
 async function recordBillingTerms(companyRef, uid, termsVersion) {
-  if (typeof termsVersion !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(termsVersion)) {
+  if (typeof termsVersion !== "string" || !/^\d{4}-\d{2}-\d{2}(\.\d+)?$/.test(termsVersion)) {
     throw new HttpsError("failed-precondition", "You must accept the Terms of Service first");
   }
   await companyRef.update({

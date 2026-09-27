@@ -9940,7 +9940,7 @@
         "effective": "Effective {{date}} · version {{version}}",
         "close": "Close",
         "agree": "I agree",
-        "summary": "In short: your subscription covers your whole company (all users and roles) and renews automatically — monthly plans are charged every month, yearly plans once a year — until you cancel. When a cancelled or unpaid subscription reaches the end of its paid period, access is suspended for every user in the company. Your data is not deleted.",
+        "summary": "In short: FirmiCore is provided by Lumora Ventures PVT Ltd (registered in England and Wales, no. 16159220). Your subscription covers your whole company (all users and roles) and renews automatically — monthly plans are charged every month, yearly plans once a year — until you cancel. If the subscription is cancelled, unpaid or has a payment problem, access is suspended for every user in the company, but your data is never deleted: it stays securely stored until your company admin asks us to delete it.",
         "agreePrefix": "I have read and agree to the",
         "linkLabel": "Terms of Service and Billing Terms",
         "registerStatement": "I confirm I am authorised to register this company.",
@@ -9951,7 +9951,7 @@
     },
     "subscriptionEnded": {
       "title": "Subscription ended",
-      "body": "Your company's FirmiCore subscription has ended, so access is paused for all users. Your data has not been deleted — everything will be available again as soon as a new subscription starts.",
+      "body": "Your company's FirmiCore subscription has ended or has a payment problem, so access is paused for all users. Your data has not been deleted and stays securely stored until your company admin asks for it to be removed — everything will be available again as soon as a new subscription starts.",
       "adminHint": "As the company admin, you can start a new subscription from Billing & Plan.",
       "memberHint": "Please ask your company admin to renew the subscription.",
       "renew": "Go to Billing & Plan",
