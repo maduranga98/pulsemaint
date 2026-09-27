@@ -9781,13 +9781,14 @@
         "cardStatement": "Ich ermächtige FirmiCore (über Stripe), diese Karte zu speichern und für das Abonnement meines Unternehmens in jedem Abrechnungszeitraum bis zur Kündigung automatisch zu belasten.",
         "subscribeStatementMonthly": "Mir ist bewusst, dass sich dieser Plan automatisch verlängert und die Karte meines Unternehmens bis zur Kündigung jeden Monat belastet wird.",
         "subscribeStatementYearly": "Mir ist bewusst, dass sich dieser Plan automatisch verlängert und die Karte meines Unternehmens bis zur Kündigung jedes Jahr belastet wird.",
-        "providedBy": "Bereitgestellt von"
+        "providedBy": "Bereitgestellt von",
+        "firmicoreSupport": "FirmiCore-Support"
       },
       "termsContent": {
         "provider": {
           "title": "1. Wer wir sind",
           "p1": "FirmiCore wird bereitgestellt von {{name}} („Lumora Ventures“, „wir“), einer in England und Wales unter der Nummer {{companyNumber}} eingetragenen Gesellschaft mit beschränkter Haftung mit Sitz in {{ukOffice}}. Unser Büro in Sri Lanka befindet sich in {{lkOffice}}.",
-          "p2": "Kontakt: {{email}} · {{phone}} · {{website}}",
+          "p2": "Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{website}}. FirmiCore-Support: {{firmicoreEmail}} · {{firmicorePhone}}.",
           "p3": "Diese Angaben erfolgen gemäß Section 82 des Companies Act 2006, den Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) und Regulation 6 der Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013)."
         },
         "agreement": {
@@ -9865,7 +9866,7 @@
           "p1": "Wir können diese Bedingungen aktualisieren. Wesentliche Änderungen werden vor ihrem Inkrafttreten in der App oder per E-Mail angekündigt, und das Unternehmen kann gebeten werden, die neue Fassung zu akzeptieren. Die weitere Nutzung von FirmiCore nach Inkrafttreten der Änderungen gilt als Zustimmung des Unternehmens.",
           "p2": "Rechte aus diesen Bedingungen haben nur das Unternehmen und Lumora Ventures; der Contracts (Rights of Third Parties) Act 1999 (c. 31) findet keine Anwendung. Sollte ein Teil dieser Bedingungen unwirksam sein, bleibt der Rest wirksam. Diese Bedingungen werden elektronisch geschlossen und können elektronisch gespeichert werden, gemäß den Electronic Commerce (EC Directive) Regulations 2002; in Sri Lanka sind sie zudem nach dem Electronic Transactions Act, No. 19 of 2006 gültig.",
           "p3": "Diese Bedingungen und alle daraus entstehenden Streitigkeiten unterliegen dem Recht von England und Wales; ausschließlich zuständig sind die Gerichte von England und Wales. Zwingende Rechte des Unternehmens nach dem Recht seines eigenen Landes bleiben unberührt. Übersetzungen dienen nur der Orientierung; maßgeblich ist die englische Fassung.",
-          "p4": "Fragen zu diesen Bedingungen, zur Abrechnung, zum Datenexport oder zur Löschung: {{email}} · {{phone}} · {{name}}, {{ukOffice}} · Büro in Sri Lanka: {{lkOffice}}."
+          "p4": "Fragen zu FirmiCore, zur Abrechnung, zum Datenexport oder zur Löschung: FirmiCore-Support, {{firmicoreEmail}} · {{firmicorePhone}}. Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{ukOffice}} · Büro in Sri Lanka: {{lkOffice}}."
         }
       }
     },

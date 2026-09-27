@@ -9781,13 +9781,14 @@
         "cardStatement": "我授权 FirmiCore（通过 Stripe）保存此卡，并在每个计费周期为本公司的订阅自动扣款，直至取消。",
         "subscribeStatementMonthly": "我了解此方案会自动续订，在我取消之前，公司的卡将每月被扣款。",
         "subscribeStatementYearly": "我了解此方案会自动续订，在我取消之前，公司的卡将每年被扣款。",
-        "providedBy": "提供方"
+        "providedBy": "提供方",
+        "firmicoreSupport": "FirmiCore 支持"
       },
       "termsContent": {
         "provider": {
           "title": "1. 我们是谁",
           "p1": "FirmiCore 由 {{name}}（“Lumora Ventures”、“我们”）提供。该公司是在英格兰和威尔士注册的私人有限公司，公司编号 {{companyNumber}}，注册办事处位于 {{ukOffice}}。我们的斯里兰卡办事处位于 {{lkOffice}}。",
-          "p2": "联系方式：{{email}} · {{phone}} · {{website}}",
+          "p2": "Lumora Ventures PVT Ltd：{{email}} · {{phone}} · {{website}}。FirmiCore 支持：{{firmicoreEmail}} · {{firmicorePhone}}。",
           "p3": "以上信息依据 Companies Act 2006 第 82 条、Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) 以及 Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013) 第 6 条提供。"
         },
         "agreement": {
@@ -9865,7 +9866,7 @@
           "p1": "我们可能会更新本条款。重大变更将在生效前通过应用内或电子邮件通知，并可能要求公司接受新版本。变更生效后继续使用 FirmiCore 即表示公司接受这些变更。",
           "p2": "只有公司和 Lumora Ventures 享有本条款项下的权利；Contracts (Rights of Third Parties) Act 1999 (c. 31) 不适用。如本条款的任何部分被认定为不可执行，其余部分仍然有效。本条款依据 Electronic Commerce (EC Directive) Regulations 2002 以电子方式订立并可电子存储；在斯里兰卡，本条款亦依据 Electronic Transactions Act, No. 19 of 2006 有效。",
           "p3": "本条款及由此产生的任何争议均受英格兰和威尔士法律管辖，英格兰和威尔士法院拥有专属管辖权。这不影响公司依据其本国法律享有的任何强制性权利。译文仅供参考；以英文版本为准。",
-          "p4": "关于本条款、计费、数据导出或删除的问题：{{email}} · {{phone}} · {{name}}，{{ukOffice}} · 斯里兰卡办事处：{{lkOffice}}。"
+          "p4": "关于 FirmiCore、计费、数据导出或删除的问题：FirmiCore 支持，{{firmicoreEmail}} · {{firmicorePhone}}。Lumora Ventures PVT Ltd：{{email}} · {{phone}} · {{ukOffice}} · 斯里兰卡办事处：{{lkOffice}}。"
         }
       }
     },

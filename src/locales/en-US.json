@@ -9953,13 +9953,14 @@
         "cardStatement": "I authorise FirmiCore (via Stripe) to save this card and charge it automatically for my company's subscription every billing period until it is cancelled.",
         "subscribeStatementMonthly": "I understand this plan renews automatically and my company's card will be charged every month until I cancel.",
         "subscribeStatementYearly": "I understand this plan renews automatically and my company's card will be charged every year until I cancel.",
-        "providedBy": "Provided by"
+        "providedBy": "Provided by",
+        "firmicoreSupport": "FirmiCore support"
       },
       "termsContent": {
         "provider": {
           "title": "1. Who we are",
           "p1": "FirmiCore is provided by {{name}} (\"Lumora Ventures\", \"we\", \"us\"), a private limited company registered in England and Wales under company number {{companyNumber}}, with its registered office at {{ukOffice}}. Our Sri Lanka office is at {{lkOffice}}.",
-          "p2": "Contact: {{email}} · {{phone}} · {{website}}",
+          "p2": "Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{website}}. FirmiCore support: {{firmicoreEmail}} · {{firmicorePhone}}.",
           "p3": "These details are given in accordance with section 82 of the Companies Act 2006, the Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) and regulation 6 of the Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013)."
         },
         "agreement": {
@@ -10037,7 +10038,7 @@
           "p1": "We may update these Terms. Material changes will be announced in the app or by email before they apply, and the Company may be asked to accept the new version. Continuing to use FirmiCore after the changes take effect means the Company accepts them.",
           "p2": "Only the Company and Lumora Ventures have rights under these Terms; the Contracts (Rights of Third Parties) Act 1999 (c. 31) does not apply. If any part of these Terms is found unenforceable, the rest remains in force. These Terms are made and may be stored electronically, in accordance with the Electronic Commerce (EC Directive) Regulations 2002; in Sri Lanka they are also valid under the Electronic Transactions Act, No. 19 of 2006.",
           "p3": "These Terms, and any dispute arising from them, are governed by the law of England and Wales, and the courts of England and Wales have exclusive jurisdiction. This does not affect any mandatory rights the Company has under the law of its own country. Translations are provided for convenience; the English version prevails.",
-          "p4": "Questions about these Terms, billing, data export or deletion: {{email}} · {{phone}} · {{name}}, {{ukOffice}} · Sri Lanka office: {{lkOffice}}."
+          "p4": "Questions about FirmiCore, billing, data export or deletion: FirmiCore support, {{firmicoreEmail}} · {{firmicorePhone}}. Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{ukOffice}} · Sri Lanka office: {{lkOffice}}."
         }
       }
     },

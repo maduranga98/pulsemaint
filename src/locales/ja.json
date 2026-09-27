@@ -9781,13 +9781,14 @@
         "cardStatement": "FirmiCore（Stripe 経由）がこのカードを保存し、解約されるまで各請求期間に会社のサブスクリプション料金を自動的に請求することを承認します。",
         "subscribeStatementMonthly": "このプランは自動更新され、解約するまで会社のカードに毎月請求されることを理解しています。",
         "subscribeStatementYearly": "このプランは自動更新され、解約するまで会社のカードに毎年請求されることを理解しています。",
-        "providedBy": "提供元"
+        "providedBy": "提供元",
+        "firmicoreSupport": "FirmiCore サポート"
       },
       "termsContent": {
         "provider": {
           "title": "1. 提供者について",
           "p1": "FirmiCore は {{name}}（以下「Lumora Ventures」または「当社」）が提供します。当社はイングランド・ウェールズで登記された非公開有限会社（会社番号 {{companyNumber}}）で、登記上の事務所は {{ukOffice}} にあります。スリランカ事務所の所在地は {{lkOffice}} です。",
-          "p2": "お問い合わせ：{{email}} · {{phone}} · {{website}}",
+          "p2": "Lumora Ventures PVT Ltd：{{email}} · {{phone}} · {{website}}。FirmiCore サポート：{{firmicoreEmail}} · {{firmicorePhone}}。",
           "p3": "これらの情報は、Companies Act 2006 第82条、Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17)、および Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013) 第6条に基づき記載しています。"
         },
         "agreement": {
@@ -9865,7 +9866,7 @@
           "p1": "当社は本規約を更新することがあります。重要な変更は、適用前にアプリ内またはメールで通知し、会社に新しい版への同意を求める場合があります。変更の発効後も FirmiCore を引き続き利用した場合、会社は変更に同意したものとみなされます。",
           "p2": "本規約に基づく権利を有するのは会社と Lumora Ventures のみであり、Contracts (Rights of Third Parties) Act 1999 (c. 31) は適用されません。本規約の一部が執行不能とされた場合でも、残りの部分は引き続き有効です。本規約は Electronic Commerce (EC Directive) Regulations 2002 に従い電子的に締結され、電子的に保存される場合があります。スリランカにおいては Electronic Transactions Act, No. 19 of 2006 に基づいても有効です。",
           "p3": "本規約およびこれから生じる一切の紛争は、イングランド・ウェールズ法に準拠し、イングランド・ウェールズの裁判所が専属的管轄権を有します。これは、会社が自国の法律に基づいて有する強行的な権利に影響を与えるものではありません。翻訳は便宜上提供されるものであり、英語版が優先します。",
-          "p4": "本規約、請求、データのエクスポートまたは削除に関するお問い合わせ：{{email}} · {{phone}} · {{name}}、{{ukOffice}} · スリランカ事務所：{{lkOffice}}。"
+          "p4": "FirmiCore、請求、データのエクスポートまたは削除に関するお問い合わせ：FirmiCore サポート、{{firmicoreEmail}} · {{firmicorePhone}}。Lumora Ventures PVT Ltd：{{email}} · {{phone}} · {{ukOffice}} · スリランカ事務所：{{lkOffice}}。"
         }
       }
     },
