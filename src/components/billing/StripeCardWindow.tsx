@@ -56,13 +56,14 @@ function CardForm({ onSuccess }: Pick<StripeCardWindowProps, 'onSuccess'>) {
 
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
-      <p className="text-sm font-medium text-slate-500!">{t('common.billing.account.window.cardInformation')}</p>
+      <p className="text-sm font-medium text-slate-300!">{t('common.billing.account.window.cardInformation')}</p>
       <PaymentElement
         onReady={() => setReady(true)}
         onLoadError={() => setError(t('common.billing.account.window.loadFailed'))}
-        options={{ layout: 'tabs', fields: { billingDetails: { address: 'auto' } } }}
+        // Card only, without Link's "save my info" block, keeps the window short.
+        options={{ layout: 'tabs', wallets: { link: 'never' }, fields: { billingDetails: { address: 'auto' } } }}
       />
-      {error && <p className="text-sm text-red-600!">{error}</p>}
+      {error && <p className="text-sm text-red-400! break-words">{error}</p>}
       <button
         type="submit"
         disabled={!stripe || !ready || submitting}
@@ -87,28 +88,42 @@ export default function StripeCardWindow(props: StripeCardWindowProps) {
   const stripePromise = useMemo(() => getStripeJs(publishableKey), [publishableKey]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-        <div className="flex items-center justify-end">
-          <button onClick={onClose} className="-mr-1 rounded p-1 text-slate-500 hover:text-slate-900" aria-label="Close">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <h3 className="mt-2 text-2xl font-bold text-slate-900!">{t('common.billing.account.window.addCardTitle')}</h3>
-        <p className="mt-1 text-sm text-slate-500!">{t('common.billing.account.window.setupSubtitle')}</p>
-        <div className="mt-5">
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret,
-              appearance: {
-                theme: 'stripe',
-                variables: { colorPrimary: '#0074FF', borderRadius: '8px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif' },
-              },
-            }}
-          >
-            <CardForm onSuccess={onSuccess} />
-          </Elements>
+    // The overlay scrolls, and the sheet never exceeds the viewport, so the
+    // title, close button and Save card stay reachable on short screens.
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className="flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] shadow-2xl">
+          <div className="flex items-start justify-between gap-4 border-b border-[#1E3A5F] px-6 pt-5 pb-4">
+            <div>
+              <h3 className="text-xl font-bold text-white!">{t('common.billing.account.window.addCardTitle')}</h3>
+              <p className="mt-1 text-sm text-slate-300!">{t('common.billing.account.window.setupSubtitle')}</p>
+            </div>
+            <button onClick={onClose} className="-mr-1 rounded p-1 text-slate-300 hover:text-white" aria-label="Close">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="overflow-y-auto px-6 py-5">
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret,
+                appearance: {
+                  theme: 'night',
+                  variables: {
+                    colorPrimary: '#3B82F6',
+                    colorBackground: '#0A1628',
+                    colorText: '#F0F4F8',
+                    colorTextSecondary: '#B8C7DB',
+                    colorTextPlaceholder: '#8BA3BF',
+                    borderRadius: '8px',
+                    fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
+                  },
+                },
+              }}
+            >
+              <CardForm onSuccess={onSuccess} />
+            </Elements>
+          </div>
         </div>
       </div>
     </div>
