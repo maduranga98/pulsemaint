@@ -3,6 +3,7 @@ import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, ShieldCheck, BellRing, Menu, X } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
+import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
 import { getNotificationPermission, isDeviceNotificationSupported, requestDeviceNotificationPermission } from '@/lib/notifications/deviceNotify';
 import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -29,6 +30,7 @@ export default function PlatformLayout() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const unread = usePlatformUnread(ready && isSuperadmin);
+  const paymentAlerts = usePaymentAlerts(ready && isSuperadmin);
   const [permission, setPermission] = useState(() => getNotificationPermission());
 
   if (!ready) return <AuthLoading />;
@@ -59,6 +61,9 @@ export default function PlatformLayout() {
             >
               <Icon className="h-4 w-4" />
               {label}
+              {to === '/platform/payments' && paymentAlerts.length > 0 && (
+                <span className="ml-auto rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold leading-4 text-black">{paymentAlerts.length}</span>
+              )}
               {to === '/platform/requests' && unread.length > 0 && (
                 <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-black">{unread.length}</span>
               )}
@@ -90,7 +95,7 @@ export default function PlatformLayout() {
         <button className="mb-4 inline-flex items-center gap-2 text-sm text-slate-300 lg:hidden" onClick={() => setOpen(true)}>
           <Menu className="h-5 w-5" /> Menu
         </button>
-        <Outlet />
+        <Outlet context={{ paymentAlerts }} />
       </main>
     </div>
   );

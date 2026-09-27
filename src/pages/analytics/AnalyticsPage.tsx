@@ -22,6 +22,7 @@ import ProductionDowntimeStrip from '../../components/dashboard/manager/Producti
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import SafetySnapshotWidget from '../../components/dashboard/manager/SafetySnapshotWidget';
 import SafetyBlacklistWidget from '../../components/dashboard/manager/SafetyBlacklistWidget';
+import PlantEfficiencyTab from '../../components/analytics/PlantEfficiencyTab';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 import {
   DASHBOARD_RANGE_LABELS,
@@ -29,7 +30,7 @@ import {
   type DashboardRange as Range,
 } from '../../utils/analytics/dashboardRange';
 
-type Tab = 'breakdowns' | 'pm' | 'workorders' | 'machines' | 'safety' | 'team';
+type Tab = 'breakdowns' | 'pm' | 'workorders' | 'machines' | 'plants' | 'safety' | 'team';
 
 export default function AnalyticsPage() {
   const { t } = useTranslation();
@@ -46,12 +47,13 @@ export default function AnalyticsPage() {
     { value: 'pm', label: t('common.analytics.mainPage.tabs.pm') },
     { value: 'workorders', label: t('common.analytics.mainPage.tabs.workorders') },
     { value: 'machines', label: t('common.analytics.mainPage.tabs.machines') },
+    { value: 'plants', label: t('common.analytics.mainPage.tabs.plants') },
     { value: 'safety', label: t('common.analytics.mainPage.tabs.safety') },
     { value: 'team', label: t('common.analytics.mainPage.tabs.team') },
   ];
   // Supervisors get the maintenance tabs only — Safety and Team Performance
   // are for managers/admins.
-  const SUPERVISOR_HIDDEN_TABS: Tab[] = ['safety', 'team'];
+  const SUPERVISOR_HIDDEN_TABS: Tab[] = ['plants', 'safety', 'team'];
   const TABS = userProfile?.role === 'supervisor'
     ? ALL_TABS.filter((tb) => !SUPERVISOR_HIDDEN_TABS.includes(tb.value))
     : ALL_TABS;
@@ -200,6 +202,7 @@ export default function AnalyticsPage() {
         )}
 
         {tab === 'machines' && <TopProblemMachinesChart companyId={companyId} month={months} />}
+        {tab === 'plants' && <PlantEfficiencyTab companyId={companyId} months={months} />}
 
         {tab === 'safety' && (
           <div className="space-y-6">

@@ -6834,7 +6834,8 @@
           "workorders": "Arbeitsaufträge",
           "machines": "Maschinen",
           "safety": "Sicherheit",
-          "team": "Teamleistung"
+          "team": "Teamleistung",
+          "plants": "Werkseffizienz"
         }
       },
       "inventoryPage": {
@@ -6901,6 +6902,31 @@
           "contractor": "Auftragnehmer",
           "operator": "Bediener",
           "machine": "Maschine"
+        }
+      },
+      "plantEfficiency": {
+        "title": "Werkseffizienz",
+        "loadFailed": "Werkseffizienz konnte nicht geladen werden.",
+        "empty": "Für diesen Zeitraum liegen noch keine Werksdaten vor.",
+        "compare": "Werke vergleichen",
+        "unassigned": "Kein Werk zugeordnet",
+        "table": "Alle Werke — Kennzahlen",
+        "plant": "Werk",
+        "machines": "{{count}} Maschinen",
+        "countsTitle": "Störungen & Arbeitsaufträge · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "Instandhaltungskosten",
+          "downtimeHours": "Ausfallzeit (Stunden)",
+          "downtimeCost": "Ausfallkosten",
+          "breakdowns": "Störungen",
+          "workOrders": "Arbeitsaufträge"
+        },
+        "health": {
+          "title": "Werkszustand",
+          "good": "Gut",
+          "watch": "Beobachten",
+          "poor": "Schlecht",
+          "none": "Keine Daten"
         }
       }
     },

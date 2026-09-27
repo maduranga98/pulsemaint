@@ -41,7 +41,7 @@ export default function NotificationBell() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useMyNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, plantNames } = useMyNotifications();
   const derivedAlerts = useDerivedAlerts();
   // Session-dismissed derived alerts (they re-appear next session if still
   // unresolved — they're state-derived, so they clear on their own once fixed).
@@ -203,7 +203,12 @@ export default function NotificationBell() {
                           <p className="text-sm leading-snug text-slate-900 font-medium">
                             {notificationDisplayMessage(n, userProfile.role, userProfile.id)}
                           </p>
-                          <p className="text-xs text-slate-400 mt-0.5">{relativeTime(n.timestamp)}</p>
+                          <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
+                            {n.plantId && plantNames.get(n.plantId) && (
+                              <span className="rounded bg-blue-100 px-1.5 py-px text-[10px] font-semibold text-blue-700">{plantNames.get(n.plantId)}</span>
+                            )}
+                            {relativeTime(n.timestamp)}
+                          </p>
                         </div>
                       </button>
                     );

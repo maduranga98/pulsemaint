@@ -1872,5 +1872,13 @@ service cloud.firestore {
       allow read: if isSuperadmin();
       allow write: if false;
     }
+    // Payment-received (and other) alerts for superadmins, written by the
+    // Stripe webhook; superadmins only mark them read.
+    match /platformNotifications/{id} {
+      allow read: if isSuperadmin();
+      allow update: if isSuperadmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create, delete: if false;
+    }
   }
 }

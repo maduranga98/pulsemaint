@@ -7211,7 +7211,8 @@
           "workorders": "Work Orders",
           "machines": "Machines",
           "safety": "Safety",
-          "team": "Team Performance"
+          "team": "Team Performance",
+          "plants": "Plant efficiency"
         }
       },
       "inventoryPage": {
@@ -7278,6 +7279,31 @@
           "contractor": "Contractor",
           "operator": "Operator",
           "machine": "Machine"
+        }
+      },
+      "plantEfficiency": {
+        "title": "Plant efficiency",
+        "loadFailed": "Could not load plant efficiency.",
+        "empty": "No plant data for this period yet.",
+        "compare": "Compare plants",
+        "unassigned": "No plant assigned",
+        "table": "All plants — figures",
+        "plant": "Plant",
+        "machines": "{{count}} machines",
+        "countsTitle": "Breakdowns & work orders · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "Maintenance cost",
+          "downtimeHours": "Downtime (hours)",
+          "downtimeCost": "Downtime cost",
+          "breakdowns": "Breakdowns",
+          "workOrders": "Work orders"
+        },
+        "health": {
+          "title": "Factory health",
+          "good": "Good",
+          "watch": "Watch",
+          "poor": "Poor",
+          "none": "No data"
         }
       }
     },
