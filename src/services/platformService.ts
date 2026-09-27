@@ -89,6 +89,8 @@ export interface PlatformPayment extends PlatformInvoice {
   attemptCount: number;
   nextAttempt: number | null;
   description: string | null;
+  plan: string;
+  billingCycle: Cycle;
 }
 
 export type ReminderKind = 'paymentFailed' | 'cancelling' | 'renewalDue' | 'trialEnding' | 'trialExpired';
