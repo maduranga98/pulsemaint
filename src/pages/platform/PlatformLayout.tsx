@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, ShieldCheck, BellRing, Menu, X } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
@@ -17,7 +17,6 @@ const NAV = [
   { to: '/platform/payments', label: 'Payments', icon: CreditCard },
   { to: '/platform/reminders', label: 'Reminders', icon: BellRing },
   { to: '/platform/requests', label: 'Requests & feedback', icon: ClipboardList },
-  { to: '/platform/admins', label: 'Superadmins', icon: ShieldCheck },
 ];
 
 /**
