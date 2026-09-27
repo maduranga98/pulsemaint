@@ -52,7 +52,8 @@
         "maintenanceHistory": "Historial de mantenimiento",
         "myRequests": "Mis solicitudes",
         "requestsInbox": "Bandeja de solicitudes",
-        "safetyBlacklist": "Lista negra"
+        "safetyBlacklist": "Lista negra",
+        "supportRequests": "Sugerencias y solicitudes"
       },
       "help": "Ayuda y soporte"
     },
@@ -9875,6 +9876,44 @@
       "memberHint": "Pida al administrador de su empresa que renueve la suscripción.",
       "renew": "Ir a Facturación y plan",
       "signOut": "Cerrar sesión"
+    },
+    "supportRequests": {
+      "title": "Sugerencias y solicitudes",
+      "subtitle": "Envíe comentarios, ideas de funciones y solicitudes especiales al equipo de FirmiCore en Lumora Ventures, y siga nuestras respuestas aquí.",
+      "new": "Nueva solicitud",
+      "sent": "Enviado. El equipo de FirmiCore responderá aquí y por correo electrónico.",
+      "send": "Enviar",
+      "sending": "Enviando…",
+      "empty": "Aún no hay solicitudes. Comparta sus comentarios o pida algo especial para su empresa.",
+      "back": "Todas las solicitudes",
+      "reply": "Responder",
+      "replyPlaceholder": "Escriba una respuesta…",
+      "newReply": "Nueva respuesta",
+      "lumoraTeam": "Equipo de FirmiCore (Lumora Ventures)",
+      "contact": "También puede contactarnos en",
+      "form": {
+        "type": "Tipo",
+        "subject": "Asunto",
+        "message": "Mensaje",
+        "placeholder": "Cuéntenos qué necesita o qué podríamos mejorar…"
+      },
+      "types": {
+        "feedback": "Comentario",
+        "feature": "Idea de función",
+        "special": "Solicitud especial",
+        "billing": "Consulta de facturación",
+        "support": "Soporte / problema"
+      },
+      "statuses": {
+        "open": "Abierta",
+        "in_progress": "En curso",
+        "resolved": "Resuelta",
+        "closed": "Cerrada"
+      },
+      "errors": {
+        "load": "No se pudieron cargar sus solicitudes.",
+        "send": "No se pudo enviar. Inténtelo de nuevo."
+      }
     }
   },
   "triage": {

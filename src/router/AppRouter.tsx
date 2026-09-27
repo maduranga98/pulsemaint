@@ -149,6 +149,15 @@ import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 
 // Billing
 import BillingPage from '../pages/billing/BillingPage';
+import SupportRequestsPage from '../pages/support/SupportRequestsPage';
+import PlatformLayout from '../pages/platform/PlatformLayout';
+import PlatformOverviewPage from '../pages/platform/PlatformOverviewPage';
+import PlatformCompaniesPage from '../pages/platform/PlatformCompaniesPage';
+import PlatformCompanyDetailPage from '../pages/platform/PlatformCompanyDetailPage';
+import PlatformPaymentsPage from '../pages/platform/PlatformPaymentsPage';
+import PlatformRemindersPage from '../pages/platform/PlatformRemindersPage';
+import { PlatformRequestsPage, PlatformRequestDetailPage } from '../pages/platform/PlatformRequestsPage';
+import PlatformAdminsPage from '../pages/platform/PlatformAdminsPage';
 
 // Help & Support
 import HelpSupportPage from '../pages/help/HelpSupportPage';
@@ -860,6 +869,14 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="support-requests"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <SupportRequestsPage />
+            </ProtectedRoute>
+          }
+        />
         {/* Open to every authenticated role — HelpSupportPage filters its
             content by role itself via ROLE_HELP_MODULES. */}
         <Route
@@ -1047,6 +1064,19 @@ export default function AppRouter() {
       <Route path="/machines/*" element={<Navigate to="/app/machines" replace />} />
       <Route path="/reports" element={<Navigate to="/app/reports" replace />} />
       <Route path="/reports/history" element={<Navigate to="/app/reports/history" replace />} />
+
+      {/* Lumora Ventures platform console — its own shell and superadmin
+          guard (Firebase custom claim), outside the tenant app. */}
+      <Route path="/platform" element={<PlatformLayout />}>
+        <Route index element={<PlatformOverviewPage />} />
+        <Route path="companies" element={<PlatformCompaniesPage />} />
+        <Route path="companies/:companyId" element={<PlatformCompanyDetailPage />} />
+        <Route path="payments" element={<PlatformPaymentsPage />} />
+        <Route path="reminders" element={<PlatformRemindersPage />} />
+        <Route path="requests" element={<PlatformRequestsPage />} />
+        <Route path="requests/:requestId" element={<PlatformRequestDetailPage />} />
+        <Route path="admins" element={<PlatformAdminsPage />} />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

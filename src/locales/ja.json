@@ -52,7 +52,8 @@
         "maintenanceHistory": "保全履歴",
         "myRequests": "マイリクエスト",
         "requestsInbox": "リクエスト受信箱",
-        "safetyBlacklist": "ブラックリスト"
+        "safetyBlacklist": "ブラックリスト",
+        "supportRequests": "フィードバック・ご要望"
       },
       "help": "ヘルプとサポート"
     },
@@ -9875,6 +9876,44 @@
       "memberHint": "会社の管理者にサブスクリプションの更新を依頼してください。",
       "renew": "請求とプランへ",
       "signOut": "サインアウト"
+    },
+    "supportRequests": {
+      "title": "フィードバック・ご要望",
+      "subtitle": "Lumora Ventures の FirmiCore チームへフィードバック、機能のアイデア、特別なご要望を送信し、ここで回答を確認できます。",
+      "new": "新しいリクエスト",
+      "sent": "送信しました。FirmiCore チームがこことメールで回答します。",
+      "send": "送信",
+      "sending": "送信中…",
+      "empty": "まだリクエストはありません。フィードバックや、御社向けの特別なご要望をお寄せください。",
+      "back": "すべてのリクエスト",
+      "reply": "返信",
+      "replyPlaceholder": "返信を入力…",
+      "newReply": "新しい返信",
+      "lumoraTeam": "FirmiCore チーム（Lumora Ventures）",
+      "contact": "お問い合わせ先：",
+      "form": {
+        "type": "種類",
+        "subject": "件名",
+        "message": "メッセージ",
+        "placeholder": "ご要望や改善点をお聞かせください…"
+      },
+      "types": {
+        "feedback": "フィードバック",
+        "feature": "機能のアイデア",
+        "special": "特別なご要望",
+        "billing": "請求に関する質問",
+        "support": "サポート / 問題"
+      },
+      "statuses": {
+        "open": "未対応",
+        "in_progress": "対応中",
+        "resolved": "解決済み",
+        "closed": "終了"
+      },
+      "errors": {
+        "load": "リクエストを読み込めませんでした。",
+        "send": "送信できませんでした。もう一度お試しください。"
+      }
     }
   },
   "triage": {
