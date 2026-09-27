@@ -3,9 +3,10 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import {
-  SUPPORT_REQUEST_STATUSES, addSupportMessage, setSupportRequestStatus, subscribeAllRequests, subscribeMessages, subscribeRequest,
+  SUPPORT_REQUEST_STATUSES, addSupportMessage, markSupportRequestRead, setSupportRequestStatus, subscribeAllRequests, subscribeMessages, subscribeRequest,
   type SupportMessage, type SupportRequest, type SupportRequestStatus,
 } from '@/services/supportRequestsService';
+import StarRating from '@/components/support/StarRating';
 import { Badge, Card, ErrorNote, Loading, PageHeader, btn, fmtDateTime, input, statusTone } from './platformUi';
 
 const ms = (ts: { toMillis?: () => number } | null | undefined) => ts?.toMillis?.() ?? null;
@@ -42,9 +43,13 @@ export function PlatformRequestsPage() {
           {filtered.map((r) => (
             <Link key={r.id} to={`/platform/requests/${r.id}`} className="block rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4 hover:border-blue-700">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-semibold text-white">{r.subject}</p>
+                <p className="flex items-center gap-2 font-semibold text-white">
+                  {r.lumoraUnread && <span className="h-2 w-2 rounded-full bg-amber-400" />}
+                  {r.subject}
+                  {r.rating ? <StarRating value={r.rating} size={14} /> : null}
+                </p>
                 <span className="flex gap-2"><Badge>{r.type}</Badge><Badge tone={statusTone(r.status)}>{r.status.replace('_', ' ')}</Badge>
-                  {r.lastMessageBy === 'company' && r.status !== 'closed' && <Badge tone="amber">awaiting reply</Badge>}</span>
+                  {r.lumoraUnread && <Badge tone="amber">new</Badge>}</span>
               </div>
               <p className="mt-1 text-sm text-slate-400">{r.companyName} · {r.createdByName} · {fmtDateTime(ms(r.createdAt))}</p>
               <p className="mt-1 line-clamp-2 text-sm text-slate-300">{r.message}</p>
@@ -67,6 +72,9 @@ export function PlatformRequestDetailPage() {
 
   useEffect(() => subscribeRequest(requestId, setReq), [requestId]);
   useEffect(() => subscribeMessages(requestId, setMessages), [requestId]);
+  useEffect(() => {
+    if (req?.lumoraUnread) void markSupportRequestRead(requestId, 'lumora').catch(() => {});
+  }, [requestId, req?.lumoraUnread]);
 
   async function send() {
     if (!reply.trim() || !auth.currentUser) return;
@@ -100,6 +108,7 @@ export function PlatformRequestDetailPage() {
       />
       <Link to={`/platform/companies/${req.companyId}`} className="text-sm text-blue-300! hover:underline">Open company →</Link>
       <Card>
+        {req.rating ? <div className="mb-3 flex items-center gap-2"><StarRating value={req.rating} size={20} /><span className="text-sm text-slate-300">{req.rating}/5</span></div> : null}
         <p className="whitespace-pre-wrap text-sm text-slate-200">{req.message}</p>
       </Card>
       <div className="space-y-3">

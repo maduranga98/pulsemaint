@@ -853,7 +853,7 @@ const {
 const {
   platformListPayments, platformListReminders, platformSendPaymentReminder, platformDailyBillingDigest,
 } = require("./src/platform/platformPayments");
-const {onSupportRequestCreated, onSupportMessageCreated} = require("./src/platform/supportRequests");
+const {onSupportRequestCreated, onSupportMessageCreated, onSupportRequestStatusChanged} = require("./src/platform/supportRequests");
 
 exports.platformClaimSuperadmin = platformClaimSuperadmin;
 exports.platformSetSuperadmin = platformSetSuperadmin;
@@ -870,3 +870,4 @@ exports.platformSendPaymentReminder = platformSendPaymentReminder;
 exports.platformDailyBillingDigest = platformDailyBillingDigest;
 exports.onSupportRequestCreated = onSupportRequestCreated;
 exports.onSupportMessageCreated = onSupportMessageCreated;
+exports.onSupportRequestStatusChanged = onSupportRequestStatusChanged;

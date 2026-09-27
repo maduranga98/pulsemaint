@@ -9896,7 +9896,10 @@
         "type": "类型",
         "subject": "主题",
         "message": "内容",
-        "placeholder": "告诉我们您的需求或我们可以改进的地方…"
+        "placeholder": "告诉我们您的需求或我们可以改进的地方…",
+        "rating": "评分",
+        "ratingHint": "点击星星为 FirmiCore 评分（可选）",
+        "stars": "{{count}} / 5 星"
       },
       "types": {
         "feedback": "反馈",

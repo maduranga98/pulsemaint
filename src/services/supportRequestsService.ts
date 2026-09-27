@@ -27,6 +27,12 @@ export interface SupportRequest {
   updatedAt: Timestamp | null;
   lastMessageAt?: Timestamp | null;
   lastMessageBy?: 'company' | 'lumora' | null;
+  /** 1–5 stars, optional. */
+  rating?: number | null;
+  /** Something new for the company admin (Lumora replied / changed status). */
+  companyUnread?: boolean;
+  /** Something new for Lumora (new request / company replied). */
+  lumoraUnread?: boolean;
 }
 
 export interface SupportMessage {
@@ -42,7 +48,7 @@ const col = collection(db, 'supportRequests');
 
 export function createSupportRequest(input: {
   companyId: string; companyName: string; uid: string; name: string; email: string | null;
-  type: SupportRequestType; subject: string; message: string;
+  type: SupportRequestType; subject: string; message: string; rating?: number | null;
 }): Promise<unknown> {
   return addDoc(col, {
     companyId: input.companyId,
@@ -54,6 +60,9 @@ export function createSupportRequest(input: {
     subject: input.subject.trim().slice(0, 200),
     message: input.message.trim().slice(0, 5000),
     status: 'open',
+    rating: input.rating && input.rating >= 1 && input.rating <= 5 ? Math.round(input.rating) : null,
+    lumoraUnread: true,
+    companyUnread: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -100,10 +109,35 @@ export async function addSupportMessage(requestId: string, author: { type: 'comp
     updatedAt: serverTimestamp(),
     lastMessageAt: serverTimestamp(),
     lastMessageBy: author.type,
+    // Flag the other side's unread badge / notification.
+    ...(author.type === 'lumora' ? { companyUnread: true, lumoraUnread: false } : { lumoraUnread: true, companyUnread: false }),
   });
+}
+
+/** Clears the viewer's unread flag when they open a request. */
+export function markSupportRequestRead(requestId: string, side: 'company' | 'lumora') {
+  return updateDoc(doc(db, 'supportRequests', requestId), side === 'company' ? { companyUnread: false } : { lumoraUnread: false });
+}
+
+/** Company admin: how many of the company's requests have something new from Lumora. */
+export function subscribeCompanyUnreadCount(companyId: string, cb: (n: number) => void): Unsubscribe {
+  return onSnapshot(
+    query(col, where('companyId', '==', companyId), where('companyUnread', '==', true)),
+    (snap) => cb(snap.size),
+    () => cb(0),
+  );
+}
+
+/** Lumora superadmins: requests with something new from a company. */
+export function subscribeLumoraUnread(cb: (rows: SupportRequest[]) => void): Unsubscribe {
+  return onSnapshot(
+    query(col, where('lumoraUnread', '==', true), limit(100)),
+    (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as SupportRequest)),
+    () => cb([]),
+  );
 }
 
 /** Lumora superadmins only (enforced by firestore.rules). */
 export function setSupportRequestStatus(requestId: string, status: SupportRequestStatus) {
-  return updateDoc(doc(db, 'supportRequests', requestId), { status, updatedAt: serverTimestamp() });
+  return updateDoc(doc(db, 'supportRequests', requestId), { status, companyUnread: true, lumoraUnread: false, updatedAt: serverTimestamp() });
 }

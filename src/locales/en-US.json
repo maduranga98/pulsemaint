@@ -10068,7 +10068,10 @@
         "type": "Type",
         "subject": "Subject",
         "message": "Message",
-        "placeholder": "Tell us what you need or what we could improve…"
+        "placeholder": "Tell us what you need or what we could improve…",
+        "rating": "Rating",
+        "ratingHint": "Tap a star to rate FirmiCore (optional)",
+        "stars": "{{count}} of 5 stars"
       },
       "types": {
         "feedback": "Feedback",

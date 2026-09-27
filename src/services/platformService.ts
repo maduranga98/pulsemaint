@@ -39,6 +39,7 @@ export interface PlatformOverview {
   totals: {
     companies: number; active: number; trial: number; suspended: number; monthly: number; yearly: number;
     mrr: number; trialsEndingSoon: number; renewalsSoon: number; pastDue: number; cancelling: number; openRequests: number;
+    ratingAverage?: number | null; ratingCount?: number;
   };
   byPlan: Record<string, number>;
 }

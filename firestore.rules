@@ -1839,12 +1839,14 @@ service cloud.firestore {
         && request.resource.data.status == 'open'
         && request.resource.data.type in ['feedback', 'feature', 'special', 'billing', 'support']
         && request.resource.data.subject is string && request.resource.data.subject.size() <= 200
-        && request.resource.data.message is string && request.resource.data.message.size() <= 5000;
+        && request.resource.data.message is string && request.resource.data.message.size() <= 5000
+        && (!('rating' in request.resource.data) || request.resource.data.rating == null
+          || (request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5));
       // Company admins may only bump lastMessageAt/updatedAt when replying;
       // status and everything else is Lumora's to change.
       allow update: if isSuperadmin()
         || (isAdmin() && belongsToCompany(resource.data.companyId)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt', 'lastMessageAt', 'lastMessageBy']));
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt', 'lastMessageAt', 'lastMessageBy', 'companyUnread', 'lumoraUnread']));
       allow delete: if false;
 
       match /messages/{messageId} {

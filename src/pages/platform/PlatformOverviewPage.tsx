@@ -29,6 +29,7 @@ export default function PlatformOverviewPage() {
         <Stat label="Renewals in 7 days" value={t.renewalsSoon} />
         <Stat label="Trials ending in 7 days" value={t.trialsEndingSoon} tone={t.trialsEndingSoon ? 'amber' : undefined} />
         <Stat label="Open requests" value={t.openRequests} hint={`${t.cancelling} subscription(s) cancelling`} tone={t.openRequests ? 'amber' : undefined} />
+        <Stat label="Average feedback rating" value={t.ratingAverage != null ? `${t.ratingAverage} ★` : '—'} hint={`${t.ratingCount ?? 0} rating(s)`} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

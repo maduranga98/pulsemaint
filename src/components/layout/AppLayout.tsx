@@ -9,6 +9,7 @@ import NotificationBell from './NotificationBell';
 import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
 import PlantTabs from './PlantTabs';
+import { useSupportUnreadCount } from '../../hooks/useSupportUnreadCount';
 
 interface NavItem {
   labelKey: string;
@@ -397,6 +398,7 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = userProfile?.role;
+  const supportUnread = useSupportUnreadCount();
 
   const visibleDashboard = role && DASHBOARD_ITEM.roles.includes(role) ? DASHBOARD_ITEM : null;
   const visibleHelp = role && HELP_ITEM.roles.includes(role) ? HELP_ITEM : null;
@@ -503,6 +505,9 @@ export default function AppLayout() {
                       >
                         {item.icon}
                         <span>{t(item.labelKey)}</span>
+                        {item.to === '/app/support-requests' && supportUnread > 0 && (
+                          <span className="ml-auto rounded-full bg-blue-600 px-1.5 text-[10px] font-bold leading-4 text-white">{supportUnread}</span>
+                        )}
                       </NavLink>
                     ))}
                   </div>

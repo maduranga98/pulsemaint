@@ -9896,7 +9896,10 @@
         "type": "Type",
         "subject": "Objet",
         "message": "Message",
-        "placeholder": "Dites-nous ce dont vous avez besoin ou ce que nous pourrions améliorer…"
+        "placeholder": "Dites-nous ce dont vous avez besoin ou ce que nous pourrions améliorer…",
+        "rating": "Note",
+        "ratingHint": "Touchez une étoile pour noter FirmiCore (facultatif)",
+        "stars": "{{count}} étoile(s) sur 5"
       },
       "types": {
         "feedback": "Avis",
