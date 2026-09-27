@@ -57,9 +57,15 @@ export default function TermsDialog({ onClose, onAccept }: TermsDialogProps) {
               <p className="flex items-start gap-1.5"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" />UK: {PROVIDER.ukOffice}</p>
               <p className="flex items-start gap-1.5"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" />Sri Lanka: {PROVIDER.lkOffice}</p>
               <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span className="font-semibold text-white!">Lumora Ventures PVT Ltd:</span>
                 <a href={`mailto:${PROVIDER.email}`} className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Mail className="h-3.5 w-3.5" />{PROVIDER.email}</a>
                 <a href={`tel:${PROVIDER.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Phone className="h-3.5 w-3.5" />{PROVIDER.phone}</a>
                 <a href={PROVIDER.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Globe className="h-3.5 w-3.5" />lumoraventures.com</a>
+              </p>
+              <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span className="font-semibold text-white!">{t('common.legal.terms.firmicoreSupport')}:</span>
+                <a href={`mailto:${PROVIDER.firmicoreEmail}`} className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Mail className="h-3.5 w-3.5" />{PROVIDER.firmicoreEmail}</a>
+                <a href={`tel:${PROVIDER.firmicorePhone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1.5 text-blue-300! hover:underline"><Phone className="h-3.5 w-3.5" />{PROVIDER.firmicorePhone}</a>
               </p>
             </div>
             {TERMS_SECTIONS.map((section) => (

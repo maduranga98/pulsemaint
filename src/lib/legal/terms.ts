@@ -20,6 +20,9 @@ export const PROVIDER = {
   phone: '+94 71 999 8500',
   email: 'info@lumoraventures.com',
   website: 'https://lumoraventures.com',
+  /** FirmiCore (the product) support line — separate from the company's own contact. */
+  firmicoreEmail: 'support@firmicore.com',
+  firmicorePhone: '+94 76 916 4108',
 };
 
 /**

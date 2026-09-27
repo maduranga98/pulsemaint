@@ -134,7 +134,7 @@ export default function SupportRequestsPage() {
       )}
 
       <p className="text-center text-xs text-slate-500">
-        {t('common.supportRequests.contact')} <a className="underline" href={`mailto:${PROVIDER.email}`}>{PROVIDER.email}</a> · {PROVIDER.phone}
+        {t('common.supportRequests.contact')} <a className="underline" href={`mailto:${PROVIDER.firmicoreEmail}`}>{PROVIDER.firmicoreEmail}</a> · {PROVIDER.firmicorePhone}
       </p>
     </div>
   );

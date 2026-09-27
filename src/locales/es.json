@@ -9781,13 +9781,14 @@
         "cardStatement": "Autorizo a FirmiCore (a través de Stripe) a guardar esta tarjeta y cobrarla automáticamente por la suscripción de mi empresa en cada periodo de facturación hasta que se cancele.",
         "subscribeStatementMonthly": "Entiendo que este plan se renueva automáticamente y que la tarjeta de mi empresa se cobrará cada mes hasta que lo cancele.",
         "subscribeStatementYearly": "Entiendo que este plan se renueva automáticamente y que la tarjeta de mi empresa se cobrará cada año hasta que lo cancele.",
-        "providedBy": "Ofrecido por"
+        "providedBy": "Ofrecido por",
+        "firmicoreSupport": "Soporte de FirmiCore"
       },
       "termsContent": {
         "provider": {
           "title": "1. Quiénes somos",
           "p1": "FirmiCore es ofrecido por {{name}} (\"Lumora Ventures\", \"nosotros\"), una sociedad limitada privada registrada en Inglaterra y Gales con el número de sociedad {{companyNumber}} y domicilio social en {{ukOffice}}. Nuestra oficina en Sri Lanka está en {{lkOffice}}.",
-          "p2": "Contacto: {{email}} · {{phone}} · {{website}}",
+          "p2": "Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{website}}. Soporte de FirmiCore: {{firmicoreEmail}} · {{firmicorePhone}}.",
           "p3": "Estos datos se facilitan conforme a la sección 82 de la Companies Act 2006, las Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) y el reglamento 6 de las Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013)."
         },
         "agreement": {
@@ -9865,7 +9866,7 @@
           "p1": "Podemos actualizar estos Términos. Los cambios importantes se anunciarán en la aplicación o por correo electrónico antes de aplicarse, y se podrá pedir a la Empresa que acepte la nueva versión. Seguir usando FirmiCore después de que los cambios entren en vigor implica que la Empresa los acepta.",
           "p2": "Solo la Empresa y Lumora Ventures tienen derechos en virtud de estos Términos; no se aplica la Contracts (Rights of Third Parties) Act 1999 (c. 31). Si alguna parte de estos Términos resulta inaplicable, el resto sigue en vigor. Estos Términos se celebran y pueden almacenarse electrónicamente, conforme a las Electronic Commerce (EC Directive) Regulations 2002; en Sri Lanka también son válidos según la Electronic Transactions Act, No. 19 of 2006.",
           "p3": "Estos Términos, y cualquier controversia derivada de ellos, se rigen por la ley de Inglaterra y Gales, y los tribunales de Inglaterra y Gales tienen jurisdicción exclusiva. Esto no afecta a los derechos imperativos que la Empresa tenga según la ley de su propio país. Las traducciones se ofrecen por comodidad; prevalece la versión en inglés.",
-          "p4": "Preguntas sobre estos Términos, la facturación, la exportación o la eliminación de datos: {{email}} · {{phone}} · {{name}}, {{ukOffice}} · Oficina en Sri Lanka: {{lkOffice}}."
+          "p4": "Preguntas sobre FirmiCore, la facturación, la exportación o la eliminación de datos: soporte de FirmiCore, {{firmicoreEmail}} · {{firmicorePhone}}. Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{ukOffice}} · Oficina en Sri Lanka: {{lkOffice}}."
         }
       }
     },
