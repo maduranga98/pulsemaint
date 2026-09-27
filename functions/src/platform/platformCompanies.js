@@ -67,6 +67,10 @@ exports.platformOverview = onCall(async (request) => {
     if (c.cancelAtPeriodEnd) totals.cancelling += 1;
   });
   totals.mrr = Math.round(totals.mrr * 100) / 100;
+  const rated = await db.collection("supportRequests").where("rating", ">=", 1).get();
+  const ratings = rated.docs.map((d) => d.get("rating")).filter((r) => typeof r === "number");
+  totals.ratingCount = ratings.length;
+  totals.ratingAverage = ratings.length ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10 : null;
   return { totals, byPlan };
 });
 

@@ -2,7 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { FieldValue } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { getStripe, stripeSecretKey } = require("../billing/stripeClient");
+const { getStripe, stripeSecretKey, planAndCycleForPrice } = require("../billing/stripeClient");
 const { stripeErrorMessage } = require("../billing/billingAccess");
 const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
 const { db, PLATFORM_ALERT_EMAIL, requireSuperadmin, audit, toMillis } = require("./platformAccess");
@@ -12,38 +12,59 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", 
 const APP_URL = "https://app.firmicore.com";
 
 /** Recent Stripe invoices across every customer, matched to their company. */
+function linePriceIds(invoice) {
+  return (invoice.lines?.data ?? [])
+    .map((l) => l.price?.id ?? l.pricing?.price_details?.price ?? null)
+    .filter(Boolean);
+}
+
+/**
+ * Recent Stripe invoices for FirmiCore CMMS only — the Stripe account may
+ * also bill other Lumora Ventures products. An invoice counts as FirmiCore
+ * when it belongs to a FirmiCore company's Stripe customer, carries a
+ * FirmiCore companyId in its subscription metadata, or bills a FirmiCore
+ * plan price.
+ */
 exports.platformListPayments = onCall({ secrets: [stripeSecretKey] }, async (request) => {
   requireSuperadmin(request);
   const companies = await db.collection("companies").get();
   const byCustomer = new Map();
+  const byId = new Map();
   companies.forEach((d) => {
+    const info = { id: d.id, name: d.get("name") ?? "(unnamed)" };
+    byId.set(d.id, info);
     const cus = d.get("stripeCustomerId");
-    if (cus) byCustomer.set(cus, { id: d.id, name: d.get("name") ?? "(unnamed)" });
+    if (cus) byCustomer.set(cus, info);
   });
   try {
-    const invoices = await getStripe().invoices.list({ limit: 100 });
-    return {
-      payments: invoices.data.filter((i) => i.status !== "draft").map((i) => {
-        const customer = typeof i.customer === "string" ? i.customer : i.customer?.id;
-        const company = byCustomer.get(customer) ?? null;
-        return {
-          id: i.id,
-          number: i.number ?? null,
-          companyId: company?.id ?? i.subscription_details?.metadata?.companyId ?? null,
-          companyName: company?.name ?? i.customer_name ?? i.customer_email ?? null,
-          created: i.created * 1000,
-          total: i.total,
-          amountPaid: i.amount_paid,
-          amountDue: i.amount_due,
-          currency: i.currency,
-          status: i.status,
-          attemptCount: i.attempt_count ?? 0,
-          nextAttempt: i.next_payment_attempt ? i.next_payment_attempt * 1000 : null,
-          hostedInvoiceUrl: i.hosted_invoice_url ?? null,
-          description: i.lines?.data?.[0]?.description ?? null,
-        };
-      }),
-    };
+    const payments = [];
+    let scanned = 0;
+    for await (const i of getStripe().invoices.list({ limit: 100 })) {
+      if (++scanned > 1000 || payments.length >= 100) break;
+      if (i.status === "draft") continue;
+      const customer = typeof i.customer === "string" ? i.customer : i.customer?.id;
+      const metaCompanyId = i.subscription_details?.metadata?.companyId ?? i.metadata?.companyId ?? null;
+      const company = byCustomer.get(customer) ?? (metaCompanyId ? byId.get(metaCompanyId) : null) ?? null;
+      const firmicorePrice = linePriceIds(i).some((id) => planAndCycleForPrice(id));
+      if (!company && !metaCompanyId && !firmicorePrice) continue;
+      payments.push({
+        id: i.id,
+        number: i.number ?? null,
+        companyId: company?.id ?? metaCompanyId,
+        companyName: company?.name ?? i.customer_name ?? i.customer_email ?? null,
+        created: i.created * 1000,
+        total: i.total,
+        amountPaid: i.amount_paid,
+        amountDue: i.amount_due,
+        currency: i.currency,
+        status: i.status,
+        attemptCount: i.attempt_count ?? 0,
+        nextAttempt: i.next_payment_attempt ? i.next_payment_attempt * 1000 : null,
+        hostedInvoiceUrl: i.hosted_invoice_url ?? null,
+        description: i.lines?.data?.[0]?.description ?? null,
+      });
+    }
+    return { payments };
   } catch (err) {
     logger.error("platformListPayments failed", err);
     throw new HttpsError("internal", stripeErrorMessage(err, "Could not load payments"));

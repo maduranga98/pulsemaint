@@ -9896,7 +9896,10 @@
         "type": "種類",
         "subject": "件名",
         "message": "メッセージ",
-        "placeholder": "ご要望や改善点をお聞かせください…"
+        "placeholder": "ご要望や改善点をお聞かせください…",
+        "rating": "評価",
+        "ratingHint": "星をタップして FirmiCore を評価（任意）",
+        "stars": "5 段階中 {{count}}"
       },
       "types": {
         "feedback": "フィードバック",

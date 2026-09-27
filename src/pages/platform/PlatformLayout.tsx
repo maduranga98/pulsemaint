@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, ShieldCheck, BellRing, Menu, X } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
+import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
+import { getNotificationPermission, isDeviceNotificationSupported, requestDeviceNotificationPermission } from '@/lib/notifications/deviceNotify';
 import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
 import AuthLoading from '@/components/auth/AuthLoading';
@@ -26,6 +28,8 @@ export default function PlatformLayout() {
   const hasCompany = useAuthStore((s) => !!s.userProfile);
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const unread = usePlatformUnread(ready && isSuperadmin);
+  const [permission, setPermission] = useState(() => getNotificationPermission());
 
   if (!ready) return <AuthLoading />;
   if (!signedIn) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
@@ -55,10 +59,21 @@ export default function PlatformLayout() {
             >
               <Icon className="h-4 w-4" />
               {label}
+              {to === '/platform/requests' && unread.length > 0 && (
+                <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-black">{unread.length}</span>
+              )}
             </NavLink>
           ))}
         </nav>
         <div className="absolute inset-x-0 bottom-0 space-y-1 border-t border-[#1E3A5F] p-3">
+          {isDeviceNotificationSupported() && permission === 'default' && (
+            <button
+              onClick={() => void requestDeviceNotificationPermission().then(setPermission)}
+              className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-amber-300 hover:bg-[#142849]"
+            >
+              <BellRing className="h-4 w-4" /> Enable desktop notifications
+            </button>
+          )}
           <p className="truncate px-3 pb-1 text-xs text-slate-500">{email}</p>
           {hasCompany && (
             <Link to="/app/dashboard" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-slate-300 hover:bg-[#142849]">

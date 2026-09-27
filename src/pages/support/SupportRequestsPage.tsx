@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, MessageSquarePlus, Send } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { PROVIDER } from '@/lib/legal/terms';
+import StarRating from '@/components/support/StarRating';
 import {
-  SUPPORT_REQUEST_TYPES, addSupportMessage, createSupportRequest, subscribeCompanyRequests, subscribeMessages,
+  SUPPORT_REQUEST_TYPES, addSupportMessage, createSupportRequest, markSupportRequestRead, subscribeCompanyRequests, subscribeMessages,
   type SupportMessage, type SupportRequest, type SupportRequestType,
 } from '@/services/supportRequestsService';
 
@@ -29,7 +31,11 @@ export default function SupportRequestsPage() {
   const company = useAuthStore((s) => s.company);
   const profile = useAuthStore((s) => s.userProfile);
   const [rows, setRows] = useState<SupportRequest[]>([]);
-  const [openId, setOpenId] = useState<string | null>(null);
+  // ?open=<id> — deep link from the notification bell.
+  const [params, setParams] = useSearchParams();
+  const openId = params.get('open');
+  const setOpenId = (id: string | null) => setParams(id ? { open: id } : {}, { replace: false });
+  const [rating, setRating] = useState<number | null>(null);
   const [composing, setComposing] = useState(false);
   const [type, setType] = useState<SupportRequestType>('feedback');
   const [subject, setSubject] = useState('');
@@ -50,8 +56,9 @@ export default function SupportRequestsPage() {
     try {
       await createSupportRequest({
         companyId: company.id, companyName: company.name, uid: profile.id, name: profile.fullName, email: profile.email,
-        type, subject, message,
+        type, subject, message, rating,
       });
+      setRating(null);
       setSubject('');
       setMessage('');
       setComposing(false);
@@ -64,6 +71,12 @@ export default function SupportRequestsPage() {
   }
 
   const open = rows.find((r) => r.id === openId) ?? null;
+  const starLabel = (n: number) => t('common.supportRequests.form.stars', { count: n });
+
+  // Opening a request clears its "new from FirmiCore" flag (badge + bell).
+  useEffect(() => {
+    if (open?.companyUnread) void markSupportRequestRead(open.id, 'company').catch(() => {});
+  }, [open?.id, open?.companyUnread]);
 
   return (
     <div className="space-y-6">
@@ -93,6 +106,13 @@ export default function SupportRequestsPage() {
             </select>
           </div>
           <div>
+            <label className="mb-1 block text-sm text-slate-300">{t('common.supportRequests.form.rating')}</label>
+            <div className="flex flex-wrap items-center gap-3">
+              <StarRating value={rating} onChange={setRating} size={28} label={starLabel} />
+              <span className="text-xs text-slate-400">{rating ? starLabel(rating) : t('common.supportRequests.form.ratingHint')}</span>
+            </div>
+          </div>
+          <div>
             <label className="mb-1 block text-sm text-slate-300">{t('common.supportRequests.form.subject')}</label>
             <input className={field} maxLength={200} value={subject} onChange={(e) => setSubject(e.target.value)} />
           </div>
@@ -119,14 +139,20 @@ export default function SupportRequestsPage() {
           {rows.map((r) => (
             <button key={r.id} onClick={() => setOpenId(r.id)} className="block w-full rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4 text-left hover:border-blue-700">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-semibold text-white">{r.subject}</p>
-                <span className={`rounded border px-2 py-0.5 text-[11px] font-semibold uppercase ${STATUS_STYLE[r.status] ?? STATUS_STYLE.closed}`}>
-                  {t(`common.supportRequests.statuses.${r.status}`)}
+                <p className="flex items-center gap-2 font-semibold text-white">
+                  {r.companyUnread && <span className="h-2 w-2 rounded-full bg-blue-400" aria-label={t('common.supportRequests.newReply')} />}
+                  {r.subject}
+                </p>
+                <span className="flex items-center gap-2">
+                  {r.rating ? <StarRating value={r.rating} size={14} label={starLabel} /> : null}
+                  <span className={`rounded border px-2 py-0.5 text-[11px] font-semibold uppercase ${STATUS_STYLE[r.status] ?? STATUS_STYLE.closed}`}>
+                    {t(`common.supportRequests.statuses.${r.status}`)}
+                  </span>
                 </span>
               </div>
               <p className="mt-1 text-xs text-slate-400">
                 {t(`common.supportRequests.types.${r.type}`)} · {r.createdByName} · {when(r.createdAt)}
-                {r.lastMessageBy === 'lumora' && <span className="ml-2 text-blue-300">{t('common.supportRequests.newReply')}</span>}
+                {r.companyUnread && <span className="ml-2 text-blue-300">{t('common.supportRequests.newReply')}</span>}
               </p>
             </button>
           ))}
@@ -174,6 +200,7 @@ function RequestThread({ request, onBack }: { request: SupportRequest; onBack: (
           <span className={`rounded border px-2 py-0.5 text-[11px] font-semibold uppercase ${STATUS_STYLE[request.status] ?? STATUS_STYLE.closed}`}>{t(`common.supportRequests.statuses.${request.status}`)}</span>
         </div>
         <p className="mt-1 text-xs text-slate-400">{t(`common.supportRequests.types.${request.type}`)} · {request.createdByName} · {when(request.createdAt)}</p>
+        {request.rating ? <div className="mt-2"><StarRating value={request.rating} size={18} label={(n) => t('common.supportRequests.form.stars', { count: n })} /></div> : null}
         <p className="mt-3 whitespace-pre-wrap text-sm text-slate-200">{request.message}</p>
       </div>
       {messages.map((m) => (

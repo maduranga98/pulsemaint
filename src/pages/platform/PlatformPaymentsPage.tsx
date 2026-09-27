@@ -18,7 +18,7 @@ export default function PlatformPaymentsPage() {
 
   return (
     <div>
-      <PageHeader title="Payments" subtitle="The latest 100 Stripe invoices across every company." />
+      <PageHeader title="Payments" subtitle="FirmiCore CMMS subscription invoices only (latest 100) — other Lumora Ventures products on the same Stripe account are excluded." />
       {error && <ErrorNote message={error} />}
       {!rows && !error ? <Loading /> : (
         <>

@@ -9896,7 +9896,10 @@
         "type": "Art",
         "subject": "Betreff",
         "message": "Nachricht",
-        "placeholder": "Sagen Sie uns, was Sie brauchen oder was wir verbessern können…"
+        "placeholder": "Sagen Sie uns, was Sie brauchen oder was wir verbessern können…",
+        "rating": "Bewertung",
+        "ratingHint": "Tippen Sie auf einen Stern, um FirmiCore zu bewerten (optional)",
+        "stars": "{{count}} von 5 Sternen"
       },
       "types": {
         "feedback": "Feedback",

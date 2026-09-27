@@ -9896,7 +9896,10 @@
         "type": "Tipo",
         "subject": "Asunto",
         "message": "Mensaje",
-        "placeholder": "Cuéntenos qué necesita o qué podríamos mejorar…"
+        "placeholder": "Cuéntenos qué necesita o qué podríamos mejorar…",
+        "rating": "Valoración",
+        "ratingHint": "Toque una estrella para valorar FirmiCore (opcional)",
+        "stars": "{{count}} de 5 estrellas"
       },
       "types": {
         "feedback": "Comentario",
