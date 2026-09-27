@@ -42,7 +42,7 @@ export default function SuperadminActivatePage() {
         </button>
         {error && <p className="text-sm text-red-300 break-words">{error}</p>}
         <p className="text-xs text-slate-500">
-          Only emails on the platform's superadmin list can activate. Otherwise ask an existing superadmin to add you under Superadmins.
+          Only the Lumora Ventures account on the platform's superadmin list can activate this console.
         </p>
         <Link to="/app/dashboard" className="block text-sm text-blue-300! hover:underline">Back to FirmiCore</Link>
       </div>

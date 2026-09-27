@@ -124,9 +124,6 @@ export type UserAction =
 
 export const platformService = {
   claimSuperadmin: () => call<void, { ok: boolean }>('platformClaimSuperadmin'),
-  setSuperadmin: (email: string, enabled: boolean) => call('platformSetSuperadmin', { email, enabled }),
-  listSuperadmins: () =>
-    call<void, { admins: { uid: string; email: string | null; name: string | null; grantedAt: number | null }[] }>('platformListSuperadmins'),
   overview: () => call<void, PlatformOverview>('platformOverview'),
   listCompanies: () => call<void, { companies: PlatformCompany[] }>('platformListCompanies'),
   getCompany: (companyId: string) => call<{ companyId: string }, PlatformCompanyDetail>('platformGetCompany', { companyId }),
