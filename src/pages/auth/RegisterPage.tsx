@@ -8,6 +8,7 @@ import PasswordStrength from '../../components/auth/PasswordStrength';
 import { useTranslation } from 'react-i18next';
 import { registerCompany, authErrorMessages, authErrorKey } from '../../lib/auth';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
+import TermsCheckbox from '../../components/legal/TermsCheckbox';
 import { useAuthStore } from '../../store/authStore';
 import { auth } from '../../lib/firebase';
 
@@ -78,6 +79,7 @@ export default function RegisterPage() {
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     mode: 'onBlur',
+    defaultValues: { terms: false },
   });
 
   const handleSubmit = async (data: RegisterForm) => {
@@ -324,23 +326,12 @@ export default function RegisterPage() {
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.agreement')}</h2>
 
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    {...form.register('terms')}
-                    type="checkbox"
-                    className="mt-1 rounded"
-                  />
-                  <span className="text-sm text-gray-700">
-                    {t('common.auth.register.agreePrefix')}{' '}
-                    <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#1A56DB] hover:underline">
-                      {t('common.auth.register.terms')}
-                    </a>{' '}
-                    {t('common.auth.register.and')}{' '}
-                    <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#1A56DB] hover:underline">
-                      {t('common.auth.register.privacy')}
-                    </a>
-                  </span>
-                </label>
+                <TermsCheckbox
+                  tone="light"
+                  checked={!!form.watch('terms')}
+                  onChange={(v) => form.setValue('terms', v, { shouldValidate: true })}
+                  statement={t('common.legal.terms.registerStatement')}
+                />
                 {form.formState.errors.terms && (
                   <p className="text-red-500 text-sm">{t(form.formState.errors.terms.message ?? '')}</p>
                 )}

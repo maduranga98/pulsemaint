@@ -202,7 +202,9 @@
         "label": "Current plan",
         "status": "Status:",
         "billed": "Billed",
-        "trialEnds": "Trial ends"
+        "trialEnds": "Trial ends",
+        "renewsOn": "Renews automatically on {{date}}",
+        "endsOn": "Cancelled — access for all users ends on {{date}}"
       },
       "errors": {
         "checkoutFailed": "Failed to start checkout. Please try again.",
@@ -211,7 +213,10 @@
       "cycle": {
         "monthly": "Monthly",
         "yearly": "Yearly",
-        "save20": "Save 20%"
+        "save20": "Save 20%",
+        "monthlyPlans": "Monthly plans",
+        "yearlyPlans": "Yearly plans",
+        "separateNote": "Monthly and yearly plans are separate subscriptions: monthly plans are charged every month, yearly plans are charged once every 12 months."
       },
       "mostPopular": "Most Popular",
       "customPrice": "Custom",
@@ -234,7 +239,8 @@
         "redirecting": "Redirecting…",
         "downgradeTo": "Downgrade to {{name}}",
         "upgradeTo": "Upgrade to {{name}}",
-        "adminOnly": "Admin only"
+        "adminOnly": "Admin only",
+        "switchCycle": "Switch to {{cycle}} billing"
       },
       "payment": {
         "title": "Payment & Invoices",
@@ -353,6 +359,17 @@
           "loadFailed": "The secure card form couldn't load. Check your connection or disable ad blockers for this page, then try again.",
           "secure": "Payments are processed securely by Stripe."
         }
+      },
+      "cycleNote": {
+        "monthly": "Billed every month · renews automatically until cancelled",
+        "yearly": "${{price}} billed once a year (≈ ${{perMonth}}/month) · renews every 12 months"
+      },
+      "confirm": {
+        "title": "Confirm your subscription",
+        "chargeMonthly": "${{price}} will be charged to your company's card now and every month after that until you cancel.",
+        "chargeYearly": "${{price}} will be charged to your company's card now and every 12 months after that until you cancel.",
+        "companyWide": "This subscription covers your whole company — all users and roles. If you cancel, access for everyone ends when the paid period finishes; your data is kept.",
+        "continue": "Continue to payment"
       }
     },
     "contractors": {
@@ -9916,6 +9933,29 @@
           "dashboard": "Dashboard"
         }
       }
+    },
+    "legal": {
+      "terms": {
+        "title": "Terms of Service",
+        "effective": "Effective {{date}} · version {{version}}",
+        "close": "Close",
+        "agree": "I agree",
+        "summary": "In short: your subscription covers your whole company (all users and roles) and renews automatically — monthly plans are charged every month, yearly plans once a year — until you cancel. When a cancelled or unpaid subscription reaches the end of its paid period, access is suspended for every user in the company. Your data is not deleted.",
+        "agreePrefix": "I have read and agree to the",
+        "linkLabel": "Terms of Service and Billing Terms",
+        "registerStatement": "I confirm I am authorised to register this company.",
+        "cardStatement": "I authorise FirmiCore (via Stripe) to save this card and charge it automatically for my company's subscription every billing period until it is cancelled.",
+        "subscribeStatementMonthly": "I understand this plan renews automatically and my company's card will be charged every month until I cancel.",
+        "subscribeStatementYearly": "I understand this plan renews automatically and my company's card will be charged every year until I cancel."
+      }
+    },
+    "subscriptionEnded": {
+      "title": "Subscription ended",
+      "body": "Your company's FirmiCore subscription has ended, so access is paused for all users. Your data has not been deleted — everything will be available again as soon as a new subscription starts.",
+      "adminHint": "As the company admin, you can start a new subscription from Billing & Plan.",
+      "memberHint": "Please ask your company admin to renew the subscription.",
+      "renew": "Go to Billing & Plan",
+      "signOut": "Sign out"
     }
   },
   "help": {

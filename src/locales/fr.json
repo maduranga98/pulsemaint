@@ -8573,7 +8573,9 @@
         "label": "Forfait actuel",
         "status": "Statut :",
         "billed": "Facturé",
-        "trialEnds": "Fin de l'essai"
+        "trialEnds": "Fin de l'essai",
+        "renewsOn": "Renouvellement automatique le {{date}}",
+        "endsOn": "Résilié — l'accès de tous les utilisateurs prend fin le {{date}}"
       },
       "errors": {
         "checkoutFailed": "Échec du démarrage du paiement. Veuillez réessayer.",
@@ -8582,7 +8584,10 @@
       "cycle": {
         "monthly": "Mensuel",
         "yearly": "Annuel",
-        "save20": "Économisez 20 %"
+        "save20": "Économisez 20 %",
+        "monthlyPlans": "Formules mensuelles",
+        "yearlyPlans": "Formules annuelles",
+        "separateNote": "Les formules mensuelles et annuelles sont des abonnements distincts : les mensuelles sont facturées chaque mois, les annuelles une fois tous les 12 mois."
       },
       "mostPopular": "Le plus populaire",
       "customPrice": "Sur devis",
@@ -8605,7 +8610,8 @@
         "redirecting": "Redirection…",
         "downgradeTo": "Rétrograder vers {{name}}",
         "upgradeTo": "Passer à {{name}}",
-        "adminOnly": "Administrateur uniquement"
+        "adminOnly": "Administrateur uniquement",
+        "switchCycle": "Passer à la facturation {{cycle}}"
       },
       "payment": {
         "title": "Paiements et factures",
@@ -8724,6 +8730,17 @@
           "loadFailed": "Le formulaire de carte sécurisé n'a pas pu se charger. Vérifiez votre connexion ou désactivez les bloqueurs de publicité sur cette page, puis réessayez.",
           "secure": "Les paiements sont traités en toute sécurité par Stripe."
         }
+      },
+      "cycleNote": {
+        "monthly": "Facturé chaque mois · renouvelé automatiquement jusqu'à résiliation",
+        "yearly": "{{price}} $ facturés une fois par an (≈ {{perMonth}} $/mois) · renouvelé tous les 12 mois"
+      },
+      "confirm": {
+        "title": "Confirmez votre abonnement",
+        "chargeMonthly": "{{price}} $ seront débités de la carte de votre entreprise maintenant, puis chaque mois jusqu'à résiliation.",
+        "chargeYearly": "{{price}} $ seront débités de la carte de votre entreprise maintenant, puis tous les 12 mois jusqu'à résiliation.",
+        "companyWide": "Cet abonnement couvre toute votre entreprise — tous les utilisateurs et rôles. En cas de résiliation, l'accès de tous prend fin à la fin de la période payée ; vos données sont conservées.",
+        "continue": "Continuer vers le paiement"
       }
     },
     "actions": {
@@ -9744,6 +9761,29 @@
           "dashboard": "Tableau de bord"
         }
       }
+    },
+    "legal": {
+      "terms": {
+        "title": "Conditions d'utilisation",
+        "effective": "En vigueur le {{date}} · version {{version}}",
+        "close": "Fermer",
+        "agree": "J'accepte",
+        "summary": "En bref : votre abonnement couvre toute votre entreprise (tous les utilisateurs et rôles) et se renouvelle automatiquement — les formules mensuelles sont facturées chaque mois, les formules annuelles une fois par an — jusqu'à résiliation. Lorsqu'un abonnement résilié ou impayé atteint la fin de sa période payée, l'accès est suspendu pour tous les utilisateurs de l'entreprise. Vos données ne sont pas supprimées.",
+        "agreePrefix": "J'ai lu et j'accepte les",
+        "linkLabel": "Conditions d'utilisation et de facturation",
+        "registerStatement": "Je confirme être autorisé(e) à inscrire cette entreprise.",
+        "cardStatement": "J'autorise FirmiCore (via Stripe) à enregistrer cette carte et à la débiter automatiquement pour l'abonnement de mon entreprise à chaque période de facturation jusqu'à sa résiliation.",
+        "subscribeStatementMonthly": "Je comprends que cette formule se renouvelle automatiquement et que la carte de mon entreprise sera débitée chaque mois jusqu'à résiliation.",
+        "subscribeStatementYearly": "Je comprends que cette formule se renouvelle automatiquement et que la carte de mon entreprise sera débitée chaque année jusqu'à résiliation."
+      }
+    },
+    "subscriptionEnded": {
+      "title": "Abonnement terminé",
+      "body": "L'abonnement FirmiCore de votre entreprise est terminé : l'accès est suspendu pour tous les utilisateurs. Vos données n'ont pas été supprimées — tout sera de nouveau disponible dès qu'un nouvel abonnement commencera.",
+      "adminHint": "En tant qu'administrateur de l'entreprise, vous pouvez souscrire un nouvel abonnement depuis Facturation et formule.",
+      "memberHint": "Demandez à l'administrateur de votre entreprise de renouveler l'abonnement.",
+      "renew": "Aller à Facturation et formule",
+      "signOut": "Se déconnecter"
     }
   },
   "triage": {

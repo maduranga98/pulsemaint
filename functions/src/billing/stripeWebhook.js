@@ -16,25 +16,29 @@ async function syncSubscriptionToCompany(subscription) {
   const priceId = item?.price?.id;
   const mapped = priceId ? planAndCycleForPrice(priceId) : null;
 
-  const status = subscription.status === "active" || subscription.status === "trialing" ? "active" : "suspended";
+  // Access follows the subscription for every user of the company:
+  // - active / trialing, and past_due while Stripe retries the renewal → active
+  // - canceled / unpaid / incomplete_expired / paused → suspended (all roles
+  //   lose access; data is kept). A subscription cancelled "at period end"
+  //   stays active until that date, then Stripe sends subscription.deleted.
+  // - incomplete (first payment still being confirmed) → leave access as is.
+  const ACTIVE = ["active", "trialing", "past_due"];
+  const SUSPENDED = ["canceled", "unpaid", "incomplete_expired", "paused"];
+  const periodEnd = subscription.current_period_end ?? subscription.items?.data?.[0]?.current_period_end;
 
   const updates = {
     stripeSubscriptionId: subscription.id,
     subscriptionStatus: subscription.status,
-    currentPeriodEnd: subscription.current_period_end
-      ? Timestamp.fromMillis(subscription.current_period_end * 1000)
-      : null,
-    status,
+    cancelAtPeriodEnd: !!subscription.cancel_at_period_end,
+    currentPeriodEnd: periodEnd ? Timestamp.fromMillis(periodEnd * 1000) : null,
     updatedAt: FieldValue.serverTimestamp(),
   };
+  if (ACTIVE.includes(subscription.status)) updates.status = "active";
+  if (SUSPENDED.includes(subscription.status)) updates.status = "suspended";
   if (mapped) {
     updates.plan = mapped.plan;
     updates.billingCycle = mapped.billingCycle;
   }
-  if (subscription.status === "canceled") {
-    updates.status = "suspended";
-  }
-
   await db.collection("companies").doc(companyId).update(updates);
   logger.info(`Synced subscription ${subscription.id} to company ${companyId} (${subscription.status})`);
 }
@@ -130,8 +134,11 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
         const subscription = event.data.object;
         const companyId = subscription.metadata?.companyId;
         if (companyId) {
+          // The paid period is over: suspend every user of the company. Data
+          // is not touched, and a new subscription restores access.
           await db.collection("companies").doc(companyId).update({
             subscriptionStatus: "canceled",
+            cancelAtPeriodEnd: false,
             status: "suspended",
             updatedAt: FieldValue.serverTimestamp(),
           });

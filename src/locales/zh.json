@@ -8573,7 +8573,9 @@
         "label": "当前套餐",
         "status": "状态:",
         "billed": "计费方式",
-        "trialEnds": "试用期结束"
+        "trialEnds": "试用期结束",
+        "renewsOn": "将于 {{date}} 自动续订",
+        "endsOn": "已取消——所有用户的访问将于 {{date}} 结束"
       },
       "errors": {
         "checkoutFailed": "无法启动结账,请重试。",
@@ -8582,7 +8584,10 @@
       "cycle": {
         "monthly": "按月",
         "yearly": "按年",
-        "save20": "节省 20%"
+        "save20": "节省 20%",
+        "monthlyPlans": "月度方案",
+        "yearlyPlans": "年度方案",
+        "separateNote": "月度方案和年度方案是两种独立的订阅：月度方案每月扣费，年度方案每 12 个月扣费一次。"
       },
       "mostPopular": "最受欢迎",
       "customPrice": "定制报价",
@@ -8605,7 +8610,8 @@
         "redirecting": "正在跳转…",
         "downgradeTo": "降级为 {{name}}",
         "upgradeTo": "升级为 {{name}}",
-        "adminOnly": "仅限管理员"
+        "adminOnly": "仅限管理员",
+        "switchCycle": "切换为{{cycle}}计费"
       },
       "payment": {
         "title": "付款与发票",
@@ -8724,6 +8730,17 @@
           "loadFailed": "无法加载安全银行卡表单。请检查网络或为此页面关闭广告拦截器后重试。",
           "secure": "付款由 Stripe 安全处理。"
         }
+      },
+      "cycleNote": {
+        "monthly": "按月计费 · 自动续订直至取消",
+        "yearly": "每年一次性收取 ${{price}}（≈ ${{perMonth}}/月）· 每 12 个月续订"
+      },
+      "confirm": {
+        "title": "确认您的订阅",
+        "chargeMonthly": "现在将从贵公司的卡中扣除 ${{price}}，此后每月扣款，直至您取消。",
+        "chargeYearly": "现在将从贵公司的卡中扣除 ${{price}}，此后每 12 个月扣款，直至您取消。",
+        "companyWide": "此订阅覆盖您的整个公司——所有用户和角色。如果取消，所有人的访问将在已付费期结束时终止；您的数据会被保留。",
+        "continue": "继续付款"
       }
     },
     "actions": {
@@ -9744,6 +9761,29 @@
           "dashboard": "仪表板"
         }
       }
+    },
+    "legal": {
+      "terms": {
+        "title": "服务条款",
+        "effective": "生效日期 {{date}} · 版本 {{version}}",
+        "close": "关闭",
+        "agree": "我同意",
+        "summary": "简而言之：您的订阅覆盖整个公司（所有用户和角色），并会自动续订——月度方案每月扣费，年度方案每年扣费一次——直至您取消。已取消或未付款的订阅在已付费期结束后，公司所有用户的访问权限都将被暂停。您的数据不会被删除。",
+        "agreePrefix": "我已阅读并同意",
+        "linkLabel": "服务条款和计费条款",
+        "registerStatement": "我确认我有权注册此公司。",
+        "cardStatement": "我授权 FirmiCore（通过 Stripe）保存此卡，并在每个计费周期为本公司的订阅自动扣款，直至取消。",
+        "subscribeStatementMonthly": "我了解此方案会自动续订，在我取消之前，公司的卡将每月被扣款。",
+        "subscribeStatementYearly": "我了解此方案会自动续订，在我取消之前，公司的卡将每年被扣款。"
+      }
+    },
+    "subscriptionEnded": {
+      "title": "订阅已结束",
+      "body": "贵公司的 FirmiCore 订阅已结束，所有用户的访问已暂停。您的数据没有被删除——新订阅开始后，一切将立即恢复可用。",
+      "adminHint": "作为公司管理员，您可以在“计费与方案”中开始新的订阅。",
+      "memberHint": "请联系公司管理员续订。",
+      "renew": "前往计费与方案",
+      "signOut": "退出登录"
     }
   },
   "triage": {

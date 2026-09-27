@@ -10,9 +10,10 @@ type BillingCycle = 'monthly' | 'yearly';
  * data itself. On success Stripe fires a webhook that updates the company's
  * plan in Firestore; the client never writes plan fields directly.
  */
-export async function createCheckoutSession(plan: Plan, billingCycle: BillingCycle): Promise<string> {
+/** `termsVersion` is the Terms of Service version the admin ticked before subscribing. */
+export async function createCheckoutSession(plan: Plan, billingCycle: BillingCycle, termsVersion: string): Promise<string> {
   const fn = httpsCallable<
-    { plan: Plan; billingCycle: BillingCycle; successUrl: string; cancelUrl: string },
+    { plan: Plan; billingCycle: BillingCycle; termsVersion: string; successUrl: string; cancelUrl: string },
     { url: string }
   >(functions, 'createCheckoutSession');
 
@@ -20,6 +21,7 @@ export async function createCheckoutSession(plan: Plan, billingCycle: BillingCyc
   const { data } = await fn({
     plan,
     billingCycle,
+    termsVersion,
     successUrl: `${returnBase}?checkout=success`,
     cancelUrl: `${returnBase}?checkout=cancelled`,
   });
@@ -30,9 +32,10 @@ export async function createCheckoutSession(plan: Plan, billingCycle: BillingCyc
  * Opens the Stripe Billing Portal so an admin can manage payment methods,
  * download invoices, or cancel the subscription.
  */
-export async function createPortalSession(): Promise<string> {
-  const fn = httpsCallable<{ returnUrl: string }, { url: string }>(functions, 'createPortalSession');
-  const { data } = await fn({ returnUrl: `${window.location.origin}/app/billing` });
+/** Pass `termsVersion` when opening the portal to change plan/cycle after ticking the Terms. */
+export async function createPortalSession(termsVersion?: string): Promise<string> {
+  const fn = httpsCallable<{ returnUrl: string; termsVersion?: string }, { url: string }>(functions, 'createPortalSession');
+  const { data } = await fn({ returnUrl: `${window.location.origin}/app/billing`, ...(termsVersion ? { termsVersion } : {}) });
   return data.url;
 }
 
@@ -80,9 +83,10 @@ export async function createCardSetup(): Promise<{ clientSecret: string; publish
 }
 
 /** Makes the card confirmed in the card window the default for invoices. */
-export async function finalizeCardSetup(setupIntentId: string): Promise<void> {
-  const fn = httpsCallable<{ setupIntentId: string }, { ok: boolean }>(functions, 'finalizeCardSetup');
-  await fn({ setupIntentId });
+/** `termsVersion` is the Terms of Service version ticked in the card window. */
+export async function finalizeCardSetup(setupIntentId: string, termsVersion: string): Promise<void> {
+  const fn = httpsCallable<{ setupIntentId: string; termsVersion: string }, { ok: boolean }>(functions, 'finalizeCardSetup');
+  await fn({ setupIntentId, termsVersion });
 }
 
 /**
