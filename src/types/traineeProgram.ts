@@ -113,6 +113,8 @@ export interface TraineeProgrammeCertificate {
   recommendedBy: string;
   recommendedByName: string;
   recommendedByRole: string;
+  /** PNG data URL of the authorizer's signature (certificates issued since it was stored). */
+  signatureImageDataUrl?: string | null;
   issuedAt: Timestamp;
   pdfUrl: string;
   pdfStoragePath: string;

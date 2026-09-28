@@ -6,6 +6,7 @@ import { isNotificationUnreadBy, isNotificationVisibleTo, notificationDisplayMes
 import { playNotificationSound, showDeviceNotification } from '@/lib/notifications/deviceNotify';
 import type { DashboardNotification } from '@/types/analytics.types';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
+import { usePlants } from '@/hooks/usePlants';
 
 /**
  * Notifications currently waiting for the signed-in user.
@@ -28,7 +29,13 @@ export function useMyNotifications() {
   const [loading, setLoading] = useState(true);
   // Only this user's plant (admin: selected plant tab) and, for
   // department-scoped roles, their department.
-  const { plantId, department } = useDepartmentScope();
+  const { plantId: scopedPlantId, department } = useDepartmentScope();
+  // Admin's plant tab (All Plants / a plant) filters the modules, not the
+  // bell: admins always get every plant's notifications, each labelled with
+  // its plant. Plant-scoped roles still only see their own plant.
+  const plantId = userProfile?.role === 'admin' ? null : scopedPlantId;
+  const { plants } = usePlants(companyId);
+  const plantNames = useMemo(() => new Map(plants.map((p) => [p.id, p.name])), [plants]);
 
   useEffect(() => {
     if (!companyId) {
@@ -82,15 +89,16 @@ export function useMyNotifications() {
     if (freshOnes.length === 0) return;
     playNotificationSound();
     for (const n of freshOnes.slice(0, 5)) {
-      showDeviceNotification('FirmiCore', {
-        body: notificationDisplayMessage(n, userProfile.role, userProfile.id),
+      const plantName = n.plantId ? plantNames.get(n.plantId) : null;
+      showDeviceNotification(plantName ? `FirmiCore · ${plantName}` : 'FirmiCore', {
+        body: `${plantName ? `[${plantName}] ` : ''}${notificationDisplayMessage(n, userProfile.role, userProfile.id)}`,
         tag: n.id,
         onClick: () => {
           if (n.linkTo) window.location.assign(n.linkTo);
         },
       });
     }
-  }, [notifications, userProfile]);
+  }, [notifications, userProfile, plantNames]);
 
   async function markAsRead(notificationId: string) {
     if (!userProfile) return;
@@ -116,5 +124,5 @@ export function useMyNotifications() {
     );
   }
 
-  return { notifications, unreadCount, loading, markAsRead, markAllAsRead };
+  return { notifications, unreadCount, loading, markAsRead, markAllAsRead, plantNames };
 }

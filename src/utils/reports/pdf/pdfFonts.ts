@@ -103,6 +103,10 @@ export async function registerUnicodeFont(doc: jsPDF): Promise<string> {
 function isRenderableWithActiveFont(text: string): boolean {
   for (const ch of text) {
     const code = ch.codePointAt(0) ?? 0;
+    // Armenian through the Indic/SE-Asian scripts (Sinhala, Tamil, Thai, …)
+    // sit below the CJK blocks but none of the embedded fonts carry them —
+    // they'd draw as blank glyphs rather than falling back.
+    if (code >= 0x0530 && code < 0x1d00) return false;
     if (activeVariant === 'sc') {
       const isCjk = code >= 0x4e00 && code <= 0x9fff;
       const isCjkPunct = code >= 0x3000 && code <= 0x303f;
@@ -129,4 +133,13 @@ function isRenderableWithActiveFont(text: string): boolean {
  */
 export function pdfSafeText(text: string, fallback: string): string {
   return isRenderableWithActiveFont(text) ? text : fallback;
+}
+
+/**
+ * Whether `text` can be drawn with the font registered for the current app
+ * language — for free-text record content (not translated labels) where the
+ * caller needs to pick its own fallback.
+ */
+export function isPdfRenderable(text: string): boolean {
+  return isRenderableWithActiveFont(text);
 }

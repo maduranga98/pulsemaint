@@ -289,6 +289,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
             requestedBy: userId,
             requestedByName: userName,
             requestedByRole: userProfile.role ?? '',
+            source: 'work_order',
           });
           const { updateDoc } = await import('firebase/firestore');
           await updateDoc(docRef, { requiresWorkPermit: true, workPermitId: permitId });

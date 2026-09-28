@@ -69,6 +69,9 @@ export interface CreateStaffRequestInput {
   subject: string;
   message: string;
   reference: string | null;
+  referenceType?: 'work_order' | 'breakdown' | null;
+  referenceId?: string | null;
+  referenceMachineName?: string | null;
   recipientRole: StaffRequestRecipientRole;
   recipientUserId: string;
   recipientName: string;

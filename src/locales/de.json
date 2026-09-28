@@ -52,7 +52,8 @@
         "maintenanceHistory": "Wartungsverlauf",
         "myRequests": "Meine Anfragen",
         "requestsInbox": "Anfragen-Posteingang",
-        "safetyBlacklist": "Sperrliste"
+        "safetyBlacklist": "Sperrliste",
+        "supportRequests": "Feedback & Anfragen"
       },
       "help": "Hilfe & Support"
     },
@@ -1521,7 +1522,9 @@
         "sinceTime": "seit {{time}}",
         "title": "Live-Schichtstatus",
         "workingNow": "{{count}} jetzt im Einsatz",
-        "yesterday": "gestern"
+        "yesterday": "gestern",
+        "noDepartment": "Keine Abteilung",
+        "footerDepartments": "{{departments}} Abteilungen · {{people}} Personen im Einsatz"
       },
       "lowStockAlertTable": {
         "category": "Kategorie",
@@ -6831,7 +6834,8 @@
           "workorders": "Arbeitsaufträge",
           "machines": "Maschinen",
           "safety": "Sicherheit",
-          "team": "Teamleistung"
+          "team": "Teamleistung",
+          "plants": "Werkseffizienz"
         }
       },
       "inventoryPage": {
@@ -6898,6 +6902,31 @@
           "contractor": "Auftragnehmer",
           "operator": "Bediener",
           "machine": "Maschine"
+        }
+      },
+      "plantEfficiency": {
+        "title": "Werkseffizienz",
+        "loadFailed": "Werkseffizienz konnte nicht geladen werden.",
+        "empty": "Für diesen Zeitraum liegen noch keine Werksdaten vor.",
+        "compare": "Werke vergleichen",
+        "unassigned": "Kein Werk zugeordnet",
+        "table": "Alle Werke — Kennzahlen",
+        "plant": "Werk",
+        "machines": "{{count}} Maschinen",
+        "countsTitle": "Störungen & Arbeitsaufträge · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "Instandhaltungskosten",
+          "downtimeHours": "Ausfallzeit (Stunden)",
+          "downtimeCost": "Ausfallkosten",
+          "breakdowns": "Störungen",
+          "workOrders": "Arbeitsaufträge"
+        },
+        "health": {
+          "title": "Werkszustand",
+          "good": "Gut",
+          "watch": "Beobachten",
+          "poor": "Schlecht",
+          "none": "Keine Daten"
         }
       }
     },
@@ -8571,7 +8600,9 @@
         "label": "Aktueller Plan",
         "status": "Status:",
         "billed": "Abgerechnet",
-        "trialEnds": "Testphase endet"
+        "trialEnds": "Testphase endet",
+        "renewsOn": "Verlängert sich automatisch am {{date}}",
+        "endsOn": "Gekündigt – der Zugang aller Benutzer endet am {{date}}"
       },
       "errors": {
         "checkoutFailed": "Checkout konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
@@ -8580,7 +8611,10 @@
       "cycle": {
         "monthly": "Monatlich",
         "yearly": "Jährlich",
-        "save20": "20 % sparen"
+        "save20": "20 % sparen",
+        "monthlyPlans": "Monatspläne",
+        "yearlyPlans": "Jahrespläne",
+        "separateNote": "Monats- und Jahrespläne sind getrennte Abonnements: Monatspläne werden jeden Monat abgerechnet, Jahrespläne einmal alle 12 Monate."
       },
       "mostPopular": "Am beliebtesten",
       "customPrice": "Individuell",
@@ -8603,7 +8637,8 @@
         "redirecting": "Weiterleitung…",
         "downgradeTo": "Herabstufen auf {{name}}",
         "upgradeTo": "Upgrade auf {{name}}",
-        "adminOnly": "Nur Administrator"
+        "adminOnly": "Nur Administrator",
+        "switchCycle": "Zu {{cycle}} Abrechnung wechseln"
       },
       "payment": {
         "title": "Zahlungen & Rechnungen",
@@ -8670,6 +8705,74 @@
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Individuelle Integrationen & API",
         "dedicatedSupportSla": "Dedizierter Support & SLA"
+      },
+      "account": {
+        "loading": "Abrechnungsdaten werden geladen…",
+        "refresh": "Aktualisieren",
+        "portal": "Stripe-Abrechnungsportal öffnen (Abo ändern oder kündigen)",
+        "notices": {
+          "cardAdded": "Karte gespeichert. Sie wird für Ihre nächsten Rechnungen verwendet."
+        },
+        "errors": {
+          "loadFailed": "Abrechnungsdaten konnten nicht geladen werden. Bitte erneut versuchen.",
+          "cardWindowFailed": "Das Fenster zum Hinzufügen der Karte konnte nicht geöffnet werden. Bitte erneut versuchen.",
+          "cardUpdateFailed": "Die Karte konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+          "notConfigured": "Kartenzahlungen sind noch nicht eingerichtet: Der öffentliche Stripe-Schlüssel fehlt. Bitte wenden Sie sich an den Support."
+        },
+        "cards": {
+          "title": "Zahlungsmethoden",
+          "subtitle": "Karten werden im sicheren Stripe-Fenster hinzugefügt – FirmiCore sieht nie die vollständige Kartennummer.",
+          "add": "Karte hinzufügen",
+          "empty": "Noch keine Karten gespeichert.",
+          "default": "Standard",
+          "expires": "Gültig bis {{date}}",
+          "makeDefault": "Als Standard festlegen",
+          "remove": "Karte entfernen",
+          "confirmRemove": "Diese Karte aus Ihrem Konto entfernen?"
+        },
+        "history": {
+          "title": "Abrechnungsverlauf",
+          "date": "Datum",
+          "description": "Beschreibung",
+          "amount": "Betrag",
+          "status": "Status",
+          "invoice": "Rechnung",
+          "view": "Ansehen",
+          "empty": "Noch keine Rechnungen.",
+          "statuses": {
+            "paid": "Bezahlt",
+            "open": "Fällig",
+            "uncollectible": "Fehlgeschlagen",
+            "void": "Storniert"
+          }
+        },
+        "window": {
+          "addCardTitle": "Karte hinzufügen",
+          "setupSubtitle": "Speichern Sie eine Karte für Ihre FirmiCore-Rechnungen und Aufladungen.",
+          "cardInformation": "Kartendaten",
+          "saveCard": "Karte speichern",
+          "processing": "Wird verarbeitet…",
+          "failed": "Die Karte konnte nicht verarbeitet werden. Bitte erneut versuchen.",
+          "notConfirmed": "Die Karte wurde nicht bestätigt. Bitte erneut versuchen.",
+          "loadFailed": "Das sichere Kartenformular konnte nicht geladen werden. Prüfen Sie Ihre Verbindung oder deaktivieren Sie Werbeblocker für diese Seite und versuchen Sie es erneut.",
+          "secure": "Zahlungen werden sicher über Stripe abgewickelt."
+        }
+      },
+      "cycleNote": {
+        "monthly": "Monatliche Abrechnung · verlängert sich automatisch bis zur Kündigung",
+        "yearly": "{{price}} $ einmal jährlich (≈ {{perMonth}} $/Monat) · verlängert sich alle 12 Monate"
+      },
+      "confirm": {
+        "title": "Abonnement bestätigen",
+        "chargeMonthly": "Die Karte Ihres Unternehmens wird jetzt und danach jeden Monat bis zur Kündigung mit {{price}} $ belastet.",
+        "chargeYearly": "Die Karte Ihres Unternehmens wird jetzt und danach alle 12 Monate bis zur Kündigung mit {{price}} $ belastet.",
+        "companyWide": "Dieses Abonnement gilt für Ihr gesamtes Unternehmen – alle Benutzer und Rollen. Bei Kündigung endet der Zugang für alle mit Ablauf des bezahlten Zeitraums; Ihre Daten bleiben erhalten.",
+        "continue": "Weiter zur Zahlung"
+      },
+      "statusValues": {
+        "active": "Aktiv",
+        "trial": "Testphase",
+        "suspended": "Gesperrt"
       }
     },
     "actions": {
@@ -8847,6 +8950,134 @@
         "answered": "Beantwortet",
         "closed": "Geschlossen",
         "open": "Offen"
+      },
+      "records": {
+        "workOrder": "Arbeitsauftrag",
+        "breakdown": "Störung",
+        "workOrders": "Arbeitsaufträge",
+        "breakdowns": "Störungen",
+        "availableUntil": "Verfügbar bis {{date}} (noch {{left}})",
+        "sharedBy": "Geteilt von {{name}}",
+        "expiredOn": "Abgelaufen {{date}}",
+        "expired": "Abgelaufen",
+        "view": "Ansehen",
+        "revoke": "Widerrufen",
+        "remove": "Entfernen",
+        "revokeConfirm": "{{number}} nicht mehr teilen? Der Anfragende kann es dann nicht mehr ansehen.",
+        "revoked": "Freigabe widerrufen.",
+        "pdfFailed": "PDF konnte nicht erstellt werden.",
+        "downloadPdf": "PDF herunterladen",
+        "sharedCount_one": "{{count}} Datensatz geteilt",
+        "sharedCount_other": "{{count}} Datensätze geteilt",
+        "decision": {
+          "granted": "Zugriff gewährt",
+          "rejected": "Abgelehnt"
+        },
+        "sharedHeading": "Mit Ihnen geteilte Datensätze",
+        "sharedHeadingGrantor": "Mit dem Anfragenden geteilte Datensätze",
+        "decisionHeading": "Angefragte Datensätze teilen oder die Anfrage ablehnen",
+        "shareButton": "Datensätze auswählen & teilen",
+        "reject": {
+          "button": "Ablehnen",
+          "placeholder": "Grund (optional)",
+          "confirm": "Anfrage ablehnen",
+          "done": "Anfrage abgelehnt.",
+          "defaultMessage": "Ihre Anfrage für diese Datensätze wurde abgelehnt.",
+          "notification": "{{name}} hat Ihre Anfrage „{{subject}}“ abgelehnt"
+        },
+        "sharedWithMe": "Mit Ihnen geteilte Datensätze",
+        "sharedWithMeHint": "Schreibgeschützte Kopien von Arbeitsaufträgen und Störungen, die über Ihre Anfragen geteilt wurden. Jede verschwindet automatisch, wenn ihr Zugriffszeitraum endet.",
+        "recipientHint": "Frühere AA- / Störungsdetails können nur Ihr Werksleiter oder ein Admin teilen.",
+        "grant": {
+          "title": "Datensätze teilen",
+          "subtitle": "Mit {{name}} — die ausgewählten Datensätze sind bis zum festgelegten Zeitpunkt schreibgeschützt einsehbar.",
+          "search": "Nach AA- / Ticketnummer, Maschine oder Beschreibung suchen…",
+          "noMatches": "Keine passenden Datensätze.",
+          "refine": "Die ersten {{count}} werden angezeigt — Suche verfeinern, um weitere zu finden.",
+          "until": "Einsehbar bis",
+          "untilHint": "Die Datensätze werden zu diesem Zeitpunkt automatisch aus der Ansicht des Anfragenden entfernt.",
+          "note": "Notiz an den Anfragenden (optional)",
+          "selected_one": "{{count}} ausgewählt",
+          "selected_other": "{{count}} ausgewählt",
+          "submit": "Teilen",
+          "reply": "{{list}} mit Ihnen geteilt — einsehbar bis {{date}}.",
+          "notification": "{{name}} hat {{list}} mit Ihnen geteilt — einsehbar bis {{date}}",
+          "done_one": "{{count}} Datensatz geteilt.",
+          "done_other": "{{count}} Datensätze geteilt.",
+          "failed": "Datensätze konnten nicht geteilt werden. Bitte erneut versuchen.",
+          "errors": {
+            "none": "Wählen Sie mindestens einen Arbeitsauftrag oder eine Störung.",
+            "expiry": "Wählen Sie Datum und Uhrzeit in der Zukunft."
+          },
+          "presets": {
+            "h24": "24 Stunden",
+            "d3": "3 Tage",
+            "d7": "7 Tage",
+            "d30": "30 Tage"
+          }
+        },
+        "fields": {
+          "overview": "Übersicht",
+          "type": "Typ",
+          "priority": "Priorität",
+          "status": "Status",
+          "machine": "Maschine",
+          "department": "Abteilung",
+          "description": "Beschreibung",
+          "linkedBreakdown": "Verknüpfte Störung",
+          "createdAt": "Erstellt",
+          "dueDate": "Fällig",
+          "people": "Personen",
+          "supervisor": "Verantwortlicher Supervisor",
+          "technicians": "Techniker",
+          "contractor": "Auftragnehmer",
+          "work": "Arbeit",
+          "start": "Begonnen",
+          "end": "Beendet",
+          "duration": "Dauer",
+          "workDone": "Ausgeführte Arbeit",
+          "rootCause": "Grundursache",
+          "testRun": "Probelauf",
+          "machineAfter": "Maschine nach Reparatur",
+          "checklist": "Checkliste",
+          "partsUsed": "Verwendete Teile",
+          "photos": "Fotos",
+          "documents": "Dokumente",
+          "signOff": "Abnahme",
+          "signedOffBy": "Abgenommen von",
+          "signedOffAt": "Abgenommen am",
+          "outcome": "Ergebnis",
+          "notes": "Notizen",
+          "severity": "Schweregrad",
+          "productionImpact": "Produktionsauswirkung",
+          "reportedAt": "Gemeldet",
+          "reportedBy": "Gemeldet von",
+          "response": "Reaktion",
+          "attendedBy": "Bearbeitet von",
+          "findings": "Befund des Technikers",
+          "repairStarted": "Reparaturbeginn",
+          "resolvedAt": "Behoben",
+          "closedAt": "Geschlossen",
+          "hoursLost": "Verlorene Produktionsstunden",
+          "resolution": "Lösung",
+          "correctiveActions": "Korrekturmaßnahmen",
+          "preventive": "Präventive Empfehlungen"
+        }
+      },
+      "recordPicker": {
+        "change": "Ändern",
+        "types": {
+          "all": "Alle",
+          "work_order": "Arbeitsaufträge",
+          "breakdown": "Störungen"
+        },
+        "search": "Nach Nummer oder Maschine suchen…",
+        "error": "Ihre Arbeitsaufträge und Störungen konnten nicht geladen werden. Schließen und erneut versuchen.",
+        "none": "Keine abgenommenen Arbeitsaufträge oder geschlossenen Störungen älter als 30 Tage für Ihr Werk / Ihre Abteilung.",
+        "noMatches": "Keine passenden Datensätze.",
+        "refine": "Die ersten {{count}} werden angezeigt — suchen, um weitere zu finden.",
+        "required": "Wählen Sie den benötigten Arbeitsauftrag oder die Störung.",
+        "hint": "Nur abgenommene Arbeitsaufträge und geschlossene Störungen, die vor mehr als 30 Tagen abgeschlossen wurden, werden angezeigt."
       }
     },
     "ui": {
@@ -9561,6 +9792,157 @@
         "floorOperatorDashboard": {
           "dashboard": "Dashboard"
         }
+      }
+    },
+    "legal": {
+      "terms": {
+        "title": "Nutzungsbedingungen",
+        "effective": "Gültig ab {{date}} · Version {{version}}",
+        "close": "Schließen",
+        "agree": "Ich stimme zu",
+        "summary": "Kurz gesagt: FirmiCore wird von der Lumora Ventures PVT Ltd bereitgestellt (eingetragen in England und Wales, Nr. 16159220). Ihr Abonnement gilt für Ihr gesamtes Unternehmen (alle Benutzer und Rollen) und verlängert sich automatisch – Monatspläne werden jeden Monat, Jahrespläne einmal im Jahr abgerechnet –, bis Sie kündigen. Ist das Abonnement gekündigt, unbezahlt oder gibt es ein Zahlungsproblem, wird der Zugang für alle Benutzer gesperrt, Ihre Daten werden jedoch nie gelöscht: Sie bleiben sicher gespeichert, bis der Administrator Ihres Unternehmens uns um Löschung bittet.",
+        "agreePrefix": "Ich habe die folgenden Bedingungen gelesen und stimme ihnen zu:",
+        "linkLabel": "Nutzungs- und Abrechnungsbedingungen",
+        "registerStatement": "Ich bestätige, dass ich berechtigt bin, dieses Unternehmen zu registrieren.",
+        "cardStatement": "Ich ermächtige FirmiCore (über Stripe), diese Karte zu speichern und für das Abonnement meines Unternehmens in jedem Abrechnungszeitraum bis zur Kündigung automatisch zu belasten.",
+        "subscribeStatementMonthly": "Mir ist bewusst, dass sich dieser Plan automatisch verlängert und die Karte meines Unternehmens bis zur Kündigung jeden Monat belastet wird.",
+        "subscribeStatementYearly": "Mir ist bewusst, dass sich dieser Plan automatisch verlängert und die Karte meines Unternehmens bis zur Kündigung jedes Jahr belastet wird.",
+        "providedBy": "Bereitgestellt von",
+        "firmicoreSupport": "FirmiCore-Support"
+      },
+      "termsContent": {
+        "provider": {
+          "title": "1. Wer wir sind",
+          "p1": "FirmiCore wird bereitgestellt von {{name}} („Lumora Ventures“, „wir“), einer in England und Wales unter der Nummer {{companyNumber}} eingetragenen Gesellschaft mit beschränkter Haftung mit Sitz in {{ukOffice}}. Unser Büro in Sri Lanka befindet sich in {{lkOffice}}.",
+          "p2": "Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{website}}. FirmiCore-Support: {{firmicoreEmail}} · {{firmicorePhone}}.",
+          "p3": "Diese Angaben erfolgen gemäß Section 82 des Companies Act 2006, den Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) und Regulation 6 der Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013)."
+        },
+        "agreement": {
+          "title": "2. Vereinbarung",
+          "p1": "Diese Nutzungsbedingungen („Bedingungen“) sind ein verbindlicher Vertrag zwischen Lumora Ventures und dem Unternehmen oder der Organisation, das bzw. die ein FirmiCore-Konto registriert („das Unternehmen“, „Sie“). Die Person, die das Konto registriert oder diese Bedingungen im Namen des Unternehmens annimmt, bestätigt, dass sie berechtigt ist, das Unternehmen zu verpflichten.",
+          "p2": "Indem Sie „Ich stimme zu“ ankreuzen, sich registrieren, eine Zahlungskarte hinzufügen oder einen kostenpflichtigen Plan beginnen, akzeptieren Sie diese Bedingungen. Wenn Sie nicht einverstanden sind, nutzen Sie FirmiCore nicht.",
+          "p3": "FirmiCore wird Unternehmen zur geschäftlichen Nutzung bereitgestellt. Das Unternehmen bestätigt, dass es im Rahmen seiner geschäftlichen Tätigkeit und nicht als Verbraucher handelt; der Consumer Rights Act 2015 (c. 15) und die Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013 (SI 2013/3134) finden daher keine Anwendung. Diese Bedingungen schließen keine Rechte aus, die gesetzlich nicht ausgeschlossen werden können."
+        },
+        "accounts": {
+          "title": "3. Unternehmenskonto, Benutzer und Rollen",
+          "p1": "Ein FirmiCore-Konto gehört dem Unternehmen, nicht einer Einzelperson. Der Administrator des Unternehmens kann Benutzer einladen und ihnen Rollen zuweisen (zum Beispiel Administrator, Werksleiter, Vorgesetzter, Techniker, Lagerverwalter, HR-Verantwortlicher, Auszubildender, Maschinenbediener und Sicherheitsbeauftragter).",
+          "p2": "Das Unternehmen ist für jeden eingeladenen Benutzer, für die sichere Aufbewahrung der Zugangsdaten und für alle Aktivitäten unter seinem Konto verantwortlich. Planlimits (etwa die Anzahl der Benutzer, Maschinen, Lagerartikel, Wartungspläne und Arbeitsaufträge) gelten für das gesamte Unternehmen."
+        },
+        "plans": {
+          "title": "4. Pläne und Abrechnungszeiträume",
+          "p1": "Kostenpflichtige Pläne werden als getrennte Monats- und Jahresabonnements angeboten. Ein Monatsabonnement wird jeden Monat abgerechnet; ein Jahresabonnement wird einmal alle 12 Monate zu dem beim Abschluss angezeigten Jahrespreis abgerechnet. Die beiden Zeiträume sind getrennte Produkte: Preis, Verlängerungsdatum und Abrechnungszeitraum unterscheiden sich, und die Wahl des einen umfasst nicht den anderen.",
+          "p2": "Die Preise werden in US-Dollar angegeben und enthalten keine Steuern, Bank- oder Währungsumrechnungsgebühren; diese trägt das Unternehmen. Es gelten die Planlimits und Funktionen, die auf der Seite „Abrechnung & Plan“ für den abonnierten Plan und Zeitraum angezeigt werden."
+        },
+        "autoRenewal": {
+          "title": "5. Automatische Verlängerung und Belastungsermächtigung",
+          "p1": "Abonnements verlängern sich automatisch. Mit dem Abschluss ermächtigt das Unternehmen uns, über unseren Zahlungsdienstleister Stripe die hinterlegte Standardkarte zu Beginn jedes Abrechnungszeitraums mit dem Planpreis zu belasten – bei einem Monatsabonnement jeden Monat, bei einem Jahresabonnement jedes Jahr –, bis das Abonnement gekündigt wird.",
+          "p2": "Ein Abonnement gilt für das gesamte Unternehmen mit allen Benutzern und Rollen; einzelne Benutzer werden nicht gesondert abgerechnet. Die Belastungen erfolgen unabhängig davon, wie viele Benutzer sich anmelden oder wie stark der Dienst in einem Zeitraum genutzt wird.",
+          "p3": "Mit dem Hinzufügen einer Karte ermächtigen Sie Stripe, diese sicher zu speichern und für dieses Abonnement und künftige Verlängerungen gemäß diesen Bedingungen zu belasten. FirmiCore erhält oder speichert niemals Ihre vollständige Kartennummer."
+        },
+        "changes": {
+          "title": "6. Upgrades, Downgrades und Wechsel des Abrechnungszeitraums",
+          "p1": "Der Administrator des Unternehmens kann auf der Seite „Abrechnung & Plan“ den Plan ändern oder zwischen monatlicher und jährlicher Abrechnung wechseln. Änderungen werden wie zum Zeitpunkt der Änderung angezeigt wirksam; Stripe kann die Differenz anteilig berechnen, sofort belasten oder der nächsten Rechnung gutschreiben."
+        },
+        "failedPayments": {
+          "title": "7. Fehlgeschlagene oder verspätete Zahlungen",
+          "p1": "Schlägt eine Verlängerungsbelastung fehl, können wir (über Stripe) die Belastung wiederholen und das Unternehmen benachrichtigen. Kann die Zahlung weiterhin nicht eingezogen werden, kann das Abonnement gekündigt und der Zugang gemäß Abschnitt 9 gesperrt werden.",
+          "p2": "Nach Fälligkeit unbezahlte Beträge sind eine Schuld des Unternehmens. Wir können gesetzliche Zinsen und eine Entschädigung für verspätete Zahlungen nach dem Late Payment of Commercial Debts (Interest) Act 1998 (c. 20) verlangen und die Forderung gerichtlich geltend machen."
+        },
+        "cancellation": {
+          "title": "8. Kündigung",
+          "p1": "Der Administrator des Unternehmens kann das Abonnement jederzeit auf der Seite „Abrechnung & Plan“ (Abonnement verwalten) kündigen. Die Kündigung beendet künftige Verlängerungen und wird zum Ende des bereits bezahlten Abrechnungszeitraums wirksam.",
+          "p2": "Bereits gezahlte Gebühren werden nicht erstattet, auch nicht für ungenutzte Zeit eines Monats- oder Jahreszeitraums, es sei denn, eine Erstattung ist gesetzlich vorgeschrieben."
+        },
+        "suspension": {
+          "title": "9. Verlust des Zugangs bei Ende des Abonnements oder Zahlungsproblemen",
+          "p1": "Der Zugang zu FirmiCore wird für alle Benutzer und alle Rollen des Unternehmens automatisch gesperrt, wenn der bezahlte Zeitraum nach Kündigung des Abonnements endet, wenn eine Verlängerung unbezahlt bleibt oder wenn ein Zahlungsproblem die Fortsetzung des Abonnements verhindert. Nur der Administrator des Unternehmens kann weiterhin die Seite „Abrechnung & Plan“ öffnen, um ein neues Abonnement abzuschließen.",
+          "p2": "Die Sperrung entzieht nur den Zugang. Sie löscht niemals die Daten des Unternehmens: Alle Datensätze bleiben sicher und unverändert gespeichert und stehen allen Benutzern wieder zur Verfügung, sobald ein neues Abonnement aktiv ist."
+        },
+        "dataRetention": {
+          "title": "10. Ihre Daten bleiben erhalten, bis Sie deren Löschung verlangen",
+          "p1": "Die Daten des Unternehmens werden sicher aufbewahrt – ob das Abonnement aktiv, gekündigt, unbezahlt, gesperrt oder von einem Zahlungsproblem betroffen ist –, solange das Konto besteht und bis der Administrator des Unternehmens uns um Löschung bittet. Wir löschen die Daten des Unternehmens nicht, weil ein Abonnement geendet hat oder eine Zahlung fehlgeschlagen ist.",
+          "p2": "Nur der Administrator des Unternehmens (oder eine vom Unternehmen schriftlich bevollmächtigte Person) kann die endgültige Löschung aller Unternehmensdaten verlangen, indem er von der registrierten E-Mail-Adresse des Administrators an {{email}} schreibt. Wir können die Anfrage vor der Bearbeitung überprüfen. Wir löschen die Daten innerhalb von 30 Tagen nach einer bestätigten Anfrage aus dem Live-Dienst und innerhalb weiterer 90 Tage aus Sicherungskopien und bestätigen dies schriftlich. Die Löschung ist endgültig und kann nicht rückgängig gemacht werden.",
+          "p3": "Vor der Löschung – oder jederzeit – kann der Administrator des Unternehmens einen Export der Unternehmensdaten in einem gängigen, maschinenlesbaren Format anfordern.",
+          "p4": "Wir bewahren nur die begrenzten Aufzeichnungen auf, zu deren Aufbewahrung wir gesetzlich verpflichtet sind (zum Beispiel Rechnungen und Zahlungsbelege für Steuer- und Buchhaltungszwecke), und nichts anderes."
+        },
+        "privacy": {
+          "title": "11. Datenschutz und Privatsphäre",
+          "p1": "Das Unternehmen ist Eigentümer der Daten, die es in FirmiCore eingibt. Für personenbezogene Daten seiner Benutzer und Mitarbeiter ist das Unternehmen Verantwortlicher und Lumora Ventures sein Auftragsverarbeiter im Sinne der UK General Data Protection Regulation (UK GDPR) und des Data Protection Act 2018 (c. 12). Wir verarbeiten diese Daten nur auf Weisung des Unternehmens, um den Dienst bereitzustellen, abzusichern und zu unterstützen, und wir verkaufen sie nicht. Die Aufbewahrung von Daten während einer Sperrung (Abschnitt 10) erfolgt im Auftrag des Unternehmens, damit der Dienst wieder aufgenommen werden kann; das Unternehmen kann jederzeit die Löschung anweisen.",
+          "p2": "Wir behandeln die Daten vertraulich, schützen sie durch geeignete technische und organisatorische Sicherheitsmaßnahmen und setzen Unterauftragsverarbeiter nur ein, soweit dies für den Betrieb des Dienstes erforderlich ist: Google Firebase (Hosting, Datenbank und Speicher) und Stripe (Zahlungen; Kartendaten werden von Stripe gemäß PCI-DSS verarbeitet). Wir informieren das Unternehmen unverzüglich, wenn uns eine Verletzung des Schutzes personenbezogener Daten bekannt wird, die seine Daten betrifft, und unterstützen das Unternehmen bei der Beantwortung von Anfragen betroffener Personen (Artikel 15 bis 22 UK GDPR), einschließlich Löschung (Artikel 17) und Datenübertragbarkeit (Artikel 20).",
+          "p3": "Befinden sich das Unternehmen oder seine Benutzer in Sri Lanka, verarbeiten wir personenbezogene Daten zusätzlich gemäß dem Personal Data Protection Act, No. 9 of 2022. Betroffene Personen können sich beim britischen Information Commissioner's Office (ico.org.uk) beschweren."
+        },
+        "acceptableUse": {
+          "title": "12. Zulässige Nutzung und unsere Rechte",
+          "p1": "Das Unternehmen und seine Benutzer dürfen nicht: ohne Berechtigung auf Daten eines anderen Unternehmens oder Teile von FirmiCore zugreifen oder dies versuchen; den Dienst angreifen, überlasten, ausspähen oder stören; Schadsoftware einschleusen; FirmiCore kopieren, weiterverkaufen, zurückentwickeln oder daraus ein Konkurrenzprodukt erstellen (außer soweit nach Section 50B des Copyright, Designs and Patents Act 1988 zulässig); falsche Identitäten oder Zahlungsdaten verwenden oder unredliche Rückbuchungen veranlassen; oder FirmiCore für rechtswidrige Zwecke nutzen.",
+          "p2": "FirmiCore, seine Software, sein Design und seine Inhalte gehören Lumora Ventures und sind durch den Copyright, Designs and Patents Act 1988 (c. 48) und andere Gesetze zum geistigen Eigentum geschützt. Das Unternehmen erhält ein nicht ausschließliches, nicht übertragbares Recht zur Nutzung von FirmiCore während seines Abonnements; Eigentum geht nicht auf das Unternehmen über."
+        },
+        "breach": {
+          "title": "13. Folgen von Verstößen gegen diese Bedingungen oder einer Schädigung von uns",
+          "p1": "Verstößt das Unternehmen oder einer seiner Benutzer gegen diese Bedingungen oder handelt in einer Weise, die Lumora Ventures, FirmiCore oder anderen Kunden schadet, können wir das Konto sofort sperren oder kündigen, ohne bereits gezahlte Gebühren zu erstatten. Eine Sperrung oder Kündigung wegen eines Verstoßes löscht für sich genommen nicht die Daten des Unternehmens (Abschnitt 10), es sei denn, die Löschung ist erforderlich, um rechtswidrige Inhalte zu beseitigen, oder gesetzlich vorgeschrieben.",
+          "p2": "Das Unternehmen haftet für Verluste, Schäden, Kosten und angemessene Anwaltsgebühren, die uns durch einen Verstoß des Unternehmens oder seiner Benutzer gegen diese Bedingungen, durch Missbrauch des Dienstes oder durch Verletzung unserer Rechte entstehen, und stellt uns hiervon frei. Wir können Schadensersatz oder eine gerichtliche Unterlassungsverfügung geltend machen.",
+          "p3": "Manches Verhalten ist zudem strafbar; wir können es der Polizei (einschließlich Action Fraud) und den zuständigen Behörden melden und bei Ermittlungen mitwirken. Dazu gehören der unbefugte Zugriff auf Computersysteme oder Daten bzw. deren Beeinträchtigung nach dem Computer Misuse Act 1990 (c. 18) – Sections 1 (unbefugter Zugriff), 2 (Zugriff mit der Absicht, weitere Straftaten zu begehen) und 3 (unbefugte Handlungen, die einen Computer beeinträchtigen) – sowie Betrug, etwa durch falsche Zahlungsdaten oder die unredliche Erlangung des Dienstes, nach dem Fraud Act 2006 (c. 35), Sections 2 und 11. Findet das Verhalten in Sri Lanka statt, kann es auch eine Straftat nach dem Computer Crimes Act, No. 24 of 2007 sein."
+        },
+        "liability": {
+          "title": "14. Leistung und Haftung",
+          "p1": "FirmiCore ist ein Werkzeug für das Instandhaltungsmanagement; es ersetzt nicht die eigenen Sicherheitsverfahren des Unternehmens, gesetzliche Prüfungen oder fachliches Urteilsvermögen. Wir erbringen den Dienst mit angemessener Sorgfalt und Fachkenntnis, ansonsten wird er „wie besehen“ bereitgestellt, und wir sichern keinen unterbrechungs- oder fehlerfreien Betrieb zu.",
+          "p2": "Diese Bedingungen beschränken nicht die Haftung für Tod oder Körperverletzung infolge von Fahrlässigkeit, für Betrug oder arglistige Täuschung oder für sonstige Fälle, in denen eine Beschränkung gesetzlich unzulässig ist (einschließlich nach Section 2(1) des Unfair Contract Terms Act 1977 (c. 50)). Vorbehaltlich dessen ist unsere Gesamthaftung für alle Ansprüche aus oder im Zusammenhang mit diesen Bedingungen auf die Gebühren begrenzt, die das Unternehmen in den 12 Monaten vor dem Anspruch gezahlt hat, und wir haften nicht für entgangenen Gewinn, Umsatz, Geschäft oder Firmenwert oder für indirekte oder Folgeschäden. Das Unternehmen erkennt diese Begrenzungen im Sinne dieses Gesetzes als angemessen an."
+        },
+        "law": {
+          "title": "15. Allgemeines, anwendbares Recht und Kontakt",
+          "p1": "Wir können diese Bedingungen aktualisieren. Wesentliche Änderungen werden vor ihrem Inkrafttreten in der App oder per E-Mail angekündigt, und das Unternehmen kann gebeten werden, die neue Fassung zu akzeptieren. Die weitere Nutzung von FirmiCore nach Inkrafttreten der Änderungen gilt als Zustimmung des Unternehmens.",
+          "p2": "Rechte aus diesen Bedingungen haben nur das Unternehmen und Lumora Ventures; der Contracts (Rights of Third Parties) Act 1999 (c. 31) findet keine Anwendung. Sollte ein Teil dieser Bedingungen unwirksam sein, bleibt der Rest wirksam. Diese Bedingungen werden elektronisch geschlossen und können elektronisch gespeichert werden, gemäß den Electronic Commerce (EC Directive) Regulations 2002; in Sri Lanka sind sie zudem nach dem Electronic Transactions Act, No. 19 of 2006 gültig.",
+          "p3": "Diese Bedingungen und alle daraus entstehenden Streitigkeiten unterliegen dem Recht von England und Wales; ausschließlich zuständig sind die Gerichte von England und Wales. Zwingende Rechte des Unternehmens nach dem Recht seines eigenen Landes bleiben unberührt. Übersetzungen dienen nur der Orientierung; maßgeblich ist die englische Fassung.",
+          "p4": "Fragen zu FirmiCore, zur Abrechnung, zum Datenexport oder zur Löschung: FirmiCore-Support, {{firmicoreEmail}} · {{firmicorePhone}}. Lumora Ventures PVT Ltd: {{email}} · {{phone}} · {{ukOffice}} · Büro in Sri Lanka: {{lkOffice}}."
+        }
+      }
+    },
+    "subscriptionEnded": {
+      "title": "Abonnement beendet",
+      "body": "Das FirmiCore-Abonnement Ihres Unternehmens ist beendet oder hat ein Zahlungsproblem, daher ist der Zugang für alle Benutzer pausiert. Ihre Daten wurden nicht gelöscht und bleiben sicher gespeichert, bis der Administrator Ihres Unternehmens die Löschung verlangt – alles ist wieder verfügbar, sobald ein neues Abonnement beginnt.",
+      "adminHint": "Als Unternehmensadministrator können Sie unter „Abrechnung & Plan“ ein neues Abonnement abschließen.",
+      "memberHint": "Bitten Sie den Administrator Ihres Unternehmens, das Abonnement zu erneuern.",
+      "renew": "Zu Abrechnung & Plan",
+      "signOut": "Abmelden"
+    },
+    "supportRequests": {
+      "title": "Feedback & Anfragen",
+      "subtitle": "Senden Sie Feedback, Funktionsideen und Sonderanfragen an das FirmiCore-Team von Lumora Ventures und verfolgen Sie hier unsere Antworten.",
+      "new": "Neue Anfrage",
+      "sent": "Gesendet. Das FirmiCore-Team antwortet hier und per E-Mail.",
+      "send": "Senden",
+      "sending": "Wird gesendet…",
+      "empty": "Noch keine Anfragen. Teilen Sie Feedback oder bitten Sie um etwas Besonderes für Ihr Unternehmen.",
+      "back": "Alle Anfragen",
+      "reply": "Antworten",
+      "replyPlaceholder": "Antwort schreiben…",
+      "newReply": "Neue Antwort",
+      "lumoraTeam": "FirmiCore-Team (Lumora Ventures)",
+      "contact": "Sie erreichen uns auch unter",
+      "form": {
+        "type": "Art",
+        "subject": "Betreff",
+        "message": "Nachricht",
+        "placeholder": "Sagen Sie uns, was Sie brauchen oder was wir verbessern können…",
+        "rating": "Bewertung",
+        "ratingHint": "Tippen Sie auf einen Stern, um FirmiCore zu bewerten (optional)",
+        "stars": "{{count}} von 5 Sternen"
+      },
+      "types": {
+        "feedback": "Feedback",
+        "feature": "Funktionsidee",
+        "special": "Sonderanfrage",
+        "billing": "Abrechnungsfrage",
+        "support": "Support / Problem"
+      },
+      "statuses": {
+        "open": "Offen",
+        "in_progress": "In Bearbeitung",
+        "resolved": "Gelöst",
+        "closed": "Geschlossen"
+      },
+      "errors": {
+        "load": "Ihre Anfragen konnten nicht geladen werden.",
+        "send": "Senden fehlgeschlagen. Bitte erneut versuchen."
       }
     }
   },

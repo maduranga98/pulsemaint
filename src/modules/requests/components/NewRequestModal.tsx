@@ -11,7 +11,10 @@ import {
   type StaffRequestCategory,
   type StaffRequestRecipientRole,
 } from '@/types/staffRequest';
+import { canGrantRecords } from '@/types/recordAccessGrant';
 import { AttachmentPicker } from './Attachments';
+import RecordReferencePicker from './RecordReferencePicker';
+import { useRecordReferences, type RecordReference } from '../useRecordReferences';
 import { useEligibleRequestRecipients } from '../useRequestRecipients';
 import { categoryLabel, field, labelCls, roleLabel } from '../requestUi';
 
@@ -23,21 +26,28 @@ export default function NewRequestModal({ onClose }: Props) {
   const { t } = useTranslation();
   const toast = useToast();
   const profile = useAuthStore((s) => s.userProfile);
-  const { recipients, loading: recipientsLoading } = useEligibleRequestRecipients();
+  const { recipients: eligible, loading: recipientsLoading } = useEligibleRequestRecipients();
 
   const [category, setCategory] = useState<StaffRequestCategory>('work');
   const [recipientId, setRecipientId] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
-  const [reference, setReference] = useState('');
+  const [reference, setReference] = useState<RecordReference | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
+  const refs = useRecordReferences(category === 'record_access');
+  // Only plant managers and admins can share past WO / breakdown records.
+  const recipients = category === 'record_access' ? eligible.filter((u) => canGrantRecords(u.role)) : eligible;
 
   async function submit() {
     if (!profile?.companyId) return;
     const recipient = recipients.find((u) => u.id === recipientId);
     if (!recipient) {
       toast.error(t('common.staffRequests.newRequest.errors.recipient'));
+      return;
+    }
+    if (category === 'record_access' && !reference) {
+      toast.error(t('common.staffRequests.recordPicker.required'));
       return;
     }
     if (!subject.trim() || !message.trim()) {
@@ -60,7 +70,10 @@ export default function NewRequestModal({ onClose }: Props) {
         category,
         subject: subject.trim(),
         message: message.trim(),
-        reference: category === 'record_access' && reference.trim() ? reference.trim() : null,
+        reference: category === 'record_access' && reference ? reference.number : null,
+        referenceType: category === 'record_access' && reference ? reference.type : null,
+        referenceId: category === 'record_access' && reference ? reference.id : null,
+        referenceMachineName: category === 'record_access' && reference ? reference.machineName : null,
         files,
       });
       void notifyUsers(profile.companyId, [recipient.id], {
@@ -100,7 +113,16 @@ export default function NewRequestModal({ onClose }: Props) {
         <div className="space-y-4 px-5 py-4">
           <div>
             <label className={labelCls}>{t('common.staffRequests.newRequest.category')}</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value as StaffRequestCategory)} className={field}>
+            <select
+              value={category}
+              onChange={(e) => {
+                const next = e.target.value as StaffRequestCategory;
+                setCategory(next);
+                const current = eligible.find((u) => u.id === recipientId);
+                if (next === 'record_access' && current && !canGrantRecords(current.role)) setRecipientId('');
+              }}
+              className={field}
+            >
               {STAFF_REQUEST_CATEGORIES.map((c) => (
                 <option key={c} value={c}>{categoryLabel(c, t)}</option>
               ))}
@@ -117,6 +139,9 @@ export default function NewRequestModal({ onClose }: Props) {
                 <option key={u.id} value={u.id}>{u.fullName} ({roleLabel(u.role, t)})</option>
               ))}
             </select>
+            {category === 'record_access' && (
+              <p className="mt-1 text-xs text-[#8BA3BF]">{t('common.staffRequests.records.recipientHint')}</p>
+            )}
             {!recipientsLoading && recipients.length === 0 && (
               <p className="mt-1 text-xs text-[#FBBF24]">{t('common.staffRequests.newRequest.noRecipients')}</p>
             )}
@@ -125,11 +150,15 @@ export default function NewRequestModal({ onClose }: Props) {
           {category === 'record_access' && (
             <div>
               <label className={labelCls}>{t('common.staffRequests.newRequest.reference')}</label>
-              <input
+              <RecordReferencePicker
+                records={refs.records}
+                loading={refs.loading}
+                error={refs.error}
                 value={reference}
-                onChange={(e) => setReference(e.target.value)}
-                placeholder={t('common.staffRequests.newRequest.referencePlaceholder')}
-                className={field}
+                onChange={(r) => {
+                  setReference(r);
+                  if (r && !subject.trim()) setSubject(`${r.number}${r.machineName ? ` · ${r.machineName}` : ''}`);
+                }}
               />
             </div>
           )}

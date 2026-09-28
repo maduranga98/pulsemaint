@@ -9,6 +9,7 @@ import NotificationBell from './NotificationBell';
 import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
 import PlantTabs from './PlantTabs';
+import { useSupportUnreadCount } from '../../hooks/useSupportUnreadCount';
 
 interface NavItem {
   labelKey: string;
@@ -322,6 +323,16 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['admin'] as UserRole[],
       },
+      {
+        labelKey: 'common.nav.items.supportRequests',
+        to: '/app/support-requests',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/>
+          </svg>
+        ),
+        roles: ['admin'] as UserRole[],
+      },
     ],
   },
 ];
@@ -387,6 +398,7 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = userProfile?.role;
+  const supportUnread = useSupportUnreadCount();
 
   const visibleDashboard = role && DASHBOARD_ITEM.roles.includes(role) ? DASHBOARD_ITEM : null;
   const visibleHelp = role && HELP_ITEM.roles.includes(role) ? HELP_ITEM : null;
@@ -493,6 +505,9 @@ export default function AppLayout() {
                       >
                         {item.icon}
                         <span>{t(item.labelKey)}</span>
+                        {item.to === '/app/support-requests' && supportUnread > 0 && (
+                          <span className="ml-auto rounded-full bg-blue-600 px-1.5 text-[10px] font-bold leading-4 text-white">{supportUnread}</span>
+                        )}
                       </NavLink>
                     ))}
                   </div>

@@ -62,6 +62,13 @@ service cloud.firestore {
       return isRole('admin');
     }
 
+    // Lumora Ventures staff (Firebase Auth custom claim, granted by the
+    // platform* Cloud Functions). Most console data is served by callables;
+    // rules only grant what the console reads directly.
+    function isSuperadmin() {
+      return request.auth != null && request.auth.token.superadmin == true;
+    }
+
     // A trainingModules doc must declare which of the two module libraries
     // it belongs to. On an update request.resource.data is the merged
     // result, so a doc that already carries a scope stays writable without
@@ -384,9 +391,12 @@ service cloud.firestore {
       // floor_operator needs read access: scanning a machine QR opens the
       // breakdown report form, which loads machines to auto-select the one
       // scanned (PM-093).
+      // hr_officer: the HR dashboard's Contractor Scoreboard and HR Analytics
+      // scope contractor jobs/WOs to a plant via the machine registry; without
+      // machine reads that lookup came back empty and dropped every row.
       allow read: if isAuthenticated() && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
-        'plant_manager', 'store_keeper', 'trainee', 'admin'
+        'plant_manager', 'store_keeper', 'trainee', 'admin', 'hr_officer'
       ]);
       // Public, no-login QR breakdown report: a single machine lookup by id
       // (never a list query) under an anonymous session, so a scanned QR can
@@ -487,8 +497,43 @@ service cloud.firestore {
       allow update: if isAuthenticated()
         && (resource.data.requesterId == request.auth.uid || canHandleRequest(resource.data))
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['replies', 'status', 'updatedAt', 'closedAt']);
+             .hasOnly(['replies', 'status', 'updatedAt', 'closedAt', 'decision'])
+        // Only the handler records a record_access decision (granted / rejected).
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['decision'])
+            || canHandleRequest(resource.data));
       allow delete: if isAdmin();
+    }
+
+    // Time-limited shares of a work order / breakdown with the person who
+    // raised a record_access staff request. The record is copied into the
+    // grant (`snapshot`), so the grantee needs no access to workOrders /
+    // breakdown_tickets. Only plant managers and admins share; the grantee
+    // must be that request's requester. The grantee can't read a single grant
+    // past its expiry; expired grants are deleted by the
+    // purgeExpiredRecordGrants scheduled function and hidden client-side
+    // until then. Revoking = deleting.
+    match /record_access_grants/{grantId} {
+      function canShareRecords() {
+        return isAdmin() || isPlantManager();
+      }
+
+      allow get: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (canShareRecords()
+            || (resource.data.granteeId == request.auth.uid && resource.data.expiresAt > request.time));
+      allow list: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (canShareRecords() || resource.data.granteeId == request.auth.uid);
+      allow create: if isAuthenticated()
+        && belongsToCompany(request.resource.data.companyId)
+        && canShareRecords()
+        && request.resource.data.grantedBy == request.auth.uid
+        && request.resource.data.recordType in ['work_order', 'breakdown']
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt > request.time
+        && get(/databases/$(database)/documents/staff_requests/$(request.resource.data.requestId)).data.companyId == request.resource.data.companyId
+        && get(/databases/$(database)/documents/staff_requests/$(request.resource.data.requestId)).data.category == 'record_access'
+        && get(/databases/$(database)/documents/staff_requests/$(request.resource.data.requestId)).data.requesterId == request.resource.data.granteeId;
+      allow update: if false;
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canShareRecords();
     }
 
     // Company-added work permit categories, layered on top of the 7 seeded
@@ -762,7 +807,9 @@ service cloud.firestore {
       // the company doc (profile, settings, etc.) but not these.
       function keepsBillingFieldsUnchanged() {
         let billingFields = ['plan', 'billingCycle', 'status', 'stripeCustomerId',
-          'stripeSubscriptionId', 'subscriptionStatus', 'currentPeriodEnd', 'trialEndsAt'];
+          'stripeSubscriptionId', 'subscriptionStatus', 'currentPeriodEnd', 'trialEndsAt',
+          'cancelAtPeriodEnd', 'billingTermsVersion', 'billingTermsAcceptedAt', 'billingTermsAcceptedBy',
+          'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy'];
         return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
       }
 
@@ -1776,6 +1823,62 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(plantId);
       allow write: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    // ---------------------------------------------------------------------------
+    // Feedback & special requests from company admins to Lumora Ventures.
+    // A company admin creates and follows its own company's requests; Lumora
+    // superadmins see all of them, change their status and reply.
+    // ---------------------------------------------------------------------------
+    match /supportRequests/{requestId} {
+      allow read: if isSuperadmin()
+        || (isAdmin() && belongsToCompany(resource.data.companyId));
+      allow create: if isAdmin()
+        && belongsToCompany(request.resource.data.companyId)
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.status == 'open'
+        && request.resource.data.type in ['feedback', 'feature', 'special', 'billing', 'support']
+        && request.resource.data.subject is string && request.resource.data.subject.size() <= 200
+        && request.resource.data.message is string && request.resource.data.message.size() <= 5000
+        && (!('rating' in request.resource.data) || request.resource.data.rating == null
+          || (request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5));
+      // Company admins may only bump lastMessageAt/updatedAt when replying;
+      // status and everything else is Lumora's to change.
+      allow update: if isSuperadmin()
+        || (isAdmin() && belongsToCompany(resource.data.companyId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt', 'lastMessageAt', 'lastMessageBy', 'companyUnread', 'lumoraUnread']));
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSuperadmin()
+          || (isAdmin() && belongsToCompany(get(/databases/$(database)/documents/supportRequests/$(requestId)).data.companyId));
+        allow create: if request.resource.data.body is string && request.resource.data.body.size() <= 5000
+          && request.resource.data.authorUid == request.auth.uid
+          && (
+            (isSuperadmin() && request.resource.data.authorType == 'lumora')
+            || (isAdmin() && request.resource.data.authorType == 'company'
+              && belongsToCompany(get(/databases/$(database)/documents/supportRequests/$(requestId)).data.companyId))
+          );
+        allow update, delete: if false;
+      }
+    }
+
+    // Written only by the platform Cloud Functions (Admin SDK).
+    match /platformAdmins/{uid} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
+    match /platformAuditLog/{entryId} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
+    // Payment-received (and other) alerts for superadmins, written by the
+    // Stripe webhook; superadmins only mark them read.
+    match /platformNotifications/{id} {
+      allow read: if isSuperadmin();
+      allow update: if isSuperadmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create, delete: if false;
     }
   }
 }

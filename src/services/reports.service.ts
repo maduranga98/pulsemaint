@@ -26,6 +26,8 @@ import { fetchTeamPerformanceByUser } from './teamPerformance.service';
 import { computeWoTotalCost, flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
 import { getCategoryLabel } from '../modules/audit/types/audit.types';
 import type { TFunction } from 'i18next';
+import i18n, { type AppLanguage } from '../lib/i18n';
+import { translateForDisplay } from '../lib/voiceTranslate';
 import { formatShortDate, formatShortDateTime } from '../lib/i18nDate';
 import { REPORT_DEFINITIONS, getReportName } from '../utils/reports/reportDefinitions';
 import { logAuditEvent } from '../utils/reports/auditLogger';
@@ -242,6 +244,10 @@ async function scopedGetDocs<A, D extends DocumentData>(q: Query<A, D>): Promise
     forEach: (cb: (d: QueryDocumentSnapshot<A, D>) => void) => docs.forEach(cb),
   } as unknown as QuerySnapshot<A, D>;
 }
+
+// Breakdown Summary columns holding free text entered by people (not enums),
+// translated into the viewer's language by fetchReportRows.
+export const BREAKDOWN_SUMMARY_FREE_TEXT_KEYS = ['description', 'attemptedFixes', 'technicianFindings'] as const;
 
 export async function fetchReportRows(
   reportType: ReportType,
@@ -1126,6 +1132,20 @@ export async function fetchReportRows(
       // Sign-off note — only meaningful when present.
       row.woSignOffNotes = wo?.supervisorSignOffNotes ? String(wo.supervisorSignOffNotes) : '';
     });
+
+    // Free-text the reporter/technician typed or voice-dictated is stored in
+    // whatever language they had selected — show it in the viewer's current
+    // app language, same as TranslatedText does on the breakdown pages.
+    const targetLanguage = i18n.language as AppLanguage;
+    await Promise.all(
+      rows.flatMap(({ row }) =>
+        BREAKDOWN_SUMMARY_FREE_TEXT_KEYS.map(async (key) => {
+          const value = row[key];
+          if (typeof value !== 'string' || !value.trim()) return;
+          row[key] = await translateForDisplay(value, targetLanguage);
+        }),
+      ),
+    );
   }
 
   const dateFiltered = rows

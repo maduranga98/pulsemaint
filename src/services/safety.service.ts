@@ -3,6 +3,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  getDoc,
   getDocs,
   limit,
   onSnapshot,
@@ -238,10 +239,23 @@ export async function updateWorkPermitStatus(id: string, status: WorkPermitStatu
   });
 }
 
-/** Push a permit's validity out to a new end date (extension). */
-export async function extendWorkPermit(id: string, newValidTo: string): Promise<void> {
-  await updateDoc(doc(db, PERMITS, id), {
+/** Push a permit's validity out to a new end date (extension), keeping a log of each one. */
+export async function extendWorkPermit(
+  permit: Pick<WorkPermit, 'id' | 'validTo' | 'originalValidTo'>,
+  newValidTo: string,
+  by: { id: string; name: string } | null,
+): Promise<void> {
+  await updateDoc(doc(db, PERMITS, permit.id), {
     validTo: newValidTo,
+    originalValidTo: permit.originalValidTo || permit.validTo || null,
+    extensions: arrayUnion({
+      from: permit.validTo || '',
+      to: newValidTo,
+      // serverTimestamp() is rejected inside arrayUnion().
+      at: Timestamp.now(),
+      by: by?.id ?? null,
+      byName: by?.name ?? null,
+    }),
     status: 'active',
     // A fresh window means the overdue reminder should be able to fire again.
     overdueNotifiedAt: null,
@@ -268,6 +282,27 @@ export async function signOffWorkPermit(id: string, input: SignOffWorkPermitInpu
     closedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+}
+
+/**
+ * Every permit raised against a work order — alongside the WO or later from
+ * the Work Permits tab — for reports. Also picks up the WO's own
+ * `workPermitId` in case that permit predates the `workOrderId` link.
+ */
+export async function listWorkPermitsForWorkOrder(
+  companyId: string,
+  workOrderId: string,
+  workPermitId?: string | null,
+): Promise<WorkPermit[]> {
+  const snap = await getDocs(
+    query(collection(db, PERMITS), where('companyId', '==', companyId), where('workOrderId', '==', workOrderId)),
+  );
+  const permits = snap.docs.map((d) => mapPermit(d.id, d.data()));
+  if (workPermitId && !permits.some((p) => p.id === workPermitId)) {
+    const one = await getDoc(doc(db, PERMITS, workPermitId));
+    if (one.exists()) permits.push(mapPermit(one.id, one.data()));
+  }
+  return permits.sort((a, b) => (a.createdAt?.toMillis?.() ?? 0) - (b.createdAt?.toMillis?.() ?? 0));
 }
 
 /** Stamp that the overdue reminder has been sent, so it isn't sent again. */

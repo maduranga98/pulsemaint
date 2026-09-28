@@ -22,6 +22,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { TERMS_VERSION } from './legal/terms';
 import { useAuthStore } from '../store/authStore';
 import type { CompanyProfile, UserProfile, UserRole } from '../types/auth';
 
@@ -98,6 +99,10 @@ export async function registerCompany(data: {
       createdAt: serverTimestamp() as Timestamp,
       adminUserId: uid,
       onboardingCompletedAt: null,
+      // The registering admin ticked the Terms of Service on the last step.
+      termsVersion: TERMS_VERSION,
+      termsAcceptedAt: serverTimestamp() as Timestamp,
+      termsAcceptedBy: uid,
     };
 
     await setDoc(companyRef, companyProfile);
@@ -149,7 +154,7 @@ export async function registerCompany(data: {
     // the auth store before navigating (avoids onAuthStateChanged race).
     return {
       userProfile: { ...userProfile, createdAt: Timestamp.now(), updatedAt: Timestamp.now() } as UserProfile,
-      company: { ...companyProfile, createdAt: Timestamp.now() } as CompanyProfile,
+      company: { ...companyProfile, createdAt: Timestamp.now(), termsAcceptedAt: Timestamp.now() } as CompanyProfile,
     };
   } catch (error) {
     console.error('Company registration failed:', error);

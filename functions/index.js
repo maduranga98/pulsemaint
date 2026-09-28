@@ -212,8 +212,12 @@ exports.sendInvitationEmail = sendInvitationEmail;
 // ---------------------------------------------------------------------------
 
 const { listRequestRecipients } = require("./src/requests/listRequestRecipients");
+const { purgeExpiredRecordGrants } = require("./src/requests/purgeExpiredRecordGrants");
+const { listRecordReferences } = require("./src/requests/listRecordReferences");
 
 exports.listRequestRecipients = listRequestRecipients;
+exports.purgeExpiredRecordGrants = purgeExpiredRecordGrants;
+exports.listRecordReferences = listRecordReferences;
 
 // ---------------------------------------------------------------------------
 // Billing Module — Stripe Cloud Functions
@@ -222,10 +226,20 @@ exports.listRequestRecipients = listRequestRecipients;
 const { createCheckoutSession } = require("./src/billing/createCheckoutSession");
 const { createPortalSession } = require("./src/billing/createPortalSession");
 const { stripeWebhook } = require("./src/billing/stripeWebhook");
+const {
+  createCardSetup,
+  finalizeCardSetup,
+  getBillingOverview,
+  updatePaymentMethod,
+} = require("./src/billing/billingAccount");
 
 exports.createCheckoutSession = createCheckoutSession;
 exports.createPortalSession = createPortalSession;
 exports.stripeWebhook = stripeWebhook;
+exports.createCardSetup = createCardSetup;
+exports.finalizeCardSetup = finalizeCardSetup;
+exports.getBillingOverview = getBillingOverview;
+exports.updatePaymentMethod = updatePaymentMethod;
 
 // ---------------------------------------------------------------------------
 // AI — Claude proxy (keeps ANTHROPIC_API_KEY server-side)
@@ -829,3 +843,29 @@ exports.generateContractorInvitation = onCall(async (request) => {
     );
   }
 });
+
+// Platform console (Lumora Ventures superadmins): companies, subscriptions,
+// payments, reminders, login support, and company feedback / requests.
+const {platformClaimSuperadmin} = require("./src/platform/platformAdmins");
+const {
+  platformOverview, platformListCompanies, platformGetCompany, platformUpdateCompany, platformManageUser, platformAuditLog,
+} = require("./src/platform/platformCompanies");
+const {
+  platformListPayments, platformListReminders, platformSendPaymentReminder, platformDailyBillingDigest,
+} = require("./src/platform/platformPayments");
+const {onSupportRequestCreated, onSupportMessageCreated, onSupportRequestStatusChanged} = require("./src/platform/supportRequests");
+
+exports.platformClaimSuperadmin = platformClaimSuperadmin;
+exports.platformOverview = platformOverview;
+exports.platformListCompanies = platformListCompanies;
+exports.platformGetCompany = platformGetCompany;
+exports.platformUpdateCompany = platformUpdateCompany;
+exports.platformManageUser = platformManageUser;
+exports.platformAuditLog = platformAuditLog;
+exports.platformListPayments = platformListPayments;
+exports.platformListReminders = platformListReminders;
+exports.platformSendPaymentReminder = platformSendPaymentReminder;
+exports.platformDailyBillingDigest = platformDailyBillingDigest;
+exports.onSupportRequestCreated = onSupportRequestCreated;
+exports.onSupportMessageCreated = onSupportMessageCreated;
+exports.onSupportRequestStatusChanged = onSupportRequestStatusChanged;

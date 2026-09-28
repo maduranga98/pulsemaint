@@ -128,6 +128,7 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
         requestedBy: profile.id,
         requestedByName: profile.fullName ?? '',
         requestedByRole: profile.role ?? '',
+        source: 'manual',
       });
 
       const actor = {

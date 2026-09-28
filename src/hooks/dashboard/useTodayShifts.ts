@@ -89,8 +89,8 @@ export function useTodayShifts(companyId: string) {
   // Only this plant's shift plans for plant-scoped roles / admin's plant tab.
   const { plantId } = useDepartmentScope();
   const configs = useMemo(
-    // Shift plans created before plants existed have no plantId — keep them
-    // (like usePlantUserIds does for users) instead of hiding every shift.
+    // Shift plans created before plants existed carry no plantId — keep them
+    // rather than hiding every shift from plant-scoped roles.
     () => (plantId ? allConfigs.filter((c) => !c.plantId || c.plantId === plantId) : allConfigs),
     [allConfigs, plantId],
   );

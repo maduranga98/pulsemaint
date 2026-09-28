@@ -6,6 +6,8 @@ import { getDashboardRoute } from '../../lib/auth';
 import { consumePostLoginRedirect, peekPostLoginRedirect } from '../../lib/scanTarget';
 import type { UserRole } from '../../types/auth';
 
+export const SUBSCRIPTION_ENDED_PATH = '/app/subscription-ended';
+
 interface ProtectedRouteProps {
   children: ReactNode;
   requiredRoles?: UserRole[];
@@ -21,6 +23,7 @@ export default function ProtectedRoute({
   const isAuthenticated = useAuthStore((state) => state.user !== null);
   const hasProfile = useAuthStore((state) => state.userProfile !== null);
   const userRole = useAuthStore((state) => state.userProfile?.role);
+  const companySuspended = useAuthStore((state) => state.company?.status === 'suspended');
   const location = useLocation();
 
   if (!isInitialized) {
@@ -43,6 +46,17 @@ export default function ProtectedRoute({
     // ScanRedirectPage — so that one still works after this change.
     const from = `${location.pathname}${location.search}`;
     return <Navigate to={redirectTo} replace state={{ from }} />;
+  }
+
+  // Subscription ended (paid period of a cancelled/unpaid subscription is
+  // over): every role of the company loses access to the app. Data is kept;
+  // the admin may still open Billing & Plan to subscribe again.
+  if (companySuspended) {
+    const path = location.pathname;
+    const allowed =
+      path === SUBSCRIPTION_ENDED_PATH
+      || (userRole === 'admin' && (path.startsWith('/app/billing') || path.startsWith('/app/support-requests')));
+    if (!allowed) return <Navigate to={SUBSCRIPTION_ENDED_PATH} replace />;
   }
 
   if (requiredRoles) {
@@ -105,6 +119,13 @@ export function PublicRoute({ children }: PublicRouteProps) {
     const from =
       (location.state as { from?: string } | null)?.from ?? peekPostLoginRedirect();
     return <RedirectAuthedUser to={from ?? getDashboardRoute(userRole)} />;
+  }
+
+  // Signed in on the way to the platform console: go there even if this
+  // account has no company profile (Lumora staff accounts may not).
+  const platformFrom = (location.state as { from?: string } | null)?.from;
+  if (isAuthenticated && platformFrom?.startsWith('/platform')) {
+    return <Navigate to={platformFrom} replace />;
   }
 
   return <>{children}</>;

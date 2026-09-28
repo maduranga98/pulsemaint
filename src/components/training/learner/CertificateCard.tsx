@@ -38,7 +38,7 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
   async function handleDownload() {
     try {
       const companyLogoDataUrl = await resolveCompanyLogoDataUrl(company);
-      const doc = buildTrainingCertificatePdf({
+      const doc = await buildTrainingCertificatePdf({
         certificateNumber: certificate.certificateNumber,
         traineeName: certificate.traineeName,
         traineeDesignation: certificate.traineeDesignation || null,

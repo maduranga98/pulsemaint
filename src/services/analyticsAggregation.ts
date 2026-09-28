@@ -951,3 +951,153 @@ export async function computeMachineHealth(companyId: string): Promise<MachineHe
     };
   });
 }
+
+// ---------------------------------------------------------------------------
+// Plant efficiency (Analytics → Plant efficiency tab)
+// ---------------------------------------------------------------------------
+
+export interface PlantEfficiencyFigures {
+  /** Work-order parts + labour, plus contractor invoices. */
+  maintenanceCost: number;
+  /** Unplanned WO repair time + downtime recorded on breakdown tickets. */
+  downtimeHours: number;
+  /** Downtime hours × each machine's configured Downtime Cost rate. */
+  downtimeCost: number;
+  breakdowns: number;
+  workOrders: number;
+}
+
+export interface PlantEfficiencyMonth extends PlantEfficiencyFigures {
+  month: string;
+}
+
+export interface PlantEfficiency {
+  /** null = records whose machine has no plant assigned. */
+  plantId: string | null;
+  totals: PlantEfficiencyFigures;
+  months: PlantEfficiencyMonth[];
+  machineCount: number;
+  /** Average machine health score (0–100) of the plant's machines, null when it has none. */
+  healthScore: number | null;
+}
+
+const emptyFigures = (): PlantEfficiencyFigures => ({
+  maintenanceCost: 0, downtimeHours: 0, downtimeCost: 0, breakdowns: 0, workOrders: 0,
+});
+
+/**
+ * Per-plant maintenance efficiency over the given months, using the same
+ * cost / downtime rules as the monthly analytics: maintenance cost (WO parts
+ * + labour + contractor invoices), downtime hours and cost, breakdown and
+ * work-order counts per month, and the average machine health score.
+ * Records are attributed to a plant by their denormalized
+ * machinePlantId/plantId or, failing that, their machine's plant.
+ */
+export async function computePlantEfficiency(companyId: string, months: string[]): Promise<PlantEfficiency[]> {
+  const [breakdowns, workOrders, contractorJobs, machines, health] = await Promise.all([
+    fetchAll('breakdown_tickets', companyId),
+    fetchAll('workOrders', companyId),
+    fetchAll('contractorJobs', companyId),
+    fetchMachines(companyId),
+    computeMachineHealth(companyId).catch(() => [] as MachineHealthDoc[]),
+  ]);
+
+  const machinePlant = new Map<string, string | null>();
+  const machineRate = new Map<string, number>();
+  machines.forEach((m) => {
+    machinePlant.set(String(m.id), m.plantId ?? null);
+    const rate = computeEffectiveCostPerHour(m.costPerHourDown ?? null, m.unitsPerHour ?? null, m.unitValue ?? null);
+    if (rate !== null) machineRate.set(String(m.id), rate);
+  });
+  const plantOf = (row: Row): string | null => {
+    const p = row.machinePlantId ?? row.plantId;
+    if (p) return String(p);
+    return row.machineId != null ? machinePlant.get(String(row.machineId)) ?? null : null;
+  };
+
+  const monthSet = new Set(months);
+  const byPlant = new Map<string, PlantEfficiency>();
+  const KEY_NONE = '__none__';
+  const ensure = (plantId: string | null): PlantEfficiency => {
+    const key = plantId ?? KEY_NONE;
+    let p = byPlant.get(key);
+    if (!p) {
+      p = {
+        plantId,
+        totals: emptyFigures(),
+        months: months.map((month) => ({ month, ...emptyFigures() })),
+        machineCount: 0,
+        healthScore: null,
+      };
+      byPlant.set(key, p);
+    }
+    return p;
+  };
+  const add = (row: Row, when: unknown, apply: (f: PlantEfficiencyFigures) => void) => {
+    const d = toDate(when);
+    if (!d) return;
+    const mk = monthKey(d);
+    if (!monthSet.has(mk)) return;
+    const p = ensure(plantOf(row));
+    apply(p.totals);
+    const m = p.months.find((x) => x.month === mk);
+    if (m) apply(m);
+  };
+  const downtimeCostFor = (row: Row, hours: number) => {
+    const rate = row.machineId != null ? machineRate.get(String(row.machineId)) : undefined;
+    return rate !== undefined ? hours * rate : 0;
+  };
+
+  breakdowns.forEach((b) => {
+    add(b, b.reportedAt ?? b.createdAt, (f) => {
+      const h = breakdownDowntimeHours(b);
+      f.breakdowns += 1;
+      f.downtimeHours += h;
+      f.downtimeCost += downtimeCostFor(b, h);
+    });
+  });
+  workOrders.forEach((w) => {
+    // Count work orders by when they were raised…
+    add(w, w.createdAt, (f) => { f.workOrders += 1; });
+    // …and cost / downtime by when the work was done, as monthly analytics does.
+    add(w, w.actualEndTime ?? w.createdAt, (f) => {
+      f.maintenanceCost += woCost(w);
+      if (UNPLANNED_WO_TYPES.has(String(w.woType ?? '').toUpperCase())) {
+        const h = woDurationHours(w);
+        f.downtimeHours += h;
+        f.downtimeCost += downtimeCostFor(w, h);
+      }
+    });
+  });
+  contractorJobs.forEach((c) => {
+    add(c, c.createdAt ?? c.workCompletedAt, (f) => {
+      f.maintenanceCost += Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
+    });
+  });
+
+  // Machine counts and health, including plants with no activity this period.
+  const healthByMachine = new Map(health.map((h) => [String(h.machineId), h.healthScore]));
+  const scores = new Map<string, number[]>();
+  machines.forEach((m) => {
+    const p = ensure(m.plantId ?? null);
+    p.machineCount += 1;
+    const s = healthByMachine.get(String(m.id));
+    if (typeof s === 'number') {
+      const key = m.plantId ?? KEY_NONE;
+      scores.set(key, [...(scores.get(key) ?? []), s]);
+    }
+  });
+  byPlant.forEach((p, key) => {
+    const list = scores.get(key);
+    if (list?.length) p.healthScore = Math.round(list.reduce((a, b) => a + b, 0) / list.length);
+    const round = (f: PlantEfficiencyFigures) => {
+      f.maintenanceCost = Math.round(f.maintenanceCost);
+      f.downtimeCost = Math.round(f.downtimeCost);
+      f.downtimeHours = Number(f.downtimeHours.toFixed(1));
+    };
+    round(p.totals);
+    p.months.forEach(round);
+  });
+
+  return [...byPlant.values()];
+}

@@ -52,7 +52,8 @@
         "maintenanceHistory": "维护历史",
         "myRequests": "我的申请",
         "requestsInbox": "申请收件箱",
-        "safetyBlacklist": "黑名单"
+        "safetyBlacklist": "黑名单",
+        "supportRequests": "反馈与请求"
       },
       "help": "帮助与支持"
     },
@@ -1521,7 +1522,9 @@
         "workingNow": "{{count}} 人正在工作",
         "yesterday": "昨天",
         "footer_one": "{{shifts}} 个班次进行中 · {{people}} 人在岗",
-        "footer_other": "{{shifts}} 个班次进行中 · {{people}} 人在岗"
+        "footer_other": "{{shifts}} 个班次进行中 · {{people}} 人在岗",
+        "noDepartment": "无部门",
+        "footerDepartments": "{{departments}} 个部门 · {{people}} 人在岗"
       },
       "lowStockAlertTable": {
         "category": "类别",
@@ -6831,7 +6834,8 @@
           "workorders": "工单",
           "machines": "设备",
           "safety": "安全",
-          "team": "团队绩效"
+          "team": "团队绩效",
+          "plants": "工厂效率"
         }
       },
       "inventoryPage": {
@@ -6898,6 +6902,31 @@
           "contractor": "承包商",
           "operator": "操作员",
           "machine": "设备"
+        }
+      },
+      "plantEfficiency": {
+        "title": "工厂效率",
+        "loadFailed": "无法加载工厂效率。",
+        "empty": "此期间暂无工厂数据。",
+        "compare": "比较工厂",
+        "unassigned": "未分配工厂",
+        "table": "所有工厂 — 数据",
+        "plant": "工厂",
+        "machines": "{{count}} 台设备",
+        "countsTitle": "故障与工单 · {{plant}}",
+        "metrics": {
+          "maintenanceCost": "维护成本",
+          "downtimeHours": "停机时间（小时）",
+          "downtimeCost": "停机成本",
+          "breakdowns": "故障",
+          "workOrders": "工单"
+        },
+        "health": {
+          "title": "工厂健康度",
+          "good": "良好",
+          "watch": "关注",
+          "poor": "较差",
+          "none": "无数据"
         }
       }
     },
@@ -8571,7 +8600,9 @@
         "label": "当前套餐",
         "status": "状态:",
         "billed": "计费方式",
-        "trialEnds": "试用期结束"
+        "trialEnds": "试用期结束",
+        "renewsOn": "将于 {{date}} 自动续订",
+        "endsOn": "已取消——所有用户的访问将于 {{date}} 结束"
       },
       "errors": {
         "checkoutFailed": "无法启动结账,请重试。",
@@ -8580,7 +8611,10 @@
       "cycle": {
         "monthly": "按月",
         "yearly": "按年",
-        "save20": "节省 20%"
+        "save20": "节省 20%",
+        "monthlyPlans": "月度方案",
+        "yearlyPlans": "年度方案",
+        "separateNote": "月度方案和年度方案是两种独立的订阅：月度方案每月扣费，年度方案每 12 个月扣费一次。"
       },
       "mostPopular": "最受欢迎",
       "customPrice": "定制报价",
@@ -8603,7 +8637,8 @@
         "redirecting": "正在跳转…",
         "downgradeTo": "降级为 {{name}}",
         "upgradeTo": "升级为 {{name}}",
-        "adminOnly": "仅限管理员"
+        "adminOnly": "仅限管理员",
+        "switchCycle": "切换为{{cycle}}计费"
       },
       "payment": {
         "title": "付款与发票",
@@ -8670,6 +8705,74 @@
         "ssoSaml": "SSO / SAML 单点登录",
         "customIntegrationsApi": "自定义集成与 API",
         "dedicatedSupportSla": "专属支持与 SLA"
+      },
+      "account": {
+        "loading": "正在加载账单信息…",
+        "refresh": "刷新",
+        "portal": "打开 Stripe 账单门户（更改或取消订阅）",
+        "notices": {
+          "cardAdded": "银行卡已保存，将用于您接下来的账单。"
+        },
+        "errors": {
+          "loadFailed": "无法加载账单信息，请重试。",
+          "cardWindowFailed": "无法打开添加银行卡窗口，请重试。",
+          "cardUpdateFailed": "无法更新银行卡，请重试。",
+          "notConfigured": "银行卡支付尚未配置：缺少 Stripe 可发布密钥，请联系支持。"
+        },
+        "cards": {
+          "title": "支付方式",
+          "subtitle": "银行卡在 Stripe 的安全窗口中添加——FirmiCore 永远看不到完整卡号。",
+          "add": "添加银行卡",
+          "empty": "尚未保存任何银行卡。",
+          "default": "默认",
+          "expires": "有效期至 {{date}}",
+          "makeDefault": "设为默认",
+          "remove": "删除银行卡",
+          "confirmRemove": "要从账户中删除这张银行卡吗？"
+        },
+        "history": {
+          "title": "账单记录",
+          "date": "日期",
+          "description": "说明",
+          "amount": "金额",
+          "status": "状态",
+          "invoice": "发票",
+          "view": "查看",
+          "empty": "暂无发票。",
+          "statuses": {
+            "paid": "已支付",
+            "open": "待支付",
+            "uncollectible": "失败",
+            "void": "已作废"
+          }
+        },
+        "window": {
+          "addCardTitle": "添加银行卡",
+          "setupSubtitle": "保存一张银行卡，用于 FirmiCore 账单和充值。",
+          "cardInformation": "银行卡信息",
+          "saveCard": "保存银行卡",
+          "processing": "处理中…",
+          "failed": "无法处理此银行卡，请重试。",
+          "notConfirmed": "银行卡未确认，请重试。",
+          "loadFailed": "无法加载安全银行卡表单。请检查网络或为此页面关闭广告拦截器后重试。",
+          "secure": "付款由 Stripe 安全处理。"
+        }
+      },
+      "cycleNote": {
+        "monthly": "按月计费 · 自动续订直至取消",
+        "yearly": "每年一次性收取 ${{price}}（≈ ${{perMonth}}/月）· 每 12 个月续订"
+      },
+      "confirm": {
+        "title": "确认您的订阅",
+        "chargeMonthly": "现在将从贵公司的卡中扣除 ${{price}}，此后每月扣款，直至您取消。",
+        "chargeYearly": "现在将从贵公司的卡中扣除 ${{price}}，此后每 12 个月扣款，直至您取消。",
+        "companyWide": "此订阅覆盖您的整个公司——所有用户和角色。如果取消，所有人的访问将在已付费期结束时终止；您的数据会被保留。",
+        "continue": "继续付款"
+      },
+      "statusValues": {
+        "active": "有效",
+        "trial": "试用",
+        "suspended": "已暂停"
       }
     },
     "actions": {
@@ -8847,6 +8950,134 @@
         "answered": "已回复",
         "closed": "已关闭",
         "open": "待处理"
+      },
+      "records": {
+        "workOrder": "工单",
+        "breakdown": "故障",
+        "workOrders": "工单",
+        "breakdowns": "故障",
+        "availableUntil": "可查看至 {{date}}（剩余 {{left}}）",
+        "sharedBy": "由 {{name}} 共享",
+        "expiredOn": "已于 {{date}} 过期",
+        "expired": "已过期",
+        "view": "查看",
+        "revoke": "撤销",
+        "remove": "移除",
+        "revokeConfirm": "停止共享 {{number}}？申请人将无法再查看。",
+        "revoked": "已撤销共享。",
+        "pdfFailed": "无法生成 PDF。",
+        "downloadPdf": "下载 PDF",
+        "sharedCount_one": "已共享 {{count}} 条记录",
+        "sharedCount_other": "已共享 {{count}} 条记录",
+        "decision": {
+          "granted": "已授权访问",
+          "rejected": "已拒绝"
+        },
+        "sharedHeading": "与您共享的记录",
+        "sharedHeadingGrantor": "与申请人共享的记录",
+        "decisionHeading": "共享所申请的记录或拒绝该申请",
+        "shareButton": "选择记录并共享",
+        "reject": {
+          "button": "拒绝",
+          "placeholder": "原因（可选）",
+          "confirm": "拒绝申请",
+          "done": "申请已拒绝。",
+          "defaultMessage": "您对这些记录的申请已被拒绝。",
+          "notification": "{{name}} 拒绝了您的申请“{{subject}}”"
+        },
+        "sharedWithMe": "与您共享的记录",
+        "sharedWithMeHint": "通过您的申请共享的工单和故障的只读副本。访问期结束后将自动消失。",
+        "recipientHint": "只有您的工厂经理或管理员可以共享以往的工单/故障详情。",
+        "grant": {
+          "title": "共享记录",
+          "subtitle": "共享给 {{name}} — 对方可在您设定的时间之前以只读方式查看所选记录。",
+          "search": "按工单/故障单号、设备或描述搜索…",
+          "noMatches": "没有匹配的记录。",
+          "refine": "仅显示前 {{count}} 条 — 请细化搜索以查找其他记录。",
+          "until": "可查看至",
+          "untilHint": "到此日期和时间，记录将自动从申请人的视图中移除。",
+          "note": "给申请人的备注（可选）",
+          "selected_one": "已选 {{count}} 项",
+          "selected_other": "已选 {{count}} 项",
+          "submit": "共享",
+          "reply": "已与您共享 {{list}} — 可查看至 {{date}}。",
+          "notification": "{{name}} 与您共享了 {{list}} — 可查看至 {{date}}",
+          "done_one": "已共享 {{count}} 条记录。",
+          "done_other": "已共享 {{count}} 条记录。",
+          "failed": "无法共享记录，请重试。",
+          "errors": {
+            "none": "请至少选择一个工单或故障。",
+            "expiry": "请选择将来的日期和时间。"
+          },
+          "presets": {
+            "h24": "24 小时",
+            "d3": "3 天",
+            "d7": "7 天",
+            "d30": "30 天"
+          }
+        },
+        "fields": {
+          "overview": "概览",
+          "type": "类型",
+          "priority": "优先级",
+          "status": "状态",
+          "machine": "设备",
+          "department": "部门",
+          "description": "描述",
+          "linkedBreakdown": "关联故障",
+          "createdAt": "创建时间",
+          "dueDate": "截止时间",
+          "people": "人员",
+          "supervisor": "负责主管",
+          "technicians": "技术员",
+          "contractor": "承包商",
+          "work": "工作",
+          "start": "开始",
+          "end": "结束",
+          "duration": "时长",
+          "workDone": "完成的工作",
+          "rootCause": "根本原因",
+          "testRun": "试运行",
+          "machineAfter": "维修后设备状态",
+          "checklist": "检查清单",
+          "partsUsed": "使用的备件",
+          "photos": "照片",
+          "documents": "文件",
+          "signOff": "签核",
+          "signedOffBy": "签核人",
+          "signedOffAt": "签核时间",
+          "outcome": "结果",
+          "notes": "备注",
+          "severity": "严重程度",
+          "productionImpact": "对生产的影响",
+          "reportedAt": "报告时间",
+          "reportedBy": "报告人",
+          "response": "响应",
+          "attendedBy": "处理人",
+          "findings": "技术员发现",
+          "repairStarted": "开始维修",
+          "resolvedAt": "已解决",
+          "closedAt": "已关闭",
+          "hoursLost": "损失的生产小时数",
+          "resolution": "处理结果",
+          "correctiveActions": "纠正措施",
+          "preventive": "预防建议"
+        }
+      },
+      "recordPicker": {
+        "change": "更改",
+        "types": {
+          "all": "全部",
+          "work_order": "工单",
+          "breakdown": "故障"
+        },
+        "search": "按编号或设备搜索…",
+        "error": "无法加载您的工单和故障。请关闭后重试。",
+        "none": "您所在工厂/部门没有超过 30 天的已签核工单或已关闭故障。",
+        "noMatches": "没有匹配的记录。",
+        "refine": "仅显示前 {{count}} 条 — 请搜索以查找其他记录。",
+        "required": "请选择您需要的工单或故障。",
+        "hint": "仅列出 30 天前已签核的工单和已关闭的故障。"
       }
     },
     "ui": {
@@ -9561,6 +9792,157 @@
         "floorOperatorDashboard": {
           "dashboard": "仪表板"
         }
+      }
+    },
+    "legal": {
+      "terms": {
+        "title": "服务条款",
+        "effective": "生效日期 {{date}} · 版本 {{version}}",
+        "close": "关闭",
+        "agree": "我同意",
+        "summary": "简而言之：FirmiCore 由 Lumora Ventures PVT Ltd（在英格兰和威尔士注册，编号 16159220）提供。您的订阅覆盖整个公司（所有用户和角色），并会自动续订——月度方案每月扣费，年度方案每年扣费一次——直至您取消。如果订阅被取消、未付款或出现付款问题，公司所有用户的访问将被暂停，但您的数据绝不会被删除：数据会被安全保存，直到公司管理员要求我们删除为止。",
+        "agreePrefix": "我已阅读并同意",
+        "linkLabel": "服务条款和计费条款",
+        "registerStatement": "我确认我有权注册此公司。",
+        "cardStatement": "我授权 FirmiCore（通过 Stripe）保存此卡，并在每个计费周期为本公司的订阅自动扣款，直至取消。",
+        "subscribeStatementMonthly": "我了解此方案会自动续订，在我取消之前，公司的卡将每月被扣款。",
+        "subscribeStatementYearly": "我了解此方案会自动续订，在我取消之前，公司的卡将每年被扣款。",
+        "providedBy": "提供方",
+        "firmicoreSupport": "FirmiCore 支持"
+      },
+      "termsContent": {
+        "provider": {
+          "title": "1. 我们是谁",
+          "p1": "FirmiCore 由 {{name}}（“Lumora Ventures”、“我们”）提供。该公司是在英格兰和威尔士注册的私人有限公司，公司编号 {{companyNumber}}，注册办事处位于 {{ukOffice}}。我们的斯里兰卡办事处位于 {{lkOffice}}。",
+          "p2": "Lumora Ventures PVT Ltd：{{email}} · {{phone}} · {{website}}。FirmiCore 支持：{{firmicoreEmail}} · {{firmicorePhone}}。",
+          "p3": "以上信息依据 Companies Act 2006 第 82 条、Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015 (SI 2015/17) 以及 Electronic Commerce (EC Directive) Regulations 2002 (SI 2002/2013) 第 6 条提供。"
+        },
+        "agreement": {
+          "title": "2. 协议",
+          "p1": "本服务条款（“条款”）是 Lumora Ventures 与注册 FirmiCore 账户的公司或组织（“公司”、“您”）之间具有约束力的合同。代表公司注册账户或接受本条款的人士确认其有权代表公司作出承诺。",
+          "p2": "勾选“我同意”、注册、添加付款卡或开始付费方案，即表示您接受本条款。如您不同意，请勿使用 FirmiCore。",
+          "p3": "FirmiCore 面向企业提供，用于商业用途。公司确认其以商业身份而非消费者身份行事，因此 Consumer Rights Act 2015 (c. 15) 及 Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013 (SI 2013/3134) 不适用。本条款不排除任何依法不得排除的权利。"
+        },
+        "accounts": {
+          "title": "3. 公司账户、用户和角色",
+          "p1": "FirmiCore 账户属于公司，而非个人。公司管理员可以邀请用户并为其分配角色（例如管理员、工厂经理、主管、技术员、仓库管理员、人力资源专员、学员、一线操作员和安全员）。",
+          "p2": "公司对其邀请的每位用户、登录信息的安全以及以其账户进行的所有活动负责。方案限额（如用户、设备、库存物品、预防性维护计划和工单的数量）适用于整个公司。"
+        },
+        "plans": {
+          "title": "4. 方案和计费周期",
+          "p1": "付费方案分为相互独立的月度订阅和年度订阅。月度订阅每月计费；年度订阅按订阅时显示的年度价格每 12 个月计费一次。两种周期是不同的产品：价格、续订日期和计费期均不同，选择其一并不包含另一个。",
+          "p2": "价格以美元显示，不含任何税费、银行费用或货币兑换费用，这些费用由公司承担。适用的方案限额和功能以“计费与方案”页面上所订阅方案和周期的显示为准。"
+        },
+        "autoRenewal": {
+          "title": "5. 自动续订和扣款授权",
+          "p1": "订阅会自动续订。订阅即表示公司授权我们通过付款处理商 Stripe，在每个计费期开始时从默认付款卡中扣除方案价格——月度订阅每月扣款，年度订阅每年扣款——直至订阅被取消。",
+          "p2": "一个订阅覆盖整个公司及其所有用户和角色；不会对单个用户单独计费。无论某一期间有多少用户登录或服务使用量多少，扣款都会继续。",
+          "p3": "添加卡片即表示您授权 Stripe 安全保存该卡，并根据本条款为本订阅及今后的续订扣款。FirmiCore 从不接收或存储您的完整卡号。"
+        },
+        "changes": {
+          "title": "6. 升级、降级和切换计费周期",
+          "p1": "公司管理员可以在“计费与方案”页面更改方案，或在月度与年度计费之间切换。更改按更改时显示的方式生效；Stripe 可能按比例计算差额、立即收取差额，或在下一张发票中抵扣。"
+        },
+        "failedPayments": {
+          "title": "7. 付款失败或逾期",
+          "p1": "如续订扣款失败，我们（通过 Stripe）可能会重试扣款并通知公司。如仍无法收款，订阅可能会被取消，访问权限将按第 9 条所述被暂停。",
+          "p2": "到期后仍未支付的款项构成公司的债务。我们可以依据 Late Payment of Commercial Debts (Interest) Act 1998 (c. 20) 对逾期付款收取法定利息和补偿，并可通过法院追讨债务。"
+        },
+        "cancellation": {
+          "title": "8. 取消",
+          "p1": "公司管理员可随时在“计费与方案”页面（管理订阅）取消订阅。取消将停止今后的续订，并在已付费计费期结束时生效。",
+          "p2": "已支付的费用不予退还，包括月度或年度期间未使用的时间，法律要求退款的情况除外。"
+        },
+        "suspension": {
+          "title": "9. 订阅结束或付款失败时的访问限制",
+          "p1": "当订阅取消后已付费期间结束、续订款项仍未支付，或付款问题导致订阅无法继续时，公司所有用户和所有角色对 FirmiCore 的访问将被自动暂停。只有公司管理员仍可打开“计费与方案”页面以开始新的订阅。",
+          "p2": "暂停只会取消访问权限，绝不会删除公司的数据：所有记录都将被安全、完整地保存，一旦新订阅生效，所有用户即可再次访问。"
+        },
+        "dataRetention": {
+          "title": "10. 您的数据会一直保留，直至您要求删除",
+          "p1": "无论订阅处于有效、已取消、未付款、已暂停或受任何付款问题影响的状态，只要账户存在，公司的数据都会被安全保留，直至公司管理员要求我们删除。我们不会因订阅结束或付款失败而删除公司的数据。",
+          "p2": "只有公司管理员（或经公司书面授权的其他人士）可以通过管理员注册的电子邮箱写信至 {{email}}，要求永久删除公司的全部数据。我们可能会在处理前核实该请求。我们会在核实请求后 30 天内从在线服务中删除数据，并在其后 90 天内从备份中删除，然后以书面形式确认。删除是永久性的，无法撤销。",
+          "p3": "在删除之前——或在任何时候——公司管理员都可以要求我们以常用的机器可读格式导出公司的数据。",
+          "p4": "我们仅会保留法律要求我们保留的有限记录（例如出于税务和会计目的保存的发票和付款记录），除此之外不保留任何数据。"
+        },
+        "privacy": {
+          "title": "11. 数据保护和隐私",
+          "p1": "公司拥有其录入 FirmiCore 的数据。就其用户和员工的个人数据而言，根据 UK General Data Protection Regulation (UK GDPR) 和 Data Protection Act 2018 (c. 12)，公司是数据控制者，Lumora Ventures 是其数据处理者。我们仅按照公司的指示处理这些数据，以提供、保护和支持服务，且绝不出售数据。暂停期间保留数据（第 10 条）是代表公司进行的，以便恢复服务；公司可随时指示我们删除数据。",
+          "p2": "我们对数据保密，采取适当的技术和组织安全措施加以保护，并仅在运行服务所需时使用下级处理者：Google Firebase（托管、数据库和存储）和 Stripe（付款；卡数据由 Stripe 按照 PCI-DSS 处理）。如我们获悉影响公司数据的个人数据泄露，将及时通知公司，并协助公司回应个人的请求（UK GDPR 第 15 至 22 条），包括删除权（第 17 条）和数据可携带权（第 20 条）。",
+          "p3": "如公司或其用户位于斯里兰卡，我们还将依照 Personal Data Protection Act, No. 9 of 2022 处理个人数据。个人可以向英国信息专员办公室（Information Commissioner's Office，ico.org.uk）投诉。"
+        },
+        "acceptableUse": {
+          "title": "12. 可接受的使用和我们的权利",
+          "p1": "公司及其用户不得：未经授权访问或试图访问其他公司的数据或 FirmiCore 的任何部分；攻击、使服务过载、探测或干扰服务；植入恶意软件；复制、转售、反向工程 FirmiCore 或据此开发竞争产品（Copyright, Designs and Patents Act 1988 第 50B 条允许的情况除外）；使用虚假身份或付款信息，或进行不诚实的拒付；或将 FirmiCore 用于任何非法用途。",
+          "p2": "FirmiCore 及其软件、设计和内容归 Lumora Ventures 所有，受 Copyright, Designs and Patents Act 1988 (c. 48) 及其他知识产权法律保护。公司在订阅期间获得使用 FirmiCore 的非独占、不可转让的权利；所有权不会转移给公司。"
+        },
+        "breach": {
+          "title": "13. 违反本条款或损害我们时的后果",
+          "p1": "如公司或其任何用户违反本条款，或以损害 Lumora Ventures、FirmiCore 或其他客户的方式行事，我们可以立即暂停或终止该账户，且不退还已支付的费用。因违约而暂停或终止本身不会删除公司的数据（第 10 条），除非为制止违法内容而需要删除或法律要求删除。",
+          "p2": "对于因公司或其用户违反本条款、滥用服务或侵犯我们的权利而使我们遭受的损失、损害、费用和合理律师费，由公司负责并向我们赔偿。我们可以向法院提起损害赔偿诉讼或申请禁令。",
+          "p3": "某些行为还构成刑事犯罪，我们可以向警方（包括 Action Fraud）及相关监管机构举报，并配合任何调查。这包括根据 Computer Misuse Act 1990 (c. 18) 未经授权访问或干扰计算机系统或数据——第 1 条（未经授权访问）、第 2 条（意图实施进一步犯罪的访问）和第 3 条（损害计算机的未经授权行为）——以及根据 Fraud Act 2006 (c. 35) 第 2 条和第 11 条的欺诈行为，例如使用虚假付款信息或以不诚实手段获取服务。如相关行为发生在斯里兰卡，还可能构成 Computer Crimes Act, No. 24 of 2007 规定的犯罪。"
+        },
+        "liability": {
+          "title": "14. 服务和责任",
+          "p1": "FirmiCore 是一款维护管理工具，不能替代公司自身的安全程序、法定检查或专业判断。我们以合理的技能和谨慎提供服务，除此之外服务按“现状”提供，我们不保证服务不间断或没有错误。",
+          "p2": "本条款不限制因疏忽导致的死亡或人身伤害、欺诈或欺诈性虚假陈述的责任，也不限制任何依法不能限制的责任（包括 Unfair Contract Terms Act 1977 (c. 50) 第 2(1) 条规定的责任）。在此前提下，我们就本条款项下或与之相关的所有索赔承担的总责任，以公司在索赔前 12 个月内支付的费用为限；对于利润、收入、业务或商誉的损失，或任何间接或后果性损失，我们概不负责。公司同意，就该法而言，这些限制是合理的。"
+        },
+        "law": {
+          "title": "15. 一般条款、适用法律和联系方式",
+          "p1": "我们可能会更新本条款。重大变更将在生效前通过应用内或电子邮件通知，并可能要求公司接受新版本。变更生效后继续使用 FirmiCore 即表示公司接受这些变更。",
+          "p2": "只有公司和 Lumora Ventures 享有本条款项下的权利；Contracts (Rights of Third Parties) Act 1999 (c. 31) 不适用。如本条款的任何部分被认定为不可执行，其余部分仍然有效。本条款依据 Electronic Commerce (EC Directive) Regulations 2002 以电子方式订立并可电子存储；在斯里兰卡，本条款亦依据 Electronic Transactions Act, No. 19 of 2006 有效。",
+          "p3": "本条款及由此产生的任何争议均受英格兰和威尔士法律管辖，英格兰和威尔士法院拥有专属管辖权。这不影响公司依据其本国法律享有的任何强制性权利。译文仅供参考；以英文版本为准。",
+          "p4": "关于 FirmiCore、计费、数据导出或删除的问题：FirmiCore 支持，{{firmicoreEmail}} · {{firmicorePhone}}。Lumora Ventures PVT Ltd：{{email}} · {{phone}} · {{ukOffice}} · 斯里兰卡办事处：{{lkOffice}}。"
+        }
+      }
+    },
+    "subscriptionEnded": {
+      "title": "订阅已结束",
+      "body": "贵公司的 FirmiCore 订阅已结束或出现付款问题，所有用户的访问已暂停。您的数据没有被删除，并会被安全保存，直到公司管理员要求删除为止——新订阅开始后，一切将立即恢复可用。",
+      "adminHint": "作为公司管理员，您可以在“计费与方案”中开始新的订阅。",
+      "memberHint": "请联系公司管理员续订。",
+      "renew": "前往计费与方案",
+      "signOut": "退出登录"
+    },
+    "supportRequests": {
+      "title": "反馈与请求",
+      "subtitle": "向 Lumora Ventures 的 FirmiCore 团队发送反馈、功能建议和特殊请求，并在此查看我们的回复。",
+      "new": "新建请求",
+      "sent": "已发送。FirmiCore 团队将在此处并通过电子邮件回复。",
+      "send": "发送",
+      "sending": "正在发送…",
+      "empty": "还没有请求。欢迎分享反馈，或为贵公司提出特殊需求。",
+      "back": "全部请求",
+      "reply": "回复",
+      "replyPlaceholder": "输入回复…",
+      "newReply": "新回复",
+      "lumoraTeam": "FirmiCore 团队（Lumora Ventures）",
+      "contact": "您也可以通过以下方式联系我们：",
+      "form": {
+        "type": "类型",
+        "subject": "主题",
+        "message": "内容",
+        "placeholder": "告诉我们您的需求或我们可以改进的地方…",
+        "rating": "评分",
+        "ratingHint": "点击星星为 FirmiCore 评分（可选）",
+        "stars": "{{count}} / 5 星"
+      },
+      "types": {
+        "feedback": "反馈",
+        "feature": "功能建议",
+        "special": "特殊请求",
+        "billing": "计费问题",
+        "support": "支持 / 问题"
+      },
+      "statuses": {
+        "open": "待处理",
+        "in_progress": "处理中",
+        "resolved": "已解决",
+        "closed": "已关闭"
+      },
+      "errors": {
+        "load": "无法加载您的请求。",
+        "send": "发送失败，请重试。"
       }
     }
   },

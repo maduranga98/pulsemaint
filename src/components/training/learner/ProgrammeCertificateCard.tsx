@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Award, Download, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/store/authStore';
+import { downloadProgrammeCertificate } from '@/lib/traineeProgram/programmeCertificate';
 import type { TraineeProgrammeCertificate } from '@/types/traineeProgram';
 
 interface ProgrammeCertificateCardProps {
@@ -17,12 +20,26 @@ function formatDate(ts: { seconds: number } | null | undefined): string {
 
 // The completion certificate for a whole trainee programme (all months'
 // modules, signed off by the recommending admin/plant manager/HR officer) —
-// distinct from a single module's TrainingCertificate. The PDF is rendered
-// and uploaded once at sign-off time (see issueProgrammeCertificate), with
-// the signer's digital signature already embedded, so this just links to it.
+// distinct from a single module's TrainingCertificate. Downloads re-render
+// the PDF from the certificate record in the current design; the copy
+// uploaded at sign-off is only a fallback if rendering fails.
 export default function ProgrammeCertificateCard({ certificate }: ProgrammeCertificateCardProps) {
   const { t } = useTranslation();
+  const company = useAuthStore((s) => s.company);
+  const [downloading, setDownloading] = useState(false);
   const issuedAt = certificate.issuedAt as unknown as { seconds: number };
+
+  async function handleDownload() {
+    setDownloading(true);
+    try {
+      await downloadProgrammeCertificate(certificate, company);
+    } catch (err) {
+      console.error('Failed to build programme certificate PDF', err);
+      if (certificate.pdfUrl) window.open(certificate.pdfUrl, '_blank', 'noopener');
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <div className="relative bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl overflow-hidden shadow-sm">
@@ -74,16 +91,16 @@ export default function ProgrammeCertificateCard({ certificate }: ProgrammeCerti
           <span className="text-xs text-slate-500">
             {t('common.traineeManagement.library.programmeCertificateCard.finalMark', { mark: certificate.finalMark })}
           </span>
-          <a
-            href={certificate.pdfUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+          <button
+            type="button"
+            onClick={() => void handleDownload()}
+            disabled={downloading}
+            className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors disabled:opacity-60"
             aria-label={t('common.traineeManagement.library.programmeCertificateCard.downloadAria')}
           >
             <Download size={14} />
             {t('common.traineeManagement.library.programmeCertificateCard.downloadButton')}
-          </a>
+          </button>
         </div>
       </div>
     </div>

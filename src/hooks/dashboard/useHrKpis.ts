@@ -105,8 +105,9 @@ export function useHrKpis(companyId: string) {
   }, [companyId]);
 
   const kpis = useMemo<HrKpis>(() => {
-    // Users with no plant assigned yet stay in every plant's count, the same
-    // rule usePlantUserIds applies to the rest of the dashboard.
+    // Users with no plant assigned yet are kept (same as usePlantUserIds) —
+    // dropping them zeroed every KPI for companies whose roster predates
+    // plants. Only people registered to a *different* plant are excluded.
     const staff = plantId ? activeUsers.filter((u) => !u.plantId || u.plantId === plantId) : activeUsers;
     const staffIds = plantId ? new Set(staff.map((u) => u.id)) : null;
     const inPlant = (id: string) => !staffIds || staffIds.has(id);
