@@ -35,6 +35,28 @@ function useCompanyTrainingModules(companyId: string) {
   return { modules, loading };
 }
 
+/** Local calendar date 'YYYY-MM-DD' (toISOString gives the UTC date, which is
+ * wrong for part of the day in non-UTC time zones). */
+function localDateStr(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Today's local date, re-evaluated at local midnight so a dashboard left open
+ * overnight rolls over to the new day without a reload. */
+function useLocalToday(): string {
+  const [today, setToday] = useState(() => localDateStr(new Date()));
+
+  useEffect(() => {
+    const now = new Date();
+    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime();
+    const timer = window.setTimeout(() => setToday(localDateStr(new Date())), nextMidnight - now.getTime() + 1000);
+    return () => window.clearTimeout(timer);
+  }, [today]);
+
+  return today;
+}
+
 // Today's sessions from this viewer's own (not-yet-certified) training
 // assignments — a personal subset of TodayTrainingsWidget's company-wide list.
 export default function TodayMyTrainingsWidget() {
@@ -42,7 +64,7 @@ export default function TodayMyTrainingsWidget() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { modules, loading: modulesLoading } = useCompanyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useMyAssignments();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = useLocalToday();
 
   const myAssignedModuleIds = useMemo(
     () =>
@@ -64,7 +86,7 @@ export default function TodayMyTrainingsWidget() {
   const loading = modulesLoading || assignmentsLoading;
 
   return (
-    <DashboardWidget title={t('common.widgets.todayMyTrainingsWidget.title')} loading={loading}>
+    <DashboardWidget title={t('common.widgets.todayMyTrainingsWidget.title')} loading={loading} live>
       {todaySessions.length === 0 ? (
         <EmptyState message={t('common.widgets.todayMyTrainingsWidget.empty')} />
       ) : (
