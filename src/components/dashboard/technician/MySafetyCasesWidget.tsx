@@ -37,6 +37,9 @@ export default function MySafetyCasesWidget() {
       (c.reportedToUserId === userProfile?.id || c.subjectId === userProfile?.id),
   );
 
+  // Nothing assigned to me and nothing about me: don't show the widget at all.
+  if (!loading && mine.length === 0) return null;
+
   return (
     <DashboardWidget title={t('common.widgets.mySafetyCasesWidget.title')} loading={loading}>
       {mine.length === 0 ? (

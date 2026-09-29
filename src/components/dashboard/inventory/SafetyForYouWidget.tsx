@@ -19,6 +19,9 @@ export default function SafetyForYouWidget() {
 
   const total = safetyTrainings.length + safetyCases.length;
 
+  // No safety cases or safety trainings for me: hide the widget entirely.
+  if (!loading && total === 0) return null;
+
   return (
     <DashboardWidget title={t('common.widgets.safetyForYouWidget.title')} loading={loading} action={<span className="text-xs text-[#8BA3BF]">{t('common.widgets.safetyForYouWidget.open', { count: total })}</span>}>
       {total === 0 ? (
