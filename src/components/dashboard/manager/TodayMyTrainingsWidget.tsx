@@ -57,6 +57,17 @@ function useLocalToday(): string {
   return today;
 }
 
+type Ts = { toDate?: () => Date } | null | undefined;
+const tsDateStr = (ts: Ts) => (ts?.toDate ? localDateStr(ts.toDate()) : null);
+
+interface MySession {
+  key: string;
+  title: string;
+  detail: string;
+  time: string;
+  safety: boolean;
+}
+
 // Today's sessions from this viewer's own (not-yet-certified) training
 // assignments — a personal subset of TodayTrainingsWidget's company-wide list.
 export default function TodayMyTrainingsWidget() {
@@ -66,22 +77,43 @@ export default function TodayMyTrainingsWidget() {
   const { assignments, loading: assignmentsLoading } = useMyAssignments();
   const todayStr = useLocalToday();
 
-  const myAssignedModuleIds = useMemo(
-    () =>
-      new Set(
-        assignments
-          .filter((a) => a.status !== 'certified' && a.status !== 'quiz_passed')
-          .map((a) => a.moduleId),
-      ),
-    [assignments],
-  );
+  const moduleById = useMemo(() => new Map(modules.map((m) => [m.id, m])), [modules]);
 
-  const todaySessions = useMemo(() => {
-    return modules
-      .filter((m) => myAssignedModuleIds.has(m.id))
-      .flatMap((m) => getModuleSessions(m).map((s) => ({ ...s, safety: isSafetyModule(m) })))
-      .filter((s) => s.date === todayStr);
-  }, [modules, myAssignedModuleIds, todayStr]);
+  // Everything of mine happening today: scheduled lessons / practice quiz /
+  // final test of modules I'm enrolled in, external (offboard) trainings
+  // running today, and assignments due today — mirrors TodayTrainingsWidget,
+  // scoped to my own not-yet-finished assignments.
+  const todaySessions = useMemo<MySession[]>(() => {
+    const mine = assignments.filter((a) => a.status !== 'certified' && a.status !== 'quiz_passed' && a.status !== 'expired');
+    const out: MySession[] = [];
+    const seenModules = new Set<string>();
+    for (const a of mine) {
+      const m = moduleById.get(a.moduleId);
+      const safety = m ? isSafetyModule(m) : a.trainingType === 'safety_training';
+      if (m && !seenModules.has(m.id)) {
+        seenModules.add(m.id);
+        getModuleSessions(m)
+          .filter((s) => s.date === todayStr)
+          .forEach((s, i) => out.push({ key: `${m.id}-l${i}`, title: m.title, detail: s.lessonTitle, time: s.time ?? '', safety }));
+        if (m.practiceQuiz?.scheduledDate === todayStr) {
+          out.push({ key: `${m.id}-pq`, title: m.title, detail: m.practiceQuiz.title || '', time: m.practiceQuiz.scheduledTime ?? '', safety });
+        }
+        if (m.quiz?.scheduledDate === todayStr) {
+          out.push({ key: `${m.id}-q`, title: m.title, detail: m.quiz.title || '', time: m.quiz.scheduledTime ?? '', safety });
+        }
+      }
+      const od = a.offboardDetails;
+      const from = tsDateStr(od?.startDate);
+      const to = tsDateStr(od?.endDate) ?? from;
+      if (from && to && from <= todayStr && todayStr <= to) {
+        out.push({ key: `${a.id}-x`, title: a.moduleName, detail: od?.thirdPartyCompany ?? '', time: '', safety });
+      }
+      if (tsDateStr(a.dueDate) === todayStr) {
+        out.push({ key: `${a.id}-d`, title: a.moduleName, detail: t('common.dashboard.trainings.kindDue', { defaultValue: 'Due today' }), time: '', safety });
+      }
+    }
+    return out.sort((x, y) => (x.time || '99:99').localeCompare(y.time || '99:99'));
+  }, [assignments, moduleById, todayStr, t]);
 
   const loading = modulesLoading || assignmentsLoading;
 
@@ -91,14 +123,14 @@ export default function TodayMyTrainingsWidget() {
         <EmptyState message={t('common.widgets.todayMyTrainingsWidget.empty')} />
       ) : (
         <div className="space-y-1.5">
-          {todaySessions.map((s, i) => (
+          {todaySessions.map((s) => (
             <div
-              key={`${s.moduleId}-${i}`}
+              key={s.key}
               className="flex items-center justify-between gap-2 rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-[#F0F4F8]">{s.moduleTitle}</p>
-                <p className="truncate text-[11px] text-[#8BA3BF]">{s.lessonTitle}{s.time ? ` · ${s.time}` : ''}</p>
+                <p className="truncate text-sm font-semibold text-[#F0F4F8]">{s.title}</p>
+                <p className="truncate text-[11px] text-[#8BA3BF]">{s.detail}{s.time ? ` · ${s.time}` : ''}</p>
               </div>
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${

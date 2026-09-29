@@ -20,6 +20,7 @@ import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/Pro
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
 import NeedSignOffWidget from '../../components/dashboard/supervisor/NeedSignOffWidget';
+import MandatoryFeedbackModal from '../../components/support/MandatoryFeedbackModal';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
@@ -167,6 +168,9 @@ export default function ManagerDashboard() {
             see AnalyticsPage. */}
         <LiveShiftStatusWidget companyId={companyId} />
       </div>
+
+      {/* Company admins can't dismiss this until they've rated the system. */}
+      {role === 'admin' && <MandatoryFeedbackModal />}
 
       <DashboardSidePanel />
     </div>

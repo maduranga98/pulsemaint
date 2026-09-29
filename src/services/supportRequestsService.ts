@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, updateDoc, where,
+  addDoc, collection, doc, getDocs, limit, onSnapshot, orderBy, query, serverTimestamp, updateDoc, where,
   type Timestamp, type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -29,6 +29,8 @@ export interface SupportRequest {
   lastMessageBy?: 'company' | 'lumora' | null;
   /** 1–5 stars, optional. */
   rating?: number | null;
+  /** 'system_feedback' = the mandatory dashboard feedback prompt for company admins. */
+  source?: string | null;
   /** Something new for the company admin (Lumora replied / changed status). */
   companyUnread?: boolean;
   /** Something new for Lumora (new request / company replied). */
@@ -48,7 +50,7 @@ const col = collection(db, 'supportRequests');
 
 export function createSupportRequest(input: {
   companyId: string; companyName: string; uid: string; name: string; email: string | null;
-  type: SupportRequestType; subject: string; message: string; rating?: number | null;
+  type: SupportRequestType; subject: string; message: string; rating?: number | null; source?: string;
 }): Promise<unknown> {
   return addDoc(col, {
     companyId: input.companyId,
@@ -61,6 +63,7 @@ export function createSupportRequest(input: {
     message: input.message.trim().slice(0, 5000),
     status: 'open',
     rating: input.rating && input.rating >= 1 && input.rating <= 5 ? Math.round(input.rating) : null,
+    ...(input.source ? { source: input.source } : {}),
     lumoraUnread: true,
     companyUnread: false,
     createdAt: serverTimestamp(),
@@ -140,4 +143,14 @@ export function subscribeLumoraUnread(cb: (rows: SupportRequest[]) => void): Uns
 /** Lumora superadmins only (enforced by firestore.rules). */
 export function setSupportRequestStatus(requestId: string, status: SupportRequestStatus) {
   return updateDoc(doc(db, 'supportRequests', requestId), { status, companyUnread: true, lumoraUnread: false, updatedAt: serverTimestamp() });
+}
+
+export const SYSTEM_FEEDBACK_SOURCE = 'system_feedback';
+
+/** Has this admin already sent the mandatory dashboard feedback? */
+export async function hasSentSystemFeedback(companyId: string, uid: string): Promise<boolean> {
+  const snap = await getDocs(query(
+    col, where('companyId', '==', companyId), where('createdBy', '==', uid), where('source', '==', SYSTEM_FEEDBACK_SOURCE), limit(1),
+  ));
+  return !snap.empty;
 }
