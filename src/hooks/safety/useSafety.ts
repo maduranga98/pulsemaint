@@ -6,6 +6,8 @@ import type { SafetyCase, WorkPermit } from '../../types/safety';
 import { computeBlacklist, type BlacklistEntry, type BlacklistResetMap } from '../../lib/safety/blacklist';
 import { useDepartmentScope } from '../useDepartmentScope';
 import { useAuthStore } from '../../store/authStore';
+import { getModuleSessions, isSafetyModule } from '../training/useSafetyTrainings';
+import type { TrainingModule } from '../../lib/training/trainingTypes';
 
 /**
  * The Work Permit gating a given work order, live (or null).
@@ -186,26 +188,44 @@ function toMillis(ts: { seconds: number } | null | undefined): number {
   return ts?.seconds ? ts.seconds * 1000 : 0;
 }
 
-/** Number of training modules with at least one lesson scheduled for `day`. */
-function useSafetyTrainingsToday(companyId: string): number {
-  const [count, setCount] = useState(0);
+/** Local calendar date 'YYYY-MM-DD' (toISOString would give the UTC date). */
+function localDateStr(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Re-renders every minute so time-derived values (today, days since, overdue) stay current. */
+function useMinuteTick(): number {
+  const [tick, setTick] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setTick(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return tick;
+}
+
+/** Number of safety-training modules with a session, practice quiz or test scheduled today (local date). */
+function useSafetyTrainingsToday(companyId: string, tick: number): number {
+  const [modules, setModules] = useState<TrainingModule[]>([]);
   useEffect(() => {
     if (!companyId) return;
-    const today = new Date().toISOString().slice(0, 10);
     const unsub = onSnapshot(
       query(collection(db, 'trainingModules'), where('companyId', '==', companyId)),
-      (snap) => {
-        const n = snap.docs.filter((d) => {
-          const lessons = (d.data().lessons ?? []) as Array<{ scheduledDate?: string }>;
-          return Array.isArray(lessons) && lessons.some((l) => l.scheduledDate === today);
-        }).length;
-        setCount(n);
-      },
-      () => setCount(0),
+      (snap) => setModules(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as TrainingModule)),
+      () => setModules([]),
     );
     return () => unsub();
   }, [companyId]);
-  return count;
+  return useMemo(() => {
+    const today = localDateStr(new Date(tick));
+    return modules.filter(
+      (m) =>
+        isSafetyModule(m) &&
+        (getModuleSessions(m).some((s) => s.date === today) ||
+          m.practiceQuiz?.scheduledDate === today ||
+          m.quiz?.scheduledDate === today),
+    ).length;
+  }, [modules, tick]);
 }
 
 export interface SafetyKpis {
@@ -224,10 +244,11 @@ export interface SafetyKpis {
 export function useSafetyKpis(companyId: string): { kpis: SafetyKpis; loading: boolean } {
   const { cases, loading: casesLoading } = useSafetyCases(companyId);
   const { permits, loading: permitsLoading } = useWorkPermits(companyId);
-  const safetyTrainingsToday = useSafetyTrainingsToday(companyId);
+  const tick = useMinuteTick();
+  const safetyTrainingsToday = useSafetyTrainingsToday(companyId, tick);
 
   const kpis = useMemo<SafetyKpis>(() => {
-    const now = Date.now();
+    const now = tick;
     const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
     const nearMiss30d = cases.filter(
       (c) => c.type === 'near_miss' && now - toMillis(c.reportedAt) <= THIRTY_DAYS,
@@ -249,7 +270,7 @@ export function useSafetyKpis(companyId: string): { kpis: SafetyKpis; loading: b
       activePermits: permits.filter((p) => p.status === 'active').length,
       daysSinceLastIncident,
     };
-  }, [cases, permits, safetyTrainingsToday]);
+  }, [cases, permits, safetyTrainingsToday, tick]);
 
   return { kpis, loading: casesLoading || permitsLoading };
 }
