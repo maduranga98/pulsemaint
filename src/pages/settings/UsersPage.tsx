@@ -319,10 +319,10 @@ export default function UsersPage() {
     }
   };
 
-  // Plant Manager only manages their own plant's roster — never the
-  // whole company's, even though they share the same query as Admin.
+  // Plant Manager and HR Officer only see their own plant's roster — never
+  // the whole company's, even though they share the same query as Admin.
   const scopedUsers =
-    currentUser?.role === 'plant_manager'
+    currentUser?.role === 'plant_manager' || currentUser?.role === 'hr_officer'
       ? users.filter((u) => u.plantId === currentUser.plantId)
       : users;
 
@@ -926,7 +926,7 @@ export default function UsersPage() {
       )}
       {serviceLetterOpen && (
         <ServiceLetterModal
-          users={users}
+          users={scopedUsers}
           roleLabels={Object.fromEntries(ROLE_OPTIONS.map((r) => [r, getRoleLabel(r, t)])) as Record<UserRole, string>}
           onClose={() => setServiceLetterOpen(false)}
         />
