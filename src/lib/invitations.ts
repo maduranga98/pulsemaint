@@ -252,6 +252,7 @@ async function createUserFromInvitation(
     companyId: invitation.companyId,
     role: invitation.role,
     siteId: invitation.companyId,
+    plantId: invitation.plantId ?? null,
   });
 
   await updateDoc(doc(db, `companies/${invitation.companyId}/invitations/${invitation.id}`), {
