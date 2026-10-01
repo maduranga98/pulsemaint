@@ -197,8 +197,10 @@ function PlantSelect({
     if (!isAdmin && ownPlantId && value !== ownPlantId) {
       onChange(ownPlantId);
     }
+    // Re-run when `value` changes so a form reset (e.g. "Invite Another")
+    // re-applies the locked plant; otherwise the department list stays empty.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin, ownPlantId]);
+  }, [isAdmin, ownPlantId, value]);
 
   if (!isAdmin) {
     const plantName = activePlants.find((p) => p.id === ownPlantId)?.name;
