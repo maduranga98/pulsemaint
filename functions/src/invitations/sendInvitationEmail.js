@@ -29,7 +29,6 @@ exports.sendInvitationEmail = onCall(
     const companySnap = await db.doc(`companies/${companyId}`).get();
     const companyData = companySnap.exists ? companySnap.data() : null;
     const companyName = companyData?.name || inv.companyName || "Your Company";
-    const companyEmail = companyData?.email || null;
 
     // Plant + its contact person, so the invitee knows which site they're
     // being registered to and who to reach there — not just which company.
@@ -112,7 +111,6 @@ ${plant?.contactPerson?.name ? `
       html: brandedEmail(html, companyName),
       text: `You've been invited to join ${companyName} on FirmiCore as a ${roleName}.${plant?.name ? ` Plant: ${plant.name}.` : ""}${plant?.contactPerson?.name ? ` Plant contact: ${plant.contactPerson.name}${plant.contactPerson.email ? ` (${plant.contactPerson.email})` : ""}${plant.contactPerson.phone ? ` ${plant.contactPerson.phone}` : ""}.` : ""} Accept your invitation here: ${inviteUrl}`,
       fromName: companyName,
-      replyTo: companyEmail || undefined,
     });
 
     if (!sent) {
