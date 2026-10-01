@@ -193,6 +193,7 @@ export async function loginWithEmail(email: string, password: string): Promise<U
       companyId,
       role: userProfile.role,
       siteId: userProfile.siteIds[0] ?? companyId,
+      plantId: userProfile.plantId ?? null,
     }, { merge: true });
 
     // Update lastLoginAt
@@ -416,6 +417,7 @@ export async function loginWithPin(companyId: string, pin: string): Promise<User
       companyId,
       role: userProfile.role,
       siteId: userProfile.siteIds[0] ?? companyId,
+      plantId: userProfile.plantId ?? null,
     }, { merge: true });
 
     // Update lastLoginAt

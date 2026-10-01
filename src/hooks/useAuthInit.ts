@@ -125,6 +125,10 @@ export function useAuthInit() {
                     companyId,
                     role: userProfile.role,
                     siteId: userProfile.siteIds[0] ?? companyId,
+                    // firestore.rules' isSamePlant() reads plantId from this
+                    // mapping doc, so non-admins need it here to read their
+                    // plant's departments and other plant-scoped data.
+                    plantId: userProfile.plantId ?? null,
                   }, { merge: true }).catch(() => {});
 
                   // Live, so plan/subscription changes written by the Stripe

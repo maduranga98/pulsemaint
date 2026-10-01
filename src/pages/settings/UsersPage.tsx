@@ -399,7 +399,10 @@ export default function UsersPage() {
       updatedAt: serverTimestamp(),
     });
     // Keep the global mapping doc in sync so Firestore rules pick up the new role.
-    await setDoc(doc(db, `users/${userId}`), { role: values.role }, { merge: true });
+    await setDoc(doc(db, `users/${userId}`), {
+      role: values.role,
+      plantId: values.role === 'admin' ? null : (values.plantId || currentUser?.plantId || null),
+    }, { merge: true });
     await syncShiftMembership(userId, values.fullName.trim(), values.shiftId || null);
     toast.success(t('common.settings.users.userUpdatedToast', 'User updated'));
   };
