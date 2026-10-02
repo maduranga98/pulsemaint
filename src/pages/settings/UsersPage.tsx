@@ -41,6 +41,7 @@ import {
   getInviteLink,
 } from '../../lib/invitations';
 import type { UserProfile, UserRole, Invitation } from '../../types/auth';
+import { departmentForRole, roleHasDepartment } from '../../lib/roleDepartment';
 import { UsersBulkImportModal, type ParsedUserRow } from '../../components/settings/UsersBulkImportModal';
 import { ServiceLetterModal } from '../../components/settings/ServiceLetterModal';
 import { Upload, FileText } from 'lucide-react';
@@ -430,7 +431,7 @@ export default function UsersPage() {
       email: values.email,
       role: values.role,
       fullName: values.fullName,
-      department: values.department.trim() || null,
+      department: departmentForRole(values.role, values.department),
       jobTitle: values.jobTitle.trim() || null,
       address: values.address.trim() || null,
       // Admin picks any plant (or none); everyone else who can invite is
@@ -477,6 +478,8 @@ export default function UsersPage() {
         const plantId = row.role === 'admin'
           ? (matchedPlant?.id ?? null)
           : (currentUser.role === 'admin' ? (matchedPlant?.id ?? adminTabPlantId ?? null) : (currentUser.plantId ?? null));
+        // Roles that don't belong to a department ignore the file's Department column.
+        const department = departmentForRole(row.role, row.department);
         await createInvitation({
           companyId: company.id,
           companyName: company.name,
@@ -484,7 +487,7 @@ export default function UsersPage() {
           role: row.role,
           fullName: row.fullName,
           phone: row.phone,
-          department: row.department,
+          department,
           jobTitle: row.jobTitle,
           employeeId: row.employeeId,
           address: row.address,
@@ -493,8 +496,8 @@ export default function UsersPage() {
           invitedByName: currentUser.fullName,
         }, t);
         created += 1;
-        if (plantId && row.department) {
-          departmentsByPlant.set(plantId, [...(departmentsByPlant.get(plantId) ?? []), row.department]);
+        if (plantId && department) {
+          departmentsByPlant.set(plantId, [...(departmentsByPlant.get(plantId) ?? []), department]);
         }
       } catch (err) {
         failed += 1;
@@ -1289,7 +1292,11 @@ function InviteModal({
           <Field label={t('common.settings.users.invite.fields.role', 'Assign role')} required>
             <select
               value={values.role}
-              onChange={(e) => set('role', e.target.value as UserRole)}
+              onChange={(e) => {
+                const role = e.target.value as UserRole;
+                // A department picked for an earlier role must not ride along.
+                setValues((v) => ({ ...v, role, department: roleHasDepartment(role) ? v.department : '' }));
+              }}
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
               {ROLE_OPTIONS.map((r) => (
@@ -1310,15 +1317,17 @@ function InviteModal({
             </Field>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label={t('common.settings.users.invite.fields.department', 'Department')}>
-              <DepartmentSelect
-                value={values.department}
-                onChange={(v) => set('department', v)}
-                plantId={values.role === 'admin' ? null : (values.plantId || null)}
-                className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
-            </Field>
+          <div className={`grid grid-cols-1 gap-4 ${roleHasDepartment(values.role) ? 'sm:grid-cols-2' : ''}`}>
+            {roleHasDepartment(values.role) && (
+              <Field label={t('common.settings.users.invite.fields.department', 'Department')}>
+                <DepartmentSelect
+                  value={values.department}
+                  onChange={(v) => set('department', v)}
+                  plantId={values.plantId || null}
+                  className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </Field>
+            )}
             <Field label={t('common.settings.users.invite.fields.jobTitle', 'Job title')}>
               <input
                 type="text"
