@@ -3910,12 +3910,17 @@
           "assignedBy": "Asignado por",
           "assignedAt": "Asignado",
           "noAttempts": "Aún no enviado.",
-          "attemptN": "Intento {{n}}",
           "passed": "Aprobado (mínimo {{mark}}%)",
           "belowPassMark": "Por debajo del mínimo ({{mark}}%)",
           "signedAs": "Firmado como {{name}}",
           "noAttachments": "Sin adjuntos.",
-          "signedOffBy": "Aprobado por {{name}} el {{date}}"
+          "signedOffBy": "Aprobado por {{name}} el {{date}}",
+          "finalSubmission": "Envío final",
+          "attemptsUsedNote": "{{used}} de {{max}} intentos usados: los intentos anteriores no se conservan, solo este envío final.",
+          "verifiedQualifications": "Calificaciones verificadas: {{list}}",
+          "qualifications": "Calificaciones declaradas",
+          "noQualifications": "Ninguna declarada.",
+          "noCertificate": "Sin certificado adjunto"
         },
         "toasts": {
           "linkCopied": "Enlace copiado.",
@@ -3939,12 +3944,23 @@
         },
         "signOffDialog": {
           "title": "Aprobar capacitación",
-          "bodyScore": "Mejor puntaje {{score}}% (mínimo {{mark}}%).",
+          "bodyScore": "Puntaje final {{score}}% (mínimo {{mark}}%).",
           "bodyNoQuiz": "Esta capacitación no tiene cuestionario: el miembro del equipo envió el formulario de conformidad.",
-          "warnBelowPass": "El mejor puntaje está por debajo del mínimo. Reasigne si debe repetirla.",
+          "warnBelowPass": "El puntaje final está por debajo del mínimo. Reasigne si debe repetirla.",
           "closesLink": "Al aprobar se cierra el enlace. Después puede emitir una tarjeta de seguridad.",
           "noteLabel": "Nota",
-          "confirm": "Aprobar"
+          "confirm": "Aprobar",
+          "errors": {
+            "signatureRequired": "Firme en el recuadro para aprobar."
+          },
+          "qualificationsHeading": "Calificaciones",
+          "noQualifications": "El miembro del equipo no declaró calificaciones formales.",
+          "qualificationsHint": "Marque cada calificación que haya comprobado con su certificado. Solo las marcadas se imprimen en la tarjeta de seguridad.",
+          "verifiedLabel": "Verificada",
+          "notVerifiedLabel": "Sin verificar",
+          "viewCertificate": "Abrir certificado",
+          "signatureLabel": "Su firma",
+          "signatureHint": "Se guarda con la aprobación y se imprime en el reverso de la tarjeta de seguridad."
         },
         "issueDialog": {
           "title": "Emitir tarjeta de seguridad",
@@ -3955,7 +3971,8 @@
             "position": "Cargo",
             "field": "Especialidad",
             "contractor": "Contratista",
-            "contact": "Persona de contacto"
+            "contact": "Persona de contacto",
+            "qualifications": "Calificaciones"
           },
           "validUntil": "Válida hasta",
           "confirm": "Emitir tarjeta",
@@ -3965,7 +3982,8 @@
           "errors": {
             "validUntil": "Elija una fecha de vencimiento futura.",
             "noContractor": "No se encontró el registro del contratista."
-          }
+          },
+          "noQualifications": "Ninguna verificada"
         }
       },
       "publicForm": {
@@ -4011,7 +4029,7 @@
             "body": "Pasó la fecha y hora límite. Contacte a su oficial de seguridad para que se la asigne de nuevo."
           }
         },
-        "alreadySubmitted": "Ya envió esta capacitación. Sus envíos aparecen abajo.",
+        "alreadySubmitted": "Ya envió esta capacitación. Su último envío aparece abajo.",
         "tryAgain_one": "Intentar de nuevo (queda {{count}} intento)",
         "tryAgain_other": "Intentar de nuevo (quedan {{count}} intentos)",
         "done": {
@@ -4032,7 +4050,8 @@
           "training": "Capacitación",
           "quiz": "Cuestionario",
           "comments": "Comentarios",
-          "attachments": "Fotos y notas de voz"
+          "attachments": "Fotos y notas de voz",
+          "qualifications": "Sus calificaciones"
         },
         "passMark": "Mínimo para aprobar: {{mark}}%",
         "optional": "(opcional)",
@@ -4054,7 +4073,22 @@
         "declaration": "Confirmo que leí y comprendí esta capacitación de seguridad y que cumpliré las normas de seguridad del sitio.",
         "signatureLabel": "Escriba su nombre completo como firma",
         "submit": "Enviar",
-        "submitting": "Enviando…"
+        "submitting": "Enviando…",
+        "replacesNote": "Al enviar de nuevo se reemplaza su envío anterior.",
+        "qualifications": {
+          "hint": "Indique sus calificaciones profesionales, p. ej. «NVQ Nivel 4 – Soldadura». Adjunte una foto de cada certificado si puede. Su oficial de seguridad las comprobará.",
+          "placeholder": "p. ej. NVQ Nivel 4 – Soldadura",
+          "rowAria": "Calificación {{n}}",
+          "certificateAttached": "Certificado adjunto",
+          "replace": "Reemplazar",
+          "addCertificate": "Adjuntar certificado",
+          "add": "Agregar una calificación",
+          "none": "No tengo calificaciones formales",
+          "errors": {
+            "blank": "Complete o elimine la calificación vacía.",
+            "required": "Agregue al menos una calificación o marque «No tengo calificaciones formales»."
+          }
+        }
       }
     },
     "trainingShared": {

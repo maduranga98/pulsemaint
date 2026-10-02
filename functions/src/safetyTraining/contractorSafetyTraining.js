@@ -10,7 +10,11 @@ const {
   scoreSubmission,
   publicModuleContent,
   validateAttachments,
+  validateQualifications,
+  sanitizeQualificationList,
+  applyFinalSubmission,
 } = require("./logic");
+const {buildInviteEmail} = require("./email");
 
 // Contractor safety training — link-based training for contractor team
 // members, who have no FirmiCore login. The assigning staff create an invite
@@ -25,10 +29,6 @@ const APP_URL = "https://app.firmicore.com";
 const INVITES = "safetyTrainingInvites";
 const STAFF_ROLES = ["admin", "plant_manager", "hr_officer", "safety_officer"];
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
-
-function escapeHtml(s) {
-  return String(s ?? "").replace(/[&<>"']/g, (ch) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"})[ch]);
-}
 
 function tokenFrom(data) {
   const token = data && data.token;
@@ -59,64 +59,9 @@ async function loadCompanyAndPlant(companyId, plantId) {
   };
 }
 
-function formatDue(ms, timeZone) {
-  try {
-    return new Intl.DateTimeFormat("en-GB", {
-      dateStyle: "full",
-      timeStyle: "short",
-      timeZone,
-    }).format(new Date(ms)) + ` (${timeZone})`;
-  } catch {
-    return new Date(ms).toISOString();
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Staff: email the link to contractor team members
 // ---------------------------------------------------------------------------
-
-function buildInviteEmail(inv, link, ctx) {
-  const dueText = formatDue(millis(inv.dueAt), ctx.timezone);
-  const max = inv.maxAttempts || MAX_ATTEMPTS;
-  const rows = [
-    ["Training", inv.moduleTitle],
-    ["Company", ctx.companyName + (ctx.plantName ? ` — ${ctx.plantName}` : "")],
-    ["Your company", inv.contractorName],
-    ["Assigned by", inv.assignedByName || "Safety team"],
-    ["Complete before", dueText],
-  ].map(([k, v]) => `
-        <tr>
-          <td style="color:#888;font-size:13px;padding:3px 12px 3px 0;white-space:nowrap;vertical-align:top;">${k}:</td>
-          <td style="color:#333;font-size:13px;font-weight:500;padding:3px 0;">${escapeHtml(v)}</td>
-        </tr>`).join("");
-
-  const html = `
-<h2 style="margin:0 0 8px;color:#1a1a1a;font-size:22px;font-weight:600;">Safety training required</h2>
-<p style="margin:0 0 20px;color:#555;font-size:15px;line-height:1.6;">
-  Hello <strong>${escapeHtml(inv.technicianName)}</strong>, you have been assigned a safety training by
-  <strong>${escapeHtml(ctx.companyName)}</strong>. Please complete it before you start work on site.
-</p>
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:8px;margin-bottom:24px;">
-  <tr><td style="padding:16px 20px;"><table>${rows}</table></td></tr>
-</table>
-<table width="100%" cellpadding="0" cellspacing="0">
-  <tr><td align="center">
-    <a href="${link}" style="display:inline-block;background:#1A56DB;color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:600;">
-      Open safety training form
-    </a>
-  </td></tr>
-</table>
-<p style="margin:24px 0 0;color:#666;font-size:13px;line-height:1.6;">
-  Open the link, read the training, fill in the form and submit. Photos or a voice recording are optional.
-  You can submit up to <strong>${max} times</strong> until the due date and time above; after that, or once your
-  safety officer signs you off, the link closes. No account or password is needed.
-</p>
-<p style="margin:12px 0 0;color:#aaa;font-size:11px;word-break:break-all;">${escapeHtml(link)}</p>`;
-
-  const text = `Safety training required: "${inv.moduleTitle}" (${ctx.companyName}). ` +
-    `Complete it before ${dueText}. You can submit up to ${max} times until then. Open: ${link}`;
-  return {html, text};
-}
 
 exports.sendContractorSafetyTrainingInvites = onCall(
     {maxInstances: 5, secrets: [platformSmtpPassword]},
@@ -159,7 +104,7 @@ exports.sendContractorSafetyTrainingInvites = onCall(
         const ctx = contexts.get(ctxKey);
 
         const link = `${APP_URL}/safety-training/${id}`;
-        const {html, text} = buildInviteEmail(inv, link, ctx);
+        const {html, text} = buildInviteEmail(inv, link, ctx, millis(inv.dueAt));
         const sent = await sendEmail({
           to: inv.technicianEmail,
           subject: `Safety training required — ${inv.moduleTitle}`,
@@ -203,7 +148,16 @@ exports.getContractorSafetyTrainingForm = onCall({maxInstances: 20}, async (requ
 
   const dueAtMs = millis(inv.dueAt);
   const access = getInviteAccess(inv, dueAtMs, Date.now());
-  const attempts = (inv.attempts || []).map(attemptSummary);
+  // Only the final submission is kept (the count of attempts is attemptsUsed),
+  // so that is all there is to show. Older invites may still hold more than
+  // one stored attempt — show just the last of those too.
+  const finalAttempt = (inv.attempts || []).slice(-1)[0];
+  const attempts = finalAttempt ? [attemptSummary(finalAttempt)] : [];
+  // Qualifications to pre-fill: what the team member declared last time, else
+  // the certifications on their contractor-registry record.
+  const prefillQualifications = sanitizeQualificationList(
+      finalAttempt && Array.isArray(finalAttempt.qualifications) ? finalAttempt.qualifications : inv.technicianCertifications,
+  );
 
   return {
     invite: {
@@ -223,6 +177,7 @@ exports.getContractorSafetyTrainingForm = onCall({maxInstances: 20}, async (requ
     access,
     // Only needed while the form can still be filled in.
     content: access.open ? publicModuleContent(moduleSnap.data()) : null,
+    prefillQualifications,
     attempts,
   };
 });
@@ -302,8 +257,10 @@ exports.submitContractorSafetyTraining = onCall(
       const scored = scoreSubmission(quiz, passMark, answersIn);
 
       let files;
+      let qualifications;
       try {
-        files = validateAttachments(data.attachments);
+        qualifications = validateQualifications(data.qualifications);
+        files = validateAttachments(data.attachments, qualifications.length);
       } catch (err) {
         throw new HttpsError("invalid-argument", err.message);
       }
@@ -311,7 +268,8 @@ exports.submitContractorSafetyTraining = onCall(
       // Upload first, then commit the attempt in a transaction that
       // re-checks the attempt count (two tabs submitting at once must not
       // both squeeze in under the limit). Files from a rejected attempt are
-      // removed again.
+      // removed again; once one is accepted it replaces the earlier
+      // attempt's data (only the final submission is kept).
       const attemptNumber = (inv.attemptsUsed || 0) + 1;
       const bucket = getStorage().bucket();
       const uploaded = [];
@@ -333,10 +291,11 @@ exports.submitContractorSafetyTraining = onCall(
             sizeBytes: f.sizeBytes,
             path,
             url: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${downloadToken}`,
+            ...(f.qualificationIndex !== undefined ? {qualificationIndex: f.qualificationIndex} : {}),
           });
         }
 
-        const attempt = await db.runTransaction(async (tx) => {
+        const {entry: attempt, replacedFiles} = await db.runTransaction(async (tx) => {
           const fresh = await tx.get(ref);
           const cur = fresh.data();
           const again = getInviteAccess(cur, millis(cur.dueAt), Date.now());
@@ -356,19 +315,24 @@ exports.submitContractorSafetyTraining = onCall(
             answers: scored.answers,
             notes,
             declarationName,
+            qualifications,
             attachments: uploaded,
           };
-          const scores = [...(cur.attempts || []), entry].map((a) => a.score).filter((s) => typeof s === "number");
-          tx.update(ref, {
-            attempts: [...(cur.attempts || []), entry],
-            attemptsUsed: number,
-            status: "submitted",
-            latestScore: scored.score,
-            bestScore: scores.length ? Math.max(...scores) : null,
-            lastSubmittedAt: entry.submittedAt,
-          });
-          return entry;
+          // Only the final submission is kept — it replaces whatever was
+          // stored before; attemptsUsed carries the count.
+          const {update, replacedFiles: replaced} = applyFinalSubmission(cur, entry);
+          tx.update(ref, update);
+          return {entry, replacedFiles: replaced};
         });
+
+        // The earlier attempts' photos and voice notes are no longer
+        // referenced by anything — remove them (best effort; the submission
+        // itself already succeeded).
+        try {
+          await Promise.all(replacedFiles.map((path) => bucket.file(path).delete({ignoreNotFound: true})));
+        } catch (err) {
+          logger.warn("Could not remove files from earlier safety training attempts", {token, error: err.message});
+        }
 
         try {
           await notifySubmission(inv, attempt);

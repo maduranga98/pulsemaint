@@ -4,6 +4,8 @@ import {
   addMonths,
   buildSafetyCardUrl,
   buildSafetyTrainingLink,
+  getFinalAttempt,
+  getFinalScore,
   getInviteAccess,
   getInviteDisplayStatus,
   isSafetyCardValid,
@@ -13,6 +15,8 @@ import {
 // import, so they can be exercised here without credentials.
 // @ts-ignore — no type declarations for the functions package
 import * as logic from '../../../functions/src/safetyTraining/logic.js';
+// @ts-ignore — no type declarations for the functions package
+import * as email from '../../../functions/src/safetyTraining/email.js';
 
 const HOUR = 3600 * 1000;
 const NOW = Date.UTC(2026, 9, 2, 12, 0, 0);
@@ -240,8 +244,8 @@ describe('validateAttachments (server)', () => {
   });
 
   it('enforces the count and size limits', () => {
-    const six = Array.from({ length: 6 }, () => ({ name: 'a', mimeType: 'image/jpeg', data: png }));
-    expect(() => logic.validateAttachments(six)).toThrow(/up to 5 images/);
+    const tooMany = Array.from({ length: logic.MAX_IMAGES + 1 }, () => ({ name: 'a', mimeType: 'image/jpeg', data: png }));
+    expect(() => logic.validateAttachments(tooMany)).toThrow(new RegExp(`up to ${logic.MAX_IMAGES} images`));
     const three = Array.from({ length: 3 }, () => ({ name: 'a', mimeType: 'audio/webm', data: png }));
     expect(() => logic.validateAttachments(three)).toThrow(/up to 2 voice/);
     const big = Buffer.alloc(logic.MAX_ATTACHMENT_BYTES + 1).toString('base64');
@@ -256,5 +260,171 @@ describe('validateAttachments (server)', () => {
   it('treats no attachments as fine', () => {
     expect(logic.validateAttachments(undefined)).toEqual([]);
     expect(logic.validateAttachments([])).toEqual([]);
+  });
+
+  it('links a certificate photo to a declared qualification by index', () => {
+    const out = logic.validateAttachments(
+      [
+        { name: 'site.jpg', mimeType: 'image/jpeg', data: png },
+        { name: 'nvq.jpg', mimeType: 'image/jpeg', data: png, qualificationIndex: 1 },
+      ],
+      2,
+    );
+    expect(out[0].qualificationIndex).toBeUndefined();
+    expect(out[1].qualificationIndex).toBe(1);
+  });
+
+  it.each([
+    ['an index past the declared qualifications', { qualificationIndex: 2 }, 2],
+    ['a negative index', { qualificationIndex: -1 }, 2],
+    ['a fractional index', { qualificationIndex: 0.5 }, 2],
+    ['an index when nothing was declared', { qualificationIndex: 0 }, 0],
+    ['a voice recording as a certificate', { qualificationIndex: 0, mimeType: 'audio/webm' }, 1],
+  ])('rejects %s', (_label, extra, count) => {
+    expect(() =>
+      logic.validateAttachments([{ name: 'a', mimeType: 'image/jpeg', data: png, ...extra }], count),
+    ).toThrow(/not declared/);
+  });
+
+  it('counts certificate photos towards the image limit', () => {
+    const photos = Array.from({ length: logic.MAX_IMAGES }, (_, i) => ({
+      name: 'a',
+      mimeType: 'image/jpeg',
+      data: png,
+      ...(i < logic.MAX_QUALIFICATIONS ? { qualificationIndex: i } : {}),
+    }));
+    expect(() => logic.validateAttachments(photos, logic.MAX_QUALIFICATIONS)).not.toThrow();
+    expect(() => logic.validateAttachments([...photos, { name: 'b', mimeType: 'image/jpeg', data: png }], logic.MAX_QUALIFICATIONS)).toThrow(
+      /up to/,
+    );
+  });
+});
+
+describe('validateQualifications (server)', () => {
+  it('trims, collapses whitespace and keeps the order', () => {
+    expect(logic.validateQualifications(['  NVQ   Level 4 —  Welding ', 'IOSH'])).toEqual(['NVQ Level 4 — Welding', 'IOSH']);
+  });
+
+  it('treats a missing list as none declared', () => {
+    expect(logic.validateQualifications(undefined)).toEqual([]);
+    expect(logic.validateQualifications(null)).toEqual([]);
+    expect(logic.validateQualifications([])).toEqual([]);
+  });
+
+  it('rejects blanks, non-strings, non-arrays, overlong titles and too many rows', () => {
+    expect(() => logic.validateQualifications(['NVQ', '   '])).toThrow(/blank/);
+    expect(() => logic.validateQualifications([42])).toThrow(/invalid/);
+    expect(() => logic.validateQualifications('NVQ')).toThrow(/invalid/);
+    expect(() => logic.validateQualifications(['x'.repeat(logic.MAX_QUALIFICATION_LENGTH + 1)])).toThrow(/too long/);
+    expect(() => logic.validateQualifications(Array.from({ length: logic.MAX_QUALIFICATIONS + 1 }, (_, i) => `Q${i}`))).toThrow(
+      new RegExp(`up to ${logic.MAX_QUALIFICATIONS}`),
+    );
+  });
+});
+
+describe('sanitizeQualificationList (prefill)', () => {
+  it('never throws on stored data: drops junk, trims, caps the count and length', () => {
+    expect(logic.sanitizeQualificationList(undefined)).toEqual([]);
+    expect(logic.sanitizeQualificationList('NVQ')).toEqual([]);
+    expect(logic.sanitizeQualificationList([' NVQ 4 ', 7, '', '   ', null, 'IOSH'])).toEqual(['NVQ 4', 'IOSH']);
+    const many = logic.sanitizeQualificationList(Array.from({ length: 12 }, (_, i) => `Q${i}`));
+    expect(many).toHaveLength(logic.MAX_QUALIFICATIONS);
+    expect(logic.sanitizeQualificationList(['y'.repeat(500)])[0]).toHaveLength(logic.MAX_QUALIFICATION_LENGTH);
+  });
+});
+
+describe('final submission only', () => {
+  const attempt = (n: number, score: number | null) =>
+    ({ attemptNumber: n, score, attachments: [] }) as never;
+
+  it('has no final attempt or score before anything is submitted', () => {
+    expect(getFinalAttempt({ attempts: [] })).toBeNull();
+    expect(getFinalScore({ attempts: [], latestScore: null })).toBeNull();
+  });
+
+  it('uses the single stored attempt as the final one', () => {
+    const inv = { attempts: [attempt(2, 70)], latestScore: 70 };
+    expect(getFinalAttempt(inv)?.attemptNumber).toBe(2);
+    expect(getFinalScore(inv)).toBe(70);
+  });
+
+  it('reads the last of several attempts stored by older invites, never the best', () => {
+    const inv = { attempts: [attempt(1, 95), attempt(2, 40)], latestScore: 40 };
+    expect(getFinalAttempt(inv)?.attemptNumber).toBe(2);
+    expect(getFinalScore(inv)).toBe(40);
+  });
+
+  it('has no score for a submission without a quiz', () => {
+    expect(getFinalScore({ attempts: [attempt(1, null)], latestScore: null })).toBeNull();
+  });
+});
+
+describe('invite email', () => {
+  const link = 'https://app.example.com/safety-training/tok_ABCDEFGHIJKLMNOP';
+  const built = email.buildInviteEmail(
+    { moduleTitle: 'LOTO <b>', technicianName: 'Kasun', contractorName: 'Veltrona', assignedByName: 'Safety Officer', maxAttempts: 3 },
+    link,
+    { companyName: 'Natrico Pvt Ltd', plantName: 'Newyork', timezone: 'Asia/Colombo' },
+    Date.UTC(2026, 9, 2, 10, 7),
+  );
+  const visibleText = (html: string) => html.replace(/<[^>]+>/g, ' ');
+
+  it('puts the link on the button only — the raw URL is not printed under it', () => {
+    expect(built.html.match(new RegExp(`href="${link}"`, 'g'))).toHaveLength(1);
+    expect(built.html).toContain('Open safety training form');
+    expect(visibleText(built.html)).not.toContain('https://');
+    expect(visibleText(built.html)).not.toContain('app.example.com');
+  });
+
+  it('keeps the link in the plain-text alternative for text-only mail clients', () => {
+    expect(built.text).toContain(link);
+  });
+
+  it('shows the due time in the company timezone and escapes the training title', () => {
+    expect(built.html).toContain('(Asia/Colombo)');
+    expect(built.html).toContain('15:37');
+    expect(built.html).toContain('LOTO &lt;b&gt;');
+    expect(built.html).not.toContain('LOTO <b>');
+  });
+});
+
+describe('applyFinalSubmission (server)', () => {
+  const file = (path: string) => ({ path, url: `https://x/${path}`, kind: 'image' });
+  const entry = { attemptNumber: 2, score: 60, submittedAt: 'T2', attachments: [file('a2/new.jpg')] };
+
+  it('keeps only the new submission and carries the count', () => {
+    const cur = { attempts: [{ attemptNumber: 1, score: 90, attachments: [file('a1/old.jpg')] }], attemptsUsed: 1 };
+    const { update } = logic.applyFinalSubmission(cur, entry);
+    expect(update.attempts).toEqual([entry]);
+    expect(update.attemptsUsed).toBe(2);
+    expect(update.latestScore).toBe(60);
+    expect(update.status).toBe('submitted');
+    expect(update.lastSubmittedAt).toBe('T2');
+  });
+
+  it('no longer writes a best score — the final one is what counts', () => {
+    const { update } = logic.applyFinalSubmission({ attempts: [], attemptsUsed: 0 }, entry);
+    expect(update).not.toHaveProperty('bestScore');
+  });
+
+  it('flags the replaced attempt’s files for deletion, not the new ones', () => {
+    const cur = { attempts: [{ attachments: [file('a1/old.jpg'), file('a1/voice.webm')] }], attemptsUsed: 1 };
+    expect(logic.applyFinalSubmission(cur, entry).replacedFiles).toEqual(['a1/old.jpg', 'a1/voice.webm']);
+  });
+
+  it('cleans up every earlier attempt of an older invite that stored several', () => {
+    const cur = {
+      attempts: [
+        { attachments: [file('a1/x.jpg')] },
+        { attachments: [file('a2/y.jpg'), { url: 'no-path' }] },
+        { attachments: [] },
+      ],
+      attemptsUsed: 3,
+    };
+    expect(logic.applyFinalSubmission(cur, { ...entry, attemptNumber: 4 }).replacedFiles).toEqual(['a1/x.jpg', 'a2/y.jpg']);
+  });
+
+  it('has nothing to delete on a first submission', () => {
+    expect(logic.applyFinalSubmission({ attempts: undefined }, { ...entry, attemptNumber: 1 }).replacedFiles).toEqual([]);
   });
 });

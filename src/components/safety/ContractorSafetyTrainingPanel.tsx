@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
+  Award,
   BadgeCheck,
   CheckCircle2,
   ChevronDown,
@@ -22,15 +23,18 @@ import {
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
+import { SignaturePad } from '@/components/settings/SignaturePad';
 import { useContractors } from '@/hooks/contractors/useContractors';
 import { usePlants } from '@/hooks/usePlants';
 import { combineDueDateTime, formatDueDateTime } from '@/lib/training/dueDateTime';
 import { resolveAppBaseUrl } from '@/lib/machineQr';
-import { downloadSafetyCardPdf } from '@/lib/safety/safetyCardPdf';
+import { downloadSafetyCardPdf } from '@/lib/safety/safetyCardDownload';
 import {
   SAFETY_CARD_DEFAULT_VALID_MONTHS,
   addMonths,
   buildSafetyTrainingLink,
+  getFinalAttempt,
+  getFinalScore,
   getInviteAccess,
   getInviteDisplayStatus,
   inviteDueMillis,
@@ -220,9 +224,10 @@ function InviteRow({
 
   const dueAtMs = inviteDueMillis(inv);
   const access = getInviteAccess({ ...inv, dueAtMs });
-  const attempts = inv.attempts ?? [];
-  const hasSubmission = attempts.length > 0;
-  const belowPass = inv.hasQuiz && (inv.bestScore ?? 0) < inv.passingScore;
+  // Only the final submission is kept; the count of attempts is attemptsUsed.
+  const finalAttempt = getFinalAttempt(inv);
+  const finalScore = getFinalScore(inv);
+  const belowPass = inv.hasQuiz && (finalScore ?? 0) < inv.passingScore;
   const cardActive = card ? isSafetyCardValid(card) : false;
 
   async function copyLink() {
@@ -318,9 +323,9 @@ function InviteRow({
           <div>
             <div className="text-[11px] uppercase text-slate-400">{t('common.safetyTrainings.contractor.row.marks')}</div>
             {inv.hasQuiz ? (
-              inv.bestScore !== null && inv.bestScore !== undefined ? (
+              finalScore !== null ? (
                 <div className={`text-lg font-bold leading-tight ${belowPass ? 'text-amber-600' : 'text-emerald-600'}`}>
-                  {inv.bestScore}%
+                  {finalScore}%
                 </div>
               ) : (
                 <div className="text-lg font-bold leading-tight text-slate-300">—</div>
@@ -411,20 +416,40 @@ function InviteRow({
             <Detail label={t('common.safetyTrainings.contractor.details.assignedAt')} value={fmtTs(inv.assignedAt)} />
           </dl>
 
-          {!hasSubmission ? (
+          {!finalAttempt ? (
             <p className="text-sm text-slate-500">{t('common.safetyTrainings.contractor.details.noAttempts')}</p>
           ) : (
-            attempts.map((a) => <AttemptCard key={a.attemptNumber} attempt={a} passingScore={inv.passingScore} />)
+            <>
+              <AttemptCard attempt={finalAttempt} passingScore={inv.passingScore} />
+              <p className="text-xs text-slate-400">
+                {t('common.safetyTrainings.contractor.details.attemptsUsedNote', {
+                  used: inv.attemptsUsed ?? 0,
+                  max: inv.maxAttempts,
+                })}
+              </p>
+            </>
           )}
 
           {inv.signOff && (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-              {t('common.safetyTrainings.contractor.details.signedOffBy', {
-                name: inv.signOff.byName,
-                date: fmtTs(inv.signOff.at),
-              })}
-              {inv.signOff.note ? ` — ${inv.signOff.note}` : ''}
-            </p>
+            <div className="space-y-1.5 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+              <p>
+                {t('common.safetyTrainings.contractor.details.signedOffBy', {
+                  name: inv.signOff.byName,
+                  date: fmtTs(inv.signOff.at),
+                })}
+                {inv.signOff.note ? ` — ${inv.signOff.note}` : ''}
+              </p>
+              {(inv.signOff.verifiedQualifications?.length ?? 0) > 0 && (
+                <p>
+                  {t('common.safetyTrainings.contractor.details.verifiedQualifications', {
+                    list: (inv.signOff.verifiedQualifications ?? []).join(' · '),
+                  })}
+                </p>
+              )}
+              {inv.signOff.signatureDataUrl && (
+                <img src={inv.signOff.signatureDataUrl} alt={inv.signOff.byName} className="h-10 w-auto rounded bg-white px-2 py-1" />
+              )}
+            </div>
           )}
         </div>
       )}
@@ -443,13 +468,15 @@ function Detail({ label, value }: { label: string; value: string }) {
 
 function AttemptCard({ attempt, passingScore }: { attempt: SafetyTrainingAttempt; passingScore: number }) {
   const { t } = useTranslation();
-  const images = attempt.attachments?.filter((a) => a.kind === 'image') ?? [];
+  // Certificate photos belong to a declared qualification and are shown there, not in the general gallery.
+  const images = attempt.attachments?.filter((a) => a.kind === 'image' && a.qualificationIndex === undefined) ?? [];
   const audio = attempt.attachments?.filter((a) => a.kind === 'audio') ?? [];
+  const qualifications = attempt.qualifications;
   return (
     <div className="rounded-lg border border-slate-200 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm font-medium text-slate-800">
-          {t('common.safetyTrainings.contractor.details.attemptN', { n: attempt.attemptNumber })}
+          {t('common.safetyTrainings.contractor.details.finalSubmission')}
           <span className="ml-2 text-xs font-normal text-slate-400">{fmtTs(attempt.submittedAt)}</span>
         </span>
         {attempt.hasQuiz ? (
@@ -471,6 +498,38 @@ function AttemptCard({ attempt, passingScore }: { attempt: SafetyTrainingAttempt
       {attempt.notes && (
         <p className="mt-2 whitespace-pre-wrap rounded bg-slate-50 px-2.5 py-2 text-sm text-slate-700">{attempt.notes}</p>
       )}
+      {qualifications !== undefined && (
+        <div className="mt-2">
+          <div className="mb-1 text-[11px] font-medium uppercase text-slate-400">
+            {t('common.safetyTrainings.contractor.details.qualifications')}
+          </div>
+          {qualifications.length === 0 ? (
+            <p className="text-xs text-slate-400">{t('common.safetyTrainings.contractor.details.noQualifications')}</p>
+          ) : (
+            <ul className="space-y-1.5">
+              {qualifications.map((q, i) => {
+                const certs = attempt.attachments?.filter((a) => a.qualificationIndex === i) ?? [];
+                return (
+                  <li key={`${q}-${i}`} className="flex items-center gap-2 text-sm text-slate-700">
+                    <Award className="h-4 w-4 shrink-0 text-slate-400" />
+                    <span className="min-w-0 flex-1">{q}</span>
+                    {certs.map((c) => (
+                      <a key={c.path} href={c.url} target="_blank" rel="noopener noreferrer" title={c.name}>
+                        <img src={c.url} alt={c.name} className="h-9 w-9 rounded border border-slate-200 object-cover hover:opacity-80" loading="lazy" />
+                      </a>
+                    ))}
+                    {certs.length === 0 && (
+                      <span className="shrink-0 text-[11px] text-slate-400">
+                        {t('common.safetyTrainings.contractor.details.noCertificate')}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
       {images.length > 0 || audio.length > 0 ? (
         <div className="mt-2 space-y-2">
           {images.length > 0 && (
@@ -489,9 +548,9 @@ function AttemptCard({ attempt, passingScore }: { attempt: SafetyTrainingAttempt
             </div>
           ))}
         </div>
-      ) : (
+      ) : (attempt.attachments?.length ?? 0) === 0 ? (
         <p className="mt-2 text-xs text-slate-400">{t('common.safetyTrainings.contractor.details.noAttachments')}</p>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -592,18 +651,56 @@ function ReassignDialog({ invite, onClose }: { invite: ContractorSafetyTrainingI
   );
 }
 
+/** Job title printed next to the officer's signature on the safety card. */
+const SIGNER_TITLE: Record<string, string> = {
+  safety_officer: 'Safety Officer',
+  admin: 'Administrator',
+  plant_manager: 'Plant Manager',
+  hr_officer: 'HR Officer',
+};
+
 function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingInvite; onClose: () => void }) {
   const { t } = useTranslation();
   const profile = useAuthStore((s) => s.userProfile);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
-  const belowPass = invite.hasQuiz && (invite.bestScore ?? 0) < invite.passingScore;
+  const [signature, setSignature] = useState<string | null>(null);
+  const [verified, setVerified] = useState<Set<number>>(new Set());
+  const [error, setError] = useState<string | null>(null);
+  const finalScore = getFinalScore(invite);
+  const belowPass = invite.hasQuiz && (finalScore ?? 0) < invite.passingScore;
+  const finalAttempt = getFinalAttempt(invite);
+  const qualifications = finalAttempt?.qualifications ?? [];
+
+  function toggleVerified(index: number) {
+    setVerified((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
 
   async function submit() {
     if (!profile) return;
+    if (!signature) {
+      setError(t('common.safetyTrainings.contractor.signOffDialog.errors.signatureRequired'));
+      return;
+    }
     setSaving(true);
+    setError(null);
     try {
-      await signOffInvite(invite.id, note, { id: profile.id, name: profile.fullName ?? '' });
+      await signOffInvite(invite.id, {
+        note,
+        signatureDataUrl: signature,
+        // Only what the officer ticked is vouched for — and only that reaches the card.
+        verifiedQualifications: qualifications.filter((_, i) => verified.has(i)),
+        by: {
+          id: profile.id,
+          name: profile.fullName ?? '',
+          title: profile.jobTitle?.trim() || SIGNER_TITLE[profile.role] || 'Safety Officer',
+        },
+      });
       toast.success(t('common.safetyTrainings.contractor.toasts.signedOff'));
       onClose();
     } catch (err) {
@@ -622,7 +719,7 @@ function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingIn
     >
       <p className="text-sm text-slate-600">
         {invite.hasQuiz
-          ? t('common.safetyTrainings.contractor.signOffDialog.bodyScore', { score: invite.bestScore ?? 0, mark: invite.passingScore })
+          ? t('common.safetyTrainings.contractor.signOffDialog.bodyScore', { score: finalScore ?? 0, mark: invite.passingScore })
           : t('common.safetyTrainings.contractor.signOffDialog.bodyNoQuiz')}
       </p>
       {belowPass && (
@@ -631,7 +728,55 @@ function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingIn
           {t('common.safetyTrainings.contractor.signOffDialog.warnBelowPass')}
         </p>
       )}
-      <p className="text-xs text-slate-500">{t('common.safetyTrainings.contractor.signOffDialog.closesLink')}</p>
+
+      <div className="mt-4">
+        <div className="text-sm font-medium text-slate-700">
+          {t('common.safetyTrainings.contractor.signOffDialog.qualificationsHeading')}
+        </div>
+        {qualifications.length === 0 ? (
+          <p className="mt-1 text-xs text-slate-500">{t('common.safetyTrainings.contractor.signOffDialog.noQualifications')}</p>
+        ) : (
+          <>
+            <p className="mt-0.5 text-xs text-slate-500">{t('common.safetyTrainings.contractor.signOffDialog.qualificationsHint')}</p>
+            <ul className="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200">
+              {qualifications.map((q, i) => {
+                const certs = finalAttempt?.attachments?.filter((a) => a.qualificationIndex === i) ?? [];
+                return (
+                  <li key={`${q}-${i}`} className="flex items-center gap-3 px-3 py-2">
+                    <input
+                      id={`verify-${i}`}
+                      type="checkbox"
+                      checked={verified.has(i)}
+                      onChange={() => toggleVerified(i)}
+                      className="h-4 w-4 shrink-0 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <label htmlFor={`verify-${i}`} className="min-w-0 flex-1 cursor-pointer">
+                      <span className="block text-sm text-slate-800">{q}</span>
+                      <span className="block text-[11px] text-slate-400">
+                        {verified.has(i)
+                          ? t('common.safetyTrainings.contractor.signOffDialog.verifiedLabel')
+                          : t('common.safetyTrainings.contractor.signOffDialog.notVerifiedLabel')}
+                      </span>
+                    </label>
+                    {certs.length > 0 ? (
+                      certs.map((c) => (
+                        <a key={c.path} href={c.url} target="_blank" rel="noopener noreferrer" title={t('common.safetyTrainings.contractor.signOffDialog.viewCertificate')}>
+                          <img src={c.url} alt={c.name} className="h-10 w-10 rounded border border-slate-200 object-cover hover:opacity-80" loading="lazy" />
+                        </a>
+                      ))
+                    ) : (
+                      <span className="shrink-0 text-[11px] text-slate-400">
+                        {t('common.safetyTrainings.contractor.details.noCertificate')}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </div>
+
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
           {t('common.safetyTrainings.contractor.signOffDialog.noteLabel')}{' '}
@@ -640,14 +785,31 @@ function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingIn
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          rows={3}
+          rows={2}
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
         />
       </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          {t('common.safetyTrainings.contractor.signOffDialog.signatureLabel')} <span className="text-red-500">*</span>
+        </label>
+        <SignaturePad
+          onChange={(dataUrl) => {
+            setSignature(dataUrl);
+            setError(null);
+          }}
+        />
+        <p className="mt-1 text-xs text-slate-500">{t('common.safetyTrainings.contractor.signOffDialog.signatureHint')}</p>
+      </div>
+
+      <p className="text-xs text-slate-500">{t('common.safetyTrainings.contractor.signOffDialog.closesLink')}</p>
+      {error && <p className="text-sm text-red-500">{error}</p>}
       <DialogButtons
         onCancel={onClose}
         onConfirm={() => void submit()}
         saving={saving}
+        disabled={!signature}
         confirmLabel={t('common.safetyTrainings.contractor.signOffDialog.confirm')}
       />
     </Modal>
@@ -711,7 +873,7 @@ function IssueCardDialog({ invite, onClose }: { invite: ContractorSafetyTraining
         invite,
         contractor,
         technician: tech ?? null,
-        companyName: company?.tradeName || company?.name || '',
+        companyName: company?.name || company?.tradeName || '',
         plantName,
         validUntil: until,
         issuer: { id: profile.id, name: profile.fullName ?? '' },
@@ -774,6 +936,10 @@ function IssueCardDialog({ invite, onClose }: { invite: ContractorSafetyTraining
           <Detail label={t('common.safetyTrainings.contractor.issueDialog.fields.nic')} value={preview.nic} />
           <Detail label={t('common.safetyTrainings.contractor.issueDialog.fields.position')} value={preview.position} />
           <Detail label={t('common.safetyTrainings.contractor.issueDialog.fields.field')} value={preview.field} />
+          <Detail
+            label={t('common.safetyTrainings.contractor.issueDialog.fields.qualifications')}
+            value={(invite.signOff?.verifiedQualifications ?? []).join(' · ') || t('common.safetyTrainings.contractor.issueDialog.noQualifications')}
+          />
           <Detail label={t('common.safetyTrainings.contractor.issueDialog.fields.contractor')} value={contractor.companyName} />
           <Detail label={t('common.safetyTrainings.contractor.issueDialog.fields.contact')} value={preview.contact} />
         </dl>

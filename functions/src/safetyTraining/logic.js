@@ -2,7 +2,9 @@
 // they can be unit tested without credentials (src/lib/__tests__).
 
 const MAX_ATTEMPTS = 3;
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 8;
+const MAX_QUALIFICATIONS = 5;
+const MAX_QUALIFICATION_LENGTH = 120;
 const MAX_AUDIO = 2;
 // Raw bytes across every attachment of one submission. The callable request
 // is capped at 10 MB and base64 adds a third on top.
@@ -190,10 +192,12 @@ function safeFileName(name, ext) {
 /**
  * Validates and normalizes the attachments of a submission. Throws an Error
  * with a user-presentable message when something is off.
- * @param {Array} list [{name, mimeType, data(base64)}]
- * @return {Array} [{name, mimeType, kind, ext, buffer, sizeBytes}]
+ * @param {Array} list [{name, mimeType, data(base64), qualificationIndex?}]
+ * @param {number} qualificationCount how many qualifications were declared —
+ *   a photo may be linked to one of them as its certificate
+ * @return {Array} [{name, mimeType, kind, ext, buffer, sizeBytes, qualificationIndex?}]
  */
-function validateAttachments(list) {
+function validateAttachments(list, qualificationCount = 0) {
   if (list === undefined || list === null) return [];
   if (!Array.isArray(list)) throw new Error("Attachments are invalid.");
   let images = 0;
@@ -221,6 +225,14 @@ function validateAttachments(list) {
     if (size === 0) throw new Error("An attachment is empty.");
     total += size;
     const ext = EXTENSIONS[mime];
+    let qualificationIndex;
+    if (item.qualificationIndex !== undefined && item.qualificationIndex !== null) {
+      const idx = item.qualificationIndex;
+      if (kind !== "image" || !Number.isInteger(idx) || idx < 0 || idx >= qualificationCount) {
+        throw new Error("A certificate is linked to a qualification that was not declared.");
+      }
+      qualificationIndex = idx;
+    }
     out.push({
       name: safeFileName(item.name, ext),
       mimeType: mime,
@@ -228,12 +240,78 @@ function validateAttachments(list) {
       ext,
       buffer: Buffer.from(b64, "base64"),
       sizeBytes: size,
+      ...(qualificationIndex !== undefined ? {qualificationIndex} : {}),
     });
   }
   if (images > MAX_IMAGES) throw new Error(`You can attach up to ${MAX_IMAGES} images.`);
   if (audio > MAX_AUDIO) throw new Error(`You can attach up to ${MAX_AUDIO} voice recordings.`);
   if (total > MAX_ATTACHMENT_BYTES) throw new Error("The attachments are too large. Use fewer or smaller files.");
   return out;
+}
+
+/**
+ * Validates the qualifications a team member declared, e.g.
+ * "NVQ Level 4 — Welding". Throws an Error with a user-presentable message.
+ * Order is preserved because certificate photos refer to a row by index.
+ * @param {*} list array of strings
+ * @return {string[]} trimmed qualifications
+ */
+function validateQualifications(list) {
+  if (list === undefined || list === null) return [];
+  if (!Array.isArray(list)) throw new Error("Qualifications are invalid.");
+  if (list.length > MAX_QUALIFICATIONS) {
+    throw new Error(`You can declare up to ${MAX_QUALIFICATIONS} qualifications.`);
+  }
+  return list.map((q) => {
+    if (typeof q !== "string") throw new Error("Qualifications are invalid.");
+    const title = q.replace(/\s+/g, " ").trim();
+    if (!title) throw new Error("A qualification is blank.");
+    if (title.length > MAX_QUALIFICATION_LENGTH) {
+      throw new Error(`A qualification is too long (max ${MAX_QUALIFICATION_LENGTH} characters).`);
+    }
+    return title;
+  });
+}
+
+/**
+ * Lenient clean-up of stored qualification strings, for pre-filling the form
+ * (never throws — stored data may predate the limits).
+ * @param {*} list stored value
+ * @return {string[]} at most MAX_QUALIFICATIONS non-empty strings
+ */
+function sanitizeQualificationList(list) {
+  if (!Array.isArray(list)) return [];
+  return list
+      .filter((q) => typeof q === "string")
+      .map((q) => q.replace(/\s+/g, " ").trim().slice(0, MAX_QUALIFICATION_LENGTH))
+      .filter(Boolean)
+      .slice(0, MAX_QUALIFICATIONS);
+}
+
+/**
+ * What a new submission writes to the invite. Only the final submission is
+ * kept: it replaces whatever attempt data was stored before, and
+ * attemptsUsed carries the count. Also returns the storage paths of the files
+ * the replaced attempts uploaded, so they can be deleted — including for older
+ * invites that still hold several stored attempts.
+ * @param {object} cur the invite as currently stored
+ * @param {object} entry the new attempt (attemptNumber, score, submittedAt, ...)
+ * @return {{update: object, replacedFiles: string[]}}
+ */
+function applyFinalSubmission(cur, entry) {
+  const replacedFiles = (cur.attempts || [])
+      .flatMap((a) => (a.attachments || []).map((f) => f.path))
+      .filter(Boolean);
+  return {
+    update: {
+      attempts: [entry],
+      attemptsUsed: entry.attemptNumber,
+      status: "submitted",
+      latestScore: entry.score,
+      lastSubmittedAt: entry.submittedAt,
+    },
+    replacedFiles,
+  };
 }
 
 module.exports = {
@@ -245,5 +323,10 @@ module.exports = {
   scoreSubmission,
   publicModuleContent,
   validateAttachments,
+  validateQualifications,
+  sanitizeQualificationList,
   safeFileName,
+  applyFinalSubmission,
+  MAX_QUALIFICATIONS,
+  MAX_QUALIFICATION_LENGTH,
 };

@@ -3910,12 +3910,17 @@
           "assignedBy": "Zugewiesen von",
           "assignedAt": "Zugewiesen am",
           "noAttempts": "Noch nicht eingereicht.",
-          "attemptN": "Versuch {{n}}",
           "passed": "Bestanden (Bestehensgrenze {{mark}}%)",
           "belowPassMark": "Unter der Bestehensgrenze ({{mark}}%)",
           "signedAs": "Unterschrieben als {{name}}",
           "noAttachments": "Keine Anhänge.",
-          "signedOffBy": "Abgenommen von {{name}} am {{date}}"
+          "signedOffBy": "Abgenommen von {{name}} am {{date}}",
+          "finalSubmission": "Endgültige Einreichung",
+          "attemptsUsedNote": "{{used}} von {{max}} Versuchen genutzt – frühere Versuche werden nicht gespeichert, nur diese endgültige Einreichung.",
+          "verifiedQualifications": "Geprüfte Qualifikationen: {{list}}",
+          "qualifications": "Angegebene Qualifikationen",
+          "noQualifications": "Keine angegeben.",
+          "noCertificate": "Kein Zertifikat angehängt"
         },
         "toasts": {
           "linkCopied": "Link kopiert.",
@@ -3939,12 +3944,23 @@
         },
         "signOffDialog": {
           "title": "Schulung abnehmen",
-          "bodyScore": "Bestes Ergebnis {{score}}% (Bestehensgrenze {{mark}}%).",
+          "bodyScore": "Endergebnis {{score}}% (Bestehensgrenze {{mark}}%).",
           "bodyNoQuiz": "Diese Schulung hat kein Quiz – das Teammitglied hat das Bestätigungsformular eingereicht.",
-          "warnBelowPass": "Das beste Ergebnis liegt unter der Bestehensgrenze. Weisen Sie stattdessen neu zu, wenn die Schulung wiederholt werden soll.",
+          "warnBelowPass": "Das Endergebnis liegt unter der Bestehensgrenze. Weisen Sie stattdessen neu zu, wenn die Schulung wiederholt werden soll.",
           "closesLink": "Mit der Abnahme wird der Link geschlossen. Anschließend können Sie eine Sicherheitskarte ausstellen.",
           "noteLabel": "Notiz",
-          "confirm": "Abnehmen"
+          "confirm": "Abnehmen",
+          "errors": {
+            "signatureRequired": "Bitte im Feld unterschreiben, um freizugeben."
+          },
+          "qualificationsHeading": "Qualifikationen",
+          "noQualifications": "Das Teammitglied hat keine formalen Qualifikationen angegeben.",
+          "qualificationsHint": "Haken Sie jede Qualifikation ab, die Sie anhand des Zertifikats geprüft haben. Nur abgehakte werden auf die Sicherheitskarte gedruckt.",
+          "verifiedLabel": "Geprüft",
+          "notVerifiedLabel": "Nicht geprüft",
+          "viewCertificate": "Zertifikat öffnen",
+          "signatureLabel": "Ihre Unterschrift",
+          "signatureHint": "Wird mit der Freigabe gespeichert und auf die Rückseite der Sicherheitskarte gedruckt."
         },
         "issueDialog": {
           "title": "Sicherheitskarte ausstellen",
@@ -3955,7 +3971,8 @@
             "position": "Position",
             "field": "Fachgebiet",
             "contractor": "Auftragnehmer",
-            "contact": "Ansprechpartner"
+            "contact": "Ansprechpartner",
+            "qualifications": "Qualifikationen"
           },
           "validUntil": "Gültig bis",
           "confirm": "Karte ausstellen",
@@ -3965,7 +3982,8 @@
           "errors": {
             "validUntil": "Wählen Sie ein Ablaufdatum in der Zukunft.",
             "noContractor": "Der Auftragnehmer-Datensatz wurde nicht gefunden."
-          }
+          },
+          "noQualifications": "Keine geprüft"
         }
       },
       "publicForm": {
@@ -4011,7 +4029,7 @@
             "body": "Fälligkeitsdatum und Uhrzeit sind abgelaufen. Wenden Sie sich an Ihren Sicherheitsbeauftragten, um erneut zugewiesen zu werden."
           }
         },
-        "alreadySubmitted": "Sie haben diese Schulung bereits eingereicht. Ihre Einreichungen sind unten aufgeführt.",
+        "alreadySubmitted": "Sie haben diese Schulung bereits eingereicht. Ihre letzte Einreichung wird unten angezeigt.",
         "tryAgain_one": "Erneut versuchen ({{count}} Versuch übrig)",
         "tryAgain_other": "Erneut versuchen ({{count}} Versuche übrig)",
         "done": {
@@ -4032,7 +4050,8 @@
           "training": "Schulung",
           "quiz": "Quiz",
           "comments": "Kommentare",
-          "attachments": "Fotos & Sprachnotizen"
+          "attachments": "Fotos & Sprachnotizen",
+          "qualifications": "Ihre Qualifikationen"
         },
         "passMark": "Bestehensgrenze: {{mark}}%",
         "optional": "(optional)",
@@ -4054,7 +4073,22 @@
         "declaration": "Ich bestätige, dass ich diese Sicherheitsschulung gelesen und verstanden habe und die Sicherheitsregeln des Standorts einhalten werde.",
         "signatureLabel": "Geben Sie Ihren vollständigen Namen als Unterschrift ein",
         "submit": "Einreichen",
-        "submitting": "Wird eingereicht…"
+        "submitting": "Wird eingereicht…",
+        "replacesNote": "Eine erneute Einreichung ersetzt Ihre vorherige Einreichung.",
+        "qualifications": {
+          "hint": "Nennen Sie Ihre beruflichen Qualifikationen, z. B. „NVQ Level 4 – Schweißen“. Fügen Sie nach Möglichkeit ein Foto jedes Zertifikats bei. Ihre Sicherheitsfachkraft prüft sie.",
+          "placeholder": "z. B. NVQ Level 4 – Schweißen",
+          "rowAria": "Qualifikation {{n}}",
+          "certificateAttached": "Zertifikat angehängt",
+          "replace": "Ersetzen",
+          "addCertificate": "Zertifikat anhängen",
+          "add": "Qualifikation hinzufügen",
+          "none": "Ich habe keine formalen Qualifikationen",
+          "errors": {
+            "blank": "Bitte die leere Qualifikation ausfüllen oder entfernen.",
+            "required": "Fügen Sie mindestens eine Qualifikation hinzu oder haken Sie „Ich habe keine formalen Qualifikationen“ an."
+          }
+        }
       }
     },
     "trainingShared": {

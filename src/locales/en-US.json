@@ -5297,12 +5297,17 @@
           "assignedBy": "Assigned by",
           "assignedAt": "Assigned",
           "noAttempts": "Not submitted yet.",
-          "attemptN": "Attempt {{n}}",
           "passed": "Passed (pass mark {{mark}}%)",
           "belowPassMark": "Below pass mark ({{mark}}%)",
           "signedAs": "Signed as {{name}}",
           "noAttachments": "No attachments.",
-          "signedOffBy": "Signed off by {{name}} on {{date}}"
+          "signedOffBy": "Signed off by {{name}} on {{date}}",
+          "finalSubmission": "Final submission",
+          "attemptsUsedNote": "{{used}} of {{max}} attempts used — earlier attempts aren't kept, only this final submission.",
+          "verifiedQualifications": "Verified qualifications: {{list}}",
+          "qualifications": "Declared qualifications",
+          "noQualifications": "None declared.",
+          "noCertificate": "No certificate attached"
         },
         "toasts": {
           "linkCopied": "Link copied.",
@@ -5326,12 +5331,23 @@
         },
         "signOffDialog": {
           "title": "Sign off training",
-          "bodyScore": "Best score {{score}}% (pass mark {{mark}}%).",
+          "bodyScore": "Final score {{score}}% (pass mark {{mark}}%).",
           "bodyNoQuiz": "This training has no quiz — the team member submitted the acknowledgement form.",
-          "warnBelowPass": "The best score is below the pass mark. Reassign instead if they should retake it.",
+          "warnBelowPass": "The final score is below the pass mark. Reassign instead if they should retake it.",
           "closesLink": "Signing off closes the link. You can issue a safety card afterwards.",
           "noteLabel": "Note",
-          "confirm": "Sign off"
+          "confirm": "Sign off",
+          "errors": {
+            "signatureRequired": "Please sign in the box to sign off."
+          },
+          "qualificationsHeading": "Qualifications",
+          "noQualifications": "The team member declared no formal qualifications.",
+          "qualificationsHint": "Tick each qualification you have checked against its certificate. Only ticked ones are printed on the safety card.",
+          "verifiedLabel": "Verified",
+          "notVerifiedLabel": "Not verified",
+          "viewCertificate": "Open certificate",
+          "signatureLabel": "Your signature",
+          "signatureHint": "Stored with the sign-off and printed on the back of the safety card."
         },
         "issueDialog": {
           "title": "Issue safety card",
@@ -5342,7 +5358,8 @@
             "position": "Position",
             "field": "Field",
             "contractor": "Contractor",
-            "contact": "Contact person"
+            "contact": "Contact person",
+            "qualifications": "Qualifications"
           },
           "validUntil": "Valid until",
           "confirm": "Issue card",
@@ -5352,7 +5369,8 @@
           "errors": {
             "validUntil": "Pick an expiry date in the future.",
             "noContractor": "The contractor record could not be found."
-          }
+          },
+          "noQualifications": "None verified"
         }
       },
       "publicForm": {
@@ -5398,7 +5416,7 @@
             "body": "The due date and time has passed. Contact your safety officer to be assigned again."
           }
         },
-        "alreadySubmitted": "You already submitted this training. Your submissions are listed below.",
+        "alreadySubmitted": "You already submitted this training. Your latest submission is shown below.",
         "tryAgain_one": "Try again ({{count}} attempt left)",
         "tryAgain_other": "Try again ({{count}} attempts left)",
         "done": {
@@ -5419,7 +5437,8 @@
           "training": "Training",
           "quiz": "Quiz",
           "comments": "Comments",
-          "attachments": "Photos & voice notes"
+          "attachments": "Photos & voice notes",
+          "qualifications": "Your qualifications"
         },
         "passMark": "Pass mark: {{mark}}%",
         "optional": "(optional)",
@@ -5441,7 +5460,22 @@
         "declaration": "I confirm that I have read and understood this safety training and will follow the site safety rules.",
         "signatureLabel": "Type your full name as signature",
         "submit": "Submit",
-        "submitting": "Submitting…"
+        "submitting": "Submitting…",
+        "replacesNote": "Submitting again replaces your previous submission.",
+        "qualifications": {
+          "hint": "List your trade qualifications, e.g. “NVQ Level 4 – Welding”. Attach a photo of each certificate if you can. Your safety officer will check them.",
+          "placeholder": "e.g. NVQ Level 4 – Welding",
+          "rowAria": "Qualification {{n}}",
+          "certificateAttached": "Certificate attached",
+          "replace": "Replace",
+          "addCertificate": "Attach certificate",
+          "add": "Add a qualification",
+          "none": "I have no formal qualifications",
+          "errors": {
+            "blank": "Please fill in or remove the empty qualification.",
+            "required": "Add at least one qualification, or tick “I have no formal qualifications”."
+          }
+        }
       }
     },
     "trainingShared": {

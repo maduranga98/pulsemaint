@@ -20,8 +20,11 @@ export const SAFETY_CARD_WIDTH_IN = 3.5;
 export const SAFETY_CARD_HEIGHT_IN = 2;
 
 /** Upload limits for the optional attachments on the public form. */
-export const SAFETY_TRAINING_MAX_IMAGES = 5;
+export const SAFETY_TRAINING_MAX_IMAGES = 8;
 export const SAFETY_TRAINING_MAX_AUDIO = 2;
+/** Qualifications a team member can declare on the form (e.g. "NVQ Level 4 — Welding"). */
+export const SAFETY_TRAINING_MAX_QUALIFICATIONS = 5;
+export const SAFETY_TRAINING_MAX_QUALIFICATION_LENGTH = 120;
 /** Raw size cap across all attachments of one submission (the callable payload is limited to 10 MB). */
 export const SAFETY_TRAINING_MAX_ATTACHMENT_BYTES = 6 * 1024 * 1024;
 
@@ -36,6 +39,8 @@ export interface SafetyTrainingAttachment {
   kind: 'image' | 'audio';
   mimeType: string;
   sizeBytes: number;
+  /** Set when the file is the certificate for one of the attempt's declared qualifications (index into `qualifications`). */
+  qualificationIndex?: number;
 }
 
 export interface SafetyTrainingAttemptAnswer {
@@ -61,6 +66,8 @@ export interface SafetyTrainingAttempt {
   notes: string;
   /** Name typed as the signature on the declaration. */
   declarationName: string;
+  /** Qualifications the team member declared, e.g. "NVQ Level 4 — Welding". Absent on older submissions. */
+  qualifications?: string[];
   attachments: SafetyTrainingAttachment[];
 }
 
@@ -79,18 +86,27 @@ export interface ContractorSafetyTrainingInvite {
   technicianDesignation: string;
   technicianEmail: string;
   technicianPhone: string;
+  /** The team member's registered certifications at assignment time — pre-fills the form's qualifications. */
+  technicianCertifications?: string[];
   assignedBy: string;
   assignedByName: string;
   assignedAt: Timestamp | null;
   /** Link closes at this moment. */
   dueAt: Timestamp;
   maxAttempts: number;
+  /** How many times the team member has submitted (max `maxAttempts`). */
   attemptsUsed: number;
+  /**
+   * Only the final submission is kept — a new submission replaces the one
+   * before it, and `attemptsUsed` carries the count. New data therefore holds
+   * at most one entry; invites submitted before this was introduced may still
+   * hold more, so read it through {@link getFinalAttempt}.
+   */
   attempts: SafetyTrainingAttempt[];
   status: ContractorTrainingStatus;
   hasQuiz: boolean;
   passingScore: number;
-  bestScore: number | null;
+  /** Score (%) of the final submission; null when there is no quiz or nothing submitted yet. */
   latestScore: number | null;
   lastSubmittedAt: Timestamp | null;
   emailStatus: InviteEmailStatus;
@@ -98,8 +114,14 @@ export interface ContractorSafetyTrainingInvite {
   signOff?: {
     by: string;
     byName: string;
+    /** The signing officer's job title, printed on the safety card. */
+    byTitle?: string;
     at: Timestamp | null;
     note: string;
+    /** The officer's hand-drawn signature (PNG data URL). Absent on sign-offs made before it was required. */
+    signatureDataUrl?: string;
+    /** Declared qualifications the officer checked and verified; only these are printed on the card. */
+    verifiedQualifications?: string[];
   } | null;
   /** Safety card issued after sign-off. */
   cardId?: string | null;
@@ -146,6 +168,21 @@ export function getInviteDisplayStatus(
   return nowMs > inv.dueAtMs ? 'overdue' : 'awaiting';
 }
 
+/** The final (most recent) submission, or null when nothing has been submitted. */
+export function getFinalAttempt(inv: Pick<ContractorSafetyTrainingInvite, 'attempts'>): SafetyTrainingAttempt | null {
+  const list = inv.attempts ?? [];
+  return list.length > 0 ? list[list.length - 1] : null;
+}
+
+/** Score (%) of the final submission — what marks, sign-off and the safety card are based on. */
+export function getFinalScore(
+  inv: Pick<ContractorSafetyTrainingInvite, 'attempts' | 'latestScore'>,
+): number | null {
+  const final = getFinalAttempt(inv);
+  if (final) return typeof final.score === 'number' ? final.score : null;
+  return typeof inv.latestScore === 'number' ? inv.latestScore : null;
+}
+
 export function inviteDueMillis(inv: Pick<ContractorSafetyTrainingInvite, 'dueAt'>): number {
   const ts = inv.dueAt as unknown as { toMillis?: () => number; seconds?: number } | null;
   if (ts?.toMillis) return ts.toMillis();
@@ -183,12 +220,18 @@ export interface ContractorSafetyCard {
   holderPosition: string;
   /** The holder's related field(s) of work, e.g. "Electrical, HVAC". */
   holderField: string;
+  /** Verified qualifications, e.g. "NVQ Level 4 — Welding". Empty when none were declared/verified. */
+  qualifications: string[];
   holderPhone: string;
   holderPhotoUrl: string;
   issuedAt: Timestamp | null;
   validUntil: Timestamp;
   issuedBy: string;
   issuedByName: string;
+  /** Who signed the training off — shown with their signature on the back of the card. */
+  signedOffByName?: string;
+  signedOffByTitle?: string;
+  signatureDataUrl?: string;
   status: SafetyCardStatus;
   revokedAt?: Timestamp | null;
   revokedBy?: string | null;
