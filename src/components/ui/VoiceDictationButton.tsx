@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mic, Square } from 'lucide-react';
+import { DEFAULT_VOICE_LANGUAGE, VOICE_INPUT_LANGUAGES, isVoiceInputLanguage } from '@/lib/speechLanguages';
 
 // Minimal shape of the Web Speech API's SpeechRecognition, which lacks
 // official TypeScript lib types and is vendor-prefixed in some browsers.
@@ -34,34 +35,23 @@ function getSpeechRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
 // The Web Speech API cannot auto-detect the spoken language — it only
 // recognizes correctly when told the right BCP-47 code up front, and
 // defaulting to the browser's UI locale (usually en-US) mangles or drops
-// speech in Sinhala, Tamil, and other languages entirely. So the speaker
-// picks their language here; recognition uses exactly that code, and the
-// transcript is then translated into the app's selected display language.
-const VOICE_INPUT_LANGUAGES = [
-  { code: 'en-US', label: 'English' },
-  { code: 'si-LK', label: 'Sinhala (සිංහල)' },
-  { code: 'ta-LK', label: 'Tamil (தமிழ்)' },
-  { code: 'hi-IN', label: 'Hindi (हिन्दी)' },
-  { code: 'ur-PK', label: 'Urdu (اردو)' },
-  { code: 'bn-BD', label: 'Bengali (বাংলা)' },
-  { code: 'ar-SA', label: 'Arabic (العربية)' },
-  { code: 'zh-CN', label: 'Chinese (中文)' },
-  { code: 'ja-JP', label: 'Japanese (日本語)' },
-  { code: 'es-ES', label: 'Spanish' },
-  { code: 'fr-FR', label: 'French' },
-  { code: 'de-DE', label: 'German' },
-] as const;
+// speech in Sinhala and other languages entirely. So the speaker picks their
+// language here; recognition uses exactly that code. Only the languages the
+// app is set up for in i18n are offered (see lib/speechLanguages.ts).
 
 const VOICE_LANG_STORAGE_KEY = 'firmicore-voice-input-lang';
 
 function getStoredVoiceLang(): string {
   try {
     const stored = localStorage.getItem(VOICE_LANG_STORAGE_KEY);
-    if (stored && VOICE_INPUT_LANGUAGES.some((l) => l.code === stored)) return stored;
+    if (isVoiceInputLanguage(stored)) return stored;
+    // A language saved by an earlier version that isn't in the i18n setup
+    // (e.g. Tamil) — drop it rather than keep it around.
+    if (stored !== null) localStorage.removeItem(VOICE_LANG_STORAGE_KEY);
   } catch {
     // localStorage unavailable — fall through to default.
   }
-  return 'en-US';
+  return DEFAULT_VOICE_LANGUAGE;
 }
 
 interface VoiceDictationButtonProps {
@@ -141,6 +131,8 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
   }, [voiceLang, onTranscript]);
 
   const handleLangChange = (code: string) => {
+    // Defence in depth: only a language from the i18n setup is ever accepted or saved.
+    if (!isVoiceInputLanguage(code)) return;
     setVoiceLang(code);
     try {
       localStorage.setItem(VOICE_LANG_STORAGE_KEY, code);
