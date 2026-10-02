@@ -5304,10 +5304,7 @@
           "signedOffBy": "Signed off by {{name}} on {{date}}",
           "finalSubmission": "Final submission",
           "attemptsUsedNote": "{{used}} of {{max}} attempts used — earlier attempts aren't kept, only this final submission.",
-          "verifiedQualifications": "Verified qualifications: {{list}}",
-          "qualifications": "Declared qualifications",
-          "noQualifications": "None declared.",
-          "noCertificate": "No certificate attached"
+          "verifiedQualifications": "Verified qualifications: {{list}}"
         },
         "toasts": {
           "linkCopied": "Link copied.",
@@ -5341,13 +5338,19 @@
             "signatureRequired": "Please sign in the box to sign off."
           },
           "qualificationsHeading": "Qualifications",
-          "noQualifications": "The team member declared no formal qualifications.",
-          "qualificationsHint": "Tick each qualification you have checked against its certificate. Only ticked ones are printed on the safety card.",
+          "noQualifications": "No qualifications are registered on the team member's profile.",
+          "qualificationsHint": "From the team member's profile. Tick each one you have checked against its certificate — only ticked ones are printed on the safety card.",
           "verifiedLabel": "Verified",
           "notVerifiedLabel": "Not verified",
           "viewCertificate": "Open certificate",
           "signatureLabel": "Your signature",
-          "signatureHint": "Stored with the sign-off and printed on the back of the safety card."
+          "signatureHint": "Stored with the sign-off and printed on the back of the safety card.",
+          "loadingProfile": "Loading profile…",
+          "documentsHeading": "Certificate documents on the profile",
+          "noDocuments": "No certificate documents are attached to the profile.",
+          "addLabel": "Add a qualification you read in a document",
+          "addPlaceholder": "e.g. NVQ Level 4 – Welding",
+          "addButton": "Add"
         },
         "issueDialog": {
           "title": "Issue safety card",
@@ -5437,8 +5440,7 @@
           "training": "Training",
           "quiz": "Quiz",
           "comments": "Comments",
-          "attachments": "Photos & voice notes",
-          "qualifications": "Your qualifications"
+          "attachments": "Photos & voice notes"
         },
         "passMark": "Pass mark: {{mark}}%",
         "optional": "(optional)",
@@ -5461,21 +5463,7 @@
         "signatureLabel": "Type your full name as signature",
         "submit": "Submit",
         "submitting": "Submitting…",
-        "replacesNote": "Submitting again replaces your previous submission.",
-        "qualifications": {
-          "hint": "List your trade qualifications, e.g. “NVQ Level 4 – Welding”. Attach a photo of each certificate if you can. Your safety officer will check them.",
-          "placeholder": "e.g. NVQ Level 4 – Welding",
-          "rowAria": "Qualification {{n}}",
-          "certificateAttached": "Certificate attached",
-          "replace": "Replace",
-          "addCertificate": "Attach certificate",
-          "add": "Add a qualification",
-          "none": "I have no formal qualifications",
-          "errors": {
-            "blank": "Please fill in or remove the empty qualification.",
-            "required": "Add at least one qualification, or tick “I have no formal qualifications”."
-          }
-        }
+        "replacesNote": "Submitting again replaces your previous submission."
       }
     },
     "trainingShared": {

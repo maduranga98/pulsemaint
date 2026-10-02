@@ -15,7 +15,6 @@ import { nanoid } from 'nanoid';
 import { db, functions } from '@/lib/firebase';
 import {
   MAX_SAFETY_TRAINING_ATTEMPTS,
-  SAFETY_TRAINING_MAX_QUALIFICATIONS,
   getFinalScore,
   type ContractorSafetyCard,
   type ContractorSafetyTrainingInvite,
@@ -80,9 +79,7 @@ interface NewInviteSource {
   plantId: string | null;
   module: InviteModuleInfo;
   contractor: Pick<Contractor, 'id' | 'companyName'>;
-  technician: Pick<ContractorTechnician, 'id' | 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone'> & {
-    certifications?: string[];
-  };
+  technician: Pick<ContractorTechnician, 'id' | 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone'>;
   dueAt: Date;
   assigner: Assigner;
 }
@@ -101,10 +98,6 @@ function inviteDoc(src: NewInviteSource, reassignedFrom: string | null) {
     technicianDesignation: src.technician.designation ?? '',
     technicianEmail: src.technician.email?.trim() ?? '',
     technicianPhone: src.technician.phone?.trim() ?? '',
-    technicianCertifications: (src.technician.certifications ?? [])
-      .filter((c): c is string => typeof c === 'string' && c.trim().length > 0)
-      .map((c) => c.trim())
-      .slice(0, SAFETY_TRAINING_MAX_QUALIFICATIONS),
     assignedBy: src.assigner.id,
     assignedByName: src.assigner.name,
     assignedAt: serverTimestamp(),
@@ -176,7 +169,7 @@ export async function reassignInvite(
   old: ContractorSafetyTrainingInvite,
   dueAt: Date,
   assigner: Assigner,
-  technician: Pick<ContractorTechnician, 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone' | 'certifications'> | null,
+  technician: Pick<ContractorTechnician, 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone'> | null,
 ): Promise<{ inviteId: string; email: EmailResult | null }> {
   const token = nanoid(32);
   const source: NewInviteSource = {
@@ -191,7 +184,6 @@ export async function reassignInvite(
       designation: (technician?.designation ?? old.technicianDesignation) as ContractorTechnician['designation'],
       email: technician?.email ?? old.technicianEmail,
       phone: technician?.phone ?? old.technicianPhone,
-      certifications: technician?.certifications ?? old.technicianCertifications ?? [],
     },
     dueAt,
     assigner,
@@ -209,7 +201,7 @@ export interface SignOffInput {
   note: string;
   /** The officer's hand-drawn signature (PNG data URL). */
   signatureDataUrl: string;
-  /** Declared qualifications the officer checked and verified. */
+  /** Qualifications from the team member's profile that the officer checked and verified. */
   verifiedQualifications: string[];
   by: Assigner & { title: string };
 }
@@ -404,8 +396,6 @@ export interface PublicSafetyTrainingForm {
       questions: PublicQuizQuestion[];
     } | null;
   } | null;
-  /** Qualifications to pre-fill: the team member's last declaration, else their registry certifications. */
-  prefillQualifications: string[];
   attempts: PublicAttemptSummary[];
 }
 
@@ -414,8 +404,6 @@ export interface PublicSubmissionAttachment {
   mimeType: string;
   /** base64, no data: prefix */
   data: string;
-  /** Set when the photo is the certificate for the qualification at this index. */
-  qualificationIndex?: number;
 }
 
 export interface PublicSubmissionResult {
@@ -439,7 +427,6 @@ export async function submitSafetyTrainingForm(input: {
   notes: string;
   declarationName: string;
   acknowledged: boolean;
-  qualifications: string[];
   attachments: PublicSubmissionAttachment[];
 }): Promise<PublicSubmissionResult> {
   const call = httpsCallable<typeof input, PublicSubmissionResult>(functions, 'submitContractorSafetyTraining');

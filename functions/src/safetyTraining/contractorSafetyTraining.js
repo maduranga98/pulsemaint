@@ -10,8 +10,6 @@ const {
   scoreSubmission,
   publicModuleContent,
   validateAttachments,
-  validateQualifications,
-  sanitizeQualificationList,
   applyFinalSubmission,
 } = require("./logic");
 const {buildInviteEmail} = require("./email");
@@ -151,13 +149,7 @@ exports.getContractorSafetyTrainingForm = onCall({maxInstances: 20}, async (requ
   // Only the final submission is kept (the count of attempts is attemptsUsed),
   // so that is all there is to show. Older invites may still hold more than
   // one stored attempt — show just the last of those too.
-  const finalAttempt = (inv.attempts || []).slice(-1)[0];
-  const attempts = finalAttempt ? [attemptSummary(finalAttempt)] : [];
-  // Qualifications to pre-fill: what the team member declared last time, else
-  // the certifications on their contractor-registry record.
-  const prefillQualifications = sanitizeQualificationList(
-      finalAttempt && Array.isArray(finalAttempt.qualifications) ? finalAttempt.qualifications : inv.technicianCertifications,
-  );
+  const attempts = (inv.attempts || []).slice(-1).map(attemptSummary);
 
   return {
     invite: {
@@ -177,7 +169,6 @@ exports.getContractorSafetyTrainingForm = onCall({maxInstances: 20}, async (requ
     access,
     // Only needed while the form can still be filled in.
     content: access.open ? publicModuleContent(moduleSnap.data()) : null,
-    prefillQualifications,
     attempts,
   };
 });
@@ -257,10 +248,8 @@ exports.submitContractorSafetyTraining = onCall(
       const scored = scoreSubmission(quiz, passMark, answersIn);
 
       let files;
-      let qualifications;
       try {
-        qualifications = validateQualifications(data.qualifications);
-        files = validateAttachments(data.attachments, qualifications.length);
+        files = validateAttachments(data.attachments);
       } catch (err) {
         throw new HttpsError("invalid-argument", err.message);
       }
@@ -291,7 +280,6 @@ exports.submitContractorSafetyTraining = onCall(
             sizeBytes: f.sizeBytes,
             path,
             url: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${downloadToken}`,
-            ...(f.qualificationIndex !== undefined ? {qualificationIndex: f.qualificationIndex} : {}),
           });
         }
 
@@ -315,7 +303,6 @@ exports.submitContractorSafetyTraining = onCall(
             answers: scored.answers,
             notes,
             declarationName,
-            qualifications,
             attachments: uploaded,
           };
           // Only the final submission is kept — it replaces whatever was
