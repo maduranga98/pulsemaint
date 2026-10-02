@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
@@ -28,6 +28,7 @@ import { downloadEvaluationPdf } from '../utils/evaluationPdf';
 import { useDepartments } from '@/hooks/useDepartments';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
+import { usersInPlant } from '@/lib/plantScope';
 
 interface EvaluationFormProps {
   companyId: string;
@@ -161,7 +162,9 @@ export default function EvaluationForm({
   const { plantId: departmentPlantId } = useDepartmentScope();
   const { departments } = useDepartments(companyId, departmentPlantId);
   const [step, setStep] = useState<'info' | 'criteria' | 'summary'>(existing ? 'criteria' : 'info');
-  const [companyUsers, setCompanyUsers] = useState<UserProfile[]>([]);
+  const [registeredUsers, setCompanyUsers] = useState<UserProfile[]>([]);
+  // Only the caller's plant's people can be evaluated (admin: the selected plant tab).
+  const companyUsers = useMemo(() => usersInPlant(registeredUsers, departmentPlantId), [registeredUsers, departmentPlantId]);
   const [evaluateeId, setEvaluateeId] = useState(existing?.evaluateeId ?? '');
   const [evaluateeName, setEvaluateeName] = useState(existing?.evaluateeName ?? initialDepartment ?? '');
   const [evaluateeRole, setEvaluateeRole] = useState<EvaluationRole>(existing?.evaluateeRole ?? initialRole ?? 'technician');
