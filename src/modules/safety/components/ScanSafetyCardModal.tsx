@@ -12,6 +12,20 @@ interface Props {
 
 const READER_ID = 'safety-card-scan-reader';
 
+/**
+ * html5-qrcode throws a bare string — synchronously, not as a rejected
+ * promise — from stop() whenever the scanner isn't running (the camera was
+ * denied or missing, or hasn't finished starting). Left uncaught in the
+ * unmount cleanup that took down the whole page ("Something went wrong").
+ */
+function stopQuietly(scanner: Html5Qrcode) {
+  try {
+    scanner.stop().catch(() => {});
+  } catch {
+    // not running — nothing to release
+  }
+}
+
 /** Camera scanner for a Contractor Safety Card's QR code. Ignores QR codes that aren't safety cards. */
 export default function ScanSafetyCardModal({ onScan, onClose }: Props) {
   const { t } = useTranslation();
@@ -22,43 +36,57 @@ export default function ScanSafetyCardModal({ onScan, onClose }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    const scanner = new Html5Qrcode(READER_ID);
+    let scanner: Html5Qrcode;
+    try {
+      scanner = new Html5Qrcode(READER_ID);
+    } catch {
+      setError(t('common.safetyCases.scan.cameraFailed'));
+      return;
+    }
     scannerRef.current = scanner;
     let lastRejected = 0;
 
-    scanner
-      .start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-          if (handledRef.current) return;
-          const cardId = parseSafetyCardScan(decodedText);
-          if (!cardId) {
-            // Keep scanning — just tell the user this isn't a safety card.
-            lastRejected = Date.now();
-            setNotACard(true);
-            setTimeout(() => {
-              if (Date.now() - lastRejected >= 2500) setNotACard(false);
-            }, 2600);
-            return;
-          }
-          handledRef.current = true;
-          scanner.stop().catch(() => {});
-          scannerRef.current = null;
-          onScan(cardId);
-        },
-        () => {},
-      )
-      .catch((err: unknown) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : t('common.safetyCases.scan.cameraFailed'));
+    // start() can also throw a string straight away, so route that into the same catch.
+    new Promise<unknown>((resolve) =>
+      resolve(
+        scanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            if (handledRef.current) return;
+            const cardId = parseSafetyCardScan(decodedText);
+            if (!cardId) {
+              // Keep scanning — just tell the user this isn't a safety card.
+              lastRejected = Date.now();
+              setNotACard(true);
+              setTimeout(() => {
+                if (Date.now() - lastRejected >= 2500) setNotACard(false);
+              }, 2600);
+              return;
+            }
+            handledRef.current = true;
+            stopQuietly(scanner);
+            scannerRef.current = null;
+            onScan(cardId);
+          },
+          () => {},
+        ),
+      ),
+    )
+      .then(() => {
+        // Closed while the camera was still starting (e.g. the permission
+        // prompt was open): the camera has just come on, so release it.
+        if (cancelled && scannerRef.current === null && !handledRef.current) stopQuietly(scanner);
+      })
+      .catch(() => {
+        if (!cancelled) setError(t('common.safetyCases.scan.cameraFailed'));
       });
 
     return () => {
       cancelled = true;
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-        scannerRef.current = null;
-      }
+      const current = scannerRef.current;
+      scannerRef.current = null;
+      if (current) stopQuietly(current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -3757,6 +3757,20 @@
         "close": "关闭",
         "cancel": "取消",
         "redirecting": "正在打开安全事件报告…"
+      },
+      "reportFlow": {
+        "title": "报告安全事件",
+        "subtitle": "您想如何报告？",
+        "qr": {
+          "title": "扫描安全卡",
+          "description": "扫描承包商的二维码卡，针对该人员及其公司报告。"
+        },
+        "manual": {
+          "title": "手动报告",
+          "description": "自行填写详情——操作员、技术员、工单、承包商或其他。"
+        },
+        "cancel": "取消",
+        "close": "关闭"
       }
     },
     "safetyTrainings": {

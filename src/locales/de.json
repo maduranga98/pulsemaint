@@ -3757,6 +3757,20 @@
         "close": "Schließen",
         "cancel": "Abbrechen",
         "redirecting": "Sicherheitsfall-Meldung wird geöffnet…"
+      },
+      "reportFlow": {
+        "title": "Sicherheitsfall melden",
+        "subtitle": "Wie möchten Sie ihn melden?",
+        "qr": {
+          "title": "Sicherheitskarte scannen",
+          "description": "Scannen Sie die QR-Karte eines Auftragnehmers, um den Fall dieser Person und ihrem Unternehmen zuzuordnen."
+        },
+        "manual": {
+          "title": "Manuell melden",
+          "description": "Geben Sie die Details selbst ein – Bediener, Techniker, Arbeitsauftrag, Auftragnehmer oder etwas anderes."
+        },
+        "cancel": "Abbrechen",
+        "close": "Schließen"
       }
     },
     "safetyTrainings": {
