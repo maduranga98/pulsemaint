@@ -3917,10 +3917,7 @@
           "signedOffBy": "Abgenommen von {{name}} am {{date}}",
           "finalSubmission": "Endgültige Einreichung",
           "attemptsUsedNote": "{{used}} von {{max}} Versuchen genutzt – frühere Versuche werden nicht gespeichert, nur diese endgültige Einreichung.",
-          "verifiedQualifications": "Geprüfte Qualifikationen: {{list}}",
-          "qualifications": "Angegebene Qualifikationen",
-          "noQualifications": "Keine angegeben.",
-          "noCertificate": "Kein Zertifikat angehängt"
+          "verifiedQualifications": "Geprüfte Qualifikationen: {{list}}"
         },
         "toasts": {
           "linkCopied": "Link kopiert.",
@@ -3954,13 +3951,19 @@
             "signatureRequired": "Bitte im Feld unterschreiben, um freizugeben."
           },
           "qualificationsHeading": "Qualifikationen",
-          "noQualifications": "Das Teammitglied hat keine formalen Qualifikationen angegeben.",
-          "qualificationsHint": "Haken Sie jede Qualifikation ab, die Sie anhand des Zertifikats geprüft haben. Nur abgehakte werden auf die Sicherheitskarte gedruckt.",
+          "noQualifications": "Im Profil des Teammitglieds sind keine Qualifikationen hinterlegt.",
+          "qualificationsHint": "Aus dem Profil des Teammitglieds. Haken Sie jede Qualifikation ab, die Sie anhand des Zertifikats geprüft haben – nur abgehakte werden auf die Sicherheitskarte gedruckt.",
           "verifiedLabel": "Geprüft",
           "notVerifiedLabel": "Nicht geprüft",
           "viewCertificate": "Zertifikat öffnen",
           "signatureLabel": "Ihre Unterschrift",
-          "signatureHint": "Wird mit der Freigabe gespeichert und auf die Rückseite der Sicherheitskarte gedruckt."
+          "signatureHint": "Wird mit der Freigabe gespeichert und auf die Rückseite der Sicherheitskarte gedruckt.",
+          "loadingProfile": "Profil wird geladen …",
+          "documentsHeading": "Zertifikatsdokumente im Profil",
+          "noDocuments": "Dem Profil sind keine Zertifikatsdokumente angehängt.",
+          "addLabel": "Qualifikation aus einem Dokument hinzufügen",
+          "addPlaceholder": "z. B. NVQ Level 4 – Schweißen",
+          "addButton": "Hinzufügen"
         },
         "issueDialog": {
           "title": "Sicherheitskarte ausstellen",
@@ -4050,8 +4053,7 @@
           "training": "Schulung",
           "quiz": "Quiz",
           "comments": "Kommentare",
-          "attachments": "Fotos & Sprachnotizen",
-          "qualifications": "Ihre Qualifikationen"
+          "attachments": "Fotos & Sprachnotizen"
         },
         "passMark": "Bestehensgrenze: {{mark}}%",
         "optional": "(optional)",
@@ -4074,21 +4076,7 @@
         "signatureLabel": "Geben Sie Ihren vollständigen Namen als Unterschrift ein",
         "submit": "Einreichen",
         "submitting": "Wird eingereicht…",
-        "replacesNote": "Eine erneute Einreichung ersetzt Ihre vorherige Einreichung.",
-        "qualifications": {
-          "hint": "Nennen Sie Ihre beruflichen Qualifikationen, z. B. „NVQ Level 4 – Schweißen“. Fügen Sie nach Möglichkeit ein Foto jedes Zertifikats bei. Ihre Sicherheitsfachkraft prüft sie.",
-          "placeholder": "z. B. NVQ Level 4 – Schweißen",
-          "rowAria": "Qualifikation {{n}}",
-          "certificateAttached": "Zertifikat angehängt",
-          "replace": "Ersetzen",
-          "addCertificate": "Zertifikat anhängen",
-          "add": "Qualifikation hinzufügen",
-          "none": "Ich habe keine formalen Qualifikationen",
-          "errors": {
-            "blank": "Bitte die leere Qualifikation ausfüllen oder entfernen.",
-            "required": "Fügen Sie mindestens eine Qualifikation hinzu oder haken Sie „Ich habe keine formalen Qualifikationen“ an."
-          }
-        }
+        "replacesNote": "Eine erneute Einreichung ersetzt Ihre vorherige Einreichung."
       }
     },
     "trainingShared": {

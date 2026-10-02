@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
-  Award,
   BadgeCheck,
   CheckCircle2,
   ChevronDown,
@@ -10,11 +9,13 @@ import {
   Copy,
   Download,
   FileCheck2,
+  FileText,
   HardHat,
   Loader2,
   Mail,
   MailX,
   Mic,
+  Plus,
   RefreshCw,
   Search,
   ShieldOff,
@@ -31,6 +32,7 @@ import { resolveAppBaseUrl } from '@/lib/machineQr';
 import { downloadSafetyCardPdf } from '@/lib/safety/safetyCardDownload';
 import {
   SAFETY_CARD_DEFAULT_VALID_MONTHS,
+  SAFETY_TRAINING_MAX_QUALIFICATION_LENGTH,
   addMonths,
   buildSafetyTrainingLink,
   getFinalAttempt,
@@ -468,10 +470,8 @@ function Detail({ label, value }: { label: string; value: string }) {
 
 function AttemptCard({ attempt, passingScore }: { attempt: SafetyTrainingAttempt; passingScore: number }) {
   const { t } = useTranslation();
-  // Certificate photos belong to a declared qualification and are shown there, not in the general gallery.
-  const images = attempt.attachments?.filter((a) => a.kind === 'image' && a.qualificationIndex === undefined) ?? [];
+  const images = attempt.attachments?.filter((a) => a.kind === 'image') ?? [];
   const audio = attempt.attachments?.filter((a) => a.kind === 'audio') ?? [];
-  const qualifications = attempt.qualifications;
   return (
     <div className="rounded-lg border border-slate-200 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -497,38 +497,6 @@ function AttemptCard({ attempt, passingScore }: { attempt: SafetyTrainingAttempt
       )}
       {attempt.notes && (
         <p className="mt-2 whitespace-pre-wrap rounded bg-slate-50 px-2.5 py-2 text-sm text-slate-700">{attempt.notes}</p>
-      )}
-      {qualifications !== undefined && (
-        <div className="mt-2">
-          <div className="mb-1 text-[11px] font-medium uppercase text-slate-400">
-            {t('common.safetyTrainings.contractor.details.qualifications')}
-          </div>
-          {qualifications.length === 0 ? (
-            <p className="text-xs text-slate-400">{t('common.safetyTrainings.contractor.details.noQualifications')}</p>
-          ) : (
-            <ul className="space-y-1.5">
-              {qualifications.map((q, i) => {
-                const certs = attempt.attachments?.filter((a) => a.qualificationIndex === i) ?? [];
-                return (
-                  <li key={`${q}-${i}`} className="flex items-center gap-2 text-sm text-slate-700">
-                    <Award className="h-4 w-4 shrink-0 text-slate-400" />
-                    <span className="min-w-0 flex-1">{q}</span>
-                    {certs.map((c) => (
-                      <a key={c.path} href={c.url} target="_blank" rel="noopener noreferrer" title={c.name}>
-                        <img src={c.url} alt={c.name} className="h-9 w-9 rounded border border-slate-200 object-cover hover:opacity-80" loading="lazy" />
-                      </a>
-                    ))}
-                    {certs.length === 0 && (
-                      <span className="shrink-0 text-[11px] text-slate-400">
-                        {t('common.safetyTrainings.contractor.details.noCertificate')}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
       )}
       {images.length > 0 || audio.length > 0 ? (
         <div className="mt-2 space-y-2">
@@ -669,8 +637,40 @@ function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingIn
   const [error, setError] = useState<string | null>(null);
   const finalScore = getFinalScore(invite);
   const belowPass = invite.hasQuiz && (finalScore ?? 0) < invite.passingScore;
-  const finalAttempt = getFinalAttempt(invite);
-  const qualifications = finalAttempt?.qualifications ?? [];
+
+  // Qualifications are not asked of the team member: they come from the profile
+  // the company keeps for them (typed certifications + uploaded certificate
+  // documents). undefined = still loading, null = no such profile.
+  const [profileTech, setProfileTech] = useState<ContractorTechnician | null | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    void getContractorTechnician(invite.contractorId, invite.technicianId).then((found) => {
+      if (!cancelled) setProfileTech(found);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [invite.contractorId, invite.technicianId]);
+  const profileLoading = profileTech === undefined;
+  // A document has no title of its own, so the officer can name a qualification they read in one.
+  const [added, setAdded] = useState<string[]>([]);
+  const [draft, setDraft] = useState('');
+  const profileQualifications = useMemo(
+    () => (profileTech?.certifications ?? []).map((c) => c.trim()).filter(Boolean),
+    [profileTech],
+  );
+  const qualifications = [...profileQualifications, ...added];
+  const documents = profileTech?.certificationDocuments ?? [];
+
+  function addQualification() {
+    const title = draft.replace(/\s+/g, ' ').trim().slice(0, SAFETY_TRAINING_MAX_QUALIFICATION_LENGTH);
+    if (!title) return;
+    setDraft('');
+    if (qualifications.some((q) => q.toLowerCase() === title.toLowerCase())) return;
+    // Naming it from a document means the officer has seen the document — start it verified.
+    setVerified((prev) => new Set(prev).add(qualifications.length));
+    setAdded((prev) => [...prev, title]);
+  }
 
   function toggleVerified(index: number) {
     setVerified((prev) => {
@@ -733,46 +733,95 @@ function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingIn
         <div className="text-sm font-medium text-slate-700">
           {t('common.safetyTrainings.contractor.signOffDialog.qualificationsHeading')}
         </div>
-        {qualifications.length === 0 ? (
+        {profileLoading ? (
+          <p className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('common.safetyTrainings.contractor.signOffDialog.loadingProfile')}
+          </p>
+        ) : qualifications.length === 0 ? (
           <p className="mt-1 text-xs text-slate-500">{t('common.safetyTrainings.contractor.signOffDialog.noQualifications')}</p>
         ) : (
           <>
             <p className="mt-0.5 text-xs text-slate-500">{t('common.safetyTrainings.contractor.signOffDialog.qualificationsHint')}</p>
             <ul className="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200">
-              {qualifications.map((q, i) => {
-                const certs = finalAttempt?.attachments?.filter((a) => a.qualificationIndex === i) ?? [];
-                return (
-                  <li key={`${q}-${i}`} className="flex items-center gap-3 px-3 py-2">
-                    <input
-                      id={`verify-${i}`}
-                      type="checkbox"
-                      checked={verified.has(i)}
-                      onChange={() => toggleVerified(i)}
-                      className="h-4 w-4 shrink-0 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <label htmlFor={`verify-${i}`} className="min-w-0 flex-1 cursor-pointer">
-                      <span className="block text-sm text-slate-800">{q}</span>
-                      <span className="block text-[11px] text-slate-400">
-                        {verified.has(i)
-                          ? t('common.safetyTrainings.contractor.signOffDialog.verifiedLabel')
-                          : t('common.safetyTrainings.contractor.signOffDialog.notVerifiedLabel')}
-                      </span>
-                    </label>
-                    {certs.length > 0 ? (
-                      certs.map((c) => (
-                        <a key={c.path} href={c.url} target="_blank" rel="noopener noreferrer" title={t('common.safetyTrainings.contractor.signOffDialog.viewCertificate')}>
-                          <img src={c.url} alt={c.name} className="h-10 w-10 rounded border border-slate-200 object-cover hover:opacity-80" loading="lazy" />
-                        </a>
-                      ))
-                    ) : (
-                      <span className="shrink-0 text-[11px] text-slate-400">
-                        {t('common.safetyTrainings.contractor.details.noCertificate')}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
+              {qualifications.map((q, i) => (
+                <li key={`${q}-${i}`} className="flex items-center gap-3 px-3 py-2">
+                  <input
+                    id={`verify-${i}`}
+                    type="checkbox"
+                    checked={verified.has(i)}
+                    onChange={() => toggleVerified(i)}
+                    className="h-4 w-4 shrink-0 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <label htmlFor={`verify-${i}`} className="min-w-0 flex-1 cursor-pointer">
+                    <span className="block text-sm text-slate-800">{q}</span>
+                    <span className="block text-[11px] text-slate-400">
+                      {verified.has(i)
+                        ? t('common.safetyTrainings.contractor.signOffDialog.verifiedLabel')
+                        : t('common.safetyTrainings.contractor.signOffDialog.notVerifiedLabel')}
+                    </span>
+                  </label>
+                </li>
+              ))}
             </ul>
+          </>
+        )}
+
+        {!profileLoading && (
+          <>
+            <div className="mt-3 text-xs font-medium text-slate-500">
+              {t('common.safetyTrainings.contractor.signOffDialog.documentsHeading')}
+            </div>
+            {documents.length === 0 ? (
+              <p className="mt-1 text-xs text-slate-400">{t('common.safetyTrainings.contractor.signOffDialog.noDocuments')}</p>
+            ) : (
+              <ul className="mt-1.5 flex flex-wrap gap-2">
+                {documents.map((d) => (
+                  <li key={d.id}>
+                    <a
+                      href={d.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={t('common.safetyTrainings.contractor.signOffDialog.viewCertificate')}
+                      className="flex items-center gap-2 rounded-lg border border-slate-200 px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
+                    >
+                      {/\.(png|jpe?g|webp|gif|bmp)$/i.test(d.name) ? (
+                        <img src={d.url} alt="" className="h-9 w-9 rounded object-cover" loading="lazy" />
+                      ) : (
+                        <FileText className="h-5 w-5 text-slate-400" />
+                      )}
+                      <span className="max-w-[10rem] truncate">{d.name}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <label htmlFor="signoff-add-qualification" className="mt-3 block text-xs font-medium text-slate-500">
+              {t('common.safetyTrainings.contractor.signOffDialog.addLabel')}
+            </label>
+            <div className="mt-1.5 flex gap-2">
+              <input
+                id="signoff-add-qualification"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addQualification();
+                  }
+                }}
+                maxLength={SAFETY_TRAINING_MAX_QUALIFICATION_LENGTH}
+                placeholder={t('common.safetyTrainings.contractor.signOffDialog.addPlaceholder')}
+                className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+              />
+              <button
+                type="button"
+                onClick={addQualification}
+                disabled={!draft.trim()}
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              >
+                <Plus className="h-4 w-4" /> {t('common.safetyTrainings.contractor.signOffDialog.addButton')}
+              </button>
+            </div>
           </>
         )}
       </div>

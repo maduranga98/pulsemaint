@@ -3917,10 +3917,7 @@
           "signedOffBy": "Validé par {{name}} le {{date}}",
           "finalSubmission": "Soumission finale",
           "attemptsUsedNote": "{{used}} tentatives sur {{max}} utilisées — les tentatives précédentes ne sont pas conservées, seulement cette soumission finale.",
-          "verifiedQualifications": "Qualifications vérifiées : {{list}}",
-          "qualifications": "Qualifications déclarées",
-          "noQualifications": "Aucune déclarée.",
-          "noCertificate": "Aucun certificat joint"
+          "verifiedQualifications": "Qualifications vérifiées : {{list}}"
         },
         "toasts": {
           "linkCopied": "Lien copié.",
@@ -3954,13 +3951,19 @@
             "signatureRequired": "Veuillez signer dans le cadre pour valider."
           },
           "qualificationsHeading": "Qualifications",
-          "noQualifications": "Le membre de l'équipe n'a déclaré aucune qualification formelle.",
-          "qualificationsHint": "Cochez chaque qualification vérifiée d'après son certificat. Seules celles cochées sont imprimées sur la carte de sécurité.",
+          "noQualifications": "Aucune qualification n'est enregistrée dans le profil du membre de l'équipe.",
+          "qualificationsHint": "Issues du profil du membre de l'équipe. Cochez chaque qualification vérifiée d'après son certificat ; seules celles cochées sont imprimées sur la carte de sécurité.",
           "verifiedLabel": "Vérifiée",
           "notVerifiedLabel": "Non vérifiée",
           "viewCertificate": "Ouvrir le certificat",
           "signatureLabel": "Votre signature",
-          "signatureHint": "Enregistrée avec la validation et imprimée au verso de la carte de sécurité."
+          "signatureHint": "Enregistrée avec la validation et imprimée au verso de la carte de sécurité.",
+          "loadingProfile": "Chargement du profil…",
+          "documentsHeading": "Documents de certificats du profil",
+          "noDocuments": "Aucun document de certificat n'est joint au profil.",
+          "addLabel": "Ajouter une qualification lue dans un document",
+          "addPlaceholder": "par ex. NVQ niveau 4 – Soudage",
+          "addButton": "Ajouter"
         },
         "issueDialog": {
           "title": "Délivrer la carte de sécurité",
@@ -4050,8 +4053,7 @@
           "training": "Formation",
           "quiz": "Quiz",
           "comments": "Commentaires",
-          "attachments": "Photos et notes vocales",
-          "qualifications": "Vos qualifications"
+          "attachments": "Photos et notes vocales"
         },
         "passMark": "Seuil de réussite : {{mark}} %",
         "optional": "(facultatif)",
@@ -4074,21 +4076,7 @@
         "signatureLabel": "Saisissez votre nom complet comme signature",
         "submit": "Soumettre",
         "submitting": "Envoi…",
-        "replacesNote": "Soumettre à nouveau remplace votre soumission précédente.",
-        "qualifications": {
-          "hint": "Indiquez vos qualifications professionnelles, par ex. « NVQ niveau 4 – Soudage ». Joignez une photo de chaque certificat si possible. Votre responsable sécurité les vérifiera.",
-          "placeholder": "par ex. NVQ niveau 4 – Soudage",
-          "rowAria": "Qualification {{n}}",
-          "certificateAttached": "Certificat joint",
-          "replace": "Remplacer",
-          "addCertificate": "Joindre le certificat",
-          "add": "Ajouter une qualification",
-          "none": "Je n'ai aucune qualification formelle",
-          "errors": {
-            "blank": "Veuillez remplir ou supprimer la qualification vide.",
-            "required": "Ajoutez au moins une qualification ou cochez « Je n'ai aucune qualification formelle »."
-          }
-        }
+        "replacesNote": "Soumettre à nouveau remplace votre soumission précédente."
       }
     },
     "trainingShared": {
