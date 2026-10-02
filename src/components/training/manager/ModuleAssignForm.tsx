@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, addDoc, getDocs, onSnapshot, query, serverTimestamp, where } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { X, Loader2, Users, Shield, Building2 } from 'lucide-react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
-import { notifyUsers } from '@/services/notifications.service';
 import type { UserProfile, UserRole } from '@/types/auth';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
-import { getModuleCategory } from '@/lib/training/offboardTraining';
-import { combineDueDateTime } from '@/lib/training/dueDateTime';
+import { createModuleAssignment } from '@/lib/training/createModuleAssignment';
 import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 
 const ROLE_OPTIONS = [
@@ -117,93 +115,24 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
       let assigned = 0;
       let skipped = 0;
       for (const trainee of resolvedUsers) {
-        const existingSnap = await getDocs(
-          query(
-            collection(db, 'trainingAssignments'),
-            where('companyId', '==', companyId),
-            where('traineeId', '==', trainee.id),
-            where('moduleId', '==', module.id)
-          )
-        );
-        const hasActive = existingSnap.docs.some((d) => {
-          const data = d.data();
-          return data.status !== 'certified' && data.status !== 'expired';
-        });
-        if (hasActive) {
-          skipped++;
-          continue;
-        }
-
-        await addDoc(collection(db, 'trainingAssignments'), {
+        const outcome = await createModuleAssignment({
           companyId,
-          moduleId: module.id,
-          moduleName: module.title,
-          machineId: module.machineId ?? '',
-          machineName: module.machineName,
-          traineeId: trainee.id,
-          traineeName: trainee.fullName,
-          traineeEmail: trainee.email ?? '',
-          traineeRole: trainee.role,
-          department: trainee.department ?? '',
-          assignedBy: userProfile.id,
-          assignedByName: userProfile.fullName ?? '',
-          assignedAt: serverTimestamp(),
-          dueDate: combineDueDateTime(dueDate, dueTime),
-          trainingType: module.trainingType ?? null,
-          trainingPeriodMonths: null,
-          status: 'not_started',
-          isRetraining: false,
-          retrainingReason: '',
-          retrainingTriggeredAt: null,
-          lessonProgress: {},
-          overallProgress: 0,
-          lessonsCompleted: 0,
-          totalLessons: module.lessons?.length ?? 0,
-          // The full assignment shape. Leaving the quiz/progress fields out
-          // made `attemptsUsed` undefined, so the quiz pre-screen computed
-          // `maxAttempts - undefined = NaN`, showed "NaN attempts remaining"
-          // and disabled Start Quiz — the assignee could never take the quiz.
-          quizAttempts: [],
-          bestScore: 0,
-          latestScore: 0,
-          quizPassed: false,
-          quizPassedAt: null,
-          attemptsUsed: 0,
-          practicalSignOff: module.quiz
-            ? {
-                required: true,
-                signedOffBy: '',
-                signedOffByName: '',
-                signedOffAt: null,
-                observations: '',
-                passed: false,
-              }
-            : null,
-          certificateId: null,
-          certifiedAt: null,
-          certificateExpiryDate: null,
-          startedAt: null,
-          completedAt: null,
-          lastActivityAt: null,
-          category: getModuleCategory(module),
-          notifyTrainee,
-        });
-        assigned++;
-
-        if (notifyTrainee) {
-          void notifyUsers(companyId, [trainee.id], {
-            type: 'training',
+          module,
+          trainee,
+          assigner: userProfile,
+          dueDate,
+          dueTime,
+          notify: notifyTrainee,
+          notification: {
             message: t('common.trainingShared.assignForm.notification.message', { title: module.title }),
             oversightMessage: t('common.trainingShared.assignForm.notification.oversightMessage', {
               title: module.title,
               name: trainee.fullName,
             }),
-            actorName: userProfile.fullName ?? '',
-            actorRole: userProfile.role,
-            actorUserId: userProfile.id,
-            linkTo: '/app/training',
-          });
-        }
+          },
+        });
+        if (outcome === 'assigned') assigned++;
+        else skipped++;
       }
       setResult({ assigned, skipped });
     } catch (err) {

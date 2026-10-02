@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, QrCode, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { useAuthStore } from '@/store/authStore';
@@ -8,6 +8,7 @@ import { useCompanyUsers } from '@/hooks/useCompanyUsers';
 import { useWorkOrders } from '@/hooks/useWorkOrders';
 import { useContractors } from '@/hooks/contractors/useContractors';
 import { createSafetyCase } from '@/services/safety.service';
+import { isSafetyCardValid, type ContractorSafetyCard } from '@/lib/safety/contractorSafety';
 import { notifyRoles, notifyUsers } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
 import {
@@ -23,6 +24,12 @@ import {
 interface Props {
   onClose: () => void;
   onCreated?: () => void;
+  /**
+   * A scanned Contractor Safety Card. The case is then raised against the
+   * card holder: it is a contractor case (points go to the contractor
+   * company) that names the team member it concerns.
+   */
+  card?: ContractorSafetyCard | null;
 }
 
 const field = 'w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] outline-none focus:border-[#1A56DB]';
@@ -54,7 +61,7 @@ function subjectLabel(value: string, t: TFunction): string {
   return t(`common.safetyCases.subjectTypes.${value}`, { defaultValue: fallback });
 }
 
-export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
+export default function ReportSafetyCaseModal({ onClose, onCreated, card = null }: Props) {
   const { t } = useTranslation();
   const profile = useAuthStore((s) => s.userProfile);
   const companyId = profile?.companyId ?? '';
@@ -62,8 +69,8 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
 
   const [type, setType] = useState<SafetyCaseType>('near_miss');
   const [severity, setSeverity] = useState<SafetyCaseSeverity>('medium');
-  const [subjectType, setSubjectType] = useState<SafetyCaseSubjectType>('other');
-  const [subjectId, setSubjectId] = useState('');
+  const [subjectType, setSubjectType] = useState<SafetyCaseSubjectType>(card ? 'contractor' : 'other');
+  const [subjectId, setSubjectId] = useState(card?.contractorId ?? '');
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
@@ -91,6 +98,8 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
   );
 
   function resolveSubject(): { subjectId: string | null; subjectName: string | null } {
+    // A scanned card fixes the subject: the holder's contractor company.
+    if (card) return { subjectId: card.contractorId, subjectName: card.contractorName };
     if (subjectType === 'other' || !subjectId) return { subjectId: null, subjectName: null };
     if (subjectType === 'work_order') {
       const wo = workOrders.find((w) => w.id === subjectId);
@@ -136,6 +145,14 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
         reportedToUserId: reportTo?.id ?? null,
         reportedToName: reportTo?.fullName ?? null,
         actions: [],
+        ...(card
+          ? {
+              contractorTechnicianId: card.technicianId,
+              contractorTechnicianName: card.holderName,
+              safetyCardId: card.id,
+              reportedVia: 'qr_scan' as const,
+            }
+          : { reportedVia: 'manual' as const }),
         reportedBy: profile.id,
         reportedByName: profile.fullName ?? '',
         reportedByRole: profile.role ?? '',
@@ -196,7 +213,38 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
         </div>
 
         <div className="mt-4 space-y-3">
+          {card && (
+            <div className="rounded-lg border border-[#F59E0B]/40 bg-[#F59E0B]/10 p-3">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#F59E0B]">
+                <QrCode className="h-4 w-4" /> {t('common.safetyCases.createModal.card.heading')}
+              </div>
+              <div className="mt-2 text-sm font-semibold text-[#F0F4F8]">{card.holderName}</div>
+              <div className="text-xs text-[#8BA3BF]">
+                {[card.holderPosition, card.holderNic].filter(Boolean).join(' · ')}
+              </div>
+              <div className="mt-1 text-sm text-[#F0F4F8]">{card.contractorName}</div>
+              {card.contactPersonName && (
+                <div className="text-xs text-[#8BA3BF]">
+                  {t('common.safetyCases.createModal.card.contact', {
+                    name: card.contactPersonName,
+                    phone: card.contactPersonPhone || '—',
+                  })}
+                </div>
+              )}
+              <p className="mt-2 text-xs text-[#8BA3BF]">{t('common.safetyCases.createModal.card.pointsNote')}</p>
+              {!isSafetyCardValid(card) && (
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-400">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  {card.status === 'revoked'
+                    ? t('common.safetyCases.createModal.card.revoked')
+                    : t('common.safetyCases.createModal.card.expired')}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* What the case is near / about */}
+          {!card && (
           <div>
             <label className={labelCls}>{t('common.safetyCases.createModal.subject.label')}</label>
             <select
@@ -211,7 +259,9 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
             </select>
           </div>
 
-          {subjectType !== 'other' && (
+          )}
+
+          {!card && subjectType !== 'other' && (
             <div>
               <label className={labelCls}>{subjectPickerLabel}</label>
               <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className={field}>

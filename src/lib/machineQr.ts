@@ -27,7 +27,7 @@ const PRODUCTION_APP_URL = 'https://pulsemaint.web.app';
  *   2. VITE_APP_URL, when it is configured and not a localhost URL.
  *   3. The hardcoded production URL as a final fallback.
  */
-function resolveAppBaseUrl(): string {
+export function resolveAppBaseUrl(): string {
   const isLocalhost = (url: string) =>
     /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])/i.test(url);
 

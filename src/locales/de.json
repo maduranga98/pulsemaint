@@ -3662,7 +3662,9 @@
         "actionsTaken_one": "Ergriffene Maßnahmen ({{count}})",
         "actionsTaken_other": "Ergriffene Maßnahmen ({{count}})",
         "noActions": "Noch keine Maßnahmen erfasst.",
-        "closedNotice": "Dieser Fall ist geschlossen und kann nicht mehr bearbeitet werden."
+        "closedNotice": "Dieser Fall ist geschlossen und kann nicht mehr bearbeitet werden.",
+        "contractorMember": "Teammitglied des Auftragnehmers",
+        "viaQr": "QR-Scan"
       },
       "actionForm": {
         "heading": "Maßnahme Erfassen",
@@ -3735,7 +3737,26 @@
           "newCaseOversight": "hat einen Sicherheitsfall gemeldet: {{title}}",
           "reportedTo": "Ihnen gemeldeter Sicherheitsfall: {{title}}",
           "reportedToOversight": "hat {{name}} einen Sicherheitsfall gemeldet: {{title}}"
+        },
+        "card": {
+          "heading": "Auftragnehmer-Sicherheitskarte",
+          "contact": "Kontakt: {{name}} · {{phone}}",
+          "pointsNote": "Dies wird als Auftragnehmer-Sicherheitsfall erfasst – die Punkte gehen an die Auftragnehmerfirma, und der Fall nennt dieses Teammitglied.",
+          "revoked": "Diese Sicherheitskarte wurde widerrufen.",
+          "expired": "Diese Sicherheitskarte ist abgelaufen."
         }
+      },
+      "reportButton": "Sicherheitsfall melden",
+      "scan": {
+        "button": "QR scannen zum Melden",
+        "title": "Sicherheitskarte scannen",
+        "hint": "Scannen Sie den QR-Code auf der Sicherheitskarte eines Auftragnehmers, um einen Sicherheitsfall gegen ihn zu melden.",
+        "notACard": "Dieser QR-Code ist keine Auftragnehmer-Sicherheitskarte.",
+        "cameraFailed": "Kamera konnte nicht geöffnet werden.",
+        "notFound": "Sicherheitskarte nicht gefunden.",
+        "close": "Schließen",
+        "cancel": "Abbrechen",
+        "redirecting": "Sicherheitsfall-Meldung wird geöffnet…"
       }
     },
     "safetyTrainings": {
@@ -3775,6 +3796,251 @@
         "backAria": "Zurück zu Sicherheitsschulungen",
         "title": "Sicherheitsschulungsmodul Erstellen",
         "untitled": "Unbenannte Sicherheitsschulung"
+      },
+      "assign": {
+        "title": "Sicherheitsschulung zuweisen",
+        "tabs": {
+          "contractors": "Auftragnehmer"
+        },
+        "contractorsHint": "Teammitglieder des Auftragnehmers absolvieren die Schulung über einen per E-Mail gesendeten Link – ohne Anmeldung.",
+        "usersHint": "Firmenbenutzer absolvieren diese Schulung in FirmiCore. Es wird keine E-Mail gesendet.",
+        "noContractors": "Keine aktiven Auftragnehmer gefunden.",
+        "selectContractor": "Auftragnehmer auswählen",
+        "noTeam": "Dieser Auftragnehmer hat noch keine aktiven Teammitglieder.",
+        "teamMembers": "{{name}} — Teammitglieder",
+        "selectAll": "Alle auswählen",
+        "clearAll": "Leeren",
+        "noEmail": "Keine E-Mail",
+        "noUsers": "Keine Benutzer mit dieser Rolle.",
+        "summary": "Firmenbenutzer: {{users}} · Teammitglieder von Auftragnehmern: {{members}}",
+        "dueRequiredLabel": "Link schließt am (Fälligkeitsdatum & Uhrzeit)",
+        "dueHintContractor": "Teammitglieder können bis zu {{max}} Mal bis zu diesem Datum und dieser Uhrzeit einreichen, danach schließt der Link.",
+        "assignAndSend": "Zuweisen & Links senden",
+        "errors": {
+          "dueRequired": "Wählen Sie ein Fälligkeitsdatum für die Teammitglieder der Auftragnehmer – dann schließt ihr Link.",
+          "dueInPast": "Fälligkeitsdatum und Uhrzeit müssen in der Zukunft liegen."
+        },
+        "result": {
+          "users_one": "{{count}} Firmenbenutzer in der App zugewiesen.",
+          "users_other": "{{count}} Firmenbenutzern in der App zugewiesen.",
+          "members_one": "{{count}} Auftragnehmer-Link erstellt.",
+          "members_other": "{{count}} Auftragnehmer-Links erstellt.",
+          "emailed": "{{sent}} von {{total}} per E-Mail gesendet.",
+          "skipped_one": "{{count}} Person hatte diese Schulung bereits und wurde übersprungen.",
+          "skipped_other": "{{count}} Personen hatten diese Schulung bereits und wurden übersprungen.",
+          "shareManually": "Einige Teammitglieder konnten nicht per E-Mail erreicht werden (keine E-Mail hinterlegt oder Versand fehlgeschlagen). Kopieren Sie den Link und senden Sie ihn anders, z. B. per WhatsApp.",
+          "email": {
+            "sent": "Gesendet",
+            "failed": "Versand fehlgeschlagen",
+            "no_email": "Keine E-Mail hinterlegt",
+            "closed": "Geschlossen",
+            "not_found": "Nicht gefunden"
+          },
+          "copyLink": "Link kopieren",
+          "copied": "Kopiert",
+          "copyPrompt": "Diesen Link kopieren:"
+        }
+      },
+      "contractor": {
+        "tab": "Einreichungen von Auftragnehmern",
+        "tabModules": "Module & Zuweisungen",
+        "stats": {
+          "awaitingReview": "Warten auf Prüfung",
+          "signedOff": "Abgenommen",
+          "cardsActive": "Aktive Sicherheitskarten"
+        },
+        "filters": {
+          "all": "Alle",
+          "submitted": "Zu prüfen",
+          "awaiting": "Ausstehend",
+          "overdue": "Überfällig",
+          "signed_off": "Abgenommen",
+          "reassigned": "Neu zugewiesen"
+        },
+        "searchPlaceholder": "Name, Auftragnehmer oder Schulung suchen…",
+        "empty": "Noch keine Sicherheitsschulungen für Auftragnehmer. Verwenden Sie „Zuweisen“ bei einem Modul und wählen Sie Teammitglieder eines Auftragnehmers.",
+        "emptyFiltered": "Nichts entspricht diesem Filter.",
+        "status": {
+          "awaiting": "Warten auf Einreichung",
+          "submitted": "Eingereicht",
+          "overdue": "Überfällig",
+          "signed_off": "Abgenommen",
+          "reassigned": "Neu zugewiesen"
+        },
+        "cardBadge": "Karte {{number}}",
+        "cardInactive": "Karte {{number}} (inaktiv)",
+        "row": {
+          "due": "Fällig {{date}}",
+          "email": {
+            "pending": "E-Mail ausstehend",
+            "sent": "Link gesendet",
+            "failed": "E-Mail fehlgeschlagen",
+            "no_email": "Keine E-Mail"
+          },
+          "marks": "Punkte",
+          "noQuiz": "Kein Quiz",
+          "attempts": "Versuche"
+        },
+        "actions": {
+          "reassign": "Neu zuweisen",
+          "signOff": "Abnehmen",
+          "issueCard": "Sicherheitskarte ausstellen",
+          "downloadCard": "Karte herunterladen (PDF)",
+          "revokeCard": "Karte widerrufen",
+          "copyLink": "Link kopieren",
+          "resendEmail": "E-Mail erneut senden",
+          "details": "Details"
+        },
+        "details": {
+          "nic": "Ausweisnummer",
+          "assignedBy": "Zugewiesen von",
+          "assignedAt": "Zugewiesen am",
+          "noAttempts": "Noch nicht eingereicht.",
+          "attemptN": "Versuch {{n}}",
+          "passed": "Bestanden (Bestehensgrenze {{mark}}%)",
+          "belowPassMark": "Unter der Bestehensgrenze ({{mark}}%)",
+          "signedAs": "Unterschrieben als {{name}}",
+          "noAttachments": "Keine Anhänge.",
+          "signedOffBy": "Abgenommen von {{name}} am {{date}}"
+        },
+        "toasts": {
+          "linkCopied": "Link kopiert.",
+          "copyPrompt": "Diesen Link kopieren:",
+          "linkResent": "Link erneut per E-Mail gesendet.",
+          "noEmail": "Für diese Person ist keine E-Mail-Adresse hinterlegt.",
+          "resendFailed": "E-Mail konnte nicht gesendet werden. Kopieren Sie den Link und teilen Sie ihn stattdessen.",
+          "pdfFailed": "Karten-PDF konnte nicht erstellt werden.",
+          "cardRevoked": "Sicherheitskarte widerrufen.",
+          "actionFailed": "Das hat nicht funktioniert. Bitte erneut versuchen.",
+          "reassignedEmailed": "Neu zugewiesen – ein neuer Link wurde per E-Mail gesendet.",
+          "reassignedNoEmail": "Neu zugewiesen. Der neue Link konnte nicht per E-Mail gesendet werden – kopieren Sie ihn aus der Liste.",
+          "signedOff": "Abgenommen.",
+          "cardIssued": "Sicherheitskarte ausgestellt."
+        },
+        "revokePrompt": "Warum wird diese Sicherheitskarte widerrufen?",
+        "reassignDialog": {
+          "title": "Schulung neu zuweisen",
+          "body": "Der aktuelle Link wird geschlossen und ein neuer mit frischen Versuchen gesendet. Frühere Einreichungen bleiben erhalten.",
+          "confirm": "Neu zuweisen & Link senden"
+        },
+        "signOffDialog": {
+          "title": "Schulung abnehmen",
+          "bodyScore": "Bestes Ergebnis {{score}}% (Bestehensgrenze {{mark}}%).",
+          "bodyNoQuiz": "Diese Schulung hat kein Quiz – das Teammitglied hat das Bestätigungsformular eingereicht.",
+          "warnBelowPass": "Das beste Ergebnis liegt unter der Bestehensgrenze. Weisen Sie stattdessen neu zu, wenn die Schulung wiederholt werden soll.",
+          "closesLink": "Mit der Abnahme wird der Link geschlossen. Anschließend können Sie eine Sicherheitskarte ausstellen.",
+          "noteLabel": "Notiz",
+          "confirm": "Abnehmen"
+        },
+        "issueDialog": {
+          "title": "Sicherheitskarte ausstellen",
+          "body": "Erstellt eine Auftragnehmer-Sicherheitskarte (3,5 × 2 Zoll) mit QR-Code. Prüfen Sie die Angaben vor der Ausstellung.",
+          "fields": {
+            "name": "Name",
+            "nic": "Ausweis / Reisepass",
+            "position": "Position",
+            "field": "Fachgebiet",
+            "contractor": "Auftragnehmer",
+            "contact": "Ansprechpartner"
+          },
+          "validUntil": "Gültig bis",
+          "confirm": "Karte ausstellen",
+          "issuedTitle": "Sicherheitskarte ausgestellt",
+          "issuedBody": "Laden Sie das PDF herunter und drucken Sie es in 3,5 × 2 Zoll (Vorder- und Rückseite). Das Scannen des QR-Codes öffnet eine Sicherheitsfall-Meldung für den Karteninhaber.",
+          "downloadPdf": "Karte herunterladen (PDF)",
+          "errors": {
+            "validUntil": "Wählen Sie ein Ablaufdatum in der Zukunft.",
+            "noContractor": "Der Auftragnehmer-Datensatz wurde nicht gefunden."
+          }
+        }
+      },
+      "publicForm": {
+        "badge": "Sicherheitsschulung",
+        "retry": "Erneut versuchen",
+        "footer": "Bereitgestellt von FirmiCore",
+        "errors": {
+          "invalidLink": "Dieser Link ist ungültig oder wurde ersetzt.",
+          "loadFailed": "Die Schulung konnte nicht geladen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+          "answerAll": "Bitte beantworten Sie alle Fragen.",
+          "nameRequired": "Bitte geben Sie Ihren vollständigen Namen als Unterschrift ein.",
+          "ackRequired": "Bitte bestätigen Sie die Erklärung.",
+          "closed": "Dieser Link ist geschlossen.",
+          "submitFailed": "Einreichen fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+        },
+        "details": {
+          "name": "Name",
+          "contractor": "Firma",
+          "site": "Standort",
+          "due": "Abschließen bis",
+          "attempts": "Versuche",
+          "attemptsValue": "{{used}} von {{max}} genutzt"
+        },
+        "attemptN": "Versuch {{n}}",
+        "passed": "Bestanden",
+        "belowPassMark": "Unter der Bestehensgrenze",
+        "submitted": "Eingereicht",
+        "closed": {
+          "signed_off": {
+            "title": "Schulung abgenommen",
+            "body": "Ihr Sicherheitsbeauftragter hat diese Schulung abgenommen. Vielen Dank."
+          },
+          "reassigned": {
+            "title": "Dieser Link wurde ersetzt",
+            "body": "Für diese Schulung wurde Ihnen ein neuerer Link gesendet. Bitte verwenden Sie diesen."
+          },
+          "attempts_exhausted": {
+            "title": "Keine Versuche mehr",
+            "body": "Sie haben alle Versuche genutzt. Wenden Sie sich an Ihren Sicherheitsbeauftragten, wenn Sie einen weiteren Versuch benötigen."
+          },
+          "expired": {
+            "title": "Dieser Link ist geschlossen",
+            "body": "Fälligkeitsdatum und Uhrzeit sind abgelaufen. Wenden Sie sich an Ihren Sicherheitsbeauftragten, um erneut zugewiesen zu werden."
+          }
+        },
+        "alreadySubmitted": "Sie haben diese Schulung bereits eingereicht. Ihre Einreichungen sind unten aufgeführt.",
+        "tryAgain_one": "Erneut versuchen ({{count}} Versuch übrig)",
+        "tryAgain_other": "Erneut versuchen ({{count}} Versuche übrig)",
+        "done": {
+          "title": "Eingereicht",
+          "body": "Vielen Dank – Ihr Sicherheitsbeauftragter wird Ihre Einreichung prüfen.",
+          "passed": "Bestanden — Bestehensgrenze {{mark}}%",
+          "belowPassMark": "Unter der Bestehensgrenze von {{mark}}%",
+          "canRetry_one": "Sie können erneut einreichen – {{count}} Versuch übrig bis {{due}}.",
+          "canRetry_other": "Sie können erneut einreichen – {{count}} Versuche übrig bis {{due}}.",
+          "noMoreAttempts": "Es sind keine weiteren Versuche verfügbar.",
+          "submitAgain": "Erneut einreichen"
+        },
+        "openDocument": "Dokument öffnen",
+        "selectAllThatApply": "Alle zutreffenden auswählen",
+        "intro_one": "Lesen Sie die Schulung, füllen Sie das Formular aus und reichen Sie es ein. Sie haben noch {{count}} Versuch.",
+        "intro_other": "Lesen Sie die Schulung, füllen Sie das Formular aus und reichen Sie es ein. Sie haben noch {{count}} Versuche.",
+        "sections": {
+          "training": "Schulung",
+          "quiz": "Quiz",
+          "comments": "Kommentare",
+          "attachments": "Fotos & Sprachnotizen"
+        },
+        "passMark": "Bestehensgrenze: {{mark}}%",
+        "optional": "(optional)",
+        "commentsPlaceholder": "Alles, was Ihr Sicherheitsbeauftragter wissen soll…",
+        "attachments": {
+          "hint": "Fügen Sie Fotos hinzu oder nehmen Sie eine Sprachnotiz auf, falls hilfreich. Das ist optional.",
+          "addPhotos": "Fotos hinzufügen",
+          "recordVoice": "Sprachnotiz aufnehmen",
+          "stopRecording": "Stopp ({{time}})",
+          "micDenied": "Zugriff auf das Mikrofon nicht möglich. Prüfen Sie die Browser-Berechtigung.",
+          "voiceUnsupported": "Sprachaufnahme wird in diesem Browser nicht unterstützt.",
+          "tooLarge": "Die Anhänge sind zu groß. Entfernen Sie einen oder verwenden Sie kleinere Dateien.",
+          "maxImages": "Sie können bis zu {{max}} Fotos hinzufügen.",
+          "maxAudio": "Sie können bis zu {{max}} Sprachnotizen hinzufügen.",
+          "imageFailed": "Dieses Foto konnte nicht hinzugefügt werden.",
+          "voiceFailed": "Die Aufnahme konnte nicht hinzugefügt werden.",
+          "remove": "Entfernen"
+        },
+        "declaration": "Ich bestätige, dass ich diese Sicherheitsschulung gelesen und verstanden habe und die Sicherheitsregeln des Standorts einhalten werde.",
+        "signatureLabel": "Geben Sie Ihren vollständigen Namen als Unterschrift ein",
+        "submit": "Einreichen",
+        "submitting": "Wird eingereicht…"
       }
     },
     "trainingShared": {

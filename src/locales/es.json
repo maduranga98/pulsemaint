@@ -3662,7 +3662,9 @@
         "actionsTaken_one": "Acciones tomadas ({{count}})",
         "actionsTaken_other": "Acciones tomadas ({{count}})",
         "noActions": "Aún no se han registrado acciones.",
-        "closedNotice": "Este caso está cerrado y ya no se puede editar."
+        "closedNotice": "Este caso está cerrado y ya no se puede editar.",
+        "contractorMember": "Miembro del equipo del contratista",
+        "viaQr": "Escaneo QR"
       },
       "actionForm": {
         "heading": "Registrar una acción",
@@ -3735,7 +3737,26 @@
           "newCaseOversight": "reportó un caso de seguridad: {{title}}",
           "reportedTo": "Caso de seguridad reportado a usted: {{title}}",
           "reportedToOversight": "reportó un caso de seguridad a {{name}}: {{title}}"
+        },
+        "card": {
+          "heading": "Tarjeta de seguridad de contratista",
+          "contact": "Contacto: {{name}} · {{phone}}",
+          "pointsNote": "Se registra como un caso de seguridad de contratista: sus puntos se asignan a la empresa contratista y el caso nombra a este miembro del equipo.",
+          "revoked": "Esta tarjeta de seguridad fue revocada.",
+          "expired": "Esta tarjeta de seguridad ha vencido."
         }
+      },
+      "reportButton": "Reportar un caso de seguridad",
+      "scan": {
+        "button": "Escanear QR para reportar",
+        "title": "Escanear tarjeta de seguridad",
+        "hint": "Escanee el código QR de la Tarjeta de Seguridad de un contratista para reportar un caso en su contra.",
+        "notACard": "Ese código QR no es una Tarjeta de Seguridad de Contratista.",
+        "cameraFailed": "No se pudo abrir la cámara.",
+        "notFound": "No se encontró la tarjeta de seguridad.",
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "redirecting": "Abriendo el reporte de caso de seguridad…"
       }
     },
     "safetyTrainings": {
@@ -3775,6 +3796,251 @@
         "backAria": "Volver a Capacitaciones de Seguridad",
         "title": "Crear Módulo de Capacitación de Seguridad",
         "untitled": "Capacitación de Seguridad sin Título"
+      },
+      "assign": {
+        "title": "Asignar Capacitación de Seguridad",
+        "tabs": {
+          "contractors": "Contratistas"
+        },
+        "contractorsHint": "Los miembros del equipo del contratista completan la capacitación mediante un enlace que les enviamos por correo; no necesitan iniciar sesión.",
+        "usersHint": "Los usuarios de la empresa completan esta capacitación dentro de FirmiCore. No se envía correo.",
+        "noContractors": "No se encontraron contratistas activos.",
+        "selectContractor": "Seleccione un contratista",
+        "noTeam": "Este contratista aún no tiene miembros activos en su equipo.",
+        "teamMembers": "{{name}} — miembros del equipo",
+        "selectAll": "Seleccionar todo",
+        "clearAll": "Limpiar",
+        "noEmail": "Sin correo",
+        "noUsers": "No hay usuarios con este rol.",
+        "summary": "Usuarios de la empresa: {{users}} · Miembros de contratistas: {{members}}",
+        "dueRequiredLabel": "El enlace se cierra el (fecha y hora límite)",
+        "dueHintContractor": "Los miembros del equipo pueden enviar hasta {{max}} veces hasta esta fecha y hora; después el enlace se cierra.",
+        "assignAndSend": "Asignar y enviar enlaces",
+        "errors": {
+          "dueRequired": "Elija una fecha límite para los miembros del contratista: su enlace se cierra entonces.",
+          "dueInPast": "La fecha y hora límite deben ser futuras."
+        },
+        "result": {
+          "users_one": "Asignado a {{count}} usuario de la empresa en la aplicación.",
+          "users_other": "Asignado a {{count}} usuarios de la empresa en la aplicación.",
+          "members_one": "Se creó {{count}} enlace de contratista.",
+          "members_other": "Se crearon {{count}} enlaces de contratista.",
+          "emailed": "{{sent}} de {{total}} enviados por correo.",
+          "skipped_one": "{{count}} persona ya tenía esta capacitación y se omitió.",
+          "skipped_other": "{{count}} personas ya tenían esta capacitación y se omitieron.",
+          "shareManually": "No se pudo enviar correo a algunos miembros (sin correo registrado o falló el envío). Copie su enlace y envíelo de otra forma, p. ej. WhatsApp.",
+          "email": {
+            "sent": "Enviado",
+            "failed": "Falló el envío",
+            "no_email": "Sin correo registrado",
+            "closed": "Cerrado",
+            "not_found": "No encontrado"
+          },
+          "copyLink": "Copiar enlace",
+          "copied": "Copiado",
+          "copyPrompt": "Copie este enlace:"
+        }
+      },
+      "contractor": {
+        "tab": "Envíos de contratistas",
+        "tabModules": "Módulos y asignaciones",
+        "stats": {
+          "awaitingReview": "Pendientes de revisión",
+          "signedOff": "Aprobados",
+          "cardsActive": "Tarjetas de seguridad activas"
+        },
+        "filters": {
+          "all": "Todos",
+          "submitted": "Por revisar",
+          "awaiting": "En espera",
+          "overdue": "Vencidos",
+          "signed_off": "Aprobados",
+          "reassigned": "Reasignados"
+        },
+        "searchPlaceholder": "Buscar nombre, contratista o capacitación…",
+        "empty": "Aún no hay capacitaciones de seguridad para contratistas. Use Asignar en un módulo y elija miembros del equipo de un contratista.",
+        "emptyFiltered": "Nada coincide con este filtro.",
+        "status": {
+          "awaiting": "Esperando envío",
+          "submitted": "Enviado",
+          "overdue": "Vencido",
+          "signed_off": "Aprobado",
+          "reassigned": "Reasignado"
+        },
+        "cardBadge": "Tarjeta {{number}}",
+        "cardInactive": "Tarjeta {{number}} (inactiva)",
+        "row": {
+          "due": "Vence {{date}}",
+          "email": {
+            "pending": "Correo pendiente",
+            "sent": "Enlace enviado",
+            "failed": "Falló el correo",
+            "no_email": "Sin correo"
+          },
+          "marks": "Puntaje",
+          "noQuiz": "Sin cuestionario",
+          "attempts": "Intentos"
+        },
+        "actions": {
+          "reassign": "Reasignar",
+          "signOff": "Aprobar",
+          "issueCard": "Emitir tarjeta de seguridad",
+          "downloadCard": "Descargar tarjeta (PDF)",
+          "revokeCard": "Revocar tarjeta",
+          "copyLink": "Copiar enlace",
+          "resendEmail": "Reenviar correo",
+          "details": "Detalles"
+        },
+        "details": {
+          "nic": "Documento de identidad",
+          "assignedBy": "Asignado por",
+          "assignedAt": "Asignado",
+          "noAttempts": "Aún no enviado.",
+          "attemptN": "Intento {{n}}",
+          "passed": "Aprobado (mínimo {{mark}}%)",
+          "belowPassMark": "Por debajo del mínimo ({{mark}}%)",
+          "signedAs": "Firmado como {{name}}",
+          "noAttachments": "Sin adjuntos.",
+          "signedOffBy": "Aprobado por {{name}} el {{date}}"
+        },
+        "toasts": {
+          "linkCopied": "Enlace copiado.",
+          "copyPrompt": "Copie este enlace:",
+          "linkResent": "Enlace reenviado por correo.",
+          "noEmail": "No hay correo registrado para esta persona.",
+          "resendFailed": "No se pudo enviar el correo. Copie el enlace y compártalo.",
+          "pdfFailed": "No se pudo generar el PDF de la tarjeta.",
+          "cardRevoked": "Tarjeta de seguridad revocada.",
+          "actionFailed": "No funcionó. Inténtelo de nuevo.",
+          "reassignedEmailed": "Reasignado: se envió un nuevo enlace por correo.",
+          "reassignedNoEmail": "Reasignado. No se pudo enviar el nuevo enlace por correo: cópielo de la lista.",
+          "signedOff": "Aprobado.",
+          "cardIssued": "Tarjeta de seguridad emitida."
+        },
+        "revokePrompt": "¿Por qué se revoca esta tarjeta de seguridad?",
+        "reassignDialog": {
+          "title": "Reasignar capacitación",
+          "body": "El enlace actual se cierra y se envía uno nuevo con intentos renovados. Los envíos anteriores se conservan.",
+          "confirm": "Reasignar y enviar enlace"
+        },
+        "signOffDialog": {
+          "title": "Aprobar capacitación",
+          "bodyScore": "Mejor puntaje {{score}}% (mínimo {{mark}}%).",
+          "bodyNoQuiz": "Esta capacitación no tiene cuestionario: el miembro del equipo envió el formulario de conformidad.",
+          "warnBelowPass": "El mejor puntaje está por debajo del mínimo. Reasigne si debe repetirla.",
+          "closesLink": "Al aprobar se cierra el enlace. Después puede emitir una tarjeta de seguridad.",
+          "noteLabel": "Nota",
+          "confirm": "Aprobar"
+        },
+        "issueDialog": {
+          "title": "Emitir tarjeta de seguridad",
+          "body": "Crea una Tarjeta de Seguridad de Contratista de 3,5 × 2 pulg. con código QR. Revise los datos antes de emitirla.",
+          "fields": {
+            "name": "Nombre",
+            "nic": "Documento de identidad / Pasaporte",
+            "position": "Cargo",
+            "field": "Especialidad",
+            "contractor": "Contratista",
+            "contact": "Persona de contacto"
+          },
+          "validUntil": "Válida hasta",
+          "confirm": "Emitir tarjeta",
+          "issuedTitle": "Tarjeta de seguridad emitida",
+          "issuedBody": "Descargue el PDF e imprímalo a 3,5 × 2 pulg. (anverso y reverso). Al escanear su código QR se abre un reporte de caso de seguridad para el titular.",
+          "downloadPdf": "Descargar tarjeta (PDF)",
+          "errors": {
+            "validUntil": "Elija una fecha de vencimiento futura.",
+            "noContractor": "No se encontró el registro del contratista."
+          }
+        }
+      },
+      "publicForm": {
+        "badge": "Capacitación de seguridad",
+        "retry": "Reintentar",
+        "footer": "Con tecnología de FirmiCore",
+        "errors": {
+          "invalidLink": "Este enlace no es válido o fue reemplazado.",
+          "loadFailed": "No se pudo cargar la capacitación. Revise su conexión e inténtelo de nuevo.",
+          "answerAll": "Responda todas las preguntas.",
+          "nameRequired": "Escriba su nombre completo como firma.",
+          "ackRequired": "Marque la declaración.",
+          "closed": "Este enlace está cerrado.",
+          "submitFailed": "No se pudo enviar. Revise su conexión e inténtelo de nuevo."
+        },
+        "details": {
+          "name": "Nombre",
+          "contractor": "Empresa",
+          "site": "Sitio",
+          "due": "Completar antes de",
+          "attempts": "Intentos",
+          "attemptsValue": "{{used}} de {{max}} usados"
+        },
+        "attemptN": "Intento {{n}}",
+        "passed": "Aprobado",
+        "belowPassMark": "Por debajo del mínimo",
+        "submitted": "Enviado",
+        "closed": {
+          "signed_off": {
+            "title": "Capacitación aprobada",
+            "body": "Su oficial de seguridad aprobó esta capacitación. Gracias."
+          },
+          "reassigned": {
+            "title": "Este enlace fue reemplazado",
+            "body": "Se le envió un enlace más reciente para esta capacitación. Use ese."
+          },
+          "attempts_exhausted": {
+            "title": "No quedan intentos",
+            "body": "Usó todos sus intentos. Contacte a su oficial de seguridad si necesita otro."
+          },
+          "expired": {
+            "title": "Este enlace se cerró",
+            "body": "Pasó la fecha y hora límite. Contacte a su oficial de seguridad para que se la asigne de nuevo."
+          }
+        },
+        "alreadySubmitted": "Ya envió esta capacitación. Sus envíos aparecen abajo.",
+        "tryAgain_one": "Intentar de nuevo (queda {{count}} intento)",
+        "tryAgain_other": "Intentar de nuevo (quedan {{count}} intentos)",
+        "done": {
+          "title": "Enviado",
+          "body": "Gracias: su oficial de seguridad revisará su envío.",
+          "passed": "Aprobado — mínimo {{mark}}%",
+          "belowPassMark": "Por debajo del mínimo de {{mark}}%",
+          "canRetry_one": "Puede enviar de nuevo: queda {{count}} intento hasta {{due}}.",
+          "canRetry_other": "Puede enviar de nuevo: quedan {{count}} intentos hasta {{due}}.",
+          "noMoreAttempts": "No hay más intentos disponibles.",
+          "submitAgain": "Enviar de nuevo"
+        },
+        "openDocument": "Abrir documento",
+        "selectAllThatApply": "Seleccione todas las que correspondan",
+        "intro_one": "Lea la capacitación, complete el formulario y envíelo. Le queda {{count}} intento.",
+        "intro_other": "Lea la capacitación, complete el formulario y envíelo. Le quedan {{count}} intentos.",
+        "sections": {
+          "training": "Capacitación",
+          "quiz": "Cuestionario",
+          "comments": "Comentarios",
+          "attachments": "Fotos y notas de voz"
+        },
+        "passMark": "Mínimo para aprobar: {{mark}}%",
+        "optional": "(opcional)",
+        "commentsPlaceholder": "Cualquier cosa que quiera que su oficial de seguridad sepa…",
+        "attachments": {
+          "hint": "Agregue fotos o grabe una nota de voz si ayuda. Es opcional.",
+          "addPhotos": "Agregar fotos",
+          "recordVoice": "Grabar nota de voz",
+          "stopRecording": "Detener ({{time}})",
+          "micDenied": "No se pudo acceder al micrófono. Revise el permiso del navegador.",
+          "voiceUnsupported": "La grabación de voz no es compatible con este navegador.",
+          "tooLarge": "Los adjuntos son demasiado grandes. Quite uno o use archivos más pequeños.",
+          "maxImages": "Puede agregar hasta {{max}} fotos.",
+          "maxAudio": "Puede agregar hasta {{max}} notas de voz.",
+          "imageFailed": "No se pudo agregar esa foto.",
+          "voiceFailed": "No se pudo agregar la grabación.",
+          "remove": "Quitar"
+        },
+        "declaration": "Confirmo que leí y comprendí esta capacitación de seguridad y que cumpliré las normas de seguridad del sitio.",
+        "signatureLabel": "Escriba su nombre completo como firma",
+        "submit": "Enviar",
+        "submitting": "Enviando…"
       }
     },
     "trainingShared": {

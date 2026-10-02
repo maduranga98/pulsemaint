@@ -3662,7 +3662,9 @@
         "actionsTaken_one": "已采取的措施（{{count}}）",
         "actionsTaken_other": "已采取的措施（{{count}}）",
         "noActions": "尚未记录任何措施。",
-        "closedNotice": "此事件已关闭，无法再编辑。"
+        "closedNotice": "此事件已关闭，无法再编辑。",
+        "contractorMember": "承包商团队成员",
+        "viaQr": "扫码"
       },
       "actionForm": {
         "heading": "记录处理措施",
@@ -3735,7 +3737,26 @@
           "newCaseOversight": "报告了一起安全事件：{{title}}",
           "reportedTo": "已向您报告安全事件：{{title}}",
           "reportedToOversight": "向 {{name}} 报告了安全事件：{{title}}"
+        },
+        "card": {
+          "heading": "承包商安全卡",
+          "contact": "联系人：{{name}} · {{phone}}",
+          "pointsNote": "此事件将记为承包商安全事件——其积分计入承包商公司，并注明该团队成员。",
+          "revoked": "此安全卡已被吊销。",
+          "expired": "此安全卡已过期。"
         }
+      },
+      "reportButton": "报告安全事件",
+      "scan": {
+        "button": "扫码报告",
+        "title": "扫描安全卡",
+        "hint": "扫描承包商安全卡上的二维码，即可针对其报告安全事件。",
+        "notACard": "该二维码不是承包商安全卡。",
+        "cameraFailed": "无法打开摄像头。",
+        "notFound": "未找到安全卡。",
+        "close": "关闭",
+        "cancel": "取消",
+        "redirecting": "正在打开安全事件报告…"
       }
     },
     "safetyTrainings": {
@@ -3775,6 +3796,251 @@
         "backAria": "返回安全培训",
         "title": "创建安全培训模块",
         "untitled": "未命名安全培训"
+      },
+      "assign": {
+        "title": "分配安全培训",
+        "tabs": {
+          "contractors": "承包商"
+        },
+        "contractorsHint": "承包商团队成员通过我们邮件发送的链接完成培训，无需登录。",
+        "usersHint": "公司用户在 FirmiCore 内完成此培训，不会发送邮件。",
+        "noContractors": "未找到活跃的承包商。",
+        "selectContractor": "选择承包商",
+        "noTeam": "该承包商还没有活跃的团队成员。",
+        "teamMembers": "{{name}} — 团队成员",
+        "selectAll": "全选",
+        "clearAll": "清除",
+        "noEmail": "无邮箱",
+        "noUsers": "没有此角色的用户。",
+        "summary": "公司用户：{{users}} · 承包商团队成员：{{members}}",
+        "dueRequiredLabel": "链接关闭时间（截止日期和时间）",
+        "dueHintContractor": "团队成员最多可在此日期和时间前提交 {{max}} 次，之后链接将关闭。",
+        "assignAndSend": "分配并发送链接",
+        "errors": {
+          "dueRequired": "请为承包商团队成员选择截止日期——届时其链接将关闭。",
+          "dueInPast": "截止日期和时间必须在未来。"
+        },
+        "result": {
+          "users_one": "已在应用内分配给 {{count}} 位公司用户。",
+          "users_other": "已在应用内分配给 {{count}} 位公司用户。",
+          "members_one": "已创建 {{count}} 个承包商链接。",
+          "members_other": "已创建 {{count}} 个承包商链接。",
+          "emailed": "已发送邮件 {{sent}}/{{total}}。",
+          "skipped_one": "{{count}} 人已有此培训，已跳过。",
+          "skipped_other": "{{count}} 人已有此培训，已跳过。",
+          "shareManually": "部分团队成员无法通过邮件联系（无邮箱或发送失败）。请复制其链接并通过其他方式发送，例如 WhatsApp。",
+          "email": {
+            "sent": "已发送",
+            "failed": "发送失败",
+            "no_email": "无邮箱记录",
+            "closed": "已关闭",
+            "not_found": "未找到"
+          },
+          "copyLink": "复制链接",
+          "copied": "已复制",
+          "copyPrompt": "请复制此链接："
+        }
+      },
+      "contractor": {
+        "tab": "承包商提交",
+        "tabModules": "模块与分配",
+        "stats": {
+          "awaitingReview": "待审核",
+          "signedOff": "已签署",
+          "cardsActive": "有效安全卡"
+        },
+        "filters": {
+          "all": "全部",
+          "submitted": "待审核",
+          "awaiting": "等待中",
+          "overdue": "已逾期",
+          "signed_off": "已签署",
+          "reassigned": "已重新分配"
+        },
+        "searchPlaceholder": "搜索姓名、承包商或培训…",
+        "empty": "暂无承包商安全培训。请在模块上使用“分配”并选择承包商的团队成员。",
+        "emptyFiltered": "没有符合此筛选条件的内容。",
+        "status": {
+          "awaiting": "等待提交",
+          "submitted": "已提交",
+          "overdue": "已逾期",
+          "signed_off": "已签署",
+          "reassigned": "已重新分配"
+        },
+        "cardBadge": "卡片 {{number}}",
+        "cardInactive": "卡片 {{number}}（无效）",
+        "row": {
+          "due": "截止 {{date}}",
+          "email": {
+            "pending": "邮件待发送",
+            "sent": "链接已发送",
+            "failed": "邮件发送失败",
+            "no_email": "无邮箱"
+          },
+          "marks": "分数",
+          "noQuiz": "无测验",
+          "attempts": "尝试次数"
+        },
+        "actions": {
+          "reassign": "重新分配",
+          "signOff": "签署确认",
+          "issueCard": "签发安全卡",
+          "downloadCard": "下载卡片 (PDF)",
+          "revokeCard": "吊销卡片",
+          "copyLink": "复制链接",
+          "resendEmail": "重新发送邮件",
+          "details": "详情"
+        },
+        "details": {
+          "nic": "身份证号",
+          "assignedBy": "分配人",
+          "assignedAt": "分配时间",
+          "noAttempts": "尚未提交。",
+          "attemptN": "第 {{n}} 次尝试",
+          "passed": "通过（及格线 {{mark}}%）",
+          "belowPassMark": "未达及格线（{{mark}}%）",
+          "signedAs": "签名：{{name}}",
+          "noAttachments": "无附件。",
+          "signedOffBy": "{{name}} 于 {{date}} 签署确认"
+        },
+        "toasts": {
+          "linkCopied": "链接已复制。",
+          "copyPrompt": "请复制此链接：",
+          "linkResent": "链接已重新发送。",
+          "noEmail": "此人没有邮箱记录。",
+          "resendFailed": "无法发送邮件。请复制链接并另行分享。",
+          "pdfFailed": "无法生成卡片 PDF。",
+          "cardRevoked": "安全卡已吊销。",
+          "actionFailed": "操作失败，请重试。",
+          "reassignedEmailed": "已重新分配——新链接已通过邮件发送。",
+          "reassignedNoEmail": "已重新分配。新链接无法通过邮件发送——请从列表中复制。",
+          "signedOff": "已签署确认。",
+          "cardIssued": "安全卡已签发。"
+        },
+        "revokePrompt": "为什么要吊销此安全卡？",
+        "reassignDialog": {
+          "title": "重新分配培训",
+          "body": "当前链接将关闭，并发送带有新尝试次数的新链接。之前的提交会保留记录。",
+          "confirm": "重新分配并发送链接"
+        },
+        "signOffDialog": {
+          "title": "签署确认培训",
+          "bodyScore": "最高分 {{score}}%（及格线 {{mark}}%）。",
+          "bodyNoQuiz": "此培训没有测验——团队成员提交了确认表。",
+          "warnBelowPass": "最高分低于及格线。如需重修，请改为重新分配。",
+          "closesLink": "签署确认后链接将关闭，之后可签发安全卡。",
+          "noteLabel": "备注",
+          "confirm": "签署确认"
+        },
+        "issueDialog": {
+          "title": "签发安全卡",
+          "body": "将生成带二维码的 3.5 × 2 英寸承包商安全卡。签发前请核对下方信息。",
+          "fields": {
+            "name": "姓名",
+            "nic": "身份证 / 护照",
+            "position": "职位",
+            "field": "专业领域",
+            "contractor": "承包商",
+            "contact": "联系人"
+          },
+          "validUntil": "有效期至",
+          "confirm": "签发卡片",
+          "issuedTitle": "安全卡已签发",
+          "issuedBody": "下载 PDF 并按 3.5 × 2 英寸（正反面）打印。扫描其二维码将打开针对持卡人的安全事件报告。",
+          "downloadPdf": "下载卡片 (PDF)",
+          "errors": {
+            "validUntil": "请选择未来的到期日期。",
+            "noContractor": "未找到承包商记录。"
+          }
+        }
+      },
+      "publicForm": {
+        "badge": "安全培训",
+        "retry": "重试",
+        "footer": "由 FirmiCore 提供支持",
+        "errors": {
+          "invalidLink": "此链接无效或已被替换。",
+          "loadFailed": "无法加载培训。请检查网络连接后重试。",
+          "answerAll": "请回答所有问题。",
+          "nameRequired": "请输入您的全名作为签名。",
+          "ackRequired": "请勾选声明。",
+          "closed": "此链接已关闭。",
+          "submitFailed": "提交失败。请检查网络连接后重试。"
+        },
+        "details": {
+          "name": "姓名",
+          "contractor": "公司",
+          "site": "场地",
+          "due": "截止时间",
+          "attempts": "尝试次数",
+          "attemptsValue": "已用 {{used}}/{{max}}"
+        },
+        "attemptN": "第 {{n}} 次尝试",
+        "passed": "通过",
+        "belowPassMark": "未达及格线",
+        "submitted": "已提交",
+        "closed": {
+          "signed_off": {
+            "title": "培训已签署确认",
+            "body": "您的安全主管已签署确认此培训。谢谢。"
+          },
+          "reassigned": {
+            "title": "此链接已被替换",
+            "body": "我们已为此培训向您发送了新链接，请使用新链接。"
+          },
+          "attempts_exhausted": {
+            "title": "没有剩余尝试次数",
+            "body": "您已用完所有尝试次数。如需再试，请联系您的安全主管。"
+          },
+          "expired": {
+            "title": "此链接已关闭",
+            "body": "截止日期和时间已过。请联系您的安全主管重新分配。"
+          }
+        },
+        "alreadySubmitted": "您已提交过此培训。您的提交记录如下。",
+        "tryAgain_one": "再试一次（剩余 {{count}} 次）",
+        "tryAgain_other": "再试一次（剩余 {{count}} 次）",
+        "done": {
+          "title": "已提交",
+          "body": "谢谢——您的安全主管将审核您的提交。",
+          "passed": "通过——及格线 {{mark}}%",
+          "belowPassMark": "低于及格线 {{mark}}%",
+          "canRetry_one": "您可以再次提交——在 {{due}} 前还剩 {{count}} 次。",
+          "canRetry_other": "您可以再次提交——在 {{due}} 前还剩 {{count}} 次。",
+          "noMoreAttempts": "没有更多可用的尝试次数。",
+          "submitAgain": "再次提交"
+        },
+        "openDocument": "打开文档",
+        "selectAllThatApply": "选择所有适用项",
+        "intro_one": "阅读培训内容，填写表单并提交。您还剩 {{count}} 次尝试。",
+        "intro_other": "阅读培训内容，填写表单并提交。您还剩 {{count}} 次尝试。",
+        "sections": {
+          "training": "培训",
+          "quiz": "测验",
+          "comments": "备注",
+          "attachments": "照片和语音留言"
+        },
+        "passMark": "及格线：{{mark}}%",
+        "optional": "（可选）",
+        "commentsPlaceholder": "您想让安全主管知道的任何事情…",
+        "attachments": {
+          "hint": "如有帮助，可添加照片或录制语音留言。此项为可选。",
+          "addPhotos": "添加照片",
+          "recordVoice": "录制语音留言",
+          "stopRecording": "停止（{{time}}）",
+          "micDenied": "无法访问麦克风。请检查浏览器权限。",
+          "voiceUnsupported": "此浏览器不支持语音录制。",
+          "tooLarge": "附件过大。请删除一个或使用更小的文件。",
+          "maxImages": "最多可添加 {{max}} 张照片。",
+          "maxAudio": "最多可添加 {{max}} 条语音留言。",
+          "imageFailed": "无法添加该照片。",
+          "voiceFailed": "无法添加该录音。",
+          "remove": "移除"
+        },
+        "declaration": "我确认已阅读并理解此安全培训，并将遵守现场安全规定。",
+        "signatureLabel": "输入您的全名作为签名",
+        "submit": "提交",
+        "submitting": "提交中…"
       }
     },
     "trainingShared": {
