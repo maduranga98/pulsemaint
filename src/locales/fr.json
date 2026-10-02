@@ -3902,7 +3902,11 @@
           "noAttachments": "Aucune pièce jointe.",
           "signedOffBy": "Validé par {{name}} le {{date}}",
           "finalSubmission": "Soumission finale",
-          "attemptsUsedNote": "{{used}} tentatives sur {{max}} utilisées — les tentatives précédentes ne sont pas conservées, seulement cette soumission finale."
+          "attemptsUsedNote": "{{used}} tentatives sur {{max}} utilisées — les tentatives précédentes ne sont pas conservées, seulement cette soumission finale.",
+          "verifiedQualifications": "Qualifications vérifiées : {{list}}",
+          "qualifications": "Qualifications déclarées",
+          "noQualifications": "Aucune déclarée.",
+          "noCertificate": "Aucun certificat joint"
         },
         "toasts": {
           "linkCopied": "Lien copié.",
@@ -3931,7 +3935,18 @@
           "warnBelowPass": "Le score final est inférieur au seuil. Réassignez si la formation doit être refaite.",
           "closesLink": "La validation ferme le lien. Vous pourrez ensuite délivrer une carte de sécurité.",
           "noteLabel": "Note",
-          "confirm": "Valider"
+          "confirm": "Valider",
+          "errors": {
+            "signatureRequired": "Veuillez signer dans le cadre pour valider."
+          },
+          "qualificationsHeading": "Qualifications",
+          "noQualifications": "Le membre de l'équipe n'a déclaré aucune qualification formelle.",
+          "qualificationsHint": "Cochez chaque qualification vérifiée d'après son certificat. Seules celles cochées sont imprimées sur la carte de sécurité.",
+          "verifiedLabel": "Vérifiée",
+          "notVerifiedLabel": "Non vérifiée",
+          "viewCertificate": "Ouvrir le certificat",
+          "signatureLabel": "Votre signature",
+          "signatureHint": "Enregistrée avec la validation et imprimée au verso de la carte de sécurité."
         },
         "issueDialog": {
           "title": "Délivrer la carte de sécurité",
@@ -3942,7 +3957,8 @@
             "position": "Poste",
             "field": "Domaine",
             "contractor": "Sous-traitant",
-            "contact": "Personne de contact"
+            "contact": "Personne de contact",
+            "qualifications": "Qualifications"
           },
           "validUntil": "Valable jusqu'au",
           "confirm": "Délivrer la carte",
@@ -3952,7 +3968,8 @@
           "errors": {
             "validUntil": "Choisissez une date d'expiration dans le futur.",
             "noContractor": "Le dossier du sous-traitant est introuvable."
-          }
+          },
+          "noQualifications": "Aucune vérifiée"
         }
       },
       "publicForm": {
@@ -4019,7 +4036,8 @@
           "training": "Formation",
           "quiz": "Quiz",
           "comments": "Commentaires",
-          "attachments": "Photos et notes vocales"
+          "attachments": "Photos et notes vocales",
+          "qualifications": "Vos qualifications"
         },
         "passMark": "Seuil de réussite : {{mark}} %",
         "optional": "(facultatif)",
@@ -4042,7 +4060,21 @@
         "signatureLabel": "Saisissez votre nom complet comme signature",
         "submit": "Soumettre",
         "submitting": "Envoi…",
-        "replacesNote": "Soumettre à nouveau remplace votre soumission précédente."
+        "replacesNote": "Soumettre à nouveau remplace votre soumission précédente.",
+        "qualifications": {
+          "hint": "Indiquez vos qualifications professionnelles, par ex. « NVQ niveau 4 – Soudage ». Joignez une photo de chaque certificat si possible. Votre responsable sécurité les vérifiera.",
+          "placeholder": "par ex. NVQ niveau 4 – Soudage",
+          "rowAria": "Qualification {{n}}",
+          "certificateAttached": "Certificat joint",
+          "replace": "Remplacer",
+          "addCertificate": "Joindre le certificat",
+          "add": "Ajouter une qualification",
+          "none": "Je n'ai aucune qualification formelle",
+          "errors": {
+            "blank": "Veuillez remplir ou supprimer la qualification vide.",
+            "required": "Ajoutez au moins une qualification ou cochez « Je n'ai aucune qualification formelle »."
+          }
+        }
       }
     },
     "trainingShared": {

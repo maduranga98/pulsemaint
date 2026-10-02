@@ -15,6 +15,7 @@ import { nanoid } from 'nanoid';
 import { db, functions } from '@/lib/firebase';
 import {
   MAX_SAFETY_TRAINING_ATTEMPTS,
+  SAFETY_TRAINING_MAX_QUALIFICATIONS,
   getFinalScore,
   type ContractorSafetyCard,
   type ContractorSafetyTrainingInvite,
@@ -79,7 +80,9 @@ interface NewInviteSource {
   plantId: string | null;
   module: InviteModuleInfo;
   contractor: Pick<Contractor, 'id' | 'companyName'>;
-  technician: Pick<ContractorTechnician, 'id' | 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone'>;
+  technician: Pick<ContractorTechnician, 'id' | 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone'> & {
+    certifications?: string[];
+  };
   dueAt: Date;
   assigner: Assigner;
 }
@@ -98,6 +101,10 @@ function inviteDoc(src: NewInviteSource, reassignedFrom: string | null) {
     technicianDesignation: src.technician.designation ?? '',
     technicianEmail: src.technician.email?.trim() ?? '',
     technicianPhone: src.technician.phone?.trim() ?? '',
+    technicianCertifications: (src.technician.certifications ?? [])
+      .filter((c): c is string => typeof c === 'string' && c.trim().length > 0)
+      .map((c) => c.trim())
+      .slice(0, SAFETY_TRAINING_MAX_QUALIFICATIONS),
     assignedBy: src.assigner.id,
     assignedByName: src.assigner.name,
     assignedAt: serverTimestamp(),
@@ -169,7 +176,7 @@ export async function reassignInvite(
   old: ContractorSafetyTrainingInvite,
   dueAt: Date,
   assigner: Assigner,
-  technician: Pick<ContractorTechnician, 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone'> | null,
+  technician: Pick<ContractorTechnician, 'fullName' | 'nicOrPassport' | 'designation' | 'email' | 'phone' | 'certifications'> | null,
 ): Promise<{ inviteId: string; email: EmailResult | null }> {
   const token = nanoid(32);
   const source: NewInviteSource = {
@@ -184,6 +191,7 @@ export async function reassignInvite(
       designation: (technician?.designation ?? old.technicianDesignation) as ContractorTechnician['designation'],
       email: technician?.email ?? old.technicianEmail,
       phone: technician?.phone ?? old.technicianPhone,
+      certifications: technician?.certifications ?? old.technicianCertifications ?? [],
     },
     dueAt,
     assigner,
@@ -197,10 +205,27 @@ export async function reassignInvite(
   return { inviteId: token, email: email ?? null };
 }
 
-export async function signOffInvite(inviteId: string, note: string, by: Assigner): Promise<void> {
+export interface SignOffInput {
+  note: string;
+  /** The officer's hand-drawn signature (PNG data URL). */
+  signatureDataUrl: string;
+  /** Declared qualifications the officer checked and verified. */
+  verifiedQualifications: string[];
+  by: Assigner & { title: string };
+}
+
+export async function signOffInvite(inviteId: string, input: SignOffInput): Promise<void> {
   await updateDoc(doc(db, INVITES, inviteId), {
     status: 'signed_off',
-    signOff: { by: by.id, byName: by.name, at: Timestamp.now(), note: note.trim() },
+    signOff: {
+      by: input.by.id,
+      byName: input.by.name,
+      byTitle: input.by.title,
+      at: Timestamp.now(),
+      note: input.note.trim(),
+      signatureDataUrl: input.signatureDataUrl,
+      verifiedQualifications: input.verifiedQualifications,
+    },
   });
 }
 
@@ -286,12 +311,16 @@ export async function issueSafetyCard(input: {
       TECHNICIAN_DESIGNATION_LABELS[technician?.designation ?? invite.technicianDesignation] ??
       (technician?.designation ?? invite.technicianDesignation),
     holderField: describeField(technician, contractor),
+    qualifications: invite.signOff?.verifiedQualifications ?? [],
     holderPhone: technician?.phone ?? invite.technicianPhone ?? '',
     holderPhotoUrl: technician?.photoUrl ?? '',
     issuedAt: serverTimestamp(),
     validUntil: Timestamp.fromDate(input.validUntil),
     issuedBy: input.issuer.id,
     issuedByName: input.issuer.name,
+    signedOffByName: invite.signOff?.byName ?? input.issuer.name,
+    signedOffByTitle: invite.signOff?.byTitle ?? '',
+    signatureDataUrl: invite.signOff?.signatureDataUrl ?? '',
     status: 'active',
     revokedAt: null,
     revokedBy: null,
@@ -375,6 +404,8 @@ export interface PublicSafetyTrainingForm {
       questions: PublicQuizQuestion[];
     } | null;
   } | null;
+  /** Qualifications to pre-fill: the team member's last declaration, else their registry certifications. */
+  prefillQualifications: string[];
   attempts: PublicAttemptSummary[];
 }
 
@@ -383,6 +414,8 @@ export interface PublicSubmissionAttachment {
   mimeType: string;
   /** base64, no data: prefix */
   data: string;
+  /** Set when the photo is the certificate for the qualification at this index. */
+  qualificationIndex?: number;
 }
 
 export interface PublicSubmissionResult {
@@ -406,6 +439,7 @@ export async function submitSafetyTrainingForm(input: {
   notes: string;
   declarationName: string;
   acknowledged: boolean;
+  qualifications: string[];
   attachments: PublicSubmissionAttachment[];
 }): Promise<PublicSubmissionResult> {
   const call = httpsCallable<typeof input, PublicSubmissionResult>(functions, 'submitContractorSafetyTraining');

@@ -5289,7 +5289,11 @@
           "noAttachments": "No attachments.",
           "signedOffBy": "Signed off by {{name}} on {{date}}",
           "finalSubmission": "Final submission",
-          "attemptsUsedNote": "{{used}} of {{max}} attempts used — earlier attempts aren't kept, only this final submission."
+          "attemptsUsedNote": "{{used}} of {{max}} attempts used — earlier attempts aren't kept, only this final submission.",
+          "verifiedQualifications": "Verified qualifications: {{list}}",
+          "qualifications": "Declared qualifications",
+          "noQualifications": "None declared.",
+          "noCertificate": "No certificate attached"
         },
         "toasts": {
           "linkCopied": "Link copied.",
@@ -5318,7 +5322,18 @@
           "warnBelowPass": "The final score is below the pass mark. Reassign instead if they should retake it.",
           "closesLink": "Signing off closes the link. You can issue a safety card afterwards.",
           "noteLabel": "Note",
-          "confirm": "Sign off"
+          "confirm": "Sign off",
+          "errors": {
+            "signatureRequired": "Please sign in the box to sign off."
+          },
+          "qualificationsHeading": "Qualifications",
+          "noQualifications": "The team member declared no formal qualifications.",
+          "qualificationsHint": "Tick each qualification you have checked against its certificate. Only ticked ones are printed on the safety card.",
+          "verifiedLabel": "Verified",
+          "notVerifiedLabel": "Not verified",
+          "viewCertificate": "Open certificate",
+          "signatureLabel": "Your signature",
+          "signatureHint": "Stored with the sign-off and printed on the back of the safety card."
         },
         "issueDialog": {
           "title": "Issue safety card",
@@ -5329,7 +5344,8 @@
             "position": "Position",
             "field": "Field",
             "contractor": "Contractor",
-            "contact": "Contact person"
+            "contact": "Contact person",
+            "qualifications": "Qualifications"
           },
           "validUntil": "Valid until",
           "confirm": "Issue card",
@@ -5339,7 +5355,8 @@
           "errors": {
             "validUntil": "Pick an expiry date in the future.",
             "noContractor": "The contractor record could not be found."
-          }
+          },
+          "noQualifications": "None verified"
         }
       },
       "publicForm": {
@@ -5406,7 +5423,8 @@
           "training": "Training",
           "quiz": "Quiz",
           "comments": "Comments",
-          "attachments": "Photos & voice notes"
+          "attachments": "Photos & voice notes",
+          "qualifications": "Your qualifications"
         },
         "passMark": "Pass mark: {{mark}}%",
         "optional": "(optional)",
@@ -5429,7 +5447,21 @@
         "signatureLabel": "Type your full name as signature",
         "submit": "Submit",
         "submitting": "Submitting…",
-        "replacesNote": "Submitting again replaces your previous submission."
+        "replacesNote": "Submitting again replaces your previous submission.",
+        "qualifications": {
+          "hint": "List your trade qualifications, e.g. “NVQ Level 4 – Welding”. Attach a photo of each certificate if you can. Your safety officer will check them.",
+          "placeholder": "e.g. NVQ Level 4 – Welding",
+          "rowAria": "Qualification {{n}}",
+          "certificateAttached": "Certificate attached",
+          "replace": "Replace",
+          "addCertificate": "Attach certificate",
+          "add": "Add a qualification",
+          "none": "I have no formal qualifications",
+          "errors": {
+            "blank": "Please fill in or remove the empty qualification.",
+            "required": "Add at least one qualification, or tick “I have no formal qualifications”."
+          }
+        }
       }
     },
     "trainingShared": {

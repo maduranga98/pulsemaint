@@ -3902,7 +3902,11 @@
           "noAttachments": "Sin adjuntos.",
           "signedOffBy": "Aprobado por {{name}} el {{date}}",
           "finalSubmission": "Envío final",
-          "attemptsUsedNote": "{{used}} de {{max}} intentos usados: los intentos anteriores no se conservan, solo este envío final."
+          "attemptsUsedNote": "{{used}} de {{max}} intentos usados: los intentos anteriores no se conservan, solo este envío final.",
+          "verifiedQualifications": "Calificaciones verificadas: {{list}}",
+          "qualifications": "Calificaciones declaradas",
+          "noQualifications": "Ninguna declarada.",
+          "noCertificate": "Sin certificado adjunto"
         },
         "toasts": {
           "linkCopied": "Enlace copiado.",
@@ -3931,7 +3935,18 @@
           "warnBelowPass": "El puntaje final está por debajo del mínimo. Reasigne si debe repetirla.",
           "closesLink": "Al aprobar se cierra el enlace. Después puede emitir una tarjeta de seguridad.",
           "noteLabel": "Nota",
-          "confirm": "Aprobar"
+          "confirm": "Aprobar",
+          "errors": {
+            "signatureRequired": "Firme en el recuadro para aprobar."
+          },
+          "qualificationsHeading": "Calificaciones",
+          "noQualifications": "El miembro del equipo no declaró calificaciones formales.",
+          "qualificationsHint": "Marque cada calificación que haya comprobado con su certificado. Solo las marcadas se imprimen en la tarjeta de seguridad.",
+          "verifiedLabel": "Verificada",
+          "notVerifiedLabel": "Sin verificar",
+          "viewCertificate": "Abrir certificado",
+          "signatureLabel": "Su firma",
+          "signatureHint": "Se guarda con la aprobación y se imprime en el reverso de la tarjeta de seguridad."
         },
         "issueDialog": {
           "title": "Emitir tarjeta de seguridad",
@@ -3942,7 +3957,8 @@
             "position": "Cargo",
             "field": "Especialidad",
             "contractor": "Contratista",
-            "contact": "Persona de contacto"
+            "contact": "Persona de contacto",
+            "qualifications": "Calificaciones"
           },
           "validUntil": "Válida hasta",
           "confirm": "Emitir tarjeta",
@@ -3952,7 +3968,8 @@
           "errors": {
             "validUntil": "Elija una fecha de vencimiento futura.",
             "noContractor": "No se encontró el registro del contratista."
-          }
+          },
+          "noQualifications": "Ninguna verificada"
         }
       },
       "publicForm": {
@@ -4019,7 +4036,8 @@
           "training": "Capacitación",
           "quiz": "Cuestionario",
           "comments": "Comentarios",
-          "attachments": "Fotos y notas de voz"
+          "attachments": "Fotos y notas de voz",
+          "qualifications": "Sus calificaciones"
         },
         "passMark": "Mínimo para aprobar: {{mark}}%",
         "optional": "(opcional)",
@@ -4042,7 +4060,21 @@
         "signatureLabel": "Escriba su nombre completo como firma",
         "submit": "Enviar",
         "submitting": "Enviando…",
-        "replacesNote": "Al enviar de nuevo se reemplaza su envío anterior."
+        "replacesNote": "Al enviar de nuevo se reemplaza su envío anterior.",
+        "qualifications": {
+          "hint": "Indique sus calificaciones profesionales, p. ej. «NVQ Nivel 4 – Soldadura». Adjunte una foto de cada certificado si puede. Su oficial de seguridad las comprobará.",
+          "placeholder": "p. ej. NVQ Nivel 4 – Soldadura",
+          "rowAria": "Calificación {{n}}",
+          "certificateAttached": "Certificado adjunto",
+          "replace": "Reemplazar",
+          "addCertificate": "Adjuntar certificado",
+          "add": "Agregar una calificación",
+          "none": "No tengo calificaciones formales",
+          "errors": {
+            "blank": "Complete o elimine la calificación vacía.",
+            "required": "Agregue al menos una calificación o marque «No tengo calificaciones formales»."
+          }
+        }
       }
     },
     "trainingShared": {

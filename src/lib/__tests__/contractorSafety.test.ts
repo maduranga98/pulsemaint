@@ -244,8 +244,8 @@ describe('validateAttachments (server)', () => {
   });
 
   it('enforces the count and size limits', () => {
-    const six = Array.from({ length: 6 }, () => ({ name: 'a', mimeType: 'image/jpeg', data: png }));
-    expect(() => logic.validateAttachments(six)).toThrow(/up to 5 images/);
+    const tooMany = Array.from({ length: logic.MAX_IMAGES + 1 }, () => ({ name: 'a', mimeType: 'image/jpeg', data: png }));
+    expect(() => logic.validateAttachments(tooMany)).toThrow(new RegExp(`up to ${logic.MAX_IMAGES} images`));
     const three = Array.from({ length: 3 }, () => ({ name: 'a', mimeType: 'audio/webm', data: png }));
     expect(() => logic.validateAttachments(three)).toThrow(/up to 2 voice/);
     const big = Buffer.alloc(logic.MAX_ATTACHMENT_BYTES + 1).toString('base64');
@@ -260,6 +260,76 @@ describe('validateAttachments (server)', () => {
   it('treats no attachments as fine', () => {
     expect(logic.validateAttachments(undefined)).toEqual([]);
     expect(logic.validateAttachments([])).toEqual([]);
+  });
+
+  it('links a certificate photo to a declared qualification by index', () => {
+    const out = logic.validateAttachments(
+      [
+        { name: 'site.jpg', mimeType: 'image/jpeg', data: png },
+        { name: 'nvq.jpg', mimeType: 'image/jpeg', data: png, qualificationIndex: 1 },
+      ],
+      2,
+    );
+    expect(out[0].qualificationIndex).toBeUndefined();
+    expect(out[1].qualificationIndex).toBe(1);
+  });
+
+  it.each([
+    ['an index past the declared qualifications', { qualificationIndex: 2 }, 2],
+    ['a negative index', { qualificationIndex: -1 }, 2],
+    ['a fractional index', { qualificationIndex: 0.5 }, 2],
+    ['an index when nothing was declared', { qualificationIndex: 0 }, 0],
+    ['a voice recording as a certificate', { qualificationIndex: 0, mimeType: 'audio/webm' }, 1],
+  ])('rejects %s', (_label, extra, count) => {
+    expect(() =>
+      logic.validateAttachments([{ name: 'a', mimeType: 'image/jpeg', data: png, ...extra }], count),
+    ).toThrow(/not declared/);
+  });
+
+  it('counts certificate photos towards the image limit', () => {
+    const photos = Array.from({ length: logic.MAX_IMAGES }, (_, i) => ({
+      name: 'a',
+      mimeType: 'image/jpeg',
+      data: png,
+      ...(i < logic.MAX_QUALIFICATIONS ? { qualificationIndex: i } : {}),
+    }));
+    expect(() => logic.validateAttachments(photos, logic.MAX_QUALIFICATIONS)).not.toThrow();
+    expect(() => logic.validateAttachments([...photos, { name: 'b', mimeType: 'image/jpeg', data: png }], logic.MAX_QUALIFICATIONS)).toThrow(
+      /up to/,
+    );
+  });
+});
+
+describe('validateQualifications (server)', () => {
+  it('trims, collapses whitespace and keeps the order', () => {
+    expect(logic.validateQualifications(['  NVQ   Level 4 —  Welding ', 'IOSH'])).toEqual(['NVQ Level 4 — Welding', 'IOSH']);
+  });
+
+  it('treats a missing list as none declared', () => {
+    expect(logic.validateQualifications(undefined)).toEqual([]);
+    expect(logic.validateQualifications(null)).toEqual([]);
+    expect(logic.validateQualifications([])).toEqual([]);
+  });
+
+  it('rejects blanks, non-strings, non-arrays, overlong titles and too many rows', () => {
+    expect(() => logic.validateQualifications(['NVQ', '   '])).toThrow(/blank/);
+    expect(() => logic.validateQualifications([42])).toThrow(/invalid/);
+    expect(() => logic.validateQualifications('NVQ')).toThrow(/invalid/);
+    expect(() => logic.validateQualifications(['x'.repeat(logic.MAX_QUALIFICATION_LENGTH + 1)])).toThrow(/too long/);
+    expect(() => logic.validateQualifications(Array.from({ length: logic.MAX_QUALIFICATIONS + 1 }, (_, i) => `Q${i}`))).toThrow(
+      new RegExp(`up to ${logic.MAX_QUALIFICATIONS}`),
+    );
+  });
+});
+
+describe('sanitizeQualificationList (prefill)', () => {
+  it('never throws on stored data: drops junk, trims, caps the count and length', () => {
+    expect(logic.sanitizeQualificationList(undefined)).toEqual([]);
+    expect(logic.sanitizeQualificationList('NVQ')).toEqual([]);
+    expect(logic.sanitizeQualificationList([' NVQ 4 ', 7, '', '   ', null, 'IOSH'])).toEqual(['NVQ 4', 'IOSH']);
+    const many = logic.sanitizeQualificationList(Array.from({ length: 12 }, (_, i) => `Q${i}`));
+    expect(many).toHaveLength(logic.MAX_QUALIFICATIONS);
+    expect(logic.sanitizeQualificationList(['y'.repeat(500)])[0]).toHaveLength(logic.MAX_QUALIFICATION_LENGTH);
   });
 });
 

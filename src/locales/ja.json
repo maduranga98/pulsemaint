@@ -3902,7 +3902,11 @@
           "noAttachments": "添付ファイルなし。",
           "signedOffBy": "{{name}} が {{date}} に承認",
           "finalSubmission": "最終提出",
-          "attemptsUsedNote": "{{max}} 回中 {{used}} 回使用 — 以前の提出は保存されず、この最終提出のみ保持されます。"
+          "attemptsUsedNote": "{{max}} 回中 {{used}} 回使用 — 以前の提出は保存されず、この最終提出のみ保持されます。",
+          "verifiedQualifications": "確認済みの資格：{{list}}",
+          "qualifications": "申告された資格",
+          "noQualifications": "申告なし。",
+          "noCertificate": "証明書の添付なし"
         },
         "toasts": {
           "linkCopied": "リンクをコピーしました。",
@@ -3931,7 +3935,18 @@
           "warnBelowPass": "最終得点が合格点未満です。再受講が必要な場合は再割り当てしてください。",
           "closesLink": "承認するとリンクが閉じます。その後、安全カードを発行できます。",
           "noteLabel": "メモ",
-          "confirm": "承認する"
+          "confirm": "承認する",
+          "errors": {
+            "signatureRequired": "承認するには枠内に署名してください。"
+          },
+          "qualificationsHeading": "資格",
+          "noQualifications": "チームメンバーは正式な資格を申告していません。",
+          "qualificationsHint": "証明書で確認した資格にチェックを入れてください。チェックしたものだけが安全カードに印刷されます。",
+          "verifiedLabel": "確認済み",
+          "notVerifiedLabel": "未確認",
+          "viewCertificate": "証明書を開く",
+          "signatureLabel": "あなたの署名",
+          "signatureHint": "承認とともに保存され、安全カードの裏面に印刷されます。"
         },
         "issueDialog": {
           "title": "安全カードを発行",
@@ -3942,7 +3957,8 @@
             "position": "役職",
             "field": "分野",
             "contractor": "請負業者",
-            "contact": "連絡担当者"
+            "contact": "連絡担当者",
+            "qualifications": "資格"
           },
           "validUntil": "有効期限",
           "confirm": "カードを発行",
@@ -3952,7 +3968,8 @@
           "errors": {
             "validUntil": "未来の有効期限を選択してください。",
             "noContractor": "請負業者の記録が見つかりません。"
-          }
+          },
+          "noQualifications": "確認済みの資格なし"
         }
       },
       "publicForm": {
@@ -4019,7 +4036,8 @@
           "training": "研修",
           "quiz": "クイズ",
           "comments": "コメント",
-          "attachments": "写真と音声メモ"
+          "attachments": "写真と音声メモ",
+          "qualifications": "あなたの資格"
         },
         "passMark": "合格点：{{mark}}%",
         "optional": "（任意）",
@@ -4042,7 +4060,21 @@
         "signatureLabel": "署名として氏名を入力",
         "submit": "提出",
         "submitting": "送信中…",
-        "replacesNote": "再提出すると、前回の提出内容は置き換えられます。"
+        "replacesNote": "再提出すると、前回の提出内容は置き換えられます。",
+        "qualifications": {
+          "hint": "職業上の資格を記入してください（例：「NVQ レベル4 – 溶接」）。可能であれば各証明書の写真を添付してください。安全担当者が確認します。",
+          "placeholder": "例：NVQ レベル4 – 溶接",
+          "rowAria": "資格 {{n}}",
+          "certificateAttached": "証明書を添付済み",
+          "replace": "差し替え",
+          "addCertificate": "証明書を添付",
+          "add": "資格を追加",
+          "none": "正式な資格はありません",
+          "errors": {
+            "blank": "空の資格欄を入力するか削除してください。",
+            "required": "資格を1つ以上追加するか、「正式な資格はありません」にチェックを入れてください。"
+          }
+        }
       }
     },
     "trainingShared": {

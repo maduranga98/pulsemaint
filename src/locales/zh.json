@@ -3902,7 +3902,11 @@
           "noAttachments": "无附件。",
           "signedOffBy": "{{name}} 于 {{date}} 签署确认",
           "finalSubmission": "最终提交",
-          "attemptsUsedNote": "已用 {{used}}/{{max}} 次尝试——不保留之前的尝试，仅保留这次最终提交。"
+          "attemptsUsedNote": "已用 {{used}}/{{max}} 次尝试——不保留之前的尝试，仅保留这次最终提交。",
+          "verifiedQualifications": "已核实的资质：{{list}}",
+          "qualifications": "申报的资质",
+          "noQualifications": "未申报。",
+          "noCertificate": "未附证书"
         },
         "toasts": {
           "linkCopied": "链接已复制。",
@@ -3931,7 +3935,18 @@
           "warnBelowPass": "最终得分低于及格线。如需重修，请改为重新分配。",
           "closesLink": "签署确认后链接将关闭，之后可签发安全卡。",
           "noteLabel": "备注",
-          "confirm": "签署确认"
+          "confirm": "签署确认",
+          "errors": {
+            "signatureRequired": "请在框内签名以完成签核。"
+          },
+          "qualificationsHeading": "资质",
+          "noQualifications": "该团队成员未申报任何正式资质。",
+          "qualificationsHint": "请勾选已对照证书核实的每项资质。只有勾选的资质才会印在安全卡上。",
+          "verifiedLabel": "已核实",
+          "notVerifiedLabel": "未核实",
+          "viewCertificate": "打开证书",
+          "signatureLabel": "您的签名",
+          "signatureHint": "随签核一并保存，并印在安全卡背面。"
         },
         "issueDialog": {
           "title": "签发安全卡",
@@ -3942,7 +3957,8 @@
             "position": "职位",
             "field": "专业领域",
             "contractor": "承包商",
-            "contact": "联系人"
+            "contact": "联系人",
+            "qualifications": "资质"
           },
           "validUntil": "有效期至",
           "confirm": "签发卡片",
@@ -3952,7 +3968,8 @@
           "errors": {
             "validUntil": "请选择未来的到期日期。",
             "noContractor": "未找到承包商记录。"
-          }
+          },
+          "noQualifications": "无已核实资质"
         }
       },
       "publicForm": {
@@ -4019,7 +4036,8 @@
           "training": "培训",
           "quiz": "测验",
           "comments": "备注",
-          "attachments": "照片和语音留言"
+          "attachments": "照片和语音留言",
+          "qualifications": "您的资质"
         },
         "passMark": "及格线：{{mark}}%",
         "optional": "（可选）",
@@ -4042,7 +4060,21 @@
         "signatureLabel": "输入您的全名作为签名",
         "submit": "提交",
         "submitting": "提交中…",
-        "replacesNote": "再次提交将替换您之前的提交。"
+        "replacesNote": "再次提交将替换您之前的提交。",
+        "qualifications": {
+          "hint": "请列出您的职业资质，例如“NVQ 4 级 – 焊接”。如有可能，请附上每份证书的照片。安全员会进行核实。",
+          "placeholder": "例如：NVQ 4 级 – 焊接",
+          "rowAria": "资质 {{n}}",
+          "certificateAttached": "已附证书",
+          "replace": "更换",
+          "addCertificate": "附上证书",
+          "add": "添加资质",
+          "none": "我没有正式资质",
+          "errors": {
+            "blank": "请填写或删除空白的资质。",
+            "required": "请至少添加一项资质，或勾选“我没有正式资质”。"
+          }
+        }
       }
     },
     "trainingShared": {

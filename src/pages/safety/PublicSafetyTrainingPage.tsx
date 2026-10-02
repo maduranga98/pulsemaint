@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   AlertCircle,
+  Award,
   Camera,
   CheckCircle2,
   ChevronDown,
@@ -12,6 +13,7 @@ import {
   Loader2,
   Lock,
   Mic,
+  Plus,
   RotateCcw,
   ShieldCheck,
   Square,
@@ -25,6 +27,8 @@ import {
   SAFETY_TRAINING_MAX_ATTACHMENT_BYTES,
   SAFETY_TRAINING_MAX_AUDIO,
   SAFETY_TRAINING_MAX_IMAGES,
+  SAFETY_TRAINING_MAX_QUALIFICATIONS,
+  SAFETY_TRAINING_MAX_QUALIFICATION_LENGTH,
 } from '@/lib/safety/contractorSafety';
 import {
   pickRecordingType,
@@ -41,6 +45,13 @@ import {
   type PublicSafetyTrainingForm,
   type PublicSubmissionResult,
 } from '@/services/contractorSafetyTraining.service';
+
+interface QualificationRow {
+  id: string;
+  title: string;
+  /** Optional photo of the certificate. */
+  cert: PendingAttachment | null;
+}
 
 type ClosedReason = 'signed_off' | 'reassigned' | 'attempts_exhausted' | 'expired';
 
@@ -613,9 +624,17 @@ function TrainingForm({
   const [ack, setAck] = useState(false);
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [attachError, setAttachError] = useState<string | null>(null);
+  // Qualifications the team member declares, each with an optional certificate
+  // photo. Pre-filled from their last declaration / registry record.
+  const [quals, setQuals] = useState<QualificationRow[]>(() =>
+    form.prefillQualifications.map((title) => ({ id: nanoid(6), title, cert: null })),
+  );
+  const [noQuals, setNoQuals] = useState(false);
+  const [qualError, setQualError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const certRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const questions = useMemo(
     () => (quiz ? (quiz.shuffleQuestions ? shuffled(quiz.questions) : quiz.questions) : []),
@@ -625,11 +644,22 @@ function TrainingForm({
   // Free the preview object URLs when the form goes away.
   const attachmentsRef = useRef(attachments);
   attachmentsRef.current = attachments;
-  useEffect(() => () => attachmentsRef.current.forEach((a) => URL.revokeObjectURL(a.previewUrl)), []);
+  const qualsRef = useRef(quals);
+  qualsRef.current = quals;
+  useEffect(
+    () => () => {
+      attachmentsRef.current.forEach((a) => URL.revokeObjectURL(a.previewUrl));
+      qualsRef.current.forEach((q) => q.cert && URL.revokeObjectURL(q.cert.previewUrl));
+    },
+    [],
+  );
 
+  const certificates = quals.flatMap((q) => (q.cert ? [q.cert] : []));
   const images = attachments.filter((a) => a.kind === 'image');
   const audio = attachments.filter((a) => a.kind === 'audio');
-  const totalBytes = attachments.reduce((sum, a) => sum + a.sizeBytes, 0);
+  // Certificate photos count towards the same image and size limits.
+  const imageCount = images.length + certificates.length;
+  const totalBytes = [...attachments, ...certificates].reduce((sum, a) => sum + a.sizeBytes, 0);
 
   function addAttachment(a: PendingAttachment): boolean {
     if (totalBytes + a.sizeBytes > SAFETY_TRAINING_MAX_ATTACHMENT_BYTES) {
@@ -645,7 +675,7 @@ function TrainingForm({
   async function onPickImages(files: FileList | null) {
     if (!files) return;
     setAttachError(null);
-    let count = images.length;
+    let count = imageCount;
     for (const file of Array.from(files)) {
       if (count >= SAFETY_TRAINING_MAX_IMAGES) {
         setAttachError(t('common.safetyTrainings.publicForm.attachments.maxImages', { max: SAFETY_TRAINING_MAX_IMAGES }));
@@ -681,11 +711,60 @@ function TrainingForm({
     setAttachError(null);
   }
 
+  function updateQual(id: string, patch: Partial<QualificationRow>) {
+    setQuals((prev) => prev.map((q) => (q.id === id ? { ...q, ...patch } : q)));
+    setQualError(null);
+  }
+
+  function removeQual(id: string) {
+    setQuals((prev) => {
+      const gone = prev.find((q) => q.id === id);
+      if (gone?.cert) URL.revokeObjectURL(gone.cert.previewUrl);
+      return prev.filter((q) => q.id !== id);
+    });
+    setQualError(null);
+  }
+
+  async function onPickCertificate(id: string, file: File | undefined) {
+    const input = certRefs.current[id];
+    if (!file) return;
+    setQualError(null);
+    const previous = quals.find((q) => q.id === id)?.cert ?? null;
+    // Replacing a certificate frees its slot.
+    if (!previous && imageCount >= SAFETY_TRAINING_MAX_IMAGES) {
+      setQualError(t('common.safetyTrainings.publicForm.attachments.maxImages', { max: SAFETY_TRAINING_MAX_IMAGES }));
+      return;
+    }
+    try {
+      const prepared = await prepareImage(file, nanoid(8));
+      if (totalBytes - (previous?.sizeBytes ?? 0) + prepared.sizeBytes > SAFETY_TRAINING_MAX_ATTACHMENT_BYTES) {
+        URL.revokeObjectURL(prepared.previewUrl);
+        setQualError(t('common.safetyTrainings.publicForm.attachments.tooLarge'));
+        return;
+      }
+      if (previous) URL.revokeObjectURL(previous.previewUrl);
+      updateQual(id, { cert: prepared });
+    } catch {
+      setQualError(t('common.safetyTrainings.publicForm.attachments.imageFailed'));
+    } finally {
+      if (input) input.value = '';
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     if (quiz && quiz.questions.some((q) => !(answers[q.id]?.length > 0))) {
       setError(t('common.safetyTrainings.publicForm.errors.answerAll'));
+      return;
+    }
+    const titles = quals.map((q) => q.title.trim());
+    if (titles.some((title) => !title)) {
+      setError(t('common.safetyTrainings.publicForm.qualifications.errors.blank'));
+      return;
+    }
+    if (titles.length === 0 && !noQuals) {
+      setError(t('common.safetyTrainings.publicForm.qualifications.errors.required'));
       return;
     }
     if (declName.trim().length < 2) {
@@ -704,7 +783,14 @@ function TrainingForm({
         notes: notes.trim(),
         declarationName: declName.trim(),
         acknowledged: true,
-        attachments: attachments.map(({ name, mimeType, data }) => ({ name, mimeType, data })),
+        qualifications: titles,
+        attachments: [
+          ...attachments.map(({ name, mimeType, data }) => ({ name, mimeType, data })),
+          // A certificate photo is linked to its qualification by position.
+          ...quals.flatMap((q, i) =>
+            q.cert ? [{ name: q.cert.name, mimeType: q.cert.mimeType, data: q.cert.data, qualificationIndex: i }] : [],
+          ),
+        ],
       });
       onSubmitted(result);
     } catch (err) {
@@ -760,6 +846,112 @@ function TrainingForm({
         </section>
       )}
 
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold text-slate-900">
+            {t('common.safetyTrainings.publicForm.sections.qualifications')}
+          </h2>
+          <p className="text-xs text-slate-500">{t('common.safetyTrainings.publicForm.qualifications.hint')}</p>
+        </div>
+        {quals.length > 0 && (
+          <ul className="space-y-2">
+            {quals.map((q, i) => (
+              <li key={q.id} className="rounded-lg border border-slate-200 p-2.5">
+                <div className="flex items-center gap-2">
+                  <Award className="h-4 w-4 shrink-0 text-slate-400" />
+                  <input
+                    value={q.title}
+                    onChange={(e) => updateQual(q.id, { title: e.target.value })}
+                    maxLength={SAFETY_TRAINING_MAX_QUALIFICATION_LENGTH}
+                    placeholder={t('common.safetyTrainings.publicForm.qualifications.placeholder')}
+                    aria-label={t('common.safetyTrainings.publicForm.qualifications.rowAria', { n: i + 1 })}
+                    className="min-w-0 flex-1 rounded-md border border-slate-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeQual(q.id)}
+                    aria-label={t('common.safetyTrainings.publicForm.attachments.remove')}
+                    className="shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center gap-2 pl-6">
+                  <input
+                    ref={(el) => {
+                      certRefs.current[q.id] = el;
+                    }}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => void onPickCertificate(q.id, e.target.files?.[0])}
+                  />
+                  {q.cert ? (
+                    <>
+                      <img src={q.cert.previewUrl} alt="" className="h-10 w-10 shrink-0 rounded object-cover" />
+                      <span className="min-w-0 flex-1 truncate text-xs text-slate-500">
+                        {t('common.safetyTrainings.publicForm.qualifications.certificateAttached')}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => certRefs.current[q.id]?.click()}
+                        className="shrink-0 text-xs font-medium text-amber-700 hover:underline"
+                      >
+                        {t('common.safetyTrainings.publicForm.qualifications.replace')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (q.cert) URL.revokeObjectURL(q.cert.previewUrl);
+                          updateQual(q.id, { cert: null });
+                        }}
+                        className="shrink-0 text-xs font-medium text-slate-500 hover:text-red-600"
+                      >
+                        {t('common.safetyTrainings.publicForm.attachments.remove')}
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => certRefs.current[q.id]?.click()}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                    >
+                      <Camera className="h-3.5 w-3.5" /> {t('common.safetyTrainings.publicForm.qualifications.addCertificate')}
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setQuals((prev) => [...prev, { id: nanoid(6), title: '', cert: null }]);
+              setNoQuals(false);
+              setQualError(null);
+            }}
+            disabled={quals.length >= SAFETY_TRAINING_MAX_QUALIFICATIONS}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            <Plus className="h-4 w-4" /> {t('common.safetyTrainings.publicForm.qualifications.add')}
+          </button>
+          {quals.length === 0 && (
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={noQuals}
+                onChange={(e) => setNoQuals(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+              />
+              {t('common.safetyTrainings.publicForm.qualifications.none')}
+            </label>
+          )}
+        </div>
+        {qualError && <p className="text-xs text-red-600">{qualError}</p>}
+      </section>
+
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-slate-900">
           {t('common.safetyTrainings.publicForm.sections.comments')}{' '}
@@ -795,7 +987,7 @@ function TrainingForm({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            disabled={images.length >= SAFETY_TRAINING_MAX_IMAGES}
+            disabled={imageCount >= SAFETY_TRAINING_MAX_IMAGES}
             className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
           >
             <Camera className="h-4 w-4" /> {t('common.safetyTrainings.publicForm.attachments.addPhotos')}
