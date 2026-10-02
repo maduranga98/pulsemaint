@@ -97,6 +97,18 @@ export interface SafetyCase {
   reportedToName: string | null;
   /** Chronological log of actions taken on the case. */
   actions: SafetyCaseAction[];
+  /**
+   * Set when the case was raised against a contractor's team member — e.g. by
+   * scanning their Contractor Safety Card. The case's points go to the
+   * contractor company (subjectType 'contractor' / subjectId) as usual; these
+   * name the team member it concerns.
+   */
+  contractorTechnicianId?: string | null;
+  contractorTechnicianName?: string | null;
+  /** Contractor Safety Card the case was raised from. */
+  safetyCardId?: string | null;
+  /** How the case was raised. Absent on cases predating QR reporting ('manual'). */
+  reportedVia?: 'manual' | 'qr_scan';
   reportedBy: string;
   reportedByName: string;
   reportedByRole: string;

@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
-import { ShieldAlert, Plus, ChevronDown, ChevronRight, Send } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { ShieldAlert, Plus, ChevronDown, ChevronRight, Send, QrCode, HardHat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { useAuthStore } from '@/store/authStore';
@@ -11,6 +12,10 @@ import { useCompanyUsers } from '@/hooks/useCompanyUsers';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { addSafetyCaseAction, reportSafetyCaseTo } from '@/services/safety.service';
 import { createNotification } from '@/services/notifications.service';
+import { getSafetyCard } from '@/services/contractorSafetyTraining.service';
+import type { ContractorSafetyCard } from '@/lib/safety/contractorSafety';
+import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
+import ScanSafetyCardModal from '../components/ScanSafetyCardModal';
 import type { UserRole } from '@/types/auth';
 import {
   SAFETY_CASE_SUBJECT_TYPES,
@@ -84,6 +89,42 @@ export default function SafetyCasesPage() {
   const isSafetyOfficer = role === 'safety_officer';
   const { cases, loading } = useSafetyCases(companyId);
   const { plantId: scopedPlantId } = useDepartmentScope();
+  const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [reporting, setReporting] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  // Card whose holder a case is being reported against (scanned in-app, or
+  // opened from the card's QR code with the phone camera).
+  const [scannedCard, setScannedCard] = useState<ContractorSafetyCard | null>(null);
+  // Safety management reports cases here; the frontline roles on this page
+  // only follow the cases escalated to them.
+  const canReport = isSafetyOfficer || ['admin', 'plant_manager', 'supervisor'].includes(role);
+
+  async function openCard(cardId: string) {
+    try {
+      const card = await getSafetyCard(cardId);
+      if (!card || card.companyId !== companyId) {
+        toast.error(t('common.safetyCases.scan.notFound'));
+        return;
+      }
+      setScannedCard(card);
+      setReporting(true);
+    } catch (err) {
+      console.error('Failed to load safety card', err);
+      toast.error(t('common.safetyCases.scan.notFound'));
+    }
+  }
+
+  // Deep link from the card's QR code: /app/safety/cases?card=<id>
+  const cardParam = searchParams.get('card');
+  useEffect(() => {
+    if (!cardParam || !companyId) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete('card');
+    setSearchParams(next, { replace: true });
+    if (canReport) void openCard(cardParam);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardParam, companyId, canReport]);
 
   // Safety officers own the whole board for their own plant (admin: whichever
   // plant is selected in the plant-tab switcher, or all if none is); managers
@@ -107,11 +148,34 @@ export default function SafetyCasesPage() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="flex items-center gap-2 text-xl font-bold text-[#F0F4F8]">
-          <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {heading}
-        </h1>
-        <p className="mt-0.5 text-sm text-[#8BA3BF]">{subtitle}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+        <div>
+          <h1 className="flex items-center gap-2 text-xl font-bold text-[#F0F4F8]">
+            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {heading}
+          </h1>
+          <p className="mt-0.5 text-sm text-[#8BA3BF]">{subtitle}</p>
+        </div>
+        {canReport && (
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setScanning(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#F59E0B] px-4 py-2 text-sm font-bold text-[#F59E0B] hover:bg-[#F59E0B]/10"
+            >
+              <QrCode className="h-4 w-4" /> {t('common.safetyCases.scan.button')}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setScannedCard(null);
+                setReporting(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-bold text-white"
+            >
+              <Plus className="h-4 w-4" /> {t('common.safetyCases.reportButton')}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="px-4 pb-10 sm:px-6 lg:px-8">
@@ -133,6 +197,25 @@ export default function SafetyCasesPage() {
           )}
         </DashboardWidget>
       </div>
+
+      {scanning && (
+        <ScanSafetyCardModal
+          onClose={() => setScanning(false)}
+          onScan={(cardId) => {
+            setScanning(false);
+            void openCard(cardId);
+          }}
+        />
+      )}
+      {reporting && (
+        <ReportSafetyCaseModal
+          card={scannedCard}
+          onClose={() => {
+            setReporting(false);
+            setScannedCard(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -233,6 +316,11 @@ function CaseRow({ c, canAct }: { c: SafetyCase; canAct: boolean }) {
             {typeLabel(c.type, t)}
             {c.subjectType && c.subjectType !== 'other' && ` · ${subjectLabel(c.subjectType, t)}`}
             {c.subjectName && `: ${c.subjectName}`}
+            {c.reportedVia === 'qr_scan' && (
+              <span className="ml-2 inline-flex items-center gap-1 text-[#F59E0B]">
+                <HardHat className="h-3 w-3" /> {t('common.safetyCases.row.viaQr')}
+              </span>
+            )}
           </div>
         </div>
         <span className={`shrink-0 text-xs font-semibold ${SEV_COLOR[c.severity] ?? ''}`}>{severityLabel(c.severity, t)}</span>
@@ -246,6 +334,12 @@ function CaseRow({ c, canAct }: { c: SafetyCase; canAct: boolean }) {
             <Detail label={t('common.safetyCases.row.reportedBy')} value={`${c.reportedByName} (${roleLabel(c.reportedByRole, t)})`} />
             <Detail label={t('common.safetyCases.row.reportedAt')} value={fmt(c.reportedAt) || '—'} />
             {c.location && <Detail label={t('common.safetyCases.row.location')} value={c.location} />}
+            {c.contractorTechnicianName && (
+              <Detail
+                label={t('common.safetyCases.row.contractorMember')}
+                value={`${c.contractorTechnicianName}${c.subjectName ? ` — ${c.subjectName}` : ''}`}
+              />
+            )}
             {c.reportedToName && <Detail label={t('common.safetyCases.row.reportedTo')} value={c.reportedToName} />}
           </div>
           {c.description && <Detail label={t('common.safetyCases.row.whatHappened')} value={c.description} block />}

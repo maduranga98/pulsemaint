@@ -208,6 +208,21 @@ const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail")
 exports.sendInvitationEmail = sendInvitationEmail;
 
 // ---------------------------------------------------------------------------
+// Contractor safety training — token-link training for contractor team
+// members (no login). Company users keep the in-app safety training flow.
+// ---------------------------------------------------------------------------
+
+const {
+  sendContractorSafetyTrainingInvites,
+  getContractorSafetyTrainingForm,
+  submitContractorSafetyTraining,
+} = require("./src/safetyTraining/contractorSafetyTraining");
+
+exports.sendContractorSafetyTrainingInvites = sendContractorSafetyTrainingInvites;
+exports.getContractorSafetyTrainingForm = getContractorSafetyTrainingForm;
+exports.submitContractorSafetyTraining = submitContractorSafetyTraining;
+
+// ---------------------------------------------------------------------------
 // Staff Requests — recipient directory for roles that can't read the roster
 // ---------------------------------------------------------------------------
 

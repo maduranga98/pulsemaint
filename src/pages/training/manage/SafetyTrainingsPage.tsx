@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2, HardHat, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -12,7 +12,9 @@ import {
   useSafetyTrainingModules,
 } from '@/hooks/training/useSafetyTrainings';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
-import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
+import SafetyTrainingAssignDialog from '@/components/safety/SafetyTrainingAssignDialog';
+import ContractorSafetyTrainingPanel from '@/components/safety/ContractorSafetyTrainingPanel';
+import { useContractorSafety } from '@/hooks/safety/useContractorSafety';
 import type { Timestamp } from 'firebase/firestore';
 import type { TrainingAssignment, TrainingModule } from '@/lib/training/trainingTypes';
 
@@ -35,9 +37,12 @@ function formatDate(date: string): string {
 }
 
 /**
- * Admin / Plant Manager view of every Safety Training in the company: each
- * safety module, its scheduled sessions, and who it's assigned to with the
- * time each assignment was made.
+ * Admin / Plant Manager / Safety Officer view of every Safety Training in the
+ * company. Two tabs:
+ *  - Modules & assignments: each safety module, its scheduled sessions, and
+ *    which company users it's assigned to (completed in-app).
+ *  - Contractor submissions: contractor team members' link-based trainings —
+ *    marks, attachments, and the reassign / sign-off / safety-card actions.
  */
 export default function SafetyTrainingsPage() {
   const navigate = useNavigate();
@@ -52,6 +57,9 @@ export default function SafetyTrainingsPage() {
   const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
   const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [view, setView] = useState<'modules' | 'contractors'>('modules');
+  const { invites, cards, loading: contractorLoading } = useContractorSafety(companyId);
+  const pendingReview = useMemo(() => invites.filter((i) => i.status === 'submitted').length, [invites]);
 
   async function handleDelete(moduleId: string, title: string) {
     if (!window.confirm(t('common.safetyTrainings.deleteConfirm', { title }))) return;
@@ -135,6 +143,35 @@ export default function SafetyTrainingsPage() {
         </div>
       </div>
 
+      <div className="mb-6 flex gap-2 border-b border-slate-200" role="tablist">
+        {([
+          ['modules', t('common.safetyTrainings.contractor.tabModules'), BookOpen, 0],
+          ['contractors', t('common.safetyTrainings.contractor.tab'), HardHat, pendingReview],
+        ] as const).map(([key, label, Icon, badge]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={view === key}
+            onClick={() => setView(key)}
+            className={`-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+              view === key
+                ? 'border-amber-600 text-amber-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Icon className="h-4 w-4" /> {label}
+            {badge > 0 && (
+              <span className="rounded-full bg-blue-100 px-1.5 text-[11px] font-semibold text-blue-700">{badge}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {view === 'contractors' ? (
+        <ContractorSafetyTrainingPanel invites={invites} cards={cards} loading={contractorLoading} />
+      ) : (
+      <>
       <div className="mb-6 grid grid-cols-3 gap-3">
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
           <div className="text-2xl font-bold text-slate-900">{modules.length}</div>
@@ -268,10 +305,13 @@ export default function SafetyTrainingsPage() {
           })}
         </div>
       )}
+      </>
+      )}
 
       {assigningModule && (
-        <ModuleAssignForm
+        <SafetyTrainingAssignDialog
           module={assigningModule}
+          existingInvites={invites}
           onClose={() => setAssigningModule(null)}
           onAssigned={() => setAssigningModule(null)}
         />

@@ -101,6 +101,8 @@ import WorkPermitsPage from '../modules/safety/pages/WorkPermitsPage';
 import SafetyCalendarPage from '../modules/safety/pages/SafetyCalendarPage';
 import SafetyAnalyticsPage from '../modules/safety/pages/SafetyAnalyticsPage';
 import SafetyCasesPage from '../modules/safety/pages/SafetyCasesPage';
+import PublicSafetyTrainingPage from '../pages/safety/PublicSafetyTrainingPage';
+import SafetyCardRedirectPage from '../pages/safety/SafetyCardRedirectPage';
 import MyRequestsPage from '../modules/requests/pages/MyRequestsPage';
 import RequestsInboxPage from '../modules/requests/pages/RequestsInboxPage';
 import SafetyBlacklistPage from '../modules/safety/pages/SafetyBlacklistPage';
@@ -206,6 +208,10 @@ export default function AppRouter() {
       <Route path="/scan" element={<ScanRedirectPage />} />
       {/* Public, no-login breakdown reporting — reached by scanning a machine's QR code */}
       <Route path="/report-breakdown" element={<PublicBreakdownReportPage />} />
+      {/* Public, no-login safety training form for contractor team members — reached from the link they are sent */}
+      <Route path="/safety-training/:token" element={<PublicSafetyTrainingPage />} />
+      {/* A Contractor Safety Card's QR code — staff land on the safety-case report for the holder */}
+      <Route path="/safety-card" element={<SafetyCardRedirectPage />} />
 
       {/* Full-screen authed flows (no app shell) */}
       <Route

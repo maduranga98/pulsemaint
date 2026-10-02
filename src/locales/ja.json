@@ -3662,7 +3662,9 @@
         "actionsTaken_one": "実施済みの対応（{{count}}件）",
         "actionsTaken_other": "実施済みの対応（{{count}}件）",
         "noActions": "まだ対応が記録されていません。",
-        "closedNotice": "この案件は終了しており、これ以上編集できません。"
+        "closedNotice": "この案件は終了しており、これ以上編集できません。",
+        "contractorMember": "請負業者のチームメンバー",
+        "viaQr": "QR スキャン"
       },
       "actionForm": {
         "heading": "対応を記録",
@@ -3735,7 +3737,26 @@
           "newCaseOversight": "安全案件を報告しました：{{title}}",
           "reportedTo": "安全案件があなたに報告されました：{{title}}",
           "reportedToOversight": "{{name}} に安全案件を報告しました：{{title}}"
+        },
+        "card": {
+          "heading": "請負業者の安全カード",
+          "contact": "連絡先：{{name}} · {{phone}}",
+          "pointsNote": "請負業者の安全案件として記録されます。ポイントは請負業者に加算され、案件にはこのチームメンバーが記載されます。",
+          "revoked": "この安全カードは無効化されています。",
+          "expired": "この安全カードは期限切れです。"
         }
+      },
+      "reportButton": "安全案件を報告",
+      "scan": {
+        "button": "QR をスキャンして報告",
+        "title": "安全カードをスキャン",
+        "hint": "請負業者の安全カードの QR コードをスキャンして、その人物に対する安全案件を報告します。",
+        "notACard": "この QR コードは請負業者の安全カードではありません。",
+        "cameraFailed": "カメラを開けませんでした。",
+        "notFound": "安全カードが見つかりません。",
+        "close": "閉じる",
+        "cancel": "キャンセル",
+        "redirecting": "安全案件の報告を開いています…"
       }
     },
     "safetyTrainings": {
@@ -3775,6 +3796,251 @@
         "backAria": "安全研修に戻る",
         "title": "安全研修モジュールを作成",
         "untitled": "無題の安全研修"
+      },
+      "assign": {
+        "title": "安全研修を割り当て",
+        "tabs": {
+          "contractors": "請負業者"
+        },
+        "contractorsHint": "請負業者のチームメンバーは、メールで送信されるリンクから研修を受講します。ログインは不要です。",
+        "usersHint": "社内ユーザーは FirmiCore 内でこの研修を受講します。メールは送信されません。",
+        "noContractors": "有効な請負業者が見つかりません。",
+        "selectContractor": "請負業者を選択",
+        "noTeam": "この請負業者には有効なチームメンバーがまだいません。",
+        "teamMembers": "{{name}} — チームメンバー",
+        "selectAll": "すべて選択",
+        "clearAll": "クリア",
+        "noEmail": "メールなし",
+        "noUsers": "このロールのユーザーはいません。",
+        "summary": "社内ユーザー：{{users}} · 請負業者のチームメンバー：{{members}}",
+        "dueRequiredLabel": "リンクの終了日時（期限の日付と時刻）",
+        "dueHintContractor": "チームメンバーはこの日時まで最大 {{max}} 回提出できます。その後リンクは閉じます。",
+        "assignAndSend": "割り当ててリンクを送信",
+        "errors": {
+          "dueRequired": "請負業者のチームメンバーの期限日を選択してください。その時点でリンクが閉じます。",
+          "dueInPast": "期限の日時は未来である必要があります。"
+        },
+        "result": {
+          "users_one": "アプリ内で社内ユーザー {{count}} 名に割り当てました。",
+          "users_other": "アプリ内で社内ユーザー {{count}} 名に割り当てました。",
+          "members_one": "請負業者リンクを {{count}} 件作成しました。",
+          "members_other": "請負業者リンクを {{count}} 件作成しました。",
+          "emailed": "{{total}} 件中 {{sent}} 件をメール送信しました。",
+          "skipped_one": "{{count}} 名はすでにこの研修を割り当て済みのためスキップしました。",
+          "skipped_other": "{{count}} 名はすでにこの研修を割り当て済みのためスキップしました。",
+          "shareManually": "一部のチームメンバーにはメールを送信できませんでした（メール未登録または送信失敗）。リンクをコピーして WhatsApp など別の方法で送ってください。",
+          "email": {
+            "sent": "送信済み",
+            "failed": "送信失敗",
+            "no_email": "メール未登録",
+            "closed": "終了",
+            "not_found": "見つかりません"
+          },
+          "copyLink": "リンクをコピー",
+          "copied": "コピーしました",
+          "copyPrompt": "このリンクをコピーしてください："
+        }
+      },
+      "contractor": {
+        "tab": "請負業者の提出",
+        "tabModules": "モジュールと割り当て",
+        "stats": {
+          "awaitingReview": "確認待ち",
+          "signedOff": "承認済み",
+          "cardsActive": "有効な安全カード"
+        },
+        "filters": {
+          "all": "すべて",
+          "submitted": "要確認",
+          "awaiting": "待機中",
+          "overdue": "期限超過",
+          "signed_off": "承認済み",
+          "reassigned": "再割り当て済み"
+        },
+        "searchPlaceholder": "氏名・請負業者・研修を検索…",
+        "empty": "請負業者の安全研修はまだありません。モジュールの「割り当て」から請負業者のチームメンバーを選択してください。",
+        "emptyFiltered": "このフィルターに一致する項目はありません。",
+        "status": {
+          "awaiting": "提出待ち",
+          "submitted": "提出済み",
+          "overdue": "期限超過",
+          "signed_off": "承認済み",
+          "reassigned": "再割り当て済み"
+        },
+        "cardBadge": "カード {{number}}",
+        "cardInactive": "カード {{number}}（無効）",
+        "row": {
+          "due": "期限 {{date}}",
+          "email": {
+            "pending": "メール送信待ち",
+            "sent": "リンク送信済み",
+            "failed": "メール送信失敗",
+            "no_email": "メールなし"
+          },
+          "marks": "得点",
+          "noQuiz": "クイズなし",
+          "attempts": "試行回数"
+        },
+        "actions": {
+          "reassign": "再割り当て",
+          "signOff": "承認",
+          "issueCard": "安全カードを発行",
+          "downloadCard": "カードをダウンロード (PDF)",
+          "revokeCard": "カードを無効化",
+          "copyLink": "リンクをコピー",
+          "resendEmail": "メールを再送信",
+          "details": "詳細"
+        },
+        "details": {
+          "nic": "身分証番号",
+          "assignedBy": "割り当て者",
+          "assignedAt": "割り当て日時",
+          "noAttempts": "まだ提出されていません。",
+          "attemptN": "{{n}} 回目",
+          "passed": "合格（合格点 {{mark}}%）",
+          "belowPassMark": "合格点未満（{{mark}}%）",
+          "signedAs": "署名：{{name}}",
+          "noAttachments": "添付ファイルなし。",
+          "signedOffBy": "{{name}} が {{date}} に承認"
+        },
+        "toasts": {
+          "linkCopied": "リンクをコピーしました。",
+          "copyPrompt": "このリンクをコピーしてください：",
+          "linkResent": "リンクをメールで再送信しました。",
+          "noEmail": "この人物のメールアドレスは登録されていません。",
+          "resendFailed": "メールを送信できませんでした。リンクをコピーして共有してください。",
+          "pdfFailed": "カードの PDF を作成できませんでした。",
+          "cardRevoked": "安全カードを無効化しました。",
+          "actionFailed": "失敗しました。もう一度お試しください。",
+          "reassignedEmailed": "再割り当てしました。新しいリンクをメールで送信しました。",
+          "reassignedNoEmail": "再割り当てしました。新しいリンクはメール送信できませんでした。一覧からコピーしてください。",
+          "signedOff": "承認しました。",
+          "cardIssued": "安全カードを発行しました。"
+        },
+        "revokePrompt": "この安全カードを無効化する理由は？",
+        "reassignDialog": {
+          "title": "研修を再割り当て",
+          "body": "現在のリンクは閉じられ、試行回数がリセットされた新しいリンクが送信されます。以前の提出は記録として残ります。",
+          "confirm": "再割り当てしてリンクを送信"
+        },
+        "signOffDialog": {
+          "title": "研修を承認",
+          "bodyScore": "最高得点 {{score}}%（合格点 {{mark}}%）。",
+          "bodyNoQuiz": "この研修にはクイズがありません。チームメンバーは確認フォームを提出しました。",
+          "warnBelowPass": "最高得点が合格点未満です。再受講が必要な場合は再割り当てしてください。",
+          "closesLink": "承認するとリンクが閉じます。その後、安全カードを発行できます。",
+          "noteLabel": "メモ",
+          "confirm": "承認する"
+        },
+        "issueDialog": {
+          "title": "安全カードを発行",
+          "body": "QR コード付きの 3.5 × 2 インチの請負業者安全カードを作成します。発行前に下記の内容を確認してください。",
+          "fields": {
+            "name": "氏名",
+            "nic": "身分証 / パスポート",
+            "position": "役職",
+            "field": "分野",
+            "contractor": "請負業者",
+            "contact": "連絡担当者"
+          },
+          "validUntil": "有効期限",
+          "confirm": "カードを発行",
+          "issuedTitle": "安全カードを発行しました",
+          "issuedBody": "PDF をダウンロードし、3.5 × 2 インチ（表裏）で印刷してください。QR コードをスキャンすると、所持者に対する安全案件の報告が開きます。",
+          "downloadPdf": "カードをダウンロード (PDF)",
+          "errors": {
+            "validUntil": "未来の有効期限を選択してください。",
+            "noContractor": "請負業者の記録が見つかりません。"
+          }
+        }
+      },
+      "publicForm": {
+        "badge": "安全研修",
+        "retry": "再試行",
+        "footer": "Powered by FirmiCore",
+        "errors": {
+          "invalidLink": "このリンクは無効か、置き換えられています。",
+          "loadFailed": "研修を読み込めませんでした。接続を確認して再試行してください。",
+          "answerAll": "すべての質問に回答してください。",
+          "nameRequired": "署名として氏名を入力してください。",
+          "ackRequired": "宣誓文にチェックを入れてください。",
+          "closed": "このリンクは終了しました。",
+          "submitFailed": "送信できませんでした。接続を確認して再試行してください。"
+        },
+        "details": {
+          "name": "氏名",
+          "contractor": "会社",
+          "site": "現場",
+          "due": "完了期限",
+          "attempts": "試行回数",
+          "attemptsValue": "{{max}} 回中 {{used}} 回使用"
+        },
+        "attemptN": "{{n}} 回目",
+        "passed": "合格",
+        "belowPassMark": "合格点未満",
+        "submitted": "提出済み",
+        "closed": {
+          "signed_off": {
+            "title": "研修は承認されました",
+            "body": "安全担当者がこの研修を承認しました。ありがとうございました。"
+          },
+          "reassigned": {
+            "title": "このリンクは置き換えられました",
+            "body": "この研修用に新しいリンクが送信されました。そちらをご利用ください。"
+          },
+          "attempts_exhausted": {
+            "title": "試行回数が残っていません",
+            "body": "試行回数をすべて使い切りました。再度必要な場合は安全担当者に連絡してください。"
+          },
+          "expired": {
+            "title": "このリンクは終了しました",
+            "body": "期限の日時を過ぎました。再度割り当てを受けるには安全担当者に連絡してください。"
+          }
+        },
+        "alreadySubmitted": "この研修はすでに提出済みです。提出履歴は以下のとおりです。",
+        "tryAgain_one": "もう一度試す（残り {{count}} 回）",
+        "tryAgain_other": "もう一度試す（残り {{count}} 回）",
+        "done": {
+          "title": "提出しました",
+          "body": "ありがとうございます。安全担当者が提出内容を確認します。",
+          "passed": "合格 — 合格点 {{mark}}%",
+          "belowPassMark": "合格点 {{mark}}% 未満",
+          "canRetry_one": "再提出できます。{{due}} まで残り {{count}} 回です。",
+          "canRetry_other": "再提出できます。{{due}} まで残り {{count}} 回です。",
+          "noMoreAttempts": "これ以上試行できません。",
+          "submitAgain": "再提出する"
+        },
+        "openDocument": "ドキュメントを開く",
+        "selectAllThatApply": "当てはまるものをすべて選択",
+        "intro_one": "研修を読み、フォームに記入して提出してください。残り {{count}} 回です。",
+        "intro_other": "研修を読み、フォームに記入して提出してください。残り {{count}} 回です。",
+        "sections": {
+          "training": "研修",
+          "quiz": "クイズ",
+          "comments": "コメント",
+          "attachments": "写真と音声メモ"
+        },
+        "passMark": "合格点：{{mark}}%",
+        "optional": "（任意）",
+        "commentsPlaceholder": "安全担当者に伝えたいことがあればご記入ください…",
+        "attachments": {
+          "hint": "必要に応じて写真を追加するか音声メモを録音できます。任意です。",
+          "addPhotos": "写真を追加",
+          "recordVoice": "音声メモを録音",
+          "stopRecording": "停止（{{time}}）",
+          "micDenied": "マイクにアクセスできません。ブラウザーの権限を確認してください。",
+          "voiceUnsupported": "このブラウザーは音声録音に対応していません。",
+          "tooLarge": "添付ファイルが大きすぎます。1 つ削除するか、より小さいファイルを使用してください。",
+          "maxImages": "写真は最大 {{max}} 枚まで追加できます。",
+          "maxAudio": "音声メモは最大 {{max}} 件まで追加できます。",
+          "imageFailed": "その写真は追加できませんでした。",
+          "voiceFailed": "録音を追加できませんでした。",
+          "remove": "削除"
+        },
+        "declaration": "この安全研修を読んで理解したこと、および現場の安全規則に従うことを確認します。",
+        "signatureLabel": "署名として氏名を入力",
+        "submit": "提出",
+        "submitting": "送信中…"
       }
     },
     "trainingShared": {

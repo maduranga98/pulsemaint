@@ -87,6 +87,15 @@ service firebase.storage {
       allow write: if signedIn() && validUpload(50);
     }
 
+    // Contractor safety training submissions: photos and voice notes from the
+    // public form. Written only by the submitContractorSafetyTraining Cloud
+    // Function (Admin SDK, which bypasses these rules) — clients never write.
+    // e.g. safetyTrainingSubmissions/{companyId}/{inviteId}/attempt-1/{file}
+    match /safetyTrainingSubmissions/{companyId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
     // Breakdown media: photos/video attached by the attending technician.
     // e.g. breakdowns/{siteId}/{ticketId}/media/{file}
     match /breakdowns/{siteId}/{ticketId}/{allPaths=**} {

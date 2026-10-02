@@ -469,6 +469,41 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Contractor safety training — link-based training for contractor team
+    // members, who have no login. Staff create one invite per team member
+    // (the doc id is the unguessable token in their link); the team member
+    // never touches Firestore: the public form reads and writes through the
+    // getContractorSafetyTrainingForm / submitContractorSafetyTraining
+    // callables (Admin SDK), which also own the attempts/score fields.
+    function canManageContractorSafety() {
+      return isAnyRole(['safety_officer', 'admin', 'plant_manager', 'hr_officer']);
+    }
+
+    match /safetyTrainingInvites/{inviteId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && canManageContractorSafety();
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && canManageContractorSafety();
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && request.resource.data.companyId == resource.data.companyId
+        && canManageContractorSafety();
+      allow delete: if isAdmin() && belongsToCompany(resource.data.companyId);
+    }
+
+    // Contractor Safety Cards issued after a signed-off training. The QR code
+    // on the card holds the doc id; scanning it (safety officer, managers)
+    // reads the card to pre-fill a safety-case report against the holder.
+    match /safetyCertificates/{cardId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['safety_officer', 'admin', 'plant_manager', 'supervisor', 'maintenance_supervisor', 'hr_officer']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && canManageContractorSafety();
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && request.resource.data.companyId == resource.data.companyId
+        && canManageContractorSafety();
+      allow delete: if isAdmin() && belongsToCompany(resource.data.companyId);
+    }
+
     // Staff requests (personal / work / service letter / record access /
     // other) raised by any non-admin role and routed to a role group:
     // supervisors of the requester's plant AND department, plant managers of

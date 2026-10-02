@@ -5049,7 +5049,9 @@
         "actionsTaken_one": "Actions taken ({{count}})",
         "actionsTaken_other": "Actions taken ({{count}})",
         "noActions": "No actions recorded yet.",
-        "closedNotice": "This case is closed and can no longer be edited."
+        "closedNotice": "This case is closed and can no longer be edited.",
+        "contractorMember": "Contractor team member",
+        "viaQr": "QR scan"
       },
       "actionForm": {
         "heading": "Record an action",
@@ -5122,7 +5124,26 @@
           "newCaseOversight": "reported a safety case: {{title}}",
           "reportedTo": "Safety case reported to you: {{title}}",
           "reportedToOversight": "reported a safety case to {{name}}: {{title}}"
+        },
+        "card": {
+          "heading": "Contractor safety card",
+          "contact": "Contact: {{name}} · {{phone}}",
+          "pointsNote": "This is recorded as a contractor safety case — its points go to the contractor company, and the case names this team member.",
+          "revoked": "This safety card has been revoked.",
+          "expired": "This safety card has expired."
         }
+      },
+      "reportButton": "Report a safety case",
+      "scan": {
+        "button": "Scan QR to report",
+        "title": "Scan safety card",
+        "hint": "Scan the QR code on a contractor's Safety Card to report a safety case against them.",
+        "notACard": "That QR code isn't a Contractor Safety Card.",
+        "cameraFailed": "Failed to open camera.",
+        "notFound": "Safety card not found.",
+        "close": "Close",
+        "cancel": "Cancel",
+        "redirecting": "Opening safety case report…"
       }
     },
     "safetyTrainings": {
@@ -5162,6 +5183,251 @@
         "backAria": "Back to Safety Trainings",
         "title": "Create Safety Training Module",
         "untitled": "Untitled Safety Training"
+      },
+      "assign": {
+        "title": "Assign Safety Training",
+        "tabs": {
+          "contractors": "Contractors"
+        },
+        "contractorsHint": "Contractor team members complete the training through a link we email them — no login needed.",
+        "usersHint": "Company users complete this training inside FirmiCore. No email is sent.",
+        "noContractors": "No active contractors found.",
+        "selectContractor": "Select a contractor",
+        "noTeam": "This contractor has no active team members yet.",
+        "teamMembers": "{{name}} — team members",
+        "selectAll": "Select all",
+        "clearAll": "Clear",
+        "noEmail": "No email",
+        "noUsers": "No users with this role.",
+        "summary": "Company users: {{users}} · Contractor team members: {{members}}",
+        "dueRequiredLabel": "Link closes at (due date & time)",
+        "dueHintContractor": "Team members can submit up to {{max}} times until this date and time, then their link closes.",
+        "assignAndSend": "Assign & send links",
+        "errors": {
+          "dueRequired": "Pick a due date for the contractor team members — their link closes then.",
+          "dueInPast": "The due date and time must be in the future."
+        },
+        "result": {
+          "users_one": "Assigned to {{count}} company user in the app.",
+          "users_other": "Assigned to {{count}} company users in the app.",
+          "members_one": "Created {{count}} contractor link.",
+          "members_other": "Created {{count}} contractor links.",
+          "emailed": "{{sent}} of {{total}} emailed.",
+          "skipped_one": "{{count}} person already had this training and was skipped.",
+          "skipped_other": "{{count}} people already had this training and were skipped.",
+          "shareManually": "Some team members could not be emailed (no email on file, or sending failed). Copy their link and send it another way, e.g. WhatsApp.",
+          "email": {
+            "sent": "Emailed",
+            "failed": "Email failed",
+            "no_email": "No email on file",
+            "closed": "Closed",
+            "not_found": "Not found"
+          },
+          "copyLink": "Copy link",
+          "copied": "Copied",
+          "copyPrompt": "Copy this link:"
+        }
+      },
+      "contractor": {
+        "tab": "Contractor submissions",
+        "tabModules": "Modules & assignments",
+        "stats": {
+          "awaitingReview": "Awaiting review",
+          "signedOff": "Signed off",
+          "cardsActive": "Active safety cards"
+        },
+        "filters": {
+          "all": "All",
+          "submitted": "To review",
+          "awaiting": "Awaiting",
+          "overdue": "Overdue",
+          "signed_off": "Signed off",
+          "reassigned": "Reassigned"
+        },
+        "searchPlaceholder": "Search name, contractor or training…",
+        "empty": "No contractor safety trainings yet. Use Assign on a module and pick a contractor's team members.",
+        "emptyFiltered": "Nothing matches this filter.",
+        "status": {
+          "awaiting": "Awaiting submission",
+          "submitted": "Submitted",
+          "overdue": "Overdue",
+          "signed_off": "Signed off",
+          "reassigned": "Reassigned"
+        },
+        "cardBadge": "Card {{number}}",
+        "cardInactive": "Card {{number}} (inactive)",
+        "row": {
+          "due": "Due {{date}}",
+          "email": {
+            "pending": "Email pending",
+            "sent": "Link emailed",
+            "failed": "Email failed",
+            "no_email": "No email"
+          },
+          "marks": "Marks",
+          "noQuiz": "No quiz",
+          "attempts": "Attempts"
+        },
+        "actions": {
+          "reassign": "Reassign",
+          "signOff": "Sign off",
+          "issueCard": "Issue safety card",
+          "downloadCard": "Download card (PDF)",
+          "revokeCard": "Revoke card",
+          "copyLink": "Copy link",
+          "resendEmail": "Resend email",
+          "details": "Details"
+        },
+        "details": {
+          "nic": "National ID",
+          "assignedBy": "Assigned by",
+          "assignedAt": "Assigned",
+          "noAttempts": "Not submitted yet.",
+          "attemptN": "Attempt {{n}}",
+          "passed": "Passed (pass mark {{mark}}%)",
+          "belowPassMark": "Below pass mark ({{mark}}%)",
+          "signedAs": "Signed as {{name}}",
+          "noAttachments": "No attachments.",
+          "signedOffBy": "Signed off by {{name}} on {{date}}"
+        },
+        "toasts": {
+          "linkCopied": "Link copied.",
+          "copyPrompt": "Copy this link:",
+          "linkResent": "Link emailed again.",
+          "noEmail": "No email address on file for this person.",
+          "resendFailed": "Could not send the email. Copy the link and share it instead.",
+          "pdfFailed": "Could not build the card PDF.",
+          "cardRevoked": "Safety card revoked.",
+          "actionFailed": "That didn't work. Please try again.",
+          "reassignedEmailed": "Reassigned — a new link was emailed.",
+          "reassignedNoEmail": "Reassigned. The new link could not be emailed — copy it from the list.",
+          "signedOff": "Signed off.",
+          "cardIssued": "Safety card issued."
+        },
+        "revokePrompt": "Why is this safety card being revoked?",
+        "reassignDialog": {
+          "title": "Reassign training",
+          "body": "The current link closes and a new one is sent with fresh attempts. Earlier submissions stay on record.",
+          "confirm": "Reassign & send link"
+        },
+        "signOffDialog": {
+          "title": "Sign off training",
+          "bodyScore": "Best score {{score}}% (pass mark {{mark}}%).",
+          "bodyNoQuiz": "This training has no quiz — the team member submitted the acknowledgement form.",
+          "warnBelowPass": "The best score is below the pass mark. Reassign instead if they should retake it.",
+          "closesLink": "Signing off closes the link. You can issue a safety card afterwards.",
+          "noteLabel": "Note",
+          "confirm": "Sign off"
+        },
+        "issueDialog": {
+          "title": "Issue safety card",
+          "body": "Creates a 3.5 × 2 in Contractor Safety Card with a QR code. Check the details below before issuing.",
+          "fields": {
+            "name": "Name",
+            "nic": "National ID / Passport",
+            "position": "Position",
+            "field": "Field",
+            "contractor": "Contractor",
+            "contact": "Contact person"
+          },
+          "validUntil": "Valid until",
+          "confirm": "Issue card",
+          "issuedTitle": "Safety card issued",
+          "issuedBody": "Download the PDF and print it at 3.5 × 2 in (front and back). Scanning its QR code opens a safety-case report for the holder.",
+          "downloadPdf": "Download card (PDF)",
+          "errors": {
+            "validUntil": "Pick an expiry date in the future.",
+            "noContractor": "The contractor record could not be found."
+          }
+        }
+      },
+      "publicForm": {
+        "badge": "Safety training",
+        "retry": "Try again",
+        "footer": "Powered by FirmiCore",
+        "errors": {
+          "invalidLink": "This link is not valid or has been replaced.",
+          "loadFailed": "Couldn't load the training. Check your connection and try again.",
+          "answerAll": "Please answer every question.",
+          "nameRequired": "Please type your full name as your signature.",
+          "ackRequired": "Please tick the declaration.",
+          "closed": "This link is closed.",
+          "submitFailed": "Couldn't submit. Please check your connection and try again."
+        },
+        "details": {
+          "name": "Name",
+          "contractor": "Company",
+          "site": "Site",
+          "due": "Complete before",
+          "attempts": "Attempts",
+          "attemptsValue": "{{used}} of {{max}} used"
+        },
+        "attemptN": "Attempt {{n}}",
+        "passed": "Passed",
+        "belowPassMark": "Below pass mark",
+        "submitted": "Submitted",
+        "closed": {
+          "signed_off": {
+            "title": "Training signed off",
+            "body": "Your safety officer has signed off this training. Thank you."
+          },
+          "reassigned": {
+            "title": "This link has been replaced",
+            "body": "A newer link was sent to you for this training. Please use that one."
+          },
+          "attempts_exhausted": {
+            "title": "No attempts left",
+            "body": "You have used all your attempts. Contact your safety officer if you need another try."
+          },
+          "expired": {
+            "title": "This link has closed",
+            "body": "The due date and time has passed. Contact your safety officer to be assigned again."
+          }
+        },
+        "alreadySubmitted": "You already submitted this training. Your submissions are listed below.",
+        "tryAgain_one": "Try again ({{count}} attempt left)",
+        "tryAgain_other": "Try again ({{count}} attempts left)",
+        "done": {
+          "title": "Submitted",
+          "body": "Thank you — your safety officer will review your submission.",
+          "passed": "Passed — pass mark {{mark}}%",
+          "belowPassMark": "Below the pass mark of {{mark}}%",
+          "canRetry_one": "You can submit again — {{count}} attempt left until {{due}}.",
+          "canRetry_other": "You can submit again — {{count}} attempts left until {{due}}.",
+          "noMoreAttempts": "No more attempts are available.",
+          "submitAgain": "Submit again"
+        },
+        "openDocument": "Open document",
+        "selectAllThatApply": "Select all that apply",
+        "intro_one": "Read the training, complete the form and submit. You have {{count}} attempt left.",
+        "intro_other": "Read the training, complete the form and submit. You have {{count}} attempts left.",
+        "sections": {
+          "training": "Training",
+          "quiz": "Quiz",
+          "comments": "Comments",
+          "attachments": "Photos & voice notes"
+        },
+        "passMark": "Pass mark: {{mark}}%",
+        "optional": "(optional)",
+        "commentsPlaceholder": "Anything you want your safety officer to know…",
+        "attachments": {
+          "hint": "Add photos or record a voice note if it helps. This is optional.",
+          "addPhotos": "Add photos",
+          "recordVoice": "Record voice note",
+          "stopRecording": "Stop ({{time}})",
+          "micDenied": "Couldn't access the microphone. Check the browser permission.",
+          "voiceUnsupported": "Voice recording isn't supported in this browser.",
+          "tooLarge": "Attachments are too large. Remove one or use smaller files.",
+          "maxImages": "You can add up to {{max}} photos.",
+          "maxAudio": "You can add up to {{max}} voice notes.",
+          "imageFailed": "That photo couldn't be added.",
+          "voiceFailed": "The recording couldn't be added.",
+          "remove": "Remove"
+        },
+        "declaration": "I confirm that I have read and understood this safety training and will follow the site safety rules.",
+        "signatureLabel": "Type your full name as signature",
+        "submit": "Submit",
+        "submitting": "Submitting…"
       }
     },
     "trainingShared": {

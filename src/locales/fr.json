@@ -3662,7 +3662,9 @@
         "actionsTaken_one": "Actions entreprises ({{count}})",
         "actionsTaken_other": "Actions entreprises ({{count}})",
         "noActions": "Aucune action enregistrée pour l'instant.",
-        "closedNotice": "Ce cas est clôturé et ne peut plus être modifié."
+        "closedNotice": "Ce cas est clôturé et ne peut plus être modifié.",
+        "contractorMember": "Membre de l'équipe du sous-traitant",
+        "viaQr": "Scan QR"
       },
       "actionForm": {
         "heading": "Enregistrer une action",
@@ -3735,7 +3737,26 @@
           "newCaseOversight": "a signalé un cas de sécurité : {{title}}",
           "reportedTo": "Cas de sécurité qui vous a été signalé : {{title}}",
           "reportedToOversight": "a signalé un cas de sécurité à {{name}} : {{title}}"
+        },
+        "card": {
+          "heading": "Carte de sécurité sous-traitant",
+          "contact": "Contact : {{name}} · {{phone}}",
+          "pointsNote": "Ce cas est enregistré comme cas de sécurité sous-traitant : ses points sont attribués à l'entreprise sous-traitante et le cas nomme ce membre de l'équipe.",
+          "revoked": "Cette carte de sécurité a été révoquée.",
+          "expired": "Cette carte de sécurité a expiré."
         }
+      },
+      "reportButton": "Signaler un cas de sécurité",
+      "scan": {
+        "button": "Scanner le QR pour signaler",
+        "title": "Scanner la carte de sécurité",
+        "hint": "Scannez le code QR de la carte de sécurité d'un sous-traitant pour signaler un cas le concernant.",
+        "notACard": "Ce code QR n'est pas une carte de sécurité sous-traitant.",
+        "cameraFailed": "Impossible d'ouvrir la caméra.",
+        "notFound": "Carte de sécurité introuvable.",
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "redirecting": "Ouverture du signalement de cas de sécurité…"
       }
     },
     "safetyTrainings": {
@@ -3775,6 +3796,251 @@
         "backAria": "Retour aux Formations Sécurité",
         "title": "Créer un Module de Formation Sécurité",
         "untitled": "Formation Sécurité Sans Titre"
+      },
+      "assign": {
+        "title": "Assigner une formation sécurité",
+        "tabs": {
+          "contractors": "Sous-traitants"
+        },
+        "contractorsHint": "Les membres de l'équipe du sous-traitant suivent la formation via un lien envoyé par e-mail, sans connexion.",
+        "usersHint": "Les utilisateurs de l'entreprise suivent cette formation dans FirmiCore. Aucun e-mail n'est envoyé.",
+        "noContractors": "Aucun sous-traitant actif trouvé.",
+        "selectContractor": "Sélectionner un sous-traitant",
+        "noTeam": "Ce sous-traitant n'a pas encore de membres d'équipe actifs.",
+        "teamMembers": "{{name}} — membres de l'équipe",
+        "selectAll": "Tout sélectionner",
+        "clearAll": "Effacer",
+        "noEmail": "Pas d'e-mail",
+        "noUsers": "Aucun utilisateur avec ce rôle.",
+        "summary": "Utilisateurs de l'entreprise : {{users}} · Membres de sous-traitants : {{members}}",
+        "dueRequiredLabel": "Le lien se ferme le (date et heure d'échéance)",
+        "dueHintContractor": "Les membres de l'équipe peuvent soumettre jusqu'à {{max}} fois jusqu'à cette date et heure, puis leur lien se ferme.",
+        "assignAndSend": "Assigner et envoyer les liens",
+        "errors": {
+          "dueRequired": "Choisissez une date d'échéance pour les membres du sous-traitant : leur lien se ferme à ce moment-là.",
+          "dueInPast": "La date et l'heure d'échéance doivent être dans le futur."
+        },
+        "result": {
+          "users_one": "Assigné à {{count}} utilisateur de l'entreprise dans l'application.",
+          "users_other": "Assigné à {{count}} utilisateurs de l'entreprise dans l'application.",
+          "members_one": "{{count}} lien de sous-traitant créé.",
+          "members_other": "{{count}} liens de sous-traitants créés.",
+          "emailed": "{{sent}} sur {{total}} envoyés par e-mail.",
+          "skipped_one": "{{count}} personne avait déjà cette formation et a été ignorée.",
+          "skipped_other": "{{count}} personnes avaient déjà cette formation et ont été ignorées.",
+          "shareManually": "Certains membres n'ont pas pu être joints par e-mail (pas d'e-mail enregistré ou échec d'envoi). Copiez leur lien et envoyez-le autrement, p. ex. par WhatsApp.",
+          "email": {
+            "sent": "Envoyé",
+            "failed": "Échec de l'envoi",
+            "no_email": "Pas d'e-mail enregistré",
+            "closed": "Fermé",
+            "not_found": "Introuvable"
+          },
+          "copyLink": "Copier le lien",
+          "copied": "Copié",
+          "copyPrompt": "Copiez ce lien :"
+        }
+      },
+      "contractor": {
+        "tab": "Soumissions des sous-traitants",
+        "tabModules": "Modules et affectations",
+        "stats": {
+          "awaitingReview": "En attente de revue",
+          "signedOff": "Validés",
+          "cardsActive": "Cartes de sécurité actives"
+        },
+        "filters": {
+          "all": "Tous",
+          "submitted": "À revoir",
+          "awaiting": "En attente",
+          "overdue": "En retard",
+          "signed_off": "Validés",
+          "reassigned": "Réassignés"
+        },
+        "searchPlaceholder": "Rechercher nom, sous-traitant ou formation…",
+        "empty": "Aucune formation sécurité de sous-traitant pour l'instant. Utilisez Assigner sur un module et choisissez des membres de l'équipe d'un sous-traitant.",
+        "emptyFiltered": "Rien ne correspond à ce filtre.",
+        "status": {
+          "awaiting": "En attente de soumission",
+          "submitted": "Soumis",
+          "overdue": "En retard",
+          "signed_off": "Validé",
+          "reassigned": "Réassigné"
+        },
+        "cardBadge": "Carte {{number}}",
+        "cardInactive": "Carte {{number}} (inactive)",
+        "row": {
+          "due": "Échéance {{date}}",
+          "email": {
+            "pending": "E-mail en attente",
+            "sent": "Lien envoyé",
+            "failed": "Échec de l'e-mail",
+            "no_email": "Pas d'e-mail"
+          },
+          "marks": "Note",
+          "noQuiz": "Pas de quiz",
+          "attempts": "Tentatives"
+        },
+        "actions": {
+          "reassign": "Réassigner",
+          "signOff": "Valider",
+          "issueCard": "Délivrer la carte de sécurité",
+          "downloadCard": "Télécharger la carte (PDF)",
+          "revokeCard": "Révoquer la carte",
+          "copyLink": "Copier le lien",
+          "resendEmail": "Renvoyer l'e-mail",
+          "details": "Détails"
+        },
+        "details": {
+          "nic": "Pièce d'identité",
+          "assignedBy": "Assigné par",
+          "assignedAt": "Assigné le",
+          "noAttempts": "Pas encore soumis.",
+          "attemptN": "Tentative {{n}}",
+          "passed": "Réussi (seuil {{mark}} %)",
+          "belowPassMark": "Sous le seuil ({{mark}} %)",
+          "signedAs": "Signé : {{name}}",
+          "noAttachments": "Aucune pièce jointe.",
+          "signedOffBy": "Validé par {{name}} le {{date}}"
+        },
+        "toasts": {
+          "linkCopied": "Lien copié.",
+          "copyPrompt": "Copiez ce lien :",
+          "linkResent": "Lien renvoyé par e-mail.",
+          "noEmail": "Aucune adresse e-mail enregistrée pour cette personne.",
+          "resendFailed": "Impossible d'envoyer l'e-mail. Copiez le lien et partagez-le.",
+          "pdfFailed": "Impossible de générer le PDF de la carte.",
+          "cardRevoked": "Carte de sécurité révoquée.",
+          "actionFailed": "Cela n'a pas fonctionné. Veuillez réessayer.",
+          "reassignedEmailed": "Réassigné : un nouveau lien a été envoyé par e-mail.",
+          "reassignedNoEmail": "Réassigné. Le nouveau lien n'a pas pu être envoyé par e-mail : copiez-le depuis la liste.",
+          "signedOff": "Validé.",
+          "cardIssued": "Carte de sécurité délivrée."
+        },
+        "revokePrompt": "Pourquoi cette carte de sécurité est-elle révoquée ?",
+        "reassignDialog": {
+          "title": "Réassigner la formation",
+          "body": "Le lien actuel se ferme et un nouveau est envoyé avec de nouvelles tentatives. Les soumissions précédentes sont conservées.",
+          "confirm": "Réassigner et envoyer le lien"
+        },
+        "signOffDialog": {
+          "title": "Valider la formation",
+          "bodyScore": "Meilleur score {{score}} % (seuil {{mark}} %).",
+          "bodyNoQuiz": "Cette formation n'a pas de quiz : le membre de l'équipe a soumis le formulaire de prise de connaissance.",
+          "warnBelowPass": "Le meilleur score est inférieur au seuil. Réassignez si la formation doit être refaite.",
+          "closesLink": "La validation ferme le lien. Vous pourrez ensuite délivrer une carte de sécurité.",
+          "noteLabel": "Note",
+          "confirm": "Valider"
+        },
+        "issueDialog": {
+          "title": "Délivrer la carte de sécurité",
+          "body": "Crée une carte de sécurité sous-traitant de 3,5 × 2 po avec code QR. Vérifiez les informations avant de la délivrer.",
+          "fields": {
+            "name": "Nom",
+            "nic": "Pièce d'identité / Passeport",
+            "position": "Poste",
+            "field": "Domaine",
+            "contractor": "Sous-traitant",
+            "contact": "Personne de contact"
+          },
+          "validUntil": "Valable jusqu'au",
+          "confirm": "Délivrer la carte",
+          "issuedTitle": "Carte de sécurité délivrée",
+          "issuedBody": "Téléchargez le PDF et imprimez-le en 3,5 × 2 po (recto verso). Le scan du code QR ouvre un signalement de cas de sécurité pour le titulaire.",
+          "downloadPdf": "Télécharger la carte (PDF)",
+          "errors": {
+            "validUntil": "Choisissez une date d'expiration dans le futur.",
+            "noContractor": "Le dossier du sous-traitant est introuvable."
+          }
+        }
+      },
+      "publicForm": {
+        "badge": "Formation sécurité",
+        "retry": "Réessayer",
+        "footer": "Propulsé par FirmiCore",
+        "errors": {
+          "invalidLink": "Ce lien n'est pas valide ou a été remplacé.",
+          "loadFailed": "Impossible de charger la formation. Vérifiez votre connexion et réessayez.",
+          "answerAll": "Veuillez répondre à toutes les questions.",
+          "nameRequired": "Veuillez saisir votre nom complet comme signature.",
+          "ackRequired": "Veuillez cocher la déclaration.",
+          "closed": "Ce lien est fermé.",
+          "submitFailed": "Envoi impossible. Vérifiez votre connexion et réessayez."
+        },
+        "details": {
+          "name": "Nom",
+          "contractor": "Entreprise",
+          "site": "Site",
+          "due": "À terminer avant le",
+          "attempts": "Tentatives",
+          "attemptsValue": "{{used}} sur {{max}} utilisées"
+        },
+        "attemptN": "Tentative {{n}}",
+        "passed": "Réussi",
+        "belowPassMark": "Sous le seuil",
+        "submitted": "Soumis",
+        "closed": {
+          "signed_off": {
+            "title": "Formation validée",
+            "body": "Votre responsable sécurité a validé cette formation. Merci."
+          },
+          "reassigned": {
+            "title": "Ce lien a été remplacé",
+            "body": "Un lien plus récent vous a été envoyé pour cette formation. Veuillez utiliser celui-là."
+          },
+          "attempts_exhausted": {
+            "title": "Plus de tentatives",
+            "body": "Vous avez utilisé toutes vos tentatives. Contactez votre responsable sécurité si vous avez besoin d'un nouvel essai."
+          },
+          "expired": {
+            "title": "Ce lien est fermé",
+            "body": "La date et l'heure d'échéance sont passées. Contactez votre responsable sécurité pour être réassigné."
+          }
+        },
+        "alreadySubmitted": "Vous avez déjà soumis cette formation. Vos soumissions sont listées ci-dessous.",
+        "tryAgain_one": "Réessayer ({{count}} tentative restante)",
+        "tryAgain_other": "Réessayer ({{count}} tentatives restantes)",
+        "done": {
+          "title": "Soumis",
+          "body": "Merci : votre responsable sécurité examinera votre soumission.",
+          "passed": "Réussi — seuil {{mark}} %",
+          "belowPassMark": "Sous le seuil de {{mark}} %",
+          "canRetry_one": "Vous pouvez soumettre à nouveau : {{count}} tentative restante jusqu'au {{due}}.",
+          "canRetry_other": "Vous pouvez soumettre à nouveau : {{count}} tentatives restantes jusqu'au {{due}}.",
+          "noMoreAttempts": "Aucune autre tentative n'est disponible.",
+          "submitAgain": "Soumettre à nouveau"
+        },
+        "openDocument": "Ouvrir le document",
+        "selectAllThatApply": "Sélectionnez toutes les réponses applicables",
+        "intro_one": "Lisez la formation, remplissez le formulaire et soumettez-le. Il vous reste {{count}} tentative.",
+        "intro_other": "Lisez la formation, remplissez le formulaire et soumettez-le. Il vous reste {{count}} tentatives.",
+        "sections": {
+          "training": "Formation",
+          "quiz": "Quiz",
+          "comments": "Commentaires",
+          "attachments": "Photos et notes vocales"
+        },
+        "passMark": "Seuil de réussite : {{mark}} %",
+        "optional": "(facultatif)",
+        "commentsPlaceholder": "Tout ce que vous souhaitez communiquer à votre responsable sécurité…",
+        "attachments": {
+          "hint": "Ajoutez des photos ou enregistrez une note vocale si cela peut aider. C'est facultatif.",
+          "addPhotos": "Ajouter des photos",
+          "recordVoice": "Enregistrer une note vocale",
+          "stopRecording": "Arrêter ({{time}})",
+          "micDenied": "Impossible d'accéder au microphone. Vérifiez l'autorisation du navigateur.",
+          "voiceUnsupported": "L'enregistrement vocal n'est pas pris en charge par ce navigateur.",
+          "tooLarge": "Les pièces jointes sont trop volumineuses. Supprimez-en une ou utilisez des fichiers plus petits.",
+          "maxImages": "Vous pouvez ajouter jusqu'à {{max}} photos.",
+          "maxAudio": "Vous pouvez ajouter jusqu'à {{max}} notes vocales.",
+          "imageFailed": "Cette photo n'a pas pu être ajoutée.",
+          "voiceFailed": "L'enregistrement n'a pas pu être ajouté.",
+          "remove": "Supprimer"
+        },
+        "declaration": "Je confirme avoir lu et compris cette formation sécurité et je respecterai les règles de sécurité du site.",
+        "signatureLabel": "Saisissez votre nom complet comme signature",
+        "submit": "Soumettre",
+        "submitting": "Envoi…"
       }
     },
     "trainingShared": {
