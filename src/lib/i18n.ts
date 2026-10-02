@@ -14,6 +14,7 @@ import ja from '../locales/ja.json';
 import es from '../locales/es.json';
 import fr from '../locales/fr.json';
 import de from '../locales/de.json';
+import { SUPPORTED_LANGUAGES, type AppLanguage } from './supportedLanguages';
 
 // Languages with no dedicated app-shell translation yet fall back to
 // en-US via fallbackLng below rather than shipping an empty/duplicate file.
@@ -28,17 +29,9 @@ import de from '../locales/de.json';
 // old link), they're just not offered as a pick here. Sinhala is offered
 // despite being a partial translation (not every string is covered yet)
 // because it's an actively-used language for this company.
-export const SUPPORTED_LANGUAGES = [
-  { code: 'en-US', label: 'English' },
-  { code: 'si', label: 'Sinhala' },
-  { code: 'es', label: 'Spanish' },
-  { code: 'fr', label: 'French' },
-  { code: 'de', label: 'German' },
-  { code: 'zh', label: 'Chinese' },
-  { code: 'ja', label: 'Japanese' },
-] as const;
-
-export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]['code'];
+// The list itself lives in supportedLanguages.ts (no side effects, so it can be
+// imported from anywhere — including tests); re-exported here for existing imports.
+export { SUPPORTED_LANGUAGES, type AppLanguage };
 // The app's layout (fixed-side sidebar, flex directions) isn't built for RTL
 // mirroring — flipping dir="rtl" breaks the sidebar/header layout instead of
 // properly mirroring it. Keep the document LTR for every language; Arabic/
