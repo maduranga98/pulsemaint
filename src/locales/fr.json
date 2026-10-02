@@ -3757,6 +3757,20 @@
         "close": "Fermer",
         "cancel": "Annuler",
         "redirecting": "Ouverture du signalement de cas de sécurité…"
+      },
+      "reportFlow": {
+        "title": "Signaler un cas de sécurité",
+        "subtitle": "Comment souhaitez-vous le signaler ?",
+        "qr": {
+          "title": "Scanner une carte de sécurité",
+          "description": "Scannez la carte QR d'un sous-traitant pour signaler un cas contre cette personne et son entreprise."
+        },
+        "manual": {
+          "title": "Signaler manuellement",
+          "description": "Renseignez vous-même les détails : un opérateur, un technicien, un ordre de travail, un sous-traitant ou autre chose."
+        },
+        "cancel": "Annuler",
+        "close": "Fermer"
       }
     },
     "safetyTrainings": {

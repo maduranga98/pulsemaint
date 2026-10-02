@@ -3757,6 +3757,20 @@
         "close": "Cerrar",
         "cancel": "Cancelar",
         "redirecting": "Abriendo el reporte de caso de seguridad…"
+      },
+      "reportFlow": {
+        "title": "Reportar un caso de seguridad",
+        "subtitle": "¿Cómo desea reportarlo?",
+        "qr": {
+          "title": "Escanear una tarjeta de seguridad",
+          "description": "Escanee la tarjeta QR de un contratista para reportar contra esa persona y su empresa."
+        },
+        "manual": {
+          "title": "Reportar manualmente",
+          "description": "Complete los detalles usted mismo: un operador, técnico, orden de trabajo, contratista u otro."
+        },
+        "cancel": "Cancelar",
+        "close": "Cerrar"
       }
     },
     "safetyTrainings": {

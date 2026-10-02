@@ -5,7 +5,7 @@ import KpiCard from '@/components/dashboard/shared/KpiCard';
 import TodayTrainingsWidget from '@/components/dashboard/manager/TodayTrainingsWidget';
 import TodayMyTrainingsWidget from '@/components/dashboard/manager/TodayMyTrainingsWidget';
 import { useSafetyKpis } from '@/hooks/safety/useSafety';
-import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
+import ReportSafetyCaseFlow from '../components/ReportSafetyCaseFlow';
 
 import { useTranslation } from 'react-i18next';
 export default function SafetyDashboard() {
@@ -65,7 +65,7 @@ export default function SafetyDashboard() {
         </div>
       </div>
 
-      {reporting && <ReportSafetyCaseModal onClose={() => setReporting(false)} />}
+      {reporting && <ReportSafetyCaseFlow onClose={() => setReporting(false)} />}
     </div>
   );
 }

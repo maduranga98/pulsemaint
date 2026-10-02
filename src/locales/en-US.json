@@ -5144,6 +5144,20 @@
         "close": "Close",
         "cancel": "Cancel",
         "redirecting": "Opening safety case report…"
+      },
+      "reportFlow": {
+        "title": "Report a safety case",
+        "subtitle": "How would you like to report it?",
+        "qr": {
+          "title": "Scan a Safety Card",
+          "description": "Scan a contractor's QR card to report against that person and their company."
+        },
+        "manual": {
+          "title": "Report manually",
+          "description": "Fill in the details yourself — an operator, technician, work order, contractor or something else."
+        },
+        "cancel": "Cancel",
+        "close": "Close"
       }
     },
     "safetyTrainings": {
