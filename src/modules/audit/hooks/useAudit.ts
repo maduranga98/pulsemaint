@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
@@ -8,6 +8,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
+import { usersInPlant } from '../../../lib/plantScope';
 import type { UserProfile } from '../../../types/auth';
 import type { Machine } from '../../../types/machine';
 import type {
@@ -182,8 +184,11 @@ export function useAuditMachines(): { machines: Machine[]; loading: boolean } {
 // ─── Users (for participant selection) ─────────────────────────────────────────
 
 export function useAuditUsers(): { users: UserProfile[]; loading: boolean } {
+  // usePlantId() is the company id (audits are stored per company).
   const plantId = usePlantId();
-  const [users, setUsers] = useState<UserProfile[]>([]);
+  // Participants come from the caller's own plant only (admin: the selected plant tab).
+  const { plantId: scopedPlantId } = useDepartmentScope();
+  const [allUsers, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -203,6 +208,8 @@ export function useAuditUsers(): { users: UserProfile[]; loading: boolean } {
     );
     return unsub;
   }, [plantId]);
+
+  const users = useMemo(() => usersInPlant(allUsers, scopedPlantId), [allUsers, scopedPlantId]);
 
   return { users, loading };
 }
