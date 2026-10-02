@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { subscribeShiftConfigs, subscribeActiveShiftSessions } from '../../services/handover.service';
 import type { ShiftConfig, ShiftSession } from '../../types/handover.types';
 import { useDepartmentScope } from '../useDepartmentScope';
+import { presentUserIds } from '../../lib/shiftPresence';
 
 export interface DepartmentShift {
   department: string;
@@ -60,7 +61,8 @@ function groupTodayShifts(configs: ShiftConfig[], activeSessions: ShiftSession[]
   const grouped = new Map<string, DepartmentShift['shifts']>();
   for (const c of activeConfigs) {
     const dept = c.department ?? 'General';
-    const clockedInCount = activeSessions.filter((s) => s.shiftConfigId === c.id).length;
+    // Distinct people, ignoring forgotten clock-outs from previous days.
+    const clockedInCount = presentUserIds(activeSessions.filter((s) => s.shiftConfigId === c.id)).length;
     if (!grouped.has(dept)) grouped.set(dept, []);
     grouped.get(dept)!.push({
       shiftName: c.shiftName,
