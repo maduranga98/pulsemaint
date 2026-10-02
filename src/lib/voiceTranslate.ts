@@ -1,5 +1,6 @@
 import { generateClaudeJson, isClaudeEnabled } from './claude';
 import type { AppLanguage } from './i18n';
+import { voiceLanguageName } from './speechLanguages';
 
 const APP_LANGUAGE_NAMES: Record<AppLanguage, string> = {
   'en-US': 'English',
@@ -9,25 +10,6 @@ const APP_LANGUAGE_NAMES: Record<AppLanguage, string> = {
   zh: 'Chinese',
   ja: 'Japanese',
   si: 'Sinhala',
-};
-
-// Maps the BCP-47 speech-recognition locale (what the speaker picked in
-// VoiceDictationButton) to a plain language name, so the translation prompt
-// is told the source language explicitly instead of guessing it from a
-// possibly short or garbled transcript.
-const SPEECH_LANGUAGE_NAMES: Record<string, string> = {
-  'en-US': 'English',
-  'si-LK': 'Sinhala',
-  'ta-LK': 'Tamil',
-  'hi-IN': 'Hindi',
-  'ur-PK': 'Urdu',
-  'bn-BD': 'Bengali',
-  'ar-SA': 'Arabic',
-  'zh-CN': 'Chinese',
-  'ja-JP': 'Japanese',
-  'es-ES': 'Spanish',
-  'fr-FR': 'French',
-  'de-DE': 'German',
 };
 
 interface TranslationResult {
@@ -99,7 +81,7 @@ async function translateViaClaude(
   if (!isClaudeEnabled()) return null;
 
   const targetLanguageName = APP_LANGUAGE_NAMES[targetLanguage] ?? 'English';
-  const sourceLanguageName = sourceLang ? SPEECH_LANGUAGE_NAMES[sourceLang] : undefined;
+  const sourceLanguageName = voiceLanguageName(sourceLang);
 
   try {
     const result = await generateClaudeJson<TranslationResult>(text, {
