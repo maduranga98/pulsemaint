@@ -21,7 +21,8 @@ import {
   Trash2,
   Plus,
 } from 'lucide-react';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { QuizQuestion, QuestionType } from '@/lib/training/trainingTypes';
 
 interface QuestionListEditorProps {

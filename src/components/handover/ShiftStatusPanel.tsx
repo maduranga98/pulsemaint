@@ -1,4 +1,5 @@
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useLiveShiftStatus, type ShiftLiveStatus, type ShiftMemberStatus } from '@/hooks/useLiveShiftStatus';
 import { formatTimeRange } from '@/utils/handover.utils';

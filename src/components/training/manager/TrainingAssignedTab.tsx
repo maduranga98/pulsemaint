@@ -10,7 +10,8 @@ import {
   type Timestamp,
 } from 'firebase/firestore';
 import { ClipboardList, CheckCircle2 } from 'lucide-react';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryModules';

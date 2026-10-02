@@ -41,8 +41,10 @@ const FALLBACK_TIMEZONES = [
 
 export function getTimezoneOptions(): string[] {
   try {
-    if (typeof Intl.supportedValuesOf === 'function') {
-      return Intl.supportedValuesOf('timeZone');
+    // Intl.supportedValuesOf is ES2022; the project's TS lib is ES2020.
+    const intl = Intl as typeof Intl & { supportedValuesOf?: (key: string) => string[] };
+    if (typeof intl.supportedValuesOf === 'function') {
+      return intl.supportedValuesOf('timeZone');
     }
   } catch {
     // fall through to fallback list

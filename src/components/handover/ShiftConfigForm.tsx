@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Trans, useTranslation, type TFunction } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { ShiftAssignBy, ShiftConfig, ShiftDay } from '@/types/handover.types';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
