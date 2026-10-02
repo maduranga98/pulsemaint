@@ -96,7 +96,7 @@ export function showDeviceNotification(title: string, options?: NotificationOpti
   if (!isDeviceNotificationSupported() || Notification.permission !== 'granted') return;
   try {
     const { onClick, ...rest } = options ?? {};
-    const n = new Notification(title, { icon: '/android-chrome-192x192.png', ...rest });
+    const n = new Notification(title, { icon: '/notification-icon.png', ...rest });
     if (onClick) n.onclick = () => {
       window.focus();
       onClick();
