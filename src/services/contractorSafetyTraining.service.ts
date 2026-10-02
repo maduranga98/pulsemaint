@@ -15,6 +15,7 @@ import { nanoid } from 'nanoid';
 import { db, functions } from '@/lib/firebase';
 import {
   MAX_SAFETY_TRAINING_ATTEMPTS,
+  getFinalScore,
   type ContractorSafetyCard,
   type ContractorSafetyTrainingInvite,
   type InviteEmailStatus,
@@ -107,7 +108,6 @@ function inviteDoc(src: NewInviteSource, reassignedFrom: string | null) {
     status: 'assigned',
     hasQuiz: src.module.hasQuiz,
     passingScore: src.module.passingScore,
-    bestScore: null,
     latestScore: null,
     lastSubmittedAt: null,
     emailStatus: (src.technician.email?.trim() ? 'pending' : 'no_email') as InviteEmailStatus,
@@ -273,7 +273,7 @@ export async function issueSafetyCard(input: {
     inviteId: invite.id,
     moduleId: invite.moduleId,
     moduleTitle: invite.moduleTitle,
-    score: invite.bestScore ?? null,
+    score: getFinalScore(invite),
     contractorId: contractor.id,
     contractorName: contractor.companyName,
     contactPersonName: contactName,

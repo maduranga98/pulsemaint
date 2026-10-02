@@ -85,12 +85,19 @@ export interface ContractorSafetyTrainingInvite {
   /** Link closes at this moment. */
   dueAt: Timestamp;
   maxAttempts: number;
+  /** How many times the team member has submitted (max `maxAttempts`). */
   attemptsUsed: number;
+  /**
+   * Only the final submission is kept — a new submission replaces the one
+   * before it, and `attemptsUsed` carries the count. New data therefore holds
+   * at most one entry; invites submitted before this was introduced may still
+   * hold more, so read it through {@link getFinalAttempt}.
+   */
   attempts: SafetyTrainingAttempt[];
   status: ContractorTrainingStatus;
   hasQuiz: boolean;
   passingScore: number;
-  bestScore: number | null;
+  /** Score (%) of the final submission; null when there is no quiz or nothing submitted yet. */
   latestScore: number | null;
   lastSubmittedAt: Timestamp | null;
   emailStatus: InviteEmailStatus;
@@ -144,6 +151,21 @@ export function getInviteDisplayStatus(
   if (inv.status === 'signed_off') return 'signed_off';
   if (inv.status === 'submitted' || (inv.attemptsUsed || 0) > 0) return 'submitted';
   return nowMs > inv.dueAtMs ? 'overdue' : 'awaiting';
+}
+
+/** The final (most recent) submission, or null when nothing has been submitted. */
+export function getFinalAttempt(inv: Pick<ContractorSafetyTrainingInvite, 'attempts'>): SafetyTrainingAttempt | null {
+  const list = inv.attempts ?? [];
+  return list.length > 0 ? list[list.length - 1] : null;
+}
+
+/** Score (%) of the final submission — what marks, sign-off and the safety card are based on. */
+export function getFinalScore(
+  inv: Pick<ContractorSafetyTrainingInvite, 'attempts' | 'latestScore'>,
+): number | null {
+  const final = getFinalAttempt(inv);
+  if (final) return typeof final.score === 'number' ? final.score : null;
+  return typeof inv.latestScore === 'number' ? inv.latestScore : null;
 }
 
 export function inviteDueMillis(inv: Pick<ContractorSafetyTrainingInvite, 'dueAt'>): number {

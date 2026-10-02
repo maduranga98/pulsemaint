@@ -4,6 +4,8 @@ import {
   addMonths,
   buildSafetyCardUrl,
   buildSafetyTrainingLink,
+  getFinalAttempt,
+  getFinalScore,
   getInviteAccess,
   getInviteDisplayStatus,
   isSafetyCardValid,
@@ -13,6 +15,8 @@ import {
 // import, so they can be exercised here without credentials.
 // @ts-ignore — no type declarations for the functions package
 import * as logic from '../../../functions/src/safetyTraining/logic.js';
+// @ts-ignore — no type declarations for the functions package
+import * as email from '../../../functions/src/safetyTraining/email.js';
 
 const HOUR = 3600 * 1000;
 const NOW = Date.UTC(2026, 9, 2, 12, 0, 0);
@@ -256,5 +260,101 @@ describe('validateAttachments (server)', () => {
   it('treats no attachments as fine', () => {
     expect(logic.validateAttachments(undefined)).toEqual([]);
     expect(logic.validateAttachments([])).toEqual([]);
+  });
+});
+
+describe('final submission only', () => {
+  const attempt = (n: number, score: number | null) =>
+    ({ attemptNumber: n, score, attachments: [] }) as never;
+
+  it('has no final attempt or score before anything is submitted', () => {
+    expect(getFinalAttempt({ attempts: [] })).toBeNull();
+    expect(getFinalScore({ attempts: [], latestScore: null })).toBeNull();
+  });
+
+  it('uses the single stored attempt as the final one', () => {
+    const inv = { attempts: [attempt(2, 70)], latestScore: 70 };
+    expect(getFinalAttempt(inv)?.attemptNumber).toBe(2);
+    expect(getFinalScore(inv)).toBe(70);
+  });
+
+  it('reads the last of several attempts stored by older invites, never the best', () => {
+    const inv = { attempts: [attempt(1, 95), attempt(2, 40)], latestScore: 40 };
+    expect(getFinalAttempt(inv)?.attemptNumber).toBe(2);
+    expect(getFinalScore(inv)).toBe(40);
+  });
+
+  it('has no score for a submission without a quiz', () => {
+    expect(getFinalScore({ attempts: [attempt(1, null)], latestScore: null })).toBeNull();
+  });
+});
+
+describe('invite email', () => {
+  const link = 'https://app.example.com/safety-training/tok_ABCDEFGHIJKLMNOP';
+  const built = email.buildInviteEmail(
+    { moduleTitle: 'LOTO <b>', technicianName: 'Kasun', contractorName: 'Veltrona', assignedByName: 'Safety Officer', maxAttempts: 3 },
+    link,
+    { companyName: 'Natrico Pvt Ltd', plantName: 'Newyork', timezone: 'Asia/Colombo' },
+    Date.UTC(2026, 9, 2, 10, 7),
+  );
+  const visibleText = (html: string) => html.replace(/<[^>]+>/g, ' ');
+
+  it('puts the link on the button only — the raw URL is not printed under it', () => {
+    expect(built.html.match(new RegExp(`href="${link}"`, 'g'))).toHaveLength(1);
+    expect(built.html).toContain('Open safety training form');
+    expect(visibleText(built.html)).not.toContain('https://');
+    expect(visibleText(built.html)).not.toContain('app.example.com');
+  });
+
+  it('keeps the link in the plain-text alternative for text-only mail clients', () => {
+    expect(built.text).toContain(link);
+  });
+
+  it('shows the due time in the company timezone and escapes the training title', () => {
+    expect(built.html).toContain('(Asia/Colombo)');
+    expect(built.html).toContain('15:37');
+    expect(built.html).toContain('LOTO &lt;b&gt;');
+    expect(built.html).not.toContain('LOTO <b>');
+  });
+});
+
+describe('applyFinalSubmission (server)', () => {
+  const file = (path: string) => ({ path, url: `https://x/${path}`, kind: 'image' });
+  const entry = { attemptNumber: 2, score: 60, submittedAt: 'T2', attachments: [file('a2/new.jpg')] };
+
+  it('keeps only the new submission and carries the count', () => {
+    const cur = { attempts: [{ attemptNumber: 1, score: 90, attachments: [file('a1/old.jpg')] }], attemptsUsed: 1 };
+    const { update } = logic.applyFinalSubmission(cur, entry);
+    expect(update.attempts).toEqual([entry]);
+    expect(update.attemptsUsed).toBe(2);
+    expect(update.latestScore).toBe(60);
+    expect(update.status).toBe('submitted');
+    expect(update.lastSubmittedAt).toBe('T2');
+  });
+
+  it('no longer writes a best score — the final one is what counts', () => {
+    const { update } = logic.applyFinalSubmission({ attempts: [], attemptsUsed: 0 }, entry);
+    expect(update).not.toHaveProperty('bestScore');
+  });
+
+  it('flags the replaced attempt’s files for deletion, not the new ones', () => {
+    const cur = { attempts: [{ attachments: [file('a1/old.jpg'), file('a1/voice.webm')] }], attemptsUsed: 1 };
+    expect(logic.applyFinalSubmission(cur, entry).replacedFiles).toEqual(['a1/old.jpg', 'a1/voice.webm']);
+  });
+
+  it('cleans up every earlier attempt of an older invite that stored several', () => {
+    const cur = {
+      attempts: [
+        { attachments: [file('a1/x.jpg')] },
+        { attachments: [file('a2/y.jpg'), { url: 'no-path' }] },
+        { attachments: [] },
+      ],
+      attemptsUsed: 3,
+    };
+    expect(logic.applyFinalSubmission(cur, { ...entry, attemptNumber: 4 }).replacedFiles).toEqual(['a1/x.jpg', 'a2/y.jpg']);
+  });
+
+  it('has nothing to delete on a first submission', () => {
+    expect(logic.applyFinalSubmission({ attempts: undefined }, { ...entry, attemptNumber: 1 }).replacedFiles).toEqual([]);
   });
 });

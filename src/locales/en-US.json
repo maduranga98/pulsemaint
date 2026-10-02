@@ -5283,12 +5283,13 @@
           "assignedBy": "Assigned by",
           "assignedAt": "Assigned",
           "noAttempts": "Not submitted yet.",
-          "attemptN": "Attempt {{n}}",
           "passed": "Passed (pass mark {{mark}}%)",
           "belowPassMark": "Below pass mark ({{mark}}%)",
           "signedAs": "Signed as {{name}}",
           "noAttachments": "No attachments.",
-          "signedOffBy": "Signed off by {{name}} on {{date}}"
+          "signedOffBy": "Signed off by {{name}} on {{date}}",
+          "finalSubmission": "Final submission",
+          "attemptsUsedNote": "{{used}} of {{max}} attempts used — earlier attempts aren't kept, only this final submission."
         },
         "toasts": {
           "linkCopied": "Link copied.",
@@ -5312,9 +5313,9 @@
         },
         "signOffDialog": {
           "title": "Sign off training",
-          "bodyScore": "Best score {{score}}% (pass mark {{mark}}%).",
+          "bodyScore": "Final score {{score}}% (pass mark {{mark}}%).",
           "bodyNoQuiz": "This training has no quiz — the team member submitted the acknowledgement form.",
-          "warnBelowPass": "The best score is below the pass mark. Reassign instead if they should retake it.",
+          "warnBelowPass": "The final score is below the pass mark. Reassign instead if they should retake it.",
           "closesLink": "Signing off closes the link. You can issue a safety card afterwards.",
           "noteLabel": "Note",
           "confirm": "Sign off"
@@ -5384,7 +5385,7 @@
             "body": "The due date and time has passed. Contact your safety officer to be assigned again."
           }
         },
-        "alreadySubmitted": "You already submitted this training. Your submissions are listed below.",
+        "alreadySubmitted": "You already submitted this training. Your latest submission is shown below.",
         "tryAgain_one": "Try again ({{count}} attempt left)",
         "tryAgain_other": "Try again ({{count}} attempts left)",
         "done": {
@@ -5427,7 +5428,8 @@
         "declaration": "I confirm that I have read and understood this safety training and will follow the site safety rules.",
         "signatureLabel": "Type your full name as signature",
         "submit": "Submit",
-        "submitting": "Submitting…"
+        "submitting": "Submitting…",
+        "replacesNote": "Submitting again replaces your previous submission."
       }
     },
     "trainingShared": {

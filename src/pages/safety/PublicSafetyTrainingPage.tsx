@@ -185,8 +185,9 @@ export default function PublicSafetyTrainingPage() {
                                   open: false,
                                   reason: r.attemptsRemaining > 0 ? 'expired' : 'attempts_exhausted',
                                 },
+                            // Only the final submission is kept (the server replaces
+                            // the earlier one); attemptsUsed carries the count.
                             attempts: [
-                              ...cur.attempts,
                               {
                                 attemptNumber: r.attemptNumber,
                                 submittedAtMs: Date.now(),
@@ -317,6 +318,7 @@ function Summary({
     <div className="space-y-4">
       <p className="text-sm text-slate-600">{t('common.safetyTrainings.publicForm.alreadySubmitted')}</p>
       <AttemptList attempts={attempts} />
+      <p className="text-xs text-slate-500">{t('common.safetyTrainings.publicForm.replacesNote')}</p>
       <button
         type="button"
         onClick={onStart}
@@ -364,6 +366,9 @@ function Done({
             })
           : t('common.safetyTrainings.publicForm.done.noMoreAttempts')}
       </div>
+      {result.canRetry && (
+        <p className="text-xs text-slate-500">{t('common.safetyTrainings.publicForm.replacesNote')}</p>
+      )}
       {result.canRetry && (
         <button
           type="button"

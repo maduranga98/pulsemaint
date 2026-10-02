@@ -31,6 +31,8 @@ import {
   SAFETY_CARD_DEFAULT_VALID_MONTHS,
   addMonths,
   buildSafetyTrainingLink,
+  getFinalAttempt,
+  getFinalScore,
   getInviteAccess,
   getInviteDisplayStatus,
   inviteDueMillis,
@@ -220,9 +222,10 @@ function InviteRow({
 
   const dueAtMs = inviteDueMillis(inv);
   const access = getInviteAccess({ ...inv, dueAtMs });
-  const attempts = inv.attempts ?? [];
-  const hasSubmission = attempts.length > 0;
-  const belowPass = inv.hasQuiz && (inv.bestScore ?? 0) < inv.passingScore;
+  // Only the final submission is kept; the count of attempts is attemptsUsed.
+  const finalAttempt = getFinalAttempt(inv);
+  const finalScore = getFinalScore(inv);
+  const belowPass = inv.hasQuiz && (finalScore ?? 0) < inv.passingScore;
   const cardActive = card ? isSafetyCardValid(card) : false;
 
   async function copyLink() {
@@ -318,9 +321,9 @@ function InviteRow({
           <div>
             <div className="text-[11px] uppercase text-slate-400">{t('common.safetyTrainings.contractor.row.marks')}</div>
             {inv.hasQuiz ? (
-              inv.bestScore !== null && inv.bestScore !== undefined ? (
+              finalScore !== null ? (
                 <div className={`text-lg font-bold leading-tight ${belowPass ? 'text-amber-600' : 'text-emerald-600'}`}>
-                  {inv.bestScore}%
+                  {finalScore}%
                 </div>
               ) : (
                 <div className="text-lg font-bold leading-tight text-slate-300">—</div>
@@ -411,10 +414,18 @@ function InviteRow({
             <Detail label={t('common.safetyTrainings.contractor.details.assignedAt')} value={fmtTs(inv.assignedAt)} />
           </dl>
 
-          {!hasSubmission ? (
+          {!finalAttempt ? (
             <p className="text-sm text-slate-500">{t('common.safetyTrainings.contractor.details.noAttempts')}</p>
           ) : (
-            attempts.map((a) => <AttemptCard key={a.attemptNumber} attempt={a} passingScore={inv.passingScore} />)
+            <>
+              <AttemptCard attempt={finalAttempt} passingScore={inv.passingScore} />
+              <p className="text-xs text-slate-400">
+                {t('common.safetyTrainings.contractor.details.attemptsUsedNote', {
+                  used: inv.attemptsUsed ?? 0,
+                  max: inv.maxAttempts,
+                })}
+              </p>
+            </>
           )}
 
           {inv.signOff && (
@@ -449,7 +460,7 @@ function AttemptCard({ attempt, passingScore }: { attempt: SafetyTrainingAttempt
     <div className="rounded-lg border border-slate-200 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm font-medium text-slate-800">
-          {t('common.safetyTrainings.contractor.details.attemptN', { n: attempt.attemptNumber })}
+          {t('common.safetyTrainings.contractor.details.finalSubmission')}
           <span className="ml-2 text-xs font-normal text-slate-400">{fmtTs(attempt.submittedAt)}</span>
         </span>
         {attempt.hasQuiz ? (
@@ -597,7 +608,8 @@ function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingIn
   const profile = useAuthStore((s) => s.userProfile);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
-  const belowPass = invite.hasQuiz && (invite.bestScore ?? 0) < invite.passingScore;
+  const finalScore = getFinalScore(invite);
+  const belowPass = invite.hasQuiz && (finalScore ?? 0) < invite.passingScore;
 
   async function submit() {
     if (!profile) return;
@@ -622,7 +634,7 @@ function SignOffDialog({ invite, onClose }: { invite: ContractorSafetyTrainingIn
     >
       <p className="text-sm text-slate-600">
         {invite.hasQuiz
-          ? t('common.safetyTrainings.contractor.signOffDialog.bodyScore', { score: invite.bestScore ?? 0, mark: invite.passingScore })
+          ? t('common.safetyTrainings.contractor.signOffDialog.bodyScore', { score: finalScore ?? 0, mark: invite.passingScore })
           : t('common.safetyTrainings.contractor.signOffDialog.bodyNoQuiz')}
       </p>
       {belowPass && (

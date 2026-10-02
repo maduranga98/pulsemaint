@@ -3896,12 +3896,13 @@
           "assignedBy": "Assigné par",
           "assignedAt": "Assigné le",
           "noAttempts": "Pas encore soumis.",
-          "attemptN": "Tentative {{n}}",
           "passed": "Réussi (seuil {{mark}} %)",
           "belowPassMark": "Sous le seuil ({{mark}} %)",
           "signedAs": "Signé : {{name}}",
           "noAttachments": "Aucune pièce jointe.",
-          "signedOffBy": "Validé par {{name}} le {{date}}"
+          "signedOffBy": "Validé par {{name}} le {{date}}",
+          "finalSubmission": "Soumission finale",
+          "attemptsUsedNote": "{{used}} tentatives sur {{max}} utilisées — les tentatives précédentes ne sont pas conservées, seulement cette soumission finale."
         },
         "toasts": {
           "linkCopied": "Lien copié.",
@@ -3925,9 +3926,9 @@
         },
         "signOffDialog": {
           "title": "Valider la formation",
-          "bodyScore": "Meilleur score {{score}} % (seuil {{mark}} %).",
+          "bodyScore": "Score final {{score}} % (seuil {{mark}} %).",
           "bodyNoQuiz": "Cette formation n'a pas de quiz : le membre de l'équipe a soumis le formulaire de prise de connaissance.",
-          "warnBelowPass": "Le meilleur score est inférieur au seuil. Réassignez si la formation doit être refaite.",
+          "warnBelowPass": "Le score final est inférieur au seuil. Réassignez si la formation doit être refaite.",
           "closesLink": "La validation ferme le lien. Vous pourrez ensuite délivrer une carte de sécurité.",
           "noteLabel": "Note",
           "confirm": "Valider"
@@ -3997,7 +3998,7 @@
             "body": "La date et l'heure d'échéance sont passées. Contactez votre responsable sécurité pour être réassigné."
           }
         },
-        "alreadySubmitted": "Vous avez déjà soumis cette formation. Vos soumissions sont listées ci-dessous.",
+        "alreadySubmitted": "Vous avez déjà soumis cette formation. Votre dernière soumission est affichée ci-dessous.",
         "tryAgain_one": "Réessayer ({{count}} tentative restante)",
         "tryAgain_other": "Réessayer ({{count}} tentatives restantes)",
         "done": {
@@ -4040,7 +4041,8 @@
         "declaration": "Je confirme avoir lu et compris cette formation sécurité et je respecterai les règles de sécurité du site.",
         "signatureLabel": "Saisissez votre nom complet comme signature",
         "submit": "Soumettre",
-        "submitting": "Envoi…"
+        "submitting": "Envoi…",
+        "replacesNote": "Soumettre à nouveau remplace votre soumission précédente."
       }
     },
     "trainingShared": {

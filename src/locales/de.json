@@ -3896,12 +3896,13 @@
           "assignedBy": "Zugewiesen von",
           "assignedAt": "Zugewiesen am",
           "noAttempts": "Noch nicht eingereicht.",
-          "attemptN": "Versuch {{n}}",
           "passed": "Bestanden (Bestehensgrenze {{mark}}%)",
           "belowPassMark": "Unter der Bestehensgrenze ({{mark}}%)",
           "signedAs": "Unterschrieben als {{name}}",
           "noAttachments": "Keine Anhänge.",
-          "signedOffBy": "Abgenommen von {{name}} am {{date}}"
+          "signedOffBy": "Abgenommen von {{name}} am {{date}}",
+          "finalSubmission": "Endgültige Einreichung",
+          "attemptsUsedNote": "{{used}} von {{max}} Versuchen genutzt – frühere Versuche werden nicht gespeichert, nur diese endgültige Einreichung."
         },
         "toasts": {
           "linkCopied": "Link kopiert.",
@@ -3925,9 +3926,9 @@
         },
         "signOffDialog": {
           "title": "Schulung abnehmen",
-          "bodyScore": "Bestes Ergebnis {{score}}% (Bestehensgrenze {{mark}}%).",
+          "bodyScore": "Endergebnis {{score}}% (Bestehensgrenze {{mark}}%).",
           "bodyNoQuiz": "Diese Schulung hat kein Quiz – das Teammitglied hat das Bestätigungsformular eingereicht.",
-          "warnBelowPass": "Das beste Ergebnis liegt unter der Bestehensgrenze. Weisen Sie stattdessen neu zu, wenn die Schulung wiederholt werden soll.",
+          "warnBelowPass": "Das Endergebnis liegt unter der Bestehensgrenze. Weisen Sie stattdessen neu zu, wenn die Schulung wiederholt werden soll.",
           "closesLink": "Mit der Abnahme wird der Link geschlossen. Anschließend können Sie eine Sicherheitskarte ausstellen.",
           "noteLabel": "Notiz",
           "confirm": "Abnehmen"
@@ -3997,7 +3998,7 @@
             "body": "Fälligkeitsdatum und Uhrzeit sind abgelaufen. Wenden Sie sich an Ihren Sicherheitsbeauftragten, um erneut zugewiesen zu werden."
           }
         },
-        "alreadySubmitted": "Sie haben diese Schulung bereits eingereicht. Ihre Einreichungen sind unten aufgeführt.",
+        "alreadySubmitted": "Sie haben diese Schulung bereits eingereicht. Ihre letzte Einreichung wird unten angezeigt.",
         "tryAgain_one": "Erneut versuchen ({{count}} Versuch übrig)",
         "tryAgain_other": "Erneut versuchen ({{count}} Versuche übrig)",
         "done": {
@@ -4040,7 +4041,8 @@
         "declaration": "Ich bestätige, dass ich diese Sicherheitsschulung gelesen und verstanden habe und die Sicherheitsregeln des Standorts einhalten werde.",
         "signatureLabel": "Geben Sie Ihren vollständigen Namen als Unterschrift ein",
         "submit": "Einreichen",
-        "submitting": "Wird eingereicht…"
+        "submitting": "Wird eingereicht…",
+        "replacesNote": "Eine erneute Einreichung ersetzt Ihre vorherige Einreichung."
       }
     },
     "trainingShared": {

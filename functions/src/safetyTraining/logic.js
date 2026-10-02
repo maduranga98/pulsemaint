@@ -236,6 +236,32 @@ function validateAttachments(list) {
   return out;
 }
 
+/**
+ * What a new submission writes to the invite. Only the final submission is
+ * kept: it replaces whatever attempt data was stored before, and
+ * attemptsUsed carries the count. Also returns the storage paths of the files
+ * the replaced attempts uploaded, so they can be deleted — including for older
+ * invites that still hold several stored attempts.
+ * @param {object} cur the invite as currently stored
+ * @param {object} entry the new attempt (attemptNumber, score, submittedAt, ...)
+ * @return {{update: object, replacedFiles: string[]}}
+ */
+function applyFinalSubmission(cur, entry) {
+  const replacedFiles = (cur.attempts || [])
+      .flatMap((a) => (a.attachments || []).map((f) => f.path))
+      .filter(Boolean);
+  return {
+    update: {
+      attempts: [entry],
+      attemptsUsed: entry.attemptNumber,
+      status: "submitted",
+      latestScore: entry.score,
+      lastSubmittedAt: entry.submittedAt,
+    },
+    replacedFiles,
+  };
+}
+
 module.exports = {
   MAX_ATTEMPTS,
   MAX_IMAGES,
@@ -246,4 +272,5 @@ module.exports = {
   publicModuleContent,
   validateAttachments,
   safeFileName,
+  applyFinalSubmission,
 };
