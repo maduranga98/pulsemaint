@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { buildSafetyCardPdf, packQualifications, safetyCardFileName, type Painter } from '../safety/safetyCardPdf';
-import { cropToAspect } from '../safety/imageCrop';
+import {
+  SAFETY_CARD_PHOTO_ASPECT,
+  SAFETY_CARD_PHOTO_FOCUS_Y,
+  buildSafetyCardPdf,
+  packQualifications,
+  safetyCardFileName,
+  type Painter,
+} from '../safety/safetyCardPdf';
+import { cropRect, cropToAspect } from '../safety/imageCrop';
 import type { ContractorSafetyCard } from '../safety/contractorSafety';
 
 const ts = (ms: number) => ({ toDate: () => new Date(ms), toMillis: () => ms }) as never;
@@ -130,6 +137,61 @@ describe('packQualifications', () => {
     const { size, lines } = packQualifications(shrinking, items, 2.4, 1, [9, 5], more);
     expect(size).toBe(5);
     expect(lines[0]).not.toContain('more');
+  });
+});
+
+describe('passport photo frame', () => {
+  it('is the 35 × 45 mm passport proportion', () => {
+    expect(SAFETY_CARD_PHOTO_ASPECT).toBeCloseTo(35 / 45, 6);
+  });
+
+  it('builds with a photo that is already cropped to the frame', async () => {
+    // 1×1 PNG: only the placement matters here.
+    const px = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    const doc = await buildSafetyCardPdf(card, { photoDataUrl: px });
+    expect(doc.getNumberOfPages()).toBe(2);
+  });
+});
+
+describe('cropRect', () => {
+  const aspect = 35 / 45;
+
+  it('crops a landscape photo to a centred portrait strip', () => {
+    const r = cropRect(1600, 900, aspect);
+    expect(r.ch).toBe(900);
+    expect(r.cw).toBeCloseTo(900 * aspect, 6);
+    expect(r.sx).toBeCloseTo((1600 - r.cw) / 2, 6);
+    expect(r.sy).toBe(0);
+  });
+
+  it('crops a square picture (e.g. a logo) to the frame ratio, centred', () => {
+    const r = cropRect(500, 500, aspect);
+    expect(r.cw / r.ch).toBeCloseTo(aspect, 6);
+    expect(r.sx).toBeCloseTo((500 - r.cw) / 2, 6);
+  });
+
+  it('keeps more of the top of a tall photo when the focus is above centre', () => {
+    const centred = cropRect(600, 1200, aspect, 0.5);
+    const upper = cropRect(600, 1200, aspect, SAFETY_CARD_PHOTO_FOCUS_Y);
+    expect(upper.cw / upper.ch).toBeCloseTo(aspect, 6);
+    expect(upper.sy).toBeLessThan(centred.sy);
+    expect(upper.sy).toBeGreaterThanOrEqual(0);
+    expect(upper.sy + upper.ch).toBeLessThanOrEqual(1200 + 1e-6);
+  });
+
+  it('never leaves the image, whatever the focus', () => {
+    for (const focus of [-1, 0, 0.3, 1, 2]) {
+      const r = cropRect(640, 480, aspect, focus);
+      expect(r.sx).toBeGreaterThanOrEqual(0);
+      expect(r.sy).toBeGreaterThanOrEqual(0);
+      expect(r.sx + r.cw).toBeLessThanOrEqual(640 + 1e-6);
+      expect(r.sy + r.ch).toBeLessThanOrEqual(480 + 1e-6);
+    }
+  });
+
+  it('returns a photo that already has the frame ratio unchanged', () => {
+    const r = cropRect(350, 450, aspect);
+    expect(r).toEqual({ sx: 0, sy: 0, cw: 350, ch: 450 });
   });
 });
 
