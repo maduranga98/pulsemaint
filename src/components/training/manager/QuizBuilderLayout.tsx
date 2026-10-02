@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import { Loader2, MessageSquare } from 'lucide-react';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { TrainingModule, TrainingQuiz, QuizQuestion } from '@/lib/training/trainingTypes';
 import QuizSettingsBar from './QuizSettingsBar';
 import QuestionListEditor from './QuestionListEditor';

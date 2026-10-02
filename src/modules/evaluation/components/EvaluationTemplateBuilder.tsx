@@ -12,8 +12,6 @@ import {
   EVALUATION_ROLE_LABELS,
   ROLE_CRITERIA,
   getRoleLabel,
-  getCriterionLabel,
-  getCriterionDescription,
   type EvaluationCriterion,
   type EvaluationRole,
   type EvaluationTemplate,

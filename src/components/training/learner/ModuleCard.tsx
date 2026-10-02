@@ -1,5 +1,6 @@
 import { Cpu, Globe2 } from 'lucide-react';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { isOffboardAssignment } from '@/lib/training/offboardTraining';
 import TrainingStatusBadge from '../shared/TrainingStatusBadge';

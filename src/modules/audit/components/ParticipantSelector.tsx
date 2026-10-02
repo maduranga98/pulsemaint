@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Search, Check, Users } from 'lucide-react';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { UserProfile } from '../../../types/auth';
 import type { AuditParticipant } from '../types/audit.types';
 

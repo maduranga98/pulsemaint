@@ -8,6 +8,7 @@ const APP_LANGUAGE_NAMES: Record<AppLanguage, string> = {
   de: 'German',
   zh: 'Chinese',
   ja: 'Japanese',
+  si: 'Sinhala',
 };
 
 // Maps the BCP-47 speech-recognition locale (what the speaker picked in
@@ -44,6 +45,7 @@ const GOOGLE_TRANSLATE_TARGET: Record<AppLanguage, string> = {
   de: 'de',
   zh: 'zh-CN',
   ja: 'ja',
+  si: 'si',
 };
 
 /**

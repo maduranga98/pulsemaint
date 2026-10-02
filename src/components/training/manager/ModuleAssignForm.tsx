@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { X, Loader2, Users, Shield, Building2 } from 'lucide-react';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';

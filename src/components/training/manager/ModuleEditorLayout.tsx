@@ -9,7 +9,8 @@ import LessonEditorPanel from './LessonEditorPanel';
 
 interface ModuleEditorLayoutProps {
   module?: TrainingModule;
-  onSave: (updates: Partial<TrainingModule>) => Promise<void>;
+  /** The result is ignored here — EditModulePage's handler resolves to a success flag for its own use. */
+  onSave: (updates: Partial<TrainingModule>) => Promise<unknown>;
   moduleId?: string;
   /**
    * The settings form for whichever library this editor belongs to. Each
