@@ -20,6 +20,8 @@ import { validateImportRows } from '@/lib/inventory/importValidator';
 import { getCategorySequenceMap, nextFromCounter } from '@/lib/inventory/partNumberGenerator';
 import { getSupplierCodeSequenceMap, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
+import { fetchResourceCount } from '@/hooks/usePlanLimitCheck';
+import { planLimitsFor, checkImportAllowed, importBlockMessage } from '@/lib/planLimits';
 import type { ValidationResult, InventoryPart, Supplier } from '@/types/inventory';
 import { ImportStepIndicator } from '@/components/inventory/import/ImportStepIndicator';
 import { ImportTemplateStep } from '@/components/inventory/import/ImportTemplateStep';
@@ -52,6 +54,7 @@ export function ExcelImportPage() {
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds) ?? [];
   const { plantId } = useDepartmentScope();
+  const plan = useAuthStore((s) => s.company?.plan);
 
   const [step, setStep] = useState<Step>(1);
   const [state, setState] = useState<ImportState>({
@@ -82,6 +85,28 @@ export function ExcelImportPage() {
 
       // Validate
       const validationResult = validateImportRows(parsed.rows, existingPartNumbers);
+
+      // Plan cap: only rows that CREATE a part count (updates don't add items).
+      const limit = planLimitsFor(plan).inventoryItems;
+      let existingCount = 0;
+      if (limit !== null) {
+        try {
+          existingCount = await fetchResourceCount('inventoryItems', companyId);
+        } catch {
+          existingCount = snap.size;
+        }
+      }
+      const check = checkImportAllowed({
+        newRecords: validationResult.createCount,
+        totalRows: parsed.totalRows,
+        existingCount,
+        limit,
+        fileBytes: file.size,
+      });
+      if (!check.ok) {
+        addToast(importBlockMessage(check, 'inventory item', limit, validationResult.createCount, parsed.totalRows), 'error');
+        return;
+      }
 
       setState((prev) => ({
         ...prev,

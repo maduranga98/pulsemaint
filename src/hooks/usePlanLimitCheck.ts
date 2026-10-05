@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { planLimitsFor, isAtOrOverLimit } from '../lib/planLimits';
 
-type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'users';
+export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'users';
 
 const RESOURCE_LABEL: Record<CountedResource, string> = {
   machines: 'machine',
@@ -25,6 +25,28 @@ interface UsePlanLimitCheckResult {
 function planDisplayName(plan: string | undefined): string {
   if (!plan) return 'Basic';
   return plan.charAt(0).toUpperCase() + plan.slice(1);
+}
+
+/**
+ * One-off live count of a plan-limited resource for a company. Shared by the
+ * hook and the bulk-import flows, so imports are checked against the same
+ * number the single-create forms use.
+ */
+export async function fetchResourceCount(resource: CountedResource, companyId: string): Promise<number> {
+  const q =
+    resource === 'machines'
+      ? query(collection(db, 'machines'), where('siteId', '==', companyId))
+      : resource === 'inventoryItems'
+      ? query(collection(db, 'inventoryParts'), where('companyId', '==', companyId))
+      : resource === 'pmSchedules'
+      ? query(
+          collection(db, 'pm_schedules'),
+          where('companyId', '==', companyId),
+          where('status', 'in', ['active', 'paused']),
+        )
+      : query(collection(db, `companies/${companyId}/users`));
+  const snap = await getCountFromServer(q);
+  return snap.data().count;
 }
 
 /**
@@ -61,22 +83,9 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
     let cancelled = false;
     setLoading(true);
 
-    const q =
-      resource === 'machines'
-        ? query(collection(db, 'machines'), where('siteId', '==', companyId))
-        : resource === 'inventoryItems'
-        ? query(collection(db, 'inventoryParts'), where('companyId', '==', companyId))
-        : resource === 'pmSchedules'
-        ? query(
-            collection(db, 'pm_schedules'),
-            where('companyId', '==', companyId),
-            where('status', 'in', ['active', 'paused']),
-          )
-        : query(collection(db, `companies/${companyId}/users`));
-
-    getCountFromServer(q)
-      .then((snap) => {
-        if (!cancelled) setCount(snap.data().count);
+    fetchResourceCount(resource, companyId)
+      .then((n) => {
+        if (!cancelled) setCount(n);
       })
       .catch(() => {
         // Permission/index error — don't block creation on a failed read.

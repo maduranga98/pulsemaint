@@ -17,6 +17,7 @@ import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { useToast } from '@/hooks/useToast';
 import { getNextSupplierCode, getSupplierCodeSequenceMap, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
 import type { Supplier } from '@/types/inventory';
+import { checkImportAllowed, importBlockMessage } from '@/lib/planLimits';
 
 interface SupplierFormValues {
   name: string;
@@ -188,6 +189,13 @@ export function SuppliersPage() {
 
       if (records.length === 0) {
         addToast(t('common.inventory.suppliersPage.toasts.noValidRows'), 'error');
+        return;
+      }
+
+      // Suppliers have no plan cap, but a single import is still bounded.
+      const check = checkImportAllowed({ newRecords: records.length, existingCount: 0, limit: null, fileBytes: file.size });
+      if (!check.ok) {
+        addToast(importBlockMessage(check, 'supplier', null, records.length), 'error');
         return;
       }
 

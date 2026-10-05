@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Upload, Download, AlertCircle, CheckCircle, FileSpreadsheet } from 'lucide-react';
 import type { UserRole } from '@/types/auth';
+import { MAX_IMPORT_ROWS, MAX_IMPORT_FILE_BYTES } from '@/lib/planLimits';
 
 /**
  * PM-081 — Import Users via a downloadable Excel template; on upload,
@@ -30,6 +31,8 @@ export interface ParsedUserRow {
 }
 
 interface Props {
+  /** Seats left on the plan (null = unlimited). Imports with more valid rows than this are blocked. */
+  remainingSeats?: number | null;
   /** Plant names available for the "Plant" column, e.g. from usePlants(companyId). Pass [] if plants aren't in use. */
   plantNames: string[];
   onClose: () => void;
@@ -41,7 +44,7 @@ function normalizeRole(value: string): UserRole | null {
   return (VALID_ROLES as string[]).includes(v) ? (v as UserRole) : null;
 }
 
-export function UsersBulkImportModal({ plantNames, onClose, onImport }: Props) {
+export function UsersBulkImportModal({ plantNames, remainingSeats = null, onClose, onImport }: Props) {
   const { t } = useTranslation();
   const [rows, setRows] = useState<ParsedUserRow[]>([]);
   const [fileName, setFileName] = useState('');
@@ -66,11 +69,18 @@ export function UsersBulkImportModal({ plantNames, onClose, onImport }: Props) {
     setError(null);
     setResult(null);
     try {
+      if (file.size > MAX_IMPORT_FILE_BYTES) {
+        throw new Error(t('common.settings.users.bulkImport.fileTooLarge', 'File is too large. Maximum import file size is {{mb}} MB.', { mb: MAX_IMPORT_FILE_BYTES / (1024 * 1024) }));
+      }
       const XLSX = await import('xlsx');
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: 'array' });
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const records = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' });
+
+      if (records.length > MAX_IMPORT_ROWS) {
+        throw new Error(t('common.settings.users.bulkImport.tooManyRows', 'This file has {{count}} rows. A single import is limited to {{max}} rows — split it into smaller files.', { count: records.length, max: MAX_IMPORT_ROWS }));
+      }
 
       const parsed: ParsedUserRow[] = records.map((r) => {
         const get = (k: string) => String(r[k] ?? '').trim();
@@ -100,6 +110,11 @@ export function UsersBulkImportModal({ plantNames, onClose, onImport }: Props) {
           error: rowError,
         };
       });
+
+      const validCount = parsed.filter((r) => !r.error).length;
+      if (remainingSeats !== null && validCount > remainingSeats) {
+        throw new Error(t('common.settings.users.bulkImport.overPlanLimit', 'Import blocked: {{count}} new user(s) would exceed your plan limit. You can add {{remaining}} more. Remove rows or upgrade your plan.', { count: validCount, remaining: remainingSeats }));
+      }
 
       if (parsed.length === 0) {
         setError(t('common.settings.users.bulkImport.noRowsFound', 'No rows found in the uploaded file.'));
