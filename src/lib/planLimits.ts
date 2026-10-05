@@ -112,3 +112,68 @@ export function isAtOrOverLimit(count: number, limit: number | null): boolean {
   if (limit === null) return false;
   return count >= limit;
 }
+
+/** Hard cap on data rows in a single bulk-import file (CSV or Excel). */
+export const MAX_IMPORT_ROWS = 500;
+
+/** Hard cap on the size of a bulk-import file. */
+export const MAX_IMPORT_FILE_BYTES = 5 * 1024 * 1024;
+
+export type ImportBlockReason = 'too_many_rows' | 'file_too_large' | 'plan_limit';
+
+export interface ImportCheck {
+  ok: boolean;
+  reason?: ImportBlockReason;
+  /** How many more records the plan allows right now (null = unlimited). */
+  remaining: number | null;
+}
+
+/**
+ * Decides whether a bulk import of `newRecords` may proceed. A file over the
+ * per-file row/size caps, or one that would push `existingCount` past the
+ * plan `limit`, is rejected whole — never partially imported — so CSV/Excel
+ * can't be used to get around the limits enforced on the single-create forms.
+ */
+export function checkImportAllowed(opts: {
+  /** Records that would actually be created (valid rows). */
+  newRecords: number;
+  /** All data rows in the file, valid or not — defaults to newRecords. */
+  totalRows?: number;
+  existingCount: number;
+  limit: number | null;
+  fileBytes?: number;
+}): ImportCheck {
+  const { newRecords, existingCount, limit, fileBytes } = opts;
+  const totalRows = opts.totalRows ?? newRecords;
+  const remaining = limit === null ? null : Math.max(0, limit - existingCount);
+  if (fileBytes !== undefined && fileBytes > MAX_IMPORT_FILE_BYTES) {
+    return { ok: false, reason: 'file_too_large', remaining };
+  }
+  if (totalRows > MAX_IMPORT_ROWS) {
+    return { ok: false, reason: 'too_many_rows', remaining };
+  }
+  if (remaining !== null && newRecords > remaining) {
+    return { ok: false, reason: 'plan_limit', remaining };
+  }
+  return { ok: true, remaining };
+}
+
+/** User-facing explanation for a blocked import. */
+export function importBlockMessage(
+  check: ImportCheck,
+  label: string,
+  limit: number | null,
+  newRecords: number,
+  totalRows: number = newRecords,
+): string {
+  switch (check.reason) {
+    case 'file_too_large':
+      return `File is too large. Maximum import file size is ${MAX_IMPORT_FILE_BYTES / (1024 * 1024)} MB.`;
+    case 'too_many_rows':
+      return `This file has ${totalRows} rows. A single import is limited to ${MAX_IMPORT_ROWS} rows — split it into smaller files.`;
+    case 'plan_limit':
+      return `Import blocked: ${newRecords} new ${label}(s) would exceed your plan limit of ${limit}. You can add ${check.remaining} more. Remove rows or upgrade your plan.`;
+    default:
+      return '';
+  }
+}

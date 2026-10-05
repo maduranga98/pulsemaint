@@ -927,6 +927,7 @@ export default function UsersPage() {
 
       {importOpen && (
         <UsersBulkImportModal
+          remainingSeats={userLimit.limit === null ? null : Math.max(0, userLimit.limit - userLimit.count)}
           plantNames={activePlants.map((p) => p.name)}
           onClose={() => setImportOpen(false)}
           onImport={handleBulkImport}

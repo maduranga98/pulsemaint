@@ -5,6 +5,8 @@ import type { TFunction } from 'i18next';
 import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { fetchResourceCount } from '../../hooks/usePlanLimitCheck';
+import { planLimitsFor, checkImportAllowed, importBlockMessage } from '../../lib/planLimits';
 import { useMachines } from '../../hooks/useMachines';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -212,11 +214,34 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   const [pickedPlantId, setPickedPlantId] = useState('');
   const importPlantId = plantId ?? (pickedPlantId || null);
 
+  const plan = useAuthStore((s) => s.company?.plan);
+  const [importError, setImportError] = useState<string | null>(null);
+
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // Allow re-selecting the same file after a blocked attempt.
+    e.target.value = '';
     if (!file) return;
+    setImportError(null);
+    const limit = planLimitsFor(plan).machines;
     const reader = new FileReader();
-    reader.onload = (ev) => setRows(parseCsv(ev.target?.result as string, t));
+    reader.onload = async (ev) => {
+      const parsed = parseCsv(ev.target?.result as string, t);
+      const validCount = parsed.filter((r) => !r._error).length;
+      let existingCount = 0;
+      try {
+        if (limit !== null) existingCount = await fetchResourceCount('machines', siteId);
+      } catch {
+        // Count unavailable — still enforce the per-file caps below.
+      }
+      const check = checkImportAllowed({ newRecords: validCount, totalRows: parsed.length, existingCount, limit, fileBytes: file.size });
+      if (!check.ok) {
+        setRows([]);
+        setImportError(importBlockMessage(check, 'machine', limit, validCount, parsed.length));
+        return;
+      }
+      setRows(parsed);
+    };
     reader.readAsText(file);
   };
 
@@ -224,6 +249,21 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
 
   const handleImport = async () => {
     if (!validRows.length || !importPlantId) return;
+    // Re-check against a fresh count: the plan limit may have been reached
+    // since the file was chosen (e.g. machines added in another tab).
+    const limit = planLimitsFor(plan).machines;
+    if (limit !== null) {
+      try {
+        const existingCount = await fetchResourceCount('machines', siteId);
+        const check = checkImportAllowed({ newRecords: validRows.length, existingCount, limit });
+        if (!check.ok) {
+          setImportError(importBlockMessage(check, 'machine', limit, validRows.length));
+          return;
+        }
+      } catch {
+        // Count unavailable — fall through; the file was checked on selection.
+      }
+    }
     setImporting(true);
     const userId = auth.currentUser?.uid ?? 'unknown';
     let count = 0;
@@ -332,6 +372,12 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
                   {t('common.machines.importModal.chooseFile')}
                 </button>
               </div>
+
+              {importError && (
+                <div role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">
+                  {importError}
+                </div>
+              )}
 
               {rows.length > 0 && (
                 <div>
