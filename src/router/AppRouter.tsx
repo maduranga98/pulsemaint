@@ -163,6 +163,7 @@ import PlatformCallsPage from '../pages/platform/leads/PlatformCallsPage';
 import PlatformSalesTeamPage from '../pages/platform/leads/PlatformSalesTeamPage';
 import PlatformFeatureRequestsPage from '../pages/platform/leads/PlatformFeatureRequestsPage';
 import PlatformTodosPage from '../pages/platform/todos/PlatformTodosPage';
+import PlatformCancellationsPage from '../pages/platform/PlatformCancellationsPage';
 
 // Help & Support
 import HelpSupportPage from '../pages/help/HelpSupportPage';
@@ -1089,6 +1090,7 @@ export default function AppRouter() {
         <Route path="sales-team" element={<PlatformSalesTeamPage />} />
         <Route path="feature-requests" element={<PlatformFeatureRequestsPage />} />
         <Route path="todos" element={<PlatformTodosPage />} />
+        <Route path="cancellations" element={<PlatformCancellationsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

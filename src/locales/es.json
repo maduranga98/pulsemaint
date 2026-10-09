@@ -9076,6 +9076,44 @@
         "active": "Activa",
         "trial": "Prueba",
         "suspended": "Suspendida"
+      },
+      "leave": {
+        "title": "Cancelar la suscripción o dejar FirmiCore",
+        "intro": "Al cancelar se detiene la renovación automática: todos mantienen el acceso hasta el final del periodo pagado. Al dejar FirmiCore se pide a Lumora Ventures que cierre la cuenta de tu empresa.",
+        "cancelButton": "Cancelar suscripción",
+        "leaveButton": "Dejar FirmiCore",
+        "cancelledNote": "Tu suscripción está cancelada y no se renovará.",
+        "leaveRequested": "Pediste dejar FirmiCore el {{date}}. Lumora Ventures se pondrá en contacto contigo para cerrar la cuenta.",
+        "dialog": {
+          "cancelTitle": "¿Por qué cancelas?",
+          "leaveTitle": "¿Por qué dejas FirmiCore?",
+          "pendingTitle": "Cuéntanos por qué cancelaste",
+          "required": "Elige un motivo para continuar: nos ayuda a mejorar FirmiCore.",
+          "pendingIntro": "Tu suscripción se canceló desde el portal de facturación. Elige el motivo antes de continuar.",
+          "details": "¿Algo más que debamos saber?",
+          "detailsRequired": "Indícanos el motivo",
+          "cancelEffect": "La renovación automática se detiene. Todos los usuarios mantienen el acceso hasta el {{date}}.",
+          "cancelEffectNoDate": "La renovación automática se detiene al final del periodo pagado.",
+          "leaveEffect": "Tu suscripción deja de renovarse y se pide a Lumora Ventures que cierre la cuenta de tu empresa. Tus datos se conservan hasta entonces.",
+          "back": "Mantener mi suscripción",
+          "backLeave": "Quedarme en FirmiCore",
+          "confirmCancel": "Cancelar suscripción",
+          "confirmLeave": "Solicitar la baja",
+          "submitReason": "Enviar",
+          "working": "Guardando…",
+          "done": "Gracias, hemos registrado tu motivo."
+        },
+        "reasons": {
+          "too_expensive": "Es demasiado caro",
+          "missing_features": "Faltan funciones que necesitamos",
+          "not_using": "No lo usamos lo suficiente",
+          "switching": "Cambiamos a otro sistema",
+          "technical_issues": "Errores o problemas técnicos",
+          "hard_to_use": "Es demasiado difícil de usar",
+          "business_closed": "La empresa cerró o se fusionó",
+          "temporary": "Solo lo necesitábamos por un tiempo",
+          "other": "Otro"
+        }
       }
     },
     "actions": {

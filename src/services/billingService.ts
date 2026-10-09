@@ -114,3 +114,14 @@ export async function updatePaymentMethod(paymentMethodId: string, action: 'setD
   );
   await fn({ paymentMethodId, action });
 }
+
+/**
+ * Company admin: cancel the subscription at the end of the paid period, ask
+ * to leave FirmiCore, or (kind 'reason') answer the reason for a cancellation
+ * made in the Stripe portal. A reason is always required.
+ */
+export async function requestCancellation(kind: 'cancel_subscription' | 'leave_system' | 'reason', reason: string, details: string): Promise<{ ok: boolean; endsAt?: number | null }> {
+  const fn = httpsCallable<{ kind: string; reason: string; details: string }, { ok: boolean; endsAt?: number | null }>(functions, 'requestCancellation');
+  const { data } = await fn({ kind, reason, details });
+  return data;
+}

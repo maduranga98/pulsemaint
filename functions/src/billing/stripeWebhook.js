@@ -3,6 +3,7 @@ const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestor
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey, stripeWebhookSecret, planAndCycleForPrice, isFirmicoreInvoice, firmicorePlanOfInvoice } = require("./stripeClient");
 const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
+const { recordPortalCancellation } = require("./cancellations");
 
 const APP_URL = "https://app.firmicore.com";
 const PLAN_NAMES = { starter: "Basic", workshop: "Workshop", factory: "Factory Pro", enterprise: "Enterprise" };
@@ -54,7 +55,17 @@ async function syncSubscriptionToCompany(subscription) {
     updates.plan = mapped.plan;
     updates.billingCycle = mapped.billingCycle;
   }
-  await db.collection("companies").doc(companyId).update(updates);
+  // Cancelled outside the app (Stripe billing portal)? In-app and Lumora
+  // cancellations set cancelAtPeriodEnd before Stripe's event arrives.
+  const companyRef = db.collection("companies").doc(companyId);
+  const before = (await companyRef.get()).data() ?? {};
+  const nowCancelling = !!subscription.cancel_at_period_end || subscription.status === "canceled";
+  const wasCancelling = !!before.cancelAtPeriodEnd || before.subscriptionStatus === "canceled";
+  await companyRef.update(updates);
+  if (nowCancelling && !wasCancelling) {
+    await recordPortalCancellation(companyId, { ...before, ...updates }, subscription)
+      .catch((err) => logger.error("recording portal cancellation failed", err));
+  }
   logger.info(`Synced subscription ${subscription.id} to company ${companyId} (${subscription.status})`);
 }
 

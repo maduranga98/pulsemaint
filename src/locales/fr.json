@@ -9076,6 +9076,44 @@
         "active": "Actif",
         "trial": "Essai",
         "suspended": "Suspendu"
+      },
+      "leave": {
+        "title": "Résilier l'abonnement ou quitter FirmiCore",
+        "intro": "La résiliation arrête le renouvellement automatique : chacun garde l'accès jusqu'à la fin de la période payée. Quitter FirmiCore demande à Lumora Ventures de fermer le compte de votre entreprise.",
+        "cancelButton": "Résilier l'abonnement",
+        "leaveButton": "Quitter FirmiCore",
+        "cancelledNote": "Votre abonnement est résilié et ne sera pas renouvelé.",
+        "leaveRequested": "Vous avez demandé à quitter FirmiCore le {{date}}. Lumora Ventures vous contactera pour fermer le compte.",
+        "dialog": {
+          "cancelTitle": "Pourquoi résiliez-vous ?",
+          "leaveTitle": "Pourquoi quittez-vous FirmiCore ?",
+          "pendingTitle": "Dites-nous pourquoi vous avez résilié",
+          "required": "Choisissez un motif pour continuer — cela nous aide à améliorer FirmiCore.",
+          "pendingIntro": "Votre abonnement a été résilié depuis le portail de facturation. Choisissez le motif avant de continuer.",
+          "details": "Autre chose à nous dire ?",
+          "detailsRequired": "Merci d'indiquer le motif",
+          "cancelEffect": "Le renouvellement automatique s'arrête. Tous les utilisateurs gardent l'accès jusqu'au {{date}}.",
+          "cancelEffectNoDate": "Le renouvellement automatique s'arrête à la fin de la période payée.",
+          "leaveEffect": "Votre abonnement n'est plus renouvelé et Lumora Ventures est invité à fermer le compte de votre entreprise. Vos données sont conservées d'ici là.",
+          "back": "Garder mon abonnement",
+          "backLeave": "Rester sur FirmiCore",
+          "confirmCancel": "Résilier l'abonnement",
+          "confirmLeave": "Demander à partir",
+          "submitReason": "Envoyer",
+          "working": "Enregistrement…",
+          "done": "Merci, votre motif a été enregistré."
+        },
+        "reasons": {
+          "too_expensive": "C'est trop cher",
+          "missing_features": "Il manque des fonctions dont nous avons besoin",
+          "not_using": "Nous ne l'utilisons pas assez",
+          "switching": "Nous passons à un autre système",
+          "technical_issues": "Bugs ou problèmes techniques",
+          "hard_to_use": "Trop difficile à utiliser",
+          "business_closed": "Entreprise fermée ou fusionnée",
+          "temporary": "Nous n'en avions besoin que temporairement",
+          "other": "Autre"
+        }
       }
     },
     "actions": {

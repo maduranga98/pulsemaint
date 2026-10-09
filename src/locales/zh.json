@@ -9076,6 +9076,44 @@
         "active": "有效",
         "trial": "试用",
         "suspended": "已暂停"
+      },
+      "leave": {
+        "title": "取消订阅或退出 FirmiCore",
+        "intro": "取消后将停止自动续费——所有人在已付费期限结束前仍可使用。退出则会请求 Lumora Ventures 关闭贵公司的账户。",
+        "cancelButton": "取消订阅",
+        "leaveButton": "退出 FirmiCore",
+        "cancelledNote": "您的订阅已取消，不会再续费。",
+        "leaveRequested": "您已于 {{date}} 申请退出 FirmiCore。Lumora Ventures 将联系您关闭账户。",
+        "dialog": {
+          "cancelTitle": "您为什么要取消？",
+          "leaveTitle": "您为什么要退出 FirmiCore？",
+          "pendingTitle": "请告诉我们取消的原因",
+          "required": "请选择一个原因后继续——这有助于我们改进 FirmiCore。",
+          "pendingIntro": "您的订阅已在账单门户中取消。请先选择原因再继续。",
+          "details": "还有什么想告诉我们的吗？",
+          "detailsRequired": "请告诉我们原因",
+          "cancelEffect": "自动续费将停止。所有用户可使用至 {{date}}。",
+          "cancelEffectNoDate": "自动续费将在已付费期限结束时停止。",
+          "leaveEffect": "您的订阅将不再续费，并会请求 Lumora Ventures 关闭贵公司的账户。在此之前数据会保留。",
+          "back": "保留订阅",
+          "backLeave": "继续使用 FirmiCore",
+          "confirmCancel": "取消订阅",
+          "confirmLeave": "申请退出",
+          "submitReason": "提交",
+          "working": "正在保存…",
+          "done": "谢谢，我们已记录您的原因。"
+        },
+        "reasons": {
+          "too_expensive": "价格太高",
+          "missing_features": "缺少我们需要的功能",
+          "not_using": "使用得不够多",
+          "switching": "改用其他系统",
+          "technical_issues": "错误或技术问题",
+          "hard_to_use": "太难使用",
+          "business_closed": "公司已关闭或合并",
+          "temporary": "只是临时需要",
+          "other": "其他"
+        }
       }
     },
     "actions": {

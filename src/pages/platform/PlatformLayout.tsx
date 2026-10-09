@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb, ListTodo } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb, ListTodo, UserX } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
 import { useCallsDue } from '@/lib/platform/useCallsDue';
 import { usePendingRegistrations } from '@/lib/platform/usePendingRegistrations';
-import { useNewLeads, useTodosDue, useUnseenFeatureRequests } from '@/lib/platform/useNavBadges';
+import { useNewLeads, useOpenCancellations, useTodosDue, useUnseenFeatureRequests } from '@/lib/platform/useNavBadges';
 import { getNotificationPermission, isDeviceNotificationSupported, requestDeviceNotificationPermission } from '@/lib/notifications/deviceNotify';
 import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -19,6 +19,7 @@ const NAV = [
   { to: '/platform/companies', label: 'Companies', icon: Building2 },
   { to: '/platform/payments', label: 'Payments', icon: CreditCard },
   { to: '/platform/requests', label: 'Requests & feedback', icon: ClipboardList },
+  { to: '/platform/cancellations', label: 'Cancellations', icon: UserX },
   { section: 'Sales' },
   { to: '/platform/leads', label: 'Leads', icon: Contact },
   { to: '/platform/calls', label: 'Calls', icon: PhoneCall },
@@ -31,6 +32,7 @@ const BADGE_TITLE: Record<string, string> = {
   '/platform/companies': 'Registrations waiting for approval',
   '/platform/payments': 'New payment alerts',
   '/platform/requests': 'Unread requests & feedback',
+  '/platform/cancellations': 'Open cancellations / leave requests',
   '/platform/leads': 'New leads not called yet',
   '/platform/calls': 'Calls due today or overdue',
   '/platform/feature-requests': 'New feature requests / bugs since you last looked',
@@ -63,6 +65,7 @@ export default function PlatformLayout() {
   const todosDue = useTodosDue(ready && isSuperadmin);
   const newLeads = useNewLeads(ready && isSuperadmin);
   const unseenFeatures = useUnseenFeatureRequests(ready && isSuperadmin);
+  const openCancellations = useOpenCancellations(ready && isSuperadmin);
   const [permission, setPermission] = useState(() => getNotificationPermission());
 
   // Red unread / needs-attention counts per tab.
@@ -70,6 +73,7 @@ export default function PlatformLayout() {
     '/platform/companies': pendingRegistrations.length,
     '/platform/payments': paymentAlerts.length,
     '/platform/requests': unread.length,
+    '/platform/cancellations': openCancellations,
     '/platform/leads': newLeads,
     '/platform/calls': callsDue,
     '/platform/feature-requests': unseenFeatures,

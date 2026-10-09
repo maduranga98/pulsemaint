@@ -241,6 +241,7 @@ exports.listRecordReferences = listRecordReferences;
 const { createCheckoutSession } = require("./src/billing/createCheckoutSession");
 const { createPortalSession } = require("./src/billing/createPortalSession");
 const { stripeWebhook } = require("./src/billing/stripeWebhook");
+const { requestCancellation } = require("./src/billing/cancellations");
 const {
   createCardSetup,
   finalizeCardSetup,
@@ -250,6 +251,7 @@ const {
 
 exports.createCheckoutSession = createCheckoutSession;
 exports.createPortalSession = createPortalSession;
+exports.requestCancellation = requestCancellation;
 exports.stripeWebhook = stripeWebhook;
 exports.createCardSetup = createCardSetup;
 exports.finalizeCardSetup = finalizeCardSetup;

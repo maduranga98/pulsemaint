@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { subscribeOpenTodos } from '@/services/platformTodosService';
+import { subscribeOpenCancellationCount } from '@/services/platformCancellationsService';
 import { countTodosDue, type Todo } from './todos';
 
 /** Superadmins: open to-dos overdue or due today (To-Do nav badge). Re-counts every minute. */
@@ -87,4 +88,17 @@ export function useUnseenFeatureRequests(enabled: boolean): number {
     );
   }, [enabled]);
   return created.filter((t) => t > seen).length;
+}
+
+/** Superadmins: cancellations / leave requests not yet marked handled (Cancellations nav badge). */
+export function useOpenCancellations(enabled: boolean): number {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!enabled) {
+      setCount(0);
+      return undefined;
+    }
+    return subscribeOpenCancellationCount(setCount);
+  }, [enabled]);
+  return count;
 }
