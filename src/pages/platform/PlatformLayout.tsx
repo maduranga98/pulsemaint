@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb, ListTodo, UserX } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
@@ -18,12 +18,12 @@ const NAV = [
   { to: '/platform', label: 'Overview', icon: Gauge, end: true },
   { to: '/platform/companies', label: 'Companies', icon: Building2 },
   { to: '/platform/payments', label: 'Payments', icon: CreditCard },
+  { to: '/platform/expenses', label: 'Expenses', icon: Wallet },
   { to: '/platform/requests', label: 'Requests & feedback', icon: ClipboardList },
   { to: '/platform/cancellations', label: 'Cancellations', icon: UserX },
   { section: 'Sales' },
   { to: '/platform/leads', label: 'Leads', icon: Contact },
   { to: '/platform/calls', label: 'Calls', icon: PhoneCall },
-  { to: '/platform/sales-team', label: 'Sales team', icon: Users },
   { to: '/platform/feature-requests', label: 'Feature requests', icon: Lightbulb },
   { to: '/platform/todos', label: 'To-Do', icon: ListTodo },
 ] as const;

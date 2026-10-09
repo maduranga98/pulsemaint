@@ -1975,6 +1975,16 @@ service cloud.firestore {
         && request.resource.data.status in ['open', 'handled'];
       allow create, delete: if false;
     }
+    // Lumora's FirmiCore running costs (hosting, domains, SMS, ads,
+    // commissions…). Superadmins only.
+    match /platformExpenses/{expenseId} {
+      allow read, delete: if isSuperadmin();
+      allow create, update: if isSuperadmin()
+        && request.resource.data.amount is number && request.resource.data.amount >= 0
+        && request.resource.data.currency in ['LKR', 'USD']
+        && request.resource.data.date is number
+        && request.resource.data.description is string && request.resource.data.description.size() <= 300;
+    }
     // Payment-received (and other) alerts for superadmins, written by the
     // Stripe webhook; superadmins only mark them read.
     match /platformNotifications/{id} {
