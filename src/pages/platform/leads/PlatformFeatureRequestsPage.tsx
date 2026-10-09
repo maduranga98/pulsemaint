@@ -10,6 +10,7 @@ import { ErrorNote, Loading, PageHeader, btn, fmtDate, input } from '../platform
 import { Field, Modal } from './leadUi';
 import { moveFeatureRequestToTesting, setFeatureRequestStatus } from '@/services/platformTodosService';
 import { useCompanyOptions, type CompanyOption } from '../useCompanyOptions';
+import { markFeatureRequestsSeen } from '@/lib/platform/useNavBadges';
 
 const STATUS_TONE: Record<FeatureRequestStatus, string> = {
   requested: 'border-slate-600 text-slate-300', in_progress: 'border-amber-600/60 text-amber-300', testing: 'border-sky-600/60 text-sky-300', closed: 'border-emerald-600/60 text-emerald-300',
@@ -28,6 +29,11 @@ export default function PlatformFeatureRequestsPage() {
   const companies = useCompanyOptions();
 
   useEffect(() => subscribeFeatureRequests(setRows, (e) => setError(e.message)), []);
+  // Opening the page clears the nav badge; leaving it too (covers requests that arrived while it was open).
+  useEffect(() => {
+    markFeatureRequestsSeen();
+    return markFeatureRequestsSeen;
+  }, []);
   useEffect(() => subscribeLeads(setLeads, () => {}), []);
 
   const filtered = useMemo(() => (rows ?? []).filter((r) =>
