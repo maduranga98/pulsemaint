@@ -112,7 +112,7 @@ export default function PlatformCompanyDetailPage() {
               <p className="font-semibold text-white">{c.approvalStatus === 'pending' ? 'Waiting for your approval' : 'Registration rejected'}</p>
               <p className="text-sm text-slate-300">
                 {c.approvalStatus === 'pending'
-                  ? `Registered ${fmtDateTime(c.createdAt)} by ${c.adminName ?? 'the admin'}${c.adminEmail ? ` (${c.adminEmail})` : ''}. Nobody can use FirmiCore until you approve it; the 30-day trial starts on approval.`
+                  ? `Registered ${fmtDateTime(c.createdAt)} by ${c.adminName ?? 'the admin'}${c.adminEmail ? ` (${c.adminEmail})` : ''}. Nobody can use FirmiCore until you approve it; the 14-day trial starts on approval.`
                   : c.rejectionReason ? `Reason: ${c.rejectionReason}` : 'No reason recorded.'}
               </p>
             </div>

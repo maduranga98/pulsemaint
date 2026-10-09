@@ -95,7 +95,7 @@ export async function registerCompany(data: {
       status: 'trial',
       // Locked out until a Lumora superadmin approves the registration.
       approvalStatus: 'pending',
-      trialEndsAt: Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+      trialEndsAt: Timestamp.fromDate(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)),
       plan: 'starter',
       tenantId: '', // Will be set by Cloud Function
       createdAt: serverTimestamp() as Timestamp,

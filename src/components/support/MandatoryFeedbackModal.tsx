@@ -5,8 +5,10 @@ import { useAuthStore } from '@/store/authStore';
 import StarRating from '@/components/support/StarRating';
 import { SYSTEM_FEEDBACK_SOURCE, createSupportRequest, hasSentSystemFeedback } from '@/services/supportRequestsService';
 
+const MIN_ACCOUNT_AGE_MS = 24 * 60 * 60 * 1000;
+
 /**
- * Company admins must rate FirmiCore (1–5 stars) and leave a comment. The
+ * Company admins (only, and not on their first day) must rate FirmiCore (1–5 stars) and leave a comment. The
  * modal has no close button and ignores Escape / backdrop clicks, so it can't
  * be skipped; once sent it disappears for good and the feedback lands in the
  * platform console's "Requests & feedback" tab.
@@ -21,7 +23,10 @@ export default function MandatoryFeedbackModal() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  const isAdmin = profile?.role === 'admin';
+  // Brand-new admins (just registered) get a day to try the system first.
+  const createdAtMs = (profile?.createdAt as { toMillis?: () => number } | undefined)?.toMillis?.();
+  const isEstablished = createdAtMs != null && Date.now() - createdAtMs >= MIN_ACCOUNT_AGE_MS;
+  const isAdmin = profile?.role === 'admin' && isEstablished;
   const companyId = company?.id;
   const uid = profile?.id;
 
