@@ -157,7 +157,6 @@ import PlatformOverviewPage from '../pages/platform/PlatformOverviewPage';
 import PlatformCompaniesPage from '../pages/platform/PlatformCompaniesPage';
 import PlatformCompanyDetailPage from '../pages/platform/PlatformCompanyDetailPage';
 import PlatformPaymentsPage from '../pages/platform/PlatformPaymentsPage';
-import PlatformRemindersPage from '../pages/platform/PlatformRemindersPage';
 import { PlatformRequestsPage, PlatformRequestDetailPage } from '../pages/platform/PlatformRequestsPage';
 import PlatformLeadsPage from '../pages/platform/leads/PlatformLeadsPage';
 import PlatformCallsPage from '../pages/platform/leads/PlatformCallsPage';
@@ -1082,7 +1081,6 @@ export default function AppRouter() {
         <Route path="companies" element={<PlatformCompaniesPage />} />
         <Route path="companies/:companyId" element={<PlatformCompanyDetailPage />} />
         <Route path="payments" element={<PlatformPaymentsPage />} />
-        <Route path="reminders" element={<PlatformRemindersPage />} />
         <Route path="requests" element={<PlatformRequestsPage />} />
         <Route path="requests/:requestId" element={<PlatformRequestDetailPage />} />
         <Route path="leads" element={<PlatformLeadsPage />} />

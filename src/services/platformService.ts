@@ -55,6 +55,9 @@ export interface PlatformOverview {
 
 export interface PlatformUser {
   uid: string;
+  plantId: string | null;
+  department: string | null;
+  jobTitle: string | null;
   fullName: string | null;
   email: string | null;
   phone: string | null;
@@ -75,10 +78,44 @@ export interface PlatformInvoice {
   currency: string;
   status: string;
   hostedInvoiceUrl: string | null;
+  invoicePdf?: string | null;
+  plan?: string | null;
+  billingCycle?: Cycle | null;
+  billingReason?: string | null;
+  periodStart?: number | null;
+  periodEnd?: number | null;
+  paidAt?: number | null;
+}
+
+export interface PlatformPlant {
+  id: string;
+  name: string;
+  code: string | null;
+  address: string | null;
+  status: string;
+  contactPerson: { name?: string; phone?: string; email?: string; designation?: string } | null;
+  departments: string[];
+  userCount: number;
+}
+
+export interface PlatformCompanyProfile {
+  tradeName: string | null;
+  description: string | null;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  timezone: string | null;
+  currency: string | null;
+  language: string | null;
+  onboardingCompletedAt: number | null;
+  contact: { name: string | null; email: string | null; phone: string | null; jobTitle: string | null } | null;
 }
 
 export interface PlatformCompanyDetail {
   company: PlatformCompany;
+  profile: PlatformCompanyProfile;
+  plants: PlatformPlant[];
+  unassignedDepartments: string[];
   users: PlatformUser[];
   stripe: {
     subscription: {
@@ -102,19 +139,6 @@ export interface PlatformPayment extends PlatformInvoice {
   billingCycle: Cycle;
 }
 
-export type ReminderKind = 'paymentFailed' | 'cancelling' | 'renewalDue' | 'trialEnding' | 'trialExpired';
-
-export interface PlatformReminder {
-  companyId: string;
-  companyName: string;
-  plan: string;
-  billingCycle: string;
-  kind: ReminderKind;
-  severity: 'high' | 'medium' | 'low';
-  dueAt: number | null;
-  lastReminderAt: number | null;
-}
-
 export type CompanyAction =
   | { action: 'approve' }
   | { action: 'reject'; reason: string }
@@ -129,6 +153,7 @@ export type CompanyAction =
 export type UserAction =
   | { action: 'resetLink' }
   | { action: 'setPassword'; password: string }
+  | { action: 'setRole'; role: string }
   | { action: 'updateEmail'; email: string }
   | { action: 'disable' }
   | { action: 'enable' };
@@ -147,9 +172,6 @@ export const platformService = {
       companyId ? { companyId } : {},
     ),
   listPayments: () => call<void, { payments: PlatformPayment[] }>('platformListPayments'),
-  listReminders: () => call<void, { reminders: PlatformReminder[] }>('platformListReminders'),
-  sendReminder: (companyId: string, kind: ReminderKind) =>
-    call<{ companyId: string; kind: ReminderKind }, { ok: boolean; to: string }>('platformSendPaymentReminder', { companyId, kind }),
 };
 
 export function errorText(err: unknown, fallback = 'Something went wrong'): string {

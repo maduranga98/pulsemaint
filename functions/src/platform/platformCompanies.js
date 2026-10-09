@@ -2,13 +2,14 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getAuth } = require("firebase-admin/auth");
 const { FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { getStripe, stripeSecretKey } = require("../billing/stripeClient");
+const { getStripe, stripeSecretKey, firmicorePlanOfInvoice } = require("../billing/stripeClient");
 const { stripeErrorMessage, isMissingResource } = require("../billing/billingAccess");
 const { db, requireSuperadmin, audit, monthlyValue, toMillis } = require("./platformAccess");
 const { platformSmtpPassword } = require("../lib/mailer");
 const { approvalStatusOf, emailApprovalDecision, clearRegistrationAlert } = require("./companyApprovals");
 
 const DAY = 86_400_000;
+const COMPANY_ROLES = ["admin", "plant_manager", "supervisor", "technician", "store_keeper", "hr_officer", "trainee", "floor_operator", "safety_officer"];
 
 async function adminContact(company) {
   if (!company.adminUserId) return { name: null, email: null };
@@ -119,6 +120,9 @@ exports.platformGetCompany = onCall({ secrets: [stripeSecretKey] }, async (reque
     const a = authUsers.get(d.id);
     return {
       uid: d.id,
+      plantId: p.plantId ?? null,
+      department: p.department ?? null,
+      jobTitle: p.jobTitle ?? null,
       fullName: p.fullName ?? null,
       email: a?.email ?? p.email ?? null,
       phone: p.phone ?? null,
@@ -149,10 +153,21 @@ exports.platformGetCompany = onCall({ secrets: [stripeSecretKey] }, async (reque
           currency: sub.items?.data?.[0]?.price?.currency ?? null,
           interval: sub.items?.data?.[0]?.price?.recurring?.interval ?? null,
         } : null,
-        invoices: invoices.data.filter((i) => i.status !== "draft").map((i) => ({
-          id: i.id, number: i.number, created: i.created * 1000, total: i.total, amountPaid: i.amount_paid,
-          currency: i.currency, status: i.status, hostedInvoiceUrl: i.hosted_invoice_url ?? null,
-        })),
+        invoices: invoices.data.filter((i) => i.status !== "draft").map((i) => {
+          const plan = firmicorePlanOfInvoice(i);
+          const periods = (i.lines?.data ?? []).map((l) => l.period).filter(Boolean);
+          return {
+            id: i.id, number: i.number, created: i.created * 1000, total: i.total, amountPaid: i.amount_paid,
+            currency: i.currency, status: i.status, hostedInvoiceUrl: i.hosted_invoice_url ?? null,
+            invoicePdf: i.invoice_pdf ?? null,
+            plan: plan?.plan ?? null,
+            billingCycle: plan?.billingCycle ?? null,
+            billingReason: i.billing_reason ?? null,
+            periodStart: periods.length ? Math.min(...periods.map((p) => p.start)) * 1000 : null,
+            periodEnd: periods.length ? Math.max(...periods.map((p) => p.end)) * 1000 : null,
+            paidAt: i.status_transitions?.paid_at ? i.status_transitions.paid_at * 1000 : null,
+          };
+        }),
         error: null,
       };
     } catch (err) {
@@ -161,12 +176,50 @@ exports.platformGetCompany = onCall({ secrets: [stripeSecretKey] }, async (reque
     }
   }
 
+  // Plants (sites) with their departments, for the company profile view.
+  const [plantsSnap, departmentsSnap] = await Promise.all([
+    db.collection("plants").where("companyId", "==", companyId).get(),
+    db.collection("departments").where("companyId", "==", companyId).get(),
+  ]);
+  const departmentsByPlant = {};
+  departmentsSnap.forEach((d) => {
+    const key = d.get("plantId") ?? "";
+    (departmentsByPlant[key] ??= []).push(d.get("name") ?? "");
+  });
+  const plants = plantsSnap.docs.map((d) => ({
+    id: d.id,
+    name: d.get("name") ?? "(unnamed plant)",
+    code: d.get("code") ?? null,
+    address: d.get("address") ?? null,
+    status: d.get("status") ?? "active",
+    contactPerson: d.get("contactPerson") ?? null,
+    departments: (departmentsByPlant[d.id] ?? []).filter(Boolean).sort(),
+    userCount: users.filter((u) => u.plantId === d.id).length,
+  })).sort((a, b) => a.name.localeCompare(b.name));
+  const adminProfile = users.find((u) => u.isCompanyAdmin) ?? null;
+
   const [admin, requests] = await Promise.all([
     adminContact(c),
     db.collection("supportRequests").where("companyId", "==", companyId).orderBy("createdAt", "desc").limit(20).get(),
   ]);
   return {
     company: { ...companySummary(companyId, c), adminName: admin.name, adminEmail: admin.email, userCount: users.length },
+    profile: {
+      tradeName: c.tradeName ?? null,
+      description: c.description ?? null,
+      address: c.address ?? null,
+      phone: c.phone ?? null,
+      email: c.email ?? null,
+      timezone: c.timezone ?? null,
+      currency: c.currency ?? null,
+      language: c.language ?? null,
+      onboardingCompletedAt: toMillis(c.onboardingCompletedAt),
+      contact: adminProfile ? {
+        name: adminProfile.fullName, email: adminProfile.email, phone: adminProfile.phone, jobTitle: adminProfile.jobTitle,
+      } : null,
+    },
+    plants,
+    unassignedDepartments: (departmentsByPlant[""] ?? []).filter(Boolean).sort(),
     users,
     stripe,
     requests: requests.docs.map((d) => ({ id: d.id, subject: d.get("subject"), type: d.get("type"), status: d.get("status"), createdAt: toMillis(d.get("createdAt")) })),
@@ -281,7 +334,7 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
 
 /**
  * Adjust a company user's login: send or generate a password-reset link,
- * set a new password, change the sign-in email, or disable / enable the
+ * set a new password, change the role, change the sign-in email, or disable / enable the
  * account. Changes apply to Firebase Auth and the user's profile.
  */
 exports.platformManageUser = onCall(async (request) => {
@@ -316,6 +369,20 @@ exports.platformManageUser = onCall(async (request) => {
         await profileRef.update({ email, updatedAt: FieldValue.serverTimestamp() });
         break;
       }
+      case "setRole": {
+        const role = String(request.data.role ?? "");
+        if (!COMPANY_ROLES.includes(role)) throw new HttpsError("invalid-argument", "Unknown role");
+        const company = await db.collection("companies").doc(companyId).get();
+        if (company.get("adminUserId") === uid && role !== "admin") {
+          throw new HttpsError("failed-precondition", "The company owner must stay an admin");
+        }
+        await profileRef.update({ role, updatedAt: FieldValue.serverTimestamp() });
+        // The users/{uid} mapping is what firestore.rules read the role from.
+        await db.collection("users").doc(uid).set({ role }, { merge: true });
+        // Sign the user out everywhere so the new role applies right away.
+        await auth.revokeRefreshTokens(uid).catch(() => {});
+        break;
+      }
       case "disable":
       case "enable": {
         const disabled = action === "disable";
@@ -333,7 +400,12 @@ exports.platformManageUser = onCall(async (request) => {
     throw new HttpsError("internal", err?.message || "Could not update the user");
   }
   // Never log the password itself.
-  await audit(actor, `user.${action}`, { companyId, targetUid: uid, ...(action === "updateEmail" ? { email: request.data.email } : {}) });
+  await audit(actor, `user.${action}`, {
+    companyId,
+    targetUid: uid,
+    ...(action === "updateEmail" ? { email: request.data.email } : {}),
+    ...(action === "setRole" ? { role: request.data.role, previousRole: profile.get("role") ?? null } : {}),
+  });
   return result;
 });
 

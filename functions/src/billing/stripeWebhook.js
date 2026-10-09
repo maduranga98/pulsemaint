@@ -1,7 +1,22 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { getStripe, stripeSecretKey, stripeWebhookSecret, planAndCycleForPrice, isFirmicoreInvoice } = require("./stripeClient");
+const { getStripe, stripeSecretKey, stripeWebhookSecret, planAndCycleForPrice, isFirmicoreInvoice, firmicorePlanOfInvoice } = require("./stripeClient");
+const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
+
+const APP_URL = "https://app.firmicore.com";
+const PLAN_NAMES = { starter: "Basic", workshop: "Workshop", factory: "Factory Pro", enterprise: "Enterprise" };
+
+/** End of the period an invoice pays for = the next automatic renewal date. */
+function invoicePaidThrough(invoice) {
+  const ends = (invoice?.lines?.data ?? []).map((l) => l?.period?.end).filter((n) => typeof n === "number");
+  const end = ends.length ? Math.max(...ends) : invoice?.period_end;
+  return end ? end * 1000 : null;
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[ch]);
+}
 
 const db = getFirestore("default");
 
@@ -61,8 +76,64 @@ async function recordInvoice(invoice) {
       invoicePdf: invoice.invoice_pdf ?? null,
       periodStart: invoice.period_start ? Timestamp.fromMillis(invoice.period_start * 1000) : null,
       periodEnd: invoice.period_end ? Timestamp.fromMillis(invoice.period_end * 1000) : null,
+      plan: firmicorePlanOfInvoice(invoice)?.plan ?? null,
+      billingCycle: firmicorePlanOfInvoice(invoice)?.billingCycle ?? null,
+      number: invoice.number ?? null,
+      paidThrough: invoicePaidThrough(invoice) ? Timestamp.fromMillis(invoicePaidThrough(invoice)) : null,
       createdAt: FieldValue.serverTimestamp(),
-    });
+    }, { merge: true });
+}
+
+/**
+ * Automatic charge succeeded → email every admin of the company a receipt
+ * with the plan, amount and the next automatic renewal date. Sent once per
+ * invoice (Stripe retries webhooks), recorded as receiptEmailedAt.
+ */
+async function emailPaymentReceipt(invoice) {
+  const companyId = invoice.subscription_details?.metadata?.companyId ?? invoice.metadata?.companyId;
+  if (!companyId || !(invoice.amount_paid > 0)) return;
+  const invoiceRef = db.collection("companies").doc(companyId).collection("billingInvoices").doc(invoice.id);
+  const claimed = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(invoiceRef);
+    if (snap.get("receiptEmailedAt")) return false;
+    tx.set(invoiceRef, { receiptEmailedAt: FieldValue.serverTimestamp() }, { merge: true });
+    return true;
+  });
+  if (!claimed) return;
+
+  const [company, admins] = await Promise.all([
+    db.collection("companies").doc(companyId).get(),
+    db.collection("companies").doc(companyId).collection("users").where("role", "==", "admin").get(),
+  ]);
+  const to = [...new Set(admins.docs
+    .filter((d) => d.get("status") !== "inactive")
+    .map((d) => d.get("email"))
+    .filter((e) => typeof e === "string" && e.includes("@")))];
+  if (invoice.customer_email && !to.length) to.push(invoice.customer_email);
+  if (!to.length) return;
+
+  const plan = firmicorePlanOfInvoice(invoice);
+  const planLabel = plan ? `${PLAN_NAMES[plan.plan] ?? plan.plan} (${plan.billingCycle})` : "FirmiCore subscription";
+  const amount = new Intl.NumberFormat("en-US", { style: "currency", currency: String(invoice.currency || "usd").toUpperCase() }).format(invoice.amount_paid / 100);
+  const fmt = (ms) => new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const paidThrough = invoicePaidThrough(invoice);
+  const companyName = company.get("name") ?? null;
+  const html = brandedEmail(`<p>Thank you — we've received your FirmiCore payment${companyName ? ` for <strong>${escapeHtml(companyName)}</strong>` : ""}.</p>
+<table style="border-collapse:collapse;font-size:14px">
+<tr><td style="padding:4px 12px 4px 0;color:#64748b">Plan</td><td><strong>${escapeHtml(planLabel)}</strong></td></tr>
+<tr><td style="padding:4px 12px 4px 0;color:#64748b">Amount charged</td><td><strong>${escapeHtml(amount)}</strong></td></tr>
+<tr><td style="padding:4px 12px 4px 0;color:#64748b">Charged on</td><td>${fmt(Date.now())}</td></tr>
+${paidThrough ? `<tr><td style="padding:4px 12px 4px 0;color:#64748b">Next automatic renewal</td><td><strong>${fmt(paidThrough)}</strong></td></tr>` : ""}
+${invoice.number ? `<tr><td style="padding:4px 12px 4px 0;color:#64748b">Invoice</td><td>${escapeHtml(invoice.number)}</td></tr>` : ""}
+</table>
+${invoice.hosted_invoice_url ? `<p><a href="${escapeHtml(invoice.hosted_invoice_url)}">View or download the invoice</a></p>` : ""}
+<p style="color:#64748b;font-size:13px">Your subscription renews automatically on the date above using the card on file. You can change your plan or card any time on the <a href="${APP_URL}/app/billing">Billing &amp; Plan</a> page.</p>`, companyName);
+  try {
+    await sendEmail({ to: to.join(","), subject: `FirmiCore payment received — ${amount}`, html });
+  } catch (err) {
+    logger.error("payment receipt email failed", err);
+    await invoiceRef.set({ receiptEmailedAt: FieldValue.delete() }, { merge: true }).catch(() => {});
+  }
 }
 
 /** Payment received → notification for Lumora superadmins (platform console). */
@@ -121,7 +192,7 @@ async function makeSetupCardDefault(session) {
  * access) allowed to write plan/subscription fields on a company doc —
  * firestore.rules blocks clients from writing them directly.
  */
-exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecret] }, async (req, res) => {
+exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecret, platformSmtpPassword] }, async (req, res) => {
   const signature = req.headers["stripe-signature"];
   let event;
 
@@ -171,7 +242,10 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
         // FirmiCore plan invoices are recorded and announced.
         if (!isFirmicoreInvoice(invoice)) break;
         await recordInvoice(invoice);
-        if (invoice.amount_paid > 0) await notifyPaymentReceived(invoice);
+        if (invoice.amount_paid > 0) {
+          await notifyPaymentReceived(invoice);
+          await emailPaymentReceipt(invoice);
+        }
         break;
       }
       default:
