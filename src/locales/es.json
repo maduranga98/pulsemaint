@@ -8904,7 +8904,8 @@
         "billed": "Facturado",
         "trialEnds": "La prueba termina",
         "renewsOn": "Se renueva automáticamente el {{date}}",
-        "endsOn": "Cancelada: el acceso de todos los usuarios termina el {{date}}"
+        "endsOn": "Cancelada: el acceso de todos los usuarios termina el {{date}}",
+        "assignedByLumora": "Plan asignado por Lumora Ventures: acceso completo con las funciones y límites de este plan."
       },
       "errors": {
         "checkoutFailed": "No se pudo iniciar el pago. Inténtalo de nuevo.",

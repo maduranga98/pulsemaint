@@ -204,7 +204,8 @@
         "billed": "Billed",
         "trialEnds": "Trial ends",
         "renewsOn": "Renews automatically on {{date}}",
-        "endsOn": "Cancelled — access for all users ends on {{date}}"
+        "endsOn": "Cancelled — access for all users ends on {{date}}",
+        "assignedByLumora": "Plan assigned by Lumora Ventures — full access with this plan's features and limits."
       },
       "errors": {
         "checkoutFailed": "Failed to start checkout. Please try again.",

@@ -8904,7 +8904,8 @@
         "billed": "Facturé",
         "trialEnds": "Fin de l'essai",
         "renewsOn": "Renouvellement automatique le {{date}}",
-        "endsOn": "Résilié — l'accès de tous les utilisateurs prend fin le {{date}}"
+        "endsOn": "Résilié — l'accès de tous les utilisateurs prend fin le {{date}}",
+        "assignedByLumora": "Formule attribuée par Lumora Ventures — accès complet avec les fonctionnalités et limites de cette formule."
       },
       "errors": {
         "checkoutFailed": "Échec du démarrage du paiement. Veuillez réessayer.",

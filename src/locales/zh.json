@@ -8904,7 +8904,8 @@
         "billed": "计费方式",
         "trialEnds": "试用期结束",
         "renewsOn": "将于 {{date}} 自动续订",
-        "endsOn": "已取消——所有用户的访问将于 {{date}} 结束"
+        "endsOn": "已取消——所有用户的访问将于 {{date}} 结束",
+        "assignedByLumora": "由 Lumora Ventures 分配的套餐——享有该套餐的全部功能和限额。"
       },
       "errors": {
         "checkoutFailed": "无法启动结账,请重试。",

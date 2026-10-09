@@ -852,7 +852,8 @@ service cloud.firestore {
           'stripeSubscriptionId', 'subscriptionStatus', 'currentPeriodEnd', 'trialEndsAt',
           'cancelAtPeriodEnd', 'billingTermsVersion', 'billingTermsAcceptedAt', 'billingTermsAcceptedBy',
           'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy',
-          'approvalStatus', 'approvedAt', 'approvedBy', 'rejectionReason'];
+          'approvalStatus', 'approvedAt', 'approvedBy', 'rejectionReason',
+          'planSetBy', 'planSetAt'];
         return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
       }
 
