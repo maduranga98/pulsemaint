@@ -4,7 +4,7 @@ import { countTodosDue, groupTodos, todoBucket, type Todo } from '../platform/to
 const now = new Date(2026, 9, 9, 12, 0).getTime();
 const h = 3_600_000;
 const base: Todo = {
-  id: 'x', kind: 'task', title: 't', notes: '', dueAt: null, done: false, doneAt: null, leadId: null, leadName: null,
+  id: 'x', kind: 'task', title: 't', notes: '', howToTest: '', dueAt: null, done: false, doneAt: null, leadId: null, leadName: null,
   companyId: null, companyName: null, featureRequestId: null, createdAt: 0, createdByEmail: null,
 };
 

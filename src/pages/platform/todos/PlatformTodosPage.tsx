@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Building2, Circle, CheckCircle2, FlaskConical, Lightbulb, Pencil, PhoneCall, Plus, Trash2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Bug, Building2, Circle, CheckCircle2, ExternalLink, FlaskConical, Pencil, PhoneCall, Plus, Trash2 } from 'lucide-react';
 import type { Lead } from '@/lib/platform/leads';
 import { TODO_BUCKET_LABEL, TODO_KIND_LABEL, groupTodos, type Todo, type TodoKind } from '@/lib/platform/todos';
 import { subscribeLeads } from '@/services/platformLeadsService';
-import { deleteTodo, setTodoDone, subscribeTodos } from '@/services/platformTodosService';
+import { deleteTodo, failTestingTodo, setTodoDone, subscribeTodos } from '@/services/platformTodosService';
 import { ErrorNote, Loading, PageHeader, btn, fmtDateTime } from '../platformUi';
 import { useCompanyOptions } from '../useCompanyOptions';
 import TodoDialog from './TodoDialog';
@@ -24,7 +24,8 @@ export default function PlatformTodosPage() {
   const companies = useCompanyOptions();
   const [error, setError] = useState('');
   const [kind, setKind] = useState<'' | TodoKind>('');
-  const [showDone, setShowDone] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const tab: 'open' | 'done' = params.get('tab') === 'done' ? 'done' : 'open';
   const [editing, setEditing] = useState<Todo | 'new' | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -35,26 +36,41 @@ export default function PlatformTodosPage() {
     return () => window.clearInterval(t);
   }, []);
 
-  const groups = useMemo(() => groupTodos((todos ?? []).filter((t) => (!kind || t.kind === kind) && (showDone || !t.done)), now), [todos, kind, showDone, now]);
+  const groups = useMemo(() => groupTodos((todos ?? []).filter((t) => (!kind || t.kind === kind) && t.done === (tab === 'done')), now), [todos, kind, tab, now]);
   const counts = useMemo(() => {
-    const c: Record<string, number> = { '': 0, reminder: 0, task: 0, testing: 0 };
-    for (const t of todos ?? []) if (!t.done) { c['']++; c[t.kind]++; }
+    const c: Record<string, number> = { '': 0, reminder: 0, task: 0, testing: 0, open: 0, done: 0 };
+    for (const t of todos ?? []) {
+      c[t.done ? 'done' : 'open']++;
+      if (t.done === (tab === 'done')) { c['']++; c[t.kind]++; }
+    }
     return c;
-  }, [todos]);
+  }, [todos, tab]);
 
   async function toggle(t: Todo) {
-    if (!t.done && t.kind === 'testing' && t.featureRequestId && !window.confirm('Testing passed? This also closes the feature request.')) return;
     await setTodoDone(t, !t.done).catch((e) => setError(e.message));
+  }
+
+  async function testFailed(t: Todo) {
+    if (!window.confirm('Testing failed? The feature request goes back to In progress and this testing to-do is removed.')) return;
+    await failTestingTodo(t).catch((e) => setError(e.message));
   }
 
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader
         title="To-Do"
-        subtitle="Call-back reminders, tasks and testing. Link a to-do to a lead or a company; finishing a testing to-do closes its feature request."
+        subtitle="Reminders, linked to a lead (call) or company where relevant. Testing to-dos close their feature request when marked done; the bug button sends it back to In progress."
         actions={<button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setEditing('new')}><Plus className="h-4 w-4" /> New to-do</button>}
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
+      <div className="mb-3 flex gap-1.5">
+        {([['open', 'Open (not done)'], ['done', 'Done']] as const).map(([v, l]) => (
+          <button key={v} onClick={() => setParams(v === 'open' ? {} : { tab: v }, { replace: true })}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium ${tab === v ? 'bg-blue-600 text-white' : 'border border-slate-600 text-slate-300 hover:bg-slate-800'}`}>
+            {l}<span className="rounded-full bg-black/30 px-1.5 text-[10px] font-bold leading-4">{counts[v]}</span>
+          </button>
+        ))}
+      </div>
       <div className="mb-4 flex flex-wrap items-center gap-1.5">
         {([['', 'All'], ['reminder', 'Reminders'], ['task', 'Tasks'], ['testing', 'Testing']] as const).map(([v, l]) => (
           <button key={l} onClick={() => setKind(v)}
@@ -62,11 +78,10 @@ export default function PlatformTodosPage() {
             {l}<span className="rounded-full bg-black/30 px-1.5 text-[10px] font-bold leading-4">{counts[v]}</span>
           </button>
         ))}
-        <label className="ml-auto flex items-center gap-1.5 text-xs text-slate-400"><input type="checkbox" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} /> Show done</label>
       </div>
 
       {!todos && !error ? <Loading /> : groups.length === 0 ? (
-        <p className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-8 text-center text-sm text-slate-400">Nothing to do. Add a reminder for your next call-back.</p>
+        <p className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-8 text-center text-sm text-slate-400">{tab === 'done' ? 'Nothing done yet.' : 'Nothing to do. Add a reminder for your next call-back.'}</p>
       ) : groups.map((g) => (
         <section key={g.bucket} className="mb-6">
           <h2 className={`mb-2 text-xs font-semibold uppercase tracking-wide ${BUCKET_TONE[g.bucket]}`}>{TODO_BUCKET_LABEL[g.bucket]} · {g.items.length}</h2>
@@ -81,15 +96,24 @@ export default function PlatformTodosPage() {
                     {t.kind === 'testing' && <FlaskConical className="mr-1 inline h-3.5 w-3.5 text-sky-300" />}{t.title}
                   </p>
                   {t.notes && <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-400">{t.notes}</p>}
+                  {t.howToTest && (
+                    <div className="mt-2 text-sm">
+                      <p className="text-slate-400">How to test:</p>
+                      <p className="whitespace-pre-wrap text-slate-200">{t.howToTest}</p>
+                    </div>
+                  )}
                   <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
                     <span className="rounded-full border border-slate-600 px-1.5 text-[10px]">{TODO_KIND_LABEL[t.kind]}</span>
                     {t.dueAt && <span className={!t.done && t.dueAt < now ? 'text-red-300' : ''}>{fmtDateTime(t.dueAt)}</span>}
                     {t.leadId && <Link to={`/platform/leads?lead=${t.leadId}`} className="inline-flex items-center gap-1 text-sky-300!"><PhoneCall className="h-3 w-3" />{t.leadName ?? 'Lead'}</Link>}
                     {t.companyId && <Link to={`/platform/companies/${t.companyId}`} className="inline-flex items-center gap-1 text-sky-300!"><Building2 className="h-3 w-3" />{t.companyName ?? 'Company'}</Link>}
-                    {t.featureRequestId && <Link to="/platform/feature-requests" className="inline-flex items-center gap-1 text-sky-300!"><Lightbulb className="h-3 w-3" />Feature request</Link>}
+                    {t.featureRequestId && <Link to="/platform/feature-requests" className="inline-flex items-center gap-1 text-violet-300!"><ExternalLink className="h-3 w-3" />Feature request</Link>}
                   </p>
                 </div>
                 <div className="flex shrink-0 text-slate-400">
+                  {t.kind === 'testing' && t.featureRequestId && !t.done && (
+                    <button title="Testing failed — send the feature request back to In progress" className="rounded p-1.5 text-red-400 hover:bg-slate-800" onClick={() => void testFailed(t)}><Bug className="h-4 w-4" /></button>
+                  )}
                   <button title="Edit" className="rounded p-1.5 hover:bg-slate-800 hover:text-white" onClick={() => setEditing(t)}><Pencil className="h-4 w-4" /></button>
                   <button title="Delete" className="rounded p-1.5 hover:bg-slate-800 hover:text-white" onClick={() => window.confirm('Delete this to-do?') && void deleteTodo(t.id).catch((e) => setError(e.message))}><Trash2 className="h-4 w-4" /></button>
                 </div>
