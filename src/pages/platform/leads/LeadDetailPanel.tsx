@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Archive, ArchiveRestore, Bug, Building2, CalendarClock, History, Mail, MapPin, MessageCircle, Pencil, Phone, PhoneCall,
-  StickyNote, Trash2, Wallet, X,
+  ListTodo, StickyNote, Trash2, Wallet, X,
 } from 'lucide-react';
 import {
   CALL_OUTCOMES, CALL_OUTCOME_LABEL, LEAD_STATUSES, LEAD_STATUS_LABEL, activityOutcomeLabel, activityTypeLabel, fmtAmount, whatsappNumber,
@@ -15,6 +15,8 @@ import {
 import { platformService, type PlatformCompany } from '@/services/platformService';
 import { ErrorNote, btn, fmtDateTime, input } from '../platformUi';
 import { StatusPill, TagChip, fromLocalInput, toLocalInput, whenLabel } from './leadUi';
+import TodoDialog from '../todos/TodoDialog';
+import { useCompanyOptions } from '../useCompanyOptions';
 
 type Panel = 'call' | 'note' | 'demo' | 'issue' | null;
 
@@ -42,6 +44,8 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
   const [issueBody, setIssueBody] = useState('');
   // Company link
   const [companies, setCompanies] = useState<PlatformCompany[] | null>(null);
+  const [addingTodo, setAddingTodo] = useState(false);
+  const companyOptions = useCompanyOptions();
 
   useEffect(() => subscribeLeadActivities(lead.id, setHistory, (e) => setError(e.message)), [lead.id]);
   useEffect(() => {
@@ -91,6 +95,7 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
           </div>
           <div className="flex items-center gap-1 text-slate-400">
             <IconBtn title="History" active={showHistory} onClick={() => setShowHistory((v) => !v)}><History className="h-4 w-4" /></IconBtn>
+            <IconBtn title="Add to-do / reminder" onClick={() => setAddingTodo(true)}><ListTodo className="h-4 w-4" /></IconBtn>
             <IconBtn title="Edit" onClick={onEdit}><Pencil className="h-4 w-4" /></IconBtn>
             <IconBtn title={lead.archived ? 'Restore' : 'Archive'} onClick={() => void run(() => setArchived(lead.id, !lead.archived))}>
               {lead.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
@@ -263,6 +268,15 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
           </div>
         </div>
       </aside>
+      {addingTodo && (
+        <TodoDialog
+          initial={{
+            kind: 'reminder', title: `Call ${lead.businessName}`, leadId: lead.id, leadName: lead.businessName,
+            companyId: lead.companyId, companyName: companyOptions.find((c) => c.id === lead.companyId)?.name ?? null,
+          }}
+          leads={[lead]} companies={companyOptions} onClose={() => setAddingTodo(false)} onError={setError}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb, ListTodo } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
@@ -23,6 +23,7 @@ const NAV = [
   { to: '/platform/calls', label: 'Calls', icon: PhoneCall },
   { to: '/platform/sales-team', label: 'Sales team', icon: Users },
   { to: '/platform/feature-requests', label: 'Feature requests', icon: Lightbulb },
+  { to: '/platform/todos', label: 'To-Do', icon: ListTodo },
 ] as const;
 
 /**

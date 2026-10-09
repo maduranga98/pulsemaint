@@ -217,6 +217,8 @@ export interface FeatureRequest {
   status: FeatureRequestStatus;
   leadId: string | null;
   leadName: string | null;
+  companyId: string | null;
+  companyName: string | null;
   /** How to verify the fix/feature — filled in when moving to Testing. */
   howToTest: string;
   createdAt: number | null;
@@ -227,7 +229,7 @@ function toFeature(id: string, d: DocumentData): FeatureRequest {
   return {
     id, type: d.type === 'bug' ? 'bug' : 'feature', title: str(d.title), description: str(d.description),
     status: (FEATURE_REQUEST_STATUSES as readonly string[]).includes(d.status) ? d.status : 'requested',
-    leadId: d.leadId ?? null, leadName: d.leadName ?? null, howToTest: str(d.howToTest), createdAt: tsMs(d.createdAt), createdByEmail: d.createdByEmail ?? null,
+    leadId: d.leadId ?? null, leadName: d.leadName ?? null, companyId: d.companyId ?? null, companyName: d.companyName ?? null, howToTest: str(d.howToTest), createdAt: tsMs(d.createdAt), createdByEmail: d.createdByEmail ?? null,
   };
 }
 
@@ -235,11 +237,16 @@ export function subscribeFeatureRequests(cb: (rows: FeatureRequest[]) => void, o
   return onSnapshot(featuresCol, (snap) => cb(snap.docs.map((d) => toFeature(d.id, d.data())).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0))), onError);
 }
 
-export async function createFeatureRequest(input: { type: FeatureRequestType; title: string; description: string; lead?: Pick<Lead, 'id' | 'businessName' | 'tags'> | null }): Promise<void> {
+export async function createFeatureRequest(input: {
+  type: FeatureRequestType; title: string; description: string;
+  lead?: Pick<Lead, 'id' | 'businessName' | 'tags'> | null;
+  company?: { id: string; name: string } | null;
+}): Promise<void> {
   const { uid, email } = me();
   await addDoc(featuresCol, {
     type: input.type, title: input.title.trim().slice(0, 200), description: input.description.trim().slice(0, 5000), status: 'requested',
-    leadId: input.lead?.id ?? null, leadName: input.lead?.businessName ?? null, howToTest: '',
+    leadId: input.lead?.id ?? null, leadName: input.lead?.businessName ?? null,
+    companyId: input.company?.id ?? null, companyName: input.company?.name ?? null, howToTest: '',
     createdBy: uid, createdByEmail: email, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
   });
   // Tag the lead so the board shows it raised a feature/bug.
