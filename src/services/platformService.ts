@@ -12,6 +12,8 @@ async function call<Req, Res>(name: string, data?: Req): Promise<Res> {
 export type PlanId = 'starter' | 'workshop' | 'factory' | 'enterprise';
 export type Cycle = 'monthly' | 'yearly';
 
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
 export interface PlatformCompany {
   id: string;
   name: string;
@@ -30,6 +32,10 @@ export interface PlatformCompany {
   monthlyValue: number;
   lastReminderAt: number | null;
   platformNote: string | null;
+  /** New self-registered companies are 'pending' until a superadmin approves them. */
+  approvalStatus: ApprovalStatus;
+  rejectionReason: string | null;
+  approvedAt: number | null;
   userCount: number;
   adminName: string | null;
   adminEmail: string | null;
@@ -39,6 +45,7 @@ export interface PlatformOverview {
   totals: {
     companies: number; active: number; trial: number; suspended: number; monthly: number; yearly: number;
     mrr: number; trialsEndingSoon: number; renewalsSoon: number; pastDue: number; cancelling: number; openRequests: number;
+    pendingApproval?: number;
     ratingAverage?: number | null; ratingCount?: number;
   };
   byPlan: Record<string, number>;
@@ -107,6 +114,8 @@ export interface PlatformReminder {
 }
 
 export type CompanyAction =
+  | { action: 'approve' }
+  | { action: 'reject'; reason: string }
   | { action: 'suspend' }
   | { action: 'reactivate' }
   | { action: 'extendTrial'; days: number }

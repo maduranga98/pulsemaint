@@ -41,6 +41,7 @@ import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import InvitePage from '../pages/auth/InvitePage';
 import OnboardingWizard from '../pages/auth/OnboardingWizard';
 import SubscriptionEndedPage from '../pages/auth/SubscriptionEndedPage';
+import PendingApprovalPage from '../pages/auth/PendingApprovalPage';
 import UnauthorizedPage from '../pages/auth/UnauthorizedPage';
 
 // Machine pages
@@ -225,6 +226,10 @@ export default function AppRouter() {
       <Route
         path="/app/unauthorized"
         element={<ProtectedRoute><UnauthorizedPage /></ProtectedRoute>}
+      />
+      <Route
+        path="/app/pending-approval"
+        element={<ProtectedRoute><PendingApprovalPage /></ProtectedRoute>}
       />
       <Route
         path="/app/subscription-ended"

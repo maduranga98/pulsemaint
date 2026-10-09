@@ -10246,6 +10246,16 @@
         "load": "No se pudieron cargar sus solicitudes.",
         "send": "No se pudo enviar. Inténtelo de nuevo."
       }
+    },
+    "pendingApproval": {
+      "title": "Registro recibido",
+      "body": "Gracias por registrarse. Nuestro equipo revisa cada empresa nueva antes de que pueda usar FirmiCore; normalmente lo hacemos en un día laborable. Esta página abrirá su espacio de trabajo automáticamente en cuanto sea aprobado.",
+      "emailHint": "También enviaremos un correo a {{email}} cuando sea aprobado.",
+      "rejectedTitle": "Registro no aprobado",
+      "rejectedBody": "No hemos podido aprobar este registro. Si cree que es un error, escriba a info@lumoraventures.com.",
+      "reason": "Motivo",
+      "signOut": "Cerrar sesión",
+      "registerNote": "Tras registrarse, nuestro equipo revisará su empresa antes de que pueda iniciar sesión, normalmente en un día laborable. Le avisaremos por correo en cuanto esté aprobada."
     }
   },
   "triage": {

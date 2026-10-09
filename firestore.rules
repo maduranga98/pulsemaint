@@ -832,19 +832,27 @@ service cloud.firestore {
           || (resource != null && resource.data.adminUserId == request.auth.uid)
         );
 
+      // Self-registration: a new company always starts as an unapproved
+      // trial on the starter plan. A Lumora superadmin approves it via
+      // platformUpdateCompany (Admin SDK) before the app lets anyone in.
       allow create: if isAuthenticated()
         && request.resource.data.adminUserId == request.auth.uid
-        && request.resource.data.id == companyId;
+        && request.resource.data.id == companyId
+        && request.resource.data.approvalStatus == 'pending'
+        && request.resource.data.status == 'trial'
+        && request.resource.data.plan == 'starter';
 
       // Plan/subscription fields are Stripe-controlled — only the
       // stripeWebhook Cloud Function (via the Admin SDK, which bypasses
-      // these rules) may change them. Clients may update everything else on
+      // these rules) may change them. Registration approval fields are
+      // likewise set only by platformUpdateCompany. Clients may update everything else on
       // the company doc (profile, settings, etc.) but not these.
       function keepsBillingFieldsUnchanged() {
         let billingFields = ['plan', 'billingCycle', 'status', 'stripeCustomerId',
           'stripeSubscriptionId', 'subscriptionStatus', 'currentPeriodEnd', 'trialEndsAt',
           'cancelAtPeriodEnd', 'billingTermsVersion', 'billingTermsAcceptedAt', 'billingTermsAcceptedBy',
-          'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy'];
+          'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy',
+          'approvalStatus', 'approvedAt', 'approvedBy', 'rejectionReason'];
         return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
       }
 

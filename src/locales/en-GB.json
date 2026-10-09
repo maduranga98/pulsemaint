@@ -1079,6 +1079,16 @@
         "dueToday": "Due today",
         "dueIn": "in {{days}}d"
       }
+    },
+    "pendingApproval": {
+      "title": "Registration received",
+      "body": "Thanks for registering. Our team reviews every new company before it can use FirmiCore — this is usually done within one working day. This page opens your workspace automatically as soon as you are approved.",
+      "emailHint": "We'll also email {{email}} when you're approved.",
+      "rejectedTitle": "Registration not approved",
+      "rejectedBody": "We were not able to approve this registration. If you think this is a mistake, please contact info@lumoraventures.com.",
+      "reason": "Reason",
+      "signOut": "Sign out",
+      "registerNote": "After you register, our team reviews your company before you can sign in — usually within one working day. We'll email you as soon as it's approved."
     }
   }
 }

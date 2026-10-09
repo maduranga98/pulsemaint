@@ -138,7 +138,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D1B33] flex">
+    <div className="min-h-dvh bg-[#0D1B33] flex overflow-x-hidden">
       {/* Marketing panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex-col p-12">
         <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-[#1A56DB]/25 blur-3xl pointer-events-none" />
@@ -200,15 +200,15 @@ export default function LoginPage() {
           only centering from the lg breakpoint up where there's headroom. */}
       <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center overflow-y-auto p-4 py-8 sm:p-8 bg-[#0D1B33]">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8 flex flex-col items-center gap-2 lg:hidden">
-          <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto" />
-          <div className="text-2xl font-bold">
-            <span className="text-white">Firmi</span>
-            <span className="text-[#00C2FF]">Core</span>
+        {/* Mobile: logo and language on one row; desktop shows the logo on the marketing panel. */}
+        <div className="mb-8 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 lg:invisible">
+            <img src="/logo.svg" alt="FirmiCore" className="h-10 w-auto" />
+            <div className="text-2xl font-bold">
+              <span className="text-white">Firmi</span>
+              <span className="text-[#00C2FF]">Core</span>
+            </div>
           </div>
-        </div>
-
-        <div className="flex justify-end mb-4">
           <LanguageSwitcher />
         </div>
 
@@ -286,7 +286,7 @@ export default function LoginPage() {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-sm font-medium text-slate-300">{t('common.auth.login.passwordLabel')}</label>
-                  <a href="/forgot-password" className="text-sm text-[#00C2FF] hover:underline">
+                  <a href="/forgot-password" className="text-sm font-medium text-[#00C2FF]! hover:underline">
                     {t('common.auth.login.forgot')}
                   </a>
                 </div>
@@ -316,7 +316,7 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded"
+                  className="h-4 w-4 rounded accent-[#1A56DB]"
                 />
                 <span className="text-sm text-slate-400">{t('common.auth.login.rememberMe')}</span>
               </label>
@@ -324,7 +324,7 @@ export default function LoginPage() {
               <button
                 onClick={emailForm.handleSubmit(handleEmailLogin)}
                 disabled={loading}
-                className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50 h-12 flex items-center justify-center"
+                className="w-full bg-gradient-to-r from-[#1A56DB] to-[#1D6FF2] hover:brightness-110 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-[#1A56DB]/30 transition-all disabled:opacity-50 h-12 flex items-center justify-center"
               >
                 {loading ? t('common.auth.login.signingIn') : t('common.auth.login.title')}
               </button>
@@ -332,12 +332,13 @@ export default function LoginPage() {
           </div>
         )}
 
-        <p className="text-center text-slate-400 text-sm mt-6">
+        {/* div, not p: the global p { margin: 0 } reset would swallow mt-6. */}
+        <div className="text-center text-slate-400 text-sm mt-6">
           {t('common.auth.login.noAccount')}{' '}
-          <a href="/register" className="text-[#00C2FF] hover:underline font-medium">
+          <a href="/register" className="text-[#00C2FF]! hover:underline font-medium">
             {t('common.auth.login.createOne')}
           </a>
-        </p>
+        </div>
 
         <button
           type="button"
@@ -352,15 +353,15 @@ export default function LoginPage() {
 
       {showQrScanner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+          <div className="bg-[#0D1B33] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">{t('common.auth.login.scanTitle')}</h3>
-              <button type="button" onClick={closeQrScanner} className="p-1 rounded-lg hover:bg-slate-100">
-                <X className="w-5 h-5 text-slate-500" />
+              <h3 className="text-lg font-semibold text-white!">{t('common.auth.login.scanTitle')}</h3>
+              <button type="button" onClick={closeQrScanner} className="p-1 rounded-lg hover:bg-white/10">
+                <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
             <div id="login-qr-reader" className="w-full" />
-            <p className="text-xs text-slate-500 mt-3 text-center">{t('common.auth.login.scanHint')}</p>
+            <div className="text-xs text-slate-400 mt-3 text-center">{t('common.auth.login.scanHint')}</div>
           </div>
         </div>
       )}

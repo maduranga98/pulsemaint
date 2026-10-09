@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, AlertCircle, ChevronRight } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, ChevronRight, ChevronLeft, Building2, UserRound, KeyRound, FileCheck2, Check } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -68,6 +68,21 @@ const INDUSTRY_KEYS: Record<string, string> = {
   Other: 'other',
 };
 
+// Dark form styling shared by every field. The global stylesheet resets
+// h*/p margins and colours unlayered, so spacing below uses flex `gap` and
+// heading colours use the `!` modifier.
+const FIELD =
+  'w-full h-11 px-4 rounded-xl border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 outline-none transition-all focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20';
+const LABEL = 'block text-sm font-medium text-slate-300 mb-1.5';
+const ERROR = 'text-red-400 text-sm mt-1.5';
+
+const STEPS = [
+  { icon: Building2, key: 'companyInfo' },
+  { icon: UserRound, key: 'yourDetails' },
+  { icon: KeyRound, key: 'setPassword' },
+  { icon: FileCheck2, key: 'agreement' },
+] as const;
+
 export default function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -75,6 +90,20 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const err = (name: keyof RegisterForm) => {
+    const message = form.formState.errors[name]?.message;
+    return message ? <p className={ERROR}>{t(message)}</p> : null;
+  };
+
+  const next = () => {
+    const fields: (keyof RegisterForm)[][] = [
+      ['companyName', 'industry', 'country'],
+      ['fullName', 'jobTitle', 'email', 'phone'],
+      ['password', 'confirmPassword'],
+    ];
+    void form.trigger(fields[step - 1]).then((valid) => valid && setStep(step + 1));
+  };
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -106,7 +135,8 @@ export default function RegisterPage() {
       store.setInitialized(true);
       store.setLoading(false);
 
-      navigate('/app/onboarding', { replace: true });
+      // New companies wait for a Lumora superadmin to approve them.
+      navigate('/app/pending-approval', { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode]
@@ -119,271 +149,187 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4 py-8">
-      <div className="w-full max-w-2xl">
-        <div className="text-center mb-8 flex flex-col items-center">
-          <img src="/logo.svg" alt="FirmiCore" className="h-16 w-auto mb-3" />
-          <div className="text-3xl font-bold mb-2">
-            <span className="text-white">Firmi</span>
-            <span className="text-[#00C2FF]">Core</span>
-          </div>
-          <p className="text-gray-300">{t('common.auth.register.subtitle')}</p>
-          <div className="mt-3">
-            <LanguageSwitcher />
-          </div>
+    <div className="relative min-h-dvh overflow-x-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] px-4 py-8 sm:py-12">
+      <div className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-[#1A56DB]/20 blur-3xl" />
+      <div className="pointer-events-none absolute top-24 -right-20 h-80 w-80 rounded-full bg-[#00C2FF]/10 blur-3xl" />
+
+      <div className="relative mx-auto flex w-full max-w-xl flex-col gap-6">
+        <div className="flex items-center justify-between gap-3">
+          <a href="/login" className="flex items-center gap-2.5">
+            <img src="/logo.svg" alt="FirmiCore" className="h-10 w-auto" />
+            <span className="text-2xl font-bold"><span className="text-white">Firmi</span><span className="text-[#00C2FF]">Core</span></span>
+          </a>
+          <LanguageSwitcher />
         </div>
 
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            {[1, 2, 3, 4].map((s) => (
-              <div
-                key={s}
-                className={`h-2 flex-1 rounded-full mx-1 transition-colors ${
-                  s <= step ? 'bg-[#1A56DB]' : 'bg-gray-300'
-                }`}
-              />
-            ))}
-          </div>
-          <p className="text-gray-400 text-xs text-center">{t('common.auth.register.stepOf', { step, total: 4 })}</p>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl text-white! sm:text-3xl" style={{ fontWeight: 700 }}>{t('common.auth.register.subtitle')}</h1>
+          <p className="text-sm text-slate-400">{t('common.auth.register.stepOf', { step, total: 4 })}</p>
         </div>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          {form.formState.errors.email?.message && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-3">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+        {/* Stepper */}
+        <ol className="grid grid-cols-4 gap-2">
+          {STEPS.map(({ icon: Icon, key }, i) => {
+            const n = i + 1;
+            const done = n < step;
+            const active = n === step;
+            return (
+              <li key={key} className="flex flex-col gap-2">
+                <div className={`h-1.5 rounded-full transition-colors ${n <= step ? 'bg-gradient-to-r from-[#1A56DB] to-[#00C2FF]' : 'bg-white/10'}`} />
+                <div className={`flex items-center gap-1.5 text-xs ${active ? 'text-white' : done ? 'text-[#00C2FF]' : 'text-slate-500'}`}>
+                  <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${active ? 'bg-[#1A56DB]' : done ? 'bg-[#00C2FF]/20' : 'bg-white/5'}`}>
+                    {done ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
+                  </span>
+                  <span className="hidden truncate sm:inline">{t(`common.auth.register.${key}`)}</span>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-5">
+          {form.formState.errors.email?.message && step === 4 && (
+            <div className="flex gap-3 rounded-xl border border-red-500/30 bg-red-950/40 p-3 text-red-300">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
               <span className="text-sm">{t(form.formState.errors.email.message ?? '')}</span>
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+          <div className="flex flex-col gap-5 rounded-2xl border border-white/10 bg-[#0D1B33]/90 p-5 shadow-2xl shadow-black/40 backdrop-blur sm:p-7">
+            <h2 className="flex items-center gap-2 text-lg text-white! sm:text-xl" style={{ fontWeight: 600 }}>
+              {(() => { const Icon = STEPS[step - 1].icon; return <Icon className="h-5 w-5 text-[#00C2FF]" />; })()}
+              {t(`common.auth.register.${STEPS[step - 1].key}`)}
+            </h2>
+
             {step === 1 && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.companyInfo')}</h2>
-
+              <div className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.companyName')}</label>
-                  <input
-                    {...form.register('companyName')}
-                    placeholder={t('common.auth.register.companyNamePlaceholder')}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                  />
-                  {form.formState.errors.companyName && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.companyName.message ?? '')}</p>
-                  )}
+                  <label className={LABEL}>{t('common.auth.register.companyName')}</label>
+                  <input {...form.register('companyName')} placeholder={t('common.auth.register.companyNamePlaceholder')} className={FIELD} autoComplete="organization" />
+                  {err('companyName')}
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.industry')}</label>
-                  <select
-                    {...form.register('industry')}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                  >
+                  <label className={LABEL}>{t('common.auth.register.industry')}</label>
+                  <select {...form.register('industry')} className={FIELD}>
                     <option value="">{t('common.auth.register.selectIndustry')}</option>
                     {INDUSTRIES.map((ind) => (
-                      <option key={ind} value={ind}>
-                        {t(`common.auth.register.industries.${INDUSTRY_KEYS[ind]}`, { defaultValue: ind })}
-                      </option>
+                      <option key={ind} value={ind}>{t(`common.auth.register.industries.${INDUSTRY_KEYS[ind]}`, { defaultValue: ind })}</option>
                     ))}
                   </select>
-                  {form.formState.errors.industry && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.industry.message ?? '')}</p>
-                  )}
+                  {err('industry')}
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.country')}</label>
-                  <select
-                    {...form.register('country')}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                  >
+                  <label className={LABEL}>{t('common.auth.register.country')}</label>
+                  <select {...form.register('country')} className={FIELD}>
                     <option value="">{t('common.auth.register.selectCountry')}</option>
                     {COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {t(`common.auth.register.countries.${country.code}`, { defaultValue: country.name })}
-                      </option>
+                      <option key={country.code} value={country.code}>{t(`common.auth.register.countries.${country.code}`, { defaultValue: country.name })}</option>
                     ))}
                   </select>
-                  {form.formState.errors.country && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.country.message ?? '')}</p>
-                  )}
+                  {err('country')}
                 </div>
               </div>
             )}
 
             {step === 2 && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.yourDetails')}</h2>
-
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.invite.fullNameLabel')}</label>
-                  <input
-                    {...form.register('fullName')}
-                    placeholder={t('common.auth.register.fullNamePlaceholder')}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                  />
-                  {form.formState.errors.fullName && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.fullName.message ?? '')}</p>
-                  )}
+                  <label className={LABEL}>{t('common.auth.invite.fullNameLabel')}</label>
+                  <input {...form.register('fullName')} placeholder={t('common.auth.register.fullNamePlaceholder')} className={FIELD} autoComplete="name" />
+                  {err('fullName')}
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.jobTitle')}</label>
-                  <input
-                    {...form.register('jobTitle')}
-                    placeholder={t('common.auth.register.jobTitlePlaceholder')}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                  />
-                  {form.formState.errors.jobTitle && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.jobTitle.message ?? '')}</p>
-                  )}
+                  <label className={LABEL}>{t('common.auth.register.jobTitle')}</label>
+                  <input {...form.register('jobTitle')} placeholder={t('common.auth.register.jobTitlePlaceholder')} className={FIELD} autoComplete="organization-title" />
+                  {err('jobTitle')}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.workEmail')}</label>
-                  <input
-                    {...form.register('email')}
-                    type="email"
-                    placeholder="you@company.com"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                  />
-                  {form.formState.errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.email.message ?? '')}</p>
-                  )}
+                <div className="sm:col-span-2">
+                  <label className={LABEL}>{t('common.auth.register.workEmail')}</label>
+                  <input {...form.register('email')} type="email" placeholder="you@company.com" className={FIELD} autoComplete="email" inputMode="email" />
+                  {err('email')}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.register.phone')}</label>
-                  <input
-                    {...form.register('phone')}
-                    type="tel"
-                    placeholder="+94 701234567"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                  />
-                  {form.formState.errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.phone.message ?? '')}</p>
-                  )}
+                <div className="sm:col-span-2">
+                  <label className={LABEL}>{t('common.auth.register.phone')}</label>
+                  <input {...form.register('phone')} type="tel" placeholder="+94 701234567" className={FIELD} autoComplete="tel" inputMode="tel" />
+                  {err('phone')}
                 </div>
               </div>
             )}
 
             {step === 3 && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.setPassword')}</h2>
-
+              <div className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.login.passwordLabel')}</label>
+                  <label className={LABEL}>{t('common.auth.login.passwordLabel')}</label>
                   <div className="relative">
-                    <input
-                      {...form.register('password')}
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-gray-500"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    <input {...form.register('password')} type={showPassword ? 'text' : 'password'} placeholder="••••••••" className={`${FIELD} pr-11`} autoComplete="new-password" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white" aria-label="Show password">
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
-                  {form.formState.errors.password && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.password.message ?? '')}</p>
-                  )}
+                  {err('password')}
                 </div>
-
-                <PasswordStrength
-                  password={form.watch('password') || ''}
-                  confirmPassword={form.watch('confirmPassword') || ''}
-                />
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.invite.confirmPasswordLabel')}</label>
+                  <label className={LABEL}>{t('common.auth.invite.confirmPasswordLabel')}</label>
                   <div className="relative">
-                    <input
-                      {...form.register('confirmPassword')}
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-2.5 text-gray-500"
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    <input {...form.register('confirmPassword')} type={showConfirmPassword ? 'text' : 'password'} placeholder="••••••••" className={`${FIELD} pr-11`} autoComplete="new-password" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white" aria-label="Show password">
+                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
-                  {form.formState.errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.confirmPassword.message ?? '')}</p>
-                  )}
+                  {err('confirmPassword')}
+                </div>
+                <div className="rounded-xl border border-white/5 bg-[#0B1526] p-3">
+                  <PasswordStrength tone="dark" password={form.watch('password') || ''} confirmPassword={form.watch('confirmPassword') || ''} />
                 </div>
               </div>
             )}
 
             {step === 4 && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('common.auth.register.agreement')}</h2>
-
+              <div className="flex flex-col gap-3">
                 <TermsCheckbox
-                  tone="light"
+                  tone="dark"
                   checked={!!form.watch('terms')}
                   onChange={(v) => form.setValue('terms', v, { shouldValidate: true })}
                   statement={t('common.legal.terms.registerStatement')}
                 />
-                {form.formState.errors.terms && (
-                  <p className="text-red-500 text-sm">{t(form.formState.errors.terms.message ?? '')}</p>
-                )}
+                {err('terms')}
+                <p className="rounded-xl border border-[#00C2FF]/20 bg-[#00C2FF]/5 p-3 text-xs leading-relaxed text-slate-300">
+                  {t('common.pendingApproval.registerNote')}
+                </p>
               </div>
             )}
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {step > 1 && (
               <button
                 type="button"
                 onClick={() => setStep(step - 1)}
-                className="flex-1 border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11"
+                className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-[#0B1526] font-medium text-slate-100 transition-colors hover:bg-white/5"
               >
+                <ChevronLeft className="h-4 w-4" />
                 {t('common.auth.register.back')}
               </button>
             )}
-
             <button
+              // A separate element on the last step, so the click that
+              // advanced to it can never count as a form submit.
+              key={step === 4 ? 'submit' : 'next'}
               type={step === 4 ? 'submit' : 'button'}
-              onClick={() => {
-                if (step < 4) {
-                  if (step === 1) {
-                    form.trigger(['companyName', 'industry', 'country']).then((valid) => {
-                      if (valid) setStep(2);
-                    });
-                  } else if (step === 2) {
-                    form.trigger(['fullName', 'jobTitle', 'email', 'phone']).then((valid) => {
-                      if (valid) setStep(3);
-                    });
-                  } else if (step === 3) {
-                    form.trigger(['password', 'confirmPassword']).then((valid) => {
-                      if (valid) setStep(4);
-                    });
-                  }
-                }
-              }}
+              onClick={step < 4 ? next : undefined}
               disabled={loading && step === 4}
-              className="flex-1 bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11 flex items-center justify-center gap-2"
+              className="flex h-12 flex-[2] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1A56DB] to-[#1D6FF2] font-semibold text-white shadow-lg shadow-[#1A56DB]/30 transition-all hover:brightness-110 disabled:opacity-60"
             >
               {step === 4 ? (loading ? t('common.auth.register.creating') : t('common.auth.register.create')) : t('common.auth.register.continue')}
-              {step < 4 && <ChevronRight className="w-4 h-4" />}
+              {step < 4 && <ChevronRight className="h-4 w-4" />}
             </button>
           </div>
         </form>
 
-        <p className="text-center text-gray-400 text-sm mt-6">
+        <div className="text-center text-sm text-slate-400">
           {t('common.auth.invite.haveAccount')}{' '}
-          <a href="/login" className="text-[#1A56DB] hover:underline font-medium">
-            {t('common.auth.register.signIn')}
-          </a>
-        </p>
+          <a href="/login" className="font-medium text-[#00C2FF]! hover:underline">{t('common.auth.register.signIn')}</a>
+        </div>
       </div>
     </div>
   );

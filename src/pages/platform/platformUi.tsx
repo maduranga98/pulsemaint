@@ -39,7 +39,9 @@ export function Badge({ tone = 'slate', children }: { tone?: Tone; children: Rea
 
 export function statusTone(status: string | null | undefined): Tone {
   switch (status) {
-    case 'active': case 'paid': case 'resolved': return 'green';
+    case 'active': case 'paid': case 'resolved': case 'approved': return 'green';
+    case 'pending': return 'amber';
+    case 'rejected': return 'red';
     case 'trial': case 'trialing': case 'in_progress': case 'open': return 'blue';
     case 'past_due': case 'unpaid': case 'uncollectible': case 'suspended': case 'high': return 'red';
     case 'medium': case 'canceled': return 'amber';

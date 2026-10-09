@@ -5,8 +5,11 @@ import AuthLoading from './AuthLoading';
 import { getDashboardRoute } from '../../lib/auth';
 import { consumePostLoginRedirect, peekPostLoginRedirect } from '../../lib/scanTarget';
 import type { UserRole } from '../../types/auth';
+import { companyApproval } from '../../lib/companyApproval';
 
 export const SUBSCRIPTION_ENDED_PATH = '/app/subscription-ended';
+export const PENDING_APPROVAL_PATH = '/app/pending-approval';
+
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -24,6 +27,7 @@ export default function ProtectedRoute({
   const hasProfile = useAuthStore((state) => state.userProfile !== null);
   const userRole = useAuthStore((state) => state.userProfile?.role);
   const companySuspended = useAuthStore((state) => state.company?.status === 'suspended');
+  const approval = useAuthStore((state) => (state.company ? companyApproval(state.company.approvalStatus) : 'approved'));
   const location = useLocation();
 
   if (!isInitialized) {
@@ -46,6 +50,13 @@ export default function ProtectedRoute({
     // ScanRedirectPage — so that one still works after this change.
     const from = `${location.pathname}${location.search}`;
     return <Navigate to={redirectTo} replace state={{ from }} />;
+  }
+
+  // A self-registered company that a Lumora superadmin hasn't approved yet
+  // (or declined): nobody gets into the app, only the waiting page.
+  if (approval !== 'approved') {
+    if (location.pathname !== PENDING_APPROVAL_PATH) return <Navigate to={PENDING_APPROVAL_PATH} replace />;
+    return <>{children}</>;
   }
 
   // Subscription ended (paid period of a cancelled/unpaid subscription is

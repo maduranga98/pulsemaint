@@ -10246,6 +10246,16 @@
         "load": "无法加载您的请求。",
         "send": "发送失败，请重试。"
       }
+    },
+    "pendingApproval": {
+      "title": "已收到注册",
+      "body": "感谢注册。每家新公司在使用 FirmiCore 之前都需要我们的团队审核，通常在一个工作日内完成。审核通过后，此页面会自动打开您的工作区。",
+      "emailHint": "审核通过后，我们也会发送邮件至 {{email}}。",
+      "rejectedTitle": "注册未获批准",
+      "rejectedBody": "我们无法批准此注册。如您认为有误，请联系 info@lumoraventures.com。",
+      "reason": "原因",
+      "signOut": "退出登录",
+      "registerNote": "注册后，我们的团队会先审核您的公司，审核通过后您才能登录，通常在一个工作日内完成。批准后我们会立即发邮件通知您。"
     }
   },
   "triage": {
