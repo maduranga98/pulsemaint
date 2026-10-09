@@ -113,7 +113,7 @@ export default function PlatformLeadsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('day')}><FileText className="h-4 w-4" /> Day report</button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} title="Export the filtered leads as CSV"
-              onClick={() => downloadText(`leads-${new Date().toISOString().slice(0, 10)}.csv`, leadsToCsv(filtered, memberName))}><Download className="h-4 w-4" /></button>
+              onClick={() => downloadText(`leads-${new Date().toISOString().slice(0, 10)}.csv`, leadsToCsv(filtered))}><Download className="h-4 w-4" /></button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('import')}><Upload className="h-4 w-4" /> Import</button>
             <button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setDialog('add')}><Plus className="h-4 w-4" /> Add lead</button>
           </div>

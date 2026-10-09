@@ -1,4 +1,4 @@
-import { countryLabel } from '@/lib/countries';
+import { countryLabel, resolveCountry } from '@/lib/countries';
 
 /**
  * Sales leads for FirmiCore itself — prospects brought in by outside
@@ -279,18 +279,28 @@ function isoDateTime(ms: number | null): string {
   return `${isoDate(ms)} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
+/** Same fields as the Add lead form (no campaign / assignment columns). */
 export const LEAD_EXPORT_HEADER = [
-  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Campaign', 'Industry', 'Lead date', 'Status',
+  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
   'Calls made', 'Next call', 'Follow-up note', 'Demo', 'Price told', 'Closed amount', 'Currency', 'Main problem', 'Tags', 'Notes',
-  'Assigned to', 'Brought in by',
 ];
 
-export function leadsToCsv(leads: Lead[], memberName: (id: string | null) => string = () => ''): string {
+export function leadsToCsv(leads: Lead[]): string {
   return toCsv(LEAD_EXPORT_HEADER, leads.map((l) => [
-    l.businessName, l.contactPerson, l.phone, l.email, l.location, countryLabel(l.district), l.source, l.campaign, l.industry, isoDate(l.leadDate),
+    l.businessName, l.contactPerson, l.phone, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
     LEAD_STATUS_LABEL[l.status], l.callsMade, isoDateTime(l.nextCallAt), l.followUpNote, isoDateTime(l.demoAt), l.priceQuoted,
-    l.closedAmount || '', l.currency, l.mainProblem, l.tags.join('; '), l.notes, memberName(l.assignedTo), memberName(l.marketerId),
+    l.closedAmount || '', l.currency, l.mainProblem, l.tags.join('; '), l.notes,
   ]));
+}
+
+/** Columns of the import template (everything else is filled in later on the board). */
+export const LEAD_IMPORT_TEMPLATE_HEADER = [
+  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status', 'Main problem', 'Notes',
+];
+
+/** Template rows: headers plus one example row to overwrite. */
+export function leadImportTemplateRows(): string[][] {
+  return [['Silva Engineering (Pvt) Ltd', 'Nimal Silva', '077 123 4567', 'owner@example.com', 'Nugegoda', 'Sri Lanka', 'Facebook ad', 'Garment factory', isoDate(Date.now()), 'New', 'Machines break down often', '']];
 }
 
 export function dayReportToCsv(report: DayReport, leads: Lead[]): string {
@@ -325,15 +335,15 @@ export function activityOutcomeLabel(a: Pick<LeadActivity, 'type' | 'outcome' | 
 // ---------------------------------------------------------------------------
 
 const HEADER_ALIASES: Record<keyof Pick<LeadInput,
-  'businessName' | 'contactPerson' | 'phone' | 'email' | 'location' | 'district' | 'source' | 'campaign' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
+  'businessName' | 'contactPerson' | 'phone' | 'email' | 'location' | 'district' | 'source' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
   businessName: ['business name', 'business', 'company', 'company name', 'garage', 'organisation', 'organization', 'factory', 'name of business'],
   contactPerson: ['contact person', 'contact', 'full name', 'name', 'owner', 'contact name', 'first name'],
   phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel', 'whatsapp'],
   email: ['email', 'e-mail', 'email address'],
   location: ['location', 'city', 'town', 'address', 'area'],
-  district: ['country', 'district', 'province', 'region', 'state'],
+  // Country (stored in `district`); older sheets with a district column still land here.
+  district: ['country', 'country name', 'district', 'province', 'region', 'state'],
   source: ['source', 'lead source', 'platform', 'channel'],
-  campaign: ['campaign', 'campaign name', 'ad name', 'ad set name', 'adset name', 'form name'],
   industry: ['industry', 'business type', 'sector', 'type'],
   leadDate: ['lead date', 'date', 'created', 'created time', 'created_time', 'submitted', 'timestamp'],
   notes: ['notes', 'note', 'comments', 'comment', 'remarks', 'message'],
@@ -405,6 +415,8 @@ export function parseImportRows(table: unknown[][], defaults: { source?: string;
       else lead[field] = String(raw).trim().replace(/^p:\+?/, (m) => (field === 'phone' ? (m.includes('+') ? '+' : '') : m));
     }
     if (!lead.businessName) lead.businessName = lead.contactPerson;
+    // Country names or codes → ISO code; anything unknown is kept as typed. Default: Sri Lanka.
+    lead.district = lead.district ? resolveCountry(lead.district) : 'LK';
     if (!lead.businessName || (!lead.phone && !lead.email)) {
       skipped++;
       continue;

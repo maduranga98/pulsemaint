@@ -111,8 +111,8 @@ describe('dayReport', () => {
 
 describe('import', () => {
   it('maps common headers, preferring exact matches', () => {
-    const m = mapImportHeaders(['Full Name', 'Business Name', 'phone_number', 'City', 'Campaign Name', 'random']);
-    expect(m).toEqual({ 0: 'contactPerson', 1: 'businessName', 2: 'phone', 3: 'location', 4: 'campaign' });
+    const m = mapImportHeaders(['Full Name', 'Business Name', 'phone_number', 'City', 'Campaign Name', 'Country', 'random']);
+    expect(m).toEqual({ 0: 'contactPerson', 1: 'businessName', 2: 'phone', 3: 'location', 5: 'district' });
   });
   it('parses rows, falls back to contact name and skips rows without contact details', () => {
     const r = parseImportRows([
@@ -125,8 +125,21 @@ describe('import', () => {
     expect(r.leads).toHaveLength(1);
     expect(r.leads[0]).toMatchObject({
       businessName: 'Nimal Silva', contactPerson: 'Nimal Silva', phone: '+94771234567', location: 'Nugegoda', source: 'Facebook ad', status: 'new',
+      district: 'LK',
     });
     expect(r.leads[0].leadDate).toBe(startOfDay(Date.parse('2026-10-01')));
+  });
+});
+
+describe('import countries', () => {
+  it('stores country names/codes as ISO codes and keeps unknown text', () => {
+    const r = parseImportRows([
+      ['business name', 'phone', 'country'],
+      ['A', '0771111111', 'India'],
+      ['B', '0772222222', 'ae'],
+      ['C', '0773333333', 'Atlantis'],
+    ], { now: NOW });
+    expect(r.leads.map((l) => l.district)).toEqual(['IN', 'AE', 'Atlantis']);
   });
 });
 
