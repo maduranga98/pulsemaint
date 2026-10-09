@@ -1907,6 +1907,43 @@ service cloud.firestore {
       allow read: if isSuperadmin();
       allow write: if false;
     }
+    // Lumora's own sales pipeline: prospects from outside marketing (ads,
+    // referrals, imports), their call/note history, and the feature
+    // requests / bugs raised on those calls. Superadmins only.
+    match /platformLeads/{leadId} {
+      allow read, delete: if isSuperadmin();
+      allow create, update: if isSuperadmin()
+        && request.resource.data.businessName is string
+        && request.resource.data.businessName.size() > 0 && request.resource.data.businessName.size() <= 500
+        && request.resource.data.status in ['new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'negotiation', 'closed_won', 'closed_lost'];
+    }
+    // History is append-only; it is only removed together with its lead.
+    match /platformLeadActivities/{activityId} {
+      allow read, delete: if isSuperadmin();
+      allow create: if isSuperadmin()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.leadId is string
+        && request.resource.data.type in ['call', 'note', 'status', 'demo']
+        && request.resource.data.body is string && request.resource.data.body.size() <= 5000;
+      allow update: if false;
+    }
+    // Outside marketers / agents / callers working the leads — a roster for
+    // assignment and commission, never a login.
+    match /platformSalesTeam/{memberId} {
+      allow read, delete: if isSuperadmin();
+      allow create, update: if isSuperadmin()
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 200
+        && request.resource.data.role in ['marketer', 'agent', 'caller', 'manager']
+        && request.resource.data.commissionPct is number
+        && request.resource.data.commissionPct >= 0 && request.resource.data.commissionPct <= 100;
+    }
+    match /platformFeatureRequests/{requestId} {
+      allow read, delete: if isSuperadmin();
+      allow create, update: if isSuperadmin()
+        && request.resource.data.type in ['feature', 'bug']
+        && request.resource.data.status in ['requested', 'in_progress', 'testing', 'closed']
+        && request.resource.data.title is string && request.resource.data.title.size() <= 200;
+    }
     // Payment-received (and other) alerts for superadmins, written by the
     // Stripe webhook; superadmins only mark them read.
     match /platformNotifications/{id} {
