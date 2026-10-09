@@ -17,7 +17,6 @@ const NAV = [
   { to: '/platform', label: 'Overview', icon: Gauge, end: true },
   { to: '/platform/companies', label: 'Companies', icon: Building2 },
   { to: '/platform/payments', label: 'Payments', icon: CreditCard },
-  { to: '/platform/reminders', label: 'Reminders', icon: BellRing },
   { to: '/platform/requests', label: 'Requests & feedback', icon: ClipboardList },
   { section: 'Sales' },
   { to: '/platform/leads', label: 'Leads', icon: Contact },

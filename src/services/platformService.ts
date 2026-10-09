@@ -139,19 +139,6 @@ export interface PlatformPayment extends PlatformInvoice {
   billingCycle: Cycle;
 }
 
-export type ReminderKind = 'paymentFailed' | 'cancelling' | 'renewalDue' | 'trialEnding' | 'trialExpired';
-
-export interface PlatformReminder {
-  companyId: string;
-  companyName: string;
-  plan: string;
-  billingCycle: string;
-  kind: ReminderKind;
-  severity: 'high' | 'medium' | 'low';
-  dueAt: number | null;
-  lastReminderAt: number | null;
-}
-
 export type CompanyAction =
   | { action: 'approve' }
   | { action: 'reject'; reason: string }
@@ -185,9 +172,6 @@ export const platformService = {
       companyId ? { companyId } : {},
     ),
   listPayments: () => call<void, { payments: PlatformPayment[] }>('platformListPayments'),
-  listReminders: () => call<void, { reminders: PlatformReminder[] }>('platformListReminders'),
-  sendReminder: (companyId: string, kind: ReminderKind) =>
-    call<{ companyId: string; kind: ReminderKind }, { ok: boolean; to: string }>('platformSendPaymentReminder', { companyId, kind }),
 };
 
 export function errorText(err: unknown, fallback = 'Something went wrong'): string {

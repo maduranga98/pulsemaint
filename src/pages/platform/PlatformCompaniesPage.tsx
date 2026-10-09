@@ -14,6 +14,7 @@ export default function PlatformCompaniesPage() {
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('all');
   const [cycle, setCycle] = useState('all');
+  const [plan, setPlan] = useState('all');
   const [params, setParams] = useSearchParams();
   const approval = (['pending', 'approved', 'rejected'].includes(params.get('approval') ?? '') ? params.get('approval') : 'all') as ApprovalFilter;
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -40,13 +41,20 @@ export default function PlatformCompaniesPage() {
     return c;
   }, [rows]);
 
+  const planCounts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const r of rows ?? []) m[r.plan] = (m[r.plan] ?? 0) + 1;
+    return m;
+  }, [rows]);
+
   const filtered = useMemo(() => (rows ?? []).filter((c) => {
     if (approval !== 'all' && c.approvalStatus !== approval) return false;
     if (status !== 'all' && c.status !== status) return false;
     if (cycle !== 'all' && (!c.hasSubscription || c.billingCycle !== cycle)) return false;
+    if (plan !== 'all' && c.plan !== plan) return false;
     const needle = q.trim().toLowerCase();
     return !needle || [c.name, c.adminEmail, c.adminName, c.country, c.id].some((v) => v?.toLowerCase().includes(needle));
-  }), [rows, q, status, cycle, approval]);
+  }), [rows, q, status, cycle, plan, approval]);
 
   async function decide(c: PlatformCompany, approve: boolean, reason = '') {
     setBusyId(c.id);
@@ -94,6 +102,10 @@ export default function PlatformCompaniesPage() {
         <input className={`${input} max-w-xs`} placeholder="Search name, admin email, country…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className={`${input} w-auto!`} value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="all">All statuses</option><option value="active">Active</option><option value="trial">Trial</option><option value="suspended">Suspended</option>
+        </select>
+        <select className={`${input} w-auto!`} value={plan} onChange={(e) => setPlan(e.target.value)}>
+          <option value="all">All plans</option>
+          {Object.entries(PLAN_NAMES).map(([id, name]) => <option key={id} value={id}>{name} ({planCounts[id] ?? 0})</option>)}
         </select>
         <select className={`${input} w-auto!`} value={cycle} onChange={(e) => setCycle(e.target.value)}>
           <option value="all">All billing</option><option value="monthly">Monthly subscribers</option><option value="yearly">Yearly subscribers</option>

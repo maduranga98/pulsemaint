@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, Clock, Copy, X, XCircle } from 'lucide-react';
 import {
   platformService, errorText,
-  type CompanyAction, type Cycle, type PlanId, type PlatformCompanyDetail, type PlatformUser, type ReminderKind, type UserAction,
+  type CompanyAction, type Cycle, type PlanId, type PlatformCompanyDetail, type PlatformUser, type UserAction,
 } from '@/services/platformService';
 import { Badge, Card, ErrorNote, Loading, PageHeader, PLAN_NAMES, btn, fmtDate, fmtDateTime, fmtMoney, input, relDays, statusTone } from './platformUi';
 import RejectCompanyDialog from './RejectCompanyDialog';
@@ -82,10 +82,6 @@ export default function PlatformCompanyDetailPage() {
     }
   }
 
-  function sendReminder(kind: ReminderKind) {
-    void run('Reminder emailed to the company admin', () => platformService.sendReminder(companyId, kind));
-  }
-
   function openPrompt(p: Prompt) {
     setPrompt(p);
     setValue(p.kind === 'role' ? p.user.role ?? 'technician' : p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '14' : '');
@@ -148,7 +144,6 @@ export default function PlatformCompanyDetailPage() {
               {sub ? <>{sub.amount != null && sub.currency ? fmtMoney(sub.amount, sub.currency) : ''} / {sub.interval} · {sub.status}<br />
                 <span className="text-xs text-slate-500">{sub.cancelAtPeriodEnd ? 'ends' : 'renews'} {fmtDate(sub.currentPeriodEnd)} ({relDays(sub.currentPeriodEnd)})</span></> : 'No subscription'}
             </dd>
-            <dt className="text-slate-400">Last reminder</dt><dd>{fmtDateTime(c.lastReminderAt)}</dd>
             <dt className="text-slate-400">Internal note</dt><dd className="whitespace-pre-wrap">{c.platformNote ?? '—'}</dd>
           </dl>
           {data.stripe.error && <p className="mt-3 text-xs text-red-300">{data.stripe.error}</p>}
@@ -167,14 +162,9 @@ export default function PlatformCompanyDetailPage() {
           </div>
         </Card>
 
-        <Card title="Payment reminders" actions={<span className="text-xs text-slate-500">Emails the company admin</span>}>
-          <div className="flex flex-wrap gap-2">
-            <button className={btn.ghost} disabled={busy} onClick={() => sendReminder('paymentFailed')}>Payment failed</button>
-            <button className={btn.ghost} disabled={busy} onClick={() => sendReminder('renewalDue')}>Renewal coming up</button>
-            <button className={btn.ghost} disabled={busy} onClick={() => sendReminder('trialEnding')}>Trial ending</button>
-            <button className={btn.ghost} disabled={busy} onClick={() => sendReminder('trialExpired')}>Trial ended</button>
-            <button className={btn.ghost} disabled={busy} onClick={() => sendReminder('cancelling')}>Subscription ending</button>
-          </div>
+        <Card title="Billing emails">
+          <p className="text-sm text-slate-300">Billing emails are automatic. After every successful subscription charge, each active admin of this company receives a receipt with the plan, the amount, the period paid for and the next automatic renewal date.</p>
+          <p className="mt-2 text-xs text-slate-500">Stripe also sends its own receipts and failed-payment notices to the billing email.</p>
         </Card>
       </div>
 

@@ -1,11 +1,10 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { FieldValue } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey, firmicorePlanOfInvoice } = require("../billing/stripeClient");
 const { stripeErrorMessage } = require("../billing/billingAccess");
 const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
-const { db, PLATFORM_ALERT_EMAIL, requireSuperadmin, audit, toMillis } = require("./platformAccess");
+const { db, PLATFORM_ALERT_EMAIL, requireSuperadmin, toMillis } = require("./platformAccess");
 
 const DAY = 86_400_000;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[ch]);
@@ -97,66 +96,6 @@ async function computeReminders() {
   return items;
 }
 
-exports.platformListReminders = onCall(async (request) => {
-  requireSuperadmin(request);
-  return { reminders: await computeReminders() };
-});
-
-const REMINDER_COPY = {
-  paymentFailed: {
-    subject: "Action needed: your FirmiCore payment did not go through",
-    body: (d) => `<p>We could not collect the latest payment for <strong>${d.company}</strong>'s FirmiCore ${d.plan} subscription.</p>
-<p>Please update the card on the <a href="${APP_URL}/app/billing">Billing &amp; Plan</a> page so your team keeps access. If the payment stays unpaid, access for all users will be suspended — your data is kept safe and is not deleted.</p>`,
-  },
-  renewalDue: {
-    subject: "Your FirmiCore subscription renews soon",
-    body: (d) => `<p>This is a reminder that <strong>${d.company}</strong>'s FirmiCore ${d.plan} (${d.cycle}) subscription renews automatically on <strong>${d.date}</strong>, and the card on file will be charged.</p>
-<p>You can review your plan or card on the <a href="${APP_URL}/app/billing">Billing &amp; Plan</a> page.</p>`,
-  },
-  trialEnding: {
-    subject: "Your FirmiCore trial is ending",
-    body: (d) => `<p><strong>${d.company}</strong>'s FirmiCore trial ends on <strong>${d.date}</strong>.</p>
-<p>Choose a plan on the <a href="${APP_URL}/app/billing">Billing &amp; Plan</a> page to keep using FirmiCore without interruption.</p>`,
-  },
-  trialExpired: {
-    subject: "Your FirmiCore trial has ended",
-    body: (d) => `<p><strong>${d.company}</strong>'s FirmiCore trial has ended.</p>
-<p>Choose a plan on the <a href="${APP_URL}/app/billing">Billing &amp; Plan</a> page to continue. Your data is kept safe.</p>`,
-  },
-  cancelling: {
-    subject: "Your FirmiCore subscription is ending",
-    body: (d) => `<p><strong>${d.company}</strong>'s FirmiCore subscription is cancelled and access for all users ends on <strong>${d.date}</strong>. Your data is not deleted.</p>
-<p>To keep your team's access, resume the subscription on the <a href="${APP_URL}/app/billing">Billing &amp; Plan</a> page.</p>`,
-  },
-};
-
-/** Emails the company admin a payment reminder (sent by Lumora staff from the console). */
-exports.platformSendPaymentReminder = onCall({ secrets: [platformSmtpPassword] }, async (request) => {
-  const actor = requireSuperadmin(request);
-  const { companyId, kind } = request.data ?? {};
-  const copy = REMINDER_COPY[kind];
-  if (!copy) throw new HttpsError("invalid-argument", "Unknown reminder type");
-  const ref = db.collection("companies").doc(companyId);
-  const snap = await ref.get();
-  if (!snap.exists) throw new HttpsError("not-found", "Company not found");
-  const c = snap.data();
-  const admin = c.adminUserId ? await db.doc(`companies/${companyId}/users/${c.adminUserId}`).get() : null;
-  const to = admin?.get("email") || c.email;
-  if (!to) throw new HttpsError("failed-precondition", "This company has no admin email address");
-  const dueAt = kind.startsWith("trial") ? toMillis(c.trialEndsAt) : toMillis(c.currentPeriodEnd);
-  const details = {
-    company: esc(c.name ?? "your company"),
-    plan: esc(c.plan ?? ""),
-    cycle: c.billingCycle === "yearly" ? "yearly" : "monthly",
-    date: dueAt ? new Date(dueAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "soon",
-  };
-  const html = brandedEmail(`${copy.body(details)}<p style="color:#64748b;font-size:13px">Questions? Reply to this email or contact ${PLATFORM_ALERT_EMAIL}.</p>`);
-  await sendEmail({ to, subject: copy.subject, html, replyTo: PLATFORM_ALERT_EMAIL });
-  await ref.update({ lastPaymentReminderAt: FieldValue.serverTimestamp(), lastPaymentReminderKind: kind });
-  await audit(actor, "company.paymentReminder", { companyId, companyName: c.name ?? null, kind, to });
-  return { ok: true, to };
-});
-
 /** Daily digest to Lumora Ventures of every payment follow-up that is due. */
 exports.platformDailyBillingDigest = onSchedule(
   { schedule: "30 8 * * *", timeZone: "Asia/Colombo", secrets: [platformSmtpPassword] },
@@ -167,7 +106,7 @@ exports.platformDailyBillingDigest = onSchedule(
     const rows = reminders.map((r) => `<tr><td style="padding:4px 8px">${esc(r.companyName)}</td><td style="padding:4px 8px">${label[r.kind]}</td><td style="padding:4px 8px">${r.plan} · ${r.billingCycle}</td><td style="padding:4px 8px">${r.dueAt ? new Date(r.dueAt).toISOString().slice(0, 10) : ""}</td></tr>`).join("");
     const html = brandedEmail(`<p>${reminders.length} compan${reminders.length === 1 ? "y needs" : "ies need"} a payment follow-up today.</p>
 <table style="border-collapse:collapse;font-size:13px">${rows}</table>
-<p><a href="${APP_URL}/platform/reminders">Open the platform console</a></p>`);
+<p><a href="${APP_URL}/platform/companies">Open the platform console</a></p>`);
     await sendEmail({ to: PLATFORM_ALERT_EMAIL, subject: `FirmiCore billing follow-ups: ${reminders.length}`, html });
     logger.info(`platformDailyBillingDigest sent ${reminders.length} items`);
   },

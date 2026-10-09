@@ -49,7 +49,7 @@ export default function PlatformOverviewPage() {
             </ul>
           )}
           <div className="mt-4 flex flex-wrap gap-3 text-sm">
-            <Link to="/platform/reminders" className="text-blue-300! hover:underline">Payment follow-ups →</Link>
+            <Link to="/platform/payments" className="text-blue-300! hover:underline">Payments →</Link>
             <Link to="/platform/requests" className="text-blue-300! hover:underline">Requests & feedback →</Link>
           </div>
         </Card>
