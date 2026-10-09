@@ -88,7 +88,7 @@ export function DocumentUploadModal({ open, onClose, contractorId, title, renewa
       let fileSizeBytes = renewalOf?.fileSizeBytes ?? 0;
       let mimeType = renewalOf?.mimeType ?? 'application/octet-stream';
       if (file) {
-        path = `contractors/${targetContractorId}/documents/${Date.now()}_${file.name}`;
+        path = `companies/${userProfile.companyId}/contractors/${targetContractorId}/documents/${Date.now()}_${file.name}`;
         const sref = storageRef(storage, path);
         await uploadBytes(sref, file);
         url = await getDownloadURL(sref);

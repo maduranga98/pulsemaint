@@ -145,7 +145,7 @@ export function EditPartPage() {
     if (!part || newWarrantyFiles.length === 0) return part?.warrantyDocuments ?? [];
     const uploaded: WarrantyDocument[] = [];
     for (const file of newWarrantyFiles) {
-      const path = `inventoryParts/${part.id}/warranty/${Date.now()}_${file.name}`;
+      const path = `companies/${companyId}/inventoryParts/${part.id}/warranty/${Date.now()}_${file.name}`;
       const sref = storageRef(storage, path);
       await uploadBytes(sref, file);
       const url = await getDownloadURL(sref);
