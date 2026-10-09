@@ -18,5 +18,5 @@ jobs:
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
           CHANNEL_ID=$(echo "pr${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.ref }}" | tr -c 'a-zA-Z0-9-' '_')
-          npx firebase-tools@latest hosting:channel:delete "$CHANNEL_ID" --project "$VITE_FIREBASE_PROJECT_ID" --force || true
+          npx firebase-tools@14.19.1 hosting:channel:delete "$CHANNEL_ID" --project "$VITE_FIREBASE_PROJECT_ID" --force || true
           rm -f "$RUNNER_TEMP/firebase-sa.json"
