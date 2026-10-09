@@ -5,6 +5,7 @@ import { Check, X } from 'lucide-react';
 import { platformService, errorText, type ApprovalStatus, type PlatformCompany } from '@/services/platformService';
 import { Badge, ErrorNote, Loading, PageHeader, PLAN_NAMES, btn, fmtDate, input, relDays, statusTone } from './platformUi';
 import RejectCompanyDialog from './RejectCompanyDialog';
+import ExportButtons from './ExportButtons';
 
 type ApprovalFilter = 'all' | ApprovalStatus;
 
@@ -82,7 +83,25 @@ export default function PlatformCompaniesPage() {
 
   return (
     <div>
-      <PageHeader title="Companies" subtitle="Every registered company, its approval, plan, billing cycle and subscription state." />
+      <PageHeader
+        title="Companies"
+        subtitle="Every registered company, its approval, plan, billing cycle and subscription state."
+        actions={rows && rows.length > 0 ? (
+          <ExportButtons
+            filename="firmicore-companies"
+            sheetName="Companies"
+            header={['Company', 'Company ID', 'Industry', 'Country', 'Registered', 'Admin', 'Admin email', 'Approval', 'Plan', 'Billing', 'Plan source', 'Access', 'Subscription', 'Cancelling', 'Trial ends', 'Renews / ends', 'Users', 'Monthly value (USD)']}
+            rows={() => filtered.map((c) => {
+              const d = (ms: number | null) => (ms ? new Date(ms).toISOString().slice(0, 10) : '');
+              return [
+                c.name, c.id, c.industry ?? '', countryLabel(c.country), d(c.createdAt), c.adminName ?? '', c.adminEmail ?? '', c.approvalStatus,
+                PLAN_NAMES[c.plan] ?? c.plan, c.billingCycle, c.hasSubscription ? 'Stripe' : c.planSetBy === 'platform' ? 'Assigned by Lumora' : c.status === 'trial' ? 'Trial' : '',
+                c.status, c.subscriptionStatus ?? '', c.cancelAtPeriodEnd ? 'yes' : '', c.status === 'trial' ? d(c.trialEndsAt) : '', d(c.currentPeriodEnd), c.userCount, Math.round(c.monthlyValue * 100) / 100,
+              ];
+            })}
+          />
+        ) : undefined}
+      />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       {notice && <div className="mb-4 rounded-lg border border-emerald-700/50 bg-emerald-900/20 p-3 text-sm text-emerald-300">{notice}</div>}
 
