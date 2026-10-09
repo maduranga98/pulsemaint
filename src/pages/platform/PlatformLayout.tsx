@@ -5,6 +5,7 @@ import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
 import { useCallsDue } from '@/lib/platform/useCallsDue';
+import { usePendingRegistrations } from '@/lib/platform/usePendingRegistrations';
 import { getNotificationPermission, isDeviceNotificationSupported, requestDeviceNotificationPermission } from '@/lib/notifications/deviceNotify';
 import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -38,6 +39,7 @@ export default function PlatformLayout() {
   const unread = usePlatformUnread(ready && isSuperadmin);
   const paymentAlerts = usePaymentAlerts(ready && isSuperadmin);
   const callsDue = useCallsDue(ready && isSuperadmin);
+  const pendingRegistrations = usePendingRegistrations(ready && isSuperadmin);
   const [permission, setPermission] = useState(() => getNotificationPermission());
 
   if (!ready) return <AuthLoading />;
@@ -45,7 +47,7 @@ export default function PlatformLayout() {
   if (!isSuperadmin) return <SuperadminActivatePage />;
 
   return (
-    <div className="min-h-screen bg-[#0A1628] text-slate-200 lg:flex">
+    <div className="scrollbar-dark min-h-screen bg-[#0A1628] text-slate-200 lg:flex">
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-[#1E3A5F] bg-[#0F1E35] transition-transform lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center gap-3 border-b border-[#1E3A5F] px-5 py-4">
           <img src="/brand/lumora-logo.svg" alt="" className="h-9 w-9 rounded-full bg-white p-0.5" />
@@ -77,6 +79,9 @@ export default function PlatformLayout() {
               )}
               {to === '/platform/requests' && unread.length > 0 && (
                 <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-black">{unread.length}</span>
+              )}
+              {to === '/platform/companies' && pendingRegistrations.length > 0 && (
+                <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-black" title="Registrations waiting for approval">{pendingRegistrations.length}</span>
               )}
               {to === '/platform/calls' && callsDue > 0 && (
                 <span className="ml-auto rounded-full bg-red-500 px-1.5 text-[10px] font-bold leading-4 text-white" title="Calls due today or overdue">{callsDue}</span>

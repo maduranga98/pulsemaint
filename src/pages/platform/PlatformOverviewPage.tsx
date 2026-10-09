@@ -21,6 +21,11 @@ export default function PlatformOverviewPage() {
     <div className="space-y-6">
       <PageHeader title="Overview" subtitle="Every FirmiCore company, subscription and follow-up at a glance." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {(t.pendingApproval ?? 0) > 0 && (
+          <Link to="/platform/companies?approval=pending" className="block">
+            <Stat label="Waiting for approval" value={t.pendingApproval} hint="New registrations — review now →" tone="amber" />
+          </Link>
+        )}
         <Stat label="Companies" value={t.companies} hint={`${t.active} active · ${t.trial} trial · ${t.suspended} suspended`} />
         <Stat label="Est. monthly revenue" value={`$${t.mrr.toLocaleString()}`} hint="Active subscriptions (yearly ÷ 12)" tone="green" />
         <Stat label="Monthly subscriptions" value={t.monthly} />

@@ -869,6 +869,7 @@ const {
   platformListPayments, platformListReminders, platformSendPaymentReminder, platformDailyBillingDigest,
 } = require("./src/platform/platformPayments");
 const {onSupportRequestCreated, onSupportMessageCreated, onSupportRequestStatusChanged} = require("./src/platform/supportRequests");
+const {onCompanyRegistered} = require("./src/platform/companyApprovals");
 
 exports.platformClaimSuperadmin = platformClaimSuperadmin;
 exports.platformOverview = platformOverview;
@@ -881,6 +882,7 @@ exports.platformListPayments = platformListPayments;
 exports.platformListReminders = platformListReminders;
 exports.platformSendPaymentReminder = platformSendPaymentReminder;
 exports.platformDailyBillingDigest = platformDailyBillingDigest;
+exports.onCompanyRegistered = onCompanyRegistered;
 exports.onSupportRequestCreated = onSupportRequestCreated;
 exports.onSupportMessageCreated = onSupportMessageCreated;
 exports.onSupportRequestStatusChanged = onSupportRequestStatusChanged;

@@ -57,6 +57,13 @@ export interface CompanyProfile {
   timezone: string;
   currency: 'LKR' | 'USD' | 'AED' | 'SAR';
   status: 'active' | 'trial' | 'suspended';
+  /**
+   * Self-registered companies wait for a Lumora superadmin to approve them
+   * before anyone can use the app. Missing on companies that predate
+   * approvals — treat that as approved (see companyApproval()).
+   */
+  approvalStatus?: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string | null;
   trialEndsAt: Timestamp | null;
   plan: 'starter' | 'workshop' | 'factory' | 'enterprise';
   /** Set by the stripeWebhook Cloud Function only — never written by clients. */

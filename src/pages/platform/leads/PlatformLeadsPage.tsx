@@ -157,7 +157,7 @@ export default function PlatformLeadsPage() {
       {!leads && !error ? <Loading /> : view === 'insights' ? (
         <LeadInsights leads={all} team={team} onOpenLead={openLead} />
       ) : view === 'board' ? (
-        <div className="-mx-4 overflow-x-auto px-4 pb-3 sm:-mx-8 sm:px-8">
+        <div className="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8">
           <div className="flex gap-3">
             {LEAD_STATUSES.map((s) => (
               <div

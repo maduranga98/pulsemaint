@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Copy } from 'lucide-react';
+import { ArrowLeft, Check, Clock, Copy, X, XCircle } from 'lucide-react';
 import {
   platformService, errorText,
   type CompanyAction, type Cycle, type PlanId, type PlatformCompanyDetail, type PlatformUser, type ReminderKind, type UserAction,
 } from '@/services/platformService';
 import { Badge, Card, ErrorNote, Loading, PageHeader, PLAN_NAMES, btn, fmtDate, fmtDateTime, fmtMoney, input, relDays, statusTone } from './platformUi';
+import RejectCompanyDialog from './RejectCompanyDialog';
 
 type Prompt =
   | { kind: 'password'; user: PlatformUser }
@@ -26,6 +27,7 @@ export default function PlatformCompanyDetailPage() {
   const [plan, setPlan] = useState<PlanId>('starter');
   const [cycle, setCycle] = useState<Cycle>('monthly');
   const [resetLink, setResetLink] = useState('');
+  const [rejecting, setRejecting] = useState(false);
 
   const load = useCallback(() => {
     platformService.getCompany(companyId).then((d) => {
@@ -89,10 +91,36 @@ export default function PlatformCompanyDetailPage() {
       <PageHeader
         title={c.name}
         subtitle={`${c.country ?? '—'} · ${c.industry ?? '—'} · registered ${fmtDate(c.createdAt)} · ${c.userCount} users · ID ${c.id}`}
-        actions={<div className="flex gap-2"><Badge tone={statusTone(c.status)}>access: {c.status}</Badge>{c.subscriptionStatus && <Badge tone={statusTone(c.subscriptionStatus)}>stripe: {c.subscriptionStatus}</Badge>}</div>}
+        actions={<div className="flex flex-wrap gap-2"><Badge tone={statusTone(c.approvalStatus)}>{c.approvalStatus}</Badge><Badge tone={statusTone(c.status)}>access: {c.status}</Badge>{c.subscriptionStatus && <Badge tone={statusTone(c.subscriptionStatus)}>stripe: {c.subscriptionStatus}</Badge>}</div>}
       />
       {error && <ErrorNote message={error} />}
       {notice && <div className="rounded-lg border border-emerald-700/50 bg-emerald-900/20 p-3 text-sm text-emerald-300">{notice}</div>}
+
+      {c.approvalStatus !== 'approved' && (
+        <div className={`flex flex-wrap items-center justify-between gap-4 rounded-xl border p-4 ${c.approvalStatus === 'pending' ? 'border-amber-600/50 bg-amber-950/30' : 'border-red-700/50 bg-red-950/30'}`}>
+          <div className="flex items-start gap-3">
+            {c.approvalStatus === 'pending' ? <Clock className="mt-0.5 h-5 w-5 text-amber-300" /> : <XCircle className="mt-0.5 h-5 w-5 text-red-300" />}
+            <div>
+              <p className="font-semibold text-white">{c.approvalStatus === 'pending' ? 'Waiting for your approval' : 'Registration rejected'}</p>
+              <p className="text-sm text-slate-300">
+                {c.approvalStatus === 'pending'
+                  ? `Registered ${fmtDateTime(c.createdAt)} by ${c.adminName ?? 'the admin'}${c.adminEmail ? ` (${c.adminEmail})` : ''}. Nobody can use FirmiCore until you approve it; the 30-day trial starts on approval.`
+                  : c.rejectionReason ? `Reason: ${c.rejectionReason}` : 'No reason recorded.'}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button className={`${btn.primary} inline-flex items-center gap-1.5`} disabled={busy} onClick={() => void company({ action: 'approve' }, 'Company approved — the admin can sign in now and has been emailed')}>
+              <Check className="h-4 w-4" /> Approve
+            </button>
+            {c.approvalStatus === 'pending' && (
+              <button className={`${btn.danger} inline-flex items-center gap-1.5`} disabled={busy} onClick={() => setRejecting(true)}>
+                <X className="h-4 w-4" /> Reject
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Subscription & access">
@@ -208,6 +236,15 @@ export default function PlatformCompanyDetailPage() {
           )}
         </Card>
       </div>
+
+      {rejecting && (
+        <RejectCompanyDialog
+          companyName={c.name}
+          busy={busy}
+          onCancel={() => setRejecting(false)}
+          onConfirm={(reason) => void company({ action: 'reject', reason }, 'Registration rejected — the admin has been emailed').then(() => setRejecting(false))}
+        />
+      )}
 
       {prompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">

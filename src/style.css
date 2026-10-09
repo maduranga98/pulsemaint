@@ -314,3 +314,36 @@ a {
 
   @page { margin: 1.5cm; }
 }
+
+/* Dark, slim scrollbars for the platform console (and anything opting in
+ * with .scrollbar-dark) — the browser default is a bright white track that
+ * clashes with the dark UI, e.g. under the Leads board. */
+.scrollbar-dark,
+.scrollbar-dark * {
+  scrollbar-width: thin;
+  scrollbar-color: #2B4C7E transparent;
+}
+.scrollbar-dark::-webkit-scrollbar,
+.scrollbar-dark *::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scrollbar-dark::-webkit-scrollbar-track,
+.scrollbar-dark *::-webkit-scrollbar-track {
+  background: rgba(15, 30, 53, 0.6);
+  border-radius: 9999px;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb,
+.scrollbar-dark *::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #1A56DB, #00A3D9);
+  border-radius: 9999px;
+  border: 2px solid #0A1628;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb:hover,
+.scrollbar-dark *::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #2563EB, #00C2FF);
+}
+.scrollbar-dark::-webkit-scrollbar-corner,
+.scrollbar-dark *::-webkit-scrollbar-corner {
+  background: transparent;
+}

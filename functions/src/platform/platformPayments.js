@@ -76,6 +76,8 @@ async function computeReminders() {
   const items = [];
   snap.forEach((d) => {
     const c = d.data();
+    // Registrations not approved yet (or rejected) have no trial running to chase.
+    if (c.approvalStatus === "pending" || c.approvalStatus === "rejected") return;
     const base = { companyId: d.id, companyName: c.name ?? "(unnamed)", plan: c.plan ?? "starter", billingCycle: c.billingCycle ?? "monthly", lastReminderAt: toMillis(c.lastPaymentReminderAt) };
     const periodEnd = toMillis(c.currentPeriodEnd);
     const trialEnd = toMillis(c.trialEndsAt);

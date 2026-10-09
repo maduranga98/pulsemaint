@@ -93,6 +93,8 @@ export async function registerCompany(data: {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       currency: data.country === 'LK' ? 'LKR' : 'USD',
       status: 'trial',
+      // Locked out until a Lumora superadmin approves the registration.
+      approvalStatus: 'pending',
       trialEndsAt: Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
       plan: 'starter',
       tenantId: '', // Will be set by Cloud Function

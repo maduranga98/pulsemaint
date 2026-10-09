@@ -10246,6 +10246,16 @@
         "load": "Impossible de charger vos demandes.",
         "send": "Échec de l'envoi. Veuillez réessayer."
       }
+    },
+    "pendingApproval": {
+      "title": "Inscription reçue",
+      "body": "Merci pour votre inscription. Notre équipe vérifie chaque nouvelle entreprise avant qu'elle puisse utiliser FirmiCore — généralement sous un jour ouvré. Cette page ouvrira automatiquement votre espace dès votre approbation.",
+      "emailHint": "Nous enverrons aussi un e-mail à {{email}} dès votre approbation.",
+      "rejectedTitle": "Inscription non approuvée",
+      "rejectedBody": "Nous n'avons pas pu approuver cette inscription. Si vous pensez qu'il s'agit d'une erreur, écrivez à info@lumoraventures.com.",
+      "reason": "Motif",
+      "signOut": "Se déconnecter",
+      "registerNote": "Après votre inscription, notre équipe vérifie votre entreprise avant que vous puissiez vous connecter — généralement sous un jour ouvré. Nous vous préviendrons par e-mail dès son approbation."
     }
   },
   "triage": {

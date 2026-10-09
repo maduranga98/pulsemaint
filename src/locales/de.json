@@ -10246,6 +10246,16 @@
         "load": "Ihre Anfragen konnten nicht geladen werden.",
         "send": "Senden fehlgeschlagen. Bitte erneut versuchen."
       }
+    },
+    "pendingApproval": {
+      "title": "Registrierung eingegangen",
+      "body": "Danke für Ihre Registrierung. Unser Team prüft jedes neue Unternehmen, bevor es FirmiCore nutzen kann – meist innerhalb eines Werktags. Diese Seite öffnet Ihren Arbeitsbereich automatisch, sobald Sie freigegeben sind.",
+      "emailHint": "Wir benachrichtigen Sie außerdem per E-Mail an {{email}}, sobald Sie freigegeben sind.",
+      "rejectedTitle": "Registrierung nicht freigegeben",
+      "rejectedBody": "Wir konnten diese Registrierung nicht freigeben. Wenn Sie das für einen Fehler halten, schreiben Sie an info@lumoraventures.com.",
+      "reason": "Grund",
+      "signOut": "Abmelden",
+      "registerNote": "Nach der Registrierung prüft unser Team Ihr Unternehmen, bevor Sie sich anmelden können – meist innerhalb eines Werktags. Wir informieren Sie per E-Mail, sobald es freigegeben ist."
     }
   },
   "triage": {

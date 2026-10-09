@@ -5,6 +5,8 @@ const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey } = require("../billing/stripeClient");
 const { stripeErrorMessage, isMissingResource } = require("../billing/billingAccess");
 const { db, requireSuperadmin, audit, monthlyValue, toMillis } = require("./platformAccess");
+const { platformSmtpPassword } = require("../lib/mailer");
+const { approvalStatusOf, emailApprovalDecision, clearRegistrationAlert } = require("./companyApprovals");
 
 const DAY = 86_400_000;
 
@@ -33,6 +35,9 @@ function companySummary(id, c) {
     monthlyValue: monthlyValue(c),
     lastReminderAt: toMillis(c.lastPaymentReminderAt),
     platformNote: c.platformNote ?? null,
+    approvalStatus: approvalStatusOf(c),
+    rejectionReason: c.rejectionReason ?? null,
+    approvedAt: toMillis(c.approvedAt),
   };
 }
 
@@ -48,10 +53,12 @@ exports.platformOverview = onCall(async (request) => {
     companies: companies.size, active: 0, trial: 0, suspended: 0, monthly: 0, yearly: 0,
     mrr: 0, trialsEndingSoon: 0, renewalsSoon: 0, pastDue: 0, cancelling: 0,
     openRequests: openRequests.data().count,
+    pendingApproval: 0,
   };
   const byPlan = {};
   companies.forEach((doc) => {
     const c = doc.data();
+    if (approvalStatusOf(c) === "pending") totals.pendingApproval += 1;
     const status = c.status ?? "trial";
     totals[status] = (totals[status] ?? 0) + 1;
     if (c.stripeSubscriptionId && c.subscriptionStatus !== "canceled") {
@@ -167,11 +174,11 @@ exports.platformGetCompany = onCall({ secrets: [stripeSecretKey] }, async (reque
 
 /**
  * Control a company's access and subscription:
- * suspend / reactivate access, extend a trial, set the plan manually
+ * approve / reject a new registration, suspend / reactivate access, extend a trial, set the plan manually
  * (e.g. an Enterprise contract billed outside Stripe), cancel or resume the
  * Stripe subscription, or keep an internal note.
  */
-exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey] }, async (request) => {
+exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtpPassword] }, async (request) => {
   const actor = requireSuperadmin(request);
   const { companyId, action } = request.data ?? {};
   if (typeof companyId !== "string" || !companyId) throw new HttpsError("invalid-argument", "companyId is required");
@@ -183,6 +190,28 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey] }, async (re
 
   try {
     switch (action) {
+      case "approve": {
+        // The trial starts the day the company is let in, not the day it registered.
+        const restartTrial = (c.status ?? "trial") === "trial" && !c.stripeSubscriptionId;
+        await ref.update({
+          approvalStatus: "approved",
+          approvedAt: FieldValue.serverTimestamp(),
+          approvedBy: actor.email ?? actor.uid,
+          rejectionReason: FieldValue.delete(),
+          ...(restartTrial ? { trialEndsAt: Timestamp.fromMillis(Date.now() + 30 * DAY) } : {}),
+          ...stamp,
+        });
+        await clearRegistrationAlert(companyId);
+        await emailApprovalDecision(c, (await adminContact({ id: companyId, ...c })).email, true);
+        break;
+      }
+      case "reject": {
+        const reason = String(request.data.reason ?? "").trim().slice(0, 1000);
+        await ref.update({ approvalStatus: "rejected", rejectionReason: reason || FieldValue.delete(), approvedAt: FieldValue.delete(), ...stamp });
+        await clearRegistrationAlert(companyId);
+        await emailApprovalDecision(c, (await adminContact({ id: companyId, ...c })).email, false, reason);
+        break;
+      }
       case "suspend":
         await ref.update({ status: "suspended", suspendedBy: "platform", ...stamp });
         break;
