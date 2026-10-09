@@ -1,3 +1,5 @@
+import { countryLabel } from '@/lib/countries';
+
 /**
  * Sales leads for FirmiCore itself — prospects brought in by outside
  * marketing (Facebook/Google ads, referrals, events, the website form)
@@ -278,14 +280,14 @@ function isoDateTime(ms: number | null): string {
 }
 
 export const LEAD_EXPORT_HEADER = [
-  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'District', 'Source', 'Campaign', 'Industry', 'Lead date', 'Status',
+  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Campaign', 'Industry', 'Lead date', 'Status',
   'Calls made', 'Next call', 'Follow-up note', 'Demo', 'Price told', 'Closed amount', 'Currency', 'Main problem', 'Tags', 'Notes',
   'Assigned to', 'Brought in by',
 ];
 
 export function leadsToCsv(leads: Lead[], memberName: (id: string | null) => string = () => ''): string {
   return toCsv(LEAD_EXPORT_HEADER, leads.map((l) => [
-    l.businessName, l.contactPerson, l.phone, l.email, l.location, l.district, l.source, l.campaign, l.industry, isoDate(l.leadDate),
+    l.businessName, l.contactPerson, l.phone, l.email, l.location, countryLabel(l.district), l.source, l.campaign, l.industry, isoDate(l.leadDate),
     LEAD_STATUS_LABEL[l.status], l.callsMade, isoDateTime(l.nextCallAt), l.followUpNote, isoDateTime(l.demoAt), l.priceQuoted,
     l.closedAmount || '', l.currency, l.mainProblem, l.tags.join('; '), l.notes, memberName(l.assignedTo), memberName(l.marketerId),
   ]));
@@ -329,7 +331,7 @@ const HEADER_ALIASES: Record<keyof Pick<LeadInput,
   phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel', 'whatsapp'],
   email: ['email', 'e-mail', 'email address'],
   location: ['location', 'city', 'town', 'address', 'area'],
-  district: ['district', 'province', 'region', 'state'],
+  district: ['country', 'district', 'province', 'region', 'state'],
   source: ['source', 'lead source', 'platform', 'channel'],
   campaign: ['campaign', 'campaign name', 'ad name', 'ad set name', 'adset name', 'form name'],
   industry: ['industry', 'business type', 'sector', 'type'],

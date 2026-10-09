@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { countryLabel } from '@/lib/countries';
 import { funnel, groupStats, revenueText, staleLeads, type GroupStats, type Lead, type TeamMember } from '@/lib/platform/leads';
 import { Card, fmtDate } from '../platformUi';
 import { StatusPill } from './leadUi';
@@ -38,7 +39,7 @@ export default function LeadInsights({ leads, team, onOpenLead }: { leads: Lead[
         <GroupTable title="By source" rows={bySource} label={(k) => k} />
         <GroupTable title="By outside marketer / agent" rows={byMarketer} label={(k) => name(k === '—' ? null : k)} />
         <GroupTable title="By campaign" rows={byCampaign} label={(k) => k} empty="Set a campaign on leads (or on import) to compare ads." />
-        <GroupTable title="Top districts" rows={byDistrict} label={(k) => k} />
+        <GroupTable title="Top countries" rows={byDistrict} label={(k) => countryLabel(k) || k} />
       </div>
 
       <Card
