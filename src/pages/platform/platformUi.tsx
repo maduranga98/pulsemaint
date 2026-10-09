@@ -76,12 +76,13 @@ export function Stat({ label, value, hint, tone }: { label: string; value: React
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="text-2xl font-bold text-white!">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      {/* flex + gap rather than margins: the global stylesheet resets h1/p margins */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <h1 className="text-2xl font-bold leading-tight text-white!">{title}</h1>
+        {subtitle && <p className="max-w-3xl text-sm leading-relaxed text-slate-400">{subtitle}</p>}
       </div>
-      {actions}
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }
