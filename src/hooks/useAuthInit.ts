@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { getCompanyIdFromUser } from '../lib/auth';
@@ -117,6 +117,11 @@ export function useAuthInit() {
 
                 if (isFirstSnapshot) {
                   isFirstSnapshot = false;
+                  // Someone who is signed in is no longer "pending" — this also
+                  // fixes accounts created before sign-in marked them active.
+                  if (userProfile.status === 'pending') {
+                    updateDoc(doc(db, `companies/${companyId}/users/${user.uid}`), { status: 'active' }).catch(() => {});
+                  }
                   // Keep the global mapping doc in sync so Firestore security
                   // rules always see the correct role and siteId. This
                   // self-heals existing users who have stale or null values

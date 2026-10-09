@@ -65,6 +65,18 @@ async function rejectIfInactive(userProfile: UserProfile): Promise<void> {
   }
 }
 
+/**
+ * Fields written to the user's profile on every successful sign-in (email,
+ * Google, phone/PIN…). A profile still marked 'pending' becomes 'active' on its
+ * first sign-in, so the platform console and Users page stop showing it as
+ * pending once the person has actually logged in.
+ */
+function signInUpdate(profile: Pick<UserProfile, 'status'>): { lastLoginAt: unknown; status?: 'active' } {
+  return profile.status === 'pending'
+    ? { lastLoginAt: serverTimestamp(), status: 'active' }
+    : { lastLoginAt: serverTimestamp() };
+}
+
 export async function registerCompany(data: {
   companyName: string;
   industry: string;
@@ -127,7 +139,8 @@ export async function registerCompany(data: {
       department: null,
       jobTitle: data.jobTitle,
       address: null,
-      status: 'pending',
+      // The registrant is signed in right away, so there is nothing pending.
+      status: 'active',
       loginMethod: 'email',
       hasPin: false,
       mustChangePinOnLogin: false,
@@ -200,7 +213,7 @@ export async function loginWithEmail(email: string, password: string): Promise<U
 
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
-    await updateDoc(userRef, { lastLoginAt: serverTimestamp() });
+    await updateDoc(userRef, signInUpdate(userProfile));
 
     return userProfile;
   } catch (error) {
@@ -290,7 +303,7 @@ export async function confirmOTP(
 
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
-    await updateDoc(userRef, { lastLoginAt: serverTimestamp() });
+    await updateDoc(userRef, signInUpdate(userProfile));
 
     return userProfile;
   } catch (error) {
@@ -366,7 +379,7 @@ export async function loginWithGoogle(): Promise<UserProfile> {
 
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
-    await updateDoc(userRef, { lastLoginAt: serverTimestamp() });
+    await updateDoc(userRef, signInUpdate(userProfile));
 
     return userProfile;
   } catch (error) {
@@ -424,7 +437,7 @@ export async function loginWithPin(companyId: string, pin: string): Promise<User
 
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
-    await updateDoc(userRef, { lastLoginAt: serverTimestamp() });
+    await updateDoc(userRef, signInUpdate(userProfile));
 
     return userProfile;
   } catch (error) {
