@@ -129,6 +129,7 @@ export type CompanyAction =
 export type UserAction =
   | { action: 'resetLink' }
   | { action: 'setPassword'; password: string }
+  | { action: 'setRole'; role: string }
   | { action: 'updateEmail'; email: string }
   | { action: 'disable' }
   | { action: 'enable' };

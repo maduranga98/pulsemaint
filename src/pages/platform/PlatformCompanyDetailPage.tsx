@@ -8,8 +8,11 @@ import {
 import { Badge, Card, ErrorNote, Loading, PageHeader, PLAN_NAMES, btn, fmtDate, fmtDateTime, fmtMoney, input, relDays, statusTone } from './platformUi';
 import RejectCompanyDialog from './RejectCompanyDialog';
 
+const COMPANY_ROLES = ['admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer'];
+
 type Prompt =
   | { kind: 'password'; user: PlatformUser }
+  | { kind: 'role'; user: PlatformUser }
   | { kind: 'email'; user: PlatformUser }
   | { kind: 'trial' }
   | { kind: 'plan' }
@@ -78,7 +81,7 @@ export default function PlatformCompanyDetailPage() {
 
   function openPrompt(p: Prompt) {
     setPrompt(p);
-    setValue(p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '14' : '');
+    setValue(p.kind === 'role' ? p.user.role ?? 'technician' : p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '14' : '');
   }
 
   if (!data) return error ? <ErrorNote message={error} /> : <Loading />;
@@ -207,7 +210,7 @@ export default function PlatformCompanyDetailPage() {
                   <td className="py-2">
                     <div className="flex flex-wrap gap-1.5">
                       <button className={btn.ghost} disabled={busy || !u.email} onClick={() => void makeResetLink(u)}>Reset link</button>
-                      <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'password', user: u })}>Set password</button>
+                      <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'role', user: u })}>Change role</button>
                       <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'email', user: u })}>Change email</button>
                       {u.disabled
                         ? <button className={btn.ghost} disabled={busy} onClick={() => void user(u, { action: 'enable' }, 'Login enabled')}>Enable</button>
@@ -257,12 +260,20 @@ export default function PlatformCompanyDetailPage() {
           <div className="w-full max-w-md space-y-4 rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-6">
             <h3 className="text-base font-semibold text-white!">
               {prompt.kind === 'password' && `Set a new password for ${prompt.user.fullName ?? prompt.user.email}`}
+              {prompt.kind === 'role' && `Change role for ${prompt.user.fullName ?? prompt.user.email ?? prompt.user.uid}`}
               {prompt.kind === 'email' && `Change sign-in email for ${prompt.user.fullName ?? prompt.user.uid}`}
               {prompt.kind === 'trial' && 'Extend the trial by (days)'}
               {prompt.kind === 'plan' && 'Set plan manually'}
               {prompt.kind === 'note' && 'Internal note (only superadmins see this)'}
             </h3>
-            {prompt.kind === 'plan' ? (
+            {prompt.kind === 'role' ? (
+              <div className="space-y-2">
+                <select className={input} value={value} onChange={(e) => setValue(e.target.value)}>
+                  {COMPANY_ROLES.map((r) => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
+                </select>
+                <p className="text-xs text-slate-400">The user is signed out and gets the new role's access on next sign-in.{prompt.user.isCompanyAdmin ? ' The company owner must stay an admin.' : ''}</p>
+              </div>
+            ) : prompt.kind === 'plan' ? (
               <div className="space-y-3">
                 <select className={input} value={plan} onChange={(e) => setPlan(e.target.value as PlanId)}>
                   {Object.entries(PLAN_NAMES).map(([id, name]) => <option key={id} value={id}>{name}</option>)}
@@ -292,6 +303,7 @@ export default function PlatformCompanyDetailPage() {
                 disabled={busy}
                 onClick={() => {
                   if (prompt.kind === 'password') void user(prompt.user, { action: 'setPassword', password: value }, 'Password updated');
+                  if (prompt.kind === 'role') void user(prompt.user, { action: 'setRole', role: value }, 'Role changed');
                   if (prompt.kind === 'email') void user(prompt.user, { action: 'updateEmail', email: value }, 'Sign-in email updated');
                   if (prompt.kind === 'trial') void company({ action: 'extendTrial', days: Number(value) }, 'Trial extended');
                   if (prompt.kind === 'plan') void company({ action: 'setPlan', plan, billingCycle: cycle }, 'Plan assigned — trial ended, the company now has full access on this plan');

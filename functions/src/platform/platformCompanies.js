@@ -9,6 +9,7 @@ const { platformSmtpPassword } = require("../lib/mailer");
 const { approvalStatusOf, emailApprovalDecision, clearRegistrationAlert } = require("./companyApprovals");
 
 const DAY = 86_400_000;
+const COMPANY_ROLES = ["admin", "plant_manager", "supervisor", "technician", "store_keeper", "hr_officer", "trainee", "floor_operator", "safety_officer"];
 
 async function adminContact(company) {
   if (!company.adminUserId) return { name: null, email: null };
@@ -281,7 +282,7 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
 
 /**
  * Adjust a company user's login: send or generate a password-reset link,
- * set a new password, change the sign-in email, or disable / enable the
+ * set a new password, change the role, change the sign-in email, or disable / enable the
  * account. Changes apply to Firebase Auth and the user's profile.
  */
 exports.platformManageUser = onCall(async (request) => {
@@ -316,6 +317,20 @@ exports.platformManageUser = onCall(async (request) => {
         await profileRef.update({ email, updatedAt: FieldValue.serverTimestamp() });
         break;
       }
+      case "setRole": {
+        const role = String(request.data.role ?? "");
+        if (!COMPANY_ROLES.includes(role)) throw new HttpsError("invalid-argument", "Unknown role");
+        const company = await db.collection("companies").doc(companyId).get();
+        if (company.get("adminUserId") === uid && role !== "admin") {
+          throw new HttpsError("failed-precondition", "The company owner must stay an admin");
+        }
+        await profileRef.update({ role, updatedAt: FieldValue.serverTimestamp() });
+        // The users/{uid} mapping is what firestore.rules read the role from.
+        await db.collection("users").doc(uid).set({ role }, { merge: true });
+        // Sign the user out everywhere so the new role applies right away.
+        await auth.revokeRefreshTokens(uid).catch(() => {});
+        break;
+      }
       case "disable":
       case "enable": {
         const disabled = action === "disable";
@@ -333,7 +348,12 @@ exports.platformManageUser = onCall(async (request) => {
     throw new HttpsError("internal", err?.message || "Could not update the user");
   }
   // Never log the password itself.
-  await audit(actor, `user.${action}`, { companyId, targetUid: uid, ...(action === "updateEmail" ? { email: request.data.email } : {}) });
+  await audit(actor, `user.${action}`, {
+    companyId,
+    targetUid: uid,
+    ...(action === "updateEmail" ? { email: request.data.email } : {}),
+    ...(action === "setRole" ? { role: request.data.role, previousRole: profile.get("role") ?? null } : {}),
+  });
   return result;
 });
 
