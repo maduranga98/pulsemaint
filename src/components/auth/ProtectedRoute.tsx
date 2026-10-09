@@ -6,6 +6,8 @@ import { getDashboardRoute } from '../../lib/auth';
 import { consumePostLoginRedirect, peekPostLoginRedirect } from '../../lib/scanTarget';
 import type { UserRole } from '../../types/auth';
 import { companyApproval } from '../../lib/companyApproval';
+import { featureForPath } from '../../lib/planLimits';
+import { PlanFeatureGate } from '../settings/PlanFeatureGate';
 
 export const SUBSCRIPTION_ENDED_PATH = '/app/subscription-ended';
 export const PENDING_APPROVAL_PATH = '/app/pending-approval';
@@ -102,6 +104,13 @@ export default function ProtectedRoute({
       }
       return <Navigate to="/app/unauthorized" replace />;
     }
+  }
+
+  // Plan-gated modules (contractors, shift handover, training, safety, MOE):
+  // show the upgrade prompt when the company's plan doesn't include them.
+  const gatedFeature = featureForPath(location.pathname);
+  if (gatedFeature) {
+    return <PlanFeatureGate feature={gatedFeature}>{children}</PlanFeatureGate>;
   }
 
   return <>{children}</>;

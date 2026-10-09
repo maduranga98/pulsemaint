@@ -16,10 +16,13 @@ const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
+const { companyHasFeature } = require("../lib/planFeatures");
 
 const db = getFirestore("default");
 
 async function sendPushToRoles(companyId, roles, title, body, data = {}) {
+  // Low-stock alerts are a Workshop-and-up feature (or free during a trial).
+  if (!(await companyHasFeature(companyId, "qrLowStockAlerts"))) return;
   const tokens = [];
   for (const role of roles) {
     const snap = await db
