@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { countryLabel } from '@/lib/countries';
 import { Link } from 'react-router-dom';
 import { ExternalLink, MapPin, MessageCircle, Phone, PhoneCall, StickyNote, XCircle } from 'lucide-react';
 import { isOpen, scheduledCalls, whatsappNumber, type Lead, type TeamMember } from '@/lib/platform/leads';
@@ -109,7 +110,7 @@ function CallCard({ lead, at, owner, overdue, kind = 'call', now }: { lead: Lead
               {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-emerald-300 hover:underline"><MessageCircle className="h-3 w-3" />WhatsApp</a>}
             </>
           )}
-          {(lead.location || lead.district) && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{[lead.location, lead.district].filter(Boolean).join(', ')}</span>}
+          {(lead.location || lead.district) && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{[lead.location, countryLabel(lead.district)].filter(Boolean).join(', ')}</span>}
         </span>
         {lead.notes && <span className="inline-flex max-w-md items-center gap-1 truncate"><StickyNote className="h-3 w-3 shrink-0" /><span className="truncate">{lead.notes}</span></span>}
       </div>

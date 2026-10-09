@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type DragEvent } from 'react';
+import { countryLabel } from '@/lib/countries';
 import { useSearchParams } from 'react-router-dom';
 import {
   BarChart3, CalendarCheck, CalendarDays, Download, FileText, KanbanSquare, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
@@ -214,7 +215,7 @@ export default function PlatformLeadsPage() {
                     <td className="px-3 py-2"><span className="font-medium text-white">{l.businessName}</span> <span className="ml-1 inline-flex gap-1">{l.tags.map((t) => <TagChip key={t} tag={t} />)}</span></td>
                     <td className="px-3 py-2 text-slate-300">{l.contactPerson}</td>
                     <td className="px-3 py-2 font-mono text-xs text-slate-300">{l.phone}</td>
-                    <td className="px-3 py-2 text-slate-300">{l.location || l.district}</td>
+                    <td className="px-3 py-2 text-slate-300">{l.location || countryLabel(l.district)}</td>
                     <td className="px-3 py-2 text-slate-400">{l.source}</td>
                     <td className="px-3 py-2 text-slate-300">{memberName(l.assignedTo) || <span className="text-slate-600">—</span>}</td>
                     <td className="px-3 py-2"><StatusPill status={l.status} /></td>
@@ -253,7 +254,7 @@ function LeadCard({ lead, owner, onOpen }: { lead: Lead; owner: string; onOpen: 
       <p className="truncate text-sm font-semibold text-white" title={lead.businessName}>{lead.businessName}</p>
       <div className="mt-0.5 flex justify-between gap-2 text-xs text-slate-400">
         <span className="truncate">{lead.contactPerson}</span>
-        <span className="truncate text-slate-500">{lead.location || lead.district}</span>
+        <span className="truncate text-slate-500">{lead.location || countryLabel(lead.district)}</span>
       </div>
       {lead.phone && <p className="mt-0.5 font-mono text-[11px] text-slate-500">{lead.phone}</p>}
       {(lead.tags.length > 0 || lead.demoAt) && (

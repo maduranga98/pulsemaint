@@ -7,12 +7,7 @@ import {
 import { createLead, updateLead } from '@/services/platformLeadsService';
 import { ErrorNote, btn, input } from '../platformUi';
 import { Field, Modal, fromDateInput, fromLocalInput, toDateInput, toLocalInput } from './leadUi';
-
-export const SRI_LANKA_DISTRICTS = [
-  'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo', 'Galle', 'Gampaha', 'Hambantota', 'Jaffna', 'Kalutara', 'Kandy', 'Kegalle',
-  'Kilinochchi', 'Kurunegala', 'Mannar', 'Matale', 'Matara', 'Monaragala', 'Mullaitivu', 'Nuwara Eliya', 'Polonnaruwa', 'Puttalam',
-  'Ratnapura', 'Trincomalee', 'Vavuniya',
-];
+import CountryInput from '@/components/common/CountryInput';
 
 function pick(l: Lead): LeadInput {
   const { id: _i, createdAt: _c, updatedAt: _u, lastActivityAt: _a, createdByEmail: _e, archived: _ar, closedAt: _cl, ...rest } = l;
@@ -20,11 +15,11 @@ function pick(l: Lead): LeadInput {
 }
 
 /** Add a lead, or edit one (pass `lead`). */
-export default function LeadFormDialog({ lead, allLeads, team, onClose, onSaved }: {
-  lead?: Lead | null; allLeads: Lead[]; team: TeamMember[]; onClose: () => void; onSaved?: (id: string) => void;
+export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
+  lead?: Lead | null; allLeads: Lead[]; team?: TeamMember[]; onClose: () => void; onSaved?: (id: string) => void;
 }) {
-  const memberOptions = (current: string | null) => team.filter((m) => m.active || m.id === current);
-  const [f, setF] = useState<LeadInput>(() => (lead ? pick(lead) : emptyLead()));
+  // New leads default to Sri Lanka; the country is kept in the existing `district` field.
+  const [f, setF] = useState<LeadInput>(() => (lead ? pick(lead) : { ...emptyLead(), district: 'LK' }));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const set = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) => setF((p) => ({ ...p, [k]: v }));
@@ -74,29 +69,12 @@ export default function LeadFormDialog({ lead, allLeads, team, onClose, onSaved 
         </Field>
         <Field label="Email"><input className={input} type="email" value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="owner@example.com" /></Field>
         <Field label="Location"><input className={input} value={f.location} onChange={(e) => set('location', e.target.value)} placeholder="Nugegoda" /></Field>
-        <Field label="District">
-          <select className={input} value={f.district} onChange={(e) => set('district', e.target.value)}>
-            <option value="">—</option>
-            {SRI_LANKA_DISTRICTS.map((d) => <option key={d}>{d}</option>)}
-            {f.district && !SRI_LANKA_DISTRICTS.includes(f.district) && <option>{f.district}</option>}
-          </select>
+        <Field label="Country" hint="Pick from the list or type one that isn't there.">
+          <CountryInput value={f.district} onChange={(v) => set('district', v)} className={input} placeholder="Sri Lanka" />
         </Field>
         <Field label="Source" hint="Which outside channel brought them in.">
           <input className={input} list="lead-sources" value={f.source} onChange={(e) => set('source', e.target.value)} placeholder="Facebook ad" />
           <datalist id="lead-sources">{LEAD_SOURCES.map((s) => <option key={s} value={s} />)}</datalist>
-        </Field>
-        <Field label="Campaign / ad"><input className={input} value={f.campaign} onChange={(e) => set('campaign', e.target.value)} placeholder="Oct factory CMMS ad" /></Field>
-        <Field label="Brought in by" hint="Outside marketer / agent — earns the commission.">
-          <select className={input} value={f.marketerId ?? ''} onChange={(e) => set('marketerId', e.target.value || null)}>
-            <option value="">— Lumora (direct)</option>
-            {memberOptions(f.marketerId).map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </select>
-        </Field>
-        <Field label="Assigned to" hint="Who calls and demos this lead.">
-          <select className={input} value={f.assignedTo ?? ''} onChange={(e) => set('assignedTo', e.target.value || null)}>
-            <option value="">— Unassigned</option>
-            {memberOptions(f.assignedTo).map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </select>
         </Field>
         <Field label="Industry"><input className={input} value={f.industry} onChange={(e) => set('industry', e.target.value)} placeholder="Garment factory, workshop…" /></Field>
         <Field label="Lead date"><input className={input} type="date" value={toDateInput(f.leadDate)} onChange={(e) => set('leadDate', fromDateInput(e.target.value))} /></Field>
