@@ -6,7 +6,7 @@ import { getDashboardRoute } from '../../lib/auth';
 import { consumePostLoginRedirect, peekPostLoginRedirect } from '../../lib/scanTarget';
 import type { UserRole } from '../../types/auth';
 import { companyApproval } from '../../lib/companyApproval';
-import { featureForPath } from '../../lib/planLimits';
+import { featureForPath, isTrialExpired } from '../../lib/planLimits';
 import { PlanFeatureGate } from '../settings/PlanFeatureGate';
 
 export const SUBSCRIPTION_ENDED_PATH = '/app/subscription-ended';
@@ -28,7 +28,11 @@ export default function ProtectedRoute({
   const isAuthenticated = useAuthStore((state) => state.user !== null);
   const hasProfile = useAuthStore((state) => state.userProfile !== null);
   const userRole = useAuthStore((state) => state.userProfile?.role);
-  const companySuspended = useAuthStore((state) => state.company?.status === 'suspended');
+  // Suspended, or a free trial that has run out (the scheduled expireTrials
+  // function suspends it server-side; checking here locks it immediately).
+  const companySuspended = useAuthStore(
+    (state) => state.company?.status === 'suspended' || isTrialExpired(state.company),
+  );
   const approval = useAuthStore((state) => (state.company ? companyApproval(state.company.approvalStatus) : 'approved'));
   const location = useLocation();
 
