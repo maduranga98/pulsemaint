@@ -18,6 +18,13 @@ type Prompt =
   | { kind: 'plan' }
   | { kind: 'note' };
 
+const BILLING_REASON: Record<string, string> = {
+  subscription_create: 'First payment',
+  subscription_cycle: 'Automatic renewal',
+  subscription_update: 'Plan change',
+  manual: 'Manual invoice',
+};
+
 export default function PlatformCompanyDetailPage() {
   const { companyId = '' } = useParams();
   const [data, setData] = useState<PlatformCompanyDetail | null>(null);
@@ -87,6 +94,7 @@ export default function PlatformCompanyDetailPage() {
   if (!data) return error ? <ErrorNote message={error} /> : <Loading />;
   const c = data.company;
   const sub = data.stripe.subscription;
+  const plantNames = new Map(data.plants.map((p) => [p.id, p.name]));
 
   return (
     <div className="space-y-6">
@@ -167,22 +175,107 @@ export default function PlatformCompanyDetailPage() {
             <button className={btn.ghost} disabled={busy} onClick={() => sendReminder('trialExpired')}>Trial ended</button>
             <button className={btn.ghost} disabled={busy} onClick={() => sendReminder('cancelling')}>Subscription ending</button>
           </div>
-          <h3 className="mb-2 mt-5 text-sm font-semibold text-white!">Invoices</h3>
-          {data.stripe.invoices.length === 0 ? <p className="text-sm text-slate-400">No invoices.</p> : (
-            <ul className="divide-y divide-[#1E3A5F] text-sm">
-              {data.stripe.invoices.map((i) => (
-                <li key={i.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                  <span>{fmtDate(i.created)} · {i.number ?? i.id}</span>
-                  <span className="flex items-center gap-2">
-                    {fmtMoney(i.total, i.currency)} <Badge tone={statusTone(i.status)}>{i.status}</Badge>
-                    {i.hostedInvoiceUrl && <a href={i.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="text-blue-300! hover:underline">View</a>}
-                  </span>
-                </li>
-              ))}
-            </ul>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card title="Company profile">
+          <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-sm">
+            {data.profile.tradeName && <><dt className="text-slate-400">Trade name</dt><dd>{data.profile.tradeName}</dd></>}
+            <dt className="text-slate-400">Address</dt><dd className="whitespace-pre-wrap">{data.profile.address || '—'}</dd>
+            <dt className="text-slate-400">Country</dt><dd>{c.country ?? '—'}</dd>
+            <dt className="text-slate-400">Phone</dt><dd>{data.profile.phone ? <a href={`tel:${data.profile.phone}`} className="hover:underline">{data.profile.phone}</a> : '—'}</dd>
+            <dt className="text-slate-400">Email</dt><dd>{data.profile.email ? <a href={`mailto:${data.profile.email}`} className="text-blue-300! hover:underline">{data.profile.email}</a> : '—'}</dd>
+            <dt className="text-slate-400">Industry</dt><dd>{c.industry ?? '—'}</dd>
+            <dt className="text-slate-400">Plants</dt><dd>{data.plants.length}</dd>
+            <dt className="text-slate-400">Users</dt><dd>{c.userCount}</dd>
+            {(data.profile.timezone || data.profile.currency || data.profile.language) && (
+              <><dt className="text-slate-400">Locale</dt><dd>{[data.profile.timezone, data.profile.currency, data.profile.language].filter(Boolean).join(' · ')}</dd></>
+            )}
+            {data.profile.description && <><dt className="text-slate-400">About</dt><dd className="whitespace-pre-wrap text-slate-300">{data.profile.description}</dd></>}
+          </dl>
+        </Card>
+
+        <Card title="Contact person (admin)">
+          {data.profile.contact ? (
+            <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-sm">
+              <dt className="text-slate-400">Name</dt><dd>{data.profile.contact.name ?? '—'}</dd>
+              {data.profile.contact.jobTitle && <><dt className="text-slate-400">Job title</dt><dd>{data.profile.contact.jobTitle}</dd></>}
+              <dt className="text-slate-400">Email</dt><dd>{data.profile.contact.email ? <a href={`mailto:${data.profile.contact.email}`} className="text-blue-300! hover:underline">{data.profile.contact.email}</a> : '—'}</dd>
+              <dt className="text-slate-400">Phone</dt><dd>{data.profile.contact.phone ? <a href={`tel:${data.profile.contact.phone}`} className="hover:underline">{data.profile.contact.phone}</a> : '—'}</dd>
+            </dl>
+          ) : (
+            <p className="text-sm text-slate-400">{c.adminName ?? 'No admin profile'}{c.adminEmail ? ` · ${c.adminEmail}` : ''}</p>
+          )}
+          {data.users.filter((u) => u.role === 'admin' && !u.isCompanyAdmin).length > 0 && (
+            <>
+              <h3 className="mb-2 mt-5 text-sm font-semibold text-white!">Other admins</h3>
+              <ul className="space-y-1 text-sm">
+                {data.users.filter((u) => u.role === 'admin' && !u.isCompanyAdmin).map((u) => (
+                  <li key={u.uid}>{u.fullName ?? '—'} <span className="text-xs text-slate-500">{[u.email, u.phone].filter(Boolean).join(' · ')}</span></li>
+                ))}
+              </ul>
+            </>
           )}
         </Card>
       </div>
+
+      <Card title={`Plants (${data.plants.length})`}>
+        {data.plants.length === 0 ? <p className="text-sm text-slate-400">No plants set up yet.</p> : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px] text-sm">
+              <thead className="text-left text-xs uppercase tracking-wide text-slate-400">
+                <tr><th className="py-2 pr-3">Plant</th><th className="py-2 pr-3">Address</th><th className="py-2 pr-3">Contact person</th><th className="py-2 pr-3">Departments</th><th className="py-2">Users</th></tr>
+              </thead>
+              <tbody className="divide-y divide-[#1E3A5F]">
+                {data.plants.map((p) => (
+                  <tr key={p.id} className="align-top">
+                    <td className="py-2 pr-3"><p className="text-white">{p.name}</p><p className="text-xs text-slate-500">{p.code ?? ''}{p.status !== 'active' && <> · <Badge tone="amber">{p.status}</Badge></>}</p></td>
+                    <td className="py-2 pr-3 whitespace-pre-wrap text-slate-300">{p.address || '—'}</td>
+                    <td className="py-2 pr-3">
+                      {p.contactPerson?.name ? <>
+                        <p>{p.contactPerson.name}{p.contactPerson.designation && <span className="text-xs text-slate-500"> · {p.contactPerson.designation}</span>}</p>
+                        <p className="text-xs text-slate-500">{[p.contactPerson.phone, p.contactPerson.email].filter(Boolean).join(' · ')}</p>
+                      </> : <span className="text-slate-500">—</span>}
+                    </td>
+                    <td className="py-2 pr-3 text-xs text-slate-300">{p.departments.length ? p.departments.join(', ') : '—'}</td>
+                    <td className="py-2">{p.userCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {data.unassignedDepartments.length > 0 && <p className="mt-3 text-xs text-slate-500">Departments without a plant: {data.unassignedDepartments.join(', ')}</p>}
+      </Card>
+
+      <Card title={`Payment history (${data.stripe.invoices.length})`}>
+        {data.stripe.invoices.length === 0 ? <p className="text-sm text-slate-400">{c.stripeCustomerId ? 'No invoices yet.' : c.planSetBy === 'platform' ? 'No Stripe payments — plan assigned by Lumora.' : 'No Stripe payments yet.'}</p> : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px] text-sm">
+              <thead className="text-left text-xs uppercase tracking-wide text-slate-400">
+                <tr><th className="py-2 pr-3">Date</th><th className="py-2 pr-3">Invoice</th><th className="py-2 pr-3">Plan</th><th className="py-2 pr-3">Period</th><th className="py-2 pr-3 text-right">Amount</th><th className="py-2 pr-3">Status</th><th className="py-2"></th></tr>
+              </thead>
+              <tbody className="divide-y divide-[#1E3A5F]">
+                {data.stripe.invoices.map((i) => (
+                  <tr key={i.id}>
+                    <td className="py-2 pr-3">{fmtDate(i.created)}{i.paidAt && <p className="text-xs text-slate-500">paid {fmtDate(i.paidAt)}</p>}</td>
+                    <td className="py-2 pr-3">{i.number ?? i.id}<p className="text-xs text-slate-500">{BILLING_REASON[i.billingReason ?? ''] ?? i.billingReason ?? ''}</p></td>
+                    <td className="py-2 pr-3">{i.plan ? <>{PLAN_NAMES[i.plan] ?? i.plan}<p className="text-xs text-slate-500">{i.billingCycle}</p></> : <span className="text-slate-500">—</span>}</td>
+                    <td className="py-2 pr-3 text-xs">{i.periodStart && i.periodEnd ? `${fmtDate(i.periodStart)} → ${fmtDate(i.periodEnd)}` : '—'}</td>
+                    <td className="py-2 pr-3 text-right">{fmtMoney(i.total, i.currency)}{i.amountPaid !== i.total && <p className="text-xs text-slate-500">paid {fmtMoney(i.amountPaid, i.currency)}</p>}</td>
+                    <td className="py-2 pr-3"><Badge tone={statusTone(i.status)}>{i.status}</Badge></td>
+                    <td className="py-2 whitespace-nowrap">
+                      {i.hostedInvoiceUrl && <a href={i.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="text-blue-300! hover:underline">View</a>}
+                      {i.invoicePdf && <a href={i.invoicePdf} target="_blank" rel="noreferrer" className="ml-3 text-blue-300! hover:underline">PDF</a>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
 
       <Card title={`Users & login (${data.users.length})`}>
         {resetLink && (
@@ -196,15 +289,16 @@ export default function PlatformCompanyDetailPage() {
           </div>
         )}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-sm">
+          <table className="w-full min-w-[980px] text-sm">
             <thead className="text-left text-xs uppercase tracking-wide text-slate-400">
-              <tr><th className="py-2 pr-3">User</th><th className="py-2 pr-3">Role</th><th className="py-2 pr-3">Login</th><th className="py-2 pr-3">Last sign-in</th><th className="py-2">Actions</th></tr>
+              <tr><th className="py-2 pr-3">User</th><th className="py-2 pr-3">Role</th><th className="py-2 pr-3">Plant · department</th><th className="py-2 pr-3">Login</th><th className="py-2 pr-3">Last sign-in</th><th className="py-2">Actions</th></tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]">
               {data.users.map((u) => (
                 <tr key={u.uid}>
                   <td className="py-2 pr-3"><p className="text-white">{u.fullName ?? '—'} {u.isCompanyAdmin && <Badge tone="violet">owner</Badge>}</p><p className="text-xs text-slate-500">{u.email ?? u.phone ?? u.uid}</p></td>
-                  <td className="py-2 pr-3">{u.role}</td>
+                  <td className="py-2 pr-3">{u.role}{u.jobTitle && <p className="text-xs text-slate-500">{u.jobTitle}</p>}</td>
+                  <td className="py-2 pr-3">{u.plantId ? plantNames.get(u.plantId) ?? 'Unknown plant' : <span className="text-slate-500">No plant</span>}<p className="text-xs text-slate-500">{u.department || 'No department'}</p></td>
                   <td className="py-2 pr-3">{u.disabled ? <Badge tone="red">disabled</Badge> : <Badge tone={statusTone(u.status)}>{u.status ?? '—'}</Badge>}<p className="text-xs text-slate-500">{u.loginMethod}</p></td>
                   <td className="py-2 pr-3">{fmtDateTime(u.lastSignInAt)}</td>
                   <td className="py-2">

@@ -55,6 +55,9 @@ export interface PlatformOverview {
 
 export interface PlatformUser {
   uid: string;
+  plantId: string | null;
+  department: string | null;
+  jobTitle: string | null;
   fullName: string | null;
   email: string | null;
   phone: string | null;
@@ -75,10 +78,44 @@ export interface PlatformInvoice {
   currency: string;
   status: string;
   hostedInvoiceUrl: string | null;
+  invoicePdf?: string | null;
+  plan?: string | null;
+  billingCycle?: Cycle | null;
+  billingReason?: string | null;
+  periodStart?: number | null;
+  periodEnd?: number | null;
+  paidAt?: number | null;
+}
+
+export interface PlatformPlant {
+  id: string;
+  name: string;
+  code: string | null;
+  address: string | null;
+  status: string;
+  contactPerson: { name?: string; phone?: string; email?: string; designation?: string } | null;
+  departments: string[];
+  userCount: number;
+}
+
+export interface PlatformCompanyProfile {
+  tradeName: string | null;
+  description: string | null;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  timezone: string | null;
+  currency: string | null;
+  language: string | null;
+  onboardingCompletedAt: number | null;
+  contact: { name: string | null; email: string | null; phone: string | null; jobTitle: string | null } | null;
 }
 
 export interface PlatformCompanyDetail {
   company: PlatformCompany;
+  profile: PlatformCompanyProfile;
+  plants: PlatformPlant[];
+  unassignedDepartments: string[];
   users: PlatformUser[];
   stripe: {
     subscription: {
