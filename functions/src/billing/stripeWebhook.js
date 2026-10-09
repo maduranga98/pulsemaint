@@ -21,6 +21,34 @@ function escapeHtml(s) {
 
 const db = getFirestore("default");
 
+const PAYMENT_FAILED_MESSAGE = "Your last FirmiCore payment could not be processed.";
+
+/** Fields that put a company on hold because a payment failed (every role loses access). */
+function paymentFailedHold(before, message, { suspend = true } = {}) {
+  return {
+    ...(suspend ? { status: "suspended", suspendedReason: "payment_failed", suspendedBy: "payment" } : {}),
+    paymentFailed: true,
+    paymentFailureMessage: message || before.paymentFailureMessage || PAYMENT_FAILED_MESSAGE,
+    paymentFailedAt: before.paymentFailedAt ?? FieldValue.serverTimestamp(),
+    ...(suspend && before.status !== "suspended" ? { suspendedAt: FieldValue.serverTimestamp() } : {}),
+  };
+}
+
+/** Fields that lift a payment-failure / expired-trial hold (a suspension set by Lumora staff keeps its marker). */
+function clearPaymentHold(before = {}) {
+  const platformSuspended = before.suspendedBy === "platform";
+  return {
+    paymentFailed: false,
+    paymentFailureMessage: FieldValue.delete(),
+    paymentFailedAt: FieldValue.delete(),
+    ...(platformSuspended ? {} : {
+      suspendedReason: FieldValue.delete(),
+      suspendedAt: FieldValue.delete(),
+      suspendedBy: FieldValue.delete(),
+    }),
+  };
+}
+
 async function syncSubscriptionToCompany(subscription) {
   const companyId = subscription.metadata?.companyId;
   if (!companyId) {
@@ -33,12 +61,14 @@ async function syncSubscriptionToCompany(subscription) {
   const mapped = priceId ? planAndCycleForPrice(priceId) : null;
 
   // Access follows the subscription for every user of the company:
-  // - active / trialing, and past_due while Stripe retries the renewal → active
+  // - active / trialing → active (and any payment-failure hold is lifted)
+  // - past_due (a renewal payment failed) → suspended for every role until the
+  //   payment goes through; the admin sees why and can contact Lumora
   // - canceled / unpaid / incomplete_expired / paused → suspended (all roles
   //   lose access; data is kept). A subscription cancelled "at period end"
   //   stays active until that date, then Stripe sends subscription.deleted.
   // - incomplete (first payment still being confirmed) → leave access as is.
-  const ACTIVE = ["active", "trialing", "past_due"];
+  const ACTIVE = ["active", "trialing"];
   const SUSPENDED = ["canceled", "unpaid", "incomplete_expired", "paused"];
   const periodEnd = subscription.current_period_end ?? subscription.items?.data?.[0]?.current_period_end;
 
@@ -49,16 +79,23 @@ async function syncSubscriptionToCompany(subscription) {
     currentPeriodEnd: periodEnd ? Timestamp.fromMillis(periodEnd * 1000) : null,
     updatedAt: FieldValue.serverTimestamp(),
   };
-  if (ACTIVE.includes(subscription.status)) updates.status = "active";
-  if (SUSPENDED.includes(subscription.status)) updates.status = "suspended";
+  const companyRef = db.collection("companies").doc(companyId);
+  const before = (await companyRef.get()).data() ?? {};
+  if (ACTIVE.includes(subscription.status)) {
+    updates.status = "active";
+    Object.assign(updates, clearPaymentHold(before));
+  }
+  if (subscription.status === "past_due") {
+    Object.assign(updates, paymentFailedHold(before, null));
+  } else if (SUSPENDED.includes(subscription.status)) {
+    updates.status = "suspended";
+  }
   if (mapped) {
     updates.plan = mapped.plan;
     updates.billingCycle = mapped.billingCycle;
   }
   // Cancelled outside the app (Stripe billing portal)? In-app and Lumora
   // cancellations set cancelAtPeriodEnd before Stripe's event arrives.
-  const companyRef = db.collection("companies").doc(companyId);
-  const before = (await companyRef.get()).data() ?? {};
   const nowCancelling = !!subscription.cancel_at_period_end || subscription.status === "canceled";
   const wasCancelling = !!before.cancelAtPeriodEnd || before.subscriptionStatus === "canceled";
   await companyRef.update(updates);
@@ -147,6 +184,68 @@ ${invoice.hosted_invoice_url ? `<p><a href="${escapeHtml(invoice.hosted_invoice_
   }
 }
 
+/**
+ * A charge failed. A failed renewal suspends every user of the company until
+ * it is paid (admin can still open Billing and message Lumora); a failed
+ * first payment only flags the company, since it is not paying yet. Admins are
+ * emailed once per invoice.
+ */
+async function handlePaymentFailed(invoice) {
+  const companyId = invoice.subscription_details?.metadata?.companyId ?? invoice.metadata?.companyId;
+  if (!companyId) return;
+  const companyRef = db.collection("companies").doc(companyId);
+  const companySnap = await companyRef.get();
+  if (!companySnap.exists) return;
+  const before = companySnap.data();
+  const firstPayment = invoice.billing_reason === "subscription_create";
+  const message = invoice.last_finalization_error?.message || null;
+  await companyRef.update({
+    ...paymentFailedHold(before, message, { suspend: !firstPayment }),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+  logger.info(`Payment failed for company ${companyId} (invoice ${invoice.id}, ${firstPayment ? "first payment — flagged" : "renewal — suspended"})`);
+
+  const invoiceRef = companyRef.collection("billingInvoices").doc(invoice.id);
+  const claimed = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(invoiceRef);
+    if (snap.get("failureEmailedAt")) return false;
+    tx.set(invoiceRef, { stripeInvoiceId: invoice.id, status: invoice.status ?? "open", failureEmailedAt: FieldValue.serverTimestamp() }, { merge: true });
+    return true;
+  });
+  if (!claimed) return;
+  const admins = await companyRef.collection("users").where("role", "==", "admin").get();
+  const to = [...new Set(admins.docs
+    .filter((d) => d.get("status") !== "inactive")
+    .map((d) => d.get("email"))
+    .filter((e) => typeof e === "string" && e.includes("@")))];
+  if (invoice.customer_email && !to.length) to.push(invoice.customer_email);
+  if (!to.length) return;
+  const companyName = before.name ?? null;
+  const html = brandedEmail(`<p>We couldn't collect your FirmiCore payment${companyName ? ` for <strong>${escapeHtml(companyName)}</strong>` : ""}.</p>
+${firstPayment ? "" : "<p><strong>Access is paused for all users of your company until the payment succeeds.</strong> Your data is safe and nothing has been deleted.</p>"}
+<p>Please <a href="${APP_URL}/app/billing">update your card on the Billing &amp; Plan page</a>. If you need help, send a request to the FirmiCore team from the same page's support link and we'll sort it out.</p>`, companyName);
+  const sent = await sendEmail({ to: to.join(","), subject: "FirmiCore payment failed — action needed", html });
+  if (!sent) {
+    logger.error(`payment-failed email failed for invoice ${invoice.id}`);
+    await invoiceRef.set({ failureEmailedAt: FieldValue.delete() }, { merge: true }).catch(() => {});
+  }
+}
+
+/** A successful payment lifts a payment-failure hold straight away. */
+async function liftPaymentHold(invoice) {
+  const companyId = invoice.subscription_details?.metadata?.companyId ?? invoice.metadata?.companyId;
+  if (!companyId) return;
+  const companyRef = db.collection("companies").doc(companyId);
+  const before = (await companyRef.get()).data();
+  if (!before || (before.suspendedReason !== "payment_failed" && !before.paymentFailed)) return;
+  const wasPaymentSuspension = before.status === "suspended" && before.suspendedReason === "payment_failed";
+  await companyRef.update({
+    ...clearPaymentHold(before),
+    ...(wasPaymentSuspension ? { status: "active" } : {}),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
 /** Payment received → notification for Lumora superadmins (platform console). */
 async function notifyPaymentReceived(invoice) {
   const companyId = invoice.subscription_details?.metadata?.companyId ?? invoice.metadata?.companyId ?? null;
@@ -198,7 +297,7 @@ async function makeSetupCardDefault(session) {
  * Stripe webhook endpoint. Configure this function's URL as the endpoint in
  * the Stripe Dashboard, subscribed to: checkout.session.completed,
  * customer.subscription.updated, customer.subscription.deleted,
- * invoice.paid. checkout.session.completed also covers any legacy add-card
+ * invoice.paid, invoice.payment_failed. checkout.session.completed also covers any legacy add-card
  * Checkout (setup mode) session. This is the only path (besides direct Firestore admin
  * access) allowed to write plan/subscription fields on a company doc —
  * firestore.rules blocks clients from writing them directly.
@@ -242,6 +341,7 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
             subscriptionStatus: "canceled",
             cancelAtPeriodEnd: false,
             status: "suspended",
+            suspendedReason: "subscription_ended",
             updatedAt: FieldValue.serverTimestamp(),
           });
         }
@@ -254,9 +354,16 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
         if (!isFirmicoreInvoice(invoice)) break;
         await recordInvoice(invoice);
         if (invoice.amount_paid > 0) {
+          await liftPaymentHold(invoice);
           await notifyPaymentReceived(invoice);
           await emailPaymentReceipt(invoice);
         }
+        break;
+      }
+      case "invoice.payment_failed": {
+        const invoice = event.data.object;
+        if (!isFirmicoreInvoice(invoice)) break;
+        await handlePaymentFailed(invoice);
         break;
       }
       default:

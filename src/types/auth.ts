@@ -71,6 +71,12 @@ export interface CompanyProfile {
   cancellationReasonPendingId?: string | null;
   rejectionReason?: string | null;
   trialEndsAt: Timestamp | null;
+  /** Why access is paused — set by Cloud Functions only. */
+  suspendedReason?: 'payment_failed' | 'trial_expired' | 'subscription_ended' | null;
+  /** A charge failed; cleared when a payment succeeds. */
+  paymentFailed?: boolean;
+  paymentFailureMessage?: string | null;
+  paymentFailedAt?: Timestamp | null;
   plan: 'starter' | 'workshop' | 'factory' | 'enterprise';
   /** Set by the stripeWebhook Cloud Function only — never written by clients. */
   stripeCustomerId?: string | null;

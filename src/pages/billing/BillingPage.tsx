@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Check, Lock, Zap, Building2, Factory, Star, AlertTriangle } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
@@ -227,6 +228,30 @@ function TrialBanner({
   );
 }
 
+function PaymentFailedBanner({ company }: { company: CompanyProfile }) {
+  const { t } = useTranslation();
+  if (!company.paymentFailed) return null;
+  const paused = company.status === 'suspended';
+  return (
+    <div className="rounded-xl p-4 border flex items-start gap-3 bg-red-900/20 border-red-700/50 text-red-300">
+      <Zap className="h-4 w-4 shrink-0 mt-0.5" />
+      <div className="text-sm space-y-1">
+        <p>
+          <strong>{t('common.billing.paymentFailed.title', { defaultValue: 'Your last payment failed.' })}</strong>{' '}
+          {paused
+            ? t('common.billing.paymentFailed.paused', { defaultValue: 'Access is paused for every user of your company until the payment succeeds.' })
+            : t('common.billing.paymentFailed.notPaused', { defaultValue: 'Update your card to activate your plan.' })}
+        </p>
+        {company.paymentFailureMessage && <p className="text-xs text-red-200/80">{company.paymentFailureMessage}</p>}
+        <p className="text-xs">
+          {t('common.billing.paymentFailed.help', { defaultValue: 'Add or change your card below, or' })}{' '}
+          <Link to="/app/support-requests" className="underline">{t('common.billing.paymentFailed.contact', { defaultValue: 'send a request to the FirmiCore team' })}</Link>.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function BillingPage() {
   const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
@@ -297,6 +322,8 @@ export default function BillingPage() {
         <h1 className="text-2xl font-bold text-white!">{t('common.billing.header.title')}</h1>
         <p className="text-sm text-slate-400 mt-1">{t('common.billing.header.subtitle')}</p>
       </div>
+
+      {company && <PaymentFailedBanner company={company} />}
 
       {/* Trial banner */}
       {company && (
