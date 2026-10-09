@@ -6,6 +6,7 @@ const {
   normalizeStatus,
   getCompanyId,
   requireAuth,
+  requireCompanyMember,
 } = require("./shared");
 
 function isAfter(value, start) {
@@ -67,6 +68,7 @@ exports.autoCompileShiftSummary = onCall(async (request) => {
   if (!companyId || !shiftStartTime) {
     throw new HttpsError("invalid-argument", "companyId and shiftStartTime are required.");
   }
+  await requireCompanyMember(request, companyId);
 
   const shiftStart = new Date(shiftStartTime);
   if (Number.isNaN(shiftStart.getTime())) {

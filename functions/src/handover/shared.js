@@ -42,7 +42,27 @@ function requireAuth(request) {
   }
 }
 
+/**
+ * Signed in as a real (non-anonymous) member of `companyId`. Callables that
+ * take a companyId from the client must check this — being signed in alone
+ * would let any account (including the anonymous public-report login) read
+ * or write another company's data.
+ */
+async function requireCompanyMember(request, companyId) {
+  const {HttpsError} = require("firebase-functions/v2/https");
+  requireAuth(request);
+  if (request.auth.token?.firebase?.sign_in_provider === "anonymous") {
+    throw new HttpsError("permission-denied", "Sign in with your FirmiCore account.");
+  }
+  const profile = await db.collection("users").doc(request.auth.uid).get();
+  if (!profile.exists || profile.get("companyId") !== companyId) {
+    throw new HttpsError("permission-denied", "You do not belong to this company.");
+  }
+  return profile.data();
+}
+
 module.exports = {
+  requireCompanyMember,
   db,
   logger,
   FieldValue,

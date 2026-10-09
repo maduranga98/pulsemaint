@@ -1303,7 +1303,9 @@ service cloud.firestore {
       // need this for the PM tab's charts (analyticsAggregation.ts).
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee', 'hr_officer', 'safety_officer', 'store_keeper'];
-      allow create: if isAuthenticated(); // System-generated
+      // Written when a preventive work order is created (useCreateWorkOrder)
+      // and by Cloud Functions (Admin SDK). Only into the creator's own company.
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
       // Technicians/trainees stamp completion tracking when they finish a PM work order.

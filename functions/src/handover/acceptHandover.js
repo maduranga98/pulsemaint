@@ -1,5 +1,5 @@
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
-const {db, FieldValue, Timestamp, minutesBetween, requireAuth, addNotification} = require("./shared");
+const {db, FieldValue, Timestamp, minutesBetween, requireAuth, requireCompanyMember, addNotification} = require("./shared");
 
 exports.acceptHandover = onCall(async (request) => {
   requireAuth(request);
@@ -8,8 +8,7 @@ exports.acceptHandover = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "handoverId and companyId are required.");
   }
 
-  const userSnap = await db.collection("users").doc(request.auth.uid).get();
-  const user = userSnap.exists ? userSnap.data() : {};
+  const user = await requireCompanyMember(request, companyId);
   const handoverRef = db.collection("shift_handovers").doc(handoverId);
   const handoverSnap = await handoverRef.get();
   if (!handoverSnap.exists) throw new HttpsError("not-found", "Handover not found.");
