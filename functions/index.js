@@ -65,11 +65,13 @@ exports.notifyInvoiceVariance = notifyInvoiceVariance;
 
 const { schedulePmCheck } = require("./src/pm/schedulePmCheck");
 const { checkPmOverdue } = require("./src/pm/checkPmOverdue");
+const { expireTrials } = require("./src/billing/expireTrials");
 const { updatePmComplianceOnWoClose } = require("./src/pm/updatePmComplianceOnWoClose");
 const { triggerManualPM } = require("./src/pm/triggerManualPM");
 
 exports.schedulePmCheck = schedulePmCheck;
 exports.checkPmOverdue = checkPmOverdue;
+exports.expireTrials = expireTrials;
 exports.updatePmComplianceOnWoClose = updatePmComplianceOnWoClose;
 exports.triggerManualPM = triggerManualPM;
 
