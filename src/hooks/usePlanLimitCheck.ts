@@ -65,6 +65,7 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
   const plan = useAuthStore((s) => s.company?.plan);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   const limits = planLimitsFor(plan);
   const limit = limits[resource];
@@ -82,14 +83,15 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
     }
     let cancelled = false;
     setLoading(true);
+    setFailed(false);
 
     fetchResourceCount(resource, companyId)
       .then((n) => {
         if (!cancelled) setCount(n);
       })
       .catch(() => {
-        // Permission/index error — don't block creation on a failed read.
-        if (!cancelled) setCount(0);
+        // Can't verify the live count → don't let a failed read bypass the plan limit.
+        if (!cancelled) setFailed(true);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -99,14 +101,16 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
     };
   }, [companyId, resource, limit]);
 
-  const atLimit = !loading && isAtOrOverLimit(count, limit);
+  const atLimit = !loading && (failed || isAtOrOverLimit(count, limit));
 
   return {
     loading,
     count,
     limit,
     atLimit,
-    message: atLimit
+    message: failed
+      ? `We couldn't verify your ${RESOURCE_LABEL[resource]} limit right now. Check your connection and try again.`
+      : atLimit
       ? `You've reached the ${limit} ${RESOURCE_LABEL[resource]} limit on your ${planDisplayName(plan)} plan. Upgrade to add more.`
       : null,
   };
@@ -123,6 +127,7 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
   const plan = useAuthStore((s) => s.company?.plan);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   const limit = planLimitsFor(plan).workOrdersPerMonth;
 
@@ -133,6 +138,7 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
     }
     let cancelled = false;
     setLoading(true);
+    setFailed(false);
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -146,7 +152,7 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
         if (!cancelled) setCount(snap.data().count);
       })
       .catch(() => {
-        if (!cancelled) setCount(0);
+        if (!cancelled) setFailed(true);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -156,14 +162,16 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
     };
   }, [companyId, limit]);
 
-  const atLimit = !loading && isAtOrOverLimit(count, limit);
+  const atLimit = !loading && (failed || isAtOrOverLimit(count, limit));
 
   return {
     loading,
     count,
     limit,
     atLimit,
-    message: atLimit
+    message: failed
+      ? "We couldn't verify your monthly work order limit right now. Check your connection and try again."
+      : atLimit
       ? `You've reached the ${limit}/month work order limit on your ${planDisplayName(plan)} plan. Upgrade to create more this month.`
       : null,
   };
