@@ -115,6 +115,13 @@ exports.platformGetCompany = onCall({ secrets: [stripeSecretKey] }, async (reque
     const res = await getAuth().getUsers(ids.slice(i, i + 100));
     res.users.forEach((u) => authUsers.set(u.uid, u));
   }
+  // A profile still marked "pending" belongs to someone who has in fact signed
+  // in (registration used to leave admins "pending"; the client now flips it on
+  // sign-in, but older accounts and stale clients can lag). Fix the record here
+  // so the console is right regardless of what the browser did.
+  const stalePending = usersSnap.docs.filter((d) => d.get("status") === "pending" && authUsers.get(d.id)?.metadata?.lastSignInTime);
+  await Promise.all(stalePending.map((d) => d.ref.update({ status: "active" }).catch((err) => logger.warn(`Could not activate ${d.ref.path}`, err))));
+  const activated = new Set(stalePending.map((d) => d.id));
   const users = usersSnap.docs.map((d) => {
     const p = d.data();
     const a = authUsers.get(d.id);
@@ -127,7 +134,7 @@ exports.platformGetCompany = onCall({ secrets: [stripeSecretKey] }, async (reque
       email: a?.email ?? p.email ?? null,
       phone: p.phone ?? null,
       role: p.role ?? null,
-      status: p.status ?? null,
+      status: activated.has(d.id) ? "active" : (p.status ?? null),
       loginMethod: p.loginMethod ?? null,
       disabled: a?.disabled ?? null,
       lastSignInAt: a?.metadata?.lastSignInTime ? Date.parse(a.metadata.lastSignInTime) : null,
