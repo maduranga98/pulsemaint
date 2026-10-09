@@ -9497,7 +9497,7 @@
         "rememberMe": "记住我",
         "signingIn": "正在登录...",
         "noAccount": "还没有账户？",
-        "createOne": "立即创建",
+        "createOne": "注册您的公司",
         "reportByQr": "扫码报告故障",
         "scanTitle": "扫描设备二维码",
         "scanHint": "将相机对准设备二维码即可立即报告故障。"
@@ -9589,7 +9589,7 @@
           "terms": "您必须同意条款。",
           "failed": "注册失败。"
         },
-        "subtitle": "创建您的免费账户",
+        "subtitle": "注册您的公司",
         "stepOf": "第 {{step}} 步，共 {{total}} 步",
         "companyInfo": "公司信息",
         "companyName": "公司 / 工厂名称",

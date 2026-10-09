@@ -9497,7 +9497,7 @@
         "rememberMe": "ログイン状態を保持",
         "signingIn": "ログイン中...",
         "noAccount": "アカウントをお持ちでないですか？",
-        "createOne": "作成する",
+        "createOne": "会社を登録する",
         "reportByQr": "QRで故障を報告",
         "scanTitle": "設備のQRコードをスキャン",
         "scanHint": "設備のQRコードにカメラを向けると、すぐに故障を報告できます。"
@@ -9589,7 +9589,7 @@
           "terms": "利用規約に同意する必要があります。",
           "failed": "登録に失敗しました。"
         },
-        "subtitle": "無料アカウントを作成",
+        "subtitle": "会社を登録する",
         "stepOf": "ステップ {{step}} / {{total}}",
         "companyInfo": "会社情報",
         "companyName": "会社名 / 工場名",

@@ -9497,7 +9497,7 @@
         "rememberMe": "Recordarme",
         "signingIn": "Iniciando sesión...",
         "noAccount": "¿No tienes cuenta?",
-        "createOne": "Crea una",
+        "createOne": "Registra tu empresa",
         "reportByQr": "Reportar una avería por QR",
         "scanTitle": "Escanear código QR de la máquina",
         "scanHint": "Apunta la cámara a un código QR de máquina para reportar una avería al instante."
@@ -9589,7 +9589,7 @@
           "terms": "Debes aceptar los términos.",
           "failed": "Error en el registro."
         },
-        "subtitle": "Crea tu cuenta gratuita",
+        "subtitle": "Registra tu empresa",
         "stepOf": "Paso {{step}} de {{total}}",
         "companyInfo": "Información de la empresa",
         "companyName": "Nombre de la empresa / fábrica",

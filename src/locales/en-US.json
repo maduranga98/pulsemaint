@@ -9669,7 +9669,7 @@
         "rememberMe": "Remember me",
         "signingIn": "Signing in...",
         "noAccount": "Don't have an account?",
-        "createOne": "Create one",
+        "createOne": "Register your company",
         "reportByQr": "Report a breakdown by QR",
         "scanTitle": "Scan Machine QR Code",
         "scanHint": "Point your camera at a machine QR code to report a breakdown instantly."
@@ -9761,7 +9761,7 @@
           "terms": "You must agree to the terms.",
           "failed": "Registration failed."
         },
-        "subtitle": "Create your free account",
+        "subtitle": "Register your company",
         "stepOf": "Step {{step}} of {{total}}",
         "companyInfo": "Company Information",
         "companyName": "Company / Factory Name",

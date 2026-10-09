@@ -9497,7 +9497,7 @@
         "rememberMe": "Angemeldet bleiben",
         "signingIn": "Anmeldung...",
         "noAccount": "Noch kein Konto?",
-        "createOne": "Jetzt erstellen",
+        "createOne": "Registrieren Sie Ihr Unternehmen",
         "reportByQr": "Störung per QR melden",
         "scanTitle": "Maschinen-QR-Code scannen",
         "scanHint": "Richte die Kamera auf den QR-Code einer Maschine, um sofort eine Störung zu melden."
@@ -9589,7 +9589,7 @@
           "terms": "Du musst den Bedingungen zustimmen.",
           "failed": "Registrierung fehlgeschlagen."
         },
-        "subtitle": "Erstelle dein kostenloses Konto",
+        "subtitle": "Registrieren Sie Ihr Unternehmen",
         "stepOf": "Schritt {{step}} von {{total}}",
         "companyInfo": "Firmeninformationen",
         "companyName": "Firmen- / Werksname",
