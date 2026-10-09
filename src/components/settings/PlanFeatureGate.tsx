@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Lock } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import { planLimitsFor, type PlanLimitConfig } from '../../lib/planLimits';
+import { isFeatureAvailable, type PlanLimitConfig } from '../../lib/planLimits';
 
 type FeatureKey = keyof PlanLimitConfig['features'];
 
@@ -30,10 +30,10 @@ interface PlanFeatureGateProps {
  */
 export function PlanFeatureGate({ feature, children }: PlanFeatureGateProps) {
   const { t } = useTranslation();
-  const plan = useAuthStore((s) => s.company?.plan);
-  const included = planLimitsFor(plan).features[feature];
+  const company = useAuthStore((s) => s.company);
 
-  if (included) return <>{children}</>;
+  // Company still loading: don't flash the upgrade prompt.
+  if (!company || isFeatureAvailable(company, feature)) return <>{children}</>;
 
   return (
     <div className="min-h-full flex items-center justify-center px-6 py-16">

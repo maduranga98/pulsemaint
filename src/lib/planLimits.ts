@@ -177,3 +177,53 @@ export function importBlockMessage(
       return '';
   }
 }
+
+type FeatureKey = keyof PlanLimitConfig['features'];
+
+/** Just the company fields the plan checks read — keeps these helpers pure and testable. */
+export interface PlanCompanyState {
+  plan?: Plan | null;
+  status?: string | null;
+  trialEndsAt?: { toMillis: () => number } | null;
+  stripeSubscriptionId?: string | null;
+  planSetBy?: string | null;
+}
+
+/** On a free trial that has run out (no subscription, no plan assigned by Lumora). */
+export function isTrialExpired(company: PlanCompanyState | null | undefined, now: number = Date.now()): boolean {
+  if (!company || company.status !== 'trial') return false;
+  if (company.stripeSubscriptionId || company.planSetBy === 'platform') return false;
+  const end = company.trialEndsAt?.toMillis?.();
+  return typeof end === 'number' && end <= now;
+}
+
+/**
+ * Whether the company can use a plan-gated feature. A running trial unlocks
+ * every feature (except multi-site) so companies can try the product; the
+ * numeric limits (machines, users…) still follow the Starter plan.
+ */
+export function isFeatureAvailable(company: PlanCompanyState | null | undefined, feature: FeatureKey): boolean {
+  if (company?.status === 'trial' && !isTrialExpired(company)) {
+    return feature === 'multiSite' ? false : true;
+  }
+  return planLimitsFor(company?.plan).features[feature];
+}
+
+// Route prefixes that belong to a plan-gated feature. Trainees, floor
+// operators etc. reach /app/training/my-* too, so the whole prefix is gated —
+// a plan without Training has no assigned trainings to open.
+const FEATURE_PATH_PREFIXES: Array<[string, FeatureKey]> = [
+  ['/app/contractors', 'contractors'],
+  ['/app/shift/handover', 'shiftHandover'],
+  ['/app/training', 'training'],
+  ['/app/safety', 'safety'],
+  ['/app/moe', 'moeAnalytics'],
+];
+
+/** The plan feature a path belongs to, or null when it isn't plan-gated. */
+export function featureForPath(pathname: string): FeatureKey | null {
+  for (const [prefix, feature] of FEATURE_PATH_PREFIXES) {
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) return feature;
+  }
+  return null;
+}

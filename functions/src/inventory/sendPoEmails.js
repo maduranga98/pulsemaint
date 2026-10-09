@@ -26,6 +26,7 @@ const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
+const {companyHasFeature} = require("../lib/planFeatures");
 const { getPoEmailStrings, t: interpolate, DEFAULT_LANGUAGE } = require("./poEmailTranslations");
 
 const db = getFirestore("default");
@@ -292,6 +293,11 @@ exports.sendPoEmails = onDocumentCreated(
     async (event) => {
       const notification = event.data.data();
       const {companyId, poId, poNumber, supplierName, supplierEmail, event: poEvent, message, receivedItems, issueItems, notes: deliveryNotes} = notification;
+      // Automatic supplier emails are a Workshop-and-up feature (or free during a trial).
+      if (!(await companyHasFeature(companyId, "autoPOEmail"))) {
+        logger.info(`PO email skipped for ${companyId}: plan does not include automatic PO emails`);
+        return;
+      }
       const companyName = await companyNameFor(companyId);
       const poEmailLanguage = await poEmailLanguageFor(companyId);
       const strings = getPoEmailStrings(poEmailLanguage);

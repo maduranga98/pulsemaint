@@ -66,6 +66,9 @@ Local Firebase emulators (auth/firestore/storage) are configured in `firebase.js
 - `src/types/` — domain types per feature area; `src/schemas/` — matching Zod validation schemas.
 - Path alias `@/*` → `src/*` (configured in both `tsconfig.json` and `vite.config.ts`).
 
+### Plan limits and feature gating
+`src/lib/planLimits.ts` is the single source of truth (mirrored for Cloud Functions in `functions/src/lib/planFeatures.js` — keep both in sync). Plan-gated modules are enforced centrally in `ProtectedRoute` via `featureForPath` (contractors, shift handover, training, safety, MOE), not per route; a running free trial unlocks every feature except multi-site while numeric limits stay Starter's. Automatic PO emails and low-stock alerts are gated server-side in `sendPoEmails` / `notifyLowStock`.
+
 ### Client-side analytics computation
 Dashboards and reports compute their metrics client-side from operational collections (breakdowns, work orders, contractor jobs, PM history, machines) whenever the pre-aggregated `analytics_monthly` / `analytics_daily` / `machine_health` collections are empty. No backend aggregation job is required for the app to function — those collections are an optimization path, not a hard dependency.
 
