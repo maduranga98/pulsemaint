@@ -63,21 +63,24 @@ export default function PlatformTodosPage() {
         actions={<button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setEditing('new')}><Plus className="h-4 w-4" /> New to-do</button>}
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
-      <div className="mb-3 flex gap-1.5">
-        {([['open', 'Open (not done)'], ['done', 'Done']] as const).map(([v, l]) => (
-          <button key={v} onClick={() => setParams(v === 'open' ? {} : { tab: v }, { replace: true })}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium ${tab === v ? 'bg-blue-600 text-white' : 'border border-slate-600 text-slate-300 hover:bg-slate-800'}`}>
-            {l}<span className="rounded-full bg-black/30 px-1.5 text-[10px] font-bold leading-4">{counts[v]}</span>
-          </button>
-        ))}
-      </div>
-      <div className="mb-4 flex flex-wrap items-center gap-1.5">
-        {([['', 'All'], ['reminder', 'Reminders'], ['task', 'Tasks'], ['testing', 'Testing']] as const).map(([v, l]) => (
-          <button key={l} onClick={() => setKind(v)}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs ${kind === v ? 'border-blue-500 bg-blue-600 text-white' : 'border-slate-600 text-slate-300 hover:bg-slate-800'}`}>
-            {l}<span className="rounded-full bg-black/30 px-1.5 text-[10px] font-bold leading-4">{counts[v]}</span>
-          </button>
-        ))}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:border-b sm:border-[#1E3A5F]">
+        <div className="flex gap-1 border-b border-[#1E3A5F] sm:border-0" role="tablist">
+          {([['open', 'Open'], ['done', 'Done']] as const).map(([v, l]) => (
+            <button key={v} role="tab" aria-selected={tab === v} onClick={() => setParams(v === 'open' ? {} : { tab: v }, { replace: true })}
+              className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3 pb-2.5 pt-1 text-sm font-semibold ${tab === v ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              {l}
+              <span className={`rounded-full px-1.5 text-[11px] font-bold leading-[18px] ${tab === v ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300'}`}>{counts[v]}</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-1.5 sm:pb-2.5">
+          {([['', 'All'], ['reminder', 'Reminders'], ['task', 'Tasks'], ['testing', 'Testing']] as const).map(([v, l]) => (
+            <button key={l} onClick={() => setKind(v)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${kind === v ? 'border-blue-500 bg-blue-600/20 text-blue-200' : 'border-slate-600 text-slate-300 hover:bg-slate-800'}`}>
+              {l}<span className="text-[10px] font-bold opacity-70">{counts[v]}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {!todos && !error ? <Loading /> : groups.length === 0 ? (
@@ -95,14 +98,14 @@ export default function PlatformTodosPage() {
                   <p className={`font-medium ${t.done ? 'text-slate-500 line-through' : 'text-white'}`}>
                     {t.kind === 'testing' && <FlaskConical className="mr-1 inline h-3.5 w-3.5 text-sky-300" />}{t.title}
                   </p>
-                  {t.notes && <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-400">{t.notes}</p>}
+                  {t.notes && <p className="mt-0.5! whitespace-pre-wrap text-sm text-slate-400">{t.notes}</p>}
                   {t.howToTest && (
-                    <div className="mt-2 text-sm">
+                    <div className="mt-2! text-sm">
                       <p className="text-slate-400">How to test:</p>
                       <p className="whitespace-pre-wrap text-slate-200">{t.howToTest}</p>
                     </div>
                   )}
-                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                  <p className="mt-1! flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
                     <span className="rounded-full border border-slate-600 px-1.5 text-[10px]">{TODO_KIND_LABEL[t.kind]}</span>
                     {t.dueAt && <span className={!t.done && t.dueAt < now ? 'text-red-300' : ''}>{fmtDateTime(t.dueAt)}</span>}
                     {t.leadId && <Link to={`/platform/leads?lead=${t.leadId}`} className="inline-flex items-center gap-1 text-sky-300!"><PhoneCall className="h-3 w-3" />{t.leadName ?? 'Lead'}</Link>}

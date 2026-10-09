@@ -76,9 +76,9 @@ export default function PlatformFeatureRequestsPage() {
                     </span>
                     <span className={`rounded-full border px-2 py-px text-[10px] font-semibold ${STATUS_TONE[r.status]}`}>{FEATURE_STATUS_LABEL[r.status]}</span>
                   </div>
-                  <p className="mt-1 font-semibold text-white">{r.title}</p>
-                  {r.description && <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-300">{r.description}</p>}
-                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                  <p className="mt-1! font-semibold text-white">{r.title}</p>
+                  {r.description && <p className="mt-0.5! whitespace-pre-wrap text-sm text-slate-300">{r.description}</p>}
+                  <p className="mt-1! flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
                     <span>{fmtDate(r.createdAt)}{r.createdByEmail && ` · ${r.createdByEmail}`}</span>
                     {r.leadId && <Link to={`/platform/leads?lead=${r.leadId}`} className="inline-flex items-center gap-1 text-sky-300!"><PhoneCall className="h-3 w-3" />{r.leadName}</Link>}
                     {r.companyId && <Link to={`/platform/companies/${r.companyId}`} className="inline-flex items-center gap-1 text-sky-300!"><Building2 className="h-3 w-3" />{r.companyName}</Link>}
