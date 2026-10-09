@@ -4,6 +4,7 @@ import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { getCompanyIdFromUser } from '../lib/auth';
+import { ensureCompanyClaim } from '../lib/companyClaim';
 import type { CompanyProfile, UserProfile } from '../types/auth';
 
 export function useAuthInit() {
@@ -130,6 +131,10 @@ export function useAuthInit() {
                     // plant's departments and other plant-scoped data.
                     plantId: userProfile.plantId ?? null,
                   }, { merge: true }).catch(() => {});
+
+                  // File access (storage.rules) is checked against the
+                  // companyId claim on the login token; add it if missing.
+                  ensureCompanyClaim(user, companyId).catch((err) => console.warn('Could not refresh company access claim', err));
 
                   // Live, so plan/subscription changes written by the Stripe
                   // webhook (including suspension when a subscription ends)

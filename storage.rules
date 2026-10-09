@@ -6,10 +6,15 @@ rules_version = '2';
 // (100 MB for training content, which can include videos). Any path not
 // explicitly matched below is denied.
 //
-// NOTE: tenant isolation relies on unguessable document IDs in paths plus
-// Firestore rules guarding the documents that store download URLs. Storage
-// cross-service Firestore lookups are not used because this project runs on
-// a named Firestore database ("default"), which storage rules cannot query.
+// Tenant isolation: storage rules can't query this project's named
+// Firestore database ("default"), so company membership comes from the
+// `companyId` custom claim on the login token (kept in sync with the
+// users/{uid} mapping by the onUserMappingWritten / syncCompanyClaim Cloud
+// Functions). Every path that starts with a company ID — siteId and plantId
+// are the company ID in this single-site-per-company model — is limited to
+// that company. Paths keyed only by a document ID (contractors/,
+// inventoryParts/, parts of triage/) still rely on unguessable IDs plus the
+// Firestore rules guarding the documents that store their URLs.
 
 service firebase.storage {
   match /b/{bucket}/o {
@@ -23,6 +28,20 @@ service firebase.storage {
         && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
+    // Member of this company (or Lumora platform staff).
+    function inCompany(companyId) {
+      return signedIn()
+        && (request.auth.token.get('companyId', null) == companyId
+          || request.auth.token.get('superadmin', false) == true);
+    }
+
+    // triage/pdfs/… and triage/media/… are named by the uploader's uid and
+    // triage/shared/… holds media not tied to one company; any other first
+    // segment under triage/ is a company ID.
+    function triageAllowed(folder) {
+      return (folder in ['pdfs', 'media', 'shared'] && signedIn()) || inCompany(folder);
+    }
+
     function validUpload(maxSizeMb) {
       return request.resource == null
         || request.resource.size < maxSizeMb * 1024 * 1024;
@@ -32,14 +51,14 @@ service firebase.storage {
     // training content, content library.
     // e.g. companies/{companyId}/machines/{machineId}/photos/{file}
     match /companies/{companyId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(100);
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId) && validUpload(100);
     }
 
     // Work order media: documents, field-media, completion photos, signatures.
     match /workorders/{siteId}/{woId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read: if inCompany(siteId);
+      allow write: if inCompany(siteId) && validUpload(50);
     }
 
     // Contractor registry: documents and technician photos.
@@ -51,38 +70,38 @@ service firebase.storage {
     // Audit module: evidence attachments and generated PDF reports.
     // e.g. audit_attachments/{plantId}/{sessionKey}/{type}/{file}
     match /audit_attachments/{plantId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read: if inCompany(plantId);
+      allow write: if inCompany(plantId) && validUpload(50);
     }
 
     match /audit_reports/{plantId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read: if inCompany(plantId);
+      allow write: if inCompany(plantId) && validUpload(50);
     }
 
     // 5S audit photos: audits/{plantId}/{auditId}/{itemId}/{file}
     match /audits/{plantId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read: if inCompany(plantId);
+      allow write: if inCompany(plantId) && validUpload(50);
     }
 
     // Kaizen card photos: kaizen/{plantId}/{cardId}/{file}
     match /kaizen/{plantId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read: if inCompany(plantId);
+      allow write: if inCompany(plantId) && validUpload(50);
     }
 
     // Evaluation attachments: evaluation_attachments/{companyId}/{evaluationId}/{file}
     match /evaluation_attachments/{companyId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId) && validUpload(50);
     }
 
     // Triage media and generated PDFs: triage/pdfs/{uid}.pdf,
     // triage/media/{file}, triage/{companyId}/{folder}/{file}
-    match /triage/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+    match /triage/{folder}/{allPaths=**} {
+      allow read: if triageAllowed(folder);
+      allow write: if triageAllowed(folder) && validUpload(50);
     }
 
     // Inventory part attachments: warranty documents/images.
@@ -97,15 +116,15 @@ service firebase.storage {
     // Function (Admin SDK, which bypasses these rules) — clients never write.
     // e.g. safetyTrainingSubmissions/{companyId}/{inviteId}/attempt-1/{file}
     match /safetyTrainingSubmissions/{companyId}/{allPaths=**} {
-      allow read: if signedIn();
+      allow read: if inCompany(companyId);
       allow write: if false;
     }
 
     // Breakdown media: photos/video attached by the attending technician.
     // e.g. breakdowns/{siteId}/{ticketId}/media/{file}
     match /breakdowns/{siteId}/{ticketId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read: if inCompany(siteId);
+      allow write: if inCompany(siteId) && validUpload(50);
     }
   }
 }
