@@ -163,10 +163,6 @@ export default function PlatformCompanyDetailPage() {
           </div>
         </Card>
 
-        <Card title="Billing emails">
-          <p className="text-sm text-slate-300">Billing emails are automatic. After every successful subscription charge, each active admin of this company receives a receipt with the plan, the amount, the period paid for and the next automatic renewal date.</p>
-          <p className="mt-2 text-xs text-slate-500">Stripe also sends its own receipts and failed-payment notices to the billing email.</p>
-        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
