@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
+import { useCallsDue } from '@/lib/platform/useCallsDue';
 import { getNotificationPermission, isDeviceNotificationSupported, requestDeviceNotificationPermission } from '@/lib/notifications/deviceNotify';
 import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -17,7 +18,12 @@ const NAV = [
   { to: '/platform/payments', label: 'Payments', icon: CreditCard },
   { to: '/platform/reminders', label: 'Reminders', icon: BellRing },
   { to: '/platform/requests', label: 'Requests & feedback', icon: ClipboardList },
-];
+  { section: 'Sales' },
+  { to: '/platform/leads', label: 'Leads', icon: Contact },
+  { to: '/platform/calls', label: 'Calls', icon: PhoneCall },
+  { to: '/platform/sales-team', label: 'Sales team', icon: Users },
+  { to: '/platform/feature-requests', label: 'Feature requests', icon: Lightbulb },
+] as const;
 
 /**
  * Lumora Ventures platform console. Separate from the tenant app shell: it
@@ -31,6 +37,7 @@ export default function PlatformLayout() {
   const [open, setOpen] = useState(false);
   const unread = usePlatformUnread(ready && isSuperadmin);
   const paymentAlerts = usePaymentAlerts(ready && isSuperadmin);
+  const callsDue = useCallsDue(ready && isSuperadmin);
   const [permission, setPermission] = useState(() => getNotificationPermission());
 
   if (!ready) return <AuthLoading />;
@@ -48,8 +55,12 @@ export default function PlatformLayout() {
           </div>
           <button className="ml-auto lg:hidden text-slate-400" onClick={() => setOpen(false)} aria-label="Close menu"><X className="h-5 w-5" /></button>
         </div>
-        <nav className="space-y-1 p-3">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
+        <nav className="max-h-[calc(100vh-190px)] space-y-1 overflow-y-auto p-3">
+          {NAV.map((item) => {
+            if ('section' in item) return <p key={item.section} className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{item.section}</p>;
+            const { to, label, icon: Icon } = item;
+            const end = 'end' in item ? item.end : false;
+            return (
             <NavLink
               key={to}
               to={to}
@@ -67,8 +78,12 @@ export default function PlatformLayout() {
               {to === '/platform/requests' && unread.length > 0 && (
                 <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-black">{unread.length}</span>
               )}
+              {to === '/platform/calls' && callsDue > 0 && (
+                <span className="ml-auto rounded-full bg-red-500 px-1.5 text-[10px] font-bold leading-4 text-white" title="Calls due today or overdue">{callsDue}</span>
+              )}
             </NavLink>
-          ))}
+            );
+          })}
         </nav>
         <div className="absolute inset-x-0 bottom-0 space-y-1 border-t border-[#1E3A5F] p-3">
           {isDeviceNotificationSupported() && permission === 'default' && (

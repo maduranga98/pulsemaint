@@ -158,6 +158,10 @@ import PlatformCompanyDetailPage from '../pages/platform/PlatformCompanyDetailPa
 import PlatformPaymentsPage from '../pages/platform/PlatformPaymentsPage';
 import PlatformRemindersPage from '../pages/platform/PlatformRemindersPage';
 import { PlatformRequestsPage, PlatformRequestDetailPage } from '../pages/platform/PlatformRequestsPage';
+import PlatformLeadsPage from '../pages/platform/leads/PlatformLeadsPage';
+import PlatformCallsPage from '../pages/platform/leads/PlatformCallsPage';
+import PlatformSalesTeamPage from '../pages/platform/leads/PlatformSalesTeamPage';
+import PlatformFeatureRequestsPage from '../pages/platform/leads/PlatformFeatureRequestsPage';
 
 // Help & Support
 import HelpSupportPage from '../pages/help/HelpSupportPage';
@@ -1076,6 +1080,10 @@ export default function AppRouter() {
         <Route path="reminders" element={<PlatformRemindersPage />} />
         <Route path="requests" element={<PlatformRequestsPage />} />
         <Route path="requests/:requestId" element={<PlatformRequestDetailPage />} />
+        <Route path="leads" element={<PlatformLeadsPage />} />
+        <Route path="calls" element={<PlatformCallsPage />} />
+        <Route path="sales-team" element={<PlatformSalesTeamPage />} />
+        <Route path="feature-requests" element={<PlatformFeatureRequestsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
