@@ -77,7 +77,7 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
   async function uploadDocuments(savedId: string) {
     if (!companyId || pendingFiles.length === 0) return;
     for (const file of pendingFiles) {
-      const path = `contractors/${savedId}/documents/${Date.now()}_${file.name}`;
+      const path = `companies/${companyId}/contractors/${savedId}/documents/${Date.now()}_${file.name}`;
       const sref = storageRef(storage, path);
       await uploadBytes(sref, file);
       const url = await getDownloadURL(sref);

@@ -128,7 +128,7 @@ export function TechnicianForm() {
       // Upload any newly attached certification files and keep the existing ones.
       const uploadedCertDocs: TechnicianCertificationDoc[] = await Promise.all(
         certFiles.map(async (file) => {
-          const path = `contractors/${contractorId}/technicians/certifications/${Date.now()}_${file.name}`;
+          const path = `companies/${userProfile.companyId}/contractors/${contractorId}/technicians/certifications/${Date.now()}_${file.name}`;
           const sref = storageRef(storage, path);
           await uploadBytes(sref, file);
           const url = await getDownloadURL(sref);
@@ -146,7 +146,7 @@ export function TechnicianForm() {
 
       let savedPhotoUrl = photoUrl;
       if (photoFile) {
-        const path = `contractors/${contractorId}/technicians/photos/${nanoid(10)}_${photoFile.name.replace(/[^\w.-]+/g, '_')}`;
+        const path = `companies/${userProfile.companyId}/contractors/${contractorId}/technicians/photos/${nanoid(10)}_${photoFile.name.replace(/[^\w.-]+/g, '_')}`;
         const pref = storageRef(storage, path);
         await uploadBytes(pref, photoFile, { contentType: photoFile.type });
         savedPhotoUrl = await getDownloadURL(pref);

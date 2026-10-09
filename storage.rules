@@ -12,9 +12,9 @@ rules_version = '2';
 // users/{uid} mapping by the onUserMappingWritten / syncCompanyClaim Cloud
 // Functions). Every path that starts with a company ID — siteId and plantId
 // are the company ID in this single-site-per-company model — is limited to
-// that company. Paths keyed only by a document ID (contractors/,
-// inventoryParts/, parts of triage/) still rely on unguessable IDs plus the
-// Firestore rules guarding the documents that store their URLs.
+// that company. The legacy top-level contractors/ and inventoryParts/
+// folders (no company segment) are closed to direct access; triage/pdfs,
+// triage/media and triage/shared still rely on unguessable names.
 
 service firebase.storage {
   match /b/{bucket}/o {
@@ -48,7 +48,9 @@ service firebase.storage {
     }
 
     // Company-scoped assets: machine photos & documents, branding logos,
-    // training content, content library.
+    // training content, content library, contractor documents/technician
+    // photos (contractors/…) and inventory part warranty files
+    // (inventoryParts/…).
     // e.g. companies/{companyId}/machines/{machineId}/photos/{file}
     match /companies/{companyId}/{allPaths=**} {
       allow read: if inCompany(companyId);
@@ -61,10 +63,12 @@ service firebase.storage {
       allow write: if inCompany(siteId) && validUpload(50);
     }
 
-    // Contractor registry: documents and technician photos.
+    // Legacy contractor files (before they moved under
+    // companies/{companyId}/contractors/…). The path has no company in it,
+    // so direct access is closed; documents keep opening through the saved
+    // download links (token URLs don't go through these rules).
     match /contractors/{contractorId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read, write: if false;
     }
 
     // Audit module: evidence attachments and generated PDF reports.
@@ -104,11 +108,10 @@ service firebase.storage {
       allow write: if triageAllowed(folder) && validUpload(50);
     }
 
-    // Inventory part attachments: warranty documents/images.
-    // e.g. inventoryParts/{partId}/warranty/{file}
+    // Legacy inventory part warranty files (now under
+    // companies/{companyId}/inventoryParts/…) — closed like contractors/.
     match /inventoryParts/{partId}/{allPaths=**} {
-      allow read: if signedIn();
-      allow write: if signedIn() && validUpload(50);
+      allow read, write: if false;
     }
 
     // Contractor safety training submissions: photos and voice notes from the

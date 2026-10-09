@@ -1,22 +1,28 @@
-name: Deploy Firestore/Storage Rules on merge
+name: Deploy Firestore/Storage Rules after functions
 
+# Rules run only after "Deploy Firebase Functions on merge" succeeds for the
+# same commit: rules can depend on functions (e.g. storage.rules checks the
+# companyId login claim that the onUserMappingWritten / syncCompanyClaim
+# functions set). Deploying both in parallel once let new rules go live while
+# the functions deploy had failed. Rules deploys are idempotent, so running
+# after every functions deploy is fine.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'firestore.rules'
-      - 'firestore.indexes.json'
-      - 'storage.rules'
+  workflow_run:
+    workflows: ["Deploy Firebase Functions on merge"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch: {}
 
 jobs:
   deploy_firestore_rules:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
       VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - name: Deploy Firestore/Storage rules and indexes
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PULSEMAINT }}
