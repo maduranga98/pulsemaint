@@ -280,6 +280,10 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
         await ref.update({
           status: (c.stripeSubscriptionId && c.subscriptionStatus !== "canceled") || c.planSetBy === "platform" ? "active" : "trial",
           suspendedBy: FieldValue.delete(),
+          suspendedReason: FieldValue.delete(),
+          suspendedAt: FieldValue.delete(),
+          paymentFailed: false,
+          paymentFailureMessage: FieldValue.delete(),
           ...stamp,
         });
         break;
@@ -289,7 +293,7 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
         const base = Math.max(Date.now(), toMillis(c.trialEndsAt) ?? 0);
         await ref.update({
           trialEndsAt: Timestamp.fromMillis(base + days * 86_400_000),
-          ...(c.status === "suspended" && !c.stripeSubscriptionId ? { status: "trial" } : {}),
+          ...(c.status === "suspended" && !c.stripeSubscriptionId ? { status: "trial", suspendedReason: FieldValue.delete(), suspendedAt: FieldValue.delete() } : {}),
           ...stamp,
         });
         break;

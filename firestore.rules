@@ -853,7 +853,8 @@ service cloud.firestore {
           'cancelAtPeriodEnd', 'billingTermsVersion', 'billingTermsAcceptedAt', 'billingTermsAcceptedBy',
           'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy',
           'approvalStatus', 'approvedAt', 'approvedBy', 'rejectionReason',
-          'planSetBy', 'planSetAt', 'leaveRequestedAt', 'cancellationReasonPendingId'];
+          'planSetBy', 'planSetAt', 'leaveRequestedAt', 'cancellationReasonPendingId',
+          'suspendedReason', 'suspendedBy', 'suspendedAt', 'paymentFailed', 'paymentFailedAt', 'paymentFailureMessage'];
         return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
       }
 
