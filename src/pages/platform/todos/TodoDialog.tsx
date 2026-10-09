@@ -45,6 +45,7 @@ export default function TodoDialog({ todo, initial, leads, companies, onClose, o
     companyId: todo?.companyId ?? initial?.companyId ?? null,
     companyName: todo?.companyName ?? initial?.companyName ?? null,
     featureRequestId: todo?.featureRequestId ?? initial?.featureRequestId ?? null,
+    howToTest: todo?.howToTest ?? initial?.howToTest ?? '',
   }));
   const [busy, setBusy] = useState(false);
   const leadOptions = useMemo(() => leads.filter((l) => !l.archived || l.id === draft.leadId).sort((a, b) => a.businessName.localeCompare(b.businessName)), [leads, draft.leadId]);

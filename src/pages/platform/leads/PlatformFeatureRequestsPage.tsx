@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Bug, CheckCircle2, Lightbulb, PhoneCall, Play, Plus, Trash2 } from 'lucide-react';
+import { Building2, Bug, CheckCircle2, CircleCheck, Lightbulb, ListTodo, PhoneCall, Play, Plus, Trash2, X } from 'lucide-react';
 import type { Lead } from '@/lib/platform/leads';
 import {
   FEATURE_REQUEST_STATUSES, FEATURE_STATUS_LABEL, createFeatureRequest, deleteFeatureRequest, subscribeFeatureRequests, subscribeLeads,
@@ -8,24 +8,29 @@ import {
 } from '@/services/platformLeadsService';
 import { ErrorNote, Loading, PageHeader, btn, fmtDate, input } from '../platformUi';
 import { Field, Modal } from './leadUi';
-import { moveFeatureRequestToTesting, setFeatureRequestStatus } from '@/services/platformTodosService';
+import { moveFeatureRequestToTesting, startFeatureRequest } from '@/services/platformTodosService';
 import { useCompanyOptions, type CompanyOption } from '../useCompanyOptions';
 import { markFeatureRequestsSeen } from '@/lib/platform/useNavBadges';
 
 const STATUS_TONE: Record<FeatureRequestStatus, string> = {
-  requested: 'border-slate-600 text-slate-300', in_progress: 'border-amber-600/60 text-amber-300', testing: 'border-sky-600/60 text-sky-300', closed: 'border-emerald-600/60 text-emerald-300',
+  requested: 'border-slate-600 text-slate-300', in_progress: 'border-amber-600/60 text-amber-300', testing: 'border-violet-500/60 text-violet-300', closed: 'border-emerald-600/60 text-emerald-300',
 };
-const NEXT: Partial<Record<FeatureRequestStatus, FeatureRequestStatus>> = { requested: 'in_progress', in_progress: 'testing', testing: 'closed' };
 
-/** Features and bugs raised on lead/customer calls or while testing, worked Requested → In progress → Testing → Closed. */
+/**
+ * Features and bugs raised on lead/customer calls or while testing. Each one
+ * moves forward with one button at a time: Requested → Start → In progress →
+ * "Close — move to testing" (asks for testing instructions and adds a testing
+ * to-do) → Testing → closed automatically when that to-do is ticked on To-Do.
+ */
 export default function PlatformFeatureRequestsPage() {
   const [rows, setRows] = useState<FeatureRequest[] | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [error, setError] = useState('');
   const [type, setType] = useState<'' | FeatureRequestType>('');
-  const [status, setStatus] = useState<'' | 'active' | FeatureRequestStatus>('active');
+  const [status, setStatus] = useState<'' | FeatureRequestStatus>('');
   const [creating, setCreating] = useState(false);
   const [testing, setTesting] = useState<FeatureRequest | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const companies = useCompanyOptions();
 
   useEffect(() => subscribeFeatureRequests(setRows, (e) => setError(e.message)), []);
@@ -36,32 +41,26 @@ export default function PlatformFeatureRequestsPage() {
   }, []);
   useEffect(() => subscribeLeads(setLeads, () => {}), []);
 
-  const filtered = useMemo(() => (rows ?? []).filter((r) =>
-    (!type || r.type === type) && (!status || (status === 'active' ? r.status !== 'closed' : r.status === status))), [rows, type, status]);
+  const filtered = useMemo(() => (rows ?? []).filter((r) => (!type || r.type === type) && (!status || r.status === status)), [rows, type, status]);
 
-  async function advance(r: FeatureRequest) {
-    const next = NEXT[r.status];
-    if (!next) return;
-    if (next === 'testing') {
-      setTesting(r);
-      return;
-    }
-    if (next === 'closed' && !window.confirm('Close this request? Its open testing to-do is marked done too.')) return;
-    await setFeatureRequestStatus(r.id, next).catch((e) => setError(e.message));
+  async function start(r: FeatureRequest) {
+    setBusyId(r.id);
+    await startFeatureRequest(r.id).catch((e) => setError(e.message));
+    setBusyId(null);
   }
 
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader
         title="Feature requests"
-        subtitle="Features and bugs from lead and customer calls, or found in testing. Moving one to Testing asks how to verify it and adds a testing to-do; ticking that to-do closes the request."
+        subtitle="Feature requests and bugs — from here, from a customer's call, or from testing. Closing hands it to Testing in the To-Do list; ticking that to-do closes the request."
         actions={<button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setCreating(true)}><Plus className="h-4 w-4" /> New request</button>}
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       <div className="mb-4 flex flex-wrap gap-1.5">
         {([['', 'All types'], ['feature', 'Feature'], ['bug', 'Bug']] as const).map(([v, l]) => <Chip key={l} on={type === v} onClick={() => setType(v)}>{l}</Chip>)}
         <span className="mx-1" />
-        {([['active', 'Open'], ['', 'All'], ...FEATURE_REQUEST_STATUSES.map((s) => [s, FEATURE_STATUS_LABEL[s]])] as [typeof status, string][]).map(([v, l]) => (
+        {([['', 'All statuses'], ...FEATURE_REQUEST_STATUSES.map((s) => [s, FEATURE_STATUS_LABEL[s]])] as [typeof status, string][]).map(([v, l]) => (
           <Chip key={l} on={status === v} onClick={() => setStatus(v)}>{l}</Chip>
         ))}
       </div>
@@ -79,27 +78,28 @@ export default function PlatformFeatureRequestsPage() {
                   </div>
                   <p className="mt-1 font-semibold text-white">{r.title}</p>
                   {r.description && <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-300">{r.description}</p>}
-                  <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                    {fmtDate(r.createdAt)}{r.createdByEmail && ` · ${r.createdByEmail}`}
+                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                    <span>{fmtDate(r.createdAt)}{r.createdByEmail && ` · ${r.createdByEmail}`}</span>
                     {r.leadId && <Link to={`/platform/leads?lead=${r.leadId}`} className="inline-flex items-center gap-1 text-sky-300!"><PhoneCall className="h-3 w-3" />{r.leadName}</Link>}
                     {r.companyId && <Link to={`/platform/companies/${r.companyId}`} className="inline-flex items-center gap-1 text-sky-300!"><Building2 className="h-3 w-3" />{r.companyName}</Link>}
+                    {(r.status === 'testing' || r.status === 'closed') && (
+                      <Link to={`/platform/todos?tab=${r.status === 'closed' ? 'done' : 'open'}`} className="inline-flex items-center gap-1 text-emerald-300!"><ListTodo className="h-3 w-3" />Testing to-do</Link>
+                    )}
                     {r.howToTest && <span className="text-slate-400">How to test: {r.howToTest}</span>}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1 text-slate-400">
-                  <select className="rounded border border-[#1E3A5F] bg-[#0A1628] px-1.5 py-1 text-xs text-slate-200" value={r.status}
-                    onChange={(e) => {
-                      const s = e.target.value as FeatureRequestStatus;
-                      if (s === 'testing') setTesting(r);
-                      else void setFeatureRequestStatus(r.id, s).catch((err) => setError(err.message));
-                    }}>
-                    {FEATURE_REQUEST_STATUSES.map((s) => <option key={s} value={s}>{FEATURE_STATUS_LABEL[s]}</option>)}
-                  </select>
-                  {NEXT[r.status] && (
-                    <button title={`Move to ${FEATURE_STATUS_LABEL[NEXT[r.status]!]}`} className="rounded p-1.5 text-amber-300 hover:bg-slate-800" onClick={() => void advance(r)}>
-                      {r.status === 'testing' ? <CheckCircle2 className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  {r.status === 'requested' && (
+                    <button title="Start — move to In progress" disabled={busyId === r.id} className="rounded p-1.5 text-amber-300 hover:bg-slate-800 disabled:opacity-50" onClick={() => void start(r)}>
+                      <Play className="h-4 w-4" />
                     </button>
                   )}
+                  {r.status === 'in_progress' && (
+                    <button title="Close — move to testing" className="rounded p-1.5 text-violet-300 hover:bg-slate-800" onClick={() => setTesting(r)}>
+                      <CircleCheck className="h-4 w-4" />
+                    </button>
+                  )}
+                  {r.status === 'closed' && <CheckCircle2 className="mx-1.5 h-4 w-4 text-emerald-400" aria-label="Closed" />}
                   <button title="Delete" className="rounded p-1.5 hover:bg-slate-800 hover:text-white" onClick={() => window.confirm('Delete this request?') && void deleteFeatureRequest(r.id).catch((e) => setError(e.message))}>
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -170,14 +170,28 @@ function NewRequestDialog({ leads, companies, onClose, onError }: { leads: Lead[
 
 function TestingDialog({ request, onClose, onError }: { request: FeatureRequest; onClose: () => void; onError: (m: string) => void }) {
   const [howToTest, setHowToTest] = useState(request.howToTest);
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    if (!howToTest.trim()) return;
+    setBusy(true);
+    try {
+      await moveFeatureRequestToTesting(request, howToTest);
+      onClose();
+    } catch (e) {
+      onError((e as Error).message);
+      setBusy(false);
+    }
+  }
   return (
-    <Modal title="Move to Testing" onClose={onClose} footer={<>
-      <button className={btn.ghost} onClick={onClose}>Cancel</button>
-      <button className={btn.primary} onClick={() => void moveFeatureRequestToTesting(request, howToTest).then(onClose).catch((e) => onError(e.message))}>Move to Testing</button>
+    <Modal title={<><CircleCheck className="h-4 w-4 text-violet-300" /> Close — move to testing</>} onClose={onClose} footer={<>
+      <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={onClose}><X className="h-4 w-4" /> Cancel</button>
+      <button className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-50" disabled={busy || !howToTest.trim()} onClick={() => void save()}>
+        {busy ? 'Moving…' : 'Move to testing'}
+      </button>
     </>}>
-      <p className="mb-3 text-sm text-slate-400">A testing to-do (due tomorrow) is added to To-Do. Ticking it when the test passes closes this request.</p>
-      <Field label="How to test" hint="Where to click to verify it — e.g. Settings → Teams → toggle.">
-        <textarea className={input} rows={3} value={howToTest} onChange={(e) => setHowToTest(e.target.value)} autoFocus />
+      <Field label="Testing instructions *" hint="How to actually test this — the steps, not a link or file path. A testing to-do is created automatically.">
+        <textarea className={input} rows={4} value={howToTest} onChange={(e) => setHowToTest(e.target.value)} autoFocus
+          placeholder="e.g. Go to Work orders → open any work order → tap Export → check the PDF downloads with the notes section included." />
       </Field>
     </Modal>
   );

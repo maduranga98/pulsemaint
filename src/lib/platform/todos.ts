@@ -14,6 +14,8 @@ export interface Todo {
   kind: TodoKind;
   title: string;
   notes: string;
+  /** Testing to-dos: the steps to verify the feature request. */
+  howToTest: string;
   /** Due date/time in ms, or null for "someday". */
   dueAt: number | null;
   done: boolean;

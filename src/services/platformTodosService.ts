@@ -22,7 +22,7 @@ function toTodo(id: string, d: DocumentData): Todo {
   return {
     id,
     kind: (TODO_KINDS as readonly string[]).includes(d.kind) ? d.kind : 'task',
-    title: str(d.title), notes: str(d.notes),
+    title: str(d.title), notes: str(d.notes), howToTest: str(d.howToTest),
     dueAt: typeof d.dueAt === 'number' ? d.dueAt : null,
     done: d.done === true, doneAt: typeof d.doneAt === 'number' ? d.doneAt : null,
     leadId: d.leadId ?? null, leadName: d.leadName ?? null,
@@ -51,6 +51,7 @@ export interface TodoInput {
   companyId: string | null;
   companyName: string | null;
   featureRequestId?: string | null;
+  howToTest?: string;
 }
 
 function clean(input: TodoInput) {
@@ -62,6 +63,7 @@ function clean(input: TodoInput) {
     leadId: input.leadId || null, leadName: input.leadId ? input.leadName : null,
     companyId: input.companyId || null, companyName: input.companyId ? input.companyName : null,
     featureRequestId: input.featureRequestId ?? null,
+    howToTest: (input.howToTest ?? '').trim().slice(0, 2000),
   };
 }
 
@@ -98,22 +100,25 @@ async function openTestingTodos(featureRequestId: string) {
 }
 
 /**
- * Feature request → Testing: saves how to test it and adds a testing to-do
- * (due tomorrow) unless one is already open.
+ * Feature request "Close — move to testing": saves the testing instructions,
+ * sets the request to Testing and adds a testing to-do (due tomorrow) unless
+ * one is already open. Ticking that to-do closes the request.
  */
 export async function moveFeatureRequestToTesting(
-  fr: { id: string; title: string; type: 'feature' | 'bug'; leadId: string | null; leadName: string | null; companyId: string | null; companyName: string | null },
+  fr: { id: string; title: string; description: string; type: 'feature' | 'bug'; leadId: string | null; leadName: string | null; companyId: string | null; companyName: string | null },
   howToTest: string,
 ): Promise<void> {
-  await updateDoc(doc(featuresCol, fr.id), { status: 'testing', howToTest: howToTest.trim().slice(0, 2000), updatedAt: serverTimestamp() });
+  const steps = howToTest.trim().slice(0, 2000);
+  await updateDoc(doc(featuresCol, fr.id), { status: 'testing', howToTest: steps, updatedAt: serverTimestamp() });
   if ((await openTestingTodos(fr.id)).length) return;
   const due = new Date();
   due.setDate(due.getDate() + 1);
   due.setHours(10, 0, 0, 0);
   await createTodo({
     kind: 'testing',
-    title: `Test ${fr.type === 'bug' ? 'bug fix' : 'feature'}: ${fr.title}`,
-    notes: howToTest,
+    title: `Test: ${fr.title}`,
+    notes: fr.description,
+    howToTest: steps,
     dueAt: due.getTime(),
     leadId: fr.leadId, leadName: fr.leadName,
     companyId: fr.companyId, companyName: fr.companyName,
@@ -121,13 +126,18 @@ export async function moveFeatureRequestToTesting(
   });
 }
 
-/** Feature request status change from its page; closing it completes its open testing to-dos. */
-export async function setFeatureRequestStatus(id: string, status: 'requested' | 'in_progress' | 'testing' | 'closed'): Promise<void> {
-  await updateDoc(doc(featuresCol, id), { status, updatedAt: serverTimestamp() });
-  if (status !== 'closed') return;
-  const open = await openTestingTodos(id);
-  if (!open.length) return;
+/** Feature request "Start": Requested → In progress. */
+export function startFeatureRequest(id: string): Promise<void> {
+  return updateDoc(doc(featuresCol, id), { status: 'in_progress', updatedAt: serverTimestamp() });
+}
+
+/**
+ * Testing failed: the testing to-do is removed and its feature request goes
+ * back to In progress, to be fixed and moved to testing again.
+ */
+export async function failTestingTodo(todo: Todo): Promise<void> {
   const batch = writeBatch(db);
-  open.forEach((d) => batch.update(d.ref, { done: true, doneAt: Date.now(), updatedAt: serverTimestamp() }));
+  batch.delete(doc(todosCol, todo.id));
+  if (todo.featureRequestId) batch.update(doc(featuresCol, todo.featureRequestId), { status: 'in_progress', updatedAt: serverTimestamp() });
   await batch.commit();
 }
