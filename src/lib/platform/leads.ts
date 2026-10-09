@@ -305,11 +305,12 @@ export function leadImportTemplateRows(): string[][] {
 
 export function dayReportToCsv(report: DayReport, leads: Lead[]): string {
   const byId = new Map(leads.map((l) => [l.id, l]));
-  return toCsv(['Time', 'Customer', 'Phone', 'Type', 'Outcome', 'Note', 'Status now', 'By'], report.rows.map((a) => {
+  return toCsv(['Time', 'Garage', 'Customer', 'Phone', 'Location', 'Type', 'Outcome', 'Tags', 'Note', 'Status now', 'Demo', 'Next follow-up'], report.rows.map((a) => {
     const lead = byId.get(a.leadId);
     return [
-      isoDateTime(a.at), lead?.businessName ?? a.leadName, lead?.phone ?? '', activityTypeLabel(a), activityOutcomeLabel(a), a.body,
-      lead ? LEAD_STATUS_LABEL[lead.status] : '', a.authorEmail ?? '',
+      isoDateTime(a.at), lead?.businessName ?? a.leadName, lead?.contactPerson ?? '', lead?.phone ?? '', lead?.location ?? '',
+      activityTypeLabel(a), activityOutcomeLabel(a), lead?.tags.join('; ') ?? '', a.body,
+      lead ? LEAD_STATUS_LABEL[lead.status] : '', isoDateTime(lead?.demoAt ?? null), isoDateTime(lead?.nextCallAt ?? null),
     ];
   }));
 }
