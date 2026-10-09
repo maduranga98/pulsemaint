@@ -8904,7 +8904,8 @@
         "billed": "請求サイクル",
         "trialEnds": "トライアル終了日",
         "renewsOn": "{{date}} に自動更新",
-        "endsOn": "解約済み — 全ユーザーのアクセスは {{date}} に終了します"
+        "endsOn": "解約済み — 全ユーザーのアクセスは {{date}} に終了します",
+        "assignedByLumora": "Lumora Ventures が割り当てたプランです。このプランの機能と上限でフルにご利用いただけます。"
       },
       "errors": {
         "checkoutFailed": "チェックアウトを開始できませんでした。もう一度お試しください。",

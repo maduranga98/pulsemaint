@@ -320,6 +320,9 @@ export default function BillingPage() {
               {t('common.billing.currentPlan.billed')}{' '}
               <span className="font-medium text-slate-300">{cycleLabel(subscribedCycle)}</span>
             </p>
+            {!hasSubscription && company?.planSetBy === 'platform' && company.status !== 'trial' && (
+              <p className="text-sm mt-0.5 text-emerald-300">{t('common.billing.currentPlan.assignedByLumora')}</p>
+            )}
             {hasSubscription && company?.currentPeriodEnd && (
               <p className={`text-sm mt-0.5 ${company.cancelAtPeriodEnd ? 'text-amber-300' : 'text-slate-400'}`}>
                 {company.cancelAtPeriodEnd

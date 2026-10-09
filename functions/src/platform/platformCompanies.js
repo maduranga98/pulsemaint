@@ -35,6 +35,7 @@ function companySummary(id, c) {
     monthlyValue: monthlyValue(c),
     lastReminderAt: toMillis(c.lastPaymentReminderAt),
     platformNote: c.platformNote ?? null,
+    planSetBy: c.planSetBy ?? null,
     approvalStatus: approvalStatusOf(c),
     rejectionReason: c.rejectionReason ?? null,
     approvedAt: toMillis(c.approvedAt),
@@ -216,7 +217,11 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
         await ref.update({ status: "suspended", suspendedBy: "platform", ...stamp });
         break;
       case "reactivate":
-        await ref.update({ status: c.stripeSubscriptionId && c.subscriptionStatus !== "canceled" ? "active" : "trial", suspendedBy: FieldValue.delete(), ...stamp });
+        await ref.update({
+          status: (c.stripeSubscriptionId && c.subscriptionStatus !== "canceled") || c.planSetBy === "platform" ? "active" : "trial",
+          suspendedBy: FieldValue.delete(),
+          ...stamp,
+        });
         break;
       case "extendTrial": {
         const days = Number(request.data.days);
@@ -233,7 +238,20 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
         const { plan, billingCycle } = request.data;
         if (!["starter", "workshop", "factory", "enterprise"].includes(plan)) throw new HttpsError("invalid-argument", "Unknown plan");
         if (!["monthly", "yearly"].includes(billingCycle)) throw new HttpsError("invalid-argument", "Unknown billing cycle");
-        await ref.update({ plan, billingCycle, planSetBy: "platform", ...stamp });
+        // A plan Lumora assigns is the company's real subscription (e.g. an
+        // Enterprise contract billed outside Stripe): it ends the trial, so
+        // the company gets that plan's full access and limits with no trial
+        // banner, trial reminders or trial expiry. A platform suspension
+        // stays in place until "Restore access".
+        await ref.update({
+          plan,
+          billingCycle,
+          planSetBy: "platform",
+          planSetAt: FieldValue.serverTimestamp(),
+          status: c.status === "suspended" && c.suspendedBy === "platform" ? "suspended" : "active",
+          trialEndsAt: null,
+          ...stamp,
+        });
         break;
       }
       case "cancelSubscription":

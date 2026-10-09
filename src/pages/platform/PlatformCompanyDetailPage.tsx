@@ -127,7 +127,11 @@ export default function PlatformCompanyDetailPage() {
           <dl className="grid grid-cols-2 gap-y-2 text-sm">
             <dt className="text-slate-400">Plan</dt><dd>{PLAN_NAMES[c.plan] ?? c.plan} · {c.billingCycle}</dd>
             <dt className="text-slate-400">Admin</dt><dd>{c.adminName ?? '—'}<br /><span className="text-xs text-slate-500">{c.adminEmail}</span></dd>
-            <dt className="text-slate-400">Trial ends</dt><dd>{fmtDate(c.trialEndsAt)} <span className="text-xs text-slate-500">{relDays(c.trialEndsAt)}</span></dd>
+            {c.status === 'trial' ? (
+              <><dt className="text-slate-400">Trial ends</dt><dd>{fmtDate(c.trialEndsAt)} <span className="text-xs text-slate-500">{relDays(c.trialEndsAt)}</span></dd></>
+            ) : c.planSetBy === 'platform' && !c.hasSubscription ? (
+              <><dt className="text-slate-400">Subscription</dt><dd>Assigned by Lumora — full {PLAN_NAMES[c.plan] ?? c.plan} access and limits, no trial</dd></>
+            ) : null}
             <dt className="text-slate-400">Stripe</dt>
             <dd>
               {sub ? <>{sub.amount != null && sub.currency ? fmtMoney(sub.amount, sub.currency) : ''} / {sub.interval} · {sub.status}<br />
@@ -141,7 +145,9 @@ export default function PlatformCompanyDetailPage() {
             {c.status === 'suspended'
               ? <button className={btn.primary} disabled={busy} onClick={() => void company({ action: 'reactivate' }, 'Access restored for all users')}>Restore access</button>
               : <button className={btn.danger} disabled={busy} onClick={() => window.confirm(`Suspend access for every user of ${c.name}? Data is kept.`) && void company({ action: 'suspend' }, 'Company suspended')}>Suspend access</button>}
-            <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'trial' })}>Extend trial</button>
+            {(c.status === 'trial' || (c.status === 'suspended' && !c.hasSubscription && c.planSetBy !== 'platform')) && (
+              <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'trial' })}>Extend trial</button>
+            )}
             <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'plan' })}>Set plan manually</button>
             {sub && (sub.cancelAtPeriodEnd
               ? <button className={btn.ghost} disabled={busy} onClick={() => void company({ action: 'resumeSubscription' }, 'Subscription resumed')}>Resume subscription</button>
@@ -264,7 +270,7 @@ export default function PlatformCompanyDetailPage() {
                 <select className={input} value={cycle} onChange={(e) => setCycle(e.target.value as Cycle)}>
                   <option value="monthly">Monthly</option><option value="yearly">Yearly</option>
                 </select>
-                <p className="text-xs text-slate-400">For contracts billed outside Stripe (e.g. Enterprise). A Stripe subscription change will overwrite this.</p>
+                <p className="text-xs text-slate-400">For contracts billed outside Stripe (e.g. Enterprise). This <strong>ends the trial</strong>: the company gets this plan's full features and limits right away. A Stripe subscription change will overwrite it.</p>
               </div>
             ) : prompt.kind === 'note' ? (
               <textarea className={`${input} h-32`} value={value} onChange={(e) => setValue(e.target.value)} />
@@ -288,7 +294,7 @@ export default function PlatformCompanyDetailPage() {
                   if (prompt.kind === 'password') void user(prompt.user, { action: 'setPassword', password: value }, 'Password updated');
                   if (prompt.kind === 'email') void user(prompt.user, { action: 'updateEmail', email: value }, 'Sign-in email updated');
                   if (prompt.kind === 'trial') void company({ action: 'extendTrial', days: Number(value) }, 'Trial extended');
-                  if (prompt.kind === 'plan') void company({ action: 'setPlan', plan, billingCycle: cycle }, 'Plan updated');
+                  if (prompt.kind === 'plan') void company({ action: 'setPlan', plan, billingCycle: cycle }, 'Plan assigned — trial ended, the company now has full access on this plan');
                   if (prompt.kind === 'note') void company({ action: 'note', text: value }, 'Note saved');
                 }}
               >

@@ -130,7 +130,7 @@ export default function PlatformCompaniesPage() {
                     )}
                     {c.approvalStatus === 'rejected' && c.rejectionReason && <p className="mt-1 max-w-[180px] truncate text-xs text-slate-500" title={c.rejectionReason}>{c.rejectionReason}</p>}
                   </td>
-                  <td className="px-4 py-3">{PLAN_NAMES[c.plan] ?? c.plan}<p className="text-xs text-slate-500">{c.hasSubscription ? c.billingCycle : 'no subscription'}</p></td>
+                  <td className="px-4 py-3">{PLAN_NAMES[c.plan] ?? c.plan}<p className="text-xs text-slate-500">{c.hasSubscription ? c.billingCycle : c.planSetBy === 'platform' ? `${c.billingCycle} · assigned by Lumora` : c.status === 'trial' ? 'trial' : 'no subscription'}</p></td>
                   <td className="px-4 py-3"><Badge tone={statusTone(c.status)}>{c.status}</Badge></td>
                   <td className="px-4 py-3">
                     {c.subscriptionStatus ? <Badge tone={statusTone(c.subscriptionStatus)}>{c.subscriptionStatus}</Badge> : <span className="text-slate-500">—</span>}

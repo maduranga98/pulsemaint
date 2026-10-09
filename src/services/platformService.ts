@@ -32,6 +32,8 @@ export interface PlatformCompany {
   monthlyValue: number;
   lastReminderAt: number | null;
   platformNote: string | null;
+  /** 'platform' when Lumora assigned the plan manually (no trial; plan limits apply). */
+  planSetBy: string | null;
   /** New self-registered companies are 'pending' until a superadmin approves them. */
   approvalStatus: ApprovalStatus;
   rejectionReason: string | null;

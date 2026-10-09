@@ -8904,7 +8904,8 @@
         "billed": "Abgerechnet",
         "trialEnds": "Testphase endet",
         "renewsOn": "Verlängert sich automatisch am {{date}}",
-        "endsOn": "Gekündigt – der Zugang aller Benutzer endet am {{date}}"
+        "endsOn": "Gekündigt – der Zugang aller Benutzer endet am {{date}}",
+        "assignedByLumora": "Tarif von Lumora Ventures zugewiesen – voller Zugriff mit den Funktionen und Grenzen dieses Tarifs."
       },
       "errors": {
         "checkoutFailed": "Checkout konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",

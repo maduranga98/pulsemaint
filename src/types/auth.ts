@@ -63,6 +63,8 @@ export interface CompanyProfile {
    * approvals — treat that as approved (see companyApproval()).
    */
   approvalStatus?: 'pending' | 'approved' | 'rejected';
+  /** 'platform' when Lumora assigned the plan manually (e.g. Enterprise billed outside Stripe). */
+  planSetBy?: string | null;
   rejectionReason?: string | null;
   trialEndsAt: Timestamp | null;
   plan: 'starter' | 'workshop' | 'factory' | 'enterprise';
