@@ -164,6 +164,8 @@ export const platformService = {
   listCompanies: () => call<void, { companies: PlatformCompany[] }>('platformListCompanies'),
   getCompany: (companyId: string) => call<{ companyId: string }, PlatformCompanyDetail>('platformGetCompany', { companyId }),
   updateCompany: (companyId: string, change: CompanyAction) => call('platformUpdateCompany', { companyId, ...change }),
+  deleteCompany: (companyId: string, confirmName: string) =>
+    call<{ companyId: string; confirmName: string }, { ok: boolean; documentsDeleted: number; loginsDeleted: number }>('platformDeleteCompany', { companyId, confirmName }),
   manageUser: (companyId: string, uid: string, change: UserAction) =>
     call<Record<string, unknown>, { ok: boolean; link?: string }>('platformManageUser', { companyId, uid, ...change }),
   auditLog: (companyId?: string) =>

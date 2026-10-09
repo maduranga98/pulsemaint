@@ -866,6 +866,7 @@ exports.generateContractorInvitation = onCall(async (request) => {
 // Platform console (Lumora Ventures superadmins): companies, subscriptions,
 // payments, reminders, login support, and company feedback / requests.
 const {platformClaimSuperadmin} = require("./src/platform/platformAdmins");
+const {platformDeleteCompany} = require("./src/platform/deleteCompany");
 const {
   platformOverview, platformListCompanies, platformGetCompany, platformUpdateCompany, platformManageUser, platformAuditLog,
 } = require("./src/platform/platformCompanies");
@@ -882,6 +883,7 @@ exports.platformOverview = platformOverview;
 exports.platformListCompanies = platformListCompanies;
 exports.platformGetCompany = platformGetCompany;
 exports.platformUpdateCompany = platformUpdateCompany;
+exports.platformDeleteCompany = platformDeleteCompany;
 exports.platformManageUser = platformManageUser;
 exports.platformAuditLog = platformAuditLog;
 exports.platformListPayments = platformListPayments;
