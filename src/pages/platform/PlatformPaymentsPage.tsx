@@ -3,6 +3,7 @@ import { Link, useOutletContext } from 'react-router-dom';
 import { platformService, errorText, type PlatformPayment } from '@/services/platformService';
 import { markPaymentAlertsRead, type PaymentAlert } from '@/lib/platform/usePaymentAlerts';
 import { ErrorNote, Loading, PageHeader, Stat, PLAN_NAMES, fmtDate, fmtMoney } from './platformUi';
+import ExportButtons from './ExportButtons';
 
 type CycleFilter = 'all' | 'monthly' | 'yearly';
 
@@ -43,6 +44,17 @@ export default function PlatformPaymentsPage() {
       <PageHeader
         title="Payments received"
         subtitle="FirmiCore CMMS only — paid invoices for FirmiCore plans. Payments for other Lumora Ventures products on the same Stripe account are excluded."
+        actions={rows && rows.length > 0 ? (
+          <ExportButtons
+            filename={`firmicore-payments${cycle === 'all' ? '' : `-${cycle}`}`}
+            sheetName="Payments"
+            header={['Paid on', 'Invoice', 'Company', 'Company ID', 'Plan', 'Billing', 'Amount', 'Currency', 'Status', 'Invoice link']}
+            rows={() => filtered.map((p) => [
+              new Date(p.created).toISOString().slice(0, 10), p.number ?? p.id, p.companyName ?? '', p.companyId ?? '', PLAN_NAMES[p.plan] ?? p.plan,
+              p.billingCycle, p.amountPaid / 100, (p.currency ?? '').toUpperCase(), p.status, p.hostedInvoiceUrl ?? '',
+            ])}
+          />
+        ) : undefined}
       />
       {error && <ErrorNote message={error} />}
       {!rows && !error ? <Loading /> : (

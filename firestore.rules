@@ -853,7 +853,7 @@ service cloud.firestore {
           'cancelAtPeriodEnd', 'billingTermsVersion', 'billingTermsAcceptedAt', 'billingTermsAcceptedBy',
           'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy',
           'approvalStatus', 'approvedAt', 'approvedBy', 'rejectionReason',
-          'planSetBy', 'planSetAt'];
+          'planSetBy', 'planSetAt', 'leaveRequestedAt', 'cancellationReasonPendingId'];
         return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
       }
 
@@ -1954,6 +1954,26 @@ service cloud.firestore {
         && request.resource.data.type in ['feature', 'bug']
         && request.resource.data.status in ['requested', 'in_progress', 'testing', 'closed']
         && request.resource.data.title is string && request.resource.data.title.size() <= 200;
+    }
+    // Lumora's to-dos / reminders (optionally linked to a lead, company or
+    // feature request). Superadmins only.
+    match /platformTodos/{todoId} {
+      allow read, delete: if isSuperadmin();
+      allow create, update: if isSuperadmin()
+        && request.resource.data.kind in ['reminder', 'task', 'testing']
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 300
+        && request.resource.data.done is bool;
+    }
+    // Subscription cancellations and requests to leave FirmiCore, with the
+    // reason (written by requestCancellation / stripeWebhook). Superadmins
+    // read them and only mark them handled.
+    match /platformCancellations/{id} {
+      allow read: if isSuperadmin();
+      allow update: if isSuperadmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'handledNote', 'handledAt', 'handledBy'])
+        && request.resource.data.status in ['open', 'handled'];
+      allow create, delete: if false;
     }
     // Payment-received (and other) alerts for superadmins, written by the
     // Stripe webhook; superadmins only mark them read.

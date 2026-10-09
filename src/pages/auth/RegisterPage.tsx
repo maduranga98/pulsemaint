@@ -11,6 +11,7 @@ import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 import TermsCheckbox from '../../components/legal/TermsCheckbox';
 import { useAuthStore } from '../../store/authStore';
 import { auth } from '../../lib/firebase';
+import CountryInput from '../../components/common/CountryInput';
 
 const registerSchema = z
   .object({
@@ -48,15 +49,6 @@ const INDUSTRIES = [
   'Other',
 ];
 
-const COUNTRIES = [
-  { code: 'LK', name: 'Sri Lanka' },
-  { code: 'US', name: 'United States' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'IN', name: 'India' },
-  { code: 'AE', name: 'United Arab Emirates' },
-  { code: 'SA', name: 'Saudi Arabia' },
-];
-
 const INDUSTRY_KEYS: Record<string, string> = {
   Manufacturing: 'manufacturing',
   'Food & Beverage': 'foodBeverage',
@@ -84,7 +76,7 @@ const STEPS = [
 ] as const;
 
 export default function RegisterPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -108,7 +100,7 @@ export default function RegisterPage() {
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     mode: 'onBlur',
-    defaultValues: { terms: false },
+    defaultValues: { terms: false, country: '' },
   });
 
   const handleSubmit = async (data: RegisterForm) => {
@@ -220,12 +212,14 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className={LABEL}>{t('common.auth.register.country')}</label>
-                  <select {...form.register('country')} className={FIELD}>
-                    <option value="">{t('common.auth.register.selectCountry')}</option>
-                    {COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.code}>{t(`common.auth.register.countries.${country.code}`, { defaultValue: country.name })}</option>
-                    ))}
-                  </select>
+                  <CountryInput
+                    value={form.watch('country') ?? ''}
+                    onChange={(v) => form.setValue('country', v, { shouldDirty: true, shouldValidate: form.formState.isSubmitted })}
+                    onBlur={() => void form.trigger('country')}
+                    lang={i18n.language}
+                    className={FIELD}
+                    placeholder={t('common.auth.register.selectCountry')}
+                  />
                   {err('country')}
                 </div>
               </div>

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Users, Lightbulb, ListTodo, UserX } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
 import { useCallsDue } from '@/lib/platform/useCallsDue';
 import { usePendingRegistrations } from '@/lib/platform/usePendingRegistrations';
+import { useNewLeads, useOpenCancellations, useTodosDue, useUnseenFeatureRequests } from '@/lib/platform/useNavBadges';
 import { getNotificationPermission, isDeviceNotificationSupported, requestDeviceNotificationPermission } from '@/lib/notifications/deviceNotify';
 import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -18,12 +19,34 @@ const NAV = [
   { to: '/platform/companies', label: 'Companies', icon: Building2 },
   { to: '/platform/payments', label: 'Payments', icon: CreditCard },
   { to: '/platform/requests', label: 'Requests & feedback', icon: ClipboardList },
+  { to: '/platform/cancellations', label: 'Cancellations', icon: UserX },
   { section: 'Sales' },
   { to: '/platform/leads', label: 'Leads', icon: Contact },
   { to: '/platform/calls', label: 'Calls', icon: PhoneCall },
   { to: '/platform/sales-team', label: 'Sales team', icon: Users },
   { to: '/platform/feature-requests', label: 'Feature requests', icon: Lightbulb },
+  { to: '/platform/todos', label: 'To-Do', icon: ListTodo },
 ] as const;
+
+const BADGE_TITLE: Record<string, string> = {
+  '/platform/companies': 'Registrations waiting for approval',
+  '/platform/payments': 'New payment alerts',
+  '/platform/requests': 'Unread requests & feedback',
+  '/platform/cancellations': 'Open cancellations / leave requests',
+  '/platform/leads': 'New leads not called yet',
+  '/platform/calls': 'Calls due today or overdue',
+  '/platform/feature-requests': 'New feature requests / bugs since you last looked',
+  '/platform/todos': 'To-dos due today or overdue',
+};
+
+function NavBadge({ count, title }: { count: number; title?: string }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-auto min-w-[18px] rounded-full bg-red-500 px-1.5 text-center text-[10px] font-bold leading-[18px] text-white" title={title} aria-label={`${count} ${title ?? 'new'}`}>
+      {count > 99 ? '99+' : count}
+    </span>
+  );
+}
 
 /**
  * Lumora Ventures platform console. Separate from the tenant app shell: it
@@ -39,7 +62,23 @@ export default function PlatformLayout() {
   const paymentAlerts = usePaymentAlerts(ready && isSuperadmin);
   const callsDue = useCallsDue(ready && isSuperadmin);
   const pendingRegistrations = usePendingRegistrations(ready && isSuperadmin);
+  const todosDue = useTodosDue(ready && isSuperadmin);
+  const newLeads = useNewLeads(ready && isSuperadmin);
+  const unseenFeatures = useUnseenFeatureRequests(ready && isSuperadmin);
+  const openCancellations = useOpenCancellations(ready && isSuperadmin);
   const [permission, setPermission] = useState(() => getNotificationPermission());
+
+  // Red unread / needs-attention counts per tab.
+  const badges: Record<string, number> = {
+    '/platform/companies': pendingRegistrations.length,
+    '/platform/payments': paymentAlerts.length,
+    '/platform/requests': unread.length,
+    '/platform/cancellations': openCancellations,
+    '/platform/leads': newLeads,
+    '/platform/calls': callsDue,
+    '/platform/feature-requests': unseenFeatures,
+    '/platform/todos': todosDue,
+  };
 
   if (!ready) return <AuthLoading />;
   if (!signedIn) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
@@ -73,18 +112,7 @@ export default function PlatformLayout() {
             >
               <Icon className="h-4 w-4" />
               {label}
-              {to === '/platform/payments' && paymentAlerts.length > 0 && (
-                <span className="ml-auto rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold leading-4 text-black">{paymentAlerts.length}</span>
-              )}
-              {to === '/platform/requests' && unread.length > 0 && (
-                <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-black">{unread.length}</span>
-              )}
-              {to === '/platform/companies' && pendingRegistrations.length > 0 && (
-                <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-black" title="Registrations waiting for approval">{pendingRegistrations.length}</span>
-              )}
-              {to === '/platform/calls' && callsDue > 0 && (
-                <span className="ml-auto rounded-full bg-red-500 px-1.5 text-[10px] font-bold leading-4 text-white" title="Calls due today or overdue">{callsDue}</span>
-              )}
+              <NavBadge count={badges[to] ?? 0} title={BADGE_TITLE[to]} />
             </NavLink>
             );
           })}
@@ -114,6 +142,7 @@ export default function PlatformLayout() {
         <div className="mb-4 flex items-center justify-between gap-3">
           <button className="inline-flex items-center gap-2 text-sm text-slate-300 lg:invisible" onClick={() => setOpen(true)}>
             <Menu className="h-5 w-5" /> Menu
+            <NavBadge count={Object.values(badges).reduce((a, b) => a + b, 0)} title="items need attention" />
           </button>
           <PlatformBell paymentAlerts={paymentAlerts} requests={unread} />
         </div>

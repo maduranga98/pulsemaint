@@ -7,6 +7,7 @@ import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
 import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
+import CancellationReasonDialog from '../../components/billing/CancellationReasonDialog';
 import TermsCheckbox from '../../components/legal/TermsCheckbox';
 import { TERMS_VERSION } from '../../lib/legal/terms';
 
@@ -243,6 +244,8 @@ export default function BillingPage() {
   const [error, setError] = useState('');
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [leaving, setLeaving] = useState<'cancel_subscription' | 'leave_system' | null>(null);
+  const [leaveNotice, setLeaveNotice] = useState('');
 
   const cycleLabel = (cycle: BillingCycle) =>
     cycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly');
@@ -534,6 +537,45 @@ export default function BillingPage() {
       {/* Payment methods, account credit & billing history. Cards are only
           entered on Stripe's hosted pages, so FirmiCore never stores card data. */}
       {isAdmin && <BillingAccountPanel hasSubscription={!!company?.stripeCustomerId} />}
+
+      {/* Cancel subscription / leave FirmiCore — always asks for a reason */}
+      {isAdmin && company && (
+        <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5">
+          <h2 className="text-base font-semibold text-white!">{t('common.billing.leave.title')}</h2>
+          <p className="text-sm text-slate-400 mt-1">{t('common.billing.leave.intro')}</p>
+          {leaveNotice && <p className="mt-3 text-sm text-emerald-300">{leaveNotice}</p>}
+          {hasSubscription && company.cancelAtPeriodEnd && <p className="mt-3 text-sm text-amber-300">{t('common.billing.leave.cancelledNote')}</p>}
+          {company.leaveRequestedAt && <p className="mt-3 text-sm text-amber-300">{t('common.billing.leave.leaveRequested', { date: formatDate(company.leaveRequestedAt) })}</p>}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {hasSubscription && !company.cancelAtPeriodEnd && (
+              <button onClick={() => setLeaving('cancel_subscription')} className="px-4 py-2 text-sm font-medium border border-red-700/60 text-red-300 rounded-lg hover:bg-red-950/40">
+                {t('common.billing.leave.cancelButton')}
+              </button>
+            )}
+            {!company.leaveRequestedAt && (
+              <button onClick={() => setLeaving('leave_system')} className="px-4 py-2 text-sm font-medium border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800">
+                {t('common.billing.leave.leaveButton')}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {leaving && (
+        <CancellationReasonDialog
+          kind={leaving}
+          endsOn={company?.currentPeriodEnd ? formatDate(company.currentPeriodEnd) : null}
+          onBack={() => setLeaving(null)}
+          onDone={() => {
+            setLeaving(null);
+            setLeaveNotice(t('common.billing.leave.dialog.done'));
+          }}
+        />
+      )}
+      {/* Cancelled in the Stripe portal without a reason: the admin must give one before going on. */}
+      {isAdmin && !leaving && company?.cancellationReasonPendingId && (
+        <CancellationReasonDialog kind="reason" onDone={() => setLeaveNotice(t('common.billing.leave.dialog.done'))} />
+      )}
 
       {/* Note */}
       <p className="text-xs text-slate-500 text-center pb-4">

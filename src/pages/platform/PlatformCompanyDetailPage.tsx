@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { countryLabel } from '@/lib/countries';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, Clock, Copy, X, XCircle } from 'lucide-react';
 import {
@@ -97,7 +98,7 @@ export default function PlatformCompanyDetailPage() {
       <Link to="/platform/companies" className="inline-flex items-center gap-1.5 text-sm text-blue-300! hover:underline"><ArrowLeft className="h-4 w-4" /> Companies</Link>
       <PageHeader
         title={c.name}
-        subtitle={`${c.country ?? '—'} · ${c.industry ?? '—'} · registered ${fmtDate(c.createdAt)} · ${c.userCount} users · ID ${c.id}`}
+        subtitle={`${countryLabel(c.country) || '—'} · ${c.industry ?? '—'} · registered ${fmtDate(c.createdAt)} · ${c.userCount} users · ID ${c.id}`}
         actions={<div className="flex flex-wrap gap-2"><Badge tone={statusTone(c.approvalStatus)}>{c.approvalStatus}</Badge><Badge tone={statusTone(c.status)}>access: {c.status}</Badge>{c.subscriptionStatus && <Badge tone={statusTone(c.subscriptionStatus)}>stripe: {c.subscriptionStatus}</Badge>}</div>}
       />
       {error && <ErrorNote message={error} />}
@@ -173,7 +174,7 @@ export default function PlatformCompanyDetailPage() {
           <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-sm">
             {data.profile.tradeName && <><dt className="text-slate-400">Trade name</dt><dd>{data.profile.tradeName}</dd></>}
             <dt className="text-slate-400">Address</dt><dd className="whitespace-pre-wrap">{data.profile.address || '—'}</dd>
-            <dt className="text-slate-400">Country</dt><dd>{c.country ?? '—'}</dd>
+            <dt className="text-slate-400">Country</dt><dd>{countryLabel(c.country) || '—'}</dd>
             <dt className="text-slate-400">Phone</dt><dd>{data.profile.phone ? <a href={`tel:${data.profile.phone}`} className="hover:underline">{data.profile.phone}</a> : '—'}</dd>
             <dt className="text-slate-400">Email</dt><dd>{data.profile.email ? <a href={`mailto:${data.profile.email}`} className="text-blue-300! hover:underline">{data.profile.email}</a> : '—'}</dd>
             <dt className="text-slate-400">Industry</dt><dd>{c.industry ?? '—'}</dd>

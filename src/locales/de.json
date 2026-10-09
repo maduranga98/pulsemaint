@@ -9076,6 +9076,44 @@
         "active": "Aktiv",
         "trial": "Testphase",
         "suspended": "Gesperrt"
+      },
+      "leave": {
+        "title": "Abo kündigen oder FirmiCore verlassen",
+        "intro": "Mit der Kündigung endet die automatische Verlängerung – alle behalten den Zugang bis zum Ende des bezahlten Zeitraums. Beim Verlassen wird Lumora Ventures gebeten, das Konto Ihres Unternehmens zu schließen.",
+        "cancelButton": "Abo kündigen",
+        "leaveButton": "FirmiCore verlassen",
+        "cancelledNote": "Ihr Abo ist gekündigt und verlängert sich nicht.",
+        "leaveRequested": "Sie haben am {{date}} beantragt, FirmiCore zu verlassen. Lumora Ventures meldet sich, um das Konto zu schließen.",
+        "dialog": {
+          "cancelTitle": "Warum kündigen Sie?",
+          "leaveTitle": "Warum verlassen Sie FirmiCore?",
+          "pendingTitle": "Sagen Sie uns, warum Sie gekündigt haben",
+          "required": "Wählen Sie einen Grund, um fortzufahren – das hilft uns, FirmiCore zu verbessern.",
+          "pendingIntro": "Ihr Abo wurde im Abrechnungsportal gekündigt. Bitte wählen Sie den Grund, bevor Sie fortfahren.",
+          "details": "Möchten Sie uns noch etwas mitteilen?",
+          "detailsRequired": "Bitte nennen Sie den Grund",
+          "cancelEffect": "Die automatische Verlängerung endet. Alle Benutzer behalten den Zugang bis {{date}}.",
+          "cancelEffectNoDate": "Die automatische Verlängerung endet mit dem bezahlten Zeitraum.",
+          "leaveEffect": "Ihr Abo verlängert sich nicht mehr und Lumora Ventures wird gebeten, das Konto Ihres Unternehmens zu schließen. Ihre Daten bleiben bis dahin erhalten.",
+          "back": "Abo behalten",
+          "backLeave": "Bei FirmiCore bleiben",
+          "confirmCancel": "Abo kündigen",
+          "confirmLeave": "Austritt beantragen",
+          "submitReason": "Senden",
+          "working": "Wird gespeichert…",
+          "done": "Danke – Ihr Grund wurde gespeichert."
+        },
+        "reasons": {
+          "too_expensive": "Zu teuer",
+          "missing_features": "Uns fehlen benötigte Funktionen",
+          "not_using": "Wir nutzen es zu wenig",
+          "switching": "Wechsel zu einem anderen System",
+          "technical_issues": "Fehler oder technische Probleme",
+          "hard_to_use": "Zu kompliziert",
+          "business_closed": "Unternehmen geschlossen oder fusioniert",
+          "temporary": "Nur vorübergehend benötigt",
+          "other": "Sonstiges"
+        }
       }
     },
     "actions": {
@@ -9497,7 +9535,7 @@
         "rememberMe": "Angemeldet bleiben",
         "signingIn": "Anmeldung...",
         "noAccount": "Noch kein Konto?",
-        "createOne": "Jetzt erstellen",
+        "createOne": "Registrieren Sie Ihr Unternehmen",
         "reportByQr": "Störung per QR melden",
         "scanTitle": "Maschinen-QR-Code scannen",
         "scanHint": "Richte die Kamera auf den QR-Code einer Maschine, um sofort eine Störung zu melden."
@@ -9589,7 +9627,7 @@
           "terms": "Du musst den Bedingungen zustimmen.",
           "failed": "Registrierung fehlgeschlagen."
         },
-        "subtitle": "Erstelle dein kostenloses Konto",
+        "subtitle": "Registrieren Sie Ihr Unternehmen",
         "stepOf": "Schritt {{step}} von {{total}}",
         "companyInfo": "Firmeninformationen",
         "companyName": "Firmen- / Werksname",

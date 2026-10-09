@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import CountryInput from '@/components/common/CountryInput';
 import { useTranslation } from 'react-i18next';
 import { X, Upload, Loader2 } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -17,7 +18,7 @@ interface CompanyProfileEditModalProps {
 const CURRENCY_OPTIONS: CompanyProfile['currency'][] = ['LKR', 'USD', 'AED', 'SAR'];
 
 export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEditModalProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const setCompany = useAuthStore((s) => s.setCompany);
   const toast = useToast();
 
@@ -173,7 +174,7 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.country', 'Country')}</label>
-              <input value={country} onChange={(e) => setCountry(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+              <CountryInput value={country} onChange={setCountry} lang={i18n.language} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.timezone', 'Timezone')}</label>

@@ -9076,6 +9076,44 @@
         "active": "有効",
         "trial": "トライアル",
         "suspended": "停止中"
+      },
+      "leave": {
+        "title": "サブスクリプションの解約または FirmiCore の退会",
+        "intro": "解約すると自動更新が停止します。支払い済み期間の終了まで全員が引き続き利用できます。退会すると、Lumora Ventures に会社アカウントの閉鎖を依頼します。",
+        "cancelButton": "サブスクリプションを解約",
+        "leaveButton": "FirmiCore を退会",
+        "cancelledNote": "サブスクリプションは解約済みで、更新されません。",
+        "leaveRequested": "{{date}} に FirmiCore の退会を申請しました。Lumora Ventures からアカウント閉鎖についてご連絡します。",
+        "dialog": {
+          "cancelTitle": "解約の理由を教えてください",
+          "leaveTitle": "FirmiCore を退会する理由を教えてください",
+          "pendingTitle": "解約した理由を教えてください",
+          "required": "続行するには理由を選んでください。FirmiCore の改善に役立てます。",
+          "pendingIntro": "サブスクリプションは請求ポータルから解約されました。続行する前に理由を選んでください。",
+          "details": "ほかにお伝えいただくことはありますか？",
+          "detailsRequired": "理由を入力してください",
+          "cancelEffect": "自動更新が停止します。すべてのユーザーは {{date}} まで利用できます。",
+          "cancelEffectNoDate": "支払い済み期間の終了時に自動更新が停止します。",
+          "leaveEffect": "サブスクリプションの更新が停止し、Lumora Ventures に会社アカウントの閉鎖を依頼します。それまでデータは保持されます。",
+          "back": "サブスクリプションを続ける",
+          "backLeave": "FirmiCore を使い続ける",
+          "confirmCancel": "解約する",
+          "confirmLeave": "退会を申請",
+          "submitReason": "送信",
+          "working": "保存中…",
+          "done": "ありがとうございます。理由を記録しました。"
+        },
+        "reasons": {
+          "too_expensive": "料金が高すぎる",
+          "missing_features": "必要な機能が足りない",
+          "not_using": "あまり使っていない",
+          "switching": "別のシステムに移行する",
+          "technical_issues": "不具合や技術的な問題",
+          "hard_to_use": "使い方が難しすぎる",
+          "business_closed": "事業の終了・合併",
+          "temporary": "一時的に必要だっただけ",
+          "other": "その他"
+        }
       }
     },
     "actions": {
@@ -9497,7 +9535,7 @@
         "rememberMe": "ログイン状態を保持",
         "signingIn": "ログイン中...",
         "noAccount": "アカウントをお持ちでないですか？",
-        "createOne": "作成する",
+        "createOne": "会社を登録する",
         "reportByQr": "QRで故障を報告",
         "scanTitle": "設備のQRコードをスキャン",
         "scanHint": "設備のQRコードにカメラを向けると、すぐに故障を報告できます。"
@@ -9589,7 +9627,7 @@
           "terms": "利用規約に同意する必要があります。",
           "failed": "登録に失敗しました。"
         },
-        "subtitle": "無料アカウントを作成",
+        "subtitle": "会社を登録する",
         "stepOf": "ステップ {{step}} / {{total}}",
         "companyInfo": "会社情報",
         "companyName": "会社名 / 工場名",

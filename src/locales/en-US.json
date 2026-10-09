@@ -376,6 +376,44 @@
         "active": "Active",
         "trial": "Trial",
         "suspended": "Suspended"
+      },
+      "leave": {
+        "title": "Cancel subscription or leave FirmiCore",
+        "intro": "Cancelling stops automatic renewal — everyone keeps access until the end of the paid period. Leaving asks Lumora Ventures to close your company's account.",
+        "cancelButton": "Cancel subscription",
+        "leaveButton": "Leave FirmiCore",
+        "cancelledNote": "Your subscription is cancelled and won't renew.",
+        "leaveRequested": "You asked to leave FirmiCore on {{date}}. Lumora Ventures will contact you to close the account.",
+        "dialog": {
+          "cancelTitle": "Why are you cancelling?",
+          "leaveTitle": "Why are you leaving FirmiCore?",
+          "pendingTitle": "Tell us why you cancelled",
+          "required": "Choose a reason to continue — it helps us improve FirmiCore.",
+          "pendingIntro": "Your subscription was cancelled from the billing portal. Please choose the reason before you continue.",
+          "details": "Anything else we should know?",
+          "detailsRequired": "Please tell us the reason",
+          "cancelEffect": "Automatic renewal stops. All users keep access until {{date}}.",
+          "cancelEffectNoDate": "Automatic renewal stops at the end of the paid period.",
+          "leaveEffect": "Your subscription stops renewing and Lumora Ventures is asked to close your company's account. Your data is kept until then.",
+          "back": "Keep my subscription",
+          "backLeave": "Stay on FirmiCore",
+          "confirmCancel": "Cancel subscription",
+          "confirmLeave": "Request to leave",
+          "submitReason": "Submit",
+          "working": "Saving…",
+          "done": "Thank you — we've recorded your reason."
+        },
+        "reasons": {
+          "too_expensive": "It's too expensive",
+          "missing_features": "Missing features we need",
+          "not_using": "We don't use it enough",
+          "switching": "Switching to another system",
+          "technical_issues": "Bugs or technical problems",
+          "hard_to_use": "Too hard to use",
+          "business_closed": "Business closed or merged",
+          "temporary": "We only needed it for a while",
+          "other": "Other"
+        }
       }
     },
     "contractors": {
@@ -9669,7 +9707,7 @@
         "rememberMe": "Remember me",
         "signingIn": "Signing in...",
         "noAccount": "Don't have an account?",
-        "createOne": "Create one",
+        "createOne": "Register your company",
         "reportByQr": "Report a breakdown by QR",
         "scanTitle": "Scan Machine QR Code",
         "scanHint": "Point your camera at a machine QR code to report a breakdown instantly."
@@ -9761,7 +9799,7 @@
           "terms": "You must agree to the terms.",
           "failed": "Registration failed."
         },
-        "subtitle": "Create your free account",
+        "subtitle": "Register your company",
         "stepOf": "Step {{step}} of {{total}}",
         "companyInfo": "Company Information",
         "companyName": "Company / Factory Name",

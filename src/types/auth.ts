@@ -65,6 +65,10 @@ export interface CompanyProfile {
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   /** 'platform' when Lumora assigned the plan manually (e.g. Enterprise billed outside Stripe). */
   planSetBy?: string | null;
+  /** Set when an admin asked to leave FirmiCore (requestCancellation). */
+  leaveRequestedAt?: Timestamp | null;
+  /** A Stripe-portal cancellation still waiting for the admin's reason. */
+  cancellationReasonPendingId?: string | null;
   rejectionReason?: string | null;
   trialEndsAt: Timestamp | null;
   plan: 'starter' | 'workshop' | 'factory' | 'enterprise';
