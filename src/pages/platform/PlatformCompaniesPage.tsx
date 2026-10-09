@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { countryLabel } from '@/lib/countries';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Check, X } from 'lucide-react';
 import { platformService, errorText, type ApprovalStatus, type PlatformCompany } from '@/services/platformService';
@@ -53,7 +54,7 @@ export default function PlatformCompaniesPage() {
     if (cycle !== 'all' && (!c.hasSubscription || c.billingCycle !== cycle)) return false;
     if (plan !== 'all' && c.plan !== plan) return false;
     const needle = q.trim().toLowerCase();
-    return !needle || [c.name, c.adminEmail, c.adminName, c.country, c.id].some((v) => v?.toLowerCase().includes(needle));
+    return !needle || [c.name, c.adminEmail, c.adminName, c.country, countryLabel(c.country), c.id].some((v) => v?.toLowerCase().includes(needle));
   }), [rows, q, status, cycle, plan, approval]);
 
   async function decide(c: PlatformCompany, approve: boolean, reason = '') {
@@ -125,7 +126,7 @@ export default function PlatformCompaniesPage() {
                 <tr key={c.id} className={`hover:bg-[#0F1E35] ${c.approvalStatus === 'pending' ? 'bg-amber-950/10' : ''}`}>
                   <td className="px-4 py-3">
                     <Link to={`/platform/companies/${c.id}`} className="font-semibold text-blue-300! hover:underline">{c.name}</Link>
-                    <p className="text-xs text-slate-500">{c.industry ?? '—'} · {c.country ?? '—'} · registered {fmtDate(c.createdAt)}</p>
+                    <p className="text-xs text-slate-500">{c.industry ?? '—'} · {countryLabel(c.country) || '—'} · registered {fmtDate(c.createdAt)}</p>
                   </td>
                   <td className="px-4 py-3"><p>{c.adminName ?? '—'}</p><p className="text-xs text-slate-500">{c.adminEmail ?? ''}</p></td>
                   <td className="px-4 py-3">

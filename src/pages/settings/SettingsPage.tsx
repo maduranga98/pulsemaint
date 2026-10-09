@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { countryLabel } from '@/lib/countries';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Building2, Users, Factory, ChevronRight, Pencil } from 'lucide-react';
@@ -16,7 +17,7 @@ interface Tile {
 }
 
 export default function SettingsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const company = useAuthStore((s) => s.company);
   const role = useAuthStore((s) => s.userProfile?.role);
   const [editOpen, setEditOpen] = useState(false);
@@ -94,7 +95,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <dt className="text-slate-500">{t('common.settings.page.company.country', 'Country')}</dt>
-              <dd className="font-medium text-slate-900">{company?.country || ''}</dd>
+              <dd className="font-medium text-slate-900">{countryLabel(company?.country, i18n.language)}</dd>
             </div>
             <div>
               <dt className="text-slate-500">{t('common.settings.page.company.timezone', 'Timezone')}</dt>
