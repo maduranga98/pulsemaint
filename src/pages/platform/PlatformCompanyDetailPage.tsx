@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { countryLabel } from '@/lib/countries';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, Clock, Copy, X, XCircle } from 'lucide-react';
 import {
   platformService, errorText,
@@ -28,6 +28,7 @@ const BILLING_REASON: Record<string, string> = {
 
 export default function PlatformCompanyDetailPage() {
   const { companyId = '' } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState<PlatformCompanyDetail | null>(null);
   const [audit, setAudit] = useState<Awaited<ReturnType<typeof platformService.auditLog>>['entries']>([]);
   const [error, setError] = useState('');
@@ -39,6 +40,8 @@ export default function PlatformCompanyDetailPage() {
   const [cycle, setCycle] = useState<Cycle>('monthly');
   const [resetLink, setResetLink] = useState('');
   const [rejecting, setRejecting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
 
   const load = useCallback(() => {
     platformService.getCompany(companyId).then((d) => {
@@ -160,6 +163,7 @@ export default function PlatformCompanyDetailPage() {
               ? <button className={btn.ghost} disabled={busy} onClick={() => void company({ action: 'resumeSubscription' }, 'Subscription resumed')}>Resume subscription</button>
               : <button className={btn.danger} disabled={busy} onClick={() => window.confirm('Cancel this subscription at the end of the paid period?') && void company({ action: 'cancelSubscription' }, 'Subscription will end at the period end')}>Cancel at period end</button>)}
             <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'note' })}>Internal note</button>
+            <button className={btn.danger} disabled={busy} onClick={() => { setDeleteConfirm(''); setDeleting(true); }}>Close permanently…</button>
           </div>
         </Card>
 
@@ -330,6 +334,36 @@ export default function PlatformCompanyDetailPage() {
           )}
         </Card>
       </div>
+
+      {deleting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md space-y-4 rounded-xl border border-red-700/60 bg-[#0F1E35] p-6">
+            <h3 className="text-base font-semibold text-white!">Close {c.name} permanently?</h3>
+            <p className="text-sm text-slate-300">
+              This <strong>cannot be undone</strong>. It erases this company only — its data, uploaded files, users and every login — and cancels any active subscription. Other companies and their users are not touched. Payment records in Stripe and the platform audit log are kept.
+            </p>
+            <p className="text-xs text-slate-400">Type <strong className="text-white">{c.name}</strong> to confirm.</p>
+            <input className={input} value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} autoFocus />
+            <div className="flex justify-end gap-2">
+              <button className={btn.ghost} disabled={busy} onClick={() => setDeleting(false)}>Cancel</button>
+              <button
+                className={btn.danger}
+                disabled={busy || deleteConfirm.trim() !== c.name.trim()}
+                onClick={() => {
+                  setBusy(true);
+                  setError('');
+                  platformService.deleteCompany(companyId, deleteConfirm.trim())
+                    .then(() => navigate('/platform/companies', { replace: true }))
+                    .catch((e) => { setError(errorText(e, 'Could not delete the company')); setDeleting(false); })
+                    .finally(() => setBusy(false));
+                }}
+              >
+                {busy ? 'Deleting…' : 'Delete everything'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {rejecting && (
         <RejectCompanyDialog
