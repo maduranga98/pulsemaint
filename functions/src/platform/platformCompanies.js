@@ -252,7 +252,7 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
           approvedAt: FieldValue.serverTimestamp(),
           approvedBy: actor.email ?? actor.uid,
           rejectionReason: FieldValue.delete(),
-          ...(restartTrial ? { trialEndsAt: Timestamp.fromMillis(Date.now() + 30 * DAY) } : {}),
+          ...(restartTrial ? { trialEndsAt: Timestamp.fromMillis(Date.now() + 14 * DAY) } : {}),
           ...stamp,
         });
         await clearRegistrationAlert(companyId);
