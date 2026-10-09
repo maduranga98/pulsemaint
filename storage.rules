@@ -2,7 +2,7 @@ rules_version = '2';
 
 // Firebase Storage rules for PulseMaint.
 //
-// All paths require an authenticated user. Uploads are capped at 50 MB
+// All paths require an authenticated, non-anonymous user. Uploads are capped at 50 MB
 // (100 MB for training content, which can include videos). Any path not
 // explicitly matched below is denied.
 //
@@ -14,8 +14,13 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    // A real FirmiCore account. The public QR breakdown-report page signs
+    // visitors in anonymously (it uploads nothing), so anonymous accounts
+    // must not count — otherwise anyone on the internet could read and
+    // overwrite company files.
     function signedIn() {
-      return request.auth != null;
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
     function validUpload(maxSizeMb) {

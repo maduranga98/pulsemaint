@@ -1,5 +1,5 @@
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
-const {db, Timestamp, requireAuth, addNotification} = require("./shared");
+const {db, Timestamp, requireAuth, requireCompanyMember, addNotification} = require("./shared");
 
 function shiftDate(date) {
   return date.toISOString().slice(0, 10);
@@ -36,6 +36,7 @@ exports.submitHandover = onCall(async (request) => {
   if (!companyId || !draft || !stats || !outgoingSupervisorId) {
     throw new HttpsError("invalid-argument", "companyId, draft, stats and outgoingSupervisorId are required.");
   }
+  await requireCompanyMember(request, companyId);
   if (!draft.outgoingAcknowledged) {
     throw new HttpsError("failed-precondition", "Outgoing supervisor acknowledgement is required.");
   }

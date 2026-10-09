@@ -75,6 +75,8 @@ Organized by feature area under `functions/src/` (analytics, contractors, handov
 
 ### Firestore/Storage
 - `firestore.rules` and `storage.rules` are the source of truth for server-side access control — always check these when changing what a role/query can read or write, since client-side route guards are not a security boundary on their own.
+- `storage.rules` treats only **non-anonymous** accounts as signed in (the public QR breakdown page signs visitors in anonymously and uploads nothing). Storage still can't check company membership (named Firestore database), so tenant isolation for files relies on unguessable paths.
+- Callables that take a `companyId` from the client must verify membership server-side (e.g. `requireCompanyMember` in `functions/src/handover/shared.js`) — `request.auth` alone also matches anonymous and other companies' users.
 - `firestore.indexes.json` holds required composite indexes; new queries that filter/sort on multiple fields (almost always including `siteId`) typically need a matching entry here.
 
 ## Known gaps (don't silently "fix" without asking — may be intentional or a larger cleanup)
