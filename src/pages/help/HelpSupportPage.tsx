@@ -23,21 +23,15 @@ export default function HelpSupportPage() {
 
   const moduleIds = role ? ROLE_HELP_MODULES[role] : [];
 
-  const tokens = useMemo(
-    () => query.toLowerCase().split(/\s+/).filter(Boolean),
-    [query],
-  );
-  const searching = tokens.length > 0;
+  // The whole typed text is matched as one phrase (never word by word) and
+  // only against topic titles: the main topic (module) title and its
+  // sub-topic (guide) titles. A main-topic match shows that topic with all its
+  // sub-topics; otherwise only the sub-topics whose title contains the phrase.
+  const phrase = query.trim().toLowerCase();
+  const searching = phrase.length > 0;
 
-  // Every typed word must appear somewhere (any order, partial words ok), so
-  // "add machine" finds "Add a machine". A card whose own title/description
-  // matches shows all its guides; otherwise only the guides that match, so the
-  // list actually narrows down instead of keeping every module on screen.
   const cards = useMemo(() => {
-    const matches = (text: string) => {
-      const lower = text.toLowerCase();
-      return tokens.every((tok) => lower.includes(tok));
-    };
+    const has = (text: string) => text.toLowerCase().includes(phrase);
     return moduleIds
       .map((id) => {
         const content = t(`help.modules.${id}`, { returnObjects: true }) as HelpModuleContent;
@@ -46,13 +40,12 @@ export default function HelpSupportPage() {
       .filter(({ content }) => content && typeof content === 'object')
       .map(({ id, content }) => {
         const guides = content.guides ?? [];
-        if (!searching) return { id, content: { ...content, guides } };
-        if (matches(`${content.title} ${content.description}`)) return { id, content: { ...content, guides } };
-        const hit = guides.filter((g) => matches(`${g.title} ${(g.steps ?? []).join(' ')}`));
+        if (!searching || has(content.title)) return { id, content: { ...content, guides } };
+        const hit = guides.filter((g) => has(g.title));
         return hit.length ? { id, content: { ...content, guides: hit } } : null;
       })
       .filter((c): c is { id: HelpModuleId; content: HelpModuleContent } => c !== null);
-  }, [moduleIds, tokens, searching, t]);
+  }, [moduleIds, phrase, searching, t]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
