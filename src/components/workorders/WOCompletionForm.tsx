@@ -255,7 +255,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
       {/* Step header */}
-      <div className="px-6 py-4 border-b border-gray-100">
+      <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-gray-900">{t('common.workOrders.copy.completionTitle')}</h3>
           <button type="button" onClick={onCancel} className="text-sm text-gray-400 hover:text-gray-600">
@@ -277,11 +277,11 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         </p>
       </div>
 
-      <div className="px-6 py-5 space-y-5">
+      <div className="px-4 sm:px-6 py-5 space-y-5">
         {/* Step 0: Work Details */}
         {step === 0 && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.workOrders.copy.actualStartLabel')}</label>
                 <p className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
@@ -708,7 +708,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-gray-100 flex justify-between gap-3">
+      <div className="px-4 sm:px-6 py-4 border-t border-gray-100 flex flex-wrap justify-between gap-3">
         <button
           type="button"
           onClick={step === 0 ? onCancel : () => setStep((s) => s - 1)}

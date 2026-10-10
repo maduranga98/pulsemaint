@@ -406,7 +406,7 @@ export default function BreakdownsPage() {
 
   return (
     <div className="min-h-full">
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">{t('common.breakdowns.pageTitle')}</h1>
@@ -438,7 +438,7 @@ export default function BreakdownsPage() {
         </div>
       </div>
 
-      <div className="px-6 py-5 space-y-5">
+      <div className="px-4 sm:px-6 py-5 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
             {(['reported', 'assigned', 'open', ...(role === 'admin' ? (['closed'] as Filter[]) : [])] as Filter[]).map((f) => (
@@ -454,7 +454,7 @@ export default function BreakdownsPage() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('common.breakdowns.severity')}</label>
             <select
               value={severityFilter}
