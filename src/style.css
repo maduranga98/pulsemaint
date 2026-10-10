@@ -347,3 +347,58 @@ a {
 .scrollbar-dark *::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* ---------------------------------------------------------------------------
+ * Global dark scrollbars — every scrollable area (drawers, modals, tables,
+ * dropdowns, textareas, the page itself) for every role, not just opt-in
+ * `.scrollbar-dark` regions. Slim navy track, blue→cyan gradient thumb that
+ * brightens on hover/drag, inset border so the thumb floats off the edge.
+ *
+ * Chromium 121+ ignores ::-webkit-scrollbar once `scrollbar-color` is set, so
+ * the standard properties are only applied where the webkit pseudo-elements
+ * are unsupported (Firefox). `.scrollbar-hide` still wins on specificity.
+ * ------------------------------------------------------------------------- */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #2B4C7E rgba(15, 30, 53, 0.6);
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: rgba(15, 30, 53, 0.55);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1A56DB, #00A3D9);
+  border-radius: 9999px;
+  border: 2px solid #0A1628;
+  background-clip: padding-box;
+  min-height: 36px;
+  min-width: 36px;
+  transition: background 0.2s ease;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2563EB, #00C2FF);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #60A5FA, #22D3EE);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Horizontal scrollers: gradient runs left→right. */
+*::-webkit-scrollbar-thumb:horizontal {
+  background: linear-gradient(90deg, #1A56DB, #00A3D9);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:horizontal:hover {
+  background: linear-gradient(90deg, #2563EB, #00C2FF);
+  background-clip: padding-box;
+}
