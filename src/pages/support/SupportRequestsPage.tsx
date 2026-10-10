@@ -80,7 +80,7 @@ export default function SupportRequestsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="-mx-4 -mt-5 border-b border-[#1E3A5F] bg-[#0F1E35] px-4 py-5 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="border-b border-[#1E3A5F] pb-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white!">{t('common.supportRequests.title')}</h1>

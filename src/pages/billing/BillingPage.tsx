@@ -318,7 +318,7 @@ export default function BillingPage() {
   return (
     <div className="min-h-full space-y-6">
       {/* Header */}
-      <div className="bg-[#0F1E35] border-b border-[#1E3A5F] -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 px-4 sm:px-6 lg:px-8 py-5">
+      <div className="border-b border-[#1E3A5F] pb-5">
         <h1 className="text-2xl font-bold text-white!">{t('common.billing.header.title')}</h1>
         <p className="text-sm text-slate-400 mt-1">{t('common.billing.header.subtitle')}</p>
       </div>

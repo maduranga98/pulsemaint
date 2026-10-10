@@ -43,12 +43,12 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-full">
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      <div className="border-b border-slate-200 pb-5">
         <h1 className="text-2xl font-bold text-slate-900">{t('common.settings.page.title', 'Settings')}</h1>
         <p className="text-sm text-slate-500">{t('common.settings.page.subtitle', 'Configure how FirmiCore works for your plant.')}</p>
       </div>
 
-      <div className="px-6 py-5 space-y-6">
+      <div className="pt-6 space-y-6">
         <section className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
