@@ -10,14 +10,10 @@ export default function PMCalendarPage() {
   const navigate = useNavigate();
   const company = useAuthStore((s) => s.company);
   const userProfile = useAuthStore((s) => s.userProfile);
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
 
   const { events, loading } = usePMCalendarEvents({
     companyId: company?.id || '',
     siteId: userProfile?.siteIds?.[0] || company?.id || '',
-    month: currentMonth,
-    year: currentYear,
   });
 
   const handleEventClick = (event: CalendarEvent) => {
