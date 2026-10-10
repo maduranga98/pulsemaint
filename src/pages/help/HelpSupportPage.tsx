@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Search, X } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { HELP_MODULE_ROUTES, ROLE_HELP_MODULES, type HelpModuleId } from './helpContent';
 
@@ -22,25 +23,36 @@ export default function HelpSupportPage() {
 
   const moduleIds = role ? ROLE_HELP_MODULES[role] : [];
 
+  const tokens = useMemo(
+    () => query.toLowerCase().split(/\s+/).filter(Boolean),
+    [query],
+  );
+  const searching = tokens.length > 0;
+
+  // Every typed word must appear somewhere (any order, partial words ok), so
+  // "add machine" finds "Add a machine". A card whose own title/description
+  // matches shows all its guides; otherwise only the guides that match, so the
+  // list actually narrows down instead of keeping every module on screen.
   const cards = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const matches = (text: string) => {
+      const lower = text.toLowerCase();
+      return tokens.every((tok) => lower.includes(tok));
+    };
     return moduleIds
       .map((id) => {
         const content = t(`help.modules.${id}`, { returnObjects: true }) as HelpModuleContent;
         return { id, content };
       })
-      .filter(({ content }) => {
-        if (!q) return true;
-        const haystack = [
-          content.title,
-          content.description,
-          ...content.guides.flatMap((g) => [g.title, ...g.steps]),
-        ]
-          .join(' ')
-          .toLowerCase();
-        return haystack.includes(q);
-      });
-  }, [moduleIds, query, t]);
+      .filter(({ content }) => content && typeof content === 'object')
+      .map(({ id, content }) => {
+        const guides = content.guides ?? [];
+        if (!searching) return { id, content: { ...content, guides } };
+        if (matches(`${content.title} ${content.description}`)) return { id, content: { ...content, guides } };
+        const hit = guides.filter((g) => matches(`${g.title} ${(g.steps ?? []).join(' ')}`));
+        return hit.length ? { id, content: { ...content, guides: hit } } : null;
+      })
+      .filter((c): c is { id: HelpModuleId; content: HelpModuleContent } => c !== null);
+  }, [moduleIds, tokens, searching, t]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
@@ -50,13 +62,29 @@ export default function HelpSupportPage() {
       </div>
 
       <div className="mb-6">
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('help.searchPlaceholder') ?? undefined}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Escape' && setQuery('')}
+            placeholder={t('help.searchPlaceholder') ?? undefined}
+            aria-label={t('help.searchPlaceholder') ?? 'Search'}
+            autoComplete="off"
+            className="w-full rounded-lg border border-slate-300 bg-transparent py-2.5 pl-9 pr-9 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:text-slate-200"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {cards.length === 0 ? (
@@ -64,7 +92,7 @@ export default function HelpSupportPage() {
       ) : (
         <div className="space-y-4">
           {cards.map(({ id, content }) => (
-            <HelpModuleCard key={id} id={id} content={content} />
+            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
           ))}
         </div>
       )}
@@ -83,7 +111,7 @@ export default function HelpSupportPage() {
   );
 }
 
-function HelpModuleCard({ id, content }: { id: HelpModuleId; content: HelpModuleContent }) {
+function HelpModuleCard({ id, content, searching }: { id: HelpModuleId; content: HelpModuleContent; searching: boolean }) {
   const { t } = useTranslation();
   const route = HELP_MODULE_ROUTES[id];
 
@@ -105,7 +133,7 @@ function HelpModuleCard({ id, content }: { id: HelpModuleId; content: HelpModule
       {content.guides.length > 0 && (
         <div className="mt-4 divide-y divide-slate-100 border-t border-slate-100">
           {content.guides.map((guide, i) => (
-            <details key={i} className="group py-2" open={i === 0}>
+            <details key={`${i}-${searching}`} className="group py-2" open={searching || i === 0}>
               <summary className="cursor-pointer list-none text-sm font-medium text-slate-800 marker:content-none flex items-center justify-between gap-2">
                 {guide.title}
                 <span className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">▾</span>
