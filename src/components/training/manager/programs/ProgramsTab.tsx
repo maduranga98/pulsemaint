@@ -19,6 +19,40 @@ export default function ProgramsTab() {
     await deleteTrainingProgram(id);
   };
 
+  const renderActions = (p: TrainingProgram, className = 'flex items-center justify-end gap-2') => (
+    <div className={className}>
+                        {p.status === 'active' && (
+                          <button
+                            onClick={() => {
+                              setJustAssigned(false);
+                              setAssigningProgram(p);
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                          >
+                            <UserPlus className="w-3 h-3" /> {t('common.traineeManagement.library.programsTab.actions.assign')}
+                          </button>
+                        )}
+                        {p.status === 'active' && (
+                          <button
+                            onClick={() => void handleDelete(p.id)}
+                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                          >
+                            <Trash2 className="w-3 h-3" /> {t('common.traineeManagement.library.programsTab.actions.delete')}
+                          </button>
+                        )}
+                      </div>
+  );
+
+  const statusBadge = (p: TrainingProgram) => (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+      }`}
+    >
+      {p.status === 'active' ? t('common.traineeManagement.library.programsTab.status.active') : t('common.traineeManagement.library.programsTab.status.archived')}
+    </span>
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -48,7 +82,25 @@ export default function ProgramsTab() {
             <p className="text-sm">{t('common.traineeManagement.library.programsTab.emptyState')}</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="divide-y divide-gray-100 md:hidden">
+            {programs.map((p) => (
+              <div key={p.id} className="p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900">{p.title}</p>
+                    {p.description && <p className="text-xs text-gray-500 line-clamp-2">{p.description}</p>}
+                  </div>
+                  {statusBadge(p)}
+                </div>
+                <p className="text-xs text-gray-500">
+                  {t('common.traineeManagement.library.programsTab.columns.modules')}: {p.moduleConfigs.length} · {t('common.traineeManagement.library.programsTab.durationDays', { count: p.totalDurationDays })}
+                </p>
+                {renderActions(p, 'flex items-center gap-2 pt-1 [&>button]:min-h-10 [&>button]:px-3 [&>button]:text-sm')}
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -69,42 +121,17 @@ export default function ProgramsTab() {
                     <td className="px-4 py-3 text-center text-gray-600">{p.moduleConfigs.length}</td>
                     <td className="px-4 py-3 text-center text-gray-600">{t('common.traineeManagement.library.programsTab.durationDays', { count: p.totalDurationDays })}</td>
                     <td className="px-4 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                        }`}
-                      >
-                        {p.status === 'active' ? t('common.traineeManagement.library.programsTab.status.active') : t('common.traineeManagement.library.programsTab.status.archived')}
-                      </span>
+                      {statusBadge(p)}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-2">
-                        {p.status === 'active' && (
-                          <button
-                            onClick={() => {
-                              setJustAssigned(false);
-                              setAssigningProgram(p);
-                            }}
-                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
-                          >
-                            <UserPlus className="w-3 h-3" /> {t('common.traineeManagement.library.programsTab.actions.assign')}
-                          </button>
-                        )}
-                        {p.status === 'active' && (
-                          <button
-                            onClick={() => void handleDelete(p.id)}
-                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
-                          >
-                            <Trash2 className="w-3 h-3" /> {t('common.traineeManagement.library.programsTab.actions.delete')}
-                          </button>
-                        )}
-                      </div>
+                      {renderActions(p)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
