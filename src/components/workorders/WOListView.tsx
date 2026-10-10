@@ -7,6 +7,7 @@ import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
 import { WOTable } from './WOTable';
+import { WOCard } from './WOCard';
 import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
@@ -192,7 +193,7 @@ export function WOListView() {
                   key={type}
                   type="button"
                   onClick={() => setActiveCategory(type)}
-                  className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                     activeCategory === type
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-500 hover:bg-gray-100'
@@ -216,7 +217,7 @@ export function WOListView() {
               <button
                 type="button"
                 onClick={() => setActiveCategory('signedOff')}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                   activeCategory === 'signedOff'
                     ? 'bg-emerald-600 text-white'
                     : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
@@ -236,7 +237,7 @@ export function WOListView() {
               <button
                 type="button"
                 onClick={() => setActiveCategory('cancelled')}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                   activeCategory === 'cancelled'
                     ? 'bg-gray-600 text-white'
                     : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
@@ -295,11 +296,20 @@ export function WOListView() {
                when every type is combined ("all" or either terminal tab),
                hidden when a single category filters it down to one type
                already named by the active tab. */
-            <WOTable
-              workOrders={displayedWOs}
-              onSelect={setSelectedWO}
-              showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
-            />
+            <>
+              <div className="grid grid-cols-1 gap-3 md:hidden">
+                {displayedWOs.map((wo) => (
+                  <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />
+                ))}
+              </div>
+              <div className="hidden md:block">
+                <WOTable
+                  workOrders={displayedWOs}
+                  onSelect={setSelectedWO}
+                  showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
+                />
+              </div>
+            </>
           )
         )}
       </div>

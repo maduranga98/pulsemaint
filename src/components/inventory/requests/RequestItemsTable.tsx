@@ -20,8 +20,66 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
       ? t('common.inventory.requests.itemsTable.costExceedsThreshold', { threshold: APPROVAL_THRESHOLD_LKR.toLocaleString() })
       : '');
 
+  const writtenOffNote = (item: RequestItem) =>
+    item.isWrittenOff ? (
+      <div className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+        {t('common.inventory.requests.itemsTable.writtenOff', {
+          name: item.writeOffByName || '',
+          reason: item.writeOffReason || '',
+        })}
+      </div>
+    ) : null;
+
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <>
+    <div className="space-y-3 md:hidden">
+      {items.map((item) => (
+        <div key={item.id} className="rounded-lg border border-gray-200 bg-white p-3 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-medium text-gray-900">{item.partName}</p>
+              <p className="text-xs text-gray-500 break-all">{item.partNumber}</p>
+            </div>
+            <span
+              className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${item.isCritical ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`}
+            >
+              {item.isCritical ? t('common.inventory.requests.itemsTable.critical') : t('common.inventory.requests.itemsTable.standard')}
+            </span>
+          </div>
+          <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+            <dt className="text-gray-500">{t('common.inventory.requests.itemsTable.columns.qtyRequested')}</dt>
+            <dd className="text-right text-gray-900">{item.quantityRequested} {item.unit}</dd>
+            <dt className="text-gray-500">{t('common.inventory.requests.itemsTable.columns.availStock')}</dt>
+            <dd className="text-right text-gray-900">{item.availableAtRequest}</dd>
+            {showCost && (
+              <>
+                <dt className="text-gray-500">{t('common.inventory.requests.itemsTable.columns.unitCost')}</dt>
+                <dd className="text-right text-gray-900">LKR {item.unitCost.toLocaleString()}</dd>
+                <dt className="text-gray-500">{t('common.inventory.requests.itemsTable.columns.lineTotal')}</dt>
+                <dd className="text-right font-medium text-gray-900">LKR {(item.unitCost * item.quantityRequested).toLocaleString()}</dd>
+              </>
+            )}
+          </dl>
+          <AvailabilityIndicator available={item.availableAtRequest} requested={item.quantityRequested} />
+          {item.notes && <p className="text-xs text-gray-500">{item.notes}</p>}
+          {writtenOffNote(item)}
+        </div>
+      ))}
+      {showCost && (
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600 font-medium">{t('common.inventory.requests.itemsTable.subtotal', { count: items.length })}</span>
+            <span className="font-bold text-gray-900">LKR {subtotal.toLocaleString()}</span>
+          </div>
+          <p className={`rounded px-2 py-1 text-xs ${allAvailable && subtotal <= APPROVAL_THRESHOLD_LKR ? 'text-green-700 bg-green-50' : 'text-amber-700 bg-amber-50'}`}>
+            {allAvailable && subtotal <= APPROVAL_THRESHOLD_LKR
+              ? t('common.inventory.requests.itemsTable.autoApprovalEligible')
+              : t('common.inventory.requests.itemsTable.autoApprovalNotEligible', { reasons })}
+          </p>
+        </div>
+      )}
+    </div>
+    <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200">
       <table className="min-w-full text-sm">
         <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
           <tr>
@@ -75,14 +133,7 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
               </td>
               <td className="px-4 py-3 text-gray-500 max-w-xs truncate">
                 {item.notes || ''}
-                {item.isWrittenOff && (
-                  <div className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
-                    {t('common.inventory.requests.itemsTable.writtenOff', {
-                      name: item.writeOffByName || '',
-                      reason: item.writeOffReason || '',
-                    })}
-                  </div>
-                )}
+                {writtenOffNote(item)}
               </td>
             </tr>
           ))}
@@ -113,5 +164,6 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
         )}
       </table>
     </div>
+    </>
   );
 }

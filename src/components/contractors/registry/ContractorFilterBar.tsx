@@ -1,4 +1,5 @@
-import { Search, X } from 'lucide-react';
+import { useState } from 'react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   CONTRACTOR_SPECIALIZATION_TAGS,
@@ -14,6 +15,12 @@ interface ContractorFilterBarProps {
 
 export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarProps) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const activeCount =
+    (filters.status && filters.status !== 'all' ? 1 : 0) +
+    (filters.minRating ? 1 : 0) +
+    (filters.documentStatus && filters.documentStatus !== 'all' ? 1 : 0) +
+    (filters.specializationTags?.length ?? 0);
   const toggleTag = (tag: ContractorSpecializationTag) => {
     const current = filters.specializationTags ?? [];
     const next = current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag];
@@ -22,8 +29,29 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-3">
-      <div className="grid gap-3 md:grid-cols-[1fr_160px_150px_140px_auto]">
-        <label className="relative">
+      <div className="flex gap-2 md:hidden">
+        <label className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={filters.search ?? ''}
+            onChange={(event) => onChange({ ...filters, search: event.target.value })}
+            placeholder={t('common.contractors.registry.filterBar.searchPlaceholder')}
+            className="h-11 w-full rounded-md border border-slate-200 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          {t('common.contractors.registry.filterBar.filters', 'Filters')}
+          {activeCount > 0 && <span className="rounded-full bg-blue-600 px-1.5 text-xs text-white">{activeCount}</span>}
+        </button>
+      </div>
+      <div className={`${open ? 'mt-3 grid' : 'hidden'} grid-cols-2 gap-2 md:mt-0 md:grid md:gap-3 md:grid-cols-[1fr_160px_150px_140px_auto]`}>
+        <label className="relative hidden md:block">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             value={filters.search ?? ''}
@@ -35,7 +63,7 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
         <select
           value={filters.status ?? 'all'}
           onChange={(event) => onChange({ ...filters, status: event.target.value as ContractorFilters['status'] })}
-          className="h-10 rounded-md border border-slate-200 px-3 text-sm"
+          className="h-11 w-full min-w-0 rounded-md border border-slate-200 px-3 text-sm md:h-10"
         >
           <option value="all">{t('common.contractors.registry.filterBar.status.all')}</option>
           <option value="active">{t('common.contractors.registry.statusBadge.active')}</option>
@@ -45,7 +73,7 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
         <select
           value={filters.minRating ?? 0}
           onChange={(event) => onChange({ ...filters, minRating: Number(event.target.value) || undefined })}
-          className="h-10 rounded-md border border-slate-200 px-3 text-sm"
+          className="h-11 w-full min-w-0 rounded-md border border-slate-200 px-3 text-sm md:h-10"
         >
           <option value="0">{t('common.contractors.registry.filterBar.rating.any')}</option>
           <option value="4">{t('common.contractors.registry.filterBar.rating.fourPlus')}</option>
@@ -54,19 +82,19 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
         <select
           value={filters.documentStatus ?? 'all'}
           onChange={(event) => onChange({ ...filters, documentStatus: event.target.value as ContractorFilters['documentStatus'] })}
-          className="h-10 rounded-md border border-slate-200 px-3 text-sm"
+          className="h-11 w-full min-w-0 rounded-md border border-slate-200 px-3 text-sm md:h-10"
         >
           <option value="all">{t('common.contractors.registry.filterBar.docs.all')}</option>
           <option value="valid">{t('common.contractors.registry.docStatusDot.valid')}</option>
           <option value="expiring">{t('common.contractors.registry.docStatusDot.expiring')}</option>
           <option value="expired">{t('common.contractors.registry.docStatusDot.expired')}</option>
         </select>
-        <button type="button" onClick={() => onChange({})} className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700">
+        <button type="button" onClick={() => onChange({})} className="col-span-2 inline-flex h-11 items-center justify-center gap-2 md:col-span-1 md:h-10 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700">
           <X className="h-4 w-4" />
           {t('common.contractors.registry.filterBar.clear')}
         </button>
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className={`${open ? 'flex' : 'hidden'} mt-3 gap-2 overflow-x-auto pb-1 md:flex md:flex-wrap md:overflow-visible md:pb-0`}>
         {CONTRACTOR_SPECIALIZATION_TAGS.map((tag) => {
           const selected = filters.specializationTags?.includes(tag);
           return (
@@ -74,7 +102,7 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
               key={tag}
               type="button"
               onClick={() => toggleTag(tag)}
-              className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${selected ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600'}`}
+              className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium ${selected ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600'}`}
             >
               {t(`common.contractors.registry.specializationTags.${tag}`, SPECIALIZATION_LABELS[tag])}
             </button>

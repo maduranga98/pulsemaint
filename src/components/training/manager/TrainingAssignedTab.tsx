@@ -118,6 +118,16 @@ export default function TrainingAssignedTab() {
     }
   };
 
+  const renderSignOff = (a: TrainingAssignment, className = '') =>
+    isReadyToSignOff(a) ? (
+      <button
+        onClick={() => setSigningOff(a)}
+        className={`inline-flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors ${className}`}
+      >
+        <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.trainingShared.manager.trainingAssignedTab.signOffAndClose')}
+      </button>
+    ) : null;
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-8 flex justify-center">
@@ -145,7 +155,45 @@ export default function TrainingAssignedTab() {
               {t('common.trainingShared.manager.trainingAssignedTab.modulesAssigned', { count: group.rows.length })}
             </span>
           </div>
-          <div className="overflow-x-auto">
+          <div className="divide-y divide-gray-100 md:hidden">
+            {group.rows.map((a) => {
+              const mod = modulesById.get(a.moduleId);
+              const pct = Math.min(100, Math.max(0, a.overallProgress ?? 0));
+              return (
+                <div key={a.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium text-gray-900 min-w-0">{a.moduleName}</p>
+                    <TrainingStatusBadge status={a.status} />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    {[
+                      mod?.trainingType ? TRAINEE_TRAINING_TYPE_LABELS[mod.trainingType] : null,
+                      mod?.trainingMode ? TRAINING_DELIVERY_MODE_LABELS[mod.trainingMode] : null,
+                      categoryLabel(getModuleCategory(mod), t),
+                    ].filter(Boolean).join(' · ')}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-xs text-gray-500">{a.overallProgress ?? 0}%</span>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <dt className="text-gray-400">{t('common.trainingShared.manager.trainingAssignedTab.columns.assigned')}</dt>
+                      <dd className="text-gray-700">{formatDate(a.assignedAt)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-gray-400">{t('common.trainingShared.manager.trainingAssignedTab.columns.dueDate')}</dt>
+                      <dd className="text-gray-700">{formatDueDateTime(a.dueDate, '—')}</dd>
+                    </div>
+                  </dl>
+                  {renderSignOff(a, 'w-full min-h-10 text-sm')}
+                </div>
+              );
+            })}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                 <tr>
@@ -188,14 +236,7 @@ export default function TrainingAssignedTab() {
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDueDateTime(a.dueDate, '—')}</td>
                       <td className="px-4 py-3"><TrainingStatusBadge status={a.status} /></td>
                       <td className="px-4 py-3 text-right">
-                        {isReadyToSignOff(a) && (
-                          <button
-                            onClick={() => setSigningOff(a)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.trainingShared.manager.trainingAssignedTab.signOffAndClose')}
-                          </button>
-                        )}
+                        {renderSignOff(a)}
                       </td>
                     </tr>
                   );
