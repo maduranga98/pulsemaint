@@ -65,6 +65,28 @@ export default function AssignedProgramsTab() {
     }
   };
 
+  const renderSignOff = (pa: ProgramAssignment, allDone: boolean, className = '') =>
+    allDone ? (
+      <button
+        onClick={() => setSigningOff(pa)}
+        className={`inline-flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors ${className}`}
+      >
+        <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.traineeManagement.library.assignedProgramsTab.signOff')}
+      </button>
+    ) : null;
+
+  const statusPill = (allDone: boolean) => (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        allDone ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+      }`}
+    >
+      {allDone
+        ? t('common.traineeManagement.library.assignedProgramsTab.status.awaitingSignOff')
+        : t('common.traineeManagement.library.assignedProgramsTab.status.inProgress')}
+    </span>
+  );
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-8 flex justify-center">
@@ -82,7 +104,38 @@ export default function AssignedProgramsTab() {
             <p className="text-sm">{t('common.traineeManagement.library.assignedProgramsTab.emptyState')}</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="divide-y divide-gray-100 md:hidden">
+            {openRows.map(({ pa, progress, allDone }) => (
+              <div key={pa.id} className="p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900">{pa.programName}</p>
+                    <p className="text-sm text-gray-600">{pa.traineeName}</p>
+                  </div>
+                  {statusPill(allDone)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
+                  </div>
+                  <span className="text-xs text-gray-500">{progress}%</span>
+                </div>
+                <dl className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <dt className="text-gray-400">{t('common.traineeManagement.library.assignedProgramsTab.columns.assigned')}</dt>
+                    <dd className="text-gray-700">{formatDate(pa.assignedAt)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-400">{t('common.traineeManagement.library.assignedProgramsTab.columns.dueDate')}</dt>
+                    <dd className="text-gray-700">{formatDate(pa.dueDate)}</dd>
+                  </div>
+                </dl>
+                {renderSignOff(pa, allDone, 'w-full min-h-10 text-sm')}
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                 <tr>
@@ -114,31 +167,17 @@ export default function AssignedProgramsTab() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          allDone ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
-                        }`}
-                      >
-                        {allDone
-                          ? t('common.traineeManagement.library.assignedProgramsTab.status.awaitingSignOff')
-                          : t('common.traineeManagement.library.assignedProgramsTab.status.inProgress')}
-                      </span>
+                      {statusPill(allDone)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      {allDone && (
-                        <button
-                          onClick={() => setSigningOff(pa)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.traineeManagement.library.assignedProgramsTab.signOff')}
-                        </button>
-                      )}
+                      {renderSignOff(pa, allDone)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 

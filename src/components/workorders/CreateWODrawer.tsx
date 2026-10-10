@@ -475,7 +475,7 @@ export function CreateWODrawer({
       {/* Drawer */}
       <div className="fixed right-0 top-0 bottom-0 w-full sm:max-w-xl bg-white z-50 flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-lg text-gray-900">{t('common.workOrders.copy.createTitle')}</h2>
           <button
             type="button"
@@ -488,7 +488,7 @@ export function CreateWODrawer({
         </div>
 
         {/* Step indicators */}
-        <div className="px-6 pt-4 pb-2">
+        <div className="px-4 sm:px-6 pt-4 pb-2">
           <div className="flex items-center gap-1">
             {STEPS.map((label, i) => (
               <div key={i} className="flex items-center flex-1 last:flex-none">
@@ -510,7 +510,7 @@ export function CreateWODrawer({
 
         {/* Step content */}
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <form onSubmit={(form.handleSubmit as any)(handleSubmit)} className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+        <form onSubmit={(form.handleSubmit as any)(handleSubmit)} className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-5">
 
           {linkedBreakdownGroup.length > 0 ? (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
@@ -961,7 +961,7 @@ export function CreateWODrawer({
                         {WORK_PERMIT_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                       </select>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-600">{t('common.workOrders.createDrawer.validFromLabel')}</label>
                         <input type="datetime-local" value={wpValidFrom} onChange={(e) => setWpValidFrom(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
@@ -1052,7 +1052,7 @@ export function CreateWODrawer({
         </form>
 
         {/* Footer nav */}
-        <div className="border-t border-gray-100 px-6 py-4 flex items-center justify-between gap-3">
+        <div className="border-t border-gray-100 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <button
             type="button"
             onClick={step === 0 ? onClose : prevStep}

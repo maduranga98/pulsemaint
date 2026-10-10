@@ -219,13 +219,13 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
 
   const panelClass = fullPage
     ? 'w-full'
-    : 'w-full sm:max-w-2xl sm:h-full bg-white overflow-y-auto';
+    : 'w-full h-[100dvh] sm:max-w-2xl sm:h-full bg-white overflow-y-auto';
 
   return (
     <div className={containerClass}>
       <div className={`${panelClass} bg-white flex flex-col`}>
         {/* Header */}
-        <div className="sticky top-0 bg-white z-10 border-b border-gray-100 px-6 py-4">
+        <div className="sticky top-0 bg-white z-10 border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -252,7 +252,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mt-4 overflow-x-auto">
+          <div className="flex gap-1 mt-3 sm:mt-4 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
@@ -271,7 +271,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-6">
           {/* ── Overview ── */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
@@ -975,7 +975,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
         </div>
 
         {/* Action bar */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4">
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           {isSupervisor && !showCompletionForm && !showSignOff && (
             <div className="flex flex-wrap gap-2">
               {/* Edit drawer not yet wired — button hidden to avoid no-op. */}

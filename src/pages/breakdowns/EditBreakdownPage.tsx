@@ -191,7 +191,7 @@ export default function EditBreakdownPage() {
 
   return (
     <div className="min-h-full">
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <button type="button" onClick={() => navigate(`/app/breakdowns/${id}`)} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1">
           <ArrowLeft className="w-4 h-4" /> {t('common.breakdowns.editPage.back')}
         </button>
@@ -199,7 +199,7 @@ export default function EditBreakdownPage() {
         <p className="text-sm text-slate-500">{breakdown?.ticketNumber} — {breakdown?.machineName}</p>
       </div>
 
-      <form onSubmit={handleSave} className="max-w-2xl mx-auto px-6 py-6 space-y-6">
+      <form onSubmit={handleSave} className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />

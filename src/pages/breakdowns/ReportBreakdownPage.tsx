@@ -275,7 +275,7 @@ export default function ReportBreakdownPage() {
     // or shades like text-indigo-900 that weren't in its mapping, which is
     // why this card previously rendered as barely-visible light-on-light.
     return (
-      <div className="min-h-full flex items-center justify-center px-6 py-10">
+      <div className="min-h-full flex items-center justify-center px-4 sm:px-6 py-10">
         <div className="max-w-xl w-full bg-[#0F1E35] rounded-xl border border-[#1E3A5F] p-6 space-y-4">
           <div className="text-center space-y-1">
             <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.breakdowns.reportPage.submittedTitle')}</h1>
@@ -346,7 +346,7 @@ export default function ReportBreakdownPage() {
 
   return (
     <div className="min-h-full">
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -361,7 +361,7 @@ export default function ReportBreakdownPage() {
       </div>
 
       {!siteId && profileTimedOut ? (
-        <div className="max-w-2xl mx-auto px-6 py-10 text-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700 text-sm mb-4">
             {t('common.breakdowns.reportPage.profileTimedOut')}
@@ -375,7 +375,7 @@ export default function ReportBreakdownPage() {
           </button>
         </div>
       ) : (
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-6 py-6 space-y-6">
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
