@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CalendarEvent } from '../../types/pm.types';
 import { PM_PRIORITY_CONFIG, PM_OPERATIONAL_STATUS_CONFIG } from '../../constants/pmConfig';
@@ -11,6 +11,18 @@ interface PMCalendarViewProps {
 }
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+/** Translucent priority-tinted chip that reads on both light and dark surfaces
+ *  (the old code fed Tailwind class names like `red-50` to CSS, which is
+ *  invalid, so chips rendered with no background or colour). */
+function eventChipStyle(priority: CalendarEvent['priority'], withText = true): CSSProperties {
+  const color = PM_PRIORITY_CONFIG[priority].color;
+  return {
+    backgroundColor: `${color}26`,
+    borderLeft: `3px solid ${color}`,
+    ...(withText ? { color } : {}),
+  };
+}
 
 function formatDueTime(date: Date): string {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -149,11 +161,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           <div
                             key={event.id}
                             className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium block"
-                            style={{
-                              backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
-                              color: PM_PRIORITY_CONFIG[event.priority].textClass.replace('text-', '').replace('700', '800'),
-                              borderLeft: `3px solid ${PM_PRIORITY_CONFIG[event.priority].color}`,
-                            }}
+                            style={eventChipStyle(event.priority)}
                             title={`${event.title}${event.operationalStatus ? ` · ${t(`common.pmSchedules.operationalStatuses.${event.operationalStatus}`)}` : ''}`}
                           >
                             <span className="flex items-center gap-1 opacity-75 truncate">
@@ -200,11 +208,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                     <div
                       key={event.id}
                       className="text-sm px-3 py-2 rounded-lg font-medium"
-                      style={{
-                        backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
-                        color: PM_PRIORITY_CONFIG[event.priority].textClass.replace('text-', '').replace('700', '800'),
-                        borderLeft: `3px solid ${PM_PRIORITY_CONFIG[event.priority].color}`,
-                      }}
+                      style={eventChipStyle(event.priority)}
                     >
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1.5">
@@ -244,10 +248,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                 <div
                   key={event.id}
                   className="flex items-center justify-between gap-3 rounded-lg px-3 py-2"
-                  style={{
-                    backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
-                    borderLeft: `3px solid ${PM_PRIORITY_CONFIG[event.priority].color}`,
-                  }}
+                  style={eventChipStyle(event.priority, false)}
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">

@@ -50,13 +50,9 @@ export default function PMSchedulesPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
 
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
   const { events: calendarEvents, loading: calendarLoading } = usePMCalendarEvents({
     companyId: company?.id || '',
     siteId: userProfile?.siteIds?.[0] || company?.id || '',
-    month: currentMonth,
-    year: currentYear,
   });
 
   const handleCalendarEventClick = (event: CalendarEvent) => {
