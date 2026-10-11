@@ -3,8 +3,8 @@ rules_version = '2';
 // Firebase Storage rules for PulseMaint.
 //
 // All paths require an authenticated, non-anonymous user. Uploads are capped at 50 MB
-// (100 MB for training content, which can include videos). Any path not
-// explicitly matched below is denied.
+// (100 MB for company assets such as training content, which can include videos).
+// Any path not explicitly matched below is denied.
 //
 // Tenant isolation: storage rules can't query this project's named
 // Firestore database ("default"), so company membership comes from the
@@ -13,8 +13,15 @@ rules_version = '2';
 // Functions). Every path that starts with a company ID — siteId and plantId
 // are the company ID in this single-site-per-company model — is limited to
 // that company. The legacy top-level contractors/ and inventoryParts/
-// folders (no company segment) are closed to direct access; triage/pdfs,
-// triage/media and triage/shared still rely on unguessable names.
+// folders (no company segment) are closed to direct access.
+//
+// Evidence is create-only: work order / breakdown media, audit, 5S, kaizen and
+// evaluation attachments, staff-request files, supplier invoices, training
+// offboard reports, trainee-programme certificates and triage media can be
+// uploaded once but never overwritten or deleted by a client (the app never
+// does either; deletion happens only in Cloud Functions with the Admin SDK,
+// which bypasses these rules). Active-content types (HTML, SVG, scripts, XML)
+// are rejected on every client upload.
 
 service firebase.storage {
   match /b/{bucket}/o {
@@ -35,32 +42,55 @@ service firebase.storage {
           || request.auth.token.get('superadmin', false) == true);
     }
 
-    // triage/pdfs/… and triage/media/… are named by the uploader's uid and
+    function validUpload(maxSizeMb) {
+      return request.resource == null
+        || request.resource.size < maxSizeMb * 1024 * 1024;
+    }
+
+    // Files a browser could execute or render as a page on download are never
+    // accepted (stored-XSS vector). A missing content type is stored as
+    // application/octet-stream by Storage, which downloads instead of rendering.
+    function safeContentType() {
+      return request.resource.contentType == null
+        || !request.resource.contentType.lower().matches(
+          '(text/html|application/xhtml.*|image/svg.*|text/javascript|application/(x-)?javascript|text/xml|application/xml|application/x-shockwave-flash).*');
+    }
+
+    // Upload once, never overwrite (resource is the existing object).
+    function newObject() {
+      return resource == null;
+    }
+
+    // triage/pdfs/… and triage/media/… are named by a random id and
     // triage/shared/… holds media not tied to one company; any other first
     // segment under triage/ is a company ID.
     function triageAllowed(folder) {
       return (folder in ['pdfs', 'media', 'shared'] && signedIn()) || inCompany(folder);
     }
 
-    function validUpload(maxSizeMb) {
-      return request.resource == null
-        || request.resource.size < maxSizeMb * 1024 * 1024;
-    }
-
-    // Company-scoped assets: machine photos & documents, branding logos,
-    // training content, content library, contractor documents/technician
-    // photos (contractors/…) and inventory part warranty files
-    // (inventoryParts/…).
-    // e.g. companies/{companyId}/machines/{machineId}/photos/{file}
-    match /companies/{companyId}/{allPaths=**} {
+    // Company-scoped assets that are uploaded once and kept as a record. Must be
+    // matched before the generic company assets below because rules are OR-ed:
+    // the generic match excludes these sections explicitly.
+    // e.g. companies/{companyId}/staff_requests/{requestId}/{file}
+    match /companies/{companyId}/{section}/{rest=**} {
+      function immutableSection() {
+        return section in ['staff_requests', 'purchaseOrders', 'training', 'trainee-programmes'];
+      }
       allow read: if inCompany(companyId);
-      allow write: if inCompany(companyId) && validUpload(100);
+      // An upload over an existing object is evaluated as a create, so
+      // "overwrite" is allowed only outside the immutable record sections.
+      allow create: if inCompany(companyId) && validUpload(100) && safeContentType()
+        && (newObject() || !immutableSection());
+      // Immutable record sections: no metadata change and no delete from clients.
+      allow update, delete: if inCompany(companyId)
+        && !immutableSection()
+        && validUpload(100) && (request.resource == null || safeContentType());
     }
 
-    // Work order media: documents, field-media, completion photos, signatures.
+    // Work order media: documents, field-media, completion photos, approval files.
     match /workorders/{siteId}/{woId}/{allPaths=**} {
       allow read: if inCompany(siteId);
-      allow write: if inCompany(siteId) && validUpload(50);
+      allow create: if inCompany(siteId) && validUpload(50) && safeContentType() && newObject();
     }
 
     // Legacy contractor files (before they moved under
@@ -75,37 +105,38 @@ service firebase.storage {
     // e.g. audit_attachments/{plantId}/{sessionKey}/{type}/{file}
     match /audit_attachments/{plantId}/{allPaths=**} {
       allow read: if inCompany(plantId);
-      allow write: if inCompany(plantId) && validUpload(50);
+      allow create: if inCompany(plantId) && validUpload(50) && safeContentType() && newObject();
     }
 
     match /audit_reports/{plantId}/{allPaths=**} {
       allow read: if inCompany(plantId);
-      allow write: if inCompany(plantId) && validUpload(50);
+      allow create: if inCompany(plantId) && validUpload(50) && safeContentType() && newObject();
     }
 
     // 5S audit photos: audits/{plantId}/{auditId}/{itemId}/{file}
     match /audits/{plantId}/{allPaths=**} {
       allow read: if inCompany(plantId);
-      allow write: if inCompany(plantId) && validUpload(50);
+      allow create: if inCompany(plantId) && validUpload(50) && safeContentType() && newObject();
     }
 
     // Kaizen card photos: kaizen/{plantId}/{cardId}/{file}
     match /kaizen/{plantId}/{allPaths=**} {
       allow read: if inCompany(plantId);
-      allow write: if inCompany(plantId) && validUpload(50);
+      allow create: if inCompany(plantId) && validUpload(50) && safeContentType() && newObject();
     }
 
     // Evaluation attachments: evaluation_attachments/{companyId}/{evaluationId}/{file}
     match /evaluation_attachments/{companyId}/{allPaths=**} {
       allow read: if inCompany(companyId);
-      allow write: if inCompany(companyId) && validUpload(50);
+      allow create: if inCompany(companyId) && validUpload(50) && safeContentType() && newObject();
     }
 
-    // Triage media and generated PDFs: triage/pdfs/{uid}.pdf,
-    // triage/media/{file}, triage/{companyId}/{folder}/{file}
+    // Triage media and generated PDFs: triage/pdfs/{id}.pdf,
+    // triage/media/{file}, triage/{companyId}/{folder}/{file}. Upload-only, so
+    // one company can never overwrite or delete another's (or the shared) files.
     match /triage/{folder}/{allPaths=**} {
       allow read: if triageAllowed(folder);
-      allow write: if triageAllowed(folder) && validUpload(50);
+      allow create: if triageAllowed(folder) && validUpload(50) && safeContentType() && newObject();
     }
 
     // Legacy inventory part warranty files (now under
@@ -127,7 +158,7 @@ service firebase.storage {
     // e.g. breakdowns/{siteId}/{ticketId}/media/{file}
     match /breakdowns/{siteId}/{ticketId}/{allPaths=**} {
       allow read: if inCompany(siteId);
-      allow write: if inCompany(siteId) && validUpload(50);
+      allow create: if inCompany(siteId) && validUpload(50) && safeContentType() && newObject();
     }
   }
 }

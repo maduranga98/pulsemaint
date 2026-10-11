@@ -2,18 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { LessonItem, LessonProgress } from '@/lib/training/trainingTypes';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 interface TextLessonProps {
   lesson: LessonItem;
   progress?: LessonProgress;
   onComplete: (lessonId: string) => void;
-}
-
-function sanitizeHtml(html: string): string {
-  return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
 }
 
 export default function TextLesson({ lesson, progress, onComplete }: TextLessonProps) {

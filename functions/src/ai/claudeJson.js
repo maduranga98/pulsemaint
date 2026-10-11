@@ -3,6 +3,7 @@ const { defineSecret } = require("firebase-functions/params");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { Anthropic } = require("@anthropic-ai/sdk");
+const { consumeAiQuota } = require("./aiUsageLimit");
 
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
@@ -90,6 +91,9 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
 
   const userSnap = await db.collection("users").doc(request.auth.uid).get();
   if (!userSnap.exists) throw new HttpsError("permission-denied", "No app profile for this user");
+
+  // Per-user (hourly) and per-company (daily) caps — see aiUsageLimit.js.
+  await consumeAiQuota(db, {uid: request.auth.uid, companyId: userSnap.get("companyId")});
 
   let fullPrompt = prompt;
   if (machineId) {
