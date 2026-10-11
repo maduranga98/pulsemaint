@@ -19,7 +19,7 @@ export default function TriageSessionReplay({ session }: Props) {
   const startedAt = new Date(session.startedAt.seconds * 1000);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-3xl">
       <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
         <div className="flex items-start justify-between gap-3">
           <div>

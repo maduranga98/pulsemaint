@@ -152,9 +152,9 @@ export function WOListView() {
           .filter((wo) => activeCategory === 'all' || wo.woType === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       {/* Page header */}
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4">
+      <div className="pb-4 mb-5 border-b border-gray-100">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="font-bold text-2xl text-gray-900">{t('common.workOrders.pageTitle')}</h1>
@@ -174,7 +174,7 @@ export function WOListView() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 py-5 space-y-5">
+      <div className="space-y-5">
         {/* Stats */}
         <WOStatsBar />
 
