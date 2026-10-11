@@ -31,6 +31,39 @@ service cloud.firestore {
       return getUserData().siteId == siteId;
     }
 
+    // ---- Tenant isolation ----------------------------------------------------
+    // Most operational documents carry `companyId` and/or `siteId` (the site id
+    // is the company id in the single-site-per-company model). A role alone must
+    // never grant access across companies, so role-based rules also check that
+    // the document belongs to the caller's own company.
+    function myCompanyId() {
+      return getUserData().get('companyId', null);
+    }
+
+    function mySiteId() {
+      return getUserData().get('siteId', getUserData().get('companyId', null));
+    }
+
+    // d is a document's data map (resource.data or request.resource.data).
+    function tenantMatches(d) {
+      return myCompanyId() != null
+        && (d.get('companyId', null) == myCompanyId()
+          || d.get('siteId', null) == myCompanyId()
+          || (mySiteId() != null && d.get('siteId', null) == mySiteId()));
+    }
+
+    // Tenant checks for documents that only reference a work order / machine
+    // (sub-collections, permits, readings) — the parent decides the company.
+    function workOrderInMyTenant(woId) {
+      return exists(/databases/$(database)/documents/workOrders/$(woId))
+        && tenantMatches(get(/databases/$(database)/documents/workOrders/$(woId)).data);
+    }
+
+    function machineInMyTenant(machineId) {
+      return exists(/databases/$(database)/documents/machines/$(machineId))
+        && tenantMatches(get(/databases/$(database)/documents/machines/$(machineId)).data);
+    }
+
     // Plant is the main scoping category (department is its sub-category —
     // see isSameDepartment below). Admin has no plantId and manages every
     // plant, so it always passes; every other role is locked to its own
@@ -113,22 +146,49 @@ service cloud.firestore {
     // Users
     // ---------------------------------------------------------------------------
 
+    // The mapping doc /users/{uid} is what every other rule trusts for role and
+    // company, so it must never be self-serviceable. A user may only write a
+    // mapping that matches their own per-company profile
+    // (companies/{c}/users/{uid}); that profile can only be created through
+    // company registration or a valid pending invitation (see below) and its
+    // role / company / plant fields cannot be edited by the user themselves.
+    function mappingMatchesProfile(d, uid) {
+      return d.get('companyId', null) is string
+        && exists(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid))
+        && d.get('companyId', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('companyId', null)
+        && d.get('role', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('role', null)
+        && d.get('plantId', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('plantId', null)
+        && (d.get('siteId', null) == null
+          || d.get('siteId', null) == d.companyId
+          || d.get('siteId', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('siteIds', [null])[0]);
+    }
+
     match /users/{userId} {
+      // Own mapping, or a manager reading a colleague's mapping in the same
+      // company (list queries must include where('companyId', '==', …)).
       allow read: if isAuthenticated() && (
         request.auth.uid == userId ||
-        isAnyRole(['admin', 'supervisor', 'maintenance_supervisor', 'plant_manager'])
+        (isAnyRole(['admin', 'supervisor', 'maintenance_supervisor', 'plant_manager'])
+          && resource.data.get('companyId', null) == myCompanyId())
       );
-      allow write: if isAdmin() || request.auth.uid == userId
-        // Supervisors keep the role-mapping doc in sync when editing company
-        // users (Users page), but can never grant or touch the admin role.
-        || (isAnyRole(['supervisor', 'maintenance_supervisor'])
-          && request.resource.data.role != 'admin'
-          && (resource == null
-            || !('role' in resource.data)
-            || resource.data.role != 'admin')
-          && (resource == null
-            || !('companyId' in resource.data)
-            || resource.data.companyId == getUserCompanyId()));
+
+      function managerMayWrite() {
+        return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && request.resource.data.get('companyId', null) == myCompanyId()
+          && (resource == null || resource.data.get('companyId', null) == myCompanyId())
+          && (isAdmin()
+            // Supervisors keep the role-mapping doc in sync when editing company
+            // users (Users page), but can never grant or touch the admin role.
+            || (isAnyRole(['supervisor', 'maintenance_supervisor'])
+              && request.resource.data.get('role', null) != 'admin'
+              && (resource == null || resource.data.get('role', null) != 'admin')));
+      }
+
+      allow create, update: if isAuthenticated() && (
+        (request.auth.uid == userId && mappingMatchesProfile(request.resource.data, userId))
+        || managerMayWrite()
+      );
+      allow delete: if isAdmin() && resource.data.get('companyId', null) == myCompanyId();
     }
 
     // ---------------------------------------------------------------------------
@@ -147,20 +207,27 @@ service cloud.firestore {
 
       // Matches if user's siteId equals the WO's siteId, OR if user has no
       // site restriction (siteId null = company-wide access for their role).
+      // The document must always belong to the caller's own company first; a
+      // missing siteId on the caller only widens access within that company.
       function woSiteMatches() {
-        return getUserData().siteId == null || isSameSite(resource.data.siteId);
+        return tenantMatches(resource.data)
+          && (getUserData().get('siteId', null) == null || isSameSite(resource.data.siteId));
       }
 
-      // Admin: full access
-      allow read, write: if isAdmin();
+      // Admin: full access to their own company's work orders.
+      allow read, delete: if isAdmin() && tenantMatches(resource.data);
+      allow create: if isAdmin() && tenantMatches(request.resource.data);
+      allow update: if isAdmin() && tenantMatches(resource.data) && tenantMatches(request.resource.data);
 
       // Supervisor / Plant Manager: create WOs for their site. Checked against
       // the incoming document because resource does not exist yet on create.
       allow create: if (isSupervisor() || isPlantManager())
-        && (getUserData().siteId == null || isSameSite(request.resource.data.siteId));
+        && tenantMatches(request.resource.data)
+        && (getUserData().get('siteId', null) == null || isSameSite(request.resource.data.siteId));
 
       // Supervisor: full read/write for their site (or all sites if unrestricted)
-      allow read, write: if isSupervisor() && woSiteMatches();
+      allow read, delete: if isSupervisor() && woSiteMatches();
+      allow update: if isSupervisor() && woSiteMatches() && tenantMatches(request.resource.data);
 
       // Supervisor: company-wide read for the full-plant Analytics page, which
       // queries workOrders by companyId (see analyticsScope.ts). A site-gated
@@ -279,23 +346,23 @@ service cloud.firestore {
       // Parts requests sub-collection
       match /partsRequests/{requestId} {
         // Technician/trainee (own WO), Supervisor, Plant Manager, Store Keeper, Admin can read
-        allow read: if isAdmin()
+        allow read: if workOrderInMyTenant(woId) && (isAdmin()
           || isSupervisor()
           || isPlantManager()
           || isStoreKeeper()
-          || ((isTechnician() || isRole('trainee')) && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
+          || ((isTechnician() || isRole('trainee')) && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds));
 
         // Technician/trainee (own WO), Supervisor, Admin can create
-        allow create: if isAdmin()
+        allow create: if workOrderInMyTenant(woId) && (isAdmin()
           || isSupervisor()
-          || ((isTechnician() || isRole('trainee')) && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
+          || ((isTechnician() || isRole('trainee')) && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds));
 
         // Store Keeper can update status (approve/reject/issue)
-        allow update: if isAdmin()
+        allow update: if workOrderInMyTenant(woId) && (isAdmin()
           || isStoreKeeper()
-          || isSupervisor();
+          || isSupervisor());
 
-        allow delete: if isAdmin();
+        allow delete: if workOrderInMyTenant(woId) && isAdmin();
       }
     }
 
@@ -313,7 +380,7 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /machineHistory/{machineId}/entries/{entryId} {
-      allow read: if isAuthenticated() && isAnyRole([
+      allow read: if isAuthenticated() && machineInMyTenant(machineId) && isAnyRole([
         'safety_officer',
         'maintenance_supervisor',
         'supervisor',
@@ -325,7 +392,7 @@ service cloud.firestore {
       ]);
       // History entries are appended by the client on WO completion and by
       // Cloud Functions on contractor job close. Immutable once written.
-      allow create: if isAuthenticated() && isAnyRole([
+      allow create: if isAuthenticated() && machineInMyTenant(machineId) && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'admin'
       ]);
       allow update, delete: if false;
@@ -353,34 +420,35 @@ service cloud.firestore {
     match /breakdown_tickets/{ticketId} {
       // hr_officer/store_keeper reach /analytics too and need this for the
       // Breakdowns tab's charts (analyticsAggregation.ts).
-      allow read: if isAuthenticated() && isAnyRole([
+      allow read: if isAuthenticated() && tenantMatches(resource.data) && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin', 'hr_officer', 'store_keeper'
       ]);
-      allow create: if isAnonymousBreakdownReport() || (isAuthenticated() && isAnyRole([
+      allow create: if isAnonymousBreakdownReport() || (isAuthenticated() && tenantMatches(request.resource.data) && isAnyRole([
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin'
       ]));
       // Attending/assigned technicians and trainees can fill in and update
       // their own ticket (severity, type, attempted fixes, status, media).
-      allow update: if isAuthenticated() && isAnyRole([
+      allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data) && isAnyRole([
         'technician', 'trainee', 'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
       ]);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
+    // Legacy collection, no longer used by the app — kept tenant-scoped.
     match /breakdowns/{breakdownId} {
-      allow read: if isAuthenticated() && isAnyRole([
+      allow read: if isAuthenticated() && tenantMatches(resource.data) && isAnyRole([
         'safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'technician',
         'floor_operator', 'trainee', 'admin'
       ]);
-      allow create: if isAuthenticated() && isAnyRole([
+      allow create: if isAuthenticated() && tenantMatches(request.resource.data) && isAnyRole([
         'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'trainee', 'admin'
       ]);
-      allow update: if isAuthenticated() && isAnyRole([
+      allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data) && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
       ]);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -394,7 +462,7 @@ service cloud.firestore {
       // hr_officer: the HR dashboard's Contractor Scoreboard and HR Analytics
       // scope contractor jobs/WOs to a plant via the machine registry; without
       // machine reads that lookup came back empty and dropped every row.
-      allow read: if isAuthenticated() && isAnyRole([
+      allow read: if isAuthenticated() && tenantMatches(resource.data) && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
         'plant_manager', 'store_keeper', 'trainee', 'admin', 'hr_officer'
       ]);
@@ -403,12 +471,16 @@ service cloud.firestore {
       // show the machine name without requiring the visitor to sign in.
       allow get: if request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous';
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
-      allow write: if isAdmin() || isSupervisor() || isPlantManager();
+      allow create: if (isAdmin() || isSupervisor() || isPlantManager()) && tenantMatches(request.resource.data);
+      allow update: if (isAdmin() || isSupervisor() || isPlantManager())
+        && tenantMatches(resource.data) && tenantMatches(request.resource.data);
+      allow delete: if (isAdmin() || isSupervisor() || isPlantManager()) && tenantMatches(resource.data);
       // Technicians may only stamp service metadata when completing a WO,
       // plus `status` — self-attending a breakdown or moving an assigned WO
       // flips the machine to/from 'under_maintenance' (see
       // markMachineUnderMaintenance / markMachineActiveIfNoOpenWork).
       allow update: if isTechnician()
+        && tenantMatches(resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'lastServiceDate', 'lastServiceType', 'nextPmDue', 'updatedAt', 'status'
         ]);
@@ -419,13 +491,17 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /permits/{permitId} {
-      allow read: if isAuthenticated() && isAnyRole([
+      allow read: if isAuthenticated() && workOrderInMyTenant(resource.data.workOrderId) && isAnyRole([
         'safety_officer', 'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
       ]);
-      allow create, update: if isAuthenticated() && isAnyRole([
+      allow create: if isAuthenticated() && tenantMatches(request.resource.data) && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'admin'
       ]);
-      allow delete: if isAdmin();
+      allow update: if isAuthenticated() && workOrderInMyTenant(resource.data.workOrderId)
+        && tenantMatches(request.resource.data) && isAnyRole([
+        'technician', 'supervisor', 'maintenance_supervisor', 'admin'
+      ]);
+      allow delete: if isAdmin() && workOrderInMyTenant(resource.data.workOrderId);
     }
 
     // ---------------------------------------------------------------------------
@@ -598,15 +674,15 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /conditionReadings/{readingId} {
-      allow read: if isAuthenticated() && isAnyRole([
+      allow read: if isAuthenticated() && machineInMyTenant(resource.data.machineId) && isAnyRole([
         'safety_officer', 'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
       ]);
-      allow create: if isAuthenticated() && isAnyRole([
+      allow create: if isAuthenticated() && machineInMyTenant(request.resource.data.machineId) && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
       ]);
       // Readings are an immutable log
       allow update: if false;
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && machineInMyTenant(resource.data.machineId);
     }
 
     // ---------------------------------------------------------------------------
@@ -614,11 +690,12 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /parts/{partId} {
-      allow read: if isAuthenticated() && isAnyRole([
+      allow read: if isAuthenticated() && tenantMatches(resource.data) && isAnyRole([
         'safety_officer', 'technician', 'maintenance_supervisor', 'plant_manager',
         'store_keeper', 'admin'
       ]);
-      allow write: if isAdmin() || isStoreKeeper();
+      allow create: if (isAdmin() || isStoreKeeper()) && tenantMatches(request.resource.data);
+      allow update, delete: if (isAdmin() || isStoreKeeper()) && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -765,7 +842,7 @@ service cloud.firestore {
 
     match /siteConfig/{siteId} {
       allow read: if isAuthenticated() && isSameSite(siteId);
-      allow write: if isAdmin();
+      allow write: if isAdmin() && (siteId == myCompanyId() || isSameSite(siteId));
     }
 
     // ---------------------------------------------------------------------------
@@ -795,8 +872,9 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /triageTemplates/{templateId} {
+      // Shared, platform-wide templates: a customer admin must not edit them.
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isAdmin();
+      allow write: if isSuperadmin();
     }
 
     // ---------------------------------------------------------------------------
