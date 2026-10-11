@@ -4,7 +4,7 @@ import { PlanFeatureGate } from '../../../components/settings/PlanFeatureGate';
 export function MoePage() {
   return (
     <PlanFeatureGate feature="moeAnalytics">
-      <div className="p-6">
+      <div>
         <MoeDashboard />
       </div>
     </PlanFeatureGate>

@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import {
-  ClipboardCheck,
   Wrench,
   Sparkles,
   Gauge,
@@ -133,7 +132,7 @@ export function AuditPage() {
   // ── Sub-views ───────────────────────────────────────────────────────────────
   if (view.kind === 'audit') {
     return (
-      <div className="p-4 md:p-6">
+      <div>
         <AuditSessionForm
           template={view.template}
           initialDraft={view.draft}
@@ -146,7 +145,7 @@ export function AuditPage() {
 
   if (view.kind === 'detail') {
     return (
-      <div className="p-4 md:p-6">
+      <div>
         <AuditDetail session={view.session} onBack={() => setView({ kind: 'home' })} />
       </div>
     );
@@ -197,10 +196,7 @@ export function AuditPage() {
   // ── Home ─────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-blue-900/30 border border-blue-700/40 flex items-center justify-center">
-          <ClipboardCheck className="h-5 w-5 text-blue-400" />
-        </div>
+      <div>
         <div>
           <h1 className="text-xl font-bold text-white font-sora">{t('common.audit.page.title', 'Audits')}</h1>
           <p className="text-sm text-slate-400">

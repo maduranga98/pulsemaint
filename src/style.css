@@ -194,19 +194,42 @@ a {
 .app-main-dark h5,
 .app-main-dark h6 { color: #F0F4F8; }
 
-/* One page-title scale for every tab (pages used text-lg … text-3xl, 17–28px,
-   and a mix of font families). Compact sticky toolbars opt out via text-sm. */
-.app-main-dark h1:not(.text-sm) {
+/* Typography scale — one set of sizes for every tab and role.
+     Page title (h1)        22px / 700
+     Topic / section (h2)   16px / 600
+     Sub-topic (h3, h4)     14px / 600
+     Body / subtitle        14px
+     Caption / labels       12px (text-xs and smaller are left alone)
+   Utility classes on headings (text-lg … text-3xl, font-sora, …) are
+   overridden on purpose; compact toolbars opt out with text-sm / text-xs. */
+.app-main-dark { font-size: 14px; line-height: 1.5; }
+.app-main-dark h1:not(.text-sm):not(.text-xs) {
   font-family: inherit;
   font-size: 22px;
   line-height: 1.25;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
+.app-main-dark h1 > svg:first-child { display: none; }
 .app-main-dark h1 + p {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
   margin-top: 2px;
+}
+.app-main-dark h2:not(.text-sm):not(.text-xs) {
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.app-main-dark h3:not(.text-xs),
+.app-main-dark h4:not(.text-xs) {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 /* Form fields -------------------------------------------------------------- */
