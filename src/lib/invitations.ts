@@ -240,6 +240,9 @@ async function createUserFromInvitation(
     updatedAt: serverTimestamp(),
     lastLoginAt: serverTimestamp(),
     invitedBy: invitation.invitedBy,
+    // Firestore rules only let a new account create its profile against a
+    // valid pending invitation for its own email — this is the reference.
+    invitationId: invitation.id,
     trainingPeriodPreset: invitation.trainingPeriodPreset ?? null,
     trainingStartDate: invitation.trainingStartDate ?? null,
     trainingEndDate: invitation.trainingEndDate ?? null,

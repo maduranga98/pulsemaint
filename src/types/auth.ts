@@ -36,6 +36,8 @@ export interface UserProfile {
   updatedAt: Timestamp;
   lastLoginAt: Timestamp | null;
   invitedBy: string | null;
+  /** The invitation this account was created from — Firestore rules require it on a self-created profile. */
+  invitationId?: string | null;
   /** Trainee-only: training period, set at registration. Preset is 6/12 months or 'custom'. */
   trainingPeriodPreset?: 6 | 12 | 'custom' | null;
   trainingStartDate?: Timestamp | null;

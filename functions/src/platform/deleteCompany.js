@@ -46,7 +46,7 @@ const TENANT_COLLECTIONS = [
 const COMPANY_KEYED_DOCS = ["siteConfig", "inventorySettings", "shift_config", "moeConfig", "woCounters", "traineeProgrammeCertCounters"];
 const TENANT_FIELDS = ["companyId", "siteId", "tenantId"];
 // Storage roots keyed by company id, and roots keyed by plant id (see storage.rules).
-const STORAGE_COMPANY_ROOTS = ["companies", "workorders", "breakdowns", "evaluation_attachments", "safetyTrainingSubmissions", "triage"];
+const STORAGE_COMPANY_ROOTS = ["companies", "workorders", "breakdowns", "evaluation_attachments", "safetyTrainingSubmissions", "triage", "reports"];
 const STORAGE_PLANT_ROOTS = ["audit_attachments", "audit_reports", "audits", "kaizen"];
 
 /** Delete every file under `prefix` — always a `<root>/<this company or plant id>/` folder, never a bare root. */

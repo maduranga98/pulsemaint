@@ -420,7 +420,13 @@ service cloud.firestore {
     match /breakdown_tickets/{ticketId} {
       // hr_officer/store_keeper reach /analytics too and need this for the
       // Breakdowns tab's charts (analyticsAggregation.ts).
-      allow read: if isAuthenticated() && tenantMatches(resource.data) && isAnyRole([
+      // Some screens list a machine's tickets by machineId alone (machine
+      // profile, root-cause history), so a ticket is also readable when its
+      // machine belongs to the caller's company.
+      allow read: if isAuthenticated()
+        && (tenantMatches(resource.data)
+          || (resource.data.get('machineId', '') is string && machineInMyTenant(resource.data.get('machineId', '_'))))
+        && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin', 'hr_officer', 'store_keeper'
       ]);
@@ -535,14 +541,14 @@ service cloud.firestore {
             ])
           )
         );
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     match /work_permits/{permitId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && canManageSafety();
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canManageSafety();
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // Contractor safety training — link-based training for contractor team
@@ -612,7 +618,7 @@ service cloud.firestore {
         // Only the handler records a record_access decision (granted / rejected).
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['decision'])
             || canHandleRequest(resource.data));
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // Time-limited shares of a work order / breakdown with the person who
@@ -654,7 +660,7 @@ service cloud.firestore {
     match /work_permit_categories/{categoryId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && canManageSafety();
-      allow update, delete: if isAdmin();
+      allow update, delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // Safety blacklist: one doc per entity a "clear" was ever issued for —
@@ -666,7 +672,7 @@ service cloud.firestore {
     match /safety_blacklist_resets/{resetId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canManageSafety();
       allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && isAdmin();
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -739,7 +745,7 @@ service cloud.firestore {
             ])
           )
         );
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
 
       // Reads for the two subcollections below are driven by unfiltered
       // `collection(...)` listeners on the client (see useContractorDocuments /
@@ -888,7 +894,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && isAdmin();
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId) && isAdmin();
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -970,27 +976,72 @@ service cloud.firestore {
               && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor', 'safety_officer', 'store_keeper'])
         );
 
-      // Self-create during signup; admins create anyone; supervisors/plant
-      // managers create non-admin members (Users page "Add member")
+      // A user may only create their OWN profile through one of three paths, so
+      // nobody can give themselves a role or join a company they were not
+      // invited to:
+      //  1. Company registration — the company's adminUserId is this user and
+      //     the profile is the admin one.
+      //  2. A valid, pending, unexpired invitation addressed to this account's
+      //     email, carrying exactly the role/plant the inviter chose.
+      //  3. Re-creating a missing profile for a user whose role-mapping doc
+      //     (/users/{uid}, only writable through 1/2 or by a manager) already
+      //     places them in this company with the same role/plant.
+      function selfCreateAllowed(d) {
+        return d.get('companyId', null) == companyId
+          && (
+            (get(/databases/$(database)/documents/companies/$(companyId)).data.get('adminUserId', null) == request.auth.uid
+              && d.get('role', null) == 'admin')
+            || invitationAllows(d)
+            || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
+              && getUserData().get('companyId', null) == companyId
+              && d.get('role', null) == getUserData().get('role', null)
+              && d.get('plantId', null) == getUserData().get('plantId', null))
+          );
+      }
+
+      function invitationAllows(d) {
+        return d.get('invitationId', null) is string
+          && exists(/databases/$(database)/documents/companies/$(companyId)/invitations/$(d.invitationId))
+          && request.auth.token.get('email', null) != null
+          && get(/databases/$(database)/documents/companies/$(companyId)/invitations/$(d.invitationId)).data.status == 'pending'
+          && get(/databases/$(database)/documents/companies/$(companyId)/invitations/$(d.invitationId)).data.email == request.auth.token.email.lower()
+          && get(/databases/$(database)/documents/companies/$(companyId)/invitations/$(d.invitationId)).data.role == d.get('role', null)
+          && get(/databases/$(database)/documents/companies/$(companyId)/invitations/$(d.invitationId)).data.get('plantId', null) == d.get('plantId', null)
+          && get(/databases/$(database)/documents/companies/$(companyId)/invitations/$(d.invitationId)).data.expiresAt > request.time;
+      }
+
+      // Manager writes (same company only): admins create/update anyone;
+      // supervisors/plant managers create non-admin members (Users page
+      // "Add member").
+      function managerBase() {
+        return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && getUserData().companyId == companyId
+          && request.resource.data.get('companyId', companyId) == companyId;
+      }
+
       allow create: if isAuthenticated()
         && (
-          request.auth.uid == userId
-          || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
-              && getUserData().companyId == companyId
+          (request.auth.uid == userId && selfCreateAllowed(request.resource.data))
+          || (managerBase()
               && (getUserData().role == 'admin'
                 || (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager']
                   && request.resource.data.role != 'admin')))
         );
 
-      // Self-update (e.g. lastLoginAt, profile fields), admin-update, or
-      // supervisor/plant_manager/hr_officer-update of non-admin members
+      // Self-update (lastLoginAt, name/phone/photo…) can never touch the fields
+      // that decide access (role, company, plant, department, sites, invite
+      // origin) nor re-activate an account an admin deactivated. Admin-update,
+      // or supervisor/plant_manager/hr_officer-update of non-admin members
       // (cannot grant admin) — the latter also covers job title / position
       // changes made from a completed Evaluation (PM-124).
       allow update: if isAuthenticated()
         && (
-          request.auth.uid == userId
-          || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
-              && getUserData().companyId == companyId
+          (request.auth.uid == userId
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
+              ['role', 'companyId', 'plantId', 'siteIds', 'department', 'invitedBy', 'invitationId'])
+            && (request.resource.data.get('status', null) == resource.data.get('status', null)
+              || (resource.data.get('status', null) == 'pending' && request.resource.data.get('status', null) == 'active')))
+          || (managerBase()
               && (getUserData().role == 'admin'
                 || (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer']
                   && resource.data.role != 'admin'
@@ -1028,12 +1079,18 @@ service cloud.firestore {
       // Only admins may invite new admins
       allow create: if isAuthenticated() && canManageInvites()
         && (getUserData().role == 'admin' || request.resource.data.role != 'admin');
-      // Managers revoke/resend; the invited user marks their own acceptance
+      // Managers revoke/resend; the invited user marks their own acceptance —
+      // only of a pending invitation addressed to their own email, and without
+      // changing anything else on it.
       allow update: if isAuthenticated()
         && (
           canManageInvites()
-          || (request.resource.data.status == 'accepted'
-            && request.resource.data.acceptedUserId == request.auth.uid)
+          || (resource.data.status == 'pending'
+            && request.resource.data.status == 'accepted'
+            && request.resource.data.acceptedUserId == request.auth.uid
+            && request.auth.token.get('email', null) != null
+            && resource.data.email == request.auth.token.email.lower()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedAt', 'acceptedUserId']))
         );
       allow delete: if isAuthenticated()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
@@ -1051,7 +1108,7 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && getUserData().companyId == request.resource.data.companyId
         && getUserData().role in ['admin', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer'];
-      allow update, delete: if isAdmin();
+      allow update, delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -1466,9 +1523,10 @@ service cloud.firestore {
     match /moeSnapshots/{snapshotId} {
       // Admin: full access. Other roles: site-scoped, or unrestricted if the
       // user has no single-site assignment (siteId == null = company-wide).
-      allow read: if isAdmin() || (isAuthenticated()
-        && (getUserData().siteId == null || isSameSite(resource.data.siteId))
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
+      allow read: if isAuthenticated() && tenantMatches(resource.data)
+        && (isAdmin()
+          || ((getUserData().get('siteId', null) == null || isSameSite(resource.data.siteId))
+            && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']));
       allow write: if false; // written only by Cloud Functions (admin SDK bypasses rules)
     }
 
@@ -1482,10 +1540,10 @@ service cloud.firestore {
     // checks a `siteId` field that doesn't exist on user docs (the real field is
     // companyId; see UserProfile in src/types/auth.ts) and always failed here.
     match /moeConfig/{siteId} {
-      allow read: if isAdmin() || (belongsToCompany(siteId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
-      allow write: if isAdmin() || (belongsToCompany(siteId)
-        && getUserData().role == 'plant_manager');
+      allow read: if belongsToCompany(siteId)
+        && (isAdmin() || getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
+      allow write: if belongsToCompany(siteId)
+        && (isAdmin() || getUserData().role == 'plant_manager');
     }
 
     // rca — Root Cause Analysis records
@@ -1496,7 +1554,7 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
       allow update: if isAuthenticated() && isSameSite(resource.data.siteId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // maintenanceBacklog — deferred maintenance items with risk scores
@@ -1507,7 +1565,7 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
       allow update: if isAuthenticated() && isSameSite(resource.data.siteId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -1598,7 +1656,7 @@ service cloud.firestore {
       // Revocation and edits are a management action
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // Trainee Management's flat programs — a list of module configs + a
@@ -1648,7 +1706,7 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -1669,7 +1727,7 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     match /weekendSummaries/{summaryId} {
@@ -1684,7 +1742,7 @@ service cloud.firestore {
       // Update: trainee cannot edit after submission; management reviews (sets reviewStatus/comments)
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     match /traineeProgrammeCertCounters/{companyId} {
@@ -1699,7 +1757,7 @@ service cloud.firestore {
       // Issued client-side by the in-charge (supervisor/admin/plant manager) on programme completion
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
-      allow update, delete: if isAdmin();
+      allow update, delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -1758,7 +1816,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -1790,7 +1848,7 @@ service cloud.firestore {
         && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
       allow update: if false;
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -1802,7 +1860,7 @@ service cloud.firestore {
         && isAnyRole(['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
-      allow update, delete: if isAdmin();
+      allow update, delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // ---------------------------------------------------------------------------
@@ -1834,7 +1892,7 @@ service cloud.firestore {
     match /technician_status/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // Department is a sub-category of plant — every department doc carries
@@ -1863,7 +1921,7 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     match /evaluation_sessions/{sessionId} {
@@ -1871,7 +1929,7 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
     // Custom evaluation form templates (PM-122) — anyone who can conduct

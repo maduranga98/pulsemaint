@@ -77,7 +77,12 @@ export default function ViewBreakdownPage() {
       ),
     ).slice(0, 30);
     if (ids.length === 0) return;
-    getDocs(query(collection(db, 'users'), where(documentId(), 'in', ids)))
+    getDocs(query(
+      collection(db, 'users'),
+      // Required by the Firestore rules: only same-company mapping docs are readable.
+      where('companyId', '==', userProfile?.companyId ?? ''),
+      where(documentId(), 'in', ids),
+    ))
       .then((snap) => {
         const roles: Record<string, string> = {};
         snap.docs.forEach((d) => {

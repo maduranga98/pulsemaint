@@ -1,17 +1,11 @@
 import { useRef, useState } from 'react';
 import { Eye, Code } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 interface TextLessonEditorProps {
   content?: string;
   onChange: (content: string) => void;
-}
-
-function sanitizeHtml(html: string): string {
-  return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
 }
 
 interface ToolbarButtonProps {

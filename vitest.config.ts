@@ -12,5 +12,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    // rules-tests/ run against the Firebase emulators with node:test (see its README).
+    exclude: ['**/node_modules/**', '**/dist/**', 'rules-tests/**', 'functions/**'],
   },
 });

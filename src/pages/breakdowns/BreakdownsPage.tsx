@@ -255,7 +255,13 @@ export default function BreakdownsPage() {
     const chunks: string[][] = [];
     for (let i = 0; i < uids.length; i += 30) chunks.push(uids.slice(i, i + 30));
     Promise.all(
-      chunks.map((chunk) => getDocs(query(collection(db, 'users'), where(documentId(), 'in', chunk)))),
+      chunks.map((chunk) => getDocs(query(
+        collection(db, 'users'),
+        // The company filter is required by the Firestore rules (managers may
+        // only read colleagues' mapping docs inside their own company).
+        where('companyId', '==', userProfile?.companyId ?? ''),
+        where(documentId(), 'in', chunk),
+      ))),
     )
       .then((snaps) => {
         const roles: Record<string, string> = {};
