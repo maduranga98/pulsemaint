@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, FileSpreadsheet, LayoutList, Grid3X3, ChevronLeft, Trash2 } from 'lucide-react';
+import { Plus, FileSpreadsheet, LayoutList, Grid3X3, Trash2 } from 'lucide-react';
 import { writeBatch, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -97,22 +97,13 @@ export function PartCatalogPage() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <Link
-            to="/app/inventory"
-            className="mt-1 text-gray-400 hover:text-gray-700 transition-colors"
-            aria-label={t('common.inventory.catalog.backToInventory')}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Link>
-          <div>
+        <div>
           <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.catalog.title')}</h1>
           {!loading && (
             <p className="text-gray-500 text-sm mt-0.5">
               {t('common.inventory.catalog.summary', { total: totalCount, active: activeCount, low: lowStockCount })}
             </p>
           )}
-          </div>
         </div>
         {canManage && (
           <div className="flex items-center gap-3">
