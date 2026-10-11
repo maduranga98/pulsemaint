@@ -17,7 +17,7 @@ export default function TriageFlowLibrary() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
+    <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#0A1628]">{t('triage.triage_flows_title')}</h1>

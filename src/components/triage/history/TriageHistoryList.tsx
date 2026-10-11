@@ -22,7 +22,7 @@ export default function TriageHistoryList() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="max-w-4xl">
       <h1 className="text-2xl font-bold text-[#0A1628] mb-5">{t('triage.triage_history_title')}</h1>
 
       <div className="flex flex-wrap gap-3 mb-5">

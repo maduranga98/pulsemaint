@@ -13,7 +13,7 @@ export default function TriageFlowDetail({ flow }: Props) {
   const { t } = useTranslation();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-3xl">
       {/* Actions bar */}
       <div className="flex flex-wrap gap-3 mb-6">
         <Link

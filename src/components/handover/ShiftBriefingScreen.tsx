@@ -16,7 +16,7 @@ export function ShiftBriefingScreen({ handover }: ShiftBriefingScreenProps) {
   const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-[#0A1628] p-4 lg:p-6">
-      <div className="mx-auto max-w-5xl space-y-4">
+      <div className="space-y-4">
         <ShiftBriefingHeader handover={handover} />
         <ShiftBriefingSection title={t('common.shiftHandovers.briefingScreen.watchMachines')} count={handover.watchFlags.length} defaultOpen>
           {handover.watchFlags.length ? handover.watchFlags.map((flag) => <WatchFlagCard key={flag.id} flag={flag} />) : <p className="text-sm text-slate-500">{t('common.shiftHandovers.briefingScreen.noWatchFlags')}</p>}
