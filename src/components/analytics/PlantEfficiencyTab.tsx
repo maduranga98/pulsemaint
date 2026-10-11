@@ -83,10 +83,10 @@ export default function PlantEfficiencyTab({ companyId, months }: Props) {
   const rows = useMemo(() => {
     if (!data) return [];
     const list = data.filter((p) => (lockedPlantId ? p.plantId === lockedPlantId : true));
-    // Plants first in their fixed order, "no plant" last — and only when it has something.
+    // Real plants only, in their fixed order — records with no plant are not shown.
     return list
-      .filter((p) => p.plantId !== null || p.machineCount > 0 || p.totals.breakdowns > 0 || p.totals.workOrders > 0)
-      .sort((a, b) => (a.plantId === null ? 1 : b.plantId === null ? -1 : nameOf(a.plantId).localeCompare(nameOf(b.plantId))));
+      .filter((p) => p.plantId !== null)
+      .sort((a, b) => nameOf(a.plantId).localeCompare(nameOf(b.plantId)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, lockedPlantId, plantOrder]);
 
