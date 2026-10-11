@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2, HardHat, BookOpen } from 'lucide-react';
+import { Loader2, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2, HardHat, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { doc, deleteDoc } from 'firebase/firestore';
@@ -122,7 +122,6 @@ export default function SafetyTrainingsPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="h-6 w-6 text-amber-600" />
           <h1 className="text-xl font-bold text-slate-900">{t('common.safetyTrainings.pageTitle')}</h1>
         </div>
         <div className="flex items-center gap-2">
