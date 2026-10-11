@@ -89,8 +89,8 @@ export function MachineProfilePage() {
   return (
     <div className="min-h-full">
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div className="pb-4 mb-5 border-b border-gray-200">
+        <div>
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{machine.name}</h1>
@@ -114,8 +114,8 @@ export function MachineProfilePage() {
       </div>
 
       {/* Health Score Banner */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+      <div className="bg-white border border-gray-200 rounded-xl mb-5">
+        <div className="p-4 sm:p-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
               <MachineHealthScore score={machine.healthScore} variant="gauge" />
@@ -207,7 +207,7 @@ export function MachineProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mb-5">
         <div className="flex gap-1 border-b border-gray-200 bg-white overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
@@ -231,7 +231,7 @@ export function MachineProfilePage() {
       </div>
 
       {/* Tab Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div>
         {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} />}
         {activeTab === 'documents' && <DocumentsTab machine={machine} />}
         {activeTab === 'history' && <HistoryTab machine={machine} />}

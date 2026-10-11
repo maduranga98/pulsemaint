@@ -23,7 +23,7 @@ export function ContractorJobDetailPage() {
   if (!job) return <div className="p-6 text-slate-500">{t('common.contractors.jobs.detailPage.notFound')}</div>;
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <ContractorJobHeader job={job} />
       <ContractorJobStatusStepper status={job.status} />
       <section className="rounded-lg border border-slate-200 bg-white p-4">

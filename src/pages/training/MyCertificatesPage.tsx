@@ -22,7 +22,7 @@ export default function MyCertificatesPage() {
   const { certificates: programCertificates } = useMyProgramCertificates();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+    <div className="max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">{t('common.trainingShared.myCertificatesPage.title')}</h1>
         {!loading && certificates.length > 0 && (

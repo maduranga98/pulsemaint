@@ -154,7 +154,7 @@ export function AuditPage() {
 
   if (view.kind === 'configure') {
     return (
-      <div className="p-4 md:p-6 max-w-3xl mx-auto">
+      <div className="max-w-3xl">
         <h2 className="text-lg font-bold text-white font-sora mb-1">
           {t('common.audit.page.configureTitle', 'Configure {{category}}', {
             category: getCategoryLabel(view.template.category, view.template.name, t),
@@ -176,7 +176,7 @@ export function AuditPage() {
   if (view.kind === 'create') {
     if (!isAdmin) return <AccessDenied />;
     return (
-      <div className="p-4 md:p-6 max-w-3xl mx-auto">
+      <div className="max-w-3xl">
         <h2 className="text-lg font-bold text-white font-sora mb-1">{t('common.audit.page.createTitle', 'New Audit Category')}</h2>
         <p className="text-sm text-slate-400 mb-5">
           {t(
@@ -196,7 +196,7 @@ export function AuditPage() {
 
   // ── Home ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-blue-900/30 border border-blue-700/40 flex items-center justify-center">
           <ClipboardCheck className="h-5 w-5 text-blue-400" />

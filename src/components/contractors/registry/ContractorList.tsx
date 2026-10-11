@@ -17,7 +17,7 @@ export function ContractorList() {
   const { canManageContractors } = useContractorAccess();
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-950">{t('common.contractors.registry.list.title')}</h1>

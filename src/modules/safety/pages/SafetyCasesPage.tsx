@@ -148,7 +148,7 @@ export default function SafetyCasesPage() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold text-[#F0F4F8]">
             <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {heading}
@@ -178,7 +178,7 @@ export default function SafetyCasesPage() {
         )}
       </div>
 
-      <div className="px-4 pb-10 sm:px-6 lg:px-8">
+      <div className="pb-10">
         <DashboardWidget title={t('common.safetyCases.cases', { count: visible.length })}>
           {loading ? (
             <div className="space-y-2">

@@ -83,8 +83,8 @@ export default function MyWorkOrdersPage() {
   );
 
   return (
-    <div className="min-h-full bg-[#0A1628] p-4 sm:p-6">
-      <div className="mx-auto max-w-3xl">
+    <div className="min-h-full">
+      <div className="max-w-3xl">
         <div className="mb-6 flex items-center gap-2">
           <Wrench className="h-6 w-6 text-[#00C2FF]" />
           <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.workOrders.myWorkOrders.pageTitle')}</h1>

@@ -14,7 +14,7 @@ export function ContractorAnalyticsPage() {
   if (!contractor) return <div className="p-6 text-slate-500">{t('common.contractors.analyticsPage.notFound')}</div>;
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <h1 className="text-2xl font-bold text-slate-950">{t('common.contractors.analyticsPage.title', { companyName: contractor.companyName })}</h1>
       <ContractorAnalyticsTab contractor={contractor} jobs={jobs} />
     </div>

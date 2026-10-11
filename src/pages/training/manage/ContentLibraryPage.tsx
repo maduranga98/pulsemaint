@@ -40,7 +40,7 @@ export default function ContentLibraryPage() {
         </button>
       </div>
 
-      <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+      <div className="space-y-6">
         {showUpload && (
           <div className="bg-white rounded-xl border border-slate-200 p-4">
             <ContentLibraryUpload onUploadComplete={() => setShowUpload(false)} />

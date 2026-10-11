@@ -294,7 +294,7 @@ export default function TraineeProgrammePage() {
         </h1>
       </div>
 
-      <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
+      <div className="max-w-3xl space-y-6">
         {findingProgramme || programmeLoading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="animate-spin text-blue-600" size={28} />

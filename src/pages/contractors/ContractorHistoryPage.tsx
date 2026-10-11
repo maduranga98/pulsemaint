@@ -11,7 +11,7 @@ export function ContractorHistoryPage() {
   const { workOrders } = useContractorWorkOrders(contractorId);
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <h1 className="text-2xl font-bold text-slate-950">{t('common.contractors.historyPage.title')}</h1>
       {loading ? <div className="text-slate-500">{t('common.contractors.historyPage.loading')}</div> : <ContractorJobHistoryTab jobs={jobs} workOrders={workOrders} />}
     </div>

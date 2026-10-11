@@ -389,7 +389,7 @@ export function FiveSPage() {
     <div className="min-h-screen bg-[#0A1628]">
       {/* Header */}
       <div className="border-b border-[#1E3A5F] px-4 md:px-6 pt-6 pb-0">
-        <div className="max-w-7xl mx-auto">
+        <div>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-black text-white font-sora flex items-center gap-2">
@@ -439,7 +439,7 @@ export function FiveSPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+      <div>
         {activeTab === 'zones' && (
           <SectionErrorBoundary section="Zones">
             <ZonesTab onStartAudit={handleStartAudit} isProPlan={isProPlan} />

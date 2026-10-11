@@ -137,7 +137,7 @@ export function MyShiftPage() {
   if (!profile) return null;
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <div>
         <h1 className=" text-2xl font-bold text-slate-950">{t('common.myShift.title')}</h1>
         <p className="mt-1 text-sm text-slate-500">{t('common.myShift.subtitle')}</p>

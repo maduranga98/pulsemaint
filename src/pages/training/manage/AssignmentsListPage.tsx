@@ -18,7 +18,7 @@ export default function AssignmentsListPage() {
   const [tab, setTab] = useState<Tab>('assigned');
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <h1 className="text-xl font-bold text-slate-900">{t('common.traineeManagement.assignmentsListPage.title')}</h1>
 
       <div className="flex gap-1 border-b border-gray-200">

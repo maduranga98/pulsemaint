@@ -22,7 +22,7 @@ export default function AssignTrainingPage() {
         </button>
         <h1 className="font-semibold text-slate-900 text-sm">{t('common.trainingShared.manager.assignWizard.pageTitle')}</h1>
       </div>
-      <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+      <div className="max-w-3xl">
         <AssignTrainingWizard
           defaultModuleId={defaultModuleId}
           defaultTraineeId={defaultTraineeId}

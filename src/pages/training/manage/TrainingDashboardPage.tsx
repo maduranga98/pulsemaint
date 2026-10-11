@@ -193,7 +193,7 @@ export default function TrainingDashboardPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
+    <div>
       <div className="mb-6 flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-slate-900">{t('common.trainingShared.manager.dashboard.title')}</h1>
         <button

@@ -124,7 +124,7 @@ export default function WorkPermitsPage() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold">
             <FileCheck className="h-5 w-5 text-[#5B8DEF]" /> {t('common.workPermits.pageTitle')}
@@ -136,7 +136,7 @@ export default function WorkPermitsPage() {
         </button>
       </div>
 
-      <div className="px-4 pb-10 sm:px-6 lg:px-8">
+      <div className="pb-10">
         {/* Current / Closed lifecycle tabs */}
         <div className="mb-4 flex gap-1 border-b border-[#1E3A5F]">
           {(['current', ...(role === 'admin' ? (['closed'] as LifecycleTab[]) : [])] as LifecycleTab[]).map((tab) => {
@@ -327,7 +327,7 @@ function SignOffModal({
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center">
       <div className="w-full max-w-md rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] p-5 shadow-xl">
         <div className="flex items-start justify-between">
-          <h2 className=" text-lg font-bold text-[#F0F4F8]">{t('common.workPermits.signOffModal.title')}</h2>
+          <h2 className="text-lg font-bold text-[#F0F4F8]">{t('common.workPermits.signOffModal.title')}</h2>
           <button type="button" onClick={onClose} className="text-[#8BA3BF] hover:text-white" aria-label={t('common.workPermits.close')}>
             <X className="h-5 w-5" />
           </button>

@@ -82,7 +82,7 @@ export default function MyProgramPage() {
 
   if (!programme) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl space-y-6">
         <h1 className="text-2xl font-bold text-slate-900">{t('common.traineeManagement.myProgramPage.title')}</h1>
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
           {t('common.traineeManagement.myProgramPage.noProgramme')}
@@ -107,7 +107,7 @@ export default function MyProgramPage() {
   const overallPercent = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+    <div className="max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">{t('common.traineeManagement.myProgramPage.title')}</h1>
         <p className="mt-1 text-slate-600">

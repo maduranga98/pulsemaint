@@ -96,15 +96,15 @@ export function MachineQrPage() {
   return (
     <div className="min-h-full">
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div className="pb-4 mb-5 border-b border-gray-200">
+        <div className="max-w-4xl">
           <h1 className="text-3xl font-bold text-gray-900">{t('common.machines.profile.qr.title')}</h1>
           <p className="text-gray-600 text-sm mt-1">{machine.name}</p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div className="max-w-4xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* QR Preview */}
           <div className="lg:col-span-2">

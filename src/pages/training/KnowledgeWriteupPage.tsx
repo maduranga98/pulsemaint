@@ -93,7 +93,7 @@ export default function KnowledgeWriteupPage() {
 
   if (!programme) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
+      <div className="max-w-3xl">
         <h1 className="text-2xl font-bold text-slate-900 mb-2">{t('common.trainingShared.knowledgeWriteup.firstModuleTitle')}</h1>
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
           {t('common.trainingShared.knowledgeWriteup.noProgramme')}
@@ -103,7 +103,7 @@ export default function KnowledgeWriteupPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">{t('common.trainingShared.knowledgeWriteup.title')}</h1>
         <p className="mt-1 text-slate-600">

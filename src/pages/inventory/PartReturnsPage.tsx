@@ -23,7 +23,7 @@ export function PartReturnsPage() {
   const { confirmReturn: handleConfirm, rejectReturn: handleReject } = usePartReturnActions();
 
   return (
-    <div className="space-y-5 max-w-3xl mx-auto">
+    <div className="space-y-5 max-w-3xl">
       <Link
         to="/app/inventory"
         className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors"

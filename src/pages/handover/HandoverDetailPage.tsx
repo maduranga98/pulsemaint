@@ -29,7 +29,7 @@ export function HandoverDetailPage() {
   if (!handover) return <div className="p-6 text-slate-500">{t('common.shiftHandovers.detailPage.loading')}</div>;
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <div className="flex justify-end print:hidden">
         <button type="button" onClick={handleExportPdf} className="min-h-12 rounded-md bg-blue-600 px-4 text-sm font-bold text-white">{t('common.shiftHandovers.detailPage.exportPdf')}</button>
       </div>

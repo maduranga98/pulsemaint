@@ -27,7 +27,7 @@ export default function SafetyDashboard() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold text-[#F0F4F8]">
             <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {t('common.ui2.safety.safetyDashboard.safetyDashboard')}
@@ -43,7 +43,7 @@ export default function SafetyDashboard() {
         </button>
       </div>
 
-      <div className="space-y-6 px-4 pb-10 sm:px-6 lg:px-8">
+      <div className="space-y-6 pb-10">
         {/* KPI strip — live counts */}
         {loading ? (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">

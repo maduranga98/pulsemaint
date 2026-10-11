@@ -314,7 +314,7 @@ export function ManualIssuePage() {
   }
 
   return (
-    <div className="space-y-5 max-w-xl mx-auto pb-28">
+    <div className="space-y-5 max-w-xl pb-28">
       <div className="flex items-center gap-3">
         <Link to="/app/inventory" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
