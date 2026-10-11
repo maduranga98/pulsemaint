@@ -51,3 +51,19 @@ describe('featureForPath', () => {
     expect(featureForPath('/app/contractorsX')).toBeNull();
   });
 });
+
+describe('permanentAccess (permanent demo company)', () => {
+  const demo = { plan: 'starter' as const, status: 'suspended', permanentAccess: true };
+  it('has every feature, an enterprise effective plan, and is never trial-expired', async () => {
+    const { hasPermanentAccess, effectivePlan, isFeatureAvailable, isTrialExpired } = await import('../planLimits');
+    expect(hasPermanentAccess(demo)).toBe(true);
+    expect(effectivePlan(demo)).toBe('enterprise');
+    expect(isFeatureAvailable(demo, 'multiSite')).toBe(true);
+    expect(isTrialExpired({ ...demo, status: 'trial', trialEndsAt: { toMillis: () => 1 } })).toBe(false);
+  });
+  it('does not change normal companies', async () => {
+    const { effectivePlan, isFeatureAvailable } = await import('../planLimits');
+    expect(effectivePlan({ plan: 'starter' })).toBe('starter');
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'multiSite')).toBe(false);
+  });
+});

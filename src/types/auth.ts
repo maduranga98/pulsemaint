@@ -65,6 +65,11 @@ export interface CompanyProfile {
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   /** 'platform' when Lumora assigned the plan manually (e.g. Enterprise billed outside Stripe). */
   planSetBy?: string | null;
+  /**
+   * Permanent demo / internal company (set by a Lumora superadmin only): behaves as Enterprise with
+   * every feature, unlimited counts, and is never trial-expired, suspended or billed.
+   */
+  permanentAccess?: boolean;
   /** Set when an admin asked to leave FirmiCore (requestCancellation). */
   leaveRequestedAt?: Timestamp | null;
   /** A Stripe-portal cancellation still waiting for the admin's reason. */

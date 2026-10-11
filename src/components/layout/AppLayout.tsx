@@ -338,7 +338,7 @@ const NAV_GROUPS: NavGroup[] = [
 function TrialExpiryBanner() {
   const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
-  if (!company || company.status !== 'trial') return null;
+  if (!company || company.permanentAccess || company.status !== 'trial') return null;
 
   const daysLeft = company.trialEndsAt
     ? Math.ceil((company.trialEndsAt.toDate().getTime() - Date.now()) / 86_400_000)

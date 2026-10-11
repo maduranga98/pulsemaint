@@ -37,6 +37,7 @@ function companySummary(id, c) {
     lastReminderAt: toMillis(c.lastPaymentReminderAt),
     platformNote: c.platformNote ?? null,
     planSetBy: c.planSetBy ?? null,
+    permanentAccess: c.permanentAccess === true,
     approvalStatus: approvalStatusOf(c),
     rejectionReason: c.rejectionReason ?? null,
     approvedAt: toMillis(c.approvedAt),
@@ -273,7 +274,34 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
         await emailApprovalDecision(c, (await adminContact({ id: companyId, ...c })).email, false, reason);
         break;
       }
+      case "setPermanentAccess": {
+        // Permanent demo / internal company: Enterprise with every feature and no
+        // limits, never trial-expired, suspended or billed (the Stripe webhook and
+        // the trial-expiry job both skip it). Turning it off leaves the company on
+        // its Enterprise plan, assigned by Lumora, so nothing suddenly locks.
+        const enabled = request.data.enabled === true;
+        if (enabled) {
+          await ref.update({
+            permanentAccess: true,
+            plan: "enterprise",
+            planSetBy: "platform",
+            planSetAt: FieldValue.serverTimestamp(),
+            status: "active",
+            trialEndsAt: null,
+            suspendedBy: FieldValue.delete(),
+            suspendedReason: FieldValue.delete(),
+            suspendedAt: FieldValue.delete(),
+            paymentFailed: false,
+            paymentFailureMessage: FieldValue.delete(),
+            ...stamp,
+          });
+        } else {
+          await ref.update({permanentAccess: FieldValue.delete(), ...stamp});
+        }
+        break;
+      }
       case "suspend":
+        if (c.permanentAccess === true) throw new HttpsError("failed-precondition", "This is a permanent demo company — turn off permanent access first");
         await ref.update({ status: "suspended", suspendedBy: "platform", ...stamp });
         break;
       case "reactivate":

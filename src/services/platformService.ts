@@ -34,6 +34,8 @@ export interface PlatformCompany {
   platformNote: string | null;
   /** 'platform' when Lumora assigned the plan manually (no trial; plan limits apply). */
   planSetBy: string | null;
+  /** Permanent demo company: Enterprise, unlimited, never billed or suspended. */
+  permanentAccess: boolean;
   /** New self-registered companies are 'pending' until a superadmin approves them. */
   approvalStatus: ApprovalStatus;
   rejectionReason: string | null;
@@ -146,6 +148,7 @@ export type CompanyAction =
   | { action: 'reactivate' }
   | { action: 'extendTrial'; days: number }
   | { action: 'setPlan'; plan: PlanId; billingCycle: Cycle }
+  | { action: 'setPermanentAccess'; enabled: boolean }
   | { action: 'cancelSubscription' }
   | { action: 'resumeSubscription' }
   | { action: 'note'; text: string };

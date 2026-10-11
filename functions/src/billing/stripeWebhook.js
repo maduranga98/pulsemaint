@@ -81,6 +81,10 @@ async function syncSubscriptionToCompany(subscription) {
   };
   const companyRef = db.collection("companies").doc(companyId);
   const before = (await companyRef.get()).data() ?? {};
+  if (before.permanentAccess === true) {
+    logger.info(`Ignoring subscription ${subscription.id}: company ${companyId} has permanent access`);
+    return;
+  }
   if (ACTIVE.includes(subscription.status)) {
     updates.status = "active";
     Object.assign(updates, clearPaymentHold(before));
@@ -197,6 +201,7 @@ async function handlePaymentFailed(invoice) {
   const companySnap = await companyRef.get();
   if (!companySnap.exists) return;
   const before = companySnap.data();
+  if (before.permanentAccess === true) return; // permanent demo company is never put on hold
   const firstPayment = invoice.billing_reason === "subscription_create";
   const message = invoice.last_finalization_error?.message || null;
   await companyRef.update({
@@ -337,6 +342,8 @@ exports.stripeWebhook = onRequest({ secrets: [stripeSecretKey, stripeWebhookSecr
         if (companyId) {
           // The paid period is over: suspend every user of the company. Data
           // is not touched, and a new subscription restores access.
+          const permanent = (await db.collection("companies").doc(companyId).get()).get("permanentAccess") === true;
+          if (permanent) break;
           await db.collection("companies").doc(companyId).update({
             subscriptionStatus: "canceled",
             cancelAtPeriodEnd: false,

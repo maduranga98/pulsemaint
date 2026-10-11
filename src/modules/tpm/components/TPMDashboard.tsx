@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Lock } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
+import { effectivePlan } from '../../../lib/planLimits';
 import { useTPMScore } from '../hooks/useTPM';
 import type { TPMPillar } from '../types/tpm.types';
 
@@ -234,7 +235,7 @@ interface TPMDashboardProps {
 }
 
 export function TPMDashboard({ onPillarSelect, showMaturity = false }: TPMDashboardProps) {
-  const plan = useAuthStore((s) => s.company?.plan);
+  const plan = useAuthStore((s) => effectivePlan(s.company));
   const isProPlan = plan === 'enterprise';
   const { composite, pillars, loading, error, lastUpdated } = useTPMScore();
 

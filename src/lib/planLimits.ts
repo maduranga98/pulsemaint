@@ -187,11 +187,22 @@ export interface PlanCompanyState {
   trialEndsAt?: { toMillis: () => number } | null;
   stripeSubscriptionId?: string | null;
   planSetBy?: string | null;
+  permanentAccess?: boolean | null;
+}
+
+/** Permanent demo / internal company: full Enterprise access, no billing, never suspended. */
+export function hasPermanentAccess(company: PlanCompanyState | null | undefined): boolean {
+  return company?.permanentAccess === true;
+}
+
+/** The plan whose limits and features apply — Enterprise for permanent-access companies. */
+export function effectivePlan(company: PlanCompanyState | null | undefined): Plan | undefined {
+  return hasPermanentAccess(company) ? 'enterprise' : (company?.plan ?? undefined);
 }
 
 /** On a free trial that has run out (no subscription, no plan assigned by Lumora). */
 export function isTrialExpired(company: PlanCompanyState | null | undefined, now: number = Date.now()): boolean {
-  if (!company || company.status !== 'trial') return false;
+  if (!company || hasPermanentAccess(company) || company.status !== 'trial') return false;
   if (company.stripeSubscriptionId || company.planSetBy === 'platform') return false;
   const end = company.trialEndsAt?.toMillis?.();
   return typeof end === 'number' && end <= now;
@@ -203,10 +214,11 @@ export function isTrialExpired(company: PlanCompanyState | null | undefined, now
  * numeric limits (machines, users…) still follow the Starter plan.
  */
 export function isFeatureAvailable(company: PlanCompanyState | null | undefined, feature: FeatureKey): boolean {
+  if (hasPermanentAccess(company)) return true;
   if (company?.status === 'trial' && !isTrialExpired(company)) {
     return feature === 'multiSite' ? false : true;
   }
-  return planLimitsFor(company?.plan).features[feature];
+  return planLimitsFor(effectivePlan(company)).features[feature];
 }
 
 // Route prefixes that belong to a plan-gated feature. Trainees, floor

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, query, where, getCountFromServer, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { planLimitsFor, isAtOrOverLimit } from '../lib/planLimits';
+import { planLimitsFor, isAtOrOverLimit, effectivePlan } from '../lib/planLimits';
 
 export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'users';
 
@@ -62,7 +62,7 @@ export async function fetchResourceCount(resource: CountedResource, companyId: s
  */
 export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const plan = useAuthStore((s) => s.company?.plan);
+  const plan = useAuthStore((s) => effectivePlan(s.company));
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -124,7 +124,7 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
  */
 export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const plan = useAuthStore((s) => s.company?.plan);
+  const plan = useAuthStore((s) => effectivePlan(s.company));
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);

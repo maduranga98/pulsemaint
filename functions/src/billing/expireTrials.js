@@ -18,7 +18,7 @@ const db = getFirestore("default");
 
 /** Whether a company document is a trial that has run out. Exported for tests. */
 function shouldExpire(company, now = Date.now()) {
-  if (!company || company.status !== "trial") return false;
+  if (!company || company.permanentAccess === true || company.status !== "trial") return false;
   if (company.stripeSubscriptionId || company.planSetBy === "platform") return false;
   // Registrations awaiting (or denied) approval have no trial running yet.
   if (company.approvalStatus === "pending" || company.approvalStatus === "rejected") return false;

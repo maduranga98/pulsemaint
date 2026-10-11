@@ -140,6 +140,8 @@ export default function PlatformCompanyDetailPage() {
             <dt className="text-slate-400">Admin</dt><dd>{c.adminName ?? '—'}<br /><span className="text-xs text-slate-500">{c.adminEmail}</span></dd>
             {c.status === 'trial' ? (
               <><dt className="text-slate-400">Trial ends</dt><dd>{fmtDate(c.trialEndsAt)} <span className="text-xs text-slate-500">{relDays(c.trialEndsAt)}</span></dd></>
+            ) : c.permanentAccess ? (
+              <><dt className="text-slate-400">Subscription</dt><dd>Permanent demo company — Enterprise, every feature, unlimited, never billed or suspended</dd></>
             ) : c.planSetBy === 'platform' && !c.hasSubscription ? (
               <><dt className="text-slate-400">Subscription</dt><dd>Assigned by Lumora — full {PLAN_NAMES[c.plan] ?? c.plan} access and limits, no trial</dd></>
             ) : null}
@@ -159,6 +161,9 @@ export default function PlatformCompanyDetailPage() {
               <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'trial' })}>Extend trial</button>
             )}
             <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'plan' })}>Set plan manually</button>
+            {c.permanentAccess
+              ? <button className={btn.ghost} disabled={busy} onClick={() => window.confirm(`Turn off permanent access for ${c.name}? It stays on Enterprise (assigned by Lumora) but becomes a normal company again.`) && void company({ action: 'setPermanentAccess', enabled: false }, 'Permanent access turned off')}>Turn off permanent access</button>
+              : <button className={btn.primary} disabled={busy} onClick={() => window.confirm(`Make ${c.name} a permanent demo company? It gets Enterprise with every feature and no limits, and is never billed, trial-expired or suspended.`) && void company({ action: 'setPermanentAccess', enabled: true }, 'Permanent demo access enabled')}>Make permanent demo company</button>}
             {sub && (sub.cancelAtPeriodEnd
               ? <button className={btn.ghost} disabled={busy} onClick={() => void company({ action: 'resumeSubscription' }, 'Subscription resumed')}>Resume subscription</button>
               : <button className={btn.danger} disabled={busy} onClick={() => window.confirm('Cancel this subscription at the end of the paid period?') && void company({ action: 'cancelSubscription' }, 'Subscription will end at the period end')}>Cancel at period end</button>)}

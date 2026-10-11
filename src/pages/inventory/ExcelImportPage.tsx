@@ -21,7 +21,7 @@ import { getCategorySequenceMap, nextFromCounter } from '@/lib/inventory/partNum
 import { getSupplierCodeSequenceMap, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { fetchResourceCount } from '@/hooks/usePlanLimitCheck';
-import { planLimitsFor, checkImportAllowed, importBlockMessage } from '@/lib/planLimits';
+import { planLimitsFor, checkImportAllowed, importBlockMessage, effectivePlan } from '@/lib/planLimits';
 import type { ValidationResult, InventoryPart, Supplier } from '@/types/inventory';
 import { ImportStepIndicator } from '@/components/inventory/import/ImportStepIndicator';
 import { ImportTemplateStep } from '@/components/inventory/import/ImportTemplateStep';
@@ -54,7 +54,7 @@ export function ExcelImportPage() {
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds) ?? [];
   const { plantId } = useDepartmentScope();
-  const plan = useAuthStore((s) => s.company?.plan);
+  const plan = useAuthStore((s) => effectivePlan(s.company));
 
   const [step, setStep] = useState<Step>(1);
   const [state, setState] = useState<ImportState>({

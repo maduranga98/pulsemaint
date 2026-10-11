@@ -22,6 +22,7 @@ function toMillis(ts) {
 /** Pure check on a company document's data. */
 function featureAvailable(company, feature, now = Date.now()) {
   if (!company) return false;
+  if (company.permanentAccess === true) return true; // permanent demo company: everything, always
   const onTrial = company.status === "trial" && !company.stripeSubscriptionId && company.planSetBy !== "platform";
   if (company.status === "trial") {
     const end = toMillis(company.trialEndsAt);

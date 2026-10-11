@@ -72,6 +72,9 @@ exports.platformDeleteCompany = onCall(
       const snap = await ref.get();
       if (!snap.exists) throw new HttpsError("not-found", "Company not found");
       const company = snap.data();
+      if (company.permanentAccess === true) {
+        throw new HttpsError("failed-precondition", "This is a permanent demo company — turn off permanent access before closing it");
+      }
       const name = String(company.name ?? "").trim();
       if (!name || String(confirmName ?? "").trim() !== name) {
         throw new HttpsError("failed-precondition", "Type the company name exactly to confirm the deletion");

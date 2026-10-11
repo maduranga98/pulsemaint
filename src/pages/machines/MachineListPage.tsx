@@ -6,7 +6,7 @@ import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/fi
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { fetchResourceCount } from '../../hooks/usePlanLimitCheck';
-import { planLimitsFor, checkImportAllowed, importBlockMessage } from '../../lib/planLimits';
+import { planLimitsFor, checkImportAllowed, importBlockMessage, effectivePlan } from '../../lib/planLimits';
 import { useMachines } from '../../hooks/useMachines';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -214,7 +214,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   const [pickedPlantId, setPickedPlantId] = useState('');
   const importPlantId = plantId ?? (pickedPlantId || null);
 
-  const plan = useAuthStore((s) => s.company?.plan);
+  const plan = useAuthStore((s) => effectivePlan(s.company));
   const [importError, setImportError] = useState<string | null>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {

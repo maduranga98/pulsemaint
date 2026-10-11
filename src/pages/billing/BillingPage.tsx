@@ -315,6 +315,23 @@ export default function BillingPage() {
     setPending(null);
   }
 
+  // Permanent demo / internal company: full Enterprise access, never billed.
+  if (company?.permanentAccess) {
+    return (
+      <div className="min-h-full space-y-6">
+        <div className="border-b border-[#1E3A5F] pb-5">
+          <h1 className="text-2xl font-bold text-white!">{t('common.billing.header.title')}</h1>
+        </div>
+        <div className="rounded-xl border border-emerald-700/40 bg-emerald-900/20 p-5">
+          <h2 className="text-white!">Permanent demo account</h2>
+          <p className="mt-1 text-sm text-slate-300">
+            This company has permanent Enterprise access with every feature and no limits. It is never billed, so there is nothing to pay, upgrade or cancel.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-full space-y-6">
       {/* Header */}
