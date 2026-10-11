@@ -210,7 +210,7 @@ export default function SafetyCalendarPage() {
   }, [cursor]);
 
   return (
-    <div className="min-h-full bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
+    <div className="min-h-full text-[#F0F4F8]">
       <button
         type="button"
         onClick={() => navigate('/app/training/manage/safety-trainings')}

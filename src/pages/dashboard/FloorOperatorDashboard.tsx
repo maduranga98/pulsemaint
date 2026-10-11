@@ -26,12 +26,12 @@ export default function FloorOperatorDashboard() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="px-4 py-4 sm:px-6 lg:px-8">
+      <div className="pb-4">
         <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.ui2.dashboard.floorOperatorDashboard.dashboard')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">{getGreeting()}, {firstName}.</p>
       </div>
 
-      <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
+      <div className="pb-8 space-y-6">
         <ReportBreakdownWidget />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

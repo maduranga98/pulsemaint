@@ -41,7 +41,7 @@ export function ContractorProfilePage() {
   if (!contractor) return <div className="p-6 text-slate-500">{t('common.contractors.profilePage.notFound')}</div>;
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <ContractorProfileHeader contractor={contractor} />
       <ContractorAlertBanner documentName={documents.find((document) => document.blocksAssignment)?.documentName} expiringCount={documents.filter((document) => document.validityStatus === 'expiring_soon').length} />
       <ContractorQuickContactBar contractor={contractor} />

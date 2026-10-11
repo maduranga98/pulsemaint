@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="px-4 py-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
+      <div className="pb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.analytics.mainPage.title')}</h1>
           <p className="text-sm text-[#8BA3BF] mt-0.5">
@@ -137,7 +137,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
+      <div className="pb-8 space-y-6">
         {/* KPI Summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {kpis.map((kpi, idx) => (

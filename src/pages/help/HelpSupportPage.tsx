@@ -48,7 +48,7 @@ export default function HelpSupportPage() {
   }, [moduleIds, phrase, searching, t]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+    <div className="max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">{t('help.pageTitle')}</h1>
         <p className="mt-1 text-slate-600">{t('help.pageSubtitle')}</p>

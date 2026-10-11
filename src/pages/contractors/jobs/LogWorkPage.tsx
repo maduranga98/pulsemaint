@@ -13,7 +13,7 @@ export function LogWorkPage() {
   if (!job) return <div className="p-6 text-slate-500">{t('common.contractors.jobs.logWorkPage.notFound')}</div>;
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-slate-950">{job.contractorName}</h1>
         <p className="mt-1 text-sm text-slate-500">{job.machineName} - {job.workOrderNumber}</p>

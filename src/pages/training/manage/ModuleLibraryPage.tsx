@@ -22,7 +22,7 @@ export default function ModuleLibraryPage() {
   const [tab, setTab] = useState<Tab>('modules');
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-slate-900">{t('common.trainingShared.manager.moduleLibrary.title')}</h1>
         {canAuthor && (

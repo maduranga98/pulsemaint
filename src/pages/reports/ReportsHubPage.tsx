@@ -46,8 +46,8 @@ export default function ReportsHubPage() {
   if (!canAccess) return <Navigate to="/app/dashboard" replace />;
 
   return (
-    <div className="min-h-screen bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div className="min-h-full text-[#F0F4F8]">
+      <div className="space-y-6">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className=" text-[28px] font-bold text-[#F0F4F8]">{t('common.reports.hubPage.title')}</h1>

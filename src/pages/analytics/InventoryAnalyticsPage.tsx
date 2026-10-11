@@ -35,8 +35,8 @@ export default function InventoryAnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-full bg-gray-50">
-      <div className="px-4 py-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
+    <div className="min-h-full">
+      <div className="pb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-gray-900">{t('common.analytics.inventoryPage.title')}</h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -59,7 +59,7 @@ export default function InventoryAnalyticsPage() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div>
         <div className="flex flex-wrap gap-1 border-b border-gray-200">
           {TABS.map((tab) => (
             <button
@@ -78,7 +78,7 @@ export default function InventoryAnalyticsPage() {
         </div>
       </div>
 
-      <div className="px-4 py-6 sm:px-6 lg:px-8">
+      <div>
         {activeTab === 'low_stock' && <LowStockPartsChartLight companyId={companyId} days={days} />}
         {activeTab === 'reasons' && <TopUsedPartsChartLight companyId={companyId} days={days} />}
         {activeTab === 'most_moved' && <MostMovedPartsChartLight companyId={companyId} days={days} />}

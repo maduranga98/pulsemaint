@@ -133,7 +133,7 @@ export default function TraineeProfilePage() {
         <h1 className="font-semibold text-slate-900 text-sm truncate flex-1">{t('common.traineeManagement.traineeProfilePage.title')}</h1>
       </div>
 
-      <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
+      <div className="max-w-3xl space-y-6">
         {/* Trainee header */}
         <div className="bg-white rounded-xl border border-slate-200 p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">

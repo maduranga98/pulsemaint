@@ -43,7 +43,7 @@ export default function RequestsInboxPage() {
     role === 'supervisor' ? 'supervisor' : role === 'plant_manager' ? 'plantManager' : 'admin';
 
   return (
-    <div className="space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="space-y-5">
       <div>
         <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.staffRequests.inbox.title')}</h1>
         <p className="text-sm text-[#8BA3BF]">

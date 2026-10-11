@@ -459,7 +459,7 @@ export function RequestDetailPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-4xl">
       <Link
         to="/app/inventory/requests"
         className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors"

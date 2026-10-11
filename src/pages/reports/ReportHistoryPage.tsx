@@ -18,8 +18,8 @@ export default function ReportHistoryPage() {
   if (!canAccess) return <Navigate to="/app/dashboard" replace />;
 
   return (
-    <div className="min-h-screen bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div className="min-h-full text-[#F0F4F8]">
+      <div className="space-y-6">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <Link to="/app/reports" className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-[#00C2FF]">

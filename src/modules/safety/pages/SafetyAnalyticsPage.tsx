@@ -109,7 +109,7 @@ export default function SafetyAnalyticsPage() {
   }, [cases]);
 
   return (
-    <div className="min-h-full bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
+    <div className="min-h-full text-[#F0F4F8]">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="mb-1 flex items-center gap-2 text-xl font-bold">

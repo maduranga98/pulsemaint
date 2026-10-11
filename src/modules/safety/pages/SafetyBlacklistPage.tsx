@@ -87,7 +87,7 @@ export default function SafetyBlacklistPage() {
   }
 
   return (
-    <div className="min-h-full bg-slate-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-full">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <ShieldOff className="h-6 w-6 text-red-600" />

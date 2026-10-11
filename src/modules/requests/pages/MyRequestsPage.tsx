@@ -44,7 +44,7 @@ export default function MyRequestsPage() {
   }, [profile?.companyId, profile?.id]);
 
   return (
-    <div className="space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.staffRequests.myPage.title')}</h1>

@@ -613,8 +613,8 @@ export function MachineListPage() {
       )}
 
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div className="pb-4 mb-5 border-b border-gray-200">
+        <div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{t('common.machines.pageTitle')}</h1>
@@ -666,7 +666,7 @@ export function MachineListPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      <div className="space-y-6">
         <MachineFilterBar
           onFiltersChange={setFilters}
           departments={[...new Set(scopedMachines.map((m) => m.department).filter(Boolean))]}

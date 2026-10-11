@@ -12,7 +12,7 @@ export function RateContractorPage() {
   if (!job) return <div className="p-6 text-slate-500">{t('common.contractors.jobs.ratePage.notFound')}</div>;
 
   return (
-    <div className="space-y-5 p-4 lg:p-6">
+    <div className="space-y-5">
       <RatingForm job={job} />
     </div>
   );

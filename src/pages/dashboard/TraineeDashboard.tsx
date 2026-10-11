@@ -121,14 +121,14 @@ export default function TraineeDashboard() {
         />
       )}
 
-      <div className="px-4 py-4 sm:px-6 lg:px-8">
+      <div className="pb-4">
         <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.dashboard.traineeTitle')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
           {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
         </p>
       </div>
 
-      <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
+      <div className="pb-8 space-y-6">
         <JobQueueList
           technicianId={traineeId}
           siteId={siteId}

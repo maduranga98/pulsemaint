@@ -22,7 +22,7 @@ export function EditPurchaseOrderPage() {
 
   if (loading) {
     return (
-      <div className="space-y-5 animate-pulse max-w-3xl mx-auto">
+      <div className="space-y-5 animate-pulse max-w-3xl">
         <div className="h-8 bg-gray-200 rounded w-1/3" />
         <div className="h-64 bg-gray-100 rounded-xl" />
       </div>
@@ -31,7 +31,7 @@ export function EditPurchaseOrderPage() {
 
   if (error || !order) {
     return (
-      <div className="space-y-4 max-w-3xl mx-auto">
+      <div className="space-y-4 max-w-3xl">
         <Link to="/app/inventory/purchase-orders" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
           <ChevronLeft className="w-4 h-4" /> {t('common.inventory.po.editPage.backToList')}
         </Link>
@@ -43,7 +43,7 @@ export function EditPurchaseOrderPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-3xl mx-auto">
+    <div className="space-y-5 max-w-3xl">
       <div className="flex items-center gap-3">
         <Link to={`/app/inventory/purchase-orders/${order.id}`} className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />

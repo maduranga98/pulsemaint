@@ -28,7 +28,7 @@ export default function CertificatesManagerPage() {
         </button>
         <h1 className="font-semibold text-slate-900 text-sm">{t('common.trainingShared.manager.certificatesManager.title')}</h1>
       </div>
-      <div className="p-4 sm:p-6 max-w-5xl mx-auto">
+      <div>
         <CertificatesManager
           certificates={certificates}
           loading={loading}

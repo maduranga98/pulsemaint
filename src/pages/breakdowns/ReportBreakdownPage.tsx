@@ -346,7 +346,7 @@ export default function ReportBreakdownPage() {
 
   return (
     <div className="min-h-full">
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
+      <div className="pb-4 mb-5 border-b border-slate-200">
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -375,7 +375,7 @@ export default function ReportBreakdownPage() {
           </button>
         </div>
       ) : (
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />

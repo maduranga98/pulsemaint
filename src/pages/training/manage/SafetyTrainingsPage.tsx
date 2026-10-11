@@ -119,7 +119,7 @@ export default function SafetyTrainingsPage() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
+    <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <ShieldAlert className="h-6 w-6 text-amber-600" />

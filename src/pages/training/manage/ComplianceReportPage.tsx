@@ -36,7 +36,7 @@ export default function ComplianceReportPage() {
         </button>
         <h1 className="font-semibold text-slate-900 text-sm">{t('common.trainingShared.manager.complianceReport.title')}</h1>
       </div>
-      <div className="p-4 sm:p-6 max-w-6xl mx-auto">
+      <div>
         <ComplianceReport
           stats={stats}
           matrixRows={matrixRows}
