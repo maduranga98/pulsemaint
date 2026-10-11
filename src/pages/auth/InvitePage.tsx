@@ -107,10 +107,10 @@ export default function InvitePage() {
   if (status === 'expired') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="w-full max-w-md bg-[#0D1B33] border border-white/10 rounded-2xl shadow-2xl p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.invite.expiredTitle')}</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-2xl font-bold text-white mb-2">{t('common.auth.invite.expiredTitle')}</h2>
+          <p className="text-slate-300 mb-6">
             {t('common.auth.invite.expiredMessage')}
           </p>
           <a
@@ -127,10 +127,10 @@ export default function InvitePage() {
   if (status === 'used') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="w-full max-w-md bg-[#0D1B33] border border-white/10 rounded-2xl shadow-2xl p-8 text-center">
           <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.invite.usedTitle')}</h2>
-          <p className="text-gray-600 mb-6">{t('common.auth.invite.usedMessage')}</p>
+          <h2 className="text-2xl font-bold text-white mb-2">{t('common.auth.invite.usedTitle')}</h2>
+          <p className="text-slate-300 mb-6">{t('common.auth.invite.usedMessage')}</p>
           <a
             href="/login"
             className="inline-block bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
@@ -153,36 +153,36 @@ export default function InvitePage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
+        <div className="bg-[#0D1B33] border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.invite.title')}</h2>
-            <p className="text-gray-600">
-              {t('common.auth.invite.invitedToJoin')} <strong>{invitation?.companyName}</strong> {t('common.auth.invite.asRole')}{' '}
-              <span className="inline-block bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-sm font-medium">
+            <h2 className="text-2xl font-bold text-white mb-2">{t('common.auth.invite.title')}</h2>
+            <p className="text-slate-300">
+              {t('common.auth.invite.invitedToJoin')} <strong className="text-white">{invitation?.companyName}</strong> {t('common.auth.invite.asRole')}{' '}
+              <span className="inline-block bg-[#1A56DB]/20 text-[#8DB8FF] border border-[#1A56DB]/40 px-2 py-0.5 rounded text-sm font-medium">
                 {invitation?.role ? roleLabel(invitation.role, t) : ''}
               </span>
             </p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-slate-400 mt-2">
               {t('common.auth.invite.invitedBy', { name: invitation?.invitedByName ?? '' })}
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
+            <div className="bg-red-950/40 border border-red-500/30 text-red-300 rounded-lg p-3 flex gap-2 text-sm">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
-            <span className="font-medium text-gray-700">{t('common.auth.invite.emailLabel')} </span>
+          <div className="bg-[#0B1526] border border-white/10 rounded-xl p-3 text-sm text-slate-300">
+            <span className="font-medium text-white">{t('common.auth.invite.emailLabel')} </span>
             {invitation?.email}
           </div>
 
           <button
             onClick={handleGoogleAccept}
             disabled={googleLoading || loading}
-            className="w-full border border-gray-200 bg-white text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 h-11"
+            className="w-full border border-white/10 bg-[#0B1526] text-slate-100 font-medium py-2.5 rounded-xl hover:bg-white/5 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 h-11"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -207,77 +207,78 @@ export default function InvitePage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">{t('common.auth.invite.orEmailPassword')}</span>
+              <span className="px-2 bg-[#0D1B33] text-slate-400">{t('common.auth.invite.orEmailPassword')}</span>
             </div>
           </div>
 
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.auth.invite.fullNameLabel')}</label>
+              <label className="block text-sm font-medium text-slate-200 mb-1">{t('common.auth.invite.fullNameLabel')}</label>
               <input
                 {...form.register('fullName')}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
+                className="w-full px-4 py-2.5 border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 rounded-xl focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none"
               />
               {form.formState.errors.fullName && (
-                <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.fullName.message ?? '')}</p>
+                <p className="text-red-400 text-sm mt-1">{t(form.formState.errors.fullName.message ?? '')}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.auth.login.passwordLabel')}</label>
+              <label className="block text-sm font-medium text-slate-200 mb-1">{t('common.auth.login.passwordLabel')}</label>
               <div className="relative">
                 <input
                   {...form.register('password')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder={t('common.auth.invite.passwordPlaceholder')}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none pr-10"
+                  className="w-full px-4 py-2.5 border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 rounded-xl focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-gray-500"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-200"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {form.formState.errors.password && (
-                <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.password.message ?? '')}</p>
+                <p className="text-red-400 text-sm mt-1">{t(form.formState.errors.password.message ?? '')}</p>
               )}
             </div>
 
             <PasswordStrength
+              tone="dark"
               password={form.watch('password') || ''}
               confirmPassword={form.watch('confirmPassword') || ''}
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.auth.invite.confirmPasswordLabel')}</label>
+              <label className="block text-sm font-medium text-slate-200 mb-1">{t('common.auth.invite.confirmPasswordLabel')}</label>
               <input
                 {...form.register('confirmPassword')}
                 type="password"
                 placeholder={t('common.auth.invite.confirmPlaceholder')}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
+                className="w-full px-4 py-2.5 border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 rounded-xl focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none"
               />
               {form.formState.errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">{t(form.formState.errors.confirmPassword.message ?? '')}</p>
+                <p className="text-red-400 text-sm mt-1">{t(form.formState.errors.confirmPassword.message ?? '')}</p>
               )}
             </div>
 
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50 h-11"
+              className="w-full bg-gradient-to-r from-[#1A56DB] to-[#1D6FF2] hover:brightness-110 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-[#1A56DB]/30 transition-all disabled:opacity-50 h-11"
             >
               {loading ? t('common.auth.invite.creating') : t('common.auth.invite.accept')}
             </button>
           </form>
 
-          <p className="text-center text-xs text-gray-500">
+          <p className="text-center text-xs text-slate-400">
             {t('common.auth.invite.haveAccount')}{' '}
-            <a href="/login" className="text-[#1A56DB] hover:underline font-medium">
+            <a href="/login" className="text-[#4C8DFF] hover:underline font-medium">
               {t('common.auth.invite.signInInstead')}
             </a>
           </p>

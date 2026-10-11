@@ -45,14 +45,14 @@ export default function ForgotPasswordPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+          <div className="bg-[#0D1B33] border border-white/10 rounded-2xl shadow-2xl p-8 text-center space-y-6">
+            <div className="w-16 h-16 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8 text-emerald-400" />
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.forgot.checkEmailTitle')}</h2>
-              <p className="text-gray-600">
+              <h2 className="text-2xl font-bold text-white mb-2">{t('common.auth.forgot.checkEmailTitle')}</h2>
+              <p className="text-slate-300">
                 {t('common.auth.forgot.sentPrefix')} <strong>{submittedEmail}</strong>. {t('common.auth.forgot.linkExpires')}
               </p>
             </div>
@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
                   setSubmitted(false);
                   form.reset();
                 }}
-                className="w-full border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11"
+                className="w-full border border-white/10 bg-[#0B1526] text-slate-100 font-medium py-2 rounded-xl hover:bg-white/5 transition-colors h-11"
               >
                 {t('common.auth.forgot.tryDifferent')}
               </button>
@@ -84,27 +84,27 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
+        <div className="bg-[#0D1B33] border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('common.auth.forgot.title')}</h2>
-            <p className="text-gray-600">{t('common.auth.forgot.subtitle')}</p>
+            <h2 className="text-2xl font-bold text-white mb-2">{t('common.auth.forgot.title')}</h2>
+            <p className="text-slate-300">{t('common.auth.forgot.subtitle')}</p>
           </div>
 
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {form.formState.errors.email && (
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-3">
+              <div className="bg-red-950/40 border border-red-500/30 text-red-300 rounded-lg p-3 flex gap-3">
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span className="text-sm">{t(form.formState.errors.email.message ?? '')}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.auth.login.emailLabel')}</label>
+              <label className="block text-sm font-medium text-slate-200 mb-2">{t('common.auth.login.emailLabel')}</label>
               <input
                 {...form.register('email')}
                 type="email"
                 placeholder="you@company.com"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                className="w-full px-4 py-2.5 border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 rounded-xl focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none transition-all"
               />
             </div>
 
