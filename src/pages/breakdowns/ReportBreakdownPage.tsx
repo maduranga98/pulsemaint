@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore';
 import { getBreakdownsHomeRoute } from '../../lib/auth';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
 import { notifyRoles } from '../../services/notifications.service';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
 import { suggestBreakdownRootCause, type BreakdownRCASuggestion } from '../../lib/breakdownRCA';
@@ -38,6 +39,9 @@ export default function ReportBreakdownPage() {
     () => searchParams.get('machineId') || ''
   );
 
+  // Plant is the main scope: every non-admin role only sees their own registered
+  // plant's machines; admin follows the plant tab in the header (null = all).
+  const { plantId: scopedPlantId } = useDepartmentScope();
   const [machines, setMachines] = useState<MachineOption[]>([]);
   const [machinesLoading, setMachinesLoading] = useState(true);
   // Same failure mode as the profile-load deadline below: a stalled
@@ -97,7 +101,9 @@ export default function ReportBreakdownPage() {
     const timer = setTimeout(() => setMachinesTimedOut(true), 8000);
     getDocs(query(collection(db, 'machines'), where('siteId', '==', siteId)))
       .then(async (snap) => {
-        const list: MachineOption[] = snap.docs.map((d) => {
+        const list: MachineOption[] = snap.docs
+          .filter((d) => !scopedPlantId || ((d.data() as any).plantId ?? null) === scopedPlantId)
+          .map((d) => {
           const data = d.data() as any;
           return {
             id: d.id,
@@ -140,7 +146,7 @@ export default function ReportBreakdownPage() {
         setMachinesLoading(false);
       });
     return () => clearTimeout(timer);
-  }, [siteId, preselectedMachineId, machinesRetryKey]);
+  }, [siteId, preselectedMachineId, machinesRetryKey, scopedPlantId]);
 
   const scannedMachine = preselectedMachineId
     ? machines.find((m) => m.id === preselectedMachineId)
