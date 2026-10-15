@@ -51,6 +51,7 @@ export interface Lead {
   contactPerson: string;
   phone: string;
   email: string;
+  website: string;
   location: string;
   district: string;
   /** Where the lead came from (an outside campaign, referral…). */
@@ -108,7 +109,7 @@ export interface LeadActivity {
 
 export function emptyLead(now = Date.now()): LeadInput {
   return {
-    businessName: '', contactPerson: '', phone: '', email: '', location: '', district: '', source: '', campaign: '', industry: '',
+    businessName: '', contactPerson: '', phone: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
     leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false,
     priceQuoted: '', closedAmount: 0, currency: 'LKR', mainProblem: '', tags: [], notes: '', assignedTo: null, marketerId: null, companyId: null,
   };
@@ -203,7 +204,7 @@ export function matchesSearch(lead: Lead, q: string): boolean {
   const needle = q.trim().toLowerCase();
   if (!needle) return true;
   const digits = needle.replace(/\D/g, '');
-  return [lead.businessName, lead.contactPerson, lead.location, lead.district, lead.email, lead.source, lead.campaign]
+  return [lead.businessName, lead.contactPerson, lead.location, lead.district, lead.email, lead.website, lead.source, lead.campaign]
     .some((v) => v?.toLowerCase().includes(needle))
     || (digits.length >= 3 && lead.phone.replace(/\D/g, '').includes(digits));
 }
@@ -281,13 +282,13 @@ function isoDateTime(ms: number | null): string {
 
 /** Same fields as the Add lead form (no campaign / assignment columns). */
 export const LEAD_EXPORT_HEADER = [
-  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
+  'Business name', 'Contact person', 'Phone', 'Email', 'Website', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
   'Calls made', 'Next call', 'Follow-up note', 'Demo', 'Price told', 'Closed amount', 'Currency', 'Main problem', 'Tags', 'Notes',
 ];
 
 export function leadsToCsv(leads: Lead[]): string {
   return toCsv(LEAD_EXPORT_HEADER, leads.map((l) => [
-    l.businessName, l.contactPerson, l.phone, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
+    l.businessName, l.contactPerson, l.phone, l.email, l.website, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
     LEAD_STATUS_LABEL[l.status], l.callsMade, isoDateTime(l.nextCallAt), l.followUpNote, isoDateTime(l.demoAt), l.priceQuoted,
     l.closedAmount || '', l.currency, l.mainProblem, l.tags.join('; '), l.notes,
   ]));
@@ -429,6 +430,40 @@ export function parseImportRows(table: unknown[][], defaults: { source?: string;
 }
 
 /** Phone digits for duplicate detection (last 9 digits, so 077… and +9477… match). */
+export interface ParsedLeadText { businessName: string; contactPerson: string; phone: string; email: string; website: string }
+
+const PHONE_RE = /(\+?\d[\d\s().-]{7,}\d)/;
+const EMAIL_RE = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/;
+const SITE_RE = /\b((?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|lk|net|org|io|co|biz|info|app)(?:\/\S*)?)/i;
+const LABEL_RE = /^\s*(business|company|name|contact(?: person)?|person|phone|tel|mobile|mob|email|e-mail|web(?:site)?)\s*[:\-–]\s*(.+)$/i;
+
+/** Pull name, phone, email and website out of pasted free text (WhatsApp message, card, signature…). */
+export function parseLeadText(text: string): ParsedLeadText {
+  const out: ParsedLeadText = { businessName: '', contactPerson: '', phone: '', email: '', website: '' };
+  const leftovers: string[] = [];
+  for (const raw of text.split(/\r?\n/)) {
+    let line = raw.trim();
+    if (!line) continue;
+    const lm = LABEL_RE.exec(line);
+    const label = lm ? lm[1].toLowerCase() : '';
+    if (lm) line = lm[2].trim();
+    if (label === 'business' || label === 'company') { out.businessName ||= line; continue; }
+    if (label === 'contact' || label === 'contact person' || label === 'person') { out.contactPerson ||= line; continue; }
+    const email = EMAIL_RE.exec(line);
+    if (email) { out.email ||= email[0]; line = line.replace(email[0], ' '); }
+    const site = SITE_RE.exec(line);
+    if (site) { out.website ||= site[1].replace(/[.,;]+$/, ''); line = line.replace(site[1], ' '); }
+    const phone = PHONE_RE.exec(line);
+    if (phone) { out.phone ||= phone[1].trim(); line = line.replace(phone[1], ' '); }
+    line = line.replace(/\b(?:phone|tel|mobile|mob|email|e-mail|web(?:site)?)\b\s*[:\-–]?/gi, ' ').replace(/[\s,;|:–-]+$/g, '').replace(/^[\s,;|:–-]+/g, '').replace(/\s+/g, ' ').trim();
+    if (line) leftovers.push(line);
+  }
+  const name = out.contactPerson || leftovers[0] || '';
+  out.businessName ||= name;
+  out.contactPerson ||= name;
+  return out;
+}
+
 export function phoneKey(phone: string): string {
   const d = phone.replace(/\D/g, '');
   return d.length >= 9 ? d.slice(-9) : d;

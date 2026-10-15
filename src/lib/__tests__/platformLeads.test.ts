@@ -183,3 +183,17 @@ describe('team & insights', () => {
     expect(f.map((s) => s.count)).toEqual([4, 3, 3, 2, 2, 1]);
   });
 });
+
+import { parseLeadText as _parseLeadText } from '@/lib/platform/leads';
+import { describe as _d, it as _it, expect as _e } from 'vitest';
+_d('parseLeadText', () => {
+  _it('catches name, phone, email, website; name becomes business and contact', () => {
+    const r = _parseLeadText('Nimal Silva\n+94 77 123 4567\nnimal@silvaeng.lk\nwww.silvaeng.lk');
+    _e(r).toEqual({ businessName: 'Nimal Silva', contactPerson: 'Nimal Silva', phone: '+94 77 123 4567', email: 'nimal@silvaeng.lk', website: 'www.silvaeng.lk' });
+  });
+  _it('handles labels and one-line input', () => {
+    const r = _parseLeadText('Company: Silva Engineering\nContact: Nimal\nTel: 077 123 4567');
+    _e(r.businessName).toBe('Silva Engineering'); _e(r.contactPerson).toBe('Nimal'); _e(r.phone).toBe('077 123 4567');
+    _e(_parseLeadText('Kamal Perera 0712345678').businessName).toBe('Kamal Perera');
+  });
+});

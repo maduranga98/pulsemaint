@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { countryLabel } from '@/lib/countries';
 import { Link } from 'react-router-dom';
 import {
-  Archive, ArchiveRestore, Bug, Building2, CalendarClock, History, Mail, MapPin, MessageCircle, Pencil, Phone, PhoneCall,
+  Archive, ArchiveRestore, Bug, Globe, Building2, CalendarClock, History, Mail, MapPin, MessageCircle, Pencil, Phone, PhoneCall,
   ListTodo, StickyNote, Trash2, Wallet, X,
 } from 'lucide-react';
 import {
@@ -121,6 +121,7 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
               </div>
             )}
             {lead.email && <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-500" /><a href={`mailto:${lead.email}`} className="text-blue-300!">{lead.email}</a></p>}
+            {lead.website && <p className="flex items-center gap-2"><Globe className="h-4 w-4 text-slate-500" /><a href={/^https?:\/\//i.test(lead.website) ? lead.website : `https://${lead.website}`} target="_blank" rel="noreferrer" className="text-blue-300!">{lead.website}</a></p>}
             {(lead.location || lead.district) && <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-slate-500" />{[lead.location, countryLabel(lead.district)].filter(Boolean).join(', ')}</p>}
             {(lead.source || lead.campaign) && <p className="flex items-center gap-2"><Building2 className="h-4 w-4 text-slate-500" />via {[lead.source, lead.campaign].filter(Boolean).join(' · ')}{lead.industry && <span className="text-slate-500">· {lead.industry}</span>}</p>}
             {lead.closedAmount > 0 && <p className="flex items-center gap-2"><Wallet className="h-4 w-4 text-slate-500" />{fmtAmount(lead.closedAmount, lead.currency)}</p>}

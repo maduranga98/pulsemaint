@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { UserPlus, Pencil } from 'lucide-react';
 import {
-  LEAD_CURRENCIES, LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, emptyLead, phoneKey,
+  LEAD_CURRENCIES, LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, emptyLead, parseLeadText, phoneKey,
   type Lead, type LeadInput, type TeamMember,
 } from '@/lib/platform/leads';
 import { createLead, updateLead } from '@/services/platformLeadsService';
@@ -23,6 +23,17 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const set = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) => setF((p) => ({ ...p, [k]: v }));
+
+  const [paste, setPaste] = useState('');
+  function fillFromPaste(text: string) {
+    setPaste(text);
+    const p = parseLeadText(text);
+    setF((prev) => ({
+      ...prev,
+      businessName: p.businessName || prev.businessName, contactPerson: p.contactPerson || prev.contactPerson,
+      phone: p.phone || prev.phone, email: p.email || prev.email, website: p.website || prev.website,
+    }));
+  }
 
   const dup = f.phone && phoneKey(f.phone).length >= 9
     ? allLeads.find((l) => l.id !== lead?.id && phoneKey(l.phone) === phoneKey(f.phone))
@@ -61,6 +72,13 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
       </>}
     >
       {error && <div className="mb-3"><ErrorNote message={error} /></div>}
+      {!lead && (
+        <div className="mb-3">
+          <Field label="Paste details" hint="Paste a name, phone, email or website — the fields below fill in automatically (the name is used as the business name and the contact person).">
+            <textarea className={input} rows={3} value={paste} onChange={(e) => fillFromPaste(e.target.value)} placeholder={'Nimal Silva\n077 123 4567\nwww.silvaeng.lk'} />
+          </Field>
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Business name *"><input className={input} value={f.businessName} onChange={(e) => set('businessName', e.target.value)} placeholder="Silva Engineering (Pvt) Ltd" autoFocus /></Field>
         <Field label="Contact person"><input className={input} value={f.contactPerson} onChange={(e) => set('contactPerson', e.target.value)} placeholder="Nimal Silva" /></Field>
@@ -68,6 +86,7 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
           <input className={input} value={f.phone} onChange={(e) => set('phone', e.target.value)} placeholder="077 123 4567" inputMode="tel" />
         </Field>
         <Field label="Email"><input className={input} type="email" value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="owner@example.com" /></Field>
+        <Field label="Website"><input className={input} value={f.website} onChange={(e) => set('website', e.target.value)} placeholder="www.example.com" /></Field>
         <Field label="Location"><input className={input} value={f.location} onChange={(e) => set('location', e.target.value)} placeholder="Nugegoda" /></Field>
         <Field label="Country" hint="Pick from the list or type one that isn't there.">
           <CountryInput value={f.district} onChange={(v) => set('district', v)} className={input} placeholder="Sri Lanka" />
