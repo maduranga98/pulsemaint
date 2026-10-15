@@ -135,6 +135,11 @@ export function useAuthInit() {
                     // mapping doc, so non-admins need it here to read their
                     // plant's departments and other plant-scoped data.
                     plantId: userProfile.plantId ?? null,
+                    // Mirrors the profile — firestore.rules reject a mapping whose
+                    // department or active/inactive status differs from it.
+                    department: userProfile.department ?? null,
+                    // Deactivated profiles were signed out above.
+                    status: 'active',
                   }, { merge: true }).catch(() => {});
 
                   // File access (storage.rules) is checked against the

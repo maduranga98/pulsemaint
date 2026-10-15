@@ -13,6 +13,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
+const {requireMember} = require("../lib/access");
 
 const db = getFirestore("default");
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
@@ -28,6 +29,8 @@ exports.reverseImport = onCall(async (request) => {
   if (!sessionId || !companyId) {
     throw new HttpsError("invalid-argument", "sessionId and companyId are required");
   }
+  // Reversing an import deletes stock records: managers of that company only.
+  await requireMember(request, companyId, {roles: ["supervisor", "maintenance_supervisor", "plant_manager", "admin"]});
 
   const sessionRef = db
     .collection("companies")

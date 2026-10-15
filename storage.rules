@@ -61,11 +61,12 @@ service firebase.storage {
       return resource == null;
     }
 
-    // triage/pdfs/… and triage/media/… are named by a random id and
-    // triage/shared/… holds media not tied to one company; any other first
-    // segment under triage/ is a company ID.
-    function triageAllowed(folder) {
-      return (folder in ['pdfs', 'media', 'shared'] && signedIn()) || inCompany(folder);
+    // Old shared triage folders (triage/pdfs, triage/media, triage/shared)
+    // took uploads from every company. They're closed to new uploads and to
+    // listing; existing files still open by their saved links. Every other
+    // first segment under triage/ is a company ID.
+    function legacyTriageFolder(folder) {
+      return folder in ['pdfs', 'media', 'shared'];
     }
 
     // Company-scoped assets that are uploaded once and kept as a record. Must be
@@ -139,12 +140,13 @@ service firebase.storage {
       allow create: if inCompany(companyId) && validUpload(50) && safeContentType() && newObject();
     }
 
-    // Triage media and generated PDFs: triage/pdfs/{id}.pdf,
-    // triage/media/{file}, triage/{companyId}/{folder}/{file}. Upload-only, so
-    // one company can never overwrite or delete another's (or the shared) files.
+    // Triage media and PDFs: triage/{companyId}/{folder}/{file}. Upload-only,
+    // so nobody can overwrite or delete another's files.
     match /triage/{folder}/{allPaths=**} {
-      allow read: if triageAllowed(folder);
-      allow create: if triageAllowed(folder) && validUpload(50) && safeContentType() && newObject();
+      allow read: if !legacyTriageFolder(folder) && inCompany(folder);
+      allow get: if legacyTriageFolder(folder) && signedIn();
+      allow create: if !legacyTriageFolder(folder) && inCompany(folder)
+        && validUpload(50) && safeContentType() && newObject();
     }
 
     // Legacy inventory part warranty files (now under

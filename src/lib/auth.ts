@@ -209,6 +209,10 @@ export async function loginWithEmail(email: string, password: string): Promise<U
       role: userProfile.role,
       siteId: userProfile.siteIds[0] ?? companyId,
       plantId: userProfile.plantId ?? null,
+      // Mirrors the profile — firestore.rules reject a mapping whose
+      // department or active/inactive status differs from it.
+      department: userProfile.department ?? null,
+      status: userProfile.status === 'inactive' ? 'inactive' : 'active',
     }, { merge: true });
 
     // Update lastLoginAt
@@ -433,6 +437,10 @@ export async function loginWithPin(companyId: string, pin: string): Promise<User
       role: userProfile.role,
       siteId: userProfile.siteIds[0] ?? companyId,
       plantId: userProfile.plantId ?? null,
+      // Mirrors the profile — firestore.rules reject a mapping whose
+      // department or active/inactive status differs from it.
+      department: userProfile.department ?? null,
+      status: userProfile.status === 'inactive' ? 'inactive' : 'active',
     }, { merge: true });
 
     // Update lastLoginAt

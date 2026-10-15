@@ -11,6 +11,7 @@ import {
 } from '@firebase/rules-unit-testing';
 import {
   doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDocs, query, where, documentId,
+  serverTimestamp, arrayUnion,
 } from 'firebase/firestore';
 
 const PROJECT = 'demo-firmicore';
@@ -117,9 +118,26 @@ describe('users mapping + profile cannot be self-escalated', () => {
     await assertSucceeds(updateDoc(doc(as('adminA'), 'users/techA'), { role: 'supervisor', plantId: null }));
     await assertSucceeds(updateDoc(doc(as('adminA'), 'companies/A/users/techA'), { role: 'supervisor' }));
   });
-  it('a supervisor can sync a colleague but cannot grant admin', async () => {
-    await assertSucceeds(setDoc(doc(as('supA'), 'users/techA'), { role: 'plant_manager', plantId: null }, { merge: true }));
-    await assertFails(setDoc(doc(as('supA'), 'users/techA'), { role: 'admin' }, { merge: true }));
+  it('only admin / HR change someone\'s role mapping; HR never grants admin or edits their own', async () => {
+    await env.withSecurityRulesDisabled((c) => seedUser(c.firestore(), 'hrA', 'A', 'hr_officer'));
+    await assertFails(setDoc(doc(as('supA'), 'users/techA'), { role: 'plant_manager', plantId: null }, { merge: true }));
+    await assertFails(setDoc(doc(as('supA'), 'users/supA'), { role: 'plant_manager' }, { merge: true }));
+    await assertSucceeds(setDoc(doc(as('hrA'), 'users/techA'), { role: 'supervisor', plantId: null }, { merge: true }));
+    await assertFails(setDoc(doc(as('hrA'), 'users/techA'), { role: 'admin' }, { merge: true }));
+    await assertFails(setDoc(doc(as('hrA'), 'users/adminA'), { role: 'technician' }, { merge: true }));
+    await assertFails(setDoc(doc(as('hrA'), 'users/hrA'), { role: 'plant_manager' }, { merge: true }));
+  });
+  it('supervisors / plant managers edit colleagues\' non-access profile fields only', async () => {
+    await assertSucceeds(updateDoc(doc(as('supA'), 'companies/A/users/techA'), { jobTitle: 'Senior technician' }));
+    await assertFails(updateDoc(doc(as('supA'), 'companies/A/users/techA'), { role: 'plant_manager' }));
+    await assertFails(updateDoc(doc(as('supA'), 'companies/A/users/techA'), { status: 'inactive' }));
+    await assertFails(updateDoc(doc(as('supA'), 'companies/A/users/supA'), { role: 'plant_manager' }));
+    await assertFails(setDoc(doc(as('supA'), 'companies/A/users/newbie'), { id: 'newbie', companyId: 'A', role: 'technician', siteIds: [] }));
+  });
+  it('a mapping\'s department can only mirror the profile', async () => {
+    await env.withSecurityRulesDisabled((c) => updateDoc(doc(c.firestore(), 'companies/A/users/techA'), { department: 'Mechanical' }));
+    await assertFails(setDoc(doc(as('techA'), 'users/techA'), { department: 'Electrical' }, { merge: true }));
+    await assertSucceeds(setDoc(doc(as('techA'), 'users/techA'), { department: 'Mechanical' }, { merge: true }));
   });
   it('managers can only read same-company mapping docs (list needs a companyId filter)', async () => {
     const db = as('adminA');
@@ -172,6 +190,19 @@ describe('company registration and invitations', () => {
   });
 });
 
+// The payload PublicBreakdownReportPage writes for machine mA (company A).
+const qrTicket = (over = {}) => ({
+  ticketNumber: 'BD-2026-ABC123', siteId: 'A', companyId: 'A', machineId: 'mA', machineName: 'Machine A',
+  machineDepartment: '', machinePlantId: null, machineLocation: '', machineCriticality: 3,
+  severity: null, type: null, description: 'Motor is overheating badly', productionImpact: '',
+  currentProductionCount: null, attemptedFixes: '', machineStillRunning: false, photos: [], video: null,
+  source: 'qr_scan', reportedBy: null, reporterName: null, reporterRole: null, reportedAt: serverTimestamp(),
+  status: 'reported', statusHistory: [], assignedTechnicianIds: [], assignedTechnicianNames: [],
+  assignedContractorId: null, assignedBy: null, assignedByName: null, attendedBy: null, attendedByName: null,
+  attendedAt: null, acknowledgedAt: null, acknowledgedBy: null, assignedAt: null, enRouteAt: null,
+  repairStartedAt: null, resolvedAt: null, closedAt: null, slaDeadline: null, ...over,
+});
+
 describe('cross-company isolation', () => {
   it('work orders: admins/supervisors only reach their own company', async () => {
     await assertSucceeds(getDoc(doc(as('adminA'), 'workOrders/woA')));
@@ -200,14 +231,15 @@ describe('cross-company isolation', () => {
     await assertFails(getDoc(doc(as('adminB'), 'workOrders/woA/partsRequests/pr1')));
     await assertFails(deleteDoc(doc(as('adminB'), 'workOrders/woA/partsRequests/pr1')));
   });
-  it('machines: scoped reads/writes; QR visitors can still look up one machine', async () => {
+  it('machines: scoped reads/writes; anonymous QR visitors get no direct machine access', async () => {
     await assertSucceeds(getDocs(query(collection(as('techA'), 'machines'), where('siteId', '==', 'A'))));
     await assertFails(getDocs(query(collection(as('techB'), 'machines'), where('siteId', '==', 'A'))));
     await assertFails(getDoc(doc(as('techB'), 'machines/mA')));
     await assertFails(updateDoc(doc(as('adminB'), 'machines/mA'), { name: 'x' }));
     await assertFails(deleteDoc(doc(as('supB'), 'machines/mA')));
     await assertSucceeds(updateDoc(doc(as('supA'), 'machines/mA'), { name: 'ok', siteId: 'A', companyId: 'A' }));
-    await assertSucceeds(getDoc(doc(anon(), 'machines/mA')));
+    await assertFails(getDoc(doc(anon(), 'machines/mA')));
+    await assertFails(getDocs(query(collection(anon(), 'machines'), where('siteId', '==', 'A'))));
   });
   it('breakdown tickets: scoped by site/company or by machine; QR visitors can still report', async () => {
     await assertSucceeds(getDocs(query(collection(as('techA'), 'breakdown_tickets'), where('siteId', '==', 'A'))));
@@ -218,9 +250,7 @@ describe('cross-company isolation', () => {
     await assertFails(getDoc(doc(as('adminB'), 'breakdown_tickets/bdA')));
     await assertFails(updateDoc(doc(as('adminB'), 'breakdown_tickets/bdA'), { status: 'closed' }));
     await assertFails(deleteDoc(doc(as('adminB'), 'breakdown_tickets/bdA')));
-    await assertSucceeds(addDoc(collection(anon(), 'breakdown_tickets'), {
-      siteId: 'A', companyId: 'A', machineId: 'mA', source: 'qr_scan', status: 'reported', reportedBy: null, assignedTechnicianIds: [],
-    }));
+    await assertSucceeds(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket()));
     await assertSucceeds(addDoc(collection(as('floorA'), 'breakdown_tickets'), { siteId: 'A', companyId: 'A', machineId: 'mA', status: 'reported' }));
     await assertFails(addDoc(collection(as('floorB'), 'breakdown_tickets'), { siteId: 'A', companyId: 'A', machineId: 'mA', status: 'reported' }));
   });
@@ -250,5 +280,191 @@ describe('cross-company isolation', () => {
     await assertSucceeds(getDoc(doc(as('adminA'), 'triageTemplates/t1')));
     await assertFails(setDoc(doc(as('adminA'), 'triageTemplates/t1'), { name: 'hacked' }));
     await assertSucceeds(setDoc(doc(as('root', { superadmin: true }), 'triageTemplates/t1'), { name: 'ok' }));
+  });
+});
+
+describe('anonymous QR breakdown reports are tied to the real machine', () => {
+  it('the form\'s own payload works; other companies, unknown machines and extra fields do not', async () => {
+    await assertSucceeds(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket()));
+    // Filed against company A's machine but into company B's queue.
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ siteId: 'B', companyId: 'B' })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ machineId: 'nope' })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ machinePlantId: 'other-plant' })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ status: 'closed' })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ reportedBy: 'adminA' })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ reportedAt: new Date(2020, 0, 1) })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ description: 'short' })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ estimatedDowntimeMinutes: 9999 })));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ assignedTechnicianIds: ['techA'] })));
+  });
+});
+
+describe('deactivated users lose access at once', () => {
+  const deactivate = (uid, c) => env.withSecurityRulesDisabled(async (ctx) => {
+    const db = ctx.firestore();
+    await updateDoc(doc(db, `companies/${c}/users/${uid}`), { status: 'inactive' });
+    await updateDoc(doc(db, `users/${uid}`), { status: 'inactive' });
+  });
+  it('an inactive admin can no longer read or change company data', async () => {
+    await assertSucceeds(getDoc(doc(as('adminA'), 'workOrders/woA')));
+    await deactivate('adminA', 'A');
+    await assertFails(getDoc(doc(as('adminA'), 'workOrders/woA')));
+    await assertFails(updateDoc(doc(as('adminA'), 'workOrders/woA'), { status: 'CLOSED' }));
+    await assertFails(getDocs(query(collection(as('adminA'), 'machines'), where('siteId', '==', 'A'))));
+    await assertFails(updateDoc(doc(as('adminA'), 'users/techA'), { role: 'supervisor' }));
+    await assertFails(updateDoc(doc(as('adminA'), 'companies/A/users/techA'), { role: 'supervisor' }));
+  });
+  it('an inactive technician cannot touch their work, their profile or re-activate their mapping', async () => {
+    await deactivate('techA', 'A');
+    await assertFails(getDocs(query(collection(as('techA'), 'workOrders'), where('assignedTechnicianIds', 'array-contains', 'techA'))));
+    await assertFails(updateDoc(doc(as('techA'), 'workOrders/woA'), { status: 'IN_PROGRESS' }));
+    await assertFails(updateDoc(doc(as('techA'), 'companies/A/users/techA'), { lastLoginAt: new Date() }));
+    await assertFails(setDoc(doc(as('techA'), 'users/techA'), { status: 'active' }, { merge: true }));
+    // They can still see their own (deactivated) profile, so the app can sign them out.
+    await assertSucceeds(getDoc(doc(as('techA'), 'companies/A/users/techA')));
+  });
+  it('other members are unaffected', async () => {
+    await deactivate('techA', 'A');
+    await assertSucceeds(getDoc(doc(as('adminA'), 'workOrders/woA')));
+  });
+});
+
+describe('trainees cannot pass or certify themselves', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await seedUser(db, 'trainA', 'A', 'trainee');
+      await setDoc(doc(db, 'trainingAssignments/ta1'), {
+        companyId: 'A', traineeId: 'trainA', moduleId: 'mod1', status: 'not_started', category: 'machine',
+        lessonProgress: {}, lessonsCompleted: 0, overallProgress: 0, quizPassed: false, attemptsUsed: 0,
+      });
+      await setDoc(doc(db, 'trainingAssignments/taOff'), {
+        companyId: 'A', traineeId: 'trainA', moduleId: 'mod2', status: 'in_progress', category: 'offboard',
+      });
+      await setDoc(doc(db, 'trainingAssignments/taSup'), {
+        companyId: 'A', traineeId: 'supA', moduleId: 'mod1', status: 'awaiting_practical', category: 'machine',
+      });
+    });
+  });
+  it('lesson progress and starting the module still work', async () => {
+    const db = as('trainA');
+    await assertSucceeds(updateDoc(doc(db, 'trainingAssignments/ta1'), {
+      'lessonProgress.l1.completed': true, lessonsCompleted: 1, overallProgress: 50,
+      status: 'in_progress', startedAt: new Date(), lastActivityAt: new Date(),
+    }));
+  });
+  it('quiz results, pass flags and certification are not trainee-writable', async () => {
+    const db = as('trainA');
+    await assertFails(updateDoc(doc(db, 'trainingAssignments/ta1'), { status: 'certified' }));
+    await assertFails(updateDoc(doc(db, 'trainingAssignments/ta1'), { status: 'quiz_passed', quizPassed: true }));
+    await assertFails(updateDoc(doc(db, 'trainingAssignments/ta1'), { status: 'awaiting_practical' }));
+    await assertFails(updateDoc(doc(db, 'trainingAssignments/ta1'), { bestScore: 100, latestScore: 100 }));
+    await assertFails(updateDoc(doc(db, 'trainingAssignments/ta1'), { attemptsUsed: 0, quizAttempts: [] }));
+    await assertFails(updateDoc(doc(db, 'trainingAssignments/ta1'), { practicalSignOff: { passed: true } }));
+    await assertFails(updateDoc(doc(db, 'trainingAssignments/ta1'), { companyId: 'B' }));
+    await assertFails(setDoc(doc(db, 'trainingCertificates/forged'), { companyId: 'A', traineeId: 'trainA', score: 100 }));
+  });
+  it('an offboard trainee can still submit their completion report', async () => {
+    await assertSucceeds(updateDoc(doc(as('trainA'), 'trainingAssignments/taOff'), {
+      offboardCompletion: { knowledgeGained: 'x', reportSubmittedAt: new Date() },
+      status: 'awaiting_practical', lastActivityAt: new Date(), completedAt: new Date(),
+    }));
+    await assertFails(updateDoc(doc(as('trainA'), 'trainingAssignments/ta1'), {
+      offboardCompletion: { knowledgeGained: 'x' }, status: 'awaiting_practical',
+    }));
+  });
+  it('managers sign off other people\'s training, never their own', async () => {
+    await assertSucceeds(updateDoc(doc(as('supA'), 'trainingAssignments/ta1'), { status: 'certified' }));
+    await assertFails(updateDoc(doc(as('supA'), 'trainingAssignments/taSup'), { status: 'certified' }));
+    await assertFails(updateDoc(doc(as('supB'), 'trainingAssignments/ta1'), { status: 'certified' }));
+  });
+  it('the sign-off screen can check whether a certificate exists yet', async () => {
+    await assertSucceeds(getDoc(doc(as('supA'), 'trainingCertificates/cert_ta1')));
+    await assertFails(getDoc(doc(as('trainA'), 'trainingCertificates/cert_ta1')));
+  });
+});
+
+describe('cross-company writes by document id', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'triageFlows/fB'), { companyId: 'B', name: 'B flow' });
+      await setDoc(doc(db, 'triageSessions/sB'), { companyId: 'B', status: 'open' });
+    });
+  });
+  it('triage flows and sessions of another company cannot be overwritten or deleted', async () => {
+    await assertFails(setDoc(doc(as('adminA'), 'triageFlows/fB'), { companyId: 'A', name: 'taken' }));
+    await assertFails(deleteDoc(doc(as('adminA'), 'triageFlows/fB')));
+    await assertFails(setDoc(doc(as('supA'), 'triageSessions/sB'), { companyId: 'A' }));
+    await assertFails(deleteDoc(doc(as('supA'), 'triageSessions/sB')));
+    await assertSucceeds(setDoc(doc(as('adminB'), 'triageFlows/fB'), { companyId: 'B', name: 'renamed' }));
+    await assertSucceeds(setDoc(doc(as('adminA'), 'triageFlows/fA'), { companyId: 'A', name: 'mine' }));
+  });
+  it('PM schedules are created only in the creator\'s company', async () => {
+    await assertFails(addDoc(collection(as('supA'), 'pm_schedules'), { companyId: 'B', name: 'x' }));
+    await assertSucceeds(addDoc(collection(as('supA'), 'pm_schedules'), { companyId: 'A', name: 'x' }));
+  });
+  it('PM history (PM compliance) is written only by the roles that create PM work orders', async () => {
+    await assertFails(addDoc(collection(as('floorA'), 'pm_history'), { companyId: 'A', status: 'completed' }));
+    await assertFails(addDoc(collection(as('techA'), 'pm_history'), { companyId: 'A', status: 'completed' }));
+    await assertFails(addDoc(collection(as('supB'), 'pm_history'), { companyId: 'A', status: 'in_progress' }));
+    await assertSucceeds(addDoc(collection(as('supA'), 'pm_history'), { companyId: 'A', status: 'in_progress' }));
+  });
+});
+
+describe('technicians update only the breakdown tickets they work on', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await seedUser(db, 'tech2A', 'A', 'technician');
+      await setDoc(doc(db, 'breakdown_tickets/bdMine'), {
+        siteId: 'A', companyId: 'A', machineId: 'mA', status: 'assigned', reportedAt: new Date(2026, 0, 1),
+        assignedTechnicianIds: ['techA'], attendedBy: 'techA',
+      });
+      await setDoc(doc(db, 'breakdown_tickets/bdWo'), {
+        siteId: 'A', companyId: 'A', machineId: 'mA', status: 'assigned', reportedAt: new Date(2026, 0, 1),
+        assignedTechnicianIds: [], linkedWOId: 'woA',
+      });
+    });
+  });
+  it('self-attend, assigned and linked-WO technicians keep working', async () => {
+    // Self-attend a reported ticket (UnassignedBreakdownsWidget / ViewBreakdownPage).
+    await assertSucceeds(updateDoc(doc(as('tech2A'), 'breakdown_tickets/bdA'), {
+      assignedTechnicianIds: ['tech2A'], attendedBy: 'tech2A', status: 'assigned',
+    }));
+    await assertSucceeds(updateDoc(doc(as('techA'), 'breakdown_tickets/bdMine'), { severity: 'high', attemptedFixes: 'reset' }));
+    // Starting / completing the linked WO advances the ticket (techA is on woA).
+    await assertSucceeds(updateDoc(doc(as('techA'), 'breakdown_tickets/bdWo'), { status: 'resolved', resolvedAt: new Date() }));
+    // Joining the assessment (AttendBreakdownsPage adds themselves).
+    await assertSucceeds(updateDoc(doc(as('tech2A'), 'breakdown_tickets/bdMine'), { assignedTechnicianIds: arrayUnion('tech2A'), severity: 'low' }));
+  });
+  it('others cannot edit someone else\'s ticket or its identity', async () => {
+    await assertFails(updateDoc(doc(as('tech2A'), 'breakdown_tickets/bdMine'), { status: 'closed' }));
+    await assertFails(updateDoc(doc(as('tech2A'), 'breakdown_tickets/bdWo'), { status: 'resolved' }));
+    await assertFails(updateDoc(doc(as('techA'), 'breakdown_tickets/bdMine'), { reportedAt: new Date() }));
+    await assertFails(updateDoc(doc(as('techA'), 'breakdown_tickets/bdMine'), { machineId: 'mB' }));
+    await assertFails(updateDoc(doc(as('techB'), 'breakdown_tickets/bdMine'), { assignedTechnicianIds: ['techB'] }));
+    // Supervisors still manage any ticket in their company.
+    await assertSucceeds(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMine'), { status: 'closed' }));
+  });
+});
+
+describe('notifications', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), 'notifications/n1'), {
+      companyId: 'A', message: 'WO assigned', readBy: ['supA'], recipientUserIds: ['techA'],
+    }));
+  });
+  it('a member marks one read for themselves only', async () => {
+    await assertSucceeds(updateDoc(doc(as('techA'), 'notifications/n1'), { readBy: arrayUnion('techA') }));
+    await assertFails(updateDoc(doc(as('techA'), 'notifications/n1'), { readBy: ['techA'] }));
+    await assertFails(updateDoc(doc(as('techA'), 'notifications/n1'), { readBy: arrayUnion('adminA') }));
+    await assertFails(updateDoc(doc(as('techA'), 'notifications/n1'), { message: 'changed' }));
+    await assertFails(updateDoc(doc(as('techB'), 'notifications/n1'), { readBy: arrayUnion('techB') }));
+  });
+  it('new notifications start unread and stay in the sender\'s company', async () => {
+    await assertSucceeds(addDoc(collection(as('techA'), 'notifications'), { companyId: 'A', message: 'x', readBy: [] }));
+    await assertFails(addDoc(collection(as('techA'), 'notifications'), { companyId: 'B', message: 'x', readBy: [] }));
+    await assertFails(addDoc(collection(as('techA'), 'notifications'), { companyId: 'A', message: 'x', readBy: ['adminA'] }));
   });
 });

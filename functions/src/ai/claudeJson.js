@@ -92,6 +92,7 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
 
   const userSnap = await db.collection("users").doc(request.auth.uid).get();
   if (!userSnap.exists) throw new HttpsError("permission-denied", "No app profile for this user");
+  if (userSnap.get("status") === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated");
 
   // AI suggestions and translation are part of Workshop and above (a running
   // trial unlocks them).

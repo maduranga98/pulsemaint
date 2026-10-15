@@ -14,6 +14,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
+const {requireMember} = require("../lib/access");
 const { calculateAndUpsertSnapshot } = require("./calculateDailyMoeSnapshots");
 
 const db = getFirestore("default");
@@ -27,11 +28,8 @@ const backfillMoeSnapshots = onCall({timeoutSeconds: 540}, async (request) => {
     throw new HttpsError("invalid-argument", "tenantId is required");
   }
 
-  const userDoc = await db.collection("users").doc(request.auth.uid).get();
-  const role = userDoc.exists ? userDoc.data().role : null;
-  if (!["admin", "plant_manager"].includes(role)) {
-    throw new HttpsError("permission-denied", "Only admin/plant_manager may backfill MOE data");
-  }
+  // Only an admin/plant manager of that same company may backfill its MOE data.
+  await requireMember(request, tenantId, {roles: ["admin", "plant_manager"]});
 
   const machinesSnap = await db
       .collection("machines")

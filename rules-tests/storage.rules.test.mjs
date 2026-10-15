@@ -69,12 +69,17 @@ describe('evidence is create-only', () => {
       await assertFails(deleteObject(ref(member('A'), p)));
     });
   }
-  it('shared triage pdf/media folders are upload-only for any signed-in user', async () => {
-    const p = fresh('triage/pdfs/');
+  it('triage files live in each company\'s own folder; the old shared folders take no uploads', async () => {
+    const p = fresh('triage/A/pdfs/');
     await assertSucceeds(uploadBytes(ref(member('A'), p), bytes(), { contentType: 'application/pdf' }));
-    await assertFails(uploadBytes(ref(member('B'), p), bytes(), { contentType: 'application/pdf' }));
-    await assertFails(deleteObject(ref(member('B'), p)));
-    await assertFails(uploadBytes(ref(anon(), fresh('triage/media/')), bytes(), png));
+    await assertSucceeds(getBytes(ref(member('A'), p)));
+    await assertFails(getBytes(ref(member('B'), p)));
+    await assertFails(uploadBytes(ref(member('B'), fresh('triage/A/media/')), bytes(), png));
+    await assertFails(deleteObject(ref(member('A'), p)));
+    for (const legacy of ['triage/pdfs/', 'triage/media/', 'triage/shared/x/']) {
+      await assertFails(uploadBytes(ref(member('A'), fresh(legacy)), bytes(), png));
+    }
+    await assertFails(uploadBytes(ref(anon(), fresh('triage/A/media/')), bytes(), png));
   });
 });
 

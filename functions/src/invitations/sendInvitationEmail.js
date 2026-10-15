@@ -2,6 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { sendEmail, brandedEmail, platformSmtpPassword } = require("../lib/mailer");
+const { requireMember, escapeHtml } = require("../lib/access");
 
 const db = getFirestore("default");
 
@@ -16,6 +17,8 @@ exports.sendInvitationEmail = onCall(
     if (!invitationId || !companyId) {
       throw new HttpsError("invalid-argument", "Missing invitationId or companyId.");
     }
+    // Only someone who may invite people to that company can (re)send its invitations.
+    await requireMember(request, companyId, {roles: ["admin", "supervisor", "maintenance_supervisor", "plant_manager", "hr_officer"]});
 
     const invSnap = await db
       .doc(`companies/${companyId}/invitations/${invitationId}`)
@@ -45,9 +48,9 @@ exports.sendInvitationEmail = onCall(
     const html = `
 <h2 style="margin:0 0 8px;color:#1a1a1a;font-size:22px;font-weight:600;">You're invited!</h2>
 <p style="margin:0 0 24px;color:#555;font-size:15px;line-height:1.6;">
-  <strong>${inv.invitedByName || "Your administrator"}</strong> has invited you to join
-  <strong>${companyName}</strong> on FirmiCore as a
-  <span style="display:inline-block;background:#EBF5FF;color:#1A56DB;padding:2px 10px;border-radius:4px;font-size:13px;font-weight:600;">${roleName}</span>.
+  <strong>${escapeHtml(inv.invitedByName || "Your administrator")}</strong> has invited you to join
+  <strong>${escapeHtml(companyName)}</strong> on FirmiCore as a
+  <span style="display:inline-block;background:#EBF5FF;color:#1A56DB;padding:2px 10px;border-radius:4px;font-size:13px;font-weight:600;">${escapeHtml(roleName)}</span>.
 </p>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:8px;margin-bottom:28px;">
@@ -56,15 +59,15 @@ exports.sendInvitationEmail = onCall(
       <table>
         <tr>
           <td style="color:#888;font-size:13px;padding-right:12px;white-space:nowrap;">Company:</td>
-          <td style="color:#333;font-size:13px;font-weight:500;">${companyName}</td>
+          <td style="color:#333;font-size:13px;font-weight:500;">${escapeHtml(companyName)}</td>
         </tr>
         <tr>
           <td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Role:</td>
-          <td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;text-transform:capitalize;">${roleName}</td>
+          <td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;text-transform:capitalize;">${escapeHtml(roleName)}</td>
         </tr>
-        ${plant?.name ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Plant:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${plant.name}</td></tr>` : ""}
-        ${inv.department ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Department:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${inv.department}</td></tr>` : ""}
-        ${inv.jobTitle ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Job Title:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${inv.jobTitle}</td></tr>` : ""}
+        ${plant?.name ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Plant:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${escapeHtml(plant.name)}</td></tr>` : ""}
+        ${inv.department ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Department:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${escapeHtml(inv.department)}</td></tr>` : ""}
+        ${inv.jobTitle ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Job Title:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${escapeHtml(inv.jobTitle)}</td></tr>` : ""}
       </table>
     </td>
   </tr>
@@ -78,10 +81,10 @@ ${plant?.contactPerson?.name ? `
       <table>
         <tr>
           <td style="color:#888;font-size:13px;padding-right:12px;white-space:nowrap;">Name:</td>
-          <td style="color:#333;font-size:13px;font-weight:500;">${plant.contactPerson.name}</td>
+          <td style="color:#333;font-size:13px;font-weight:500;">${escapeHtml(plant.contactPerson.name)}</td>
         </tr>
-        ${plant.contactPerson.email ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Email:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${plant.contactPerson.email}</td></tr>` : ""}
-        ${plant.contactPerson.phone ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Phone:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${plant.contactPerson.phone}</td></tr>` : ""}
+        ${plant.contactPerson.email ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Email:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${escapeHtml(plant.contactPerson.email)}</td></tr>` : ""}
+        ${plant.contactPerson.phone ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Phone:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${escapeHtml(plant.contactPerson.phone)}</td></tr>` : ""}
       </table>
     </td>
   </tr>
