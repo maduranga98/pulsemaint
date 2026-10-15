@@ -166,7 +166,8 @@ exports.triggerManualPM = onCall({cors: true}, async (request) => {
         status: "OPEN",
         changedBy: auth.uid,
         changedByName: auth.token.name || "Supervisor",
-        changedAt: FieldValue.serverTimestamp(),
+        // Firestore doesn't allow serverTimestamp() inside an array.
+        changedAt: Timestamp.now(),
         note: "Manually triggered from PM schedule",
       }],
       createdBy: auth.uid,

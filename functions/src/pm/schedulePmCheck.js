@@ -221,7 +221,8 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
             status: "OPEN",
             changedBy: "system",
             changedByName: "System",
-            changedAt: FieldValue.serverTimestamp(),
+            // Firestore doesn't allow serverTimestamp() inside an array.
+            changedAt: Timestamp.now(),
             note: "Auto-generated from PM schedule",
           }],
           createdBy: "system",
