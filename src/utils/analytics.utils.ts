@@ -1,6 +1,7 @@
 import type { Timestamp } from 'firebase/firestore';
 import i18n from 'i18next';
 import type { BreakdownSeverity } from '../types';
+import { getCompanyCurrency } from '@/lib/currency';
 
 // ---------------------------------------------------------------------------
 // Duration formatting
@@ -157,7 +158,7 @@ export function dateRangeFromChartRange(range: '7D' | '30D' | '3M' | '6M' | '12M
 // ---------------------------------------------------------------------------
 
 export function formatCurrencyLKR(amount: number): string {
-  return `LKR ${amount.toLocaleString('en-LK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  return `${getCompanyCurrency()} ${amount.toLocaleString('en-LK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 export function formatPercent(value: number, decimals = 0): string {

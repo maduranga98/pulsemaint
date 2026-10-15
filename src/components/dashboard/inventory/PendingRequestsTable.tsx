@@ -2,6 +2,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { usePendingPartsRequests } from '../../../hooks/dashboard/usePendingPartsRequests';
 import EmptyState from '../shared/EmptyState';
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface PendingRequestsTableProps {
   companyId: string;
@@ -39,7 +40,7 @@ export default function PendingRequestsTable({ companyId }: PendingRequestsTable
                   <td className="py-2.5 text-[#8BA3BF]">{req.requestedByName}</td>
                   <td className="py-2.5 text-right text-[#F0F4F8]">{req.items.length}</td>
                   <td className="py-2.5 text-right text-[#F0F4F8]">
-                    LKR {req.totalEstimatedCost.toLocaleString()}
+                    {getCompanyCurrency()} {req.totalEstimatedCost.toLocaleString()}
                   </td>
                 </tr>
               ))}

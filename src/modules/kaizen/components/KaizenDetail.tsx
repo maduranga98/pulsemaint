@@ -30,6 +30,7 @@ import {
 import type { KaizenStatus } from '../types/kaizen.types';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 interface Props {
   cardId: string;
   onClose: () => void;
@@ -473,7 +474,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.estimatedCost')}</p>
                       <p className="text-lg font-bold text-gray-900">
                         {card.estimatedCost != null
-                          ? `LKR ${card.estimatedCost.toLocaleString()}`
+                          ? `${getCompanyCurrency()} ${card.estimatedCost.toLocaleString()}`
                           : ''}
                       </p>
                     </div>
@@ -481,7 +482,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.actualCost')}</p>
                       <p className="text-lg font-bold text-gray-900">
                         {card.actualCost != null
-                          ? `LKR ${card.actualCost.toLocaleString()}`
+                          ? `${getCompanyCurrency()} ${card.actualCost.toLocaleString()}`
                           : ''}
                       </p>
                     </div>
@@ -489,7 +490,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.estMonthlyBenefit')}</p>
                       <p className="text-lg font-bold text-emerald-700">
                         {card.estimatedBenefit != null
-                          ? `LKR ${card.estimatedBenefit.toLocaleString()}`
+                          ? `${getCompanyCurrency()} ${card.estimatedBenefit.toLocaleString()}`
                           : ''}
                       </p>
                     </div>
@@ -497,7 +498,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-xs text-gray-500 mb-0.5">{t('common.ui2.kaizen.kaizenDetail.actualMonthlyBenefit')}</p>
                       <p className="text-lg font-bold text-emerald-700">
                         {card.actualBenefit != null
-                          ? `LKR ${card.actualBenefit.toLocaleString()}`
+                          ? `${getCompanyCurrency()} ${card.actualBenefit.toLocaleString()}`
                           : ''}
                       </p>
                     </div>
@@ -508,7 +509,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-xs text-blue-600 font-semibold uppercase mb-1">{t('common.ui2.kaizen.kaizenDetail.paybackPeriod')}</p>
                       <p className="text-3xl font-bold text-blue-800">{roi.roiMonths} months</p>
                       <p className="text-xs text-blue-600 mt-1">
-                        Annual benefit: LKR {roi.totalAnnualBenefit.toLocaleString()}
+                        Annual benefit: {getCompanyCurrency()} {roi.totalAnnualBenefit.toLocaleString()}
                       </p>
                     </div>
                   )}

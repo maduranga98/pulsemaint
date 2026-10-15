@@ -3,6 +3,7 @@ import { usePendingReceiptPOs } from '../../../hooks/dashboard/usePendingReceipt
 import EmptyState from '../shared/EmptyState';
 import type { PurchaseOrderStatus } from '../../../types/inventory';
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface PendingReceiptPOsWidgetProps {
   companyId: string;
@@ -51,7 +52,7 @@ export default function PendingReceiptPOsWidget({ companyId }: PendingReceiptPOs
                   </td>
                   <td className="py-2.5 text-right text-[#F0F4F8]">{po.items.length}</td>
                   <td className="py-2.5 text-right text-[#F0F4F8]">
-                    LKR {po.totalOrderValue.toLocaleString()}
+                    {getCompanyCurrency()} {po.totalOrderValue.toLocaleString()}
                   </td>
                 </tr>
                 );

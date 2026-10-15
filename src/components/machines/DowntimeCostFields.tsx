@@ -6,6 +6,7 @@ import { db } from '../../lib/firebase';
 import { computeEffectiveCostPerHour } from '../../lib/downtimeCost';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 interface DowntimeCostFieldsProps {
   machine: any;
   canEdit: boolean;
@@ -32,9 +33,8 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
   const [unitValue, setUnitValue] = useState<string>(
     machine.unitValue != null ? String(machine.unitValue) : '',
   );
-  const [currency, setCurrency] = useState<Currency>(
-    (machine.costCurrency as Currency) ?? 'LKR',
-  );
+  // One currency across the app: the company's (set at registration).
+  const currency = getCompanyCurrency() as Currency;
 
   const effectiveRate = computeEffectiveCostPerHour(
     machine.costPerHourDown ?? null,
@@ -78,7 +78,6 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
     setDirectRate(machine.costPerHourDown != null ? String(machine.costPerHourDown) : '');
     setUnitsPerHour(machine.unitsPerHour != null ? String(machine.unitsPerHour) : '');
     setUnitValue(machine.unitValue != null ? String(machine.unitValue) : '');
-    setCurrency((machine.costCurrency as Currency) ?? 'LKR');
     setEditing(false);
   }
 
@@ -102,13 +101,13 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
           {effectiveRate !== null ? (
             <div className="space-y-1">
               <p className="text-gray-900 font-medium">
-                {machine.costCurrency ?? 'LKR'} {effectiveRate.toLocaleString()}/hr
+                {currency} {effectiveRate.toLocaleString()}/hr
               </p>
               {machine.costPerHourDown != null ? (
                 <p className="text-gray-500 text-xs">{t('common.ui2.machines.downtimeCostFields.directHourlyRate')}</p>
               ) : (
                 <p className="text-gray-500 text-xs">
-                  {machine.unitsPerHour} units/hr × {machine.costCurrency ?? 'LKR'}{' '}
+                  {machine.unitsPerHour} units/hr × {currency}{' '}
                   {machine.unitValue?.toLocaleString()}/unit
                 </p>
               )}
@@ -152,20 +151,10 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
             </label>
           </div>
 
-          {/* Currency */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.ui2.machines.downtimeCostFields.currency')}</label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value as Currency)}
-              className="w-32 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option value="LKR">{t('common.ui2.machines.downtimeCostFields.lkr')}</option>
-              <option value="USD">{t('common.ui2.machines.downtimeCostFields.usd')}</option>
-              <option value="AED">{t('common.ui2.machines.downtimeCostFields.aed')}</option>
-              <option value="SAR">{t('common.ui2.machines.downtimeCostFields.sar')}</option>
-            </select>
-          </div>
+          {/* Currency is the company's — shown, not chosen. */}
+          <p className="text-xs text-gray-500">
+            {t('common.ui2.machines.downtimeCostFields.currency')}: <span className="font-semibold text-gray-700">{currency}</span>
+          </p>
 
           {mode === 'direct' ? (
             <div>

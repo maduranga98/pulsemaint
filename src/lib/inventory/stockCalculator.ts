@@ -1,4 +1,5 @@
 import type { InventoryPart, StockStatus } from '@/types/inventory';
+import { getCompanyCurrency } from '@/lib/currency';
 
 export function getStockStatus(part: InventoryPart): StockStatus {
   if (part.currentStock <= 0) {
@@ -18,8 +19,9 @@ export function isLowStock(currentStock: number, minStockLevel: number): boolean
   return currentStock > 0 && currentStock <= minStockLevel;
 }
 
+/** Formats an amount in the company's currency (name kept for existing callers). */
 export function formatLKR(amount: number): string {
-  return `LKR ${amount.toLocaleString('en-LK', {
+  return `${getCompanyCurrency()} ${amount.toLocaleString('en-LK', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
