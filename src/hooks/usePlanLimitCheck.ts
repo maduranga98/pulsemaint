@@ -130,6 +130,46 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
   };
 }
 
+/** Work orders created since the start of the current calendar month. */
+export async function fetchMonthlyWorkOrderCount(companyId: string): Promise<number> {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const snap = await getCountFromServer(
+    query(
+      collection(db, 'workOrders'),
+      where('siteId', '==', companyId),
+      where('createdAt', '>=', Timestamp.fromDate(startOfMonth)),
+    ),
+  );
+  return snap.data().count;
+}
+
+/**
+ * For work orders the app creates on the user's behalf (e.g. an RCA's
+ * corrective action): throws a readable error when the company has used up
+ * its monthly work-order allowance, so those are held to the same cap as the
+ * Create Work Order form. Resolves when the plan has room (or no cap).
+ */
+export async function assertMonthlyWorkOrderAllowed(): Promise<void> {
+  const { company, userProfile } = useAuthStore.getState();
+  const companyId = userProfile?.companyId ?? company?.id;
+  const limit = limitsForCompany(company).workOrdersPerMonth;
+  if (!companyId || limit === null) return;
+  let count: number;
+  try {
+    count = await fetchMonthlyWorkOrderCount(companyId);
+  } catch {
+    // Can't verify the live count → don't let a failed read bypass the plan limit.
+    throw new Error("We couldn't verify your monthly work order limit right now. Check your connection and try again.");
+  }
+  if (isAtOrOverLimit(count, limit)) {
+    throw new Error(
+      `You've reached the ${limit}/month work order limit on your ${planDisplayName(company?.plan)} plan. Upgrade to create more this month.`,
+    );
+  }
+}
+
 /**
  * Live count of work orders created since the start of the current calendar
  * month, checked against the plan's workOrdersPerMonth cap. Kept separate
@@ -154,17 +194,9 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
     let cancelled = false;
     setLoading(true);
     setFailed(false);
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const q = query(
-      collection(db, 'workOrders'),
-      where('siteId', '==', companyId),
-      where('createdAt', '>=', Timestamp.fromDate(startOfMonth)),
-    );
-    getCountFromServer(q)
-      .then((snap) => {
-        if (!cancelled) setCount(snap.data().count);
+    fetchMonthlyWorkOrderCount(companyId)
+      .then((n) => {
+        if (!cancelled) setCount(n);
       })
       .catch(() => {
         if (!cancelled) setFailed(true);
