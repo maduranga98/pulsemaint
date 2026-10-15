@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { subscribePlants, createPlant, updatePlant } from '../../services/plants.service';
 import type { Plant, PlantContactPerson } from '../../types/plant';
 import { useDepartments } from '../../hooks/useDepartments';
+import { usePlanLimitCheck, fetchResourceCount } from '../../hooks/usePlanLimitCheck';
 
 const EMPTY_CONTACT: PlantContactPerson = { name: '', phone: '', email: '', designation: '' };
 
@@ -21,6 +22,7 @@ export default function PlantsPage() {
   const [contact, setContact] = useState<PlantContactPerson>(EMPTY_CONTACT);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const plantLimit = usePlanLimitCheck('plants');
 
   useEffect(() => {
     if (!company?.id) return;
@@ -28,6 +30,10 @@ export default function PlantsPage() {
   }, [company?.id]);
 
   function openCreate() {
+    if (plantLimit.atLimit) {
+      setError(plantLimit.message ?? 'Plant limit reached on your current plan.');
+      return;
+    }
     setEditing(null);
     setName('');
     setCode('');
@@ -66,6 +72,11 @@ export default function PlantsPage() {
           contactPerson,
         });
       } else {
+        // Re-check right before saving: the form may have been open for a
+        // while, or another admin may have added a plant in the meantime.
+        if (plantLimit.limit !== null && (await fetchResourceCount('plants', company.id)) >= plantLimit.limit) {
+          throw new Error(plantLimit.message ?? `You've reached the ${plantLimit.limit} plant limit on your plan. Upgrade to add more.`);
+        }
         await createPlant(company.id, userId, {
           name: name.trim(),
           code: code.trim() || null,

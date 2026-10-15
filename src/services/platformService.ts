@@ -1,5 +1,6 @@
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '@/lib/firebase';
+import type { CountLimitKey, EnterpriseTier } from '@/lib/planLimits';
 
 /** Platform console (Lumora Ventures superadmins) — thin wrappers over the platform* callables. */
 
@@ -34,6 +35,10 @@ export interface PlatformCompany {
   platformNote: string | null;
   /** 'platform' when Lumora assigned the plan manually (no trial; plan limits apply). */
   planSetBy: string | null;
+  /** Enterprise only: the sized Enterprise plan (null = unlimited). */
+  enterpriseTier: EnterpriseTier | null;
+  /** Per-company count overrides set by Lumora (null value = unlimited). */
+  limitOverrides: Partial<Record<CountLimitKey, number | null>> | null;
   /** New self-registered companies are 'pending' until a superadmin approves them. */
   approvalStatus: ApprovalStatus;
   rejectionReason: string | null;
@@ -145,7 +150,8 @@ export type CompanyAction =
   | { action: 'suspend' }
   | { action: 'reactivate' }
   | { action: 'extendTrial'; days: number }
-  | { action: 'setPlan'; plan: PlanId; billingCycle: Cycle }
+  | { action: 'setPlan'; plan: PlanId; billingCycle: Cycle; enterpriseTier?: EnterpriseTier | null }
+  | { action: 'setLimits'; limitOverrides: Partial<Record<CountLimitKey, number | null>> }
   | { action: 'cancelSubscription' }
   | { action: 'resumeSubscription' }
   | { action: 'note'; text: string };

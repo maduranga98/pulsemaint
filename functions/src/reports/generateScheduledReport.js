@@ -3,6 +3,7 @@ const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore"
 const {getStorage} = require("firebase-admin/storage");
 const {randomUUID} = require("crypto");
 const logger = require("firebase-functions/logger");
+const {companyHasFeature} = require("../lib/planFeatures");
 const {sendEmail, brandedEmail, platformSmtpPassword} = require("../lib/mailer");
 
 const db = getFirestore("default");
@@ -133,6 +134,13 @@ exports.generateScheduledReport = onSchedule({schedule: "every 1 hours", secrets
   for (const scheduleDoc of dueSnap.docs) {
     const schedule = scheduleDoc.data();
     try {
+      // Scheduled reports are part of advanced analytics. A company that no
+      // longer has it keeps its schedules but nothing runs; look again in a day
+      // so locked schedules don't crowd out the due ones.
+      if (!(await companyHasFeature(schedule.companyId, "advancedAnalytics"))) {
+        await scheduleDoc.ref.update({nextRunAt: new Date(now.getTime() + 24 * 60 * 60 * 1000)});
+        continue;
+      }
       const rows = await fetchRows(schedule.reportType, schedule.companyId);
       const csv = toCsv(rows);
 
