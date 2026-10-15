@@ -7,7 +7,11 @@ import { useAuthStore } from '../store/authStore';
 // WOListView's TERMINAL_STATUSES — duplicated here rather than imported so
 // this module has no dependency on either page.
 const CLOSED_BREAKDOWN_STATUSES = new Set(['resolved', 'closed', 'cancelled']);
-const TERMINAL_WO_STATUSES = new Set(['SIGNED_OFF', 'CLOSED', 'CANCELLED']);
+// Same rule as the server (functions/src/machines/syncMachineStatus.js): a
+// work order keeps the machine under maintenance once its work has started,
+// until sign-off. One that is only open/assigned (e.g. a PM raised ahead of
+// its due date) doesn't.
+export const WORK_STARTED_WO_STATUSES = new Set(['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL', 'COMPLETED']);
 
 /**
  * Flip a machine to 'under_maintenance' the moment a breakdown or work order
@@ -77,7 +81,7 @@ export async function markMachineActiveIfNoOpenWork(machineId: string | null | u
       (d) => !CLOSED_BREAKDOWN_STATUSES.has((d.data() as { status?: string }).status ?? ''),
     );
     const hasOpenWO = woSnap.docs.some(
-      (d) => !TERMINAL_WO_STATUSES.has((d.data() as { status?: string }).status ?? ''),
+      (d) => WORK_STARTED_WO_STATUSES.has((d.data() as { status?: string }).status ?? ''),
     );
     if (hasOpenBreakdown || hasOpenWO) return;
 

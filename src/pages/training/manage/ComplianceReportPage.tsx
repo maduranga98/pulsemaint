@@ -3,22 +3,28 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useComplianceData } from '@/hooks/training/useComplianceData';
-import { generateComplianceReportPdf } from '@/lib/training/certificateGenerator';
+import { toast } from 'sonner';
+import { downloadComplianceReportPdf } from '@/lib/training/complianceReportPdf';
 import { useAuthStore } from '@/store/authStore';
 import ComplianceReport from '@/components/training/manager/ComplianceReport';
 
 export default function ComplianceReportPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const companyName = useAuthStore((s) => s.company?.name ?? null);
   const [isExporting, setIsExporting] = useState(false);
   const { stats, matrixRows, moduleHeaders, loading, error } = useComplianceData();
 
+  // Built in the browser from the matrix on screen (already scoped to the
+  // viewer's plant) — the previous Cloud Function only queued a record and
+  // never produced a file.
   const handleExport = async () => {
-    if (!companyId) return;
     setIsExporting(true);
     try {
-      await generateComplianceReportPdf(companyId, {});
+      await downloadComplianceReportPdf({ stats, matrixRows, moduleHeaders, companyName, t });
+    } catch (err) {
+      console.error('Compliance PDF export failed', err);
+      toast.error(t('common.trainingShared.manager.complianceReport.exportFailed', 'Could not create the PDF. Please try again.'));
     } finally {
       setIsExporting(false);
     }
