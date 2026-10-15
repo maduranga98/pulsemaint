@@ -10,7 +10,7 @@ import {
   assertFails,
 } from '@firebase/rules-unit-testing';
 import {
-  doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDocs, query, where, documentId,
+  doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDocs, query, where, documentId, orderBy, limit,
   serverTimestamp, arrayUnion,
 } from 'firebase/firestore';
 
@@ -552,5 +552,99 @@ describe('labour rates (pay data) are management-only', () => {
     await assertFails(getDoc(doc(as('supA'), 'companies/A/labourRates/techA')));
     await assertFails(getDoc(doc(as('adminB'), 'companies/A/labourRates/techA')));
     await assertFails(setDoc(doc(as('adminB'), 'companies/A/labourRates/techA'), { hourlyRate: 1 }));
+  });
+});
+
+describe('plant isolation', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await seedUser(db, 'supP1', 'A', 'supervisor', { plantId: 'P1' });
+      await seedUser(db, 'pmP1', 'A', 'plant_manager', { plantId: 'P1' });
+      await seedUser(db, 'techP1', 'A', 'technician', { plantId: 'P1' });
+      await seedUser(db, 'supAll', 'A', 'supervisor');
+      const t = new Date('2026-10-01T00:00:00Z');
+      for (const p of ['P1', 'P2']) {
+        await setDoc(doc(db, 'machines', `m${p}`), { siteId: 'A', companyId: 'A', plantId: p, name: `Machine ${p}` });
+        await setDoc(doc(db, 'workOrders', `wo${p}`), {
+          siteId: 'A', companyId: 'A', machineId: `m${p}`, machinePlantId: p, status: 'OPEN', createdAt: t, assignedTechnicianIds: [],
+        });
+        await setDoc(doc(db, 'breakdown_tickets', `bd${p}`), {
+          siteId: 'A', companyId: 'A', machineId: `m${p}`, machinePlantId: p, status: 'reported', reportedAt: t,
+        });
+        await setDoc(doc(db, 'pm_schedules', `ps${p}`), { companyId: 'A', machineId: `m${p}`, plantId: p, status: 'active' });
+        await setDoc(doc(db, 'pm_history', `ph${p}`), { companyId: 'A', machineId: `m${p}`, machinePlantId: p, dueDate: t });
+        await setDoc(doc(db, 'notifications', `n${p}`), { companyId: 'A', plantId: p, message: p, readBy: [], timestamp: t });
+      }
+      // Plant 2 work assigned to a plant-1 technician.
+      await setDoc(doc(db, 'workOrders', 'woP2mine'), {
+        siteId: 'A', companyId: 'A', machineId: 'mP2', machinePlantId: 'P2', status: 'ASSIGNED', createdAt: t,
+        assignedTechnicianIds: ['techP1'],
+      });
+      await setDoc(doc(db, 'notifications', 'nAll'), { companyId: 'A', plantId: null, message: 'all', readBy: [], timestamp: t });
+      await setDoc(doc(db, 'notifications', 'nToMe'), {
+        companyId: 'A', plantId: 'P2', message: 'to supP1', readBy: [], timestamp: t, recipientUserIds: ['supP1'],
+      });
+    });
+  });
+
+  it('plant-scoped list queries must ask for their own plant', async () => {
+    const db = as('supP1');
+    await assertFails(getDocs(query(collection(db, 'workOrders'), where('siteId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(db, 'workOrders'), where('siteId', '==', 'A'), where('machinePlantId', '==', 'P1'), orderBy('createdAt', 'desc'))));
+    await assertSucceeds(getDocs(query(collection(db, 'workOrders'), where('companyId', '==', 'A'), where('machinePlantId', '==', 'P1'))));
+    await assertFails(getDocs(query(collection(db, 'workOrders'), where('siteId', '==', 'A'), where('machinePlantId', '==', 'P2'))));
+    await assertFails(getDocs(query(collection(db, 'machines'), where('siteId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(db, 'machines'), where('siteId', '==', 'A'), where('plantId', '==', 'P1'), orderBy('name'))));
+    await assertFails(getDocs(query(collection(db, 'breakdown_tickets'), where('siteId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(db, 'breakdown_tickets'), where('siteId', '==', 'A'), where('machinePlantId', '==', 'P1'), orderBy('reportedAt', 'desc'))));
+    await assertSucceeds(getDocs(query(collection(db, 'breakdown_tickets'), where('machineId', '==', 'mP1'), where('machinePlantId', '==', 'P1'), orderBy('reportedAt', 'desc'))));
+    await assertFails(getDocs(query(collection(db, 'pm_schedules'), where('companyId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(db, 'pm_schedules'), where('companyId', '==', 'A'), where('plantId', '==', 'P1'))));
+    await assertFails(getDocs(query(collection(db, 'pm_history'), where('companyId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(db, 'pm_history'), where('companyId', '==', 'A'), where('machinePlantId', '==', 'P1'), orderBy('dueDate', 'desc'))));
+    const pmDb = as('pmP1');
+    await assertFails(getDocs(query(collection(pmDb, 'workOrders'), where('companyId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(pmDb, 'workOrders'), where('companyId', '==', 'A'), where('machinePlantId', '==', 'P1'))));
+  });
+
+  it("another plant's records can't be opened by id", async () => {
+    const db = as('supP1');
+    await assertFails(getDoc(doc(db, 'workOrders/woP2')));
+    await assertSucceeds(getDoc(doc(db, 'workOrders/woP1')));
+    await assertFails(getDoc(doc(db, 'machines/mP2')));
+    await assertSucceeds(getDoc(doc(db, 'machines/mP1')));
+    await assertFails(getDoc(doc(db, 'breakdown_tickets/bdP2')));
+    await assertFails(updateDoc(doc(db, 'workOrders/woP2'), { status: 'CANCELLED' }));
+    await assertFails(updateDoc(doc(db, 'breakdown_tickets/bdP2'), { status: 'acknowledged' }));
+    await assertFails(setDoc(doc(db, 'workOrders/newP2'), { siteId: 'A', companyId: 'A', machinePlantId: 'P2', status: 'OPEN' }));
+    await assertSucceeds(setDoc(doc(db, 'workOrders/newP1'), { siteId: 'A', companyId: 'A', machinePlantId: 'P1', status: 'OPEN' }));
+  });
+
+  it('assigned work stays visible across plants', async () => {
+    const db = as('techP1');
+    await assertSucceeds(getDocs(query(collection(db, 'workOrders'), where('assignedTechnicianIds', 'array-contains', 'techP1'))));
+    await assertSucceeds(getDoc(doc(db, 'workOrders/woP2mine')));
+    await assertFails(getDoc(doc(db, 'workOrders/woP2')));
+  });
+
+  it('admins and users without a plant see every plant', async () => {
+    await assertSucceeds(getDocs(query(collection(as('adminA'), 'workOrders'), where('siteId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(as('adminA'), 'machines'), where('siteId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(collection(as('supAll'), 'workOrders'), where('siteId', '==', 'A'))));
+    await assertSucceeds(getDoc(doc(as('supAll'), 'breakdown_tickets/bdP2')));
+    await assertSucceeds(getDocs(query(collection(as('supAll'), 'notifications'), where('companyId', '==', 'A'))));
+  });
+
+  it('the bell reads own-plant, all-plants and addressed notifications only', async () => {
+    const db = as('supP1');
+    const ref = collection(db, 'notifications');
+    await assertFails(getDocs(query(ref, where('companyId', '==', 'A'))));
+    await assertSucceeds(getDocs(query(ref, where('companyId', '==', 'A'), where('plantId', '==', 'P1'), orderBy('timestamp', 'desc'), limit(100))));
+    await assertSucceeds(getDocs(query(ref, where('companyId', '==', 'A'), where('plantId', '==', null), orderBy('timestamp', 'desc'), limit(100))));
+    await assertSucceeds(getDocs(query(ref, where('companyId', '==', 'A'), where('recipientUserIds', 'array-contains', 'supP1'), orderBy('timestamp', 'desc'), limit(50))));
+    await assertFails(getDoc(doc(db, 'notifications/nP2')));
+    await assertSucceeds(getDoc(doc(db, 'notifications/nAll')));
+    await assertSucceeds(getDoc(doc(db, 'notifications/nToMe')));
   });
 });

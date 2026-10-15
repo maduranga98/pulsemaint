@@ -98,6 +98,22 @@ service cloud.firestore {
       return !isDepartmentScopedRole() || getUserData().department == department;
     }
 
+    // ---- Plant isolation -----------------------------------------------------
+    // Every role but admin is confined to its own registered plant (a user
+    // without a plant is company-wide). Machines, work orders, breakdown
+    // tickets, PM schedules / history and notifications record their plant
+    // (plantId / machinePlantId — stamped server-side by
+    // functions/src/machines/plantStamps.js); a plant-scoped user's list
+    // queries carry `<plant field> == myPlant` (src/lib/plantQuery.ts), since
+    // rules are not filters.
+    function myPlantId() {
+      return getUserData().get('plantId', null);
+    }
+
+    function plantVisible(p) {
+      return isAdmin() || myPlantId() == null || p == myPlantId();
+    }
+
     function isRole(role) {
       return isAuthenticated() && getUserRole() == role;
     }
@@ -239,6 +255,14 @@ service cloud.firestore {
           && (getUserData().get('siteId', null) == null || isSameSite(resource.data.siteId));
       }
 
+      // Plant isolation — except for work the caller is assigned to or
+      // supervises (personal queues query by assignee, not by plant).
+      function woPlantOk() {
+        return plantVisible(resource.data.get('machinePlantId', null))
+          || request.auth.uid in resource.data.get('assignedTechnicianIds', [])
+          || resource.data.get('supervisorInChargeId', null) == request.auth.uid;
+      }
+
       // Admin: full access to their own company's work orders.
       allow read, delete: if isAdmin() && tenantMatches(resource.data);
       allow create: if isAdmin() && tenantMatches(request.resource.data);
@@ -248,18 +272,20 @@ service cloud.firestore {
       // the incoming document because resource does not exist yet on create.
       allow create: if (isSupervisor() || isPlantManager())
         && tenantMatches(request.resource.data)
-        && (getUserData().get('siteId', null) == null || isSameSite(request.resource.data.siteId));
+        && (getUserData().get('siteId', null) == null || isSameSite(request.resource.data.siteId))
+        && plantVisible(request.resource.data.get('machinePlantId', null));
 
       // Supervisor: full read/write for their site (or all sites if unrestricted)
-      allow read, delete: if isSupervisor() && woSiteMatches();
-      allow update: if isSupervisor() && woSiteMatches() && tenantMatches(request.resource.data);
+      allow read, delete: if isSupervisor() && woSiteMatches() && woPlantOk();
+      allow update: if isSupervisor() && woSiteMatches() && woPlantOk() && tenantMatches(request.resource.data)
+        && plantVisible(request.resource.data.get('machinePlantId', null));
 
       // Supervisor: company-wide read for the full-plant Analytics page, which
       // queries workOrders by companyId (see analyticsScope.ts). A site-gated
       // read made that whole company-wide query fail for a supervisor whose
       // mapping doc carries a siteId, leaving Maintenance Cost Overview and the
       // WO distribution empty. Writes stay site-gated above.
-      allow read: if isSupervisor() && belongsToCompany(resource.data.companyId);
+      allow read: if isSupervisor() && belongsToCompany(resource.data.companyId) && woPlantOk();
 
       // Plant Manager: company-wide read. Plant managers are plant-level
       // oversight (see src/lib/analytics/analyticsScope.ts and OVERSIGHT_ROLES),
@@ -270,29 +296,30 @@ service cloud.firestore {
       // it can't prove every matched doc satisfies), so "Maintenance Cost
       // Overview" and "Work Order Distribution" rendered empty while admins
       // (unconditional read) saw the data. Writes below stay site-gated.
-      allow read: if isPlantManager() && belongsToCompany(resource.data.companyId);
+      allow read: if isPlantManager() && belongsToCompany(resource.data.companyId) && woPlantOk();
 
       // Plant Manager: site read, mirroring the supervisor rule above. The
       // Work Orders list and Maintenance History query workOrders by siteId
       // (useWorkOrders), which the companyId-only rule can't prove, so the
       // whole query failed with "Missing or insufficient permissions" for
       // plant managers.
-      allow read: if isPlantManager() && woSiteMatches();
+      allow read: if isPlantManager() && woSiteMatches() && woPlantOk();
 
       // Safety Officer: company-wide read for safety oversight — breakdown/WO
       // follow-up and the analytics dashboards (which query workOrders by
       // companyId). Read-only; safety officers never modify work orders.
-      allow read: if isSafetyOfficer() && belongsToCompany(resource.data.companyId);
+      allow read: if isSafetyOfficer() && belongsToCompany(resource.data.companyId) && woPlantOk();
 
       // HR Officer: company-wide read so the Contractor Registry can compute
       // live Jobs / Last Job stats from CONTRACTOR work orders. Read-only; HR
       // never modifies work orders.
-      allow read: if isHrOfficer() && belongsToCompany(resource.data.companyId);
+      allow read: if isHrOfficer() && belongsToCompany(resource.data.companyId) && woPlantOk();
 
       // Plant Manager: manual check-in / start / execution updates on WOs,
       // plus final review sign-off (plant managers sign off completed WOs).
       allow update: if isPlantManager()
         && woSiteMatches()
+        && woPlantOk()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'statusHistory',
           'checkedInAt', 'checkedInBy', 'checkedInByName',
@@ -324,11 +351,12 @@ service cloud.firestore {
         ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
-      allow read: if isStoreKeeper() && woSiteMatches();
+      allow read: if isStoreKeeper() && woSiteMatches() && woPlantOk();
 
       // Store Keeper: auto-track parts issued against a WO ticket
       allow update: if isStoreKeeper()
         && woSiteMatches()
+        && woPlantOk()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'partsUsed', 'updatedAt'
         ]);
@@ -490,6 +518,13 @@ service cloud.firestore {
             && uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.get('assignedTechnicianIds', []));
       }
 
+      // Plant isolation — except for tickets the caller is assigned to or attending.
+      function ticketPlantOk() {
+        return plantVisible(resource.data.get('machinePlantId', null))
+          || request.auth.uid in resource.data.get('assignedTechnicianIds', [])
+          || resource.data.get('attendedBy', null) == request.auth.uid;
+      }
+
       // hr_officer/store_keeper reach /analytics too and need this for the
       // Breakdowns tab's charts (analyticsAggregation.ts).
       // Some screens list a machine's tickets by machineId alone (machine
@@ -501,14 +536,16 @@ service cloud.firestore {
         && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin', 'hr_officer', 'store_keeper'
-      ]);
+      ])
+        && ticketPlantOk();
       allow create: if isAnonymousBreakdownReport() || (isAuthenticated() && tenantMatches(request.resource.data) && isAnyRole([
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin'
-      ]));
+      ]) && plantVisible(request.resource.data.get('machinePlantId', null)));
       allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data) && isAnyRole([
         'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
-      ]);
+      ]) && plantVisible(resource.data.get('machinePlantId', null))
+        && plantVisible(request.resource.data.get('machinePlantId', null));
       // Technicians and trainees update only tickets they work on — assigned
       // to or attending it, putting themselves on it (self-attend / joining
       // the assessment), or assigned to its linked work order (starting or
@@ -518,6 +555,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data)
         && isAnyRole(['technician', 'trainee'])
         && ticketWorkedOnByMe()
+        && ticketPlantOk()
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'companyId', 'siteId', 'machineId', 'machinePlantId', 'machineDepartment', 'ticketNumber',
           'reportedAt', 'reportedBy', 'reporterName', 'reporterRole', 'source', 'createdAt'
@@ -567,7 +605,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && tenantMatches(resource.data) && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
         'plant_manager', 'store_keeper', 'trainee', 'admin', 'hr_officer'
-      ]);
+      ]) && plantVisible(resource.data.get('plantId', null));
       // The public, no-login QR breakdown report reads the machine's name and
       // location through the getPublicMachine callable — anonymous sessions
       // get no direct access to machine documents (cost, supplier, serial …).
@@ -575,12 +613,16 @@ service cloud.firestore {
       // healthScore is computed by the server (functions/src/machines/machineHealth.js)
       // from breakdowns + PM: a new machine starts at 100 and nobody edits it by hand.
       allow create: if (isAdmin() || isSupervisor() || isPlantManager()) && tenantMatches(request.resource.data)
+        && plantVisible(request.resource.data.get('plantId', null))
         && (!('healthScore' in request.resource.data) || request.resource.data.healthScore == 100)
         && !('healthScoreUpdatedAt' in request.resource.data);
       allow update: if (isAdmin() || isSupervisor() || isPlantManager())
         && tenantMatches(resource.data) && tenantMatches(request.resource.data)
+        && plantVisible(resource.data.get('plantId', null))
+        && plantVisible(request.resource.data.get('plantId', null))
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['healthScore', 'healthScoreUpdatedAt']);
-      allow delete: if (isAdmin() || isSupervisor() || isPlantManager()) && tenantMatches(resource.data);
+      allow delete: if (isAdmin() || isSupervisor() || isPlantManager()) && tenantMatches(resource.data)
+        && plantVisible(resource.data.get('plantId', null));
       // Technicians may only stamp service metadata when completing a WO,
       // plus `status` — self-attending a breakdown or moving an assigned WO
       // flips the machine to/from 'under_maintenance' (see
@@ -590,6 +632,7 @@ service cloud.firestore {
       // bring back a retired machine.
       allow update: if isTechnician()
         && tenantMatches(resource.data)
+        && plantVisible(resource.data.get('plantId', null))
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'lastServiceDate', 'lastServiceType', 'nextPmDue', 'updatedAt', 'status'
         ])
@@ -1582,14 +1625,18 @@ service cloud.firestore {
 
     match /pm_schedules/{scheduleId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'];
-      // Only into the creator's own company, which it can't later be moved out of.
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee']
+        && plantVisible(resource.data.get('plantId', null));
+      // Only into the creator's own company (and plant), which it can't later be moved out of.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin']
+        && plantVisible(request.resource.data.get('plantId', null));
       // Supervisors/plant managers can archive (update) PM schedules but not delete them.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && request.resource.data.companyId == resource.data.companyId
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin']
+        && plantVisible(resource.data.get('plantId', null))
+        && plantVisible(request.resource.data.get('plantId', null));
       // Deleting a PM schedule is admin-only.
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role == 'admin';
@@ -1600,19 +1647,25 @@ service cloud.firestore {
       // hr_officer/safety_officer/store_keeper reach /analytics too — they
       // need this for the PM tab's charts (analyticsAggregation.ts).
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee', 'hr_officer', 'safety_officer', 'store_keeper'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee', 'hr_officer', 'safety_officer', 'store_keeper']
+        && plantVisible(resource.data.get('machinePlantId', null));
       // Written when a preventive work order is created (useCreateWorkOrder —
       // only the roles that may create work orders) and by Cloud Functions
       // (Admin SDK). Only into the creator's own company. PM compliance is
       // computed from these records, so nobody else may add them.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']
+        && plantVisible(request.resource.data.get('machinePlantId', null));
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && request.resource.data.companyId == resource.data.companyId
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']
+        && plantVisible(resource.data.get('machinePlantId', null))
+        && plantVisible(request.resource.data.get('machinePlantId', null));
       // Technicians/trainees stamp completion tracking when they finish a PM work order.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['technician', 'trainee']
+        && (plantVisible(resource.data.get('machinePlantId', null))
+          || request.auth.uid in resource.data.get('technicianIds', []))
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'completedDate', 'duration', 'daysOverdue',
           'technicianIds', 'technicianNames', 'woNumber'
@@ -2066,7 +2119,15 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /notifications/{notificationId} {
-      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      // Plant isolation: a plant-scoped user reads their plant's notifications,
+      // the all-plants ones (no plant) and any addressed to them by name.
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (plantVisible(resource.data.get('plantId', null))
+          // Direct field access, not get('plantId', null) == null: the emulator
+          // proves the latter for any query. Notifications always carry
+          // plantId (stampPlantOnNotification + its backfill).
+          || resource.data.plantId == null
+          || request.auth.uid in resource.data.get('recipientUserIds', []));
       // Raised (unread) by createNotification().
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && request.resource.data.get('readBy', []).size() == 0;
