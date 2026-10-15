@@ -12,6 +12,7 @@ import { MachineHistoryTimeline } from '../../components/workorders/MachineHisto
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
 import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields';
 import type { WOType } from '../../types/workOrder';
+import { MachineSparePartsPanel } from '../../components/machines/MachineSparePartsPanel';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
@@ -112,6 +113,9 @@ export function MachineProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Spare parts — low-stock ones listed first */}
+      <MachineSparePartsPanel companyId={userProfile.companyId} machineId={machine.id} />
 
       {/* Health Score Banner */}
       <div className="bg-white border border-gray-200 rounded-xl mb-5">

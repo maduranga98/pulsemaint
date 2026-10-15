@@ -1,3 +1,5 @@
+import { syncMachineSpareParts } from '../../services/machineSpareParts.service';
+import type { SparePartEntry } from '../../lib/machineSpareParts';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -53,7 +55,7 @@ export function AddMachinePage() {
 
   const handleSubmit = async (
     formData: CreateMachineFormData,
-    files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }> }
+    files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }>; spareParts: SparePartEntry[] | null }
   ) => {
     // Admin on "All Plants" picks the plant in the form.
     const machinePlantId = formData.plantId ?? plantId;
@@ -89,7 +91,22 @@ export function AddMachinePage() {
         additionalNotes: formData.additionalNotes || null,
       };
 
-      await createMachine(payload);
+      const created = await createMachine(payload);
+      // Spare parts become real inventory parts linked to the new machine.
+      if (created && files.spareParts && files.spareParts.length > 0) {
+        try {
+          await syncMachineSpareParts({
+            companyId: userProfile.companyId,
+            plantId: machinePlantId,
+            machineId: created.id,
+            entries: files.spareParts,
+            user: { id: userProfile.id, name: userProfile.fullName ?? '', role: userProfile.role },
+          });
+        } catch (partsErr) {
+          console.error('Spare parts could not be saved', partsErr);
+          showError('Machine created, but its spare parts could not be saved. Add them from the machine\'s Edit page.');
+        }
+      }
       // A department typed for this machine becomes one of its plant's departments.
       await ensureDepartments(userProfile.companyId, machinePlantId, [formData.department]);
       success(`Machine "${formData.name}" created successfully!`);

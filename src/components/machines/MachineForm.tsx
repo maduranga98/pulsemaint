@@ -13,6 +13,8 @@ import { MachineFormStepper } from './MachineFormStepper';
 import { useDepartments } from '../../hooks/useDepartments';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { usePlants } from '../../hooks/usePlants';
+import { MachineSparePartsEditor } from './MachineSparePartsEditor';
+import type { SparePartEntry } from '../../lib/machineSpareParts';
 
 import { useTranslation } from 'react-i18next';
 import i18n from '../../lib/i18n';
@@ -49,7 +51,8 @@ type FormData = CreateMachineFormData | UpdateMachineFormData;
 interface MachineFormProps {
   mode: 'create' | 'edit';
   initialData?: Machine;
-  onSubmit: (data: FormData, files: { photos: File[]; documents: Array<{ file: File; type: DocumentType; name: string }> }) => Promise<void>;
+  /** `spareParts` is null when the Spare Parts step was never opened (leave the machine's parts untouched). */
+  onSubmit: (data: FormData, files: { photos: File[]; documents: Array<{ file: File; type: DocumentType; name: string }>; spareParts: SparePartEntry[] | null }) => Promise<void>;
   isSubmitting?: boolean;
   error?: string | null;
   siteId: string;
@@ -68,6 +71,8 @@ export function MachineForm({
   const [localError, setLocalError] = useState<string | null>(null);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [documentData, setDocumentData] = useState<Array<{ file: File; type: DocumentType; name: string }>>([]);
+  const [spareParts, setSpareParts] = useState<SparePartEntry[] | null>(null);
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const photoInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
@@ -177,7 +182,7 @@ export function MachineForm({
   const handleFormSubmit = async (formData: FormData) => {
     try {
       setLocalError(null);
-      await onSubmit(formData, { photos: photoFiles, documents: documentData });
+      await onSubmit(formData, { photos: photoFiles, documents: documentData, spareParts });
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to save machine';
       setLocalError(errorMsg);
@@ -242,7 +247,8 @@ export function MachineForm({
                   docInputRef,
                   mode,
                   formPlantId,
-                  showPlantPicker
+                  showPlantPicker,
+                  { companyId, machineId: mode === 'edit' ? initialData?.id : undefined, value: spareParts, onChange: setSpareParts }
                 )}
 
                 {/* Form Footer */}
@@ -285,7 +291,8 @@ export function MachineForm({
                 docInputRef,
                 mode,
                 formPlantId,
-                showPlantPicker
+                showPlantPicker,
+                { companyId, machineId: mode === 'edit' ? initialData?.id : undefined, value: spareParts, onChange: setSpareParts }
               )}
 
               {/* Mobile Navigation */}
@@ -395,7 +402,8 @@ function renderFormSection(
   docInputRef: React.RefObject<HTMLInputElement>,
   mode: 'create' | 'edit',
   formPlantId: string | null,
-  showPlantPicker: boolean
+  showPlantPicker: boolean,
+  spare: { companyId: string; machineId?: string; value: SparePartEntry[] | null; onChange: (v: SparePartEntry[]) => void }
 ): React.ReactNode {
   // Plain render helper (not a component) — the parent's useTranslation
   // subscription re-renders it on language change.
@@ -817,28 +825,11 @@ function renderFormSection(
       return (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">Spare Parts</h2>
-          <p className="text-sm text-gray-600">
-            List compatible part IDs/numbers (one per line). These will be linked to the machine for fast lookup during work orders.
-          </p>
-          <Controller
-            name="compatiblePartIds"
-            control={control}
-            render={({ field }) => (
-              <textarea
-                rows={6}
-                value={Array.isArray(field.value) ? field.value.join('\n') : ''}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value
-                      .split('\n')
-                      .map((s) => s.trim())
-                      .filter(Boolean)
-                  )
-                }
-                placeholder="PN-12345&#10;BRG-6204&#10;BELT-A48"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-              />
-            )}
+          <MachineSparePartsEditor
+            companyId={spare.companyId}
+            machineId={spare.machineId}
+            value={spare.value}
+            onChange={spare.onChange}
           />
         </div>
       );

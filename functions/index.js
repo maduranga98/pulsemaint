@@ -24,7 +24,7 @@ const db = getFirestore("default");
 // ---------------------------------------------------------------------------
 
 const { processPartsRequest } = require("./src/inventory/processPartsRequest");
-const { notifyLowStock } = require("./src/inventory/notifyLowStock");
+const { notifyLowStock, notifyLowStockOnCreate } = require("./src/inventory/notifyLowStock");
 const { reserveStock } = require("./src/inventory/reserveStock");
 const { confirmPartsIssue } = require("./src/inventory/confirmPartsIssue");
 const { confirmPartsReturn } = require("./src/inventory/confirmPartsReturn");
@@ -42,6 +42,7 @@ const { notifyInvoiceVariance } = require("./src/contractors/notifyInvoiceVarian
 
 exports.processPartsRequest = processPartsRequest;
 exports.notifyLowStock = notifyLowStock;
+exports.notifyLowStockOnCreate = notifyLowStockOnCreate;
 exports.reserveStock = reserveStock;
 exports.confirmPartsIssue = confirmPartsIssue;
 exports.confirmPartsReturn = confirmPartsReturn;

@@ -6,12 +6,15 @@ import { MachineStatusBadge } from './MachineStatusBadge';
 import { MachineCriticalityBadge } from './MachineCriticalityBadge';
 import { MachineHealthScore } from './MachineHealthScore';
 import { formatDistanceToNow, formatDate } from '../../lib/dateUtils';
+import { LowSpareBadge } from './LowSpareBadge';
+import type { LowSparePart } from '../../lib/machineSpareParts';
 
 interface MachineCardProps {
   machine: Machine;
+  lowSpare?: LowSparePart[];
 }
 
-export function MachineCard({ machine }: MachineCardProps) {
+export function MachineCard({ machine, lowSpare }: MachineCardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const lastServiceDate = machine.lastServiceDate
@@ -46,6 +49,8 @@ export function MachineCard({ machine }: MachineCardProps) {
             </button>
           </div>
         </div>
+
+        <LowSpareBadge parts={lowSpare} />
 
         {/* Serial Number */}
         {machine.serialNumber && (
