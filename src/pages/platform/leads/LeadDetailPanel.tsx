@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { countryLabel } from '@/lib/countries';
 import { Link } from 'react-router-dom';
 import {
-  Archive, ArchiveRestore, Bug, Building2, CalendarClock, History, Mail, MapPin, MessageCircle, Pencil, Phone, PhoneCall,
+  Archive, ArchiveRestore, Bug, Building2, CalendarClock, Globe, History, Mail, MapPin, MessageCircle, Pencil, Phone, PhoneCall,
   ListTodo, StickyNote, Trash2, Wallet, X,
 } from 'lucide-react';
 import {
-  CALL_OUTCOMES, CALL_OUTCOME_LABEL, LEAD_STATUSES, LEAD_STATUS_LABEL, activityOutcomeLabel, activityTypeLabel, fmtAmount, whatsappNumber,
+  CALL_OUTCOMES, CALL_OUTCOME_LABEL, LEAD_STATUSES, LEAD_STATUS_LABEL, activityOutcomeLabel, activityTypeLabel, fmtAmount, websiteUrl, whatsappNumber,
   type CallOutcome, type Lead, type LeadActivity, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
 import {
@@ -121,6 +121,9 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
               </div>
             )}
             {lead.email && <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-500" /><a href={`mailto:${lead.email}`} className="text-blue-300!">{lead.email}</a></p>}
+            {lead.website && (websiteUrl(lead.website)
+              ? <p className="flex items-center gap-2"><Globe className="h-4 w-4 text-slate-500" /><a href={websiteUrl(lead.website)} target="_blank" rel="noopener noreferrer" className="truncate text-blue-300! hover:underline">{lead.website}</a></p>
+              : <p className="flex items-center gap-2"><Globe className="h-4 w-4 text-slate-500" />{lead.website}</p>)}
             {(lead.location || lead.district) && <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-slate-500" />{[lead.location, countryLabel(lead.district)].filter(Boolean).join(', ')}</p>}
             {(lead.source || lead.campaign) && <p className="flex items-center gap-2"><Building2 className="h-4 w-4 text-slate-500" />via {[lead.source, lead.campaign].filter(Boolean).join(' · ')}{lead.industry && <span className="text-slate-500">· {lead.industry}</span>}</p>}
             {lead.closedAmount > 0 && <p className="flex items-center gap-2"><Wallet className="h-4 w-4 text-slate-500" />{fmtAmount(lead.closedAmount, lead.currency)}</p>}
@@ -136,13 +139,6 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
               <span className="mb-1 block text-xs text-slate-400">Status</span>
               <select className={input} value={lead.status} disabled={busy} onChange={(e) => void run(() => setLeadStatus(lead, e.target.value as LeadStatus))}>
                 {LEAD_STATUSES.map((s) => <option key={s} value={s}>{LEAD_STATUS_LABEL[s]}</option>)}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">Assigned to</span>
-              <select className={input} value={lead.assignedTo ?? ''} disabled={busy} onChange={(e) => void run(() => updateLead(lead, { assignedTo: e.target.value || null }))}>
-                <option value="">— Unassigned</option>
-                {team.filter((m) => m.active || m.id === lead.assignedTo).map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </label>
             <p className="text-xs text-slate-500 sm:col-span-2">

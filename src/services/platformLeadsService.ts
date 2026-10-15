@@ -29,7 +29,7 @@ const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : n
 function toLead(id: string, d: DocumentData): Lead {
   return {
     id,
-    businessName: str(d.businessName), contactPerson: str(d.contactPerson), phone: str(d.phone), email: str(d.email),
+    businessName: str(d.businessName), contactPerson: str(d.contactPerson), phone: str(d.phone), email: str(d.email), website: str(d.website),
     location: str(d.location), district: str(d.district), source: str(d.source), campaign: str(d.campaign), industry: str(d.industry),
     leadDate: num(d.leadDate),
     status: (LEAD_STATUSES as readonly string[]).includes(d.status) ? d.status : 'new',

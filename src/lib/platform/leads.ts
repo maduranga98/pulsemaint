@@ -51,6 +51,8 @@ export interface Lead {
   contactPerson: string;
   phone: string;
   email: string;
+  /** Their website, stored as typed; use `websiteUrl` for a clickable href. */
+  website: string;
   location: string;
   district: string;
   /** Where the lead came from (an outside campaign, referral…). */
@@ -108,7 +110,7 @@ export interface LeadActivity {
 
 export function emptyLead(now = Date.now()): LeadInput {
   return {
-    businessName: '', contactPerson: '', phone: '', email: '', location: '', district: '', source: '', campaign: '', industry: '',
+    businessName: '', contactPerson: '', phone: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
     leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false,
     priceQuoted: '', closedAmount: 0, currency: 'LKR', mainProblem: '', tags: [], notes: '', assignedTo: null, marketerId: null, companyId: null,
   };
@@ -432,6 +434,39 @@ export function parseImportRows(table: unknown[][], defaults: { source?: string;
 export function phoneKey(phone: string): string {
   const d = phone.replace(/\D/g, '');
   return d.length >= 9 ? d.slice(-9) : d;
+}
+
+/** Clickable href for a typed website ("acme.lk" → "https://acme.lk"); '' when it isn't usable. */
+export function websiteUrl(site: string): string {
+  const s = site.trim();
+  if (!s || /\s/.test(s)) return '';
+  const url = /^https?:\/\//i.test(s) ? s : `https://${s}`;
+  return /^https?:\/\/[^/\s]+\.[^/\s]{2,}/i.test(url) ? url : '';
+}
+
+export interface ParsedLeadText { name: string; phone: string; email: string; website: string }
+
+/**
+ * Pulls the name, phone, email and website out of free pasted text (a WhatsApp message, a signature, a
+ * copied row). The name is the first remaining line, or the text before the phone number.
+ */
+export function parseLeadText(text: string): ParsedLeadText {
+  let rest = text.replace(/\r/g, '');
+  const take = (re: RegExp): string => {
+    const m = rest.match(re);
+    if (!m) return '';
+    rest = rest.replace(m[0], ' ');
+    return m[0].trim();
+  };
+  const email = take(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  const website = take(/(?:https?:\/\/|www\.)[^\s,;]+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|lk|net|org|io|co|biz|info|lk\/[^\s]*)\b[^\s,;]*/i).replace(/[.,;)]+$/, '');
+  const phone = take(/(?:\+|00)?\d[\d\s().-]{7,}\d/).replace(/[^\d+]/g, '');
+  const cleaned = rest
+    .split('\n')
+    .map((l) => l.replace(/^\s*(?:name|business|company|contact|phone|tel|mobile|mob|email|e-mail|web|website)\s*[:\-–]\s*/i, '').replace(/[,;|–-]+\s*$/, '').trim())
+    .filter((l) => /[\p{L}]/u.test(l));
+  const name = (cleaned[0] ?? '').replace(/\s+/g, ' ').slice(0, 120);
+  return { name, phone, email, website };
 }
 
 // ---------------------------------------------------------------------------
