@@ -18,6 +18,8 @@ import { ErrorNote, btn, fmtDateTime, input } from '../platformUi';
 import { StatusPill, TagChip, fromLocalInput, toLocalInput, whenLabel } from './leadUi';
 import TodoDialog from '../todos/TodoDialog';
 import { useCompanyOptions } from '../useCompanyOptions';
+import CallRecorder, { type RecordedCall } from './CallRecorder';
+import { analysisToNote } from '@/lib/platform/callRecording';
 
 type Panel = 'call' | 'note' | 'demo' | 'issue' | null;
 
@@ -34,6 +36,7 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
   // Call form
   const [outcome, setOutcome] = useState<CallOutcome>('spoke');
   const [callNote, setCallNote] = useState('');
+  const [recorded, setRecorded] = useState<RecordedCall | null>(null);
   const [nextCall, setNextCall] = useState('');
   const [followUpNote, setFollowUpNote] = useState('');
   // Note / demo / issue forms
@@ -204,7 +207,13 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
                       <button key={o} onClick={() => setOutcome(o)} className={`rounded-full border px-2.5 py-1 text-xs ${outcome === o ? 'border-blue-500 bg-blue-600/30 text-blue-200' : 'border-slate-600 text-slate-300'}`}>{CALL_OUTCOME_LABEL[o]}</button>
                     ))}
                   </div>
-                  <textarea className={input} rows={3} value={callNote} onChange={(e) => setCallNote(e.target.value)} placeholder="What they said…" />
+                  <CallRecorder
+                    leadId={lead.id}
+                    value={recorded}
+                    onChange={setRecorded}
+                    onSummary={(a) => setCallNote((prev) => [prev.trim(), analysisToNote(a)].filter(Boolean).join('\n\n'))}
+                  />
+                  <textarea className={input} rows={6} value={callNote} onChange={(e) => setCallNote(e.target.value)} placeholder="What they said…" />
                   <div className="grid gap-2 sm:grid-cols-2">
                     <label className="block"><span className="mb-1 block text-xs text-slate-400">Next call (optional)</span>
                       <input className={input} type="datetime-local" value={nextCall} onChange={(e) => setNextCall(e.target.value)} /></label>
@@ -222,8 +231,11 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
                     ))}
                   </div>
                   <button className={btn.primary} disabled={busy} onClick={() => void run(
-                    () => logCall(lead, { outcome, body: callNote, nextCallAt: fromLocalInput(nextCall), followUpNote: nextCall ? followUpNote : '' }),
-                    () => { setCallNote(''); setNextCall(''); setFollowUpNote(''); setOutcome('spoke'); },
+                    () => logCall(lead, {
+                      outcome, body: callNote, nextCallAt: fromLocalInput(nextCall), followUpNote: nextCall ? followUpNote : '',
+                      ...(recorded ? { recording: recorded.recording, transcript: recorded.analysis?.transcript ?? '', spokenLanguage: recorded.analysis?.languageName ?? null } : {}),
+                    }),
+                    () => { setCallNote(''); setNextCall(''); setFollowUpNote(''); setOutcome('spoke'); setRecorded(null); },
                   )}>{busy ? 'Saving…' : 'Log call'}</button>
                 </>
               )}
@@ -286,6 +298,17 @@ function HistoryList({ rows }: { rows: LeadActivity[] }) {
         <li key={a.id} className="border-l-2 border-[#1E3A5F] pl-3">
           <p className="text-xs"><span className="font-semibold text-amber-300">{activityTypeLabel(a)}</span> <span className="text-slate-400">{activityOutcomeLabel(a)}</span></p>
           {a.body && <p className="mt-1 whitespace-pre-wrap text-sm text-slate-200">{a.body}</p>}
+          {a.recording && (
+            <div className="mt-2 space-y-1">
+              <audio controls preload="none" src={a.recording.url} className="h-9 w-full" />
+              {a.transcript && (
+                <details className="text-xs text-slate-400">
+                  <summary className="cursor-pointer text-sky-300">Transcript{a.spokenLanguage ? ` (${a.spokenLanguage})` : ''}</summary>
+                  <p className="mt-1 whitespace-pre-wrap text-slate-300">{a.transcript}</p>
+                </details>
+              )}
+            </div>
+          )}
           {a.nextCallAt && a.type === 'call' && <p className="mt-1 text-xs text-sky-300">Next call {fmtDateTime(a.nextCallAt)}</p>}
           <p className="mt-1 text-[11px] text-slate-500">{fmtDateTime(a.at)}{a.authorEmail && ` · ${a.authorEmail}`}</p>
         </li>

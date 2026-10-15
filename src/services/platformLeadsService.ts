@@ -47,6 +47,7 @@ function toActivity(id: string, d: DocumentData): LeadActivity {
     id, leadId: str(d.leadId), leadName: str(d.leadName), type: d.type, outcome: d.outcome ?? null, callNumber: num(d.callNumber),
     body: str(d.body), statusFrom: d.statusFrom ?? null, statusTo: d.statusTo ?? null, nextCallAt: num(d.nextCallAt),
     at: num(d.at) ?? 0, authorEmail: d.authorEmail ?? null,
+    recording: d.recording ?? null, transcript: d.transcript ?? null, spokenLanguage: d.spokenLanguage ?? null,
   };
 }
 
@@ -139,7 +140,10 @@ export async function setLeadStatus(lead: Lead, status: LeadStatus): Promise<voi
   await updateLead(lead, { status });
 }
 
-export async function logCall(lead: Lead, input: { outcome: CallOutcome; body: string; nextCallAt: number | null; followUpNote?: string }): Promise<void> {
+export async function logCall(lead: Lead, input: {
+  outcome: CallOutcome; body: string; nextCallAt: number | null; followUpNote?: string;
+  recording?: LeadActivity['recording']; transcript?: string | null; spokenLanguage?: string | null;
+}): Promise<void> {
   const callNumber = lead.callsMade + 1;
   const status = statusAfterCall(lead.status, input.outcome, !!input.nextCallAt);
   const now = Date.now();
@@ -155,6 +159,7 @@ export async function logCall(lead: Lead, input: { outcome: CallOutcome; body: s
   await logActivity(lead, {
     type: 'call', outcome: input.outcome, callNumber, body: input.body.trim().slice(0, 5000), nextCallAt: input.nextCallAt,
     statusFrom: lead.status, statusTo: status, at: now,
+    ...(input.recording ? { recording: input.recording, transcript: (input.transcript ?? '').slice(0, 20000), spokenLanguage: input.spokenLanguage ?? null } : {}),
   });
 }
 

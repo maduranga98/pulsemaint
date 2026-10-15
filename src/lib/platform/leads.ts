@@ -106,6 +106,11 @@ export interface LeadActivity {
   /** When it happened, ms (client clock — what the day report filters on). */
   at: number;
   authorEmail: string | null;
+  /** Recorded call audio kept on the lead's profile, with its transcript and summary. */
+  recording?: { path: string; url: string; mime: string; durationSec: number; sizeBytes: number } | null;
+  transcript?: string | null;
+  /** Language that was spoken, e.g. "Sinhala". */
+  spokenLanguage?: string | null;
 }
 
 export function emptyLead(now = Date.now()): LeadInput {
