@@ -8928,11 +8928,12 @@
       "limits": {
         "title": "Plangrenzen",
         "machines": "Maschinen",
-        "users": "Benutzer",
+        "users": "Benutzer insgesamt",
         "inventoryItems": "Lagerartikel",
         "pmSchedules": "PM-Pläne",
         "workOrders": "Arbeitsaufträge",
-        "perMonthValue": "{{count}} / Monat"
+        "perMonthValue": "{{count}} / Monat",
+        "plants": "Werke"
       },
       "cta": {
         "currentPlan": "Aktueller Plan",
@@ -8973,7 +8974,7 @@
         },
         "enterprise": {
           "name": "Enterprise",
-          "description": "Unbegrenzte Skalierung mit Unternehmensintegrationen."
+          "description": "Auf Ihr Unternehmen zugeschnittene Limits und Preise."
         }
       },
       "categories": {
@@ -9007,7 +9008,15 @@
         "advancedReportsHub": "Erweiterte Berichts-Hub",
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Individuelle Integrationen & API",
-        "dedicatedSupportSla": "Dedizierter Support & SLA"
+        "dedicatedSupportSla": "Dedizierter Support & SLA",
+        "purchaseOrdersFeature": "Bestellungen",
+        "analyticsExportsSheets": "Analysen, Berichtsexport & Google-Sheets-Export",
+        "aiSuggestionsTranslation": "KI-Vorschläge & Übersetzung",
+        "advancedAnalyticsFeature": "Erweiterte Analysen: Werke- und Team-Tabs, geplante Berichte",
+        "auditsFeature": "Audits",
+        "upToThreePlants": "Bis zu 3 Werke im Unternehmen",
+        "sizedToYourCompany": "Benutzer, Werke, Maschinen und mehr – auf Ihr Unternehmen zugeschnitten",
+        "pricedIndividually": "Individuelle Preisgestaltung für Ihr Unternehmen"
       },
       "account": {
         "loading": "Abrechnungsdaten werden geladen…",
@@ -9113,6 +9122,28 @@
           "business_closed": "Unternehmen geschlossen oder fusioniert",
           "temporary": "Nur vorübergehend benötigt",
           "other": "Sonstiges"
+        }
+      },
+      "unlock": {
+        "title": "Funktionen freischalten",
+        "note": "Nur die wichtigsten und datenintensiven Funktionen sind gesperrt; alles andere ist in jedem Tarif offen.",
+        "feature": "Funktion",
+        "morePlants": "Mehr als 1 Werk",
+        "upTo": "bis zu {{count}}",
+        "notIncluded": "Nicht enthalten",
+        "rows": {
+          "purchaseOrders": "Bestellungen",
+          "autoPOEmail": "Automatische Bestell-E-Mail an Lieferanten",
+          "qrLowStockAlerts": "Bestand mit QR-Scan & Niedrigbestandswarnungen",
+          "contractors": "Auftragnehmerverwaltung",
+          "shiftHandover": "Schichtübergabe & Briefings",
+          "training": "Schulungsmodul",
+          "safety": "Sicherheitsarbeitsbereich",
+          "analyticsReports": "Analysen, Berichtsexport & Google-Sheets-Export",
+          "aiAssist": "KI-Vorschläge & Übersetzung",
+          "moeAnalytics": "MOE-Analysen",
+          "advancedAnalytics": "Erweiterte Analysen (Werke- und Team-Tabs, geplante Berichte)",
+          "audits": "Audits"
         }
       }
     },
@@ -9459,7 +9490,12 @@
           "training": "Schulungsmodul",
           "safety": "Sicherheitsbereich",
           "moeAnalytics": "MOE-Trendanalyse & Maschinenvergleich",
-          "multiSite": "Verwaltung mehrerer Standorte"
+          "multiSite": "Verwaltung mehrerer Standorte",
+          "purchaseOrders": "Bestellungen",
+          "analyticsReports": "Analysen, Berichte & Exporte",
+          "aiAssist": "KI-Vorschläge & Übersetzung",
+          "advancedAnalytics": "Erweiterte Analysen",
+          "audits": "Audits"
         }
       },
       "shiftConfig": {

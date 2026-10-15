@@ -161,20 +161,6 @@ const PLANS: PlanDef[] = [
   },
 ];
 
-// Copy for plan bullets added with the 2026 plan rework. They are not in the
-// locale files yet, so they render in English (and in the other languages
-// until translated) via defaultValue.
-const NEW_FEATURE_TEXT: Record<string, string> = {
-  purchaseOrdersFeature: 'Purchase orders',
-  analyticsExportsSheets: 'Analytics, report exports & Google Sheets export',
-  aiSuggestionsTranslation: 'AI suggestions & translation',
-  advancedAnalyticsFeature: 'Advanced analytics: plants & team tabs, scheduled reports',
-  auditsFeature: 'Audits',
-  upToThreePlants: 'Up to 3 plants in the company',
-  sizedToYourCompany: 'Users, plants, machines and more sized to your company',
-  pricedIndividually: 'Priced individually for your company',
-};
-
 const PLAN_RANK: Record<Plan, number> = {
   starter: 0,
   workshop: 1,
@@ -525,7 +511,6 @@ export default function BillingPage() {
                         <li key={key} className="flex items-start gap-2 text-sm text-slate-300">
                           <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
                           {t(`common.billing.features.${key}`, {
-                            defaultValue: NEW_FEATURE_TEXT[key],
                             basicName: t('common.billing.plans.starter.name'),
                             workshopName: t('common.billing.plans.workshop.name'),
                             factoryName: t('common.billing.plans.factory.name'),

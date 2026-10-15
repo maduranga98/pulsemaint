@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Check, Minus } from 'lucide-react';
 import { PLAN_LIMITS, ENTERPRISE_TIER_LIMITS } from '../../lib/planLimits';
 import {
@@ -73,35 +74,44 @@ export function PlanLimitsTable() {
 
 /** Which main/heavy features each plan unlocks. Enterprise is agreed per customer. */
 export function LockedFeaturesTable() {
+  const { t } = useTranslation();
+  const custom = t('common.billing.customPrice');
   return (
     <section>
-      <Heading title="Unlock features" note="Only the main and heavy-data features are locked; everything else is open on every plan." />
+      <Heading
+        title={t('common.billing.unlock.title', 'Unlock features')}
+        note={t('common.billing.unlock.note', 'Only the main and heavy-data features are locked; everything else is open on every plan.')}
+      />
       <div className={BOX}>
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
             <tr className="border-b border-[#1E3A5F]">
-              <th className={TH}>Feature</th>
+              <th className={TH}>{t('common.billing.unlock.feature', 'Feature')}</th>
               {PLAN_ORDER.map((p) => <th key={p} className={TH}>{PLAN_DISPLAY_NAME[p]}</th>)}
             </tr>
           </thead>
           <tbody>
             {LOCKED_FEATURE_ROWS.map((row) => (
               <tr key={row.key} className="border-b border-[#1E3A5F]/60">
-                <td className={TD}>{row.label}</td>
+                <td className={TD}>{t(`common.billing.unlock.rows.${row.key}`, row.label)}</td>
                 {PLAN_ORDER.map((p) => (
                   <td key={p} className={TD}>
-                    {p === 'enterprise' ? 'Custom' : <Mark on={PLAN_LIMITS[p].features[row.key]} />}
+                    {p === 'enterprise' ? custom : <Mark on={PLAN_LIMITS[p].features[row.key]} />}
                   </td>
                 ))}
               </tr>
             ))}
             <tr>
-              <td className={TD}>More than 1 plant</td>
+              <td className={TD}>{t('common.billing.unlock.morePlants', 'More than 1 plant')}</td>
               {PLAN_ORDER.map((p) => {
                 const plants = PLAN_LIMITS[p].plants;
                 return (
                   <td key={p} className={TD}>
-                    {p === 'enterprise' ? 'Custom' : plants === null || plants > 1 ? <Mark on label={plants === null ? undefined : `up to ${plants}`} /> : <Mark on={false} />}
+                    {p === 'enterprise'
+                      ? custom
+                      : plants === null || plants > 1
+                      ? <Mark on label={plants === null ? undefined : t('common.billing.unlock.upTo', { count: plants, defaultValue: 'up to {{count}}' })} />
+                      : <Mark on={false} />}
                   </td>
                 );
               })}
@@ -114,10 +124,11 @@ export function LockedFeaturesTable() {
 }
 
 function Mark({ on, label }: { on: boolean; label?: string }) {
+  const { t } = useTranslation();
   return on ? (
     <span className="inline-flex items-center gap-1 text-emerald-400"><Check className="h-4 w-4" />{label && <span className="text-xs text-slate-300">{label}</span>}</span>
   ) : (
-    <span className="inline-flex items-center text-slate-500"><Minus className="h-4 w-4" /><span className="sr-only">Not included</span></span>
+    <span className="inline-flex items-center text-slate-500"><Minus className="h-4 w-4" /><span className="sr-only">{t('common.billing.unlock.notIncluded', 'Not included')}</span></span>
   );
 }
 

@@ -8928,11 +8928,12 @@
       "limits": {
         "title": "Límites del plan",
         "machines": "Máquinas",
-        "users": "Usuarios",
+        "users": "Usuarios en total",
         "inventoryItems": "Artículos de inventario",
         "pmSchedules": "Programas de MP",
         "workOrders": "Órdenes de trabajo",
-        "perMonthValue": "{{count}} / mes"
+        "perMonthValue": "{{count}} / mes",
+        "plants": "Plantas"
       },
       "cta": {
         "currentPlan": "Plan actual",
@@ -8973,7 +8974,7 @@
         },
         "enterprise": {
           "name": "Empresarial",
-          "description": "Escala ilimitada con integraciones empresariales."
+          "description": "Límites dimensionados y con precio para su empresa."
         }
       },
       "categories": {
@@ -9007,7 +9008,15 @@
         "advancedReportsHub": "Centro de informes avanzados",
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Integraciones personalizadas y API",
-        "dedicatedSupportSla": "Soporte dedicado y SLA"
+        "dedicatedSupportSla": "Soporte dedicado y SLA",
+        "purchaseOrdersFeature": "Órdenes de compra",
+        "analyticsExportsSheets": "Analíticas, exportación de informes y exportación a Google Sheets",
+        "aiSuggestionsTranslation": "Sugerencias de IA y traducción",
+        "advancedAnalyticsFeature": "Analíticas avanzadas: pestañas de plantas y equipo, informes programados",
+        "auditsFeature": "Auditorías",
+        "upToThreePlants": "Hasta 3 plantas en la empresa",
+        "sizedToYourCompany": "Usuarios, plantas, máquinas y más, dimensionados para su empresa",
+        "pricedIndividually": "Precio individual para su empresa"
       },
       "account": {
         "loading": "Cargando detalles de facturación…",
@@ -9113,6 +9122,28 @@
           "business_closed": "La empresa cerró o se fusionó",
           "temporary": "Solo lo necesitábamos por un tiempo",
           "other": "Otro"
+        }
+      },
+      "unlock": {
+        "title": "Funciones desbloqueables",
+        "note": "Solo las funciones principales y de gran volumen de datos están bloqueadas; todo lo demás está abierto en todos los planes.",
+        "feature": "Función",
+        "morePlants": "Más de 1 planta",
+        "upTo": "hasta {{count}}",
+        "notIncluded": "No incluido",
+        "rows": {
+          "purchaseOrders": "Órdenes de compra",
+          "autoPOEmail": "Correo automático de órdenes de compra a proveedores",
+          "qrLowStockAlerts": "Inventario con escaneo QR y alertas de bajo stock",
+          "contractors": "Gestión de contratistas",
+          "shiftHandover": "Entrega de turno y briefings",
+          "training": "Módulo de capacitación",
+          "safety": "Espacio de seguridad",
+          "analyticsReports": "Analíticas, exportación de informes y exportación a Google Sheets",
+          "aiAssist": "Sugerencias de IA y traducción",
+          "moeAnalytics": "Análisis MOE",
+          "advancedAnalytics": "Analíticas avanzadas (pestañas de plantas y equipo, informes programados)",
+          "audits": "Auditorías"
         }
       }
     },
@@ -9459,7 +9490,12 @@
           "training": "Módulo de formación",
           "safety": "Espacio de seguridad",
           "moeAnalytics": "Análisis de tendencias MOE y comparación de máquinas",
-          "multiSite": "Gestión de varias plantas"
+          "multiSite": "Gestión de varias plantas",
+          "purchaseOrders": "Órdenes de compra",
+          "analyticsReports": "Analíticas, informes y exportaciones",
+          "aiAssist": "Sugerencias de IA y traducción",
+          "advancedAnalytics": "Analíticas avanzadas",
+          "audits": "Auditorías"
         }
       },
       "shiftConfig": {

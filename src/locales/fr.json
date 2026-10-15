@@ -8928,11 +8928,12 @@
       "limits": {
         "title": "Limites du forfait",
         "machines": "Machines",
-        "users": "Utilisateurs",
+        "users": "Utilisateurs au total",
         "inventoryItems": "Articles d'inventaire",
         "pmSchedules": "Plannings de MP",
         "workOrders": "Ordres de travail",
-        "perMonthValue": "{{count}} / mois"
+        "perMonthValue": "{{count}} / mois",
+        "plants": "Usines"
       },
       "cta": {
         "currentPlan": "Forfait actuel",
@@ -8973,7 +8974,7 @@
         },
         "enterprise": {
           "name": "Entreprise",
-          "description": "Échelle illimitée avec intégrations d'entreprise."
+          "description": "Limites dimensionnées et tarifées pour votre entreprise."
         }
       },
       "categories": {
@@ -9007,7 +9008,15 @@
         "advancedReportsHub": "Centre de rapports avancés",
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Intégrations personnalisées et API",
-        "dedicatedSupportSla": "Support dédié et SLA"
+        "dedicatedSupportSla": "Support dédié et SLA",
+        "purchaseOrdersFeature": "Bons de commande",
+        "analyticsExportsSheets": "Analyses, export des rapports et export vers Google Sheets",
+        "aiSuggestionsTranslation": "Suggestions IA et traduction",
+        "advancedAnalyticsFeature": "Analyses avancées : onglets usines et équipe, rapports planifiés",
+        "auditsFeature": "Audits",
+        "upToThreePlants": "Jusqu'à 3 usines dans l'entreprise",
+        "sizedToYourCompany": "Utilisateurs, usines, machines et plus, dimensionnés pour votre entreprise",
+        "pricedIndividually": "Tarification individuelle pour votre entreprise"
       },
       "account": {
         "loading": "Chargement des informations de facturation…",
@@ -9113,6 +9122,28 @@
           "business_closed": "Entreprise fermée ou fusionnée",
           "temporary": "Nous n'en avions besoin que temporairement",
           "other": "Autre"
+        }
+      },
+      "unlock": {
+        "title": "Fonctionnalités à débloquer",
+        "note": "Seules les fonctionnalités principales et gourmandes en données sont verrouillées ; tout le reste est ouvert sur tous les forfaits.",
+        "feature": "Fonctionnalité",
+        "morePlants": "Plus d'1 usine",
+        "upTo": "jusqu'à {{count}}",
+        "notIncluded": "Non inclus",
+        "rows": {
+          "purchaseOrders": "Bons de commande",
+          "autoPOEmail": "E-mail automatique des bons de commande aux fournisseurs",
+          "qrLowStockAlerts": "Inventaire par scan QR et alertes de stock faible",
+          "contractors": "Gestion des sous-traitants",
+          "shiftHandover": "Passation de poste et briefings",
+          "training": "Module de formation",
+          "safety": "Espace sécurité",
+          "analyticsReports": "Analyses, export des rapports et export vers Google Sheets",
+          "aiAssist": "Suggestions IA et traduction",
+          "moeAnalytics": "Analyses MOE",
+          "advancedAnalytics": "Analyses avancées (onglets usines et équipe, rapports planifiés)",
+          "audits": "Audits"
         }
       }
     },
@@ -9459,7 +9490,12 @@
           "training": "Module de formation",
           "safety": "Espace sécurité",
           "moeAnalytics": "Analyse des tendances MOE et comparaison des machines",
-          "multiSite": "Gestion multisite"
+          "multiSite": "Gestion multisite",
+          "purchaseOrders": "Bons de commande",
+          "analyticsReports": "Analyses, rapports et exports",
+          "aiAssist": "Suggestions IA et traduction",
+          "advancedAnalytics": "Analyses avancées",
+          "audits": "Audits"
         }
       },
       "shiftConfig": {
