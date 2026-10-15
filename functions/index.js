@@ -94,6 +94,11 @@ const {stampWorkOrderPlant, stampBreakdownPlant} = require("./src/machines/stamp
 exports.stampWorkOrderPlant = stampWorkOrderPlant;
 exports.stampBreakdownPlant = stampBreakdownPlant;
 
+const {syncMachineNextPm, syncMachineLastService} = require("./src/machines/syncMachineServiceDates");
+
+exports.syncMachineNextPm = syncMachineNextPm;
+exports.syncMachineLastService = syncMachineLastService;
+
 // ---------------------------------------------------------------------------
 // Training Module — Cloud Functions
 // ---------------------------------------------------------------------------

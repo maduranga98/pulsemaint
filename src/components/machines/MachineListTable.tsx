@@ -4,7 +4,7 @@ import type { Machine } from '../../types/machine';
 import { MachineStatusBadge } from './MachineStatusBadge';
 import { MachineCriticalityBadge } from './MachineCriticalityBadge';
 import { MachineHealthScore } from './MachineHealthScore';
-import { formatDistanceToNow, formatDate, isOverdue } from '../../lib/dateUtils';
+import { formatDistanceToNow, formatDate, formatDateTime, isOverdue } from '../../lib/dateUtils';
 import { formatMachineTypeLabel } from '../../lib/machineExport';
 
 interface MachineListTableProps {
@@ -84,7 +84,14 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                   <MachineHealthScore score={machine.healthScore} variant="compact" showLabel={false} />
                 </td>
                 <td className="px-4 py-3 text-xs text-gray-600">
-                  {lastServiceDate ? formatDistanceToNow(lastServiceDate) : t('common.machines.table.never')}
+                  {lastServiceDate ? (
+                    <>
+                      <div className="text-gray-700">{formatDateTime(lastServiceDate)}</div>
+                      <div className="text-[11px] text-gray-400">{formatDistanceToNow(lastServiceDate)}</div>
+                    </>
+                  ) : (
+                    t('common.machines.table.never')
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   {nextPmDate ? (

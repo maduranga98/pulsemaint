@@ -6,7 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from '../../components/machines';
-import { formatDate } from '../../lib/dateUtils';
+import { formatDate, formatDateTime } from '../../lib/dateUtils';
 import { exportMachineDetailsPdf, formatMachineTypeLabel } from '../../lib/machineExport';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
@@ -124,7 +124,7 @@ export function MachineProfilePage() {
               <p className="text-gray-600 mb-2">
                 <span className="font-medium">{t('common.machines.profile.lastServiceLabel')}</span> {
                   machine.lastServiceDate
-                    ? formatDate(machine.lastServiceDate.toDate?.() || new Date((machine.lastServiceDate as any).seconds * 1000))
+                    ? formatDateTime(machine.lastServiceDate.toDate?.() || new Date((machine.lastServiceDate as any).seconds * 1000))
                     : t('common.machines.profile.never')
                 }
               </p>

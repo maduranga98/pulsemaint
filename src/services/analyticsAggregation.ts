@@ -11,6 +11,7 @@ import type {
 } from '../types/analytics.types';
 import { getEffectivePMHistoryStatus } from '../utils/pm.utils';
 import { computeEffectiveCostPerHour } from '../lib/downtimeCost';
+import { computeDowntimeEvents, sumDowntimeHours } from '../lib/machineDowntime';
 
 // ---------------------------------------------------------------------------
 // Client-side analytics aggregation.
@@ -118,25 +119,10 @@ function woCost(wo: Row): number {
   return woPartsCost(wo) + labor;
 }
 
-// Completion duration of a work order in hours — from the recorded total
-// duration, otherwise derived from the actual start/end timestamps.
-function woDurationHours(wo: Row): number {
-  const mins = Number(wo.totalDurationMinutes ?? 0);
-  if (mins > 0) return mins / 60;
-  const start = toDate(wo.actualStartTime);
-  const end = toDate(wo.actualEndTime);
-  if (start && end && end > start) return (end.getTime() - start.getTime()) / 3_600_000;
-  return 0;
-}
-
 const SEVERITY_RANK: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
 const SEVERITY_BY_RANK: Array<TopProblemMachine['severity']> = ['low', 'low', 'medium', 'high', 'critical'];
 const severityFromRank = (rank: number): TopProblemMachine['severity'] =>
   SEVERITY_BY_RANK[Math.max(0, Math.min(4, rank))];
-
-// Work-order types that represent unplanned production stoppages, whose repair
-// duration counts as machine downtime.
-const UNPLANNED_WO_TYPES = new Set(['BREAKDOWN', 'CORRECTIVE', 'EMERGENCY']);
 
 const isCompletedWoStatus = (status: string) =>
   ['COMPLETED', 'SIGNED_OFF', 'CLOSED'].includes(String(status ?? ''));
@@ -307,12 +293,11 @@ function buildMonthlyAnalytics(
   // repair time is logged, plus any downtime explicitly recorded on breakdown
   // tickets. This keeps the "Production Hours Lost" figure live off WO data
   // instead of sitting at zero when breakdowns carry no downtime field.
-  const woDowntimeHours = monthWOs.reduce(
-    (s, w) => s + (UNPLANNED_WO_TYPES.has(String(w.woType ?? '').toUpperCase()) ? woDurationHours(w) : 0),
-    0,
-  );
-  const breakdownRecordedDowntime = monthBreakdowns.reduce((s, b) => s + breakdownDowntimeHours(b), 0);
-  const totalProductionHoursLost = woDowntimeHours + breakdownRecordedDowntime;
+  // Downtime is real elapsed time: breakdown reported → supervisor sign-off,
+  // and other maintenance start → sign-off (see lib/machineDowntime).
+  const monthDowntime = computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours)
+    .filter((e) => inMonth(e.anchor));
+  const totalProductionHoursLost = sumDowntimeHours(monthDowntime);
 
   // Downtime cost: each machine's own Downtime Cost (LKR/hour, set on the
   // Machine record) applied to that machine's downtime hours this month —
@@ -335,11 +320,7 @@ function buildMonthlyAnalytics(
     const id = String(machineId);
     machineDowntimeHoursForCost.set(id, (machineDowntimeHoursForCost.get(id) ?? 0) + hours);
   };
-  monthBreakdowns.forEach((b) => addMachineDowntimeHours(b.machineId, breakdownDowntimeHours(b)));
-  monthWOs.forEach((w) => {
-    if (!UNPLANNED_WO_TYPES.has(String(w.woType ?? '').toUpperCase())) return;
-    addMachineDowntimeHours(w.machineId, woDurationHours(w));
-  });
+  monthDowntime.forEach((e) => addMachineDowntimeHours(e.machineId, e.hours));
   let totalDowntimeCost = 0;
   machineDowntimeHoursForCost.forEach((hours, machineId) => {
     const rate = machineCostPerHour.get(machineId);
@@ -403,9 +384,13 @@ function buildMonthlyAnalytics(
     if (!id) return;
     const m = ensureMachine(id, String(w.machineName ?? id), Number(w.machineCriticality ?? 3));
     m.woCount += 1;
-    m.downtimeHours += woDurationHours(w);
     m.cost += woPartsCost(w);
     m._sevRank = Math.max(m._sevRank, SEVERITY_RANK[String(w.priority ?? 'low')] ?? 1);
+  });
+  monthDowntime.forEach((e) => {
+    const id = String(e.machineId ?? e.machineName ?? '');
+    if (!id) return;
+    ensureMachine(id, e.machineName || id, e.machineCriticality).downtimeHours += e.hours;
   });
   // Contractor jobs signed off this month add their cost to the machine they
   // were performed on, so the machine's cost roll-up reflects external work too.
@@ -650,6 +635,12 @@ export async function computeDailyAnalytics(
       )
     : { breakdowns: allBreakdowns, workOrders: allWorkOrders, contractorJobs: allContractorJobs, pmHistory: allPmHistory };
 
+  // Real elapsed downtime per breakdown (reported → supervisor sign-off).
+  const downtimeByBreakdown = new Map<string, number>();
+  computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours).forEach((e) => {
+    if (e.kind === 'breakdown') downtimeByBreakdown.set(e.sourceId, e.hours);
+  });
+
   // Build an empty entry for each date in range so charts have continuous data.
   const byDate = new Map<string, AnalyticsDaily>();
   const start = new Date(fromDate);
@@ -696,7 +687,7 @@ export async function computeDailyAnalytics(
       if (e) {
         e.breakdownsOpened += 1;
         if (String(b.severity) === 'critical') e.criticalBreakdowns += 1;
-        e.productionHoursLost += breakdownDowntimeHours(b);
+        e.productionHoursLost += downtimeByBreakdown.get(String(b.id)) ?? breakdownDowntimeHours(b);
         const sla = slaAccum.get(k) ?? { total: 0, breached: 0 };
         sla.total += 1;
         if (b.slaBreached === true) sla.breached += 1;
@@ -1049,11 +1040,12 @@ export async function computePlantEfficiency(companyId: string, months: string[]
   };
 
   breakdowns.forEach((b) => {
-    add(b, b.reportedAt ?? b.createdAt, (f) => {
-      const h = breakdownDowntimeHours(b);
-      f.breakdowns += 1;
-      f.downtimeHours += h;
-      f.downtimeCost += downtimeCostFor(b, h);
+    add(b, b.reportedAt ?? b.createdAt, (f) => { f.breakdowns += 1; });
+  });
+  computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours).forEach((e) => {
+    add(e.row, e.anchor, (f) => {
+      f.downtimeHours += e.hours;
+      f.downtimeCost += downtimeCostFor(e.row, e.hours);
     });
   });
   workOrders.forEach((w) => {
@@ -1062,11 +1054,6 @@ export async function computePlantEfficiency(companyId: string, months: string[]
     // …and cost / downtime by when the work was done, as monthly analytics does.
     add(w, w.actualEndTime ?? w.createdAt, (f) => {
       f.maintenanceCost += woCost(w);
-      if (UNPLANNED_WO_TYPES.has(String(w.woType ?? '').toUpperCase())) {
-        const h = woDurationHours(w);
-        f.downtimeHours += h;
-        f.downtimeCost += downtimeCostFor(w, h);
-      }
     });
   });
   contractorJobs.forEach((c) => {

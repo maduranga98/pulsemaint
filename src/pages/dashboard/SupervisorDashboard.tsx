@@ -8,6 +8,7 @@ import KpiCard from '../../components/dashboard/shared/KpiCard';
 import KpiStrip from '../../components/dashboard/shared/KpiStrip';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
+import TodaysPmWidget from '../../components/dashboard/supervisor/TodaysPmWidget';
 import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
 import NeedSignOffWidget from '../../components/dashboard/supervisor/NeedSignOffWidget';
 import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
@@ -85,6 +86,9 @@ export default function SupervisorDashboard() {
           <FactoryFloorMap companyId={companyId} />
           <TechnicianStatusList companyId={companyId} />
         </div>
+
+        {/* PM work orders due today / overdue */}
+        <TodaysPmWidget siteId={siteId} />
 
         {/* Row 3: Pending Approvals + Need Sign-Off — replaces the Work
             Orders page's "Approval Requests" and "Need Sign-Off" tabs
