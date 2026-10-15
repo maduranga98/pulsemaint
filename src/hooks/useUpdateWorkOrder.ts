@@ -5,9 +5,7 @@ import { db } from '../lib/firebase';
 import type { WorkOrder, WOStatus, TimeSegment, TimeSegmentState } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
-import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../lib/machineOperationalStatus';
-
-const TERMINAL_WO_STATUSES = new Set<WOStatus>(['SIGNED_OFF', 'CLOSED', 'CANCELLED']);
+import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance, WORK_STARTED_WO_STATUSES } from '../lib/machineOperationalStatus';
 
 interface UseUpdateWorkOrderResult {
   updateWO: (id: string, data: Partial<WorkOrder>) => Promise<boolean>;
@@ -167,10 +165,10 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
           const data = snap.data() as any;
 
           if (data?.machineId) {
-            if (TERMINAL_WO_STATUSES.has(status)) {
-              void markMachineActiveIfNoOpenWork(data.machineId);
-            } else {
+            if (WORK_STARTED_WO_STATUSES.has(status)) {
               void markMachineUnderMaintenance(data.machineId);
+            } else {
+              void markMachineActiveIfNoOpenWork(data.machineId);
             }
           }
 

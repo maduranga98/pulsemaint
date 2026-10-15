@@ -17,7 +17,12 @@ const logger = require("firebase-functions/logger");
 initializeApp();
 // Required after initializeApp(): it opens Firestore.
 const { requireMember } = require("./src/lib/access");
-setGlobalOptions({ maxInstances: 10 });
+// Per-function instance cap. At the default memory a 2nd-gen function serves
+// one request per instance, so 10 meant 10 simultaneous requests per function
+// across every company — callables failed and triggers backed up at the scale
+// of 20-30 companies x ~500 users. Heavy/abuse-prone functions set their own
+// lower caps (PDF rendering, email, the public QR lookup).
+setGlobalOptions({ maxInstances: 100 });
 
 const db = getFirestore("default");
 
@@ -142,7 +147,6 @@ exports.sendShiftStartReminders = sendShiftStartReminders;
 const { generateTrainingCertificate } = require("./src/training/generateTrainingCertificate");
 const { checkRetrainingTrigger } = require("./src/training/checkRetrainingTrigger");
 const { sendTrainingReminders } = require("./src/training/sendTrainingReminders");
-const { generateComplianceReportPdf } = require("./src/training/generateComplianceReportPdf");
 const { notifyPracticalSignOffRequired } = require("./src/training/notifyPracticalSignOffRequired");
 const { onOffboardTrainingAssigned } = require("./src/training/onOffboardTrainingAssigned");
 const { onOffboardTrainingCompleted } = require("./src/training/onOffboardTrainingCompleted");
@@ -152,7 +156,6 @@ const { submitTrainingQuiz, completeTrainingAssignment } = require("./src/traini
 exports.generateTrainingCertificate = generateTrainingCertificate;
 exports.checkRetrainingTrigger = checkRetrainingTrigger;
 exports.sendTrainingReminders = sendTrainingReminders;
-exports.generateComplianceReportPdf = generateComplianceReportPdf;
 exports.notifyPracticalSignOffRequired = notifyPracticalSignOffRequired;
 exports.onOffboardTrainingAssigned = onOffboardTrainingAssigned;
 exports.onOffboardTrainingCompleted = onOffboardTrainingCompleted;

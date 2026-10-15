@@ -93,7 +93,7 @@ async function queryReportData(reportType, companyId, dateFrom, dateTo) {
   return rows.filter((row) => inRange(row, dateFrom, dateTo));
 }
 
-exports.generateReport = onCall({ memory: "2GiB", timeoutSeconds: 300 }, async (request) => {
+exports.generateReport = onCall({ memory: "2GiB", timeoutSeconds: 300, maxInstances: 10 }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated.");
   const started = Date.now();
   const { reportType, dateFrom, dateTo, filters = {}, companyId, options = {} } = request.data || {};

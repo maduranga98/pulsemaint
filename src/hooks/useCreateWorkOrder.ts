@@ -14,7 +14,6 @@ import type { CreateWOPayload, WODocument } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
 import { notifyUsers } from '../services/notifications.service';
 import { createWorkPermit } from '../services/safety.service';
-import { markMachineUnderMaintenance } from '../lib/machineOperationalStatus';
 import { toast } from 'sonner';
 
 interface UploadProgress {
@@ -232,9 +231,10 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
       const docRef = await addDoc(collection(db, 'workOrders'), woData);
       const woId = docRef.id;
 
-      // A new work order means active maintenance work is starting on the
-      // machine — reflect that immediately.
-      void markMachineUnderMaintenance(payload.machineId);
+      // The machine goes under maintenance when work on this order starts
+      // (or already is, through its open breakdown) — not merely because a
+      // work order exists: a PM raised for next week doesn't stop the
+      // machine. Kept in sync server-side by syncMachineStatus.
 
       // If this WO is a follow-up raised from another WO's sign-off, copy
       // over the origin's already-uploaded attachments (they have real

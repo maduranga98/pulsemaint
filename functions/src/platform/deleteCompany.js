@@ -40,10 +40,19 @@ const TENANT_COLLECTIONS = [
   "trainingContentLibrary", "trainingModules", "trainingPrograms", "training_records", "triageFlows", "triageSessions",
   "triageTemplates", "triage_assessment_results", "triage_assessments", "triage_categories", "triage_contacts",
   "triage_content_items", "triage_sessions", "weekendSummaries", "workOrders", "work_permit_categories", "work_permits",
-  "users",
+  "users", "woCounters",
+];
+// Collections whose documents live under a company- (or plant-) keyed path
+// — `<collection>/<companyId>/<sub>/…` — with no company field on the parent
+// (kaizen cards, audits, 5S, TPM, AM tasks). Deleted by path.
+const PATH_KEYED_COLLECTIONS = [
+  "kaizen_cards", "audit_sessions", "audit_templates", "audit_drafts", "fives_zones", "fives_audits",
+  "fives_corrective_actions", "tpm_pillars", "tpm_scores", "tpm_maturity", "am_tasks",
 ];
 // One document per company, keyed by the company id.
-const COMPANY_KEYED_DOCS = ["siteConfig", "inventorySettings", "shift_config", "moeConfig", "woCounters", "traineeProgrammeCertCounters"];
+const COMPANY_KEYED_DOCS = ["siteConfig", "inventorySettings", "shift_config", "moeConfig", "traineeProgrammeCertCounters", "certCounters"];
+/** Documents deleted in parallel. */
+const DELETE_CONCURRENCY = 25;
 const TENANT_FIELDS = ["companyId", "siteId", "tenantId"];
 // Storage roots keyed by company id, and roots keyed by plant id (see storage.rules).
 const STORAGE_COMPANY_ROOTS = ["companies", "workorders", "breakdowns", "evaluation_attachments", "safetyTrainingSubmissions", "triage", "reports"];
@@ -79,10 +88,13 @@ exports.platformDeleteCompany = onCall(
 
       await audit(actor, "company.delete.started", {companyId, companyName: name});
 
-      // 1. Stop billing first — if this fails nothing has been deleted yet.
+      // 1. Stop billing first — if this fails nothing has been deleted yet. A
+      // re-run after a timeout finds the subscription already cancelled.
       if (company.stripeSubscriptionId) {
         try {
-          await getStripe().subscriptions.cancel(company.stripeSubscriptionId);
+          const stripe = getStripe();
+          const sub = await stripe.subscriptions.retrieve(company.stripeSubscriptionId);
+          if (sub.status !== "canceled") await stripe.subscriptions.cancel(company.stripeSubscriptionId);
         } catch (err) {
           if (!isMissingResource(err) && err?.code !== "resource_missing") {
             logger.error("Could not cancel the Stripe subscription before deleting the company", err);
@@ -112,6 +124,12 @@ exports.platformDeleteCompany = onCall(
 
       const plantIds = new Set();
       (await db.collection("plants").where("companyId", "==", companyId).get()).docs.forEach((d) => plantIds.add(d.id));
+      // Needed after their documents are gone: machine history lives under
+      // machineHistory/{machineId}/entries (no company field), and scheduled
+      // report files under report_schedules/{scheduleId}/ in Storage.
+      const machineIds = (await db.collection("machines").where("siteId", "==", companyId).select().get()).docs.map((d) => d.id);
+      const reportScheduleIds = (await db.collection("report_schedules").where("companyId", "==", companyId).select().get())
+          .docs.map((d) => d.id);
 
       // 3. Tenant documents (with their subcollections).
       const writer = db.bulkWriter();
@@ -121,32 +139,39 @@ exports.platformDeleteCompany = onCall(
       });
       let deleted = 0;
       const seen = new Set();
+      // Many documents at once — one at a time could not finish a large
+      // company inside the time limit.
+      const deleteRefs = async (refs) => {
+        for (let i = 0; i < refs.length; i += DELETE_CONCURRENCY) {
+          await Promise.all(refs.slice(i, i + DELETE_CONCURRENCY).map((r) => db.recursiveDelete(r, writer)));
+        }
+      };
       for (const col of TENANT_COLLECTIONS) {
         for (const field of TENANT_FIELDS) {
           let docs;
           try {
-            docs = await db.collection(col).where(field, "==", companyId).get();
+            docs = await db.collection(col).where(field, "==", companyId).select().get();
           } catch (err) {
             continue; // collection/field combination that doesn't exist
           }
-          for (const d of docs.docs) {
-            if (seen.has(d.ref.path)) continue;
-            seen.add(d.ref.path);
-            await db.recursiveDelete(d.ref, writer);
-            deleted += 1;
-          }
+          const refs = docs.docs.map((d) => d.ref).filter((r) => !seen.has(r.path));
+          refs.forEach((r) => seen.add(r.path));
+          await deleteRefs(refs);
+          deleted += refs.length;
         }
       }
-      for (const col of COMPANY_KEYED_DOCS) {
-        const docRef = db.collection(col).doc(companyId);
-        if (!seen.has(docRef.path)) await db.recursiveDelete(docRef, writer);
-      }
+      await deleteRefs(COMPANY_KEYED_DOCS.map((col) => db.collection(col).doc(companyId)).filter((r) => !seen.has(r.path)));
+      await deleteRefs(machineIds.map((id) => db.collection("machineHistory").doc(id)));
+      // Path-keyed modules: keyed by the company id (and, for some, a plant id).
+      await deleteRefs(PATH_KEYED_COLLECTIONS.flatMap((col) =>
+        [companyId, ...plantIds].map((key) => db.collection(col).doc(key))));
       await writer.flush();
 
       // 4. Storage files — only this company's and its plants' folders.
       await Promise.all([
         ...STORAGE_COMPANY_ROOTS.map((root) => deleteStoragePrefix(`${root}/${companyId}/`)),
-        ...[...plantIds].flatMap((pid) => STORAGE_PLANT_ROOTS.map((root) => deleteStoragePrefix(`${root}/${pid}/`))),
+        ...[companyId, ...plantIds].flatMap((pid) => STORAGE_PLANT_ROOTS.map((root) => deleteStoragePrefix(`${root}/${pid}/`))),
+        ...reportScheduleIds.map((id) => deleteStoragePrefix(`report_schedules/${id}/`)),
       ]);
 
       // 5. Logins — skip anyone holding the superadmin claim.
