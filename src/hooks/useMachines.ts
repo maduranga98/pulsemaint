@@ -7,6 +7,7 @@ import {
   limit,
   startAfter,
   onSnapshot,
+  getDocs,
   QueryDocumentSnapshot,
   DocumentData,
 } from 'firebase/firestore';
