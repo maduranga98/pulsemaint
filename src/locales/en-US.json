@@ -7646,7 +7646,8 @@
           "poor": "Poor",
           "none": "No data"
         }
-      }
+      },
+      "incompleteData": "Some records couldn't be loaded ({{sources}}), so these figures may be incomplete. Refresh the page to try again."
     },
     "moe": {
       "filter": {
@@ -9111,7 +9112,9 @@
             "noShiftAssigned": "No shift assigned",
             "address": "Address",
             "addressPlaceholder": "e.g. 123 Main St, Springfield",
-            "noDepartment": "No department"
+            "noDepartment": "No department",
+            "hourlyRate": "Labor rate (per hour)",
+            "hourlyRatePlaceholder": "Used to cost this person's logged hours"
           },
           "errors": {
             "fullNameRequired": "Full name is required.",
@@ -10009,7 +10012,9 @@
           "eGWr2025001": "e.g. WR-2025-001",
           "documentAnyModificationsMadeTo": "Document any modifications made to this machine...",
           "anyOtherRelevantInformation": "Any other relevant information...",
-          "newDepartmentName": "New department name"
+          "newDepartmentName": "New department name",
+          "healthScoreAuto": "Health Score",
+          "healthScoreAutoHint": "Calculated automatically from the last 90 days of breakdowns and PM work — it can't be set by hand."
         },
         "machineHealthScore": {
           "healthScore": "Health Score"

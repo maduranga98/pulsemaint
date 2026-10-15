@@ -82,7 +82,8 @@ export function AddMachinePage() {
         station: formData.station || null,
         status: formData.status,
         criticality: formData.criticality as MachineCriticality,
-        healthScore: formData.healthScore ?? 100,
+        // Starts at 100; the server keeps it up to date from then on.
+        healthScore: 100,
         photoFiles: files.photos,
         documentFiles: files.documents,
         warrantyItems: (formData as any).warrantyItems ?? [],

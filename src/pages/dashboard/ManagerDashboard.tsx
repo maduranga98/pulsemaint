@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { IncompleteDataBanner } from '../../components/analytics/IncompleteDataBanner';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
@@ -121,6 +122,8 @@ export default function ManagerDashboard() {
           </p>
         </div>
       </div>
+
+      <IncompleteDataBanner sources={monthly?.incompleteSources} />
 
       <div className="pb-8 space-y-6">
         {/* Row 1: KPI Cards — live current-month figures */}

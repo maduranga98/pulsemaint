@@ -459,3 +459,40 @@ describe('notifications', () => {
     await assertFails(addDoc(collection(as('techA'), 'notifications'), { companyId: 'A', message: 'x', readBy: ['adminA'] }));
   });
 });
+
+describe('machine health score is computed by the server', () => {
+  it('nobody sets it by hand', async () => {
+    await assertFails(updateDoc(doc(as('adminA'), 'machines/mA'), { healthScore: 40 }));
+    await assertFails(updateDoc(doc(as('supA'), 'machines/mA'), { healthScoreUpdatedAt: new Date() }));
+    await assertSucceeds(updateDoc(doc(as('supA'), 'machines/mA'), { name: 'Renamed' }));
+    await assertFails(setDoc(doc(as('adminA'), 'machines/mNew'), { siteId: 'A', companyId: 'A', name: 'New', healthScore: 55 }));
+    await assertSucceeds(setDoc(doc(as('adminA'), 'machines/mNew'), { siteId: 'A', companyId: 'A', name: 'New', healthScore: 100 }));
+  });
+});
+
+describe('labour rates (pay data) are management-only', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await seedUser(db, 'hrA', 'A', 'hr_officer');
+      await seedUser(db, 'pmA', 'A', 'plant_manager');
+      await setDoc(doc(db, 'companies/A/labourRates/techA'), { hourlyRate: 500 });
+    });
+  });
+  it('admin / HR set rates; HR never their own; plant managers only read', async () => {
+    await assertSucceeds(setDoc(doc(as('adminA'), 'companies/A/labourRates/supA'), { hourlyRate: 800 }));
+    await assertSucceeds(setDoc(doc(as('hrA'), 'companies/A/labourRates/techA'), { hourlyRate: 550 }));
+    await assertFails(setDoc(doc(as('hrA'), 'companies/A/labourRates/hrA'), { hourlyRate: 9999 }));
+    await assertFails(setDoc(doc(as('adminA'), 'companies/A/labourRates/supA'), { hourlyRate: -1 }));
+    await assertFails(setDoc(doc(as('adminA'), 'companies/A/labourRates/supA'), { hourlyRate: 100, note: 'x' }));
+    await assertSucceeds(deleteDoc(doc(as('adminA'), 'companies/A/labourRates/techA')));
+    await assertSucceeds(getDoc(doc(as('pmA'), 'companies/A/labourRates/techA')));
+    await assertFails(setDoc(doc(as('pmA'), 'companies/A/labourRates/techA'), { hourlyRate: 1 }));
+  });
+  it('workers and other companies can\'t see them', async () => {
+    await assertFails(getDoc(doc(as('techA'), 'companies/A/labourRates/techA')));
+    await assertFails(getDoc(doc(as('supA'), 'companies/A/labourRates/techA')));
+    await assertFails(getDoc(doc(as('adminB'), 'companies/A/labourRates/techA')));
+    await assertFails(setDoc(doc(as('adminB'), 'companies/A/labourRates/techA'), { hourlyRate: 1 }));
+  });
+});

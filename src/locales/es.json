@@ -7230,7 +7230,8 @@
           "poor": "Mala",
           "none": "Sin datos"
         }
-      }
+      },
+      "incompleteData": "No se pudieron cargar algunos registros ({{sources}}), por lo que estas cifras pueden estar incompletas. Actualice la página para intentarlo de nuevo."
     },
     "moe": {
       "filter": {
@@ -8695,7 +8696,9 @@
             "noShiftAssigned": "Sin turno asignado",
             "address": "Dirección",
             "addressPlaceholder": "p. ej. Calle Principal 123, Springfield",
-            "noDepartment": "Sin departamento"
+            "noDepartment": "Sin departamento",
+            "hourlyRate": "Tarifa de mano de obra (por hora)",
+            "hourlyRatePlaceholder": "Se usa para calcular el costo de las horas registradas de esta persona"
           },
           "errors": {
             "fullNameRequired": "El nombre completo es obligatorio.",
@@ -9837,7 +9840,9 @@
           "eGWr2025001": "p. ej. WR-2025-001",
           "documentAnyModificationsMadeTo": "Documenta las modificaciones realizadas en esta máquina...",
           "anyOtherRelevantInformation": "Cualquier otra información relevante...",
-          "newDepartmentName": "Nombre del nuevo departamento"
+          "newDepartmentName": "Nombre del nuevo departamento",
+          "healthScoreAuto": "Puntuación de salud",
+          "healthScoreAutoHint": "Se calcula automáticamente a partir de las averías y el mantenimiento preventivo de los últimos 90 días; no se puede establecer manualmente."
         },
         "machineHealthScore": {
           "healthScore": "Puntuación de salud"

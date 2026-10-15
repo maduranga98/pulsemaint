@@ -1,113 +1,86 @@
+/**
+ * generateMonthlyAnalytics — keeps analytics_monthly/{companyId}_{YYYY-MM}
+ * equal to the dashboards' monthly figures (buildMonthlyAnalytics, a port of
+ * the browser's computation): the current month to date every day, and the
+ * previous month during the first days of a new one (late sign-offs still
+ * land in it). Months are each company's own calendar months.
+ *
+ * It used to run once a month for "active" companies only (trials never got
+ * a document) and sum analytics_daily into figures with their own rules —
+ * MTBF and PM compliance were always 0, SLA came from breakdown tickets
+ * (which carry no SLA deadline) and MTTR was an average of daily averages.
+ * The dashboards don't read this collection; scheduled executive reports do.
+ */
+
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const logger = require("firebase-functions/logger");
+const {buildMonthlyAnalytics} = require("./monthlyAnalytics");
+const {safeZone, localDateKey} = require("../lib/zonedTime");
 
 const db = getFirestore("default");
+// Recompute the previous month for this many days into a new one.
+const PREVIOUS_MONTH_GRACE_DAYS = 3;
+
+const rows = (snap) => snap.docs.map((d) => ({id: d.id, ...d.data()}));
 
 /**
- * Runs on the 1st of each month at 00:30 AM.
- * Finalizes previous month's analytics_monthly document with rankings and breakdowns.
+ * @param {string} month YYYY-MM
+ * @return {string} the month before
  */
+function previousMonth(month) {
+  const [y, m] = month.split("-").map(Number);
+  return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
+}
+
 exports.generateMonthlyAnalytics = onSchedule({
-  schedule: "30 0 1 * *",
-  timeZone: "Asia/Colombo",
+  schedule: "20 1 * * *",
+  timeZone: "UTC",
+  timeoutSeconds: 540,
+  memory: "1GiB",
 }, async () => {
   const now = new Date();
-  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const monthStr = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, "0")}`;
-
-  const companiesSnap = await db.collection("companies").where("status", "==", "active").get();
+  const started = Date.now();
+  const companiesSnap = await db.collection("companies").get();
+  let written = 0;
 
   for (const companyDoc of companiesSnap.docs) {
+    if (Date.now() - started > 480 * 1000) {
+      logger.warn(`generateMonthlyAnalytics: stopped at the time limit after ${written} documents`);
+      break;
+    }
+    const company = companyDoc.data();
+    if (company.status === "suspended") continue;
     const companyId = companyDoc.id;
-    const docId = `${companyId}_${monthStr}`;
+    try {
+      const timeZone = safeZone(company.timezone);
+      const today = localDateKey(now, timeZone);
+      const months = [today.slice(0, 7)];
+      if (Number(today.slice(8, 10)) <= PREVIOUS_MONTH_GRACE_DAYS) months.push(previousMonth(months[0]));
 
-    // Sum daily analytics for the month
-    const dailySnap = await db
-        .collection("analytics_daily")
-        .where("companyId", "==", companyId)
-        .where("month", "==", monthStr)
-        .get();
+      const [breakdowns, workOrders, contractorJobs, pmHistory, machines] = await Promise.all([
+        db.collection("breakdown_tickets").where("companyId", "==", companyId).get().then(rows),
+        db.collection("workOrders").where("companyId", "==", companyId).get().then(rows),
+        db.collection("contractorJobs").where("companyId", "==", companyId).get().then(rows),
+        db.collection("pm_history").where("companyId", "==", companyId).get().then(rows),
+        db.collection("machines").where("siteId", "==", companyId).get().then(rows),
+      ]);
+      const raw = {breakdowns, workOrders, contractorJobs, pmHistory, machines};
 
-    let totalBreakdowns = 0;
-    let totalMttr = 0;
-    let totalSlaCompliant = 0;
-    let totalSlaTotal = 0;
-    let totalWosCompleted = 0;
-    let totalCost = 0;
-    let totalHoursLost = 0;
-
-    dailySnap.forEach((doc) => {
-      const d = doc.data();
-      totalBreakdowns += d.breakdownsOpened || 0;
-      totalMttr += d.mttrHours || 0;
-      totalSlaCompliant += Math.round((d.slaComplianceRate || 0) * (d.breakdownsOpen || 0) / 100);
-      totalSlaTotal += d.breakdownsOpen || 0;
-      totalWosCompleted += d.wosCompleted || 0;
-      totalCost += d.maintenanceCostLKR || 0;
-      totalHoursLost += d.productionHoursLost || 0;
-    });
-
-    const dayCount = dailySnap.size || 1;
-
-    // Get top problem machines
-    const machineHealthSnap = await db
-        .collection("machine_health")
-        .where("companyId", "==", companyId)
-        .orderBy("breakdownCountMTD", "desc")
-        .limit(10)
-        .get();
-
-    const topProblemMachines = machineHealthSnap.docs.map((doc) => {
-      const d = doc.data();
-      return {
-        machineId: d.machineId,
-        machineName: d.machineName,
-        breakdownCount: d.breakdownCountMTD || 0,
-        downtimeHours: d.mttrHours || 0,
-        cost: d.maintenanceCostMTD || 0,
-        criticality: 3, // Default, would need machine registry lookup
-      };
-    });
-
-    // Get technician performance
-    const techSnap = await db
-        .collection("technician_status")
-        .where("companyId", "==", companyId)
-        .get();
-
-    const technicianPerformance = techSnap.docs.map((doc) => {
-      const d = doc.data();
-      return {
-        techId: d.userId,
-        techName: d.name,
-        jobsCompleted: d.jobsCompletedToday || 0,
-        avgResponseMins: d.avgResponseTimeMins || 0,
-        avgRepairHours: d.avgRepairTimeHours || 0,
-        slaCompliance: 100,
-      };
-    });
-
-    // Write monthly analytics
-    await db.collection("analytics_monthly").doc(docId).set({
-      companyId,
-      month: monthStr,
-      year: prevMonth.getFullYear(),
-      totalBreakdowns,
-      avgMttrHours: totalMttr / dayCount,
-      avgMtbfDays: 0, // Would need uptime calculation
-      overallSlaCompliance: totalSlaTotal > 0 ? (totalSlaCompliant / totalSlaTotal) * 100 : 100,
-      totalMaintenanceCost: totalCost,
-      totalProductionHoursLost: totalHoursLost,
-      totalWosCompleted,
-      pmComplianceRate: 0,
-      topProblemMachines,
-      technicianPerformance,
-      contractorPerformance: [],
-      breakdownByType: {},
-      breakdownBySeverity: {},
-      updatedAt: FieldValue.serverTimestamp(),
-    }, {merge: true});
+      for (const month of months) {
+        const figures = buildMonthlyAnalytics(companyId, month, raw, {timeZone, now});
+        await db.collection("analytics_monthly").doc(`${companyId}_${month}`).set({
+          ...figures,
+          timeZone,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+        written += 1;
+      }
+    } catch (err) {
+      logger.error(`generateMonthlyAnalytics failed for ${companyId}`, err);
+    }
   }
-
-  console.log(`Monthly analytics generated for ${monthStr}`);
+  logger.info(`generateMonthlyAnalytics: ${written} monthly documents written`);
 });
+
+exports.previousMonth = previousMonth;
