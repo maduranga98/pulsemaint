@@ -1,31 +1,33 @@
-import { useEffect, useMemo, useState, type DragEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type DragEvent } from 'react';
 import { HelpCircle } from 'lucide-react';
 import { useTour } from '@/features/tour/TourProvider';
 import { countryLabel } from '@/lib/countries';
 import { useSearchParams } from 'react-router-dom';
 import {
-  BarChart3, CalendarCheck, CalendarDays, Download, FileText, FlaskConical, KanbanSquare, Rocket, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
+  BarChart3, CalendarCheck, CalendarDays, Download, FileText, FlaskConical, Hourglass, KanbanSquare, Rocket, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
 } from 'lucide-react';
 import {
   BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, trialDay, TRIAL_DAYS, leadsToCsv, matchesSearch, revenueText,
   type Lead, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
 import { assignLeads, setLeadStatus, setTrialStarted, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
+import { platformService, errorText, type PlatformCompany } from '@/services/platformService';
 import { ErrorNote, Loading, PageHeader, btn, fmtDateTime, input } from '../platformUi';
 import LeadFormDialog from './LeadFormDialog';
 import LeadDetailPanel from './LeadDetailPanel';
 import DayReportDialog from './DayReportDialog';
 import LeadImportDialog from './LeadImportDialog';
 import LeadInsights from './LeadInsights';
+import TrialRequestsView from './TrialRequestsView';
 import { STATUS_STYLE, StatusPill, TagChip, downloadText, whenLabel } from './leadUi';
 
-type View = 'board' | 'list' | 'insights';
+type View = 'board' | 'list' | 'insights' | 'trials';
 const VIEW_KEY = 'platformLeads.view';
 
 function readView(): View {
   try {
     const v = localStorage.getItem(VIEW_KEY);
-    return v === 'list' || v === 'insights' ? v : 'board';
+    return v === 'list' || v === 'insights' || v === 'trials' ? v : 'board';
   } catch {
     return 'board';
   }
@@ -41,6 +43,7 @@ export default function PlatformLeadsPage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [view, setViewState] = useState<View>(readView);
+  const [trialRequests, setTrialRequests] = useState<PlatformCompany[] | null>(null);
   const [q, setQ] = useState('');
   const [tag, setTag] = useState('');
   const [owner, setOwner] = useState('');
@@ -52,6 +55,15 @@ export default function PlatformLeadsPage() {
   const [params, setParams] = useSearchParams();
   const { start: startTour } = useTour();
   const openId = params.get('lead');
+  // Deep link from the sidebar badge / old Trial requests URL.
+  const wantsTrials = params.get('view') === 'trials';
+
+  const loadTrialRequests = useCallback(() => {
+    platformService.listCompanies().then((r) => setTrialRequests(r.companies)).catch((e) => setError(errorText(e, 'Could not load trial requests')));
+  }, []);
+  useEffect(loadTrialRequests, [loadTrialRequests]);
+  useEffect(() => { if (wantsTrials) setViewState('trials'); }, [wantsTrials]);
+  const pendingTrials = (trialRequests ?? []).filter((c) => c.approvalStatus === 'pending').length;
 
   useEffect(() => subscribeLeads(setLeads, (e) => setError(e.message)), []);
   useEffect(() => subscribeTeam(setTeam, () => {}), []);
@@ -150,6 +162,7 @@ export default function PlatformLeadsPage() {
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
+        {view !== 'trials' ? (<>
         <div className="relative min-w-[200px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
           <input className={`${input} pl-9!`} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, phone, city, campaign…" />
@@ -165,14 +178,22 @@ export default function PlatformLeadsPage() {
           {team.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
         <label className="flex items-center gap-1.5 text-xs text-slate-400"><input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Archived</label>
+        </>) : <div className="flex-1" />}
         <div className="flex overflow-hidden rounded-lg border border-[#1E3A5F]">
           <ViewBtn on={view === 'board'} onClick={() => setView('board')} title="Board"><KanbanSquare className="h-4 w-4" /></ViewBtn>
           <ViewBtn on={view === 'list'} onClick={() => setView('list')} title="List"><List className="h-4 w-4" /></ViewBtn>
           <ViewBtn on={view === 'insights'} onClick={() => setView('insights')} title="Insights"><BarChart3 className="h-4 w-4" /></ViewBtn>
+          <ViewBtn on={view === 'trials'} onClick={() => setView('trials')} title="Trial requests">
+            <span className="relative inline-flex"><Hourglass className="h-4 w-4" />
+              {pendingTrials > 0 && <span className="absolute -right-2 -top-2 min-w-[14px] rounded-full bg-red-500 px-1 text-center text-[9px] font-bold leading-[14px] text-white">{pendingTrials}</span>}
+            </span>
+          </ViewBtn>
         </div>
       </div>
 
-      {!leads && !error ? <Loading /> : view === 'insights' ? (
+      {view === 'trials' ? (
+        <TrialRequestsView requests={trialRequests} leads={all} team={team} onReload={loadTrialRequests} onOpenLead={openLead} onNotice={setNotice} />
+      ) : !leads && !error ? <Loading /> : view === 'insights' ? (
         <LeadInsights leads={all} team={team} onOpenLead={openLead} />
       ) : view === 'board' ? (
         <div data-tour="leads-board" className="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8">
