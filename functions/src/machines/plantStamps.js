@@ -10,11 +10,14 @@
  *   the right plant gets it from the machine.
  * - propagateMachinePlant: a machine moved to another plant takes its open
  *   work with it (closed history stays with the plant where it happened).
+ * - stampPlantOnNotification: a notification written without a plant (some
+ *   server jobs) gets plantId null — "every plant" — so the bell's
+ *   `plantId == null` query (and the rules) match it.
  * - backfillPlantStamps: one pass over the existing records, resumable,
  *   then idle (state in system/plantStampBackfill).
  */
 
-const {onDocumentWritten} = require("firebase-functions/v2/firestore");
+const {onDocumentWritten, onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {getFirestore, FieldPath, FieldValue} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
@@ -88,6 +91,19 @@ exports.stampPlantOnBreakdown = stampTrigger(TARGETS[1]);
 exports.stampPlantOnPmSchedule = stampTrigger(TARGETS[2]);
 exports.stampPlantOnPmHistory = stampTrigger(TARGETS[3]);
 
+exports.stampPlantOnNotification = onDocumentCreated(
+    {database: "default", document: "notifications/{id}"},
+    async (event) => {
+      const data = event.data && event.data.data();
+      if (!data || Object.prototype.hasOwnProperty.call(data, "plantId")) return;
+      try {
+        await event.data.ref.update({plantId: null});
+      } catch (err) {
+        logger.error("stampPlantOnNotification failed", {id: event.params.id, err});
+      }
+    },
+);
+
 exports.propagateMachinePlant = onDocumentWritten(
     {database: "default", document: "machines/{machineId}"},
     async (event) => {
@@ -120,6 +136,9 @@ exports.propagateMachinePlant = onDocumentWritten(
 );
 
 const BACKFILL_DOC = "system/plantStampBackfill";
+// Machine-linked records get their machine's plant; notifications without a
+// plant get null ("every plant").
+const BACKFILL_TARGETS = [...TARGETS, {collection: "notifications", field: "plantId", noMachine: true}];
 const PAGE = 500;
 const TIME_BUDGET_MS = 420 * 1000;
 
@@ -136,7 +155,7 @@ exports.backfillPlantStamps = onSchedule(
       const plantCache = new Map();
       let stamped = 0;
 
-      for (const target of TARGETS) {
+      for (const target of BACKFILL_TARGETS) {
         if (done[target.collection]) continue;
         while (Date.now() - started < TIME_BUDGET_MS) {
           let q = db.collection(target.collection).orderBy(FieldPath.documentId()).limit(PAGE);
@@ -148,9 +167,10 @@ exports.backfillPlantStamps = onSchedule(
           }
           const missing = snap.docs.filter((d) => {
             const data = d.data();
-            return data.machineId && !Object.prototype.hasOwnProperty.call(data, target.field);
+            return (target.noMachine || data.machineId) && !Object.prototype.hasOwnProperty.call(data, target.field);
           });
-          const unknown = [...new Set(missing.map((d) => String(d.data().machineId)))].filter((id) => !plantCache.has(id));
+          const unknown = target.noMachine ? [] :
+            [...new Set(missing.map((d) => String(d.data().machineId)))].filter((id) => !plantCache.has(id));
           for (let i = 0; i < unknown.length; i += 100) {
             const refs = unknown.slice(i, i + 100).map((id) => db.collection("machines").doc(id));
             (await db.getAll(...refs)).forEach((m) => plantCache.set(m.id, m.exists ? m.data() : null));
@@ -158,6 +178,10 @@ exports.backfillPlantStamps = onSchedule(
           const batch = db.batch();
           missing.forEach((d) => {
             const data = d.data();
+            if (target.noMachine) {
+              batch.update(d.ref, {[target.field]: null});
+              return;
+            }
             const m = plantCache.get(String(data.machineId));
             const company = data.companyId || data.siteId;
             const sameCompany = m && (m.siteId === company || m.companyId === company);
@@ -174,7 +198,7 @@ exports.backfillPlantStamps = onSchedule(
         if (!done[target.collection]) break;
       }
 
-      const allDone = TARGETS.every((t) => done[t.collection]);
+      const allDone = BACKFILL_TARGETS.every((t) => done[t.collection]);
       await stateRef.set({
         cursors,
         done,
