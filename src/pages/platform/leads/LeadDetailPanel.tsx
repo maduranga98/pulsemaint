@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { countryLabel } from '@/lib/countries';
-import { Link } from 'react-router-dom';
 import {
   Archive, ArchiveRestore, Bug, Building2, CalendarClock, Globe, History, Mail, MapPin, MessageCircle, Pencil, Phone, PhoneCall,
   ListTodo, StickyNote, Trash2, Wallet, X,
@@ -11,9 +10,8 @@ import {
 } from '@/lib/platform/leads';
 import {
   addLeadNote, bookDemo, clearNextCall, createFeatureRequest, deleteLead, logCall, markDemoDone, setArchived, setLeadStatus,
-  subscribeLeadActivities, updateLead,
+  subscribeLeadActivities,
 } from '@/services/platformLeadsService';
-import { platformService, type PlatformCompany } from '@/services/platformService';
 import { ErrorNote, btn, fmtDateTime, input } from '../platformUi';
 import { StatusPill, TagChip, fromLocalInput, toLocalInput, whenLabel } from './leadUi';
 import TodoDialog from '../todos/TodoDialog';
@@ -47,7 +45,6 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
   const [issueTitle, setIssueTitle] = useState('');
   const [issueBody, setIssueBody] = useState('');
   // Company link
-  const [companies, setCompanies] = useState<PlatformCompany[] | null>(null);
   const [addingTodo, setAddingTodo] = useState(false);
   const companyOptions = useCompanyOptions();
 
@@ -73,7 +70,6 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
 
   const member = (id: string | null) => team.find((m) => m.id === id);
   const wa = whatsappNumber(lead.phone);
-  const company = companies?.find((c) => c.id === lead.companyId);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -168,26 +164,6 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
               {lead.demoAt ? <p className="mt-1 text-sm text-white">{fmtDateTime(lead.demoAt)} <span className="text-xs text-slate-500">{whenLabel(lead.demoAt)}</span></p> : <p className="mt-1 text-sm text-slate-500">Not booked yet.</p>}
               {lead.status === 'demo_booked' && <button className="mt-1 text-xs text-violet-300 hover:text-white" disabled={busy} onClick={() => void run(() => markDemoDone(lead, ''))}>Mark demo done</button>}
             </div>
-          </div>
-
-          {/* Company link */}
-          <div className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] p-3 text-sm">
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-300"><Building2 className="h-3.5 w-3.5" /> FirmiCore company</p>
-            {lead.companyId ? (
-              <p className="mt-1">
-                <Link to={`/platform/companies/${lead.companyId}`} className="text-blue-300! hover:underline">{company?.name ?? 'Open company'}</Link>
-                <button className="ml-3 text-xs text-slate-400 hover:text-white" onClick={() => void run(() => updateLead(lead, { companyId: null }))}>Unlink</button>
-              </p>
-            ) : companies ? (
-              <select className={`${input} mt-1`} defaultValue="" onChange={(e) => e.target.value && void run(() => updateLead(lead, { companyId: e.target.value }))}>
-                <option value="">Link the company they signed up as…</option>
-                {companies.map((c) => <option key={c.id} value={c.id}>{c.name}{c.adminEmail ? ` — ${c.adminEmail}` : ''}</option>)}
-              </select>
-            ) : (
-              <button className="mt-1 text-xs text-blue-300 hover:underline" onClick={() => void platformService.listCompanies().then((r) => setCompanies(r.companies)).catch((e) => setError(e.message))}>
-                Link to a signed-up company…
-              </button>
-            )}
           </div>
 
           {/* Action tabs */}

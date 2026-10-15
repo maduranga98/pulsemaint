@@ -21,6 +21,7 @@ import { useWorkOrderPermit } from '../../hooks/safety/useSafety';
 import { useMyWorkCompletion, allAssigneesCompleted } from '../../hooks/useMyWorkCompletion';
 import { buildTechnicianWorkLogs } from '../../lib/workorders/technicianWorkLogs';
 import { useAuthStore } from '../../store/authStore';
+import { getCompanyCurrency } from '@/lib/currency';
 
 type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history';
 
@@ -834,14 +835,14 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                           </p>
                         </div>
                         <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">
-                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : ''}
+                          {part.totalCost > 0 ? `${getCompanyCurrency()} ${part.totalCost.toLocaleString()}` : ''}
                         </span>
                       </div>
                     ))}
                     <div className="flex justify-end text-sm text-gray-600">
                       {t('common.workOrders.detailPanel.totalPartsCost')}&nbsp;
                       <span className="font-semibold text-gray-800">
-                        LKR {workOrder.partsUsed.reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
+                        {getCompanyCurrency()} {workOrder.partsUsed.reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
                       </span>
                     </div>
                   </div>

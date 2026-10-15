@@ -3,6 +3,7 @@ import { FileText, Paperclip } from 'lucide-react';
 import type { WorkOrder } from '../../types/workOrder';
 import type { WorkPermit } from '../../types/safety';
 import { WOAiRcaCard } from './WOAiRcaCard';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface Props {
   workOrder: WorkOrder;
@@ -153,10 +154,10 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
         <Section title={d('parts', 'Parts')}>
           <ul className="text-sm text-[#F0F4F8] space-y-0.5">
             {(wo.partsUsed ?? []).map((p, i) => (
-              <li key={`u${i}`}>{p.partName} × {p.quantity} {p.unit}{p.totalCost ? ` · LKR ${p.totalCost.toLocaleString()}` : ''}</li>
+              <li key={`u${i}`}>{p.partName} × {p.quantity} {p.unit}{p.totalCost ? ` · ${getCompanyCurrency()} ${p.totalCost.toLocaleString()}` : ''}</li>
             ))}
           </ul>
-          {partsCost > 0 && <p className="text-xs text-[#B6C4D6]">{d('partsTotal', 'Parts total: LKR {{total}}', { total: partsCost.toLocaleString() })}</p>}
+          {partsCost > 0 && <p className="text-xs text-[#B6C4D6]">{d('partsTotal', 'Parts total: {{currency}} {{total}}', { total: partsCost.toLocaleString(), currency: getCompanyCurrency() })}</p>}
           {(wo.partsRequests ?? []).length > 0 && (
             <ul className="text-xs text-[#B6C4D6] space-y-0.5">
               {wo.partsRequests.map((r) => (

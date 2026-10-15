@@ -610,7 +610,7 @@
         "invoiceUpload": {
           "title": "Upload Contractor Invoice",
           "referencePlaceholder": "Invoice reference",
-          "amountPlaceholder": "Amount (LKR)",
+          "amountPlaceholder": "Amount ({{currency}})",
           "uploadPdf": "Upload Invoice PDF"
         },
         "invoiceComparison": {
@@ -1151,7 +1151,7 @@
             "routingSwift": "Routing / SWIFT",
             "tinNumber": "TIN Number",
             "projectClientName": "Project / Client Name",
-            "costLkr": "Cost (LKR)",
+            "costLkr": "Cost ({{currency}})",
             "ratingPlaceholder": "Rating…",
             "duration": "Duration (e.g. 3 months)",
             "contractType": "Contract Type (e.g. fixed, T&M)",
@@ -1640,7 +1640,7 @@
           "autoApprovalEligible": "✓ Auto-approval eligible: All items in stock and within threshold",
           "autoApprovalNotEligible": "✗ Auto-approval not eligible: {{reasons}}",
           "someUnavailable": "Some items unavailable. ",
-          "costExceedsThreshold": "Cost exceeds LKR {{threshold}} threshold.",
+          "costExceedsThreshold": "Cost exceeds {{currency}} {{threshold}} threshold.",
           "writtenOff": "Cancelled by {{name}} — won't be returned: {{reason}}"
         },
         "availabilityIndicator": {
@@ -2188,7 +2188,7 @@
           "warrantyFiles": "Warranty Documents / Images (optional)",
           "filesSelected_one": "{{count}} file selected",
           "filesSelected_other": "{{count}} files selected",
-          "unitCost": "Unit Cost (LKR)",
+          "unitCost": "Unit Cost ({{currency}})",
           "supplier": "Supplier",
           "selectSupplier": "Select a supplier…",
           "noSuppliers": "No suppliers yet.",
@@ -2200,7 +2200,7 @@
           "supplierPartCodePlaceholder": "Auto-filled from supplier, editable",
           "leadTimeDays": "Lead Time (Days)",
           "lastPurchaseDate": "Last Purchase Date",
-          "lastPurchasePrice": "Last Purchase Price (LKR)",
+          "lastPurchasePrice": "Last Purchase Price ({{currency}})",
           "notes": "Notes",
           "notesPlaceholder": "Any additional notes…"
         }
@@ -2750,7 +2750,7 @@
         },
         "receiveItemRow": {
           "ordered": "Ordered:",
-          "unitCostLkr": "Unit Cost (LKR)",
+          "unitCostLkr": "Unit Cost ({{currency}})",
           "condition": "Condition",
           "notesOptional": "Notes (optional)",
           "remove": "Remove",
@@ -4092,8 +4092,8 @@
         "addPartUsedButton": "Add Part",
         "sourceLabelStock": "From Stock",
         "sourceLabelExternal": "External Purchase",
-        "unitCostLabel": "Unit Cost (LKR)",
-        "totalCostLabel": "Total Cost (LKR)",
+        "unitCostLabel": "Unit Cost ({{currency}})",
+        "totalCostLabel": "Total Cost ({{currency}})",
         "techLogsLabel": "Team Work Logs",
         "hoursWorkedLabel": "Hours Worked",
         "tasksDescLabel": "Tasks Performed",
@@ -4288,7 +4288,7 @@
         "removePartLabel": "Remove part",
         "qtyLabel": "Qty",
         "unitLabel": "Unit",
-        "unitCostLabel": "Unit cost (LKR)",
+        "unitCostLabel": "Unit cost ({{currency}})",
         "catalogPriceTitle": "Catalog price — not editable",
         "totalLabel": "Total: {{amount}}",
         "addExternalPartButton": "+ Add external / purchased part",
@@ -10168,8 +10168,8 @@
           "location": "Location",
           "beforePhotos": "Before Photos",
           "suggestedSolution": "Suggested Solution",
-          "estimatedCostLkr": "Estimated Cost (LKR)",
-          "monthlyBenefitLkr": "Monthly Benefit (LKR)",
+          "estimatedCostLkr": "Estimated Cost ({{currency}})",
+          "monthlyBenefitLkr": "Monthly Benefit ({{currency}})",
           "tags": "Tags",
           "hereSHowYourKaizen": "Here's how your Kaizen will appear on the board:",
           "summary": "Summary",
@@ -10223,8 +10223,8 @@
           "priority": "Priority",
           "raisedBy": "Raised By",
           "status": "Status",
-          "actualCostLkr": "Actual Cost (LKR)",
-          "actualBenefitMoLkr": "Actual Benefit/mo (LKR)",
+          "actualCostLkr": "Actual Cost ({{currency}})",
+          "actualBenefitMoLkr": "Actual Benefit/mo ({{currency}})",
           "topContributorThisMonth": "Top Contributor This Month"
         },
         "kaizenStats": {
