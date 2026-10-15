@@ -41,17 +41,15 @@ export const LOCKED_FEATURE_ROWS: Array<{ key: keyof PlanLimitConfig['features']
   { key: 'autoPOEmail', label: 'Automatic PO email to suppliers' },
   { key: 'qrLowStockAlerts', label: 'QR scan inventory & low-stock alerts' },
   { key: 'contractors', label: 'Contractor management' },
+  { key: 'shiftHandover', label: 'Shift handover & briefings' },
+  { key: 'training', label: 'Training module' },
+  { key: 'safety', label: 'Safety workspace' },
   { key: 'analyticsReports', label: 'Analytics, reports export & Google Sheets export' },
   { key: 'aiAssist', label: 'AI suggestions & translation' },
   { key: 'moeAnalytics', label: 'MOE analytics' },
   { key: 'advancedAnalytics', label: 'Advanced analytics (plants & team tabs, scheduled reports)' },
   { key: 'audits', label: 'Audits' },
 ];
-
-/** Features that are open on every plan — shown under the locked-features table. */
-export const OPEN_ON_EVERY_PLAN =
-  'Machine registry & QR codes, breakdowns, work orders, PM scheduling, parts catalog, dashboards, machine health score, ' +
-  'work request portal, shift handover, training, safety, triage, Kaizen, evaluations, CSV export, file storage (no limit).';
 
 /** "Unlimited", a count, or "N / month" — for one cell of the limits table. */
 export function formatLimit(value: number | null, perMonth = false): string {

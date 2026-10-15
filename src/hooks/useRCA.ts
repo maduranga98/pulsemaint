@@ -13,6 +13,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
+import { assertMonthlyWorkOrderAllowed } from './usePlanLimitCheck';
 import { db } from '../lib/firebase';
 import type { RCA, WhyEntry, RCAStatus } from '../types/rca';
 
@@ -113,6 +114,8 @@ export function useRCA({ breakdownId, machineId, siteId }: UseRCAParams) {
     uid: string,
     userName: string,
   ): Promise<string> {
+    // Corrective actions count against the plan's monthly work-order cap too.
+    await assertMonthlyWorkOrderAllowed();
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 7);
     const dueDateTs = Timestamp.fromDate(dueDate);

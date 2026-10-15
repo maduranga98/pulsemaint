@@ -30,7 +30,10 @@ describe('isFeatureAvailable', () => {
     expect(isFeatureAvailable(trial(-1), 'contractors')).toBe(false);
   });
   it('follows the plan matrix for active companies', () => {
-    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'safety')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'shiftHandover')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'training')).toBe(true);
     expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'purchaseOrders')).toBe(false);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'purchaseOrders')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'analyticsReports')).toBe(true);

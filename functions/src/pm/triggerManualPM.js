@@ -13,6 +13,7 @@ const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
+const {monthlyWorkOrderRoom} = require("../lib/planFeatures");
 
 const db = getFirestore("default");
 
@@ -79,6 +80,13 @@ exports.triggerManualPM = onCall({cors: true}, async (request) => {
     }
 
     const now = new Date();
+    const room = await monthlyWorkOrderRoom(schedule.companyId, now);
+    if (room.atLimit) {
+      throw new HttpsError(
+          "resource-exhausted",
+          `You've reached the ${room.limit}/month work order limit on your plan. Upgrade to create more this month.`,
+      );
+    }
     const year = now.getFullYear();
     const woNumber = await generateWONumber(schedule.companyId, year);
 
@@ -158,7 +166,8 @@ exports.triggerManualPM = onCall({cors: true}, async (request) => {
         status: "OPEN",
         changedBy: auth.uid,
         changedByName: auth.token.name || "Supervisor",
-        changedAt: FieldValue.serverTimestamp(),
+        // Firestore doesn't allow serverTimestamp() inside an array.
+        changedAt: Timestamp.now(),
         note: "Manually triggered from PM schedule",
       }],
       createdBy: auth.uid,

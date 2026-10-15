@@ -8928,11 +8928,12 @@
       "limits": {
         "title": "プランの上限",
         "machines": "機械台数",
-        "users": "ユーザー数",
+        "users": "ユーザー総数",
         "inventoryItems": "在庫品目",
         "pmSchedules": "PMスケジュール",
         "workOrders": "作業指示書",
-        "perMonthValue": "{{count}} / 月"
+        "perMonthValue": "{{count}} / 月",
+        "plants": "プラント"
       },
       "cta": {
         "currentPlan": "現在のプラン",
@@ -8973,7 +8974,7 @@
         },
         "enterprise": {
           "name": "エンタープライズ",
-          "description": "企業向け統合機能を備えた無制限のスケール。"
+          "description": "貴社の規模に合わせた上限と価格。"
         }
       },
       "categories": {
@@ -9007,7 +9008,15 @@
         "advancedReportsHub": "高度なレポートハブ",
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "カスタム連携とAPI",
-        "dedicatedSupportSla": "専任サポートとSLA"
+        "dedicatedSupportSla": "専任サポートとSLA",
+        "purchaseOrdersFeature": "発注書",
+        "analyticsExportsSheets": "分析、レポートのエクスポート、Google スプレッドシートへのエクスポート",
+        "aiSuggestionsTranslation": "AIの提案と翻訳",
+        "advancedAnalyticsFeature": "高度な分析:プラントとチームのタブ、スケジュールレポート",
+        "auditsFeature": "監査",
+        "upToThreePlants": "社内で最大3つのプラント",
+        "sizedToYourCompany": "ユーザー、プラント、機械などを貴社の規模に合わせて設定",
+        "pricedIndividually": "貴社ごとに個別にお見積り"
       },
       "account": {
         "loading": "請求情報を読み込んでいます…",
@@ -9113,6 +9122,28 @@
           "business_closed": "事業の終了・合併",
           "temporary": "一時的に必要だっただけ",
           "other": "その他"
+        }
+      },
+      "unlock": {
+        "title": "アンロックされる機能",
+        "note": "主要な機能とデータ量の多い機能のみがロックされています。その他はすべてのプランで利用できます。",
+        "feature": "機能",
+        "morePlants": "複数のプラント",
+        "upTo": "最大 {{count}}",
+        "notIncluded": "含まれません",
+        "rows": {
+          "purchaseOrders": "発注書",
+          "autoPOEmail": "仕入先への発注書の自動メール送信",
+          "qrLowStockAlerts": "QRスキャン在庫管理と低在庫アラート",
+          "contractors": "業者管理",
+          "shiftHandover": "シフト引き継ぎ・ブリーフィング",
+          "training": "トレーニングモジュール",
+          "safety": "安全ワークスペース",
+          "analyticsReports": "分析、レポートのエクスポート、Google スプレッドシートへのエクスポート",
+          "aiAssist": "AIの提案と翻訳",
+          "moeAnalytics": "MOE分析",
+          "advancedAnalytics": "高度な分析(プラントとチームのタブ、スケジュールレポート)",
+          "audits": "監査"
         }
       }
     },
@@ -9459,7 +9490,12 @@
           "training": "研修モジュール",
           "safety": "安全ワークスペース",
           "moeAnalytics": "MOE トレンド分析と設備比較",
-          "multiSite": "複数拠点の管理"
+          "multiSite": "複数拠点の管理",
+          "purchaseOrders": "発注書",
+          "analyticsReports": "分析、レポート、エクスポート",
+          "aiAssist": "AIの提案と翻訳",
+          "advancedAnalytics": "高度な分析",
+          "audits": "監査"
         }
       },
       "shiftConfig": {

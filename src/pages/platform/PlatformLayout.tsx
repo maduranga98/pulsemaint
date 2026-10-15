@@ -30,11 +30,10 @@ const NAV = [
 ] as const;
 
 const BADGE_TITLE: Record<string, string> = {
-  '/platform/companies': 'Registrations waiting for approval',
   '/platform/payments': 'New payment alerts',
   '/platform/requests': 'Unread requests & feedback',
   '/platform/cancellations': 'Open cancellations / leave requests',
-  '/platform/leads': 'New leads not called yet',
+  '/platform/leads': 'New leads not called yet + trial requests waiting for approval',
   '/platform/calls': 'Calls due today or overdue',
   '/platform/feature-requests': 'New feature requests / bugs since you last looked',
   '/platform/todos': 'To-dos due today or overdue',
@@ -71,11 +70,10 @@ export default function PlatformLayout() {
 
   // Red unread / needs-attention counts per tab.
   const badges: Record<string, number> = {
-    '/platform/companies': pendingRegistrations.length,
     '/platform/payments': paymentAlerts.length,
     '/platform/requests': unread.length,
     '/platform/cancellations': openCancellations,
-    '/platform/leads': newLeads,
+    '/platform/leads': newLeads + pendingRegistrations.length,
     '/platform/calls': callsDue,
     '/platform/feature-requests': unseenFeatures,
     '/platform/todos': todosDue,

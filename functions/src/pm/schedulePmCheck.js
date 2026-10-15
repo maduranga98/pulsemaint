@@ -14,6 +14,7 @@ const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
+const {monthlyWorkOrderRoom} = require("../lib/planFeatures");
 
 const db = getFirestore("default");
 
@@ -119,12 +120,26 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
 
     logger.info(`schedulePmCheck: ${schedulesSnap.size} schedules due`);
 
+    // PM work orders count against the plan's monthly work-order cap. A
+    // schedule that can't get a work order is left due (nextDueDate untouched),
+    // so it is generated as soon as the month rolls over or the plan is
+    // upgraded; the company's admins are told once per run.
+    const roomByCompany = new Map();
+    const blockedByCompany = new Map();
+
     for (const docSnap of schedulesSnap.docs) {
       const schedule = docSnap.data();
       const scheduleId = docSnap.id;
       const companyId = schedule.companyId;
 
       try {
+        if (!roomByCompany.has(companyId)) roomByCompany.set(companyId, await monthlyWorkOrderRoom(companyId, now));
+        const room = roomByCompany.get(companyId);
+        if (room.limit !== null && room.used >= room.limit) {
+          blockedByCompany.set(companyId, (blockedByCompany.get(companyId) || 0) + 1);
+          continue;
+        }
+
         // Generate WO number
         const year = now.getFullYear();
         const woNumber = await generateWONumber(companyId, year);
@@ -206,7 +221,8 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
             status: "OPEN",
             changedBy: "system",
             changedByName: "System",
-            changedAt: FieldValue.serverTimestamp(),
+            // Firestore doesn't allow serverTimestamp() inside an array.
+            changedAt: Timestamp.now(),
             note: "Auto-generated from PM schedule",
           }],
           createdBy: "system",
@@ -219,6 +235,7 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
         };
 
         await woRef.set(woData);
+        room.used += 1;
 
         // Create pm_history entry
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -278,6 +295,30 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
         logger.info(`PM WO created: ${woNumber} for schedule ${scheduleId}`);
       } catch (innerErr) {
         logger.error(`Failed to process schedule ${scheduleId}`, innerErr);
+      }
+    }
+
+    for (const [companyId, blocked] of blockedByCompany) {
+      try {
+        await db.collection("notifications").add({
+          companyId,
+          type: "pm",
+          message: `${blocked} PM work order(s) were not created: your plan's monthly work order limit is reached. They will be created when the limit allows — upgrade your plan or wait for next month.`,
+          severity: "high",
+          linkTo: "/app/billing",
+          timestamp: FieldValue.serverTimestamp(),
+          read: false,
+          readBy: [],
+          recipientRoles: ["admin"],
+          recipientUserIds: [],
+          targetRoles: ["admin"],
+          targetUserIds: [],
+          actorName: null,
+          actorRole: null,
+          actorUserId: null,
+        });
+      } catch (notifyErr) {
+        logger.error(`PM limit notification failed for ${companyId}`, notifyErr);
       }
     }
   } catch (err) {

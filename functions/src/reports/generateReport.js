@@ -60,11 +60,13 @@ async function requireAccess(uid, reportType, companyId) {
     if (scoped.exists) data = scoped.data();
   }
   if (!data) {
+    // The legacy profile only counts when it belongs to the company asked for —
+    // otherwise any signed-in user could export another company's data.
     const top = await db.collection("users").doc(uid).get();
-    if (top.exists) data = top.data();
+    if (top.exists && top.get("companyId") === companyId) data = top.data();
   }
   const role = data?.role;
-  if (!role) throw new HttpsError("permission-denied", "User profile is missing a role.");
+  if (!role) throw new HttpsError("permission-denied", "You don't have access to this company's reports.");
   if (["admin", "plant_manager"].includes(role)) return data;
   if (reportType === "audit_trail" && !["admin", "hr_officer"].includes(role)) {
     throw new HttpsError("permission-denied", "Only Admin and Compliance roles can export audit trail.");

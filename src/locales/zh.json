@@ -8928,11 +8928,12 @@
       "limits": {
         "title": "套餐限制",
         "machines": "机器数量",
-        "users": "用户数量",
+        "users": "用户总数",
         "inventoryItems": "库存物品",
         "pmSchedules": "预防性维护计划",
         "workOrders": "工单",
-        "perMonthValue": "{{count}} / 月"
+        "perMonthValue": "{{count}} / 月",
+        "plants": "工厂"
       },
       "cta": {
         "currentPlan": "当前套餐",
@@ -8973,7 +8974,7 @@
         },
         "enterprise": {
           "name": "企业版",
-          "description": "无限规模,支持企业级集成。"
+          "description": "按贵公司规模定制的限额与价格。"
         }
       },
       "categories": {
@@ -9007,7 +9008,15 @@
         "advancedReportsHub": "高级报告中心",
         "ssoSaml": "SSO / SAML 单点登录",
         "customIntegrationsApi": "自定义集成与 API",
-        "dedicatedSupportSla": "专属支持与 SLA"
+        "dedicatedSupportSla": "专属支持与 SLA",
+        "purchaseOrdersFeature": "采购订单",
+        "analyticsExportsSheets": "数据分析、报告导出及 Google 表格导出",
+        "aiSuggestionsTranslation": "AI 建议与翻译",
+        "advancedAnalyticsFeature": "高级分析:工厂与团队标签页、定时报告",
+        "auditsFeature": "审核",
+        "upToThreePlants": "公司内最多 3 个工厂",
+        "sizedToYourCompany": "用户、工厂、机器等,按贵公司规模定制",
+        "pricedIndividually": "按贵公司情况单独报价"
       },
       "account": {
         "loading": "正在加载账单信息…",
@@ -9113,6 +9122,28 @@
           "business_closed": "公司已关闭或合并",
           "temporary": "只是临时需要",
           "other": "其他"
+        }
+      },
+      "unlock": {
+        "title": "解锁功能",
+        "note": "仅主要功能和大数据量功能被锁定;其余功能在所有套餐中均可使用。",
+        "feature": "功能",
+        "morePlants": "多个工厂",
+        "upTo": "最多 {{count}} 个",
+        "notIncluded": "不包含",
+        "rows": {
+          "purchaseOrders": "采购订单",
+          "autoPOEmail": "自动向供应商发送采购订单邮件",
+          "qrLowStockAlerts": "二维码扫描库存与低库存提醒",
+          "contractors": "承包商管理",
+          "shiftHandover": "交接班与简报",
+          "training": "培训模块",
+          "safety": "安全工作区",
+          "analyticsReports": "数据分析、报告导出及 Google 表格导出",
+          "aiAssist": "AI 建议与翻译",
+          "moeAnalytics": "MOE 分析",
+          "advancedAnalytics": "高级分析(工厂与团队标签页、定时报告)",
+          "audits": "审核"
         }
       }
     },
@@ -9459,7 +9490,12 @@
           "training": "培训模块",
           "safety": "安全工作区",
           "moeAnalytics": "MOE 趋势分析和设备对比",
-          "multiSite": "多厂区管理"
+          "multiSite": "多厂区管理",
+          "purchaseOrders": "采购订单",
+          "analyticsReports": "数据分析、报告与导出",
+          "aiAssist": "AI 建议与翻译",
+          "advancedAnalytics": "高级分析",
+          "audits": "审核"
         }
       },
       "shiftConfig": {

@@ -232,7 +232,8 @@
         "inventoryItems": "Inventory items",
         "pmSchedules": "PM schedules",
         "workOrders": "Work orders",
-        "perMonthValue": "{{count}} / month"
+        "perMonthValue": "{{count}} / month",
+        "plants": "Plants"
       },
       "cta": {
         "currentPlan": "Current Plan",
@@ -307,7 +308,15 @@
         "advancedReportsHub": "Advanced reports hub",
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "Custom integrations & API",
-        "dedicatedSupportSla": "Dedicated support & SLA"
+        "dedicatedSupportSla": "Dedicated support & SLA",
+        "purchaseOrdersFeature": "Purchase orders",
+        "analyticsExportsSheets": "Analytics, report exports & Google Sheets export",
+        "aiSuggestionsTranslation": "AI suggestions & translation",
+        "advancedAnalyticsFeature": "Advanced analytics: plants & team tabs, scheduled reports",
+        "auditsFeature": "Audits",
+        "upToThreePlants": "Up to 3 plants in the company",
+        "sizedToYourCompany": "Users, plants, machines and more sized to your company",
+        "pricedIndividually": "Priced individually for your company"
       },
       "account": {
         "loading": "Loading billing details…",
@@ -413,6 +422,28 @@
           "business_closed": "Business closed or merged",
           "temporary": "We only needed it for a while",
           "other": "Other"
+        }
+      },
+      "unlock": {
+        "title": "Unlock features",
+        "note": "Only the main and heavy-data features are locked; everything else is open on every plan.",
+        "feature": "Feature",
+        "morePlants": "More than 1 plant",
+        "upTo": "up to {{count}}",
+        "notIncluded": "Not included",
+        "rows": {
+          "purchaseOrders": "Purchase orders",
+          "autoPOEmail": "Automatic PO email to suppliers",
+          "qrLowStockAlerts": "QR scan inventory & low-stock alerts",
+          "contractors": "Contractor management",
+          "shiftHandover": "Shift handover & briefings",
+          "training": "Training module",
+          "safety": "Safety workspace",
+          "analyticsReports": "Analytics, reports export & Google Sheets export",
+          "aiAssist": "AI suggestions & translation",
+          "moeAnalytics": "MOE analytics",
+          "advancedAnalytics": "Advanced analytics (plants & team tabs, scheduled reports)",
+          "audits": "Audits"
         }
       }
     },
@@ -9631,7 +9662,12 @@
           "training": "Training module",
           "safety": "Safety Workspace",
           "moeAnalytics": "MOE trend analytics & machine comparison",
-          "multiSite": "Multi-site management"
+          "multiSite": "Multi-site management",
+          "purchaseOrders": "Purchase orders",
+          "analyticsReports": "Analytics, reports & exports",
+          "aiAssist": "AI suggestions & translation",
+          "advancedAnalytics": "Advanced analytics",
+          "audits": "Audits"
         }
       },
       "shiftConfig": {

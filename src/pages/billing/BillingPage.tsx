@@ -8,7 +8,7 @@ import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
 import { PLAN_PRICES } from '../../lib/planCatalog';
-import { LockedFeaturesTable, PlanLimitsTable } from '../../components/billing/PlanComparisonTables';
+import { LockedFeaturesTable } from '../../components/billing/PlanComparisonTables';
 import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
 import CancellationReasonDialog from '../../components/billing/CancellationReasonDialog';
 import TermsCheckbox from '../../components/legal/TermsCheckbox';
@@ -93,10 +93,6 @@ const PLANS: PlanDef[] = [
           'inventoryPartsCatalog',
         ],
       },
-      {
-        categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['shiftHandoverBriefings', 'trainingSafetyWorkspace'],
-      },
     ],
   },
   {
@@ -117,7 +113,7 @@ const PLANS: PlanDef[] = [
       },
       {
         categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['contractorManagement'],
+        itemKeys: ['contractorManagement', 'shiftHandoverBriefings', 'trainingSafetyWorkspace'],
       },
       {
         categoryKey: 'common.billing.categories.analyticsReporting',
@@ -164,20 +160,6 @@ const PLANS: PlanDef[] = [
     ],
   },
 ];
-
-// Copy for plan bullets added with the 2026 plan rework. They are not in the
-// locale files yet, so they render in English (and in the other languages
-// until translated) via defaultValue.
-const NEW_FEATURE_TEXT: Record<string, string> = {
-  purchaseOrdersFeature: 'Purchase orders',
-  analyticsExportsSheets: 'Analytics, report exports & Google Sheets export',
-  aiSuggestionsTranslation: 'AI suggestions & translation',
-  advancedAnalyticsFeature: 'Advanced analytics: plants & team tabs, scheduled reports',
-  auditsFeature: 'Audits',
-  upToThreePlants: 'Up to 3 plants in the company',
-  sizedToYourCompany: 'Users, plants, machines and more sized to your company',
-  pricedIndividually: 'Priced individually for your company',
-};
 
 const PLAN_RANK: Record<Plan, number> = {
   starter: 0,
@@ -529,7 +511,6 @@ export default function BillingPage() {
                         <li key={key} className="flex items-start gap-2 text-sm text-slate-300">
                           <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
                           {t(`common.billing.features.${key}`, {
-                            defaultValue: NEW_FEATURE_TEXT[key],
                             basicName: t('common.billing.plans.starter.name'),
                             workshopName: t('common.billing.plans.workshop.name'),
                             factoryName: t('common.billing.plans.factory.name'),
@@ -586,8 +567,7 @@ export default function BillingPage() {
         })}
       </div>
 
-      {/* Side-by-side limits and locked features for every plan */}
-      <PlanLimitsTable />
+      {/* Which features each plan unlocks */}
       <LockedFeaturesTable />
 
       {/* Payment methods, account credit & billing history. Cards are only

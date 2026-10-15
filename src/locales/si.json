@@ -3720,11 +3720,12 @@
       "limits": {
         "title": "සැලැස්ම සීමා",
         "machines": "යන්ත්‍ර",
-        "users": "පරිශීලකයින්",
+        "users": "මුළු පරිශීලකයින්",
         "inventoryItems": "තොග අයිතම",
         "pmSchedules": "PM කාලසටහන්",
         "workOrders": "වැඩ නියෝග",
-        "perMonthValue": "{{count}} / මාසයකට"
+        "perMonthValue": "{{count}} / මාසයකට",
+        "plants": "කම්හල්"
       },
       "cta": {
         "currentPlan": "වත්මන් සැලැස්ම",
@@ -3765,7 +3766,7 @@
         },
         "enterprise": {
           "name": "ව්‍යවසාය",
-          "description": "ව්‍යවසාය ඒකාබද්ධතා සමඟ අසීමිත පරිමාණය."
+          "description": "ඔබේ සමාගමට ගැලපෙන සීමා සහ මිල ගණන්."
         }
       },
       "categories": {
@@ -3799,7 +3800,15 @@
         "advancedReportsHub": "උසස් වාර්තා මධ්‍යස්ථානය",
         "ssoSaml": "SSO / SAML",
         "customIntegrationsApi": "අභිරුචි ඒකාබද්ධතා සහ API",
-        "dedicatedSupportSla": "කැපවූ සහාය සහ SLA"
+        "dedicatedSupportSla": "කැපවූ සහාය සහ SLA",
+        "purchaseOrdersFeature": "මිලදී ගැනීමේ ඇණවුම්",
+        "analyticsExportsSheets": "විශ්ලේෂණ, වාර්තා අපනයනය සහ Google Sheets අපනයනය",
+        "aiSuggestionsTranslation": "AI යෝජනා සහ පරිවර්තනය",
+        "advancedAnalyticsFeature": "උසස් විශ්ලේෂණ: කම්හල් සහ කණ්ඩායම් ටැබ්, උපලේඛනගත වාර්තා",
+        "auditsFeature": "විගණන",
+        "upToThreePlants": "සමාගමේ කම්හල් 3ක් දක්වා",
+        "sizedToYourCompany": "පරිශීලකයින්, කම්හල්, යන්ත්‍ර සහ තවත් දේ ඔබේ සමාගමට ගැලපෙන ලෙස",
+        "pricedIndividually": "ඔබේ සමාගම සඳහා වෙන වෙනම මිල ගණන් කෙරේ"
       },
       "account": {
         "loading": "බිල්පත් විස්තර පූරණය වෙමින්…",
@@ -3905,6 +3914,28 @@
           "business_closed": "ව්‍යාපාරය වසා දැමූ හෝ ඒකාබද්ධ විය",
           "temporary": "අපට අවශ්‍ය වූයේ තාවකාලිකවයි",
           "other": "වෙනත්"
+        }
+      },
+      "unlock": {
+        "title": "අගුළු හැරෙන විශේෂාංග",
+        "note": "ප්‍රධාන සහ දත්ත බහුල විශේෂාංග පමණක් අගුළු දමා ඇත; අනෙක් සියල්ල සියලු සැලසුම් වල විවෘතයි.",
+        "feature": "විශේෂාංගය",
+        "morePlants": "කම්හල් 1කට වඩා",
+        "upTo": "{{count}} දක්වා",
+        "notIncluded": "ඇතුළත් නැත",
+        "rows": {
+          "purchaseOrders": "මිලදී ගැනීමේ ඇණවුම්",
+          "autoPOEmail": "සැපයුම්කරුවන්ට ස්වයංක්‍රීය ඇණවුම් විද්‍යුත් තැපෑල",
+          "qrLowStockAlerts": "QR ස්කෑන් තොග සහ අඩු තොග ඇඟවීම්",
+          "contractors": "කොන්ත්‍රාත්කරු කළමනාකරණය",
+          "shiftHandover": "මුරය භාරදීම සහ තොරතුරු සැසි",
+          "training": "පුහුණු මොඩියුලය",
+          "safety": "ආරක්ෂණ වැඩබිම",
+          "analyticsReports": "විශ්ලේෂණ, වාර්තා අපනයනය සහ Google Sheets අපනයනය",
+          "aiAssist": "AI යෝජනා සහ පරිවර්තනය",
+          "moeAnalytics": "MOE විශ්ලේෂණ",
+          "advancedAnalytics": "උසස් විශ්ලේෂණ (කම්හල් සහ කණ්ඩායම් ටැබ්, උපලේඛනගත වාර්තා)",
+          "audits": "විගණන"
         }
       }
     },
@@ -5260,7 +5291,12 @@
           "training": "පුහුණු මොඩියුලය",
           "safety": "ආරක්ෂක වැඩ අවකාශය",
           "moeAnalytics": "MOE ප්‍රවණතා විශ්ලේෂණය සහ යන්ත්‍ර සංසන්දනය",
-          "multiSite": "බහු-ස්ථාන කළමනාකරණය"
+          "multiSite": "බහු-ස්ථාන කළමනාකරණය",
+          "purchaseOrders": "මිලදී ගැනීමේ ඇණවුම්",
+          "analyticsReports": "විශ්ලේෂණ, වාර්තා සහ අපනයන",
+          "aiAssist": "AI යෝජනා සහ පරිවර්තනය",
+          "advancedAnalytics": "උසස් විශ්ලේෂණ",
+          "audits": "විගණන"
         }
       },
       "shiftConfig": {
