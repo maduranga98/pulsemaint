@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { PMHistory } from '../../types/pm.types';
+import { plantConstraints } from '../../lib/plantQuery';
 
 const COLLECTION = 'pm_history';
 
@@ -32,7 +33,7 @@ export function usePMHistory({ companyId, scheduleId, limitCount = 100 }: UsePMH
 
     setLoading(true);
 
-    const constraints = [where('companyId', '==', companyId), orderBy('dueDate', 'desc')];
+    const constraints = [where('companyId', '==', companyId), ...plantConstraints('pm_history'), orderBy('dueDate', 'desc')];
 
     if (scheduleId) {
       constraints.push(where('scheduleId', '==', scheduleId));

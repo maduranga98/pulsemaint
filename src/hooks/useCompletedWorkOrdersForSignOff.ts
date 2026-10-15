@@ -3,6 +3,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { WorkOrder } from '@/types/workOrder';
+import { plantConstraints } from '../lib/plantQuery';
 
 interface Result {
   workOrders: WorkOrder[];
@@ -36,7 +37,7 @@ export function useCompletedWorkOrdersForSignOff(): Result {
     setLoading(true);
     setError(null);
     const unsub = onSnapshot(
-      query(collection(db, 'workOrders'), where('companyId', '==', companyId)),
+      query(collection(db, 'workOrders'), where('companyId', '==', companyId), ...plantConstraints('workOrders')),
       (snap) => {
         const rows = snap.docs
           .map((d) => ({ id: d.id, ...d.data() } as WorkOrder))

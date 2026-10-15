@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { WorkOrder } from '@/types/workOrder';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 interface UseContractorWorkOrdersResult {
   workOrders: WorkOrder[];
@@ -34,7 +35,7 @@ export function useContractorWorkOrders(contractorId?: string): UseContractorWor
     }
     setLoading(true);
     const unsub = onSnapshot(
-      query(collection(db, 'workOrders'), where('siteId', '==', siteId), where('woType', '==', 'CONTRACTOR')),
+      query(collection(db, 'workOrders'), where('siteId', '==', siteId), ...plantConstraints('workOrders'), where('woType', '==', 'CONTRACTOR')),
       (snap) => {
         setAll(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as WorkOrder));
         setLoading(false);

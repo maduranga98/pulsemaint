@@ -10,6 +10,7 @@ import { db } from '../../lib/firebase';
 import type { PMSchedule, CalendarEvent } from '../../types/pm.types';
 import { getPMOperationalStatus } from '../../utils/pm.utils';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 interface UsePMCalendarEventsOptions {
   companyId: string;
@@ -54,7 +55,11 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
 
     setLoading(true);
 
-    const constraints = [where('companyId', '==', companyId), where('status', 'in', ['active', 'paused'])];
+    const constraints = [
+      where('companyId', '==', companyId),
+      ...plantConstraints('pm_schedules'),
+      where('status', 'in', ['active', 'paused']),
+    ];
 
     const q = query(collection(db, 'pm_schedules'), ...constraints);
 
@@ -84,6 +89,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
       collection(db, 'workOrders'),
       where('woType', '==', 'PREVENTIVE'),
       where('siteId', '==', siteId),
+      ...plantConstraints('workOrders'),
     );
     const unsubWO = onSnapshot(woQuery, (snap) => {
       const list: PMWorkOrderEvent[] = [];

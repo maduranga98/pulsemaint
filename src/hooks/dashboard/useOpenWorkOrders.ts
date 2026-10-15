@@ -4,6 +4,7 @@ import { db } from '../../lib/firebase';
 import { useDepartmentScope } from '../useDepartmentScope';
 import type { WorkOrder } from '../../types';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export function useOpenWorkOrders(siteId: string) {
   const [allWorkOrders, setAllWorkOrders] = useState<WorkOrder[]>([]);
@@ -19,6 +20,7 @@ export function useOpenWorkOrders(siteId: string) {
     const q = query(
       collection(db, 'workOrders'),
       where('siteId', '==', siteId),
+      ...plantConstraints('workOrders'),
       where('status', 'in', ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL']),
     );
 

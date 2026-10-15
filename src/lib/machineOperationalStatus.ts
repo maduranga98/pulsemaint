@@ -1,6 +1,7 @@
 import { collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from './firebase';
 import { useAuthStore } from '../store/authStore';
+import { plantConstraints } from './plantQuery';
 
 // Breakdown/WO statuses that mean the incident is no longer open work for
 // the machine. Kept in sync with BreakdownsPage's closedSet and
@@ -70,11 +71,12 @@ export async function markMachineActiveIfNoOpenWork(machineId: string | null | u
         query(
           collection(db, 'breakdown_tickets'),
           where('companyId', '==', companyId),
+          ...plantConstraints('breakdown_tickets'),
           where('machineId', '==', machineId),
         ),
       ),
       getDocs(
-        query(collection(db, 'workOrders'), where('companyId', '==', companyId), where('machineId', '==', machineId)),
+        query(collection(db, 'workOrders'), where('companyId', '==', companyId), ...plantConstraints('workOrders'), where('machineId', '==', machineId)),
       ),
     ]);
     const hasOpenBreakdown = breakdownSnap.docs.some(

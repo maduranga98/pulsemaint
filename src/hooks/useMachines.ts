@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Machine, MachineFilters } from '../types/machine';
+import { plantConstraints } from '../lib/plantQuery';
 
 const MACHINES_PER_PAGE = 20;
 
@@ -65,6 +66,7 @@ export function useMachines({
     const q = query(
       collection(db, 'machines'),
       where('siteId', '==', siteId),
+      ...plantConstraints('machines'),
       orderBy('name', 'asc'),
       limit(pageSize + 1),
     );
@@ -107,6 +109,7 @@ export function useMachines({
     const q = query(
       collection(db, 'machines'),
       where('siteId', '==', siteId),
+      ...plantConstraints('machines'),
       orderBy('name', 'asc'),
       startAfter(lastDoc),
       limit(pageSize + 1),

@@ -8,6 +8,7 @@ import {
 import { db } from '../../lib/firebase';
 import type { PMHistory, ComplianceStats, MonthlyComplianceTrend, MachineComplianceRecord, TechnicianComplianceRecord } from '../../types/pm.types';
 import { calculateComplianceRate, getEffectivePMHistoryStatus } from '../../utils/pm.utils';
+import { plantConstraints } from '../../lib/plantQuery';
 
 const HISTORY_COLLECTION = 'pm_history';
 
@@ -180,7 +181,7 @@ export function usePMComplianceStats({ companyId }: UsePMComplianceStatsOptions)
 
     // Live PM history — recomputes compliance on any change.
     const unsubPm = onSnapshot(
-      query(collection(db, HISTORY_COLLECTION), where('companyId', '==', companyId)),
+      query(collection(db, HISTORY_COLLECTION), where('companyId', '==', companyId), ...plantConstraints('pm_history')),
       (snap) => {
         history = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as PMHistory[];
         ready.pm = true;
@@ -194,7 +195,7 @@ export function usePMComplianceStats({ companyId }: UsePMComplianceStatsOptions)
 
     // Live breakdowns — feeds the per-month breakdown bar on the trend chart.
     const unsubBreakdowns = onSnapshot(
-      query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId)),
+      query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId), ...plantConstraints('breakdown_tickets')),
       (snap) => {
         const counts: Record<string, number> = {};
         snap.docs.forEach((d) => {

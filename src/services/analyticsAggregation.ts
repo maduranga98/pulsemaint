@@ -1,4 +1,5 @@
 import { collection, getDocs, onSnapshot, query, where, Timestamp } from 'firebase/firestore';
+import { plantConstraints, rulesPlantId } from '../lib/plantQuery';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import type {
@@ -87,7 +88,8 @@ const CACHE_TTL_MS = 60_000;
 const fetchCache = new Map<string, { at: number; promise: Promise<Row[]> }>();
 
 async function fetchAll(source: string, companyId: string): Promise<Row[]> {
-  const key = `${source}:${companyId}`;
+  // Per plant too: a plant-scoped user only reads their own plant's records.
+  const key = `${source}:${companyId}:${rulesPlantId() ?? '*'}`;
   const cached = fetchCache.get(key);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.promise;
 
@@ -96,7 +98,7 @@ async function fetchAll(source: string, companyId: string): Promise<Row[]> {
   // silently wrong.
   const promise = (async () => {
     try {
-      const snap = await getDocs(query(collection(db, source), where('companyId', '==', companyId)));
+      const snap = await getDocs(query(collection(db, source), where('companyId', '==', companyId), ...plantConstraints(source)));
       failedSources.delete(source);
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     } catch (err) {
@@ -115,13 +117,13 @@ async function fetchAll(source: string, companyId: string): Promise<Row[]> {
 // single-site-per-company deployments, companyId doubles as the site id
 // (see e.g. useMachines({ siteId: company.id }) elsewhere).
 async function fetchMachines(companyId: string): Promise<Row[]> {
-  const key = `machines:${companyId}`;
+  const key = `machines:${companyId}:${rulesPlantId() ?? '*'}`;
   const cached = fetchCache.get(key);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.promise;
 
   const promise = (async () => {
     try {
-      const snap = await getDocs(query(collection(db, 'machines'), where('siteId', '==', companyId)));
+      const snap = await getDocs(query(collection(db, 'machines'), where('siteId', '==', companyId), ...plantConstraints('machines')));
       failedSources.delete('machines');
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     } catch (err) {
@@ -214,7 +216,7 @@ export function subscribeMonthlyAnalytics(
     assign: (rows: Row[]) => void,
   ) =>
     onSnapshot(
-      query(collection(db, source), where('companyId', '==', companyId)),
+      query(collection(db, source), where('companyId', '==', companyId), ...plantConstraints(source)),
       (snap) => {
         assign(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
         failedSources.delete(source);
@@ -232,7 +234,7 @@ export function subscribeMonthlyAnalytics(
 
   // Machines are scoped by siteId, not companyId — see fetchMachines().
   const unsubMachines = onSnapshot(
-    query(collection(db, 'machines'), where('siteId', '==', companyId)),
+    query(collection(db, 'machines'), where('siteId', '==', companyId), ...plantConstraints('machines')),
     (snap) => {
       raw.machines = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       failedSources.delete('machines');
@@ -868,7 +870,7 @@ async function fetchMachinesForSites(): Promise<Row[]> {
   for (let i = 0; i < siteIds.length; i += 10) {
     const chunk = siteIds.slice(i, i + 10);
     try {
-      const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
+      const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk), ...plantConstraints('machines')));
       snap.docs.forEach((d) => rows.push({ id: d.id, ...d.data() }));
       failedSources.delete('machines');
     } catch (err) {
