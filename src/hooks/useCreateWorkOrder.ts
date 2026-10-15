@@ -359,6 +359,8 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
             scheduleName: payload.description.slice(0, 80) || 'Ad-hoc PM',
             machineId: payload.machineId,
             machineName: payload.machineName,
+            // Plant-scoped like its work order (firestore.rules match on it).
+            machinePlantId: payload.machinePlantId ?? null,
             woId,
             woNumber: '',
             dueDate: Timestamp.fromDate(due),

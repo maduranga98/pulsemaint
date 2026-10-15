@@ -125,6 +125,9 @@ export function useWORCA(workOrder: WorkOrder | null) {
     const woRef = await addDoc(collection(db, 'workOrders'), {
       woNumber: 'CA-' + nanoid(6),
       siteId: workOrder.siteId,
+      // Same company and plant as the work order it follows up.
+      companyId: workOrder.companyId ?? workOrder.siteId,
+      machinePlantId: workOrder.machinePlantId ?? null,
       woType: 'CORRECTIVE',
       priority: 'high',
       status: 'OPEN',

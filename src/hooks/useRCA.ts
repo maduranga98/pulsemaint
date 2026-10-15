@@ -9,6 +9,7 @@ import {
   addDoc,
   updateDoc,
   doc,
+  getDoc,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
@@ -117,9 +118,16 @@ export function useRCA({ breakdownId, machineId, siteId }: UseRCAParams) {
     dueDate.setDate(dueDate.getDate() + 7);
     const dueDateTs = Timestamp.fromDate(dueDate);
 
+    // The machine's company and plant — work orders are scoped by both
+    // (firestore.rules limit plant-scoped roles to their own plant).
+    const machineSnap = rcaDoc.machineId ? await getDoc(doc(db, 'machines', rcaDoc.machineId)) : null;
+    const machine = machineSnap?.exists() ? machineSnap.data() : null;
+
     const woRef = await addDoc(collection(db, 'workOrders'), {
       woNumber: 'CA-' + nanoid(6),
       siteId: rcaDoc.siteId,
+      companyId: (machine?.companyId as string | undefined) ?? (machine?.siteId as string | undefined) ?? rcaDoc.siteId,
+      machinePlantId: (machine?.plantId as string | null | undefined) ?? null,
       woType: 'CORRECTIVE',
       priority: 'high',
       status: 'OPEN',
@@ -127,8 +135,8 @@ export function useRCA({ breakdownId, machineId, siteId }: UseRCAParams) {
       ptwCategory: null,
       specialToolsRequired: '',
       machineId: rcaDoc.machineId,
-      machineName: '',
-      machineDepartment: '',
+      machineName: (machine?.name as string | undefined) ?? '',
+      machineDepartment: (machine?.department as string | undefined) ?? '',
       machineLocation: '',
       machineType: 'other',
       machineCriticality: 3,
