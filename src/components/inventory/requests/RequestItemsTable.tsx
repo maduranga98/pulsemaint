@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { RequestItem } from '@/types/inventory';
 import { AvailabilityIndicator } from './AvailabilityIndicator';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface RequestItemsTableProps {
   items: RequestItem[];
@@ -54,9 +55,9 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
             {showCost && (
               <>
                 <dt className="text-gray-500">{t('common.inventory.requests.itemsTable.columns.unitCost')}</dt>
-                <dd className="text-right text-gray-900">LKR {item.unitCost.toLocaleString()}</dd>
+                <dd className="text-right text-gray-900">{getCompanyCurrency()} {item.unitCost.toLocaleString()}</dd>
                 <dt className="text-gray-500">{t('common.inventory.requests.itemsTable.columns.lineTotal')}</dt>
-                <dd className="text-right font-medium text-gray-900">LKR {(item.unitCost * item.quantityRequested).toLocaleString()}</dd>
+                <dd className="text-right font-medium text-gray-900">{getCompanyCurrency()} {(item.unitCost * item.quantityRequested).toLocaleString()}</dd>
               </>
             )}
           </dl>
@@ -69,7 +70,7 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600 font-medium">{t('common.inventory.requests.itemsTable.subtotal', { count: items.length })}</span>
-            <span className="font-bold text-gray-900">LKR {subtotal.toLocaleString()}</span>
+            <span className="font-bold text-gray-900">{getCompanyCurrency()} {subtotal.toLocaleString()}</span>
           </div>
           <p className={`rounded px-2 py-1 text-xs ${allAvailable && subtotal <= APPROVAL_THRESHOLD_LKR ? 'text-green-700 bg-green-50' : 'text-amber-700 bg-amber-50'}`}>
             {allAvailable && subtotal <= APPROVAL_THRESHOLD_LKR
@@ -117,12 +118,12 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
               <td className="px-4 py-3 text-right text-gray-700">{item.availableAtRequest}</td>
               {showCost && (
                 <td className="px-4 py-3 text-right text-gray-700">
-                  LKR {item.unitCost.toLocaleString()}
+                  {getCompanyCurrency()} {item.unitCost.toLocaleString()}
                 </td>
               )}
               {showCost && (
                 <td className="px-4 py-3 text-right font-medium text-gray-900">
-                  LKR {(item.unitCost * item.quantityRequested).toLocaleString()}
+                  {getCompanyCurrency()} {(item.unitCost * item.quantityRequested).toLocaleString()}
                 </td>
               )}
               <td className="px-4 py-3">
@@ -146,7 +147,7 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
               </td>
               <td className="px-4 py-3" />
               <td className="px-4 py-3 text-right font-bold text-gray-900">
-                LKR {subtotal.toLocaleString()}
+                {getCompanyCurrency()} {subtotal.toLocaleString()}
               </td>
               <td colSpan={2} />
             </tr>

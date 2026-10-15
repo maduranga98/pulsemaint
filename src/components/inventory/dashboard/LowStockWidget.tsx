@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { InventoryPart } from '@/types/inventory';
+import { useMachineOptions } from '@/hooks/inventory/useMachineOptions';
+import { SparePartForMachines } from '@/components/inventory/shared/SparePartForMachines';
 
 interface Props {
   parts: InventoryPart[];
@@ -10,6 +12,8 @@ interface Props {
 export function LowStockWidget({ parts }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { machines } = useMachineOptions();
+  const machineNames = new Map(machines.map((m) => [m.id, m.name]));
   const [selected, setSelected] = useState<string[]>([]);
 
   function toggle(id: string, checked: boolean) {
@@ -73,6 +77,7 @@ export function LowStockWidget({ parts }: Props) {
                     {part.category.replace(/_/g, ' ')}
                     {part.supplierName && ` · ${part.supplierName}`}
                   </p>
+                  <SparePartForMachines machineIds={part.compatibleMachineIds} machineNames={machineNames} />
                   <div className="flex items-center gap-3 mt-1 text-xs">
                     <span className={`font-bold ${isOut ? 'text-red-600' : 'text-amber-600'}`}>
                       {t('common.inventory.po.lowStockWidget.stockLabel', { value: part.currentStock, unit: part.unit })}

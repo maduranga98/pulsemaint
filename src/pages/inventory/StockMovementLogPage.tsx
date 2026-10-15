@@ -5,6 +5,7 @@ import { StockMovementBadge } from '@/components/inventory/shared/StockMovementB
 import type { MovementType, StockMovement } from '@/types/inventory';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 const MOVEMENT_TYPES: MovementType[] = [
   'issue', 'return', 'receive', 'adjustment', 'reserve', 'unreserve',
   'import_create', 'import_update', 'transfer_out', 'transfer_in',
@@ -199,11 +200,11 @@ export function StockMovementLogPage() {
                               </div>
                               <div>
                                 <p className="text-xs text-gray-500">{t('common.inventory.movementLogPage.unitCostAtTime')}</p>
-                                <p className="font-medium">LKR {m.unitCostAtTime.toLocaleString()}</p>
+                                <p className="font-medium">{getCompanyCurrency()} {m.unitCostAtTime.toLocaleString()}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-gray-500">{t('common.inventory.movementLogPage.costImpact')}</p>
-                                <p className="font-medium">LKR {m.totalCostImpact.toLocaleString()}</p>
+                                <p className="font-medium">{getCompanyCurrency()} {m.totalCostImpact.toLocaleString()}</p>
                               </div>
                               <div className="col-span-2 sm:col-span-4">
                                 <p className="text-xs text-gray-500">{t('common.inventory.movementLogPage.notes')}</p>

@@ -343,7 +343,7 @@
           "autoApprovalEligible": "✓ ස්වයංක්‍රීය අනුමැතියට සුදුසුයි: සියලු අයිතම තොගයේ ඇති අතර සීමාව තුළයි",
           "autoApprovalNotEligible": "✗ ස්වයංක්‍රීය අනුමැතියට සුදුසු නැත: {{reasons}}",
           "someUnavailable": "සමහර අයිතම නොමැත. ",
-          "costExceedsThreshold": "පිරිවැය LKR {{threshold}} සීමාව ඉක්මවයි."
+          "costExceedsThreshold": "පිරිවැය {{currency}} {{threshold}} සීමාව ඉක්මවයි."
         },
         "backToRequests": "ඉල්ලීම් වෙත ආපසු",
         "requestNotFound": "ඉල්ලීම හමු නොවීය.",
@@ -934,7 +934,7 @@
           "warrantyFiles": "වගකීම් ලේඛන / රූප (විකල්ප)",
           "filesSelected_one": "ගොනු {{count}}ක් තෝරා ඇත",
           "filesSelected_other": "ගොනු {{count}}ක් තෝරා ඇත",
-          "unitCost": "ඒකක පිරිවැය (LKR)",
+          "unitCost": "ඒකක පිරිවැය ({{currency}})",
           "supplier": "සැපයුම්කරු",
           "selectSupplier": "සැපයුම්කරුවෙකු තෝරන්න…",
           "noSuppliers": "තවම සැපයුම්කරුවන් නැත.",
@@ -946,7 +946,7 @@
           "supplierPartCodePlaceholder": "සැපයුම්කරුගෙන් ස්වයංක්‍රීයව පිරවේ, සංස්කරණය කළ හැක",
           "leadTimeDays": "ඉදිරිපත් කාලය (දින)",
           "lastPurchaseDate": "අවසන් මිලදී ගැනීමේ දිනය",
-          "lastPurchasePrice": "අවසන් මිලදී ගැනීමේ මිල (LKR)",
+          "lastPurchasePrice": "අවසන් මිලදී ගැනීමේ මිල ({{currency}})",
           "notes": "සටහන්",
           "notesPlaceholder": "අමතර සටහන්…"
         }
@@ -1496,7 +1496,7 @@
         },
         "receiveItemRow": {
           "ordered": "ඇණවුම් කළ:",
-          "unitCostLkr": "ඒකක පිරිවැය (LKR)",
+          "unitCostLkr": "ඒකක පිරිවැය ({{currency}})",
           "condition": "තත්ත්වය",
           "notesOptional": "සටහන් (විකල්ප)",
           "remove": "ඉවත් කරන්න",
@@ -2921,8 +2921,8 @@
         "addPartUsedButton": "කොටසක් එක් කරන්න",
         "sourceLabelStock": "තොගයෙන්",
         "sourceLabelExternal": "බාහිර මිලදී ගැනීම",
-        "unitCostLabel": "ඒකක පිරිවැය (LKR)",
-        "totalCostLabel": "මුළු පිරිවැය (LKR)",
+        "unitCostLabel": "ඒකක පිරිවැය ({{currency}})",
+        "totalCostLabel": "මුළු පිරිවැය ({{currency}})",
         "techLogsLabel": "කණ්ඩායම් වැඩ ලොග",
         "hoursWorkedLabel": "වැඩ කළ පැය",
         "tasksDescLabel": "කළ කාර්ය",
@@ -3117,7 +3117,7 @@
         "removePartLabel": "කොටස ඉවත් කරන්න",
         "qtyLabel": "ප්‍රමාණය",
         "unitLabel": "ඒකකය",
-        "unitCostLabel": "ඒකක පිරිවැය (LKR)",
+        "unitCostLabel": "ඒකක පිරිවැය ({{currency}})",
         "catalogPriceTitle": "නාමාවලි මිල — සංස්කරණය කළ නොහැක",
         "totalLabel": "එකතුව: {{amount}}",
         "addExternalPartButton": "+ බාහිර / මිලදී ගත් කොටසක් එක් කරන්න",
@@ -4193,7 +4193,7 @@
         "invoiceUpload": {
           "title": "කොන්ත්‍රාත්කරුගේ ඉන්වොයිසිය උඩුගත කරන්න",
           "referencePlaceholder": "ඉන්වොයිස් යොමුව",
-          "amountPlaceholder": "මුදල (LKR)",
+          "amountPlaceholder": "මුදල ({{currency}})",
           "uploadPdf": "ඉන්වොයිස් PDF උඩුගත කරන්න"
         },
         "invoiceComparison": {
@@ -4651,7 +4651,7 @@
             "routingSwift": "Routing / SWIFT",
             "tinNumber": "TIN අංකය",
             "projectClientName": "ව්‍යාපෘතිය / සේවාදායකයාගේ නම",
-            "costLkr": "පිරිවැය (LKR)",
+            "costLkr": "පිරිවැය ({{currency}})",
             "ratingPlaceholder": "ශ්‍රේණිය…",
             "duration": "කාලය (උදා. මාස 3)",
             "contractType": "ගිවිසුම් වර්ගය (උදා. ස්ථාවර, T&M)",
@@ -10171,8 +10171,8 @@
           "location": "ස්ථානය",
           "beforePhotos": "පෙර ඡායාරූප",
           "suggestedSolution": "යෝජිත විසඳුම",
-          "estimatedCostLkr": "ඇස්තමේන්තුගත පිරිවැය (LKR)",
-          "monthlyBenefitLkr": "මාසික ප්‍රතිලාභය (LKR)",
+          "estimatedCostLkr": "ඇස්තමේන්තුගත පිරිවැය ({{currency}})",
+          "monthlyBenefitLkr": "මාසික ප්‍රතිලාභය ({{currency}})",
           "tags": "ටැග්",
           "hereSHowYourKaizen": "ඔබේ කයිසන් පුවරුවේ දිස්වන්නේ මෙසේයි:",
           "summary": "සාරාංශය",
@@ -10226,8 +10226,8 @@
           "priority": "ප්‍රමුඛතාව",
           "raisedBy": "ඉදිරිපත් කළ අය",
           "status": "තත්ත්වය",
-          "actualCostLkr": "සැබෑ පිරිවැය (LKR)",
-          "actualBenefitMoLkr": "සැබෑ ප්‍රතිලාභය/මාසය (LKR)",
+          "actualCostLkr": "සැබෑ පිරිවැය ({{currency}})",
+          "actualBenefitMoLkr": "සැබෑ ප්‍රතිලාභය/මාසය ({{currency}})",
           "topContributorThisMonth": "මෙම මාසයේ ඉහළම දායකයා"
         },
         "kaizenStats": {

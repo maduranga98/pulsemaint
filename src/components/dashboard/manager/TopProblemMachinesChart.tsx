@@ -15,6 +15,7 @@ import { useTopProblemMachines } from '../../../hooks/dashboard/useTopProblemMac
 import { CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 
 type MetricMode = 'breakdowns' | 'downtime' | 'cost';
 
@@ -29,7 +30,7 @@ const SEVERITY_COLORS: Record<'critical' | 'high' | 'medium' | 'low', string> = 
 const MODE_CONFIG: Record<MetricMode, { labelKey: string; unit: string; format: (v: number) => string }> = {
   breakdowns: { labelKey: 'count', unit: 'WOs', format: (v) => `${Math.round(v)}` },
   downtime: { labelKey: 'hours', unit: 'h', format: (v) => `${v.toFixed(1)}h` },
-  cost: { labelKey: 'cost', unit: 'LKR', format: (v) => `LKR ${Math.round(v).toLocaleString()}` },
+  cost: { labelKey: 'cost', unit: '', format: (v) => `${getCompanyCurrency()} ${Math.round(v).toLocaleString()}` },
 };
 
 interface TopProblemMachinesChartProps {

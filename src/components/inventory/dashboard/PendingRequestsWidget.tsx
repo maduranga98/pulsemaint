@@ -3,6 +3,7 @@ import type { PartsRequest, RequestStatus } from '@/types/inventory';
 import { RequestPriorityBadge } from '@/components/inventory/requests/RequestPriorityBadge';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 interface Props {
   requests: PartsRequest[];
   title?: string;
@@ -85,7 +86,7 @@ export function PendingRequestsWidget({ requests, title = 'Pending Requests', em
                         {r.items.length} part{r.items.length !== 1 ? 's' : ''}
                       </td>
                       <td className="px-4 py-2.5 text-sm text-gray-700 whitespace-nowrap">
-                        LKR {r.totalEstimatedCost.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {getCompanyCurrency()} {r.totalEstimatedCost.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <RequestPriorityBadge priority={r.priorityLevel} isUrgent={r.isUrgent} />

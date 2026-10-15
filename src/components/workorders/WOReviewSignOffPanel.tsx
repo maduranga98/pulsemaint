@@ -9,6 +9,7 @@ import { WOTypeBadge } from './WOTypeBadge';
 import { PriorityBadge } from './PriorityBadge';
 import { WOSignOffForm } from './WOSignOffForm';
 import { toast } from 'sonner';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface Props {
   workOrder: WorkOrder;
@@ -212,14 +213,14 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                           </p>
                         </div>
                         <span className="whitespace-nowrap text-sm font-semibold text-blue-50">
-                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : ''}
+                          {part.totalCost > 0 ? `${getCompanyCurrency()} ${part.totalCost.toLocaleString()}` : ''}
                         </span>
                       </div>
                     ))}
                     <div className="flex justify-end rounded-lg bg-blue-950 px-4 py-2 text-sm text-blue-200">
                       {t('common.ui2.workorders.wOReviewSignOffPanel.totalPartsCost')}&nbsp;
                       <span className="font-semibold text-white">
-                        LKR {(wo.partsUsed ?? []).reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
+                        {getCompanyCurrency()} {(wo.partsUsed ?? []).reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
                       </span>
                     </div>
                   </div>

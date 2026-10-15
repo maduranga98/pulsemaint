@@ -16,6 +16,7 @@ import { WO_TYPE_CONFIG } from '../../../constants/woConfig';
 import type { WOType } from '../../../types/workOrder';
 import EmptyState from '../shared/EmptyState';
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface MaintenanceCostChartProps {
   companyId: string;
@@ -48,7 +49,7 @@ export default function MaintenanceCostChart({ companyId, month }: MaintenanceCo
       ) : (
         <>
           <p className="text-xs text-[#8BA3BF] mb-2">
-            {t('common.widgets.maintenanceCostChart.totalThisMonth')} <span className="text-[#F0F4F8] font-semibold">LKR {totalCost.toLocaleString()}</span>
+            {t('common.widgets.maintenanceCostChart.totalThisMonth')} <span className="text-[#F0F4F8] font-semibold">{getCompanyCurrency()} {totalCost.toLocaleString()}</span>
           </p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -66,7 +67,7 @@ export default function MaintenanceCostChart({ companyId, month }: MaintenanceCo
                 <YAxis {...CHART_DEFAULTS.yAxis} tick={{ ...CHART_DEFAULTS.yAxis.tick, fontSize: 11 }} />
                 <Tooltip
                   {...CHART_DEFAULTS.tooltip}
-                  formatter={(val) => [`LKR ${Number(val ?? 0).toLocaleString()}`, t('common.widgets.maintenanceCostChart.cost')]}
+                  formatter={(val) => [`${getCompanyCurrency()} ${Number(val ?? 0).toLocaleString()}`, t('common.widgets.maintenanceCostChart.cost')]}
                 />
                 <Bar dataKey="cost" radius={[4, 4, 0, 0]}>
                   {chartData.map((entry, idx) => (

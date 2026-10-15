@@ -762,7 +762,7 @@
           "warrantyFiles": "Documents de Garantie / Images (facultatif)",
           "filesSelected_one": "{{count}} fichier sélectionné",
           "filesSelected_other": "{{count}} fichiers sélectionnés",
-          "unitCost": "Coût Unitaire (LKR)",
+          "unitCost": "Coût Unitaire ({{currency}})",
           "supplier": "Fournisseur",
           "selectSupplier": "Sélectionnez un fournisseur…",
           "noSuppliers": "Aucun fournisseur pour l'instant.",
@@ -774,7 +774,7 @@
           "supplierPartCodePlaceholder": "Rempli automatiquement par le fournisseur, modifiable",
           "leadTimeDays": "Délai de Livraison (Jours)",
           "lastPurchaseDate": "Date du Dernier Achat",
-          "lastPurchasePrice": "Prix du Dernier Achat (LKR)",
+          "lastPurchasePrice": "Prix du Dernier Achat ({{currency}})",
           "notes": "Notes",
           "notesPlaceholder": "Notes supplémentaires…"
         }
@@ -1324,7 +1324,7 @@
         },
         "receiveItemRow": {
           "ordered": "Commandé :",
-          "unitCostLkr": "Coût unitaire (LKR)",
+          "unitCostLkr": "Coût unitaire ({{currency}})",
           "condition": "État",
           "notesOptional": "Notes (facultatif)",
           "remove": "Retirer",
@@ -2638,8 +2638,8 @@
         "addPartUsedButton": "Ajouter une Pièce",
         "sourceLabelStock": "Du Stock",
         "sourceLabelExternal": "Achat Externe",
-        "unitCostLabel": "Coût Unitaire (LKR)",
-        "totalCostLabel": "Coût Total (LKR)",
+        "unitCostLabel": "Coût Unitaire ({{currency}})",
+        "totalCostLabel": "Coût Total ({{currency}})",
         "techLogsLabel": "Journaux de Travail de l'Équipe",
         "hoursWorkedLabel": "Heures Travaillées",
         "tasksDescLabel": "Tâches Effectuées",
@@ -2834,7 +2834,7 @@
         "removePartLabel": "Retirer la pièce",
         "qtyLabel": "Qté",
         "unitLabel": "Unité",
-        "unitCostLabel": "Coût unitaire (LKR)",
+        "unitCostLabel": "Coût unitaire ({{currency}})",
         "catalogPriceTitle": "Prix catalogue — non modifiable",
         "totalLabel": "Total : {{amount}}",
         "addExternalPartButton": "+ Ajouter une pièce externe / achetée",
@@ -5825,7 +5825,7 @@
         "invoiceUpload": {
           "title": "Téléverser la facture du sous-traitant",
           "referencePlaceholder": "Référence de la facture",
-          "amountPlaceholder": "Montant (LKR)",
+          "amountPlaceholder": "Montant ({{currency}})",
           "uploadPdf": "Téléverser le PDF de la facture"
         },
         "invoiceComparison": {
@@ -6366,7 +6366,7 @@
             "routingSwift": "Code d'acheminement / SWIFT",
             "tinNumber": "Numéro d'identification fiscale",
             "projectClientName": "Nom du projet / client",
-            "costLkr": "Coût (LKR)",
+            "costLkr": "Coût ({{currency}})",
             "ratingPlaceholder": "Évaluation…",
             "duration": "Durée (ex. 3 mois)",
             "contractType": "Type de contrat (ex. forfait, régie)",
@@ -10001,8 +10001,8 @@
           "location": "Emplacement",
           "beforePhotos": "Photos avant",
           "suggestedSolution": "Solution proposée",
-          "estimatedCostLkr": "Coût estimé (LKR)",
-          "monthlyBenefitLkr": "Gain mensuel (LKR)",
+          "estimatedCostLkr": "Coût estimé ({{currency}})",
+          "monthlyBenefitLkr": "Gain mensuel ({{currency}})",
           "tags": "Étiquettes",
           "hereSHowYourKaizen": "Voici comment votre Kaizen apparaîtra sur le tableau :",
           "summary": "Résumé",
@@ -10056,8 +10056,8 @@
           "priority": "Priorité",
           "raisedBy": "Proposé par",
           "status": "Statut",
-          "actualCostLkr": "Coût réel (LKR)",
-          "actualBenefitMoLkr": "Gain réel/mois (LKR)",
+          "actualCostLkr": "Coût réel ({{currency}})",
+          "actualBenefitMoLkr": "Gain réel/mois ({{currency}})",
           "topContributorThisMonth": "Meilleur contributeur du mois"
         },
         "kaizenStats": {

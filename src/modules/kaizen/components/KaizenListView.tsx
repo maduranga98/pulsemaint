@@ -20,6 +20,7 @@ import {
 } from '../types/kaizen.types';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 type SortKey = 'title' | 'category' | 'status' | 'priority' | 'raisedByName' | 'voteCount' | 'estimatedBenefit' | 'raisedAt';
 type SortDir = 'asc' | 'desc';
 
@@ -155,8 +156,8 @@ export function KaizenListView({ isProPlan = false }: Props) {
       'Raised By': c.raisedByName,
       Area: c.machineName ?? c.area,
       Votes: c.voteCount,
-      'Est. Cost (LKR)': c.estimatedCost ?? '',
-      'Est. Benefit/mo (LKR)': c.estimatedBenefit ?? '',
+      [`Est. Cost (${getCompanyCurrency()})`]: c.estimatedCost ?? '',
+      [`Est. Benefit/mo (${getCompanyCurrency()})`]: c.estimatedBenefit ?? '',
       'Date Raised': c.raisedAt ? format(c.raisedAt.toDate(), 'yyyy-MM-dd') : '',
       Tags: c.tags.join(', '),
     }));
@@ -328,7 +329,7 @@ export function KaizenListView({ isProPlan = false }: Props) {
                     {isProPlan && (
                       <td className="px-3 py-2.5 text-sm text-emerald-700">
                         {card.estimatedBenefit != null
-                          ? `LKR ${card.estimatedBenefit.toLocaleString()}`
+                          ? `${getCompanyCurrency()} ${card.estimatedBenefit.toLocaleString()}`
                           : ''}
                       </td>
                     )}

@@ -22,18 +22,22 @@ describe('isTrialExpired', () => {
 });
 
 describe('isFeatureAvailable', () => {
-  it('unlocks features during a running trial, except multi-site', () => {
+  it('unlocks every feature during a running trial', () => {
     expect(isFeatureAvailable(trial(5), 'contractors')).toBe(true);
-    expect(isFeatureAvailable(trial(5), 'multiSite')).toBe(false);
+    expect(isFeatureAvailable(trial(5), 'audits')).toBe(true);
   });
   it('locks Starter features once the trial has ended', () => {
     expect(isFeatureAvailable(trial(-1), 'contractors')).toBe(false);
   });
   it('follows the plan matrix for active companies', () => {
-    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(false);
-    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'training')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'purchaseOrders')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'purchaseOrders')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'analyticsReports')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'moeAnalytics')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'audits')).toBe(false);
     expect(isFeatureAvailable({ plan: 'factory', status: 'active' }, 'moeAnalytics')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'factory', status: 'active' }, 'advancedAnalytics')).toBe(true);
   });
 });
 
@@ -44,6 +48,10 @@ describe('featureForPath', () => {
     expect(featureForPath('/app/training/my-modules')).toBe('training');
     expect(featureForPath('/app/safety/permits')).toBe('safety');
     expect(featureForPath('/app/moe')).toBe('moeAnalytics');
+    expect(featureForPath('/app/inventory/purchase-orders/new')).toBe('purchaseOrders');
+    expect(featureForPath('/app/analytics')).toBe('analyticsReports');
+    expect(featureForPath('/app/reports/history')).toBe('analyticsReports');
+    expect(featureForPath('/app/audit')).toBe('audits');
   });
   it('leaves other pages alone', () => {
     expect(featureForPath('/app/shift/my')).toBeNull();
