@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { collection, query, where, getCountFromServer, Timestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { planLimitsFor, isAtOrOverLimit } from '../lib/planLimits';
 
@@ -27,12 +28,35 @@ function planDisplayName(plan: string | undefined): string {
   return plan.charAt(0).toUpperCase() + plan.slice(1);
 }
 
+type UsageResource = CountedResource | 'workOrdersThisMonth';
+
+/**
+ * The company-wide count, from the getPlanUsage function: plan limits are per
+ * company, but plant-scoped roles may only read their own plant's records.
+ * Falls back to counting directly while the function isn't deployed yet.
+ */
+async function countViaServer(resource: UsageResource, companyId: string, direct: () => Promise<number>): Promise<number> {
+  try {
+    const call = httpsCallable<{ companyId: string; resource: UsageResource }, { count: number }>(functions, 'getPlanUsage');
+    const res = await call({ companyId, resource });
+    return Number(res.data.count) || 0;
+  } catch (err) {
+    const code = (err as { code?: string }).code ?? '';
+    if (code !== 'functions/not-found' && code !== 'functions/unimplemented') throw err;
+    return direct();
+  }
+}
+
 /**
  * One-off live count of a plan-limited resource for a company. Shared by the
  * hook and the bulk-import flows, so imports are checked against the same
  * number the single-create forms use.
  */
 export async function fetchResourceCount(resource: CountedResource, companyId: string): Promise<number> {
+  return countViaServer(resource, companyId, () => countDirect(resource, companyId));
+}
+
+async function countDirect(resource: CountedResource, companyId: string): Promise<number> {
   const q =
     resource === 'machines'
       ? query(collection(db, 'machines'), where('siteId', '==', companyId))
@@ -142,14 +166,17 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    const q = query(
-      collection(db, 'workOrders'),
-      where('siteId', '==', companyId),
-      where('createdAt', '>=', Timestamp.fromDate(startOfMonth)),
-    );
-    getCountFromServer(q)
-      .then((snap) => {
-        if (!cancelled) setCount(snap.data().count);
+    const direct = async () => {
+      const q = query(
+        collection(db, 'workOrders'),
+        where('siteId', '==', companyId),
+        where('createdAt', '>=', Timestamp.fromDate(startOfMonth)),
+      );
+      return (await getCountFromServer(q)).data().count;
+    };
+    countViaServer('workOrdersThisMonth', companyId, direct)
+      .then((n) => {
+        if (!cancelled) setCount(n);
       })
       .catch(() => {
         if (!cancelled) setFailed(true);
