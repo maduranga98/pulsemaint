@@ -6,11 +6,14 @@
 
 const {getFirestore} = require("firebase-admin/firestore");
 
+// Only the features enforced in Cloud Functions: PO emails / low-stock alerts,
+// AI suggestions (claudeJson), report exports (generateReport) and scheduled
+// reports (generateScheduledReport, part of advanced analytics).
 const FEATURES = {
-  starter: {autoPOEmail: false, qrLowStockAlerts: false},
-  workshop: {autoPOEmail: true, qrLowStockAlerts: true},
-  factory: {autoPOEmail: true, qrLowStockAlerts: true},
-  enterprise: {autoPOEmail: true, qrLowStockAlerts: true},
+  starter: {autoPOEmail: false, qrLowStockAlerts: false, aiAssist: false, analyticsReports: false, advancedAnalytics: false},
+  workshop: {autoPOEmail: true, qrLowStockAlerts: true, aiAssist: true, analyticsReports: true, advancedAnalytics: false},
+  factory: {autoPOEmail: true, qrLowStockAlerts: true, aiAssist: true, analyticsReports: true, advancedAnalytics: true},
+  enterprise: {autoPOEmail: true, qrLowStockAlerts: true, aiAssist: true, analyticsReports: true, advancedAnalytics: true},
 };
 
 function toMillis(ts) {
