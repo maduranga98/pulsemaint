@@ -8,6 +8,8 @@ import { useAuthStore } from '../../store/authStore';
 import { fetchResourceCount } from '../../hooks/usePlanLimitCheck';
 import { planLimitsFor, checkImportAllowed, importBlockMessage } from '../../lib/planLimits';
 import { useMachines } from '../../hooks/useMachines';
+import { useCompanyParts } from '../../hooks/inventory/useCompanyParts';
+import { lowSparePartsByMachine, sortLowSpareFirst } from '../../lib/machineSpareParts';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import {
@@ -494,6 +496,9 @@ export function MachineListPage() {
   // an open breakdown or work order, active again once all are closed /
   // signed off — shown this way even if the stored field lags behind.
   const openWork = useMachinesWithOpenWork(userProfile?.companyId);
+  // Machines with spare parts that are low / out of stock float to the top.
+  const { parts: inventoryParts } = useCompanyParts(userProfile?.companyId ?? '');
+  const lowSpareByMachine = useMemo(() => lowSparePartsByMachine(inventoryParts), [inventoryParts]);
   const machines = useMemo(
     () => storedMachines.map((m) => ({ ...m, status: effectiveMachineStatus(m, openWork) as MachineStatus })),
     [storedMachines, openWork],
@@ -568,8 +573,8 @@ export function MachineListPage() {
       return sortOrder === 'asc' ? cmp : -cmp;
     });
 
-    return sorted;
-  }, [machines, filters, sortOrder, scopedPlantId, scopedDepartment]);
+    return sortLowSpareFirst(sorted, lowSpareByMachine);
+  }, [machines, filters, sortOrder, scopedPlantId, scopedDepartment, lowSpareByMachine]);
 
   // Back to the first page whenever the plant tab, filters or sort change.
   useEffect(() => {
@@ -721,6 +726,7 @@ export function MachineListPage() {
           <div className="bg-white rounded-lg border border-gray-200">
             <MachineListTable
               machines={visibleMachines}
+              lowSpareByMachine={lowSpareByMachine}
               onEdit={(machine) => navigate(`/app/machines/${machine.id}/edit`)}
             />
           </div>
@@ -729,7 +735,7 @@ export function MachineListPage() {
         {!loading && filteredMachines.length > 0 && !isDesktop && (
           <div className="grid grid-cols-1 gap-4">
             {visibleMachines.map((machine) => (
-              <MachineCard key={machine.id} machine={machine} />
+              <MachineCard key={machine.id} machine={machine} lowSpare={lowSpareByMachine.get(machine.id)} />
             ))}
           </div>
         )}

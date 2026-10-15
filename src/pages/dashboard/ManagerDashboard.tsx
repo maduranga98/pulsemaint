@@ -14,6 +14,7 @@ import {
 import LiveShiftStatusWidget from '../../components/dashboard/manager/LiveShiftStatusWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import PlantOverviewWidget from '../../components/dashboard/manager/PlantOverviewWidget';
+import TodaysPmWidget from '../../components/dashboard/supervisor/TodaysPmWidget';
 import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
 import OpenSafetyCasesWidget from '../../components/dashboard/manager/OpenSafetyCasesWidget';
 import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
@@ -134,6 +135,9 @@ export default function ManagerDashboard() {
 
         {/* Live factory floor: every machine with an open WO or breakdown. */}
         <FactoryFloorMap companyId={companyId} />
+
+        {/* PM work orders due today / overdue */}
+        <TodaysPmWidget siteId={siteId} />
 
         {/* Live PO Requests */}
         <LivePOsWidget />

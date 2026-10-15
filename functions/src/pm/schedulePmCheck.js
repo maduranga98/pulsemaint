@@ -49,6 +49,41 @@ function calculateNextDueDate(fromDate, recurrenceType, customIntervalDays) {
   return next;
 }
 
+// In-app bell alert: "today has a PM" for the people it concerns — the
+// assigned technicians and the supervisor in charge. Admin/plant manager are
+// copied (the client only surfaces that copy when it is high severity).
+async function notifyPmDue(schedule, woNumber, woId, overdue) {
+  const userIds = [...new Set([...(schedule.assignedTechnicianIds || []), schedule.supervisorInChargeId].filter(Boolean))];
+  // Nobody named on the schedule: fall back to the roles (the bell narrows
+  // them to the machine's plant/department). A schedule with technicians but
+  // no supervisor in charge also reaches the department's supervisors.
+  let targetRoles = [];
+  if (userIds.length === 0) targetRoles = ["technician", "supervisor"];
+  else if (!schedule.supervisorInChargeId) targetRoles = ["supervisor"];
+  const oversight = ["admin", "plant_manager"];
+  const when = overdue ? "is overdue" : "is due today";
+  await db.collection("notifications").add({
+    companyId: schedule.companyId,
+    type: "pm",
+    message: `PM ${when}: "${schedule.name}" on ${schedule.machineName} (${woNumber})`,
+    severity: overdue ? "high" : "medium",
+    linkTo: `/app/work-orders?woId=${woId}`,
+    timestamp: FieldValue.serverTimestamp(),
+    read: false,
+    readBy: [],
+    recipientRoles: [...new Set([...targetRoles, ...oversight])],
+    recipientUserIds: userIds,
+    targetRoles,
+    targetUserIds: userIds,
+    actorName: null,
+    actorRole: null,
+    actorUserId: null,
+    oversightMessage: null,
+    plantId: schedule.plantId || null,
+    department: schedule.department || null,
+  });
+}
+
 async function sendPushToUsers(userIds, title, body, data = {}) {
   const tokens = [];
   for (const uid of userIds) {
@@ -230,6 +265,15 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
             `${woNumber} — ${schedule.machineName}`,
             {woId: woRef.id, woNumber, scheduleId, screen: "WODetail"},
         );
+
+        try {
+          const dueStart = new Date(schedule.nextDueDate.toDate());
+          dueStart.setHours(0, 0, 0, 0);
+          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          await notifyPmDue(schedule, woNumber, woRef.id, dueStart < todayStart);
+        } catch (notifyErr) {
+          logger.error(`PM due notification failed for ${scheduleId}`, notifyErr);
+        }
 
         logger.info(`PM WO created: ${woNumber} for schedule ${scheduleId}`);
       } catch (innerErr) {

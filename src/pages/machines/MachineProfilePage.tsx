@@ -6,12 +6,13 @@ import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from '../../components/machines';
-import { formatDate } from '../../lib/dateUtils';
+import { formatDate, formatDateTime } from '../../lib/dateUtils';
 import { exportMachineDetailsPdf, formatMachineTypeLabel } from '../../lib/machineExport';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
 import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields';
 import type { WOType } from '../../types/workOrder';
+import { MachineSparePartsPanel } from '../../components/machines/MachineSparePartsPanel';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
@@ -113,6 +114,9 @@ export function MachineProfilePage() {
         </div>
       </div>
 
+      {/* Spare parts — low-stock ones listed first */}
+      <MachineSparePartsPanel companyId={userProfile.companyId} machineId={machine.id} />
+
       {/* Health Score Banner */}
       <div className="bg-white border border-gray-200 rounded-xl mb-5">
         <div className="p-4 sm:p-5">
@@ -124,7 +128,7 @@ export function MachineProfilePage() {
               <p className="text-gray-600 mb-2">
                 <span className="font-medium">{t('common.machines.profile.lastServiceLabel')}</span> {
                   machine.lastServiceDate
-                    ? formatDate(machine.lastServiceDate.toDate?.() || new Date((machine.lastServiceDate as any).seconds * 1000))
+                    ? formatDateTime(machine.lastServiceDate.toDate?.() || new Date((machine.lastServiceDate as any).seconds * 1000))
                     : t('common.machines.profile.never')
                 }
               </p>

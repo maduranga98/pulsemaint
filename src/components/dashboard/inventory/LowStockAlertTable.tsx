@@ -2,6 +2,8 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useInventoryHealth } from '../../../hooks/dashboard/useInventoryHealth';
 import EmptyState from '../shared/EmptyState';
 import { useTranslation } from 'react-i18next';
+import { Cog } from 'lucide-react';
+import { useMachineOptions } from '../../../hooks/inventory/useMachineOptions';
 
 interface LowStockAlertTableProps {
   companyId: string;
@@ -10,6 +12,9 @@ interface LowStockAlertTableProps {
 export default function LowStockAlertTable({ companyId }: LowStockAlertTableProps) {
   const { t } = useTranslation();
   const { parts, loading, error } = useInventoryHealth(companyId);
+  // Parts linked to machines are that machine's spare parts — name the machines.
+  const { machines } = useMachineOptions();
+  const machineName = new Map(machines.map((m) => [m.id, m.name]));
 
   const lowStock = parts
     .filter((p) => p.currentStock <= (p.minStockLevel ?? 0))
@@ -44,6 +49,15 @@ export default function LowStockAlertTable({ companyId }: LowStockAlertTableProp
                   <td className="py-2.5">
                     <p className="text-[#F0F4F8] font-medium">{p.name}</p>
                     <p className="text-[10px] text-[#8BA3BF]">{p.partNumber}</p>
+                    {(p.compatibleMachineIds ?? []).length > 0 && (
+                      <p className="mt-1 flex flex-wrap items-center gap-1 text-[10px]">
+                        <span className="rounded bg-[#F59E0B]/15 px-1.5 py-0.5 font-semibold text-[#F59E0B]">Spare part</span>
+                        <Cog className="h-3 w-3 text-[#8BA3BF]" />
+                        <span className="text-[#B8C7DB]">
+                          {(p.compatibleMachineIds ?? []).map((id) => machineName.get(id) ?? 'Machine').join(', ')}
+                        </span>
+                      </p>
+                    )}
                   </td>
                   <td className="py-2.5 text-[#8BA3BF]">{p.category}</td>
                   <td className="py-2.5 text-right text-[#F0F4F8]">{p.currentStock}</td>

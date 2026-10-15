@@ -4,16 +4,20 @@ import type { Machine } from '../../types/machine';
 import { MachineStatusBadge } from './MachineStatusBadge';
 import { MachineCriticalityBadge } from './MachineCriticalityBadge';
 import { MachineHealthScore } from './MachineHealthScore';
-import { formatDistanceToNow, formatDate, isOverdue } from '../../lib/dateUtils';
+import { formatDistanceToNow, formatDate, formatDateTime, isOverdue } from '../../lib/dateUtils';
 import { formatMachineTypeLabel } from '../../lib/machineExport';
+import { LowSpareBadge } from './LowSpareBadge';
+import type { LowSparePart } from '../../lib/machineSpareParts';
 
 interface MachineListTableProps {
   machines: Machine[];
   isLoading?: boolean;
   onEdit?: (machine: Machine) => void;
+  /** machineId → spare parts that are low / out of stock. */
+  lowSpareByMachine?: Map<string, LowSparePart[]>;
 }
 
-export function MachineListTable({ machines, isLoading = false, onEdit }: MachineListTableProps) {
+export function MachineListTable({ machines, isLoading = false, onEdit, lowSpareByMachine }: MachineListTableProps) {
   const { t } = useTranslation();
 
   if (machines.length === 0 && !isLoading) {
@@ -54,11 +58,12 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
             const isOverduepm = nextPmDate ? isOverdue(nextPmDate) : false;
 
             return (
-              <tr key={machine.id} className="border-b border-gray-100 hover:bg-gray-50">
+              <tr key={machine.id} className={`border-b border-gray-100 hover:bg-gray-50 ${lowSpareByMachine?.has(machine.id) ? 'bg-amber-50/60' : ''}`}>
                 <td className="px-4 py-3">
                   <div>
                     <p className="font-medium text-gray-900">{machine.name}</p>
                     <p className="text-xs text-gray-600">{machine.model}</p>
+                    <LowSpareBadge parts={lowSpareByMachine?.get(machine.id)} />
                   </div>
                 </td>
                 <td className="px-4 py-3 text-gray-600">{machine.serialNumber || '-'}</td>
@@ -84,7 +89,14 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                   <MachineHealthScore score={machine.healthScore} variant="compact" showLabel={false} />
                 </td>
                 <td className="px-4 py-3 text-xs text-gray-600">
-                  {lastServiceDate ? formatDistanceToNow(lastServiceDate) : t('common.machines.table.never')}
+                  {lastServiceDate ? (
+                    <>
+                      <div className="text-gray-700">{formatDateTime(lastServiceDate)}</div>
+                      <div className="text-[11px] text-gray-400">{formatDistanceToNow(lastServiceDate)}</div>
+                    </>
+                  ) : (
+                    t('common.machines.table.never')
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   {nextPmDate ? (

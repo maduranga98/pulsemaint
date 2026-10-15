@@ -1,3 +1,5 @@
+import { syncMachineSpareParts } from '../../services/machineSpareParts.service';
+import type { SparePartEntry } from '../../lib/machineSpareParts';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
@@ -49,7 +51,7 @@ export function EditMachinePage() {
 
   const handleSubmit = async (
     formData: UpdateMachineFormData,
-    files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }> }
+    files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }>; spareParts: SparePartEntry[] | null }
   ) => {
     try {
       const payload: UpdateMachinePayload = {
@@ -85,6 +87,20 @@ export function EditMachinePage() {
       };
 
       await updateMachine(payload);
+      if (files.spareParts) {
+        try {
+          await syncMachineSpareParts({
+            companyId: userProfile.companyId,
+            plantId: formData.plantId ?? machine?.plantId ?? null,
+            machineId: id,
+            entries: files.spareParts,
+            user: { id: userProfile.id, name: userProfile.fullName ?? '', role: userProfile.role },
+          });
+        } catch (partsErr) {
+          console.error('Spare parts could not be saved', partsErr);
+          showError('Machine updated, but its spare parts could not be saved.');
+        }
+      }
       // A department typed for this machine becomes one of its plant's departments.
       await ensureDepartments(userProfile.companyId, formData.plantId ?? machine?.plantId, [formData.department]);
       success('Machine updated successfully!');
