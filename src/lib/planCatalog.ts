@@ -21,9 +21,9 @@ export const PLAN_PRICES: Record<Plan, PlanPrice> = {
 export const PLAN_ORDER: Plan[] = ['starter', 'workshop', 'factory', 'enterprise'];
 
 export const PLAN_DISPLAY_NAME: Record<Plan, string> = {
-  starter: 'Starter',
+  starter: 'Basic',
   workshop: 'Workshop',
-  factory: 'Factory',
+  factory: 'Factory Pro',
   enterprise: 'Enterprise',
 };
 

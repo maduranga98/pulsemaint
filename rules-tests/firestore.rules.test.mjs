@@ -140,6 +140,15 @@ describe('company registration and invitations', () => {
     await assertSucceeds(setDoc(doc(db, 'companies/C/users/newAdmin'), { id: 'newAdmin', companyId: 'C', role: 'admin', siteIds: [], status: 'active' }));
     await assertSucceeds(setDoc(doc(db, 'users/newAdmin'), { uid: 'newAdmin', companyId: 'C', role: 'admin', siteId: 'C' }));
   });
+  it('limit fields can neither be registered with nor edited by a company admin', async () => {
+    const db = as('newAdmin2', email('new2@admin.test'));
+    await assertFails(setDoc(doc(db, 'companies/D'), {
+      id: 'D', adminUserId: 'newAdmin2', approvalStatus: 'pending', status: 'trial', plan: 'starter', limitOverrides: { machines: 99999 },
+    }));
+    const admin = as('adminA');
+    await assertFails(updateDoc(doc(admin, 'companies/A'), { limitOverrides: { machines: 99999 } }));
+    await assertFails(updateDoc(doc(admin, 'companies/A'), { enterpriseTier: 'unlimited' }));
+  });
   it('someone cannot register as admin of a company they do not own', async () => {
     const db = as('mallory', email('m@x.test'));
     await assertFails(setDoc(doc(db, 'companies/A/users/mallory'), { id: 'mallory', companyId: 'A', role: 'admin', siteIds: [] }));
