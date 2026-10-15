@@ -212,7 +212,9 @@ exports.backfillMoeSnapshots = backfillMoeSnapshots;
 // ---------------------------------------------------------------------------
 
 const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail");
+const { expireInvitations } = require("./src/invitations/expireInvitations");
 
+exports.expireInvitations = expireInvitations;
 exports.sendInvitationEmail = sendInvitationEmail;
 
 // ---------------------------------------------------------------------------
