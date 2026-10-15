@@ -13,8 +13,12 @@ const FEATURE_LABEL: Record<FeatureKey, string> = {
   shiftHandover: 'Shift handover & briefings',
   training: 'Training module',
   safety: 'Safety Workspace',
+  purchaseOrders: 'Purchase orders',
+  analyticsReports: 'Analytics, reports & exports',
+  aiAssist: 'AI suggestions & translation',
   moeAnalytics: 'MOE trend analytics & machine comparison',
-  multiSite: 'Multi-site management',
+  advancedAnalytics: 'Advanced analytics',
+  audits: 'Audits',
 };
 
 interface PlanFeatureGateProps {
