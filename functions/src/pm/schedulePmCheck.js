@@ -1,286 +1,145 @@
 /**
  * schedulePmCheck
- * Runs daily at 6:00 AM via Cloud Scheduler.
+ * Runs daily at 6:00 AM (Asia/Colombo).
  *
- * 1. Queries all active PM schedules where nextDueDate <= today
- * 2. For each due schedule:
- *    - Auto-generates PM Work Order in workOrders collection
- *    - Sends push + email notification to assigned technicians and supervisor
- *    - Updates schedule's nextDueDate to next occurrence
- *    - Creates entry in pm_history with status = 'in_progress'
+ * For every active recurring calendar PM schedule whose next occurrence is
+ * due (or within its lead time), raises one PM work order through
+ * generatePmWorkOrder — work order, pm_history record and the schedule's
+ * next due date in one transaction — and completes schedules past their end
+ * date. Usage-based schedules are raised by onPmMeterUpdated when their meter
+ * reading crosses the threshold, and re-checked here once a day.
+ *
+ * (Before: every run failed when writing the work order — Firestore rejects
+ * serverTimestamp() inside the statusHistory array — so no PM work order was
+ * ever auto-created, while a work-order number was consumed each time.)
  */
 
 const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
-const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
+const {planCalendarRun, usageState, toDate, DAY_MS} = require("./pmScheduling");
+const {generatePmWorkOrder} = require("./generatePmWorkOrder");
 
 const db = getFirestore("default");
 
-async function generateWONumber(siteId, year) {
-  const counterRef = db.collection("woCounters").doc(`${siteId}_${year}`);
-  const snap = await counterRef.get();
+/** Longest lead time looked ahead for (the form has no upper bound; 60 days covers real use). */
+const MAX_LEAD_DAYS = 60;
+/** Schedules processed in parallel. */
+const CONCURRENCY = 5;
 
-  let nextSeq = 1;
-  if (snap.exists) {
-    nextSeq = (snap.data().lastSequence || 0) + 1;
-    await counterRef.update({lastSequence: nextSeq});
-  } else {
-    await counterRef.set({siteId, year, lastSequence: nextSeq});
-  }
-
-  return `WO-${year}-${String(nextSeq).padStart(4, "0")}`;
-}
-
-function calculateNextDueDate(fromDate, recurrenceType, customIntervalDays) {
-  const next = new Date(fromDate);
-  switch (recurrenceType) {
-    case "daily": next.setDate(next.getDate() + 1); break;
-    case "weekly": next.setDate(next.getDate() + 7); break;
-    case "biweekly": next.setDate(next.getDate() + 14); break;
-    case "monthly": next.setMonth(next.getMonth() + 1); break;
-    case "quarterly": next.setMonth(next.getMonth() + 3); break;
-    case "semi_annual": next.setMonth(next.getMonth() + 6); break;
-    case "annual": next.setFullYear(next.getFullYear() + 1); break;
-    case "custom":
-      if (customIntervalDays) next.setDate(next.getDate() + customIntervalDays);
-      break;
-  }
-  return next;
-}
-
-// In-app bell alert: "today has a PM" for the people it concerns — the
-// assigned technicians and the supervisor in charge. Admin/plant manager are
-// copied (the client only surfaces that copy when it is high severity).
-async function notifyPmDue(schedule, woNumber, woId, overdue) {
-  const userIds = [...new Set([...(schedule.assignedTechnicianIds || []), schedule.supervisorInChargeId].filter(Boolean))];
-  // Nobody named on the schedule: fall back to the roles (the bell narrows
-  // them to the machine's plant/department). A schedule with technicians but
-  // no supervisor in charge also reaches the department's supervisors.
-  let targetRoles = [];
-  if (userIds.length === 0) targetRoles = ["technician", "supervisor"];
-  else if (!schedule.supervisorInChargeId) targetRoles = ["supervisor"];
-  const oversight = ["admin", "plant_manager"];
-  const when = overdue ? "is overdue" : "is due today";
-  await db.collection("notifications").add({
-    companyId: schedule.companyId,
-    type: "pm",
-    message: `PM ${when}: "${schedule.name}" on ${schedule.machineName} (${woNumber})`,
-    severity: overdue ? "high" : "medium",
-    linkTo: `/app/work-orders?woId=${woId}`,
-    timestamp: FieldValue.serverTimestamp(),
-    read: false,
-    readBy: [],
-    recipientRoles: [...new Set([...targetRoles, ...oversight])],
-    recipientUserIds: userIds,
-    targetRoles,
-    targetUserIds: userIds,
-    actorName: null,
-    actorRole: null,
-    actorUserId: null,
-    oversightMessage: null,
-    plantId: schedule.plantId || null,
-    department: schedule.department || null,
+/**
+ * Runs `worker` over `items`, `limit` at a time.
+ * @param {Array} items items
+ * @param {number} limit parallelism
+ * @param {Function} worker async (item) => void
+ * @return {Promise<void>}
+ */
+async function runPool(items, limit, worker) {
+  let i = 0;
+  const lanes = Array.from({length: Math.min(limit, items.length)}, async () => {
+    while (i < items.length) {
+      const item = items[i++];
+      await worker(item);
+    }
   });
+  await Promise.all(lanes);
 }
 
-async function sendPushToUsers(userIds, title, body, data = {}) {
-  const tokens = [];
-  for (const uid of userIds) {
-    const userDoc = await db.collection("users").doc(uid).get();
-    if (userDoc.exists) {
-      const token = userDoc.data().fcmToken;
-      if (token) tokens.push(token);
-    }
+/**
+ * Processes one calendar schedule.
+ * @param {object} docSnap schedule snapshot
+ * @param {Date} now run time
+ * @return {Promise<'generated'|'ended'|'skipped'>} outcome
+ */
+async function processCalendarSchedule(docSnap, now) {
+  const schedule = docSnap.data();
+  const plan = planCalendarRun(schedule, now);
+  if (plan.action === "end") {
+    await docSnap.ref.update({status: "completed", endedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp()});
+    return "ended";
   }
-  if (!tokens.length) return;
-  try {
-    await getMessaging().sendEachForMulticast({
-      tokens,
-      notification: {title, body},
-      data: {...data},
-    });
-  } catch (err) {
-    logger.error("FCM multicast failed", err);
+  if (plan.action !== "generate") return "skipped";
+  const res = await generatePmWorkOrder({
+    scheduleId: docSnap.id,
+    source: "schedule",
+    dueDate: plan.dueDate,
+    nextDueDate: plan.nextDueDate,
+    expectedNextDueMs: toDate(schedule.nextDueDate).getTime(),
+    skipped: plan.skipped,
+  });
+  if (res) {
+    logger.info(`PM WO created: ${res.woNumber} for schedule ${docSnap.id}`, {skipped: plan.skipped});
+    return "generated";
   }
+  return "skipped";
 }
 
-exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Colombo"}, async () => {
-  const now = new Date();
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+exports.schedulePmCheck = onSchedule(
+    {schedule: "0 6 * * *", timeZone: "Asia/Colombo", timeoutSeconds: 540, memory: "512MiB"},
+    async () => {
+      const now = new Date();
+      const horizon = new Date(now.getTime() + MAX_LEAD_DAYS * DAY_MS);
+      const counts = {generated: 0, ended: 0, skipped: 0, failed: 0, usage: 0};
 
-  try {
-    const schedulesSnap = await db
-        .collection("pm_schedules")
-        .where("status", "==", "active")
-        .where("triggerType", "==", "calendar")
-        .where("nextDueDate", "<=", Timestamp.fromDate(todayEnd))
-        .get();
-
-    logger.info(`schedulePmCheck: ${schedulesSnap.size} schedules due`);
-
-    for (const docSnap of schedulesSnap.docs) {
-      const schedule = docSnap.data();
-      const scheduleId = docSnap.id;
-      const companyId = schedule.companyId;
-
-      try {
-        // Generate WO number
-        const year = now.getFullYear();
-        const woNumber = await generateWONumber(companyId, year);
-
-        // Create Work Order
-        const woRef = db.collection("workOrders").doc();
-        const woData = {
-          siteId: companyId,
-          woType: "PREVENTIVE",
-          priority: schedule.priority,
-          status: "OPEN",
-          description: schedule.description || `${schedule.name} — Preventive Maintenance`,
-          dueDate: schedule.nextDueDate,
-          slaDeadline: Timestamp.fromDate(new Date(now.getTime() + 24 * 60 * 60 * 1000)),
-          slaBreached: false,
-          machineId: schedule.machineId,
-          machineName: schedule.machineName,
-          machineDepartment: schedule.department,
-          machinePlantId: schedule.plantId || null,
-          machineLocation: schedule.location,
-          machineType: "",
-          machineCriticality: schedule.machineCriticality,
-          linkedBreakdownId: null,
-          linkedBreakdownTicketNumber: null,
-          supervisorInChargeId: schedule.createdBy,
-          supervisorInChargeName: "Supervisor",
-          assignedTechnicianIds: schedule.assignedTechnicianIds,
-          assignedTechnicianNames: schedule.assignedTechnicianNames,
-          contractorCompanyId: null,
-          contractorCompanyName: null,
-          contractorContactPerson: null,
-          contractorContactNumber: null,
-          contractorTechnicianNames: [],
-          isManualContractor: false,
-          checklist: (schedule.checklistItems || []).map((item) => ({
-            stepNumber: item.step,
-            stepDescription: item.description,
-            assignedTechnicianId: null,
-            assignedTechnicianName: null,
-            estimatedMinutes: item.estimatedMinutes,
-            isCompleted: false,
-            completedBy: null,
-            completedByName: null,
-            completedAt: null,
-          })),
-          documents: (schedule.documents || []).map((d) => ({
-            id: `doc-${Date.now()}`,
-            name: d.name,
-            fileType: "document",
-            format: d.type,
-            url: d.url,
-            storagePath: "",
-            fileSize: d.size,
-            uploadedBy: schedule.createdBy,
-            uploadedByName: "System",
-            uploadedAt: FieldValue.serverTimestamp(),
-            isCompletionDocument: false,
-          })),
-          partsRequests: [],
-          actualStartTime: null,
-          actualEndTime: null,
-          totalDurationMinutes: null,
-          workDoneDescription: null,
-          rootCause: null,
-          rootCauseDescription: null,
-          partsUsed: [],
-          technicianWorkLogs: [],
-          contractorHoursLog: null,
-          postRepairChecklist: [],
-          testRunResult: null,
-          testRunNotes: null,
-          finalPhotos: [],
-          machineStatusAfterRepair: null,
-          supervisorSignOffSignature: null,
-          supervisorSignOffBy: null,
-          supervisorSignOffAt: null,
-          supervisorSignOffNotes: null,
-          statusHistory: [{
-            status: "OPEN",
-            changedBy: "system",
-            changedByName: "System",
-            changedAt: FieldValue.serverTimestamp(),
-            note: "Auto-generated from PM schedule",
-          }],
-          createdBy: "system",
-          createdByName: "System",
-          createdAt: FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp(),
-          closedAt: null,
-          cancelledAt: null,
-          cancelReason: null,
-        };
-
-        await woRef.set(woData);
-
-        // Create pm_history entry
-        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-        await db.collection("pm_history").add({
-          companyId,
-          scheduleId,
-          scheduleName: schedule.name,
-          machineId: schedule.machineId,
-          machineName: schedule.machineName,
-          woId: woRef.id,
-          woNumber,
-          dueDate: schedule.nextDueDate,
-          completedDate: null,
-          status: "in_progress",
-          daysOverdue: 0,
-          technicianIds: schedule.assignedTechnicianIds,
-          technicianNames: schedule.assignedTechnicianNames,
-          duration: null,
-          month: monthKey,
-          year: now.getFullYear(),
-          createdAt: FieldValue.serverTimestamp(),
-        });
-
-        // Calculate next due date
-        const nextDue = calculateNextDueDate(
-            schedule.nextDueDate.toDate(),
-            schedule.recurrenceType,
-            schedule.customIntervalDays,
-        );
-
-        // Update schedule
-        await docSnap.ref.update({
-          nextDueDate: Timestamp.fromDate(nextDue),
-          lastWoGeneratedAt: FieldValue.serverTimestamp(),
-          lastWoId: woRef.id,
-          totalScheduled: FieldValue.increment(1),
-          updatedAt: FieldValue.serverTimestamp(),
-        });
-
-        // Send notifications
-        await sendPushToUsers(
-            schedule.assignedTechnicianIds,
-            "New PM Work Order",
-            `${woNumber} — ${schedule.machineName}`,
-            {woId: woRef.id, woNumber, scheduleId, screen: "WODetail"},
-        );
-
+      // Calendar schedules due within the lead-time horizon. Each schedule's
+      // own lead time and end date are applied by planCalendarRun.
+      const calendarSnap = await db
+          .collection("pm_schedules")
+          .where("status", "==", "active")
+          .where("triggerType", "==", "calendar")
+          .where("nextDueDate", "<=", Timestamp.fromDate(horizon))
+          .get();
+      await runPool(calendarSnap.docs, CONCURRENCY, async (docSnap) => {
         try {
-          const dueStart = new Date(schedule.nextDueDate.toDate());
-          dueStart.setHours(0, 0, 0, 0);
-          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          await notifyPmDue(schedule, woNumber, woRef.id, dueStart < todayStart);
-        } catch (notifyErr) {
-          logger.error(`PM due notification failed for ${scheduleId}`, notifyErr);
+          counts[await processCalendarSchedule(docSnap, now)] += 1;
+        } catch (err) {
+          counts.failed += 1;
+          logger.error(`schedulePmCheck: schedule ${docSnap.id} failed`, err);
         }
+      });
 
-        logger.info(`PM WO created: ${woNumber} for schedule ${scheduleId}`);
-      } catch (innerErr) {
-        logger.error(`Failed to process schedule ${scheduleId}`, innerErr);
+      // Usage schedules whose meter is already past the threshold (safety net
+      // for onPmMeterUpdated).
+      const usageSnap = await db
+          .collection("pm_schedules")
+          .where("status", "==", "active")
+          .where("triggerType", "==", "usage")
+          .get();
+      await runPool(usageSnap.docs.filter((d) => usageState(d.data()).due), CONCURRENCY, async (docSnap) => {
+        try {
+          const res = await generatePmWorkOrder({scheduleId: docSnap.id, source: "usage", dueDate: now});
+          if (res) counts.usage += 1;
+        } catch (err) {
+          counts.failed += 1;
+          logger.error(`schedulePmCheck: usage schedule ${docSnap.id} failed`, err);
+        }
+      });
+
+      logger.info("schedulePmCheck done", counts);
+    },
+);
+
+/**
+ * Usage-based PM: raises the work order as soon as a meter reading reaches
+ * the schedule's threshold (Trigger after N operating hours / cycles).
+ * Before, the reading was stored but nothing ever compared it.
+ */
+exports.onPmMeterUpdated = onDocumentUpdated(
+    {database: "default", document: "pm_schedules/{scheduleId}"},
+    async (event) => {
+      const before = event.data.before.data();
+      const after = event.data.after.data();
+      if (after.triggerType !== "usage" || after.status !== "active") return;
+      const changed = before.currentMeterValue !== after.currentMeterValue ||
+        before.triggerAfterValue !== after.triggerAfterValue ||
+        before.status !== after.status;
+      if (!changed || !usageState(after).due) return;
+      try {
+        const res = await generatePmWorkOrder({scheduleId: event.params.scheduleId, source: "usage", dueDate: new Date()});
+        if (res) logger.info(`Usage PM WO created: ${res.woNumber}`, {scheduleId: event.params.scheduleId});
+      } catch (err) {
+        logger.error("onPmMeterUpdated failed", {scheduleId: event.params.scheduleId, err});
       }
-    }
-  } catch (err) {
-    logger.error("schedulePmCheck failed", err);
-  }
-});
+    },
+);

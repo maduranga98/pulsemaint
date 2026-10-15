@@ -161,95 +161,10 @@ export function useWOCompletion(): UseWOCompletionResult {
           updatedAt: serverTimestamp(),
         });
 
-        // PM tracking: if this WO has a linked pm_history record, mark it
-        // completed_on_time / completed_late based on the due date.
-        try {
-          const woSnap = await getDoc(doc(db, 'workOrders', woId));
-          const woData = woSnap.data() as any;
-          if (woData?.woType === 'PREVENTIVE' && woData?.pmHistoryId) {
-            const due: Date | null = woData.dueDate?.toDate?.() ?? null;
-            const onTime = !due || payload.actualEndTime <= due;
-            const daysOverdue = due
-              ? Math.max(0, Math.ceil((payload.actualEndTime.getTime() - due.getTime()) / 86400000))
-              : 0;
-            await updateDoc(doc(db, 'pm_history', woData.pmHistoryId), {
-              status: onTime ? 'completed_on_time' : 'completed_late',
-              completedDate: Timestamp.fromDate(payload.actualEndTime),
-              duration: durationMinutes,
-              daysOverdue,
-              technicianIds: woData.assignedTechnicianIds ?? [],
-              technicianNames: woData.assignedTechnicianNames ?? [],
-              woNumber: woData.woNumber ?? '',
-            });
-          }
-        } catch (pmErr) {
-          console.error('Failed to update PM history on completion', pmErr);
-        }
-
-        // PM schedule sync: reflect completion on the schedule itself so the
-        // PM Schedules tab updates automatically (completed counts, compliance,
-        // next due date — or 'completed' status for one-off PMs).
-        try {
-          const woSnap = await getDoc(doc(db, 'workOrders', woId));
-          const woData = woSnap.data() as any;
-          if (woData?.woType === 'PREVENTIVE' && woData?.pmScheduleId) {
-            const pmRef = doc(db, 'pm_schedules', woData.pmScheduleId);
-            const pmSnap = await getDoc(pmRef);
-            if (pmSnap.exists()) {
-              const pm = pmSnap.data() as any;
-              const recurrenceMap: Record<string, number> = {
-                daily: 1,
-                weekly: 7,
-                biweekly: 14,
-                monthly: 30,
-                quarterly: 90,
-                semi_annual: 182,
-                annual: 365,
-              };
-              const intervalDays =
-                pm.recurrenceType === 'custom'
-                  ? (pm.customIntervalDays ?? pm.intervalDays ?? null)
-                  : (recurrenceMap[pm.recurrenceType] ?? null);
-
-              const due: Date | null =
-                pm.nextDueDate?.toDate?.() ?? woData.dueDate?.toDate?.() ?? null;
-              const onTime = !due || payload.actualEndTime <= due;
-              const completedOnTime = (pm.completedOnTime ?? 0) + (onTime ? 1 : 0);
-              const completedLate = (pm.completedLate ?? 0) + (onTime ? 0 : 1);
-              const missed = pm.missed ?? 0;
-              const total = completedOnTime + completedLate + missed;
-
-              const scheduleUpdates: Record<string, unknown> = {
-                completedOnTime,
-                completedLate,
-                complianceRate: total > 0 ? Math.round((completedOnTime / total) * 100) : 100,
-                lastCompletedDate: Timestamp.fromDate(payload.actualEndTime),
-                updatedAt: serverTimestamp(),
-              };
-
-              if (intervalDays && pm.recurrenceType !== 'one_time') {
-                // Recurring PM — roll the schedule forward to the next cycle and
-                // clear the just-finished WO so it reflects the next due window,
-                // not a permanently "completed" state.
-                scheduleUpdates.nextDueDate = Timestamp.fromDate(
-                  new Date(payload.actualEndTime.getTime() + intervalDays * 86400000),
-                );
-                scheduleUpdates.activeWoId = null;
-                scheduleUpdates.activeWoStatus = null;
-              } else {
-                // One-off PM (created through a Work Order) — mark it completed
-                // and surface the completion on the schedule/calendar.
-                scheduleUpdates.status = 'completed';
-                scheduleUpdates.activeWoId = woId;
-                scheduleUpdates.activeWoStatus = 'COMPLETED';
-              }
-
-              await updateDoc(pmRef, scheduleUpdates);
-            }
-          }
-        } catch (pmScheduleErr) {
-          console.error('Failed to sync PM schedule on completion', pmScheduleErr);
-        }
+        // PM compliance (pm_history status, schedule counters, one-off
+        // schedule completion) is recorded server-side when the work order is
+        // completed (updatePmComplianceOnWoClose) — the single writer, so the
+        // figures are never counted twice and technicians' completions count.
 
         // Machine record updates: lastServiceDate, nextPMDate, and history entry.
         try {
@@ -263,33 +178,8 @@ export function useWOCompletion(): UseWOCompletionResult {
               updatedAt: serverTimestamp(),
             };
 
-            if (woData.woType === 'PREVENTIVE') {
-              let intervalDays: number | null = null;
-              if (woData.pmScheduleId) {
-                try {
-                  const pmSnap = await getDoc(doc(db, 'pm_schedules', woData.pmScheduleId));
-                  const pm = pmSnap.data() as any;
-                  if (pm) {
-                    const recurrenceMap: Record<string, number> = {
-                      daily: 1,
-                      weekly: 7,
-                      biweekly: 14,
-                      monthly: 30,
-                      quarterly: 90,
-                      semi_annual: 182,
-                      annual: 365,
-                    };
-                    intervalDays = pm.customIntervalDays ?? recurrenceMap[pm.recurrenceType] ?? null;
-                  }
-                } catch (e) {
-                  console.error('Failed to fetch PM schedule for next due', e);
-                }
-              }
-              if (intervalDays) {
-                const next = new Date(payload.actualEndTime.getTime() + intervalDays * 86400000);
-                machineUpdates.nextPmDue = Timestamp.fromDate(next);
-              }
-            }
+            // The machine's next PM date follows its PM schedules
+            // (syncMachineNextPm Cloud Function), not a fixed interval from now.
 
             await updateDoc(machineRef, machineUpdates);
 

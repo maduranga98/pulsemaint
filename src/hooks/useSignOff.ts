@@ -14,7 +14,6 @@ import type { BreakdownStatus } from '../types/breakdown';
 import { useAuthStore } from '../store/authStore';
 import { logAuditEvent } from '../utils/reports/auditLogger';
 import { notifyRoles } from '../services/notifications.service';
-import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 import { markMachineActiveIfNoOpenWork } from '../lib/machineOperationalStatus';
 import { generateWoAiRca } from '../lib/woAiRca';
 import { toast } from 'sonner';
@@ -131,8 +130,7 @@ export function useSignOff(): UseSignOffResult {
           updatedAt: serverTimestamp(),
         });
 
-        // Keep the linked PM schedule in sync with the signed-off/closed WO.
-        await syncPmScheduleWoStatus(woId, 'CLOSED');
+        // The linked PM schedule follows server-side (syncPmScheduleWoStatus).
 
         // Keep linked breakdown tickets and the machine in sync — closing the
         // WO closes its breakdowns and, if nothing else is open, reactivates

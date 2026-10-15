@@ -66,13 +66,16 @@ exports.notifyInvoiceVariance = notifyInvoiceVariance;
 // PM Module — Cloud Functions
 // ---------------------------------------------------------------------------
 
-const { schedulePmCheck } = require("./src/pm/schedulePmCheck");
+const { schedulePmCheck, onPmMeterUpdated } = require("./src/pm/schedulePmCheck");
+const { syncPmScheduleWoStatus } = require("./src/pm/pmCompliance");
 const { checkPmOverdue } = require("./src/pm/checkPmOverdue");
 const { expireTrials } = require("./src/billing/expireTrials");
 const { updatePmComplianceOnWoClose } = require("./src/pm/updatePmComplianceOnWoClose");
 const { triggerManualPM } = require("./src/pm/triggerManualPM");
 
 exports.schedulePmCheck = schedulePmCheck;
+exports.onPmMeterUpdated = onPmMeterUpdated;
+exports.syncPmScheduleWoStatus = syncPmScheduleWoStatus;
 exports.checkPmOverdue = checkPmOverdue;
 exports.expireTrials = expireTrials;
 exports.updatePmComplianceOnWoClose = updatePmComplianceOnWoClose;
@@ -200,18 +203,20 @@ exports.metricsDaily = metricsDaily;
 
 const { calculateDailyMoeSnapshots } = require("./src/moe/calculateDailyMoeSnapshots");
 const {
-  recalculateMoeOnBreakdownChange,
-  recalculateMoeOnPmHistoryChange,
-  recalculateMoeOnWorkOrderChange,
+  moeOnBreakdownWrite,
+  moeOnPmHistoryWrite,
+  moeOnWorkOrderWrite,
   processMoeRecalcQueue,
 } = require("./src/moe/recalculateMoeOnDataChange");
 const { getMoeAggregates } = require("./src/moe/getMoeAggregates");
 const { backfillMoeSnapshots } = require("./src/moe/backfillMoeSnapshots");
 
 exports.calculateDailyMoeSnapshots = calculateDailyMoeSnapshots;
-exports.recalculateMoeOnBreakdownChange = recalculateMoeOnBreakdownChange;
-exports.recalculateMoeOnPmHistoryChange = recalculateMoeOnPmHistoryChange;
-exports.recalculateMoeOnWorkOrderChange = recalculateMoeOnWorkOrderChange;
+// Replace the old recalculateMoeOn*Change triggers, which listened on the
+// wrong database and never fired (deleted on deploy via --force).
+exports.moeOnBreakdownWrite = moeOnBreakdownWrite;
+exports.moeOnPmHistoryWrite = moeOnPmHistoryWrite;
+exports.moeOnWorkOrderWrite = moeOnWorkOrderWrite;
 exports.processMoeRecalcQueue = processMoeRecalcQueue;
 exports.getMoeAggregates = getMoeAggregates;
 exports.backfillMoeSnapshots = backfillMoeSnapshots;
@@ -423,17 +428,31 @@ exports.onWOCreated = onDocumentCreated({ database: "default", document: "workOr
   const year = now.getFullYear();
 
   try {
-    // Generate WO number
-    const woNumber = await generateWONumber(wo.siteId, year);
+    // A number issued by a server function (PM generation) together with the
+    // work order is kept; every other work order gets the next number here.
+    const woNumber = wo.woNumberIssuedBy === "server" && wo.woNumber ?
+      wo.woNumber :
+      await generateWONumber(wo.siteId, year);
 
-    // Calculate SLA deadline
-    const slaDeadline = calcSlaDeadline(now, wo.priority);
+    // SLA: a preventive work order is due on its due date (it may be raised
+    // days ahead under the schedule's lead time); everything else is timed
+    // from creation by priority.
+    const due = wo.dueDate && typeof wo.dueDate.toDate === "function" ? wo.dueDate.toDate() : null;
+    const slaDeadline = wo.woType === "PREVENTIVE" && due ?
+      new Date(Date.UTC(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate()) + 24 * 60 * 60 * 1000 - 1) :
+      calcSlaDeadline(now, wo.priority);
 
     const updates = {
       woNumber,
       slaDeadline: Timestamp.fromDate(slaDeadline),
       slaBreached: false,
     };
+    // Analytics read work orders by companyId; some creators only set siteId
+    // (siteId is the company id in the single-site-per-company model).
+    if (!wo.companyId && wo.siteId) {
+      const company = await db.collection("companies").doc(String(wo.siteId)).get();
+      if (company.exists) updates.companyId = wo.siteId;
+    }
 
     await snap.ref.update(updates);
 
@@ -447,13 +466,17 @@ exports.onWOCreated = onDocumentCreated({ database: "default", document: "workOr
       );
     }
 
-    // Link back to breakdown document
-    if (wo.linkedBreakdownId) {
-      await db.collection("breakdowns").doc(wo.linkedBreakdownId).update({
-        linkedWOId: woId,
-        linkedWONumber: woNumber,
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+    // Link the breakdown ticket(s) back to the work order (the legacy
+    // `breakdowns` collection this used to update no longer exists, so the
+    // update threw and skipped the rest of this function).
+    const ticketIds = [...new Set([wo.linkedBreakdownId, ...(wo.linkedBreakdownIds || [])].filter(Boolean))];
+    for (const ticketId of ticketIds) {
+      const ticketRef = db.collection("breakdown_tickets").doc(String(ticketId));
+      const ticket = await ticketRef.get();
+      const t = ticket.exists ? ticket.data() : null;
+      if (t && (t.companyId || t.siteId) === (updates.companyId || wo.companyId || wo.siteId)) {
+        await ticketRef.update({linkedWOId: woId, linkedWONumber: woNumber});
+      }
     }
 
     // Contractor invitation (email + WhatsApp — stub; real impl via SendGrid/WhatsApp API)
@@ -498,6 +521,20 @@ exports.onWOUpdated = onDocumentUpdated({ database: "default", document: "workOr
     // Status change handling
     if (before.status !== after.status) {
       const status = after.status;
+
+      // Finished after its SLA deadline (between two slaBreachCheck runs, or
+      // after the warning window) → record the breach so SLA compliance
+      // counts it.
+      const DONE = ["COMPLETED", "SIGNED_OFF", "CLOSED"];
+      if (DONE.includes(status) && !DONE.includes(before.status) && after.slaBreached !== true &&
+        after.slaDeadline && typeof after.slaDeadline.toMillis === "function") {
+        const doneAt = after.actualEndTime && typeof after.actualEndTime.toMillis === "function" ?
+          after.actualEndTime.toMillis() :
+          Date.now();
+        if (doneAt > after.slaDeadline.toMillis()) {
+          await event.data.after.ref.update({ slaBreached: true, slaBreachedAt: Timestamp.fromMillis(after.slaDeadline.toMillis()) });
+        }
+      }
 
       if (status === "ON_HOLD_PARTS") {
         // Notify Store Keeper + Supervisor
@@ -749,63 +786,58 @@ exports.onPartsRequestCreated = onDocumentCreated({ database: "default", documen
 // 5. slaBreachCheck — runs every 5 minutes
 // ---------------------------------------------------------------------------
 
-exports.slaBreachCheck = onSchedule("every 5 minutes", async () => {
+const OPEN_WO_STATUSES = ["OPEN", "ASSIGNED", "IN_PROGRESS", "ON_HOLD_PARTS", "ON_HOLD_APPROVAL"];
+
+/** Active plant managers of the work order's company and plant (plus any with no plant). */
+async function plantManagerIdsFor(wo) {
+  const companyId = wo.companyId || wo.siteId;
+  const snap = await db.collection("users").where("companyId", "==", companyId).where("role", "==", "plant_manager").get();
+  const plantId = wo.machinePlantId || null;
+  return snap.docs
+    .filter((d) => d.data().status !== "inactive")
+    .filter((d) => !plantId || !d.data().plantId || d.data().plantId === plantId)
+    .map((d) => d.id);
+}
+
+// Open work orders only (status filter): finished work orders used to stay
+// in this query forever and were re-read every 5 minutes. The warning is
+// sent once per work order (slaWarningSentAt), not on every run in the
+// 30-minute window. A work order finished after its deadline is marked
+// breached by onWOUpdated.
+exports.slaBreachCheck = onSchedule({ schedule: "every 5 minutes", timeoutSeconds: 240 }, async () => {
   const now = Timestamp.now();
-  const warningMs = 30 * 60 * 1000;
-  const warningThreshold = new Date(Date.now() + warningMs);
+  const warningThreshold = new Date(Date.now() + 30 * 60 * 1000);
 
   try {
-    // WOs approaching SLA — warn
     const approachingSnap = await db
       .collection("workOrders")
+      .where("status", "in", OPEN_WO_STATUSES)
       .where("slaBreached", "==", false)
       .where("slaDeadline", "<=", Timestamp.fromDate(warningThreshold))
       .get();
 
     for (const doc of approachingSnap.docs) {
       const wo = doc.data();
-      if (
-        ["COMPLETED", "SIGNED_OFF", "CLOSED", "CANCELLED"].includes(wo.status)
-      )
-        continue;
+      try {
+        const slaDeadlineMs = wo.slaDeadline.toMillis();
+        const isBreached = slaDeadlineMs <= now.toMillis();
+        if (!isBreached && wo.slaWarningSentAt) continue;
 
-      const slaDeadlineMs = wo.slaDeadline.toMillis();
-      const isBreached = slaDeadlineMs <= now.toMillis();
-
-      const managersSnap = await db
-        .collection("users")
-        .where("siteId", "==", wo.siteId)
-        .where("role", "==", "plant_manager")
-        .get();
-      const managerIds = managersSnap.docs.map((d) => d.id);
-
-      const recipients = [...managerIds, wo.supervisorInChargeId];
-
-      if (isBreached) {
-        await sendPushToUsers(
-          recipients,
-          "SLA Breached",
-          `${wo.woNumber} — ${wo.machineName} SLA has been breached`,
-          { woId: doc.id, screen: "WODetail" },
-        );
-        await doc.ref.update({
-          slaBreached: true,
-          updatedAt: FieldValue.serverTimestamp(),
-        });
-      } else {
-        const minutesLeft = Math.round(
-          (slaDeadlineMs - now.toMillis()) / 60000,
-        );
-        await sendPushToUsers(
-          recipients,
-          "SLA Warning",
-          `${wo.woNumber} — SLA in ${minutesLeft} min`,
-          { woId: doc.id, screen: "WODetail" },
-        );
+        const recipients = [...new Set([...(await plantManagerIdsFor(wo)), wo.supervisorInChargeId].filter(Boolean))];
+        if (isBreached) {
+          await doc.ref.update({ slaBreached: true, slaBreachedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() });
+          await sendPushToUsers(recipients, "SLA Breached", `${wo.woNumber} — ${wo.machineName} SLA has been breached`, { woId: doc.id, screen: "WODetail" });
+        } else {
+          await doc.ref.update({ slaWarningSentAt: FieldValue.serverTimestamp() });
+          const minutesLeft = Math.round((slaDeadlineMs - now.toMillis()) / 60000);
+          await sendPushToUsers(recipients, "SLA Warning", `${wo.woNumber} — SLA in ${minutesLeft} min`, { woId: doc.id, screen: "WODetail" });
+        }
+      } catch (err) {
+        logger.error(`slaBreachCheck failed for ${doc.id}`, err);
       }
     }
 
-    logger.info("slaBreachCheck completed");
+    logger.info(`slaBreachCheck completed (${approachingSnap.size} checked)`);
   } catch (err) {
     logger.error("slaBreachCheck failed", err);
   }

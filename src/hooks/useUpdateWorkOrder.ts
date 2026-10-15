@@ -5,7 +5,6 @@ import { db } from '../lib/firebase';
 import type { WorkOrder, WOStatus, TimeSegment, TimeSegmentState } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
-import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../lib/machineOperationalStatus';
 
 const TERMINAL_WO_STATUSES = new Set<WOStatus>(['SIGNED_OFF', 'CLOSED', 'CANCELLED']);
@@ -213,9 +212,8 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
           console.error('Failed to sync breakdown progress', bdErr);
         }
 
-        // Reflect the WO's live status on its linked PM schedule (PM Schedules
-        // list, calendar and detail all read this).
-        await syncPmScheduleWoStatus(id, status);
+        // The linked PM schedule's work-order status is kept in step
+        // server-side (syncPmScheduleWoStatus Cloud Function).
 
         toast.success(`Status updated to ${status.replace(/_/g, ' ')}`);
         return true;

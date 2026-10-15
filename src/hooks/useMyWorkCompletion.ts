@@ -4,7 +4,6 @@ import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { notifyRoles } from '../services/notifications.service';
-import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 import type { AssigneeCompletion, PartUsed, TechnicianWorkLog, WorkOrder } from '../types/workOrder';
 
 interface UseMyWorkCompletionResult {
@@ -126,7 +125,6 @@ export function useMyWorkCompletion(): UseMyWorkCompletionResult {
               }),
             }).catch((e) => console.error('Failed to resolve linked breakdown on completion', e)),
           ));
-          await syncPmScheduleWoStatus(woId, 'COMPLETED').catch(() => {});
           const profile = useAuthStore.getState().userProfile;
           if (profile?.companyId) {
             void notifyRoles(profile.companyId, ['supervisor', 'plant_manager'], {
