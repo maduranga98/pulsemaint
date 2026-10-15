@@ -3,6 +3,8 @@ import { PackageX } from 'lucide-react';
 import type { InventoryPart } from '@/types/inventory';
 
 import { useTranslation } from 'react-i18next';
+import { useMachineOptions } from '@/hooks/inventory/useMachineOptions';
+import { SparePartForMachines } from '@/components/inventory/shared/SparePartForMachines';
 interface Props {
   parts: InventoryPart[];
 }
@@ -14,6 +16,8 @@ interface Props {
 export function OutOfStockWidget({ parts }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { machines } = useMachineOptions();
+  const machineNames = new Map(machines.map((m) => [m.id, m.name]));
 
   return (
     <div className="bg-white rounded-xl border border-red-200 shadow-sm">
@@ -45,6 +49,7 @@ export function OutOfStockWidget({ parts }: Props) {
                   {part.category.replace(/_/g, ' ')}
                   {part.storeLocation && ` · ${part.storeLocation}`}
                 </p>
+                <SparePartForMachines machineIds={part.compatibleMachineIds} machineNames={machineNames} />
                 <div className="flex items-center gap-3 mt-1 text-xs">
                   <span className="font-bold text-red-600">Stock: 0 {part.unit}</span>
                   <span className="text-gray-500">Min: {part.minStockLevel} {part.unit}</span>

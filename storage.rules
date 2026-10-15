@@ -87,6 +87,14 @@ service firebase.storage {
         && validUpload(100) && (request.resource == null || safeContentType());
     }
 
+    // Recorded sales calls on the Lumora platform console (superadmin only,
+    // written once, never edited — kept to listen back to later).
+    match /platformLeadCalls/{leadId}/{file} {
+      allow read: if signedIn() && request.auth.token.get('superadmin', false) == true;
+      allow create: if signedIn() && request.auth.token.get('superadmin', false) == true
+        && validUpload(100) && safeContentType() && newObject();
+    }
+
     // Work order media: documents, field-media, completion photos, approval files.
     match /workorders/{siteId}/{woId}/{allPaths=**} {
       allow read: if inCompany(siteId);
