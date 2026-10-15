@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers, Hourglass } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
@@ -16,6 +16,7 @@ import PlatformBell from './PlatformBell';
 
 const NAV = [
   { to: '/platform', label: 'Overview', icon: Gauge, end: true },
+  { to: '/platform/trial-requests', label: 'Trial requests', icon: Hourglass },
   { to: '/platform/companies', label: 'Companies', icon: Building2 },
   { to: '/platform/payments', label: 'Payments', icon: CreditCard },
   { to: '/platform/plans', label: 'Plans', icon: Layers },
@@ -30,7 +31,7 @@ const NAV = [
 ] as const;
 
 const BADGE_TITLE: Record<string, string> = {
-  '/platform/companies': 'Registrations waiting for approval',
+  '/platform/trial-requests': 'Trial requests waiting for approval',
   '/platform/payments': 'New payment alerts',
   '/platform/requests': 'Unread requests & feedback',
   '/platform/cancellations': 'Open cancellations / leave requests',
@@ -71,7 +72,7 @@ export default function PlatformLayout() {
 
   // Red unread / needs-attention counts per tab.
   const badges: Record<string, number> = {
-    '/platform/companies': pendingRegistrations.length,
+    '/platform/trial-requests': pendingRegistrations.length,
     '/platform/payments': paymentAlerts.length,
     '/platform/requests': unread.length,
     '/platform/cancellations': openCancellations,
