@@ -58,6 +58,9 @@ async function requireCompanyMember(request, companyId) {
   if (!profile.exists || profile.get("companyId") !== companyId) {
     throw new HttpsError("permission-denied", "You do not belong to this company.");
   }
+  if (profile.get("status") === "inactive") {
+    throw new HttpsError("permission-denied", "Your account has been deactivated.");
+  }
   return profile.data();
 }
 

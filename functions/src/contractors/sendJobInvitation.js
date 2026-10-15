@@ -1,4 +1,5 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const {requireMember} = require("../lib/access");
 const {
   db,
   logger,
@@ -91,6 +92,8 @@ exports.sendJobInvitation = onCall(async (request) => {
   if (!contractorJobId || !companyId) {
     throw new HttpsError("invalid-argument", "contractorJobId and companyId are required");
   }
+  // The caller must manage contractors for that same company.
+  await requireMember(request, companyId, {roles: ["admin", "plant_manager", "supervisor", "maintenance_supervisor", "hr_officer"]});
   return sendJobInvitationInternal({
     contractorJobId,
     companyId,

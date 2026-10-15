@@ -91,6 +91,7 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
 
   const userSnap = await db.collection("users").doc(request.auth.uid).get();
   if (!userSnap.exists) throw new HttpsError("permission-denied", "No app profile for this user");
+  if (userSnap.get("status") === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated");
 
   // Per-user (hourly) and per-company (daily) caps — see aiUsageLimit.js.
   await consumeAiQuota(db, {uid: request.auth.uid, companyId: userSnap.get("companyId")});

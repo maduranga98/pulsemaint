@@ -13,6 +13,7 @@ const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
+const {requireMember} = require("../lib/access");
 
 const db = getFirestore("default");
 
@@ -73,6 +74,8 @@ exports.triggerManualPM = onCall({cors: true}, async (request) => {
     }
 
     const schedule = scheduleSnap.data();
+    // Only a manager of the schedule's own company may raise its PM.
+    await requireMember(request, schedule.companyId, {roles: ["admin", "plant_manager", "supervisor", "maintenance_supervisor"]});
 
     if (schedule.status !== "active") {
       throw new HttpsError("failed-precondition", "PM schedule is not active");

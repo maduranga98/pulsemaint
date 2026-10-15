@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, limit, query, serverTimestamp, where } from 'firebase/firestore';
+import { collection, doc, getDocs, limit, query, runTransaction, serverTimestamp, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { buildCertificateNumber } from '@/lib/training/certificatePdf';
@@ -36,6 +36,7 @@ export async function issueTrainingCertificate({
   signatureImageDataUrl,
 }: IssueCertificateInput): Promise<string | null> {
   try {
+    // A certificate issued under an older random id stays the one.
     const existing = await getDocs(
       query(
         collection(db, 'trainingCertificates'),
@@ -44,39 +45,58 @@ export async function issueTrainingCertificate({
         limit(1),
       ),
     );
-    if (!existing.empty) return existing.docs[0].id;
+    if (!existing.empty && existing.docs[0].id !== `cert_${assignment.id}`) return existing.docs[0].id;
 
-    const ref = await addDoc(collection(db, 'trainingCertificates'), {
-      certificateNumber: buildCertificateNumber(),
-      companyId: assignment.companyId,
-      companyName: company?.name ?? '',
-      traineeId: assignment.traineeId,
-      traineeName: assignment.traineeName,
-      traineeNic: '',
-      traineeDesignation: assignment.traineeRole ?? '',
-      moduleId: assignment.moduleId,
-      moduleName: assignment.moduleName,
-      moduleCategory: assignment.moduleCategory ?? null,
-      machineId: assignment.machineId ?? '',
-      machineName: assignment.machineName ?? '',
-      machineType: '',
-      providerName: assignment.providerName ?? '',
-      issuedBy,
-      issuedByName,
-      issuedAt: serverTimestamp(),
-      expiryDate: null,
-      isExpired: false,
-      quizScore: assignment.bestScore ?? 0,
-      practicalObservations,
-      signatureImageDataUrl,
-      // Rendered on demand from the company's own letterhead
-      // (lib/training/certificatePdf) rather than stored as a file.
-      pdfUrl: '',
-      assignmentId: assignment.id,
-      isRevoked: false,
-      revokedAt: null,
-      revokedBy: null,
-      revokedReason: null,
+    // One certificate per assignment, at a fixed id shared with the
+    // generateTrainingCertificate Cloud Function (which also reacts to the
+    // sign-off). Whichever writes first creates it; the other only adds what
+    // it alone knows — here, the signature and practical observations —
+    // so a sign-off can never produce two certificates.
+    const ref = doc(db, 'trainingCertificates', `cert_${assignment.id}`);
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (snap.exists()) {
+        const current = snap.data();
+        tx.update(ref, {
+          ...(current.signatureImageDataUrl ? {} : { signatureImageDataUrl }),
+          ...(current.issuedBy ? {} : { issuedBy, issuedByName }),
+          ...(current.practicalObservations ? {} : { practicalObservations }),
+        });
+        return;
+      }
+      tx.set(ref, {
+        id: ref.id,
+        certificateNumber: buildCertificateNumber(),
+        companyId: assignment.companyId,
+        companyName: company?.name ?? '',
+        traineeId: assignment.traineeId,
+        traineeName: assignment.traineeName,
+        traineeNic: '',
+        traineeDesignation: assignment.traineeRole ?? '',
+        moduleId: assignment.moduleId,
+        moduleName: assignment.moduleName,
+        moduleCategory: assignment.moduleCategory ?? null,
+        machineId: assignment.machineId ?? '',
+        machineName: assignment.machineName ?? '',
+        machineType: '',
+        providerName: assignment.providerName ?? '',
+        issuedBy,
+        issuedByName,
+        issuedAt: serverTimestamp(),
+        expiryDate: null,
+        isExpired: false,
+        quizScore: assignment.bestScore ?? 0,
+        practicalObservations,
+        signatureImageDataUrl,
+        // Rendered on demand from the company's own letterhead
+        // (lib/training/certificatePdf) rather than stored as a file.
+        pdfUrl: '',
+        assignmentId: assignment.id,
+        isRevoked: false,
+        revokedAt: null,
+        revokedBy: null,
+        revokedReason: null,
+      });
     });
     return ref.id;
   } catch (err) {

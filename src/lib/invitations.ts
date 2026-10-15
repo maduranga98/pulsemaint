@@ -256,6 +256,8 @@ async function createUserFromInvitation(
     role: invitation.role,
     siteId: invitation.companyId,
     plantId: invitation.plantId ?? null,
+    // firestore.rules require the mapping's department to mirror the profile.
+    department: invitation.department ?? null,
   });
 
   await updateDoc(doc(db, `companies/${invitation.companyId}/invitations/${invitation.id}`), {

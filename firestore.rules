@@ -11,8 +11,23 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function getUserData() {
+    function rawUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // A deactivated account (users/{uid}.status == 'inactive', kept in sync
+    // with the company profile by the onCompanyUserWritten Cloud Function)
+    // must not keep any access, even with a still-valid login token from
+    // before it was deactivated. Every rule reads the caller's company, role,
+    // site and plant through getUserData(), so a deactivated mapping resolves
+    // to a placeholder that matches no company, role, site or plant.
+    function getUserData() {
+      let d = rawUserData();
+      return d.get('status', 'active') == 'inactive'
+        ? {'uid': request.auth.uid, 'companyId': '__inactive__', 'role': '__inactive__',
+           'siteId': '__inactive__', 'plantId': '__inactive__', 'department': '__inactive__',
+           'status': 'inactive'}
+        : d;
     }
 
     function getUserRole() {
@@ -160,7 +175,13 @@ service cloud.firestore {
         && d.get('plantId', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('plantId', null)
         && (d.get('siteId', null) == null
           || d.get('siteId', null) == d.companyId
-          || d.get('siteId', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('siteIds', [null])[0]);
+          || d.get('siteId', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('siteIds', [null])[0])
+        // Department (rules scope by it) can only mirror the profile, and a
+        // user can never mark their own mapping active while their profile
+        // is deactivated (or the reverse).
+        && d.get('department', null) == get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('department', null)
+        && ((d.get('status', 'active') == 'inactive')
+          == (get(/databases/$(database)/documents/companies/$(d.companyId)/users/$(uid)).data.get('status', 'active') == 'inactive'));
     }
 
     match /users/{userId} {
@@ -172,14 +193,18 @@ service cloud.firestore {
           && resource.data.get('companyId', null) == myCompanyId())
       );
 
+      // Only admins and HR officers change who someone is (Users page →
+      // Edit, which writes the profile and this mapping together). HR can
+      // never touch an admin's mapping, grant the admin role, or edit their
+      // own mapping — nobody can promote themselves. The mapping is normally
+      // kept in sync server-side by onCompanyUserWritten as well.
       function managerMayWrite() {
         return exists(/databases/$(database)/documents/users/$(request.auth.uid))
           && request.resource.data.get('companyId', null) == myCompanyId()
           && (resource == null || resource.data.get('companyId', null) == myCompanyId())
           && (isAdmin()
-            // Supervisors keep the role-mapping doc in sync when editing company
-            // users (Users page), but can never grant or touch the admin role.
-            || (isAnyRole(['supervisor', 'maintenance_supervisor'])
+            || (isHrOfficer()
+              && userId != request.auth.uid
               && request.resource.data.get('role', null) != 'admin'
               && (resource == null || resource.data.get('role', null) != 'admin')));
       }
@@ -406,18 +431,65 @@ service cloud.firestore {
     // without signing in — Firebase Anonymous Auth (see
     // signInAnonymouslyForReport / PublicBreakdownReportPage). Tightly
     // scoped: only a fresh, unassigned "reported" ticket sourced from a QR
-    // scan, with no reporter identity attached.
+    // scan, with no reporter identity attached, for a machine that exists —
+    // filed under that machine's own company, plant and department (so an
+    // anonymous visitor can't drop tickets into another company's queue or
+    // route them to the wrong plant), with only the form's fields.
     function isAnonymousBreakdownReport() {
+      let d = request.resource.data;
+      let machinePath = /databases/$(database)/documents/machines/$(d.get('machineId', '_'));
       return request.auth != null
         && request.auth.token.firebase.sign_in_provider == 'anonymous'
-        && request.resource.data.source == 'qr_scan'
-        && request.resource.data.status == 'reported'
-        && request.resource.data.reportedBy == null
-        && request.resource.data.assignedTechnicianIds.size() == 0;
+        && d.keys().hasOnly([
+          'ticketNumber', 'siteId', 'companyId', 'machineId', 'machineName', 'machineDepartment',
+          'machinePlantId', 'machineLocation', 'machineCriticality', 'severity', 'type', 'description',
+          'productionImpact', 'currentProductionCount', 'attemptedFixes', 'machineStillRunning',
+          'photos', 'video', 'source', 'reportedBy', 'reporterName', 'reporterRole', 'reportedAt',
+          'status', 'statusHistory', 'assignedTechnicianIds', 'assignedTechnicianNames',
+          'assignedContractorId', 'assignedBy', 'assignedByName', 'attendedBy', 'attendedByName',
+          'attendedAt', 'acknowledgedAt', 'acknowledgedBy', 'assignedAt', 'enRouteAt',
+          'repairStartedAt', 'resolvedAt', 'closedAt', 'slaDeadline'
+        ])
+        && d.get('machineId', null) is string
+        && exists(machinePath)
+        && d.siteId == get(machinePath).data.siteId
+        && d.companyId == get(machinePath).data.siteId
+        && d.get('machinePlantId', null) == get(machinePath).data.get('plantId', null)
+        && (d.get('machineDepartment', '') == get(machinePath).data.get('department', '')
+          || (d.get('machineDepartment', '') == '' && get(machinePath).data.get('department', null) == null))
+        && d.source == 'qr_scan'
+        && d.status == 'reported'
+        && d.description is string && d.description.size() >= 10 && d.description.size() <= 5000
+        && d.get('reportedBy', null) == null
+        && d.get('reporterName', null) == null
+        && d.get('reporterRole', null) == null
+        && d.get('reportedAt', null) == request.time
+        && d.get('statusHistory', []).size() == 0
+        && d.get('photos', []).size() == 0
+        && d.get('video', null) == null
+        && d.assignedTechnicianIds.size() == 0
+        && d.get('assignedTechnicianNames', []).size() == 0
+        && d.get('assignedContractorId', null) == null
+        && d.get('assignedBy', null) == null
+        && d.get('attendedBy', null) == null
+        && d.get('acknowledgedBy', null) == null
+        && d.get('resolvedAt', null) == null
+        && d.get('closedAt', null) == null;
     }
 
     // breakdown_tickets — used by dashboard widgets and Module 1 list/report pages
     match /breakdown_tickets/{ticketId} {
+      function ticketWorkedOnByMe() {
+        let uid = request.auth.uid;
+        let woId = resource.data.get('linkedWOId', null);
+        return uid in resource.data.get('assignedTechnicianIds', [])
+          || resource.data.get('attendedBy', null) == uid
+          || uid in request.resource.data.get('assignedTechnicianIds', [])
+          || (woId is string
+            && exists(/databases/$(database)/documents/workOrders/$(woId))
+            && uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.get('assignedTechnicianIds', []));
+      }
+
       // hr_officer/store_keeper reach /analytics too and need this for the
       // Breakdowns tab's charts (analyticsAggregation.ts).
       // Some screens list a machine's tickets by machineId alone (machine
@@ -434,11 +506,22 @@ service cloud.firestore {
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin'
       ]));
-      // Attending/assigned technicians and trainees can fill in and update
-      // their own ticket (severity, type, attempted fixes, status, media).
       allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data) && isAnyRole([
-        'technician', 'trainee', 'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
+        'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
       ]);
+      // Technicians and trainees update only tickets they work on — assigned
+      // to or attending it, putting themselves on it (self-attend / joining
+      // the assessment), or assigned to its linked work order (starting or
+      // completing that WO advances / resolves the ticket) — and never the
+      // ticket's identity: which machine, who reported it and when (the
+      // downtime clock starts at reportedAt).
+      allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data)
+        && isAnyRole(['technician', 'trainee'])
+        && ticketWorkedOnByMe()
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'companyId', 'siteId', 'machineId', 'machinePlantId', 'machineDepartment', 'ticketNumber',
+          'reportedAt', 'reportedBy', 'reporterName', 'reporterRole', 'source', 'createdAt'
+        ]);
       allow delete: if isAdmin() && tenantMatches(resource.data);
     }
 
@@ -472,10 +555,9 @@ service cloud.firestore {
         'safety_officer', 'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
         'plant_manager', 'store_keeper', 'trainee', 'admin', 'hr_officer'
       ]);
-      // Public, no-login QR breakdown report: a single machine lookup by id
-      // (never a list query) under an anonymous session, so a scanned QR can
-      // show the machine name without requiring the visitor to sign in.
-      allow get: if request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous';
+      // The public, no-login QR breakdown report reads the machine's name and
+      // location through the getPublicMachine callable — anonymous sessions
+      // get no direct access to machine documents (cost, supplier, serial …).
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
       allow create: if (isAdmin() || isSupervisor() || isPlantManager()) && tenantMatches(request.resource.data);
       allow update: if (isAdmin() || isSupervisor() || isPlantManager())
@@ -858,8 +940,16 @@ service cloud.firestore {
     match /triageFlows/{flowId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
                    && isAnyRole(['supervisor', 'plant_manager', 'admin']);
-      allow write: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+      // The stored document must already be ours too — otherwise another
+      // company's flow could be overwritten (and moved into this company)
+      // or deleted just by knowing its id.
+      allow create: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
                    && request.resource.data.companyId == getUserCompanyId();
+      allow update: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+                   && belongsToCompany(resource.data.companyId)
+                   && request.resource.data.companyId == getUserCompanyId();
+      allow delete: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+                   && belongsToCompany(resource.data.companyId);
     }
 
     // ---------------------------------------------------------------------------
@@ -869,8 +959,13 @@ service cloud.firestore {
     match /triageSessions/{sessionId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
                    && isAnyRole(['supervisor', 'plant_manager', 'admin', 'technician', 'trainee']);
-      allow write: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+      allow create: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
                    && request.resource.data.companyId == getUserCompanyId();
+      allow update: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+                   && belongsToCompany(resource.data.companyId)
+                   && request.resource.data.companyId == getUserCompanyId();
+      allow delete: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+                   && belongsToCompany(resource.data.companyId);
     }
 
     // ---------------------------------------------------------------------------
@@ -1010,9 +1105,8 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/companies/$(companyId)/invitations/$(d.invitationId)).data.expiresAt > request.time;
       }
 
-      // Manager writes (same company only): admins create/update anyone;
-      // supervisors/plant managers create non-admin members (Users page
-      // "Add member").
+      // Manager writes (same company only) — see the create/update rules
+      // below for who may change what.
       function managerBase() {
         return exists(/databases/$(database)/documents/users/$(request.auth.uid))
           && getUserData().companyId == companyId
@@ -1022,30 +1116,53 @@ service cloud.firestore {
       allow create: if isAuthenticated()
         && (
           (request.auth.uid == userId && selfCreateAllowed(request.resource.data))
+          // Creating someone else's profile is an admin action (HR for
+          // non-admin roles). New members normally join through an
+          // invitation, which they accept themselves (selfCreateAllowed).
           || (managerBase()
+              && userId != request.auth.uid
               && (getUserData().role == 'admin'
-                || (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager']
+                || (getUserData().role == 'hr_officer'
                   && request.resource.data.role != 'admin')))
         );
 
+      // Fields that decide what a person can reach (or cost, for labour
+      // costing). Only an admin — or an HR officer, for someone else who is
+      // not an admin — may change them.
+      function accessFields() {
+        return ['role', 'companyId', 'plantId', 'siteIds', 'department', 'status',
+          'invitedBy', 'invitationId', 'hourlyRate'];
+      }
+
       // Self-update (lastLoginAt, name/phone/photo…) can never touch the fields
-      // that decide access (role, company, plant, department, sites, invite
-      // origin) nor re-activate an account an admin deactivated. Admin-update,
-      // or supervisor/plant_manager/hr_officer-update of non-admin members
-      // (cannot grant admin) — the latter also covers job title / position
-      // changes made from a completed Evaluation (PM-124).
+      // that decide access nor re-activate an account an admin deactivated
+      // (the one allowed status move is pending → active on first sign-in).
+      // Admin-update of anyone; HR-update of other non-admin members
+      // (including role/plant/status, never granting admin); supervisor /
+      // plant-manager update of other non-admin members limited to non-access
+      // fields — e.g. job title / position changes made from a completed
+      // Evaluation (PM-124). Nobody but an admin edits their own access.
       allow update: if isAuthenticated()
         && (
           (request.auth.uid == userId
+            // A deactivated account writes nothing, not even its own profile.
+            && (!exists(/databases/$(database)/documents/users/$(request.auth.uid))
+              || rawUserData().get('status', 'active') != 'inactive')
             && !request.resource.data.diff(resource.data).affectedKeys().hasAny(
-              ['role', 'companyId', 'plantId', 'siteIds', 'department', 'invitedBy', 'invitationId'])
+              ['role', 'companyId', 'plantId', 'siteIds', 'department', 'invitedBy', 'invitationId', 'hourlyRate'])
             && (request.resource.data.get('status', null) == resource.data.get('status', null)
               || (resource.data.get('status', null) == 'pending' && request.resource.data.get('status', null) == 'active')))
+          || (managerBase() && getUserData().role == 'admin')
           || (managerBase()
-              && (getUserData().role == 'admin'
-                || (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer']
-                  && resource.data.role != 'admin'
-                  && request.resource.data.role != 'admin')))
+              && getUserData().role == 'hr_officer'
+              && userId != request.auth.uid
+              && resource.data.role != 'admin'
+              && request.resource.data.role != 'admin')
+          || (managerBase()
+              && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager']
+              && userId != request.auth.uid
+              && resource.data.role != 'admin'
+              && !request.resource.data.diff(resource.data).affectedKeys().hasAny(accessFields()))
         );
 
       allow delete: if isAuthenticated()
@@ -1329,19 +1446,19 @@ service cloud.firestore {
       allow create: if isAuthenticated() && getUserData().companyId == companyId
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'];
       // Update: trainee can only update their own progress fields; supervisors/admins can update anything
+      // Legacy path (the app now uses the top-level collection). Trainees may
+      // only record lesson progress here — quiz scores and status are never
+      // trainee-writable — and managers never update their own assignment.
       allow update: if isAuthenticated() && getUserData().companyId == companyId
         && (
           (
             resource.data.traineeId == request.auth.uid
-            && getUserData().role in ['trainee', 'floor_operator']
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-              'lessonProgress', 'quizAttempts', 'lastActivityAt',
-              'overallProgress', 'lessonsCompleted', 'startedAt',
-              'bestScore', 'latestScore', 'quizPassed', 'quizPassedAt',
-              'attemptsUsed', 'status'
+              'lessonProgress', 'lastActivityAt', 'overallProgress', 'lessonsCompleted', 'startedAt'
             ])
           )
-          || getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']
+          || (resource.data.traineeId != request.auth.uid
+            && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'])
         );
       // Delete: admin only
       allow delete: if isAuthenticated() && getUserData().companyId == companyId
@@ -1424,10 +1541,12 @@ service cloud.firestore {
     match /pm_schedules/{scheduleId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'];
-      allow create: if isAuthenticated()
+      // Only into the creator's own company, which it can't later be moved out of.
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
       // Supervisors/plant managers can archive (update) PM schedules but not delete them.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && request.resource.data.companyId == resource.data.companyId
         && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
       // Deleting a PM schedule is admin-only.
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
@@ -1440,10 +1559,14 @@ service cloud.firestore {
       // need this for the PM tab's charts (analyticsAggregation.ts).
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee', 'hr_officer', 'safety_officer', 'store_keeper'];
-      // Written when a preventive work order is created (useCreateWorkOrder)
-      // and by Cloud Functions (Admin SDK). Only into the creator's own company.
-      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      // Written when a preventive work order is created (useCreateWorkOrder —
+      // only the roles that may create work orders) and by Cloud Functions
+      // (Admin SDK). Only into the creator's own company. PM compliance is
+      // computed from these records, so nobody else may add them.
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && request.resource.data.companyId == resource.data.companyId
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
       // Technicians/trainees stamp completion tracking when they finish a PM work order.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
@@ -1626,14 +1749,42 @@ service cloud.firestore {
           || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
-      // Trainees update their own progress/quiz attempts; managers update any.
-      // For offboard/external assignments the trainee-writable surface is
-      // `offboardCompletion` (knowledge report + attachments) — this block
-      // is unrestricted on field names for the owning trainee already, so
-      // no extra whitelist entry is required.
+      // The person being trained may only record their own learning
+      // progress: lessons watched/completed, starting the module, and (for
+      // offboard/external training) submitting their completion report for
+      // practical sign-off. Quiz results are graded and written by the
+      // submitTrainingQuiz Cloud Function, and a module without a quiz is
+      // completed by completeTrainingAssignment — never by the trainee
+      // directly — so nobody can mark themselves passed or certified. This
+      // also applies to a manager doing their own training: a manager signs
+      // off other people's assignments, never their own.
+      function traineeProgressOnly() {
+        let changed = request.resource.data.diff(resource.data).affectedKeys();
+        return changed.hasOnly(['lessonProgress', 'lessonsCompleted', 'overallProgress',
+            'lastActivityAt', 'startedAt', 'status', 'offboardCompletion', 'completedAt', 'updatedAt'])
+          && (!changed.hasAny(['status'])
+            || (request.resource.data.status == 'in_progress'
+              && resource.data.get('status', 'not_started') in ['not_started', 'in_progress'])
+            || (request.resource.data.status == 'awaiting_practical'
+              && changed.hasAny(['offboardCompletion'])
+              && resource.data.get('category', 'machine') == 'offboard'
+              && resource.data.get('status', 'not_started') in ['not_started', 'in_progress', 'awaiting_practical']))
+          && (!changed.hasAny(['offboardCompletion'])
+            || resource.data.get('category', 'machine') == 'offboard')
+          // completedAt only as the offboard report is submitted.
+          && (!changed.hasAny(['completedAt'])
+            || (changed.hasAny(['offboardCompletion'])
+              && request.resource.data.get('status', '') == 'awaiting_practical'));
+      }
+
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && (resource.data.traineeId == request.auth.uid
-          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
+        && request.resource.data.companyId == resource.data.companyId
+        && request.resource.data.traineeId == resource.data.traineeId
+        && (
+          (resource.data.traineeId == request.auth.uid && traineeProgressOnly())
+          || (resource.data.traineeId != request.auth.uid
+            && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']))
+        );
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
     }
@@ -1642,6 +1793,10 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
           || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
+      // The sign-off screen checks whether the assignment's certificate
+      // (fixed id cert_<assignmentId>) exists yet before creating it.
+      allow get: if isAuthenticated() && resource == null
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
       // Certificates are issued when a manager signs off the practical
       // assessment (services/trainingCertificates.service), so the write does
       // come from the client — but only ever from a management role. An
@@ -1870,8 +2025,17 @@ service cloud.firestore {
 
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
-      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      // Raised (unread) by createNotification().
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && request.resource.data.get('readBy', []).size() == 0;
+      // Members only mark a notification read for themselves (readBy gains
+      // their own uid) — they can't rewrite its text, recipients or plant,
+      // or clear it for anyone else.
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy'])
+        && request.resource.data.readBy is list
+        && request.resource.data.readBy.toSet().difference(resource.data.get('readBy', []).toSet()).hasOnly([request.auth.uid])
+        && resource.data.get('readBy', []).toSet().difference(request.resource.data.readBy.toSet()).size() == 0;
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role == 'admin';
     }

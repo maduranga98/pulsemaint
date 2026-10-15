@@ -68,7 +68,7 @@ exports.sendContractorSafetyTrainingInvites = onCall(
 
       const userSnap = await db.doc(`users/${request.auth.uid}`).get();
       const user = userSnap.exists ? userSnap.data() : null;
-      if (!user || !user.companyId || !STAFF_ROLES.includes(user.role)) {
+      if (!user || !user.companyId || user.status === "inactive" || !STAFF_ROLES.includes(user.role)) {
         throw new HttpsError("permission-denied", "Not allowed to send safety training links.");
       }
 

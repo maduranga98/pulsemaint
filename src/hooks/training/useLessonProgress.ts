@@ -4,7 +4,8 @@ import {
   updateDoc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '@/lib/firebase';
 
 interface UseLessonProgressReturn {
   updateVideoProgress: (
@@ -137,13 +138,14 @@ export function useLessonProgress(): UseLessonProgressReturn {
   const markAssignmentComplete = useCallback(async (assignmentId: string) => {
     try {
       setIsUpdating(true);
-      await updateDoc(doc(db, 'trainingAssignments', assignmentId), {
-        status: 'certified',
-        overallProgress: 100,
-        completedAt: serverTimestamp(),
-        certifiedAt: serverTimestamp(),
-        lastActivityAt: serverTimestamp(),
-      });
+      // Completed on the server (completeTrainingAssignment), which checks
+      // the module really has no quiz and every required lesson is done —
+      // a trainee can't set their own assignment to certified.
+      const complete = httpsCallable<{ assignmentId: string }, { ok: boolean }>(
+        functions,
+        'completeTrainingAssignment',
+      );
+      await complete({ assignmentId });
     } catch (err) {
       console.error('Failed to mark assignment complete:', err);
       throw err;

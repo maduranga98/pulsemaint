@@ -15,6 +15,8 @@ const { initializeApp } = require("firebase-admin/app");
 const logger = require("firebase-functions/logger");
 
 initializeApp();
+// Required after initializeApp(): it opens Firestore.
+const { requireMember } = require("./src/lib/access");
 setGlobalOptions({ maxInstances: 10 });
 
 const db = getFirestore("default");
@@ -100,6 +102,10 @@ const {syncMachineNextPm, syncMachineLastService} = require("./src/machines/sync
 exports.syncMachineNextPm = syncMachineNextPm;
 exports.syncMachineLastService = syncMachineLastService;
 
+const {getPublicMachine} = require("./src/machines/publicMachine");
+
+exports.getPublicMachine = getPublicMachine;
+
 // ---------------------------------------------------------------------------
 // Training Module — Cloud Functions
 // ---------------------------------------------------------------------------
@@ -138,6 +144,7 @@ const { notifyPracticalSignOffRequired } = require("./src/training/notifyPractic
 const { onOffboardTrainingAssigned } = require("./src/training/onOffboardTrainingAssigned");
 const { onOffboardTrainingCompleted } = require("./src/training/onOffboardTrainingCompleted");
 const { checkOverdueOffboardReports } = require("./src/training/checkOverdueOffboardReports");
+const { submitTrainingQuiz, completeTrainingAssignment } = require("./src/training/trainingProgress");
 
 exports.generateTrainingCertificate = generateTrainingCertificate;
 exports.checkRetrainingTrigger = checkRetrainingTrigger;
@@ -147,6 +154,8 @@ exports.notifyPracticalSignOffRequired = notifyPracticalSignOffRequired;
 exports.onOffboardTrainingAssigned = onOffboardTrainingAssigned;
 exports.onOffboardTrainingCompleted = onOffboardTrainingCompleted;
 exports.checkOverdueOffboardReports = checkOverdueOffboardReports;
+exports.submitTrainingQuiz = submitTrainingQuiz;
+exports.completeTrainingAssignment = completeTrainingAssignment;
 
 // ---------------------------------------------------------------------------
 // Reports Module — Cloud Functions
@@ -818,6 +827,8 @@ exports.generateContractorInvitation = onCall(async (request) => {
       throw new HttpsError("not-found", "Work order not found");
 
     const wo = woDoc.data();
+    // Only a manager of the work order's own company may build its invitation.
+    await requireMember(request, wo.companyId || wo.siteId, {roles: ["admin", "plant_manager", "supervisor", "maintenance_supervisor", "hr_officer"]});
     let contractor = null;
 
     if (contractorId) {
@@ -861,6 +872,7 @@ exports.generateContractorInvitation = onCall(async (request) => {
     // TODO: send via WhatsApp Business API and/or SendGrid
     return { success: true, invitation };
   } catch (err) {
+    if (err instanceof HttpsError) throw err;
     logger.error("generateContractorInvitation failed", err);
     throw new HttpsError(
       "internal",
@@ -882,6 +894,7 @@ const {
 const {onSupportRequestCreated, onSupportMessageCreated, onSupportRequestStatusChanged} = require("./src/platform/supportRequests");
 const {onCompanyRegistered} = require("./src/platform/companyApprovals");
 const {onUserMappingWritten, syncCompanyClaim} = require("./src/auth/companyClaim");
+const {onCompanyUserWritten, enforceInactiveUsers} = require("./src/auth/userAccess");
 
 exports.platformClaimSuperadmin = platformClaimSuperadmin;
 exports.platformOverview = platformOverview;
@@ -896,6 +909,8 @@ exports.platformDailyBillingDigest = platformDailyBillingDigest;
 exports.onCompanyRegistered = onCompanyRegistered;
 exports.onUserMappingWritten = onUserMappingWritten;
 exports.syncCompanyClaim = syncCompanyClaim;
+exports.onCompanyUserWritten = onCompanyUserWritten;
+exports.enforceInactiveUsers = enforceInactiveUsers;
 exports.onSupportRequestCreated = onSupportRequestCreated;
 exports.onSupportMessageCreated = onSupportMessageCreated;
 exports.onSupportRequestStatusChanged = onSupportRequestStatusChanged;

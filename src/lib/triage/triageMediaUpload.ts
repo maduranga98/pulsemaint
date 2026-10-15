@@ -30,7 +30,10 @@ export async function uploadTriageMedia(
   opts: { companyId?: string; folder?: string } = {},
 ): Promise<{ url: string; kind: TriageFileKind; name: string }> {
   const folder = opts.folder ?? 'reference';
-  const company = opts.companyId || 'shared';
+  // Always the company's own folder (storage.rules limit it to members);
+  // the old shared folder is closed to new uploads.
+  const company = opts.companyId;
+  if (!company) throw new Error('No company in session');
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const path = `triage/${company}/${folder}/${rand()}_${safeName}`;
   const fileRef = ref(storage, path);

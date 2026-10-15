@@ -17,6 +17,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
+const {requireMember} = require("../lib/access");
 
 const db = getFirestore("default");
 
@@ -31,6 +32,9 @@ exports.reserveStock = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "requestId and companyId are required");
   }
 
+  // The companyId comes from the browser: the caller must be an active
+  // stores/maintenance manager of that company.
+  await requireMember(request, companyId, {roles: ["store_keeper", "supervisor", "maintenance_supervisor", "plant_manager", "admin"]});
   const callerUid = request.auth.uid;
 
   try {

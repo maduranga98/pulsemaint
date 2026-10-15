@@ -106,6 +106,7 @@ exports.requestCancellation = onCall({ secrets: [stripeSecretKey, platformSmtpPa
   const user = await db.collection("users").doc(request.auth.uid).get();
   const companyId = user.get("companyId");
   if (!companyId) throw new HttpsError("failed-precondition", "No company on your profile");
+  if (user.get("status") === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated");
   if (user.get("role") !== "admin") throw new HttpsError("permission-denied", "Only company admins can do this");
   const companyRef = db.collection("companies").doc(companyId);
   const company = (await companyRef.get()).data() ?? {};

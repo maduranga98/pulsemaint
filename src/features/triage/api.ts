@@ -76,9 +76,17 @@ export async function updateContentItem(
   });
 }
 
-export async function uploadPdf(file: File): Promise<string> {
+// Uploads go under the company's own triage folder — storage.rules only let
+// members of that company read it (the old shared triage/pdfs and
+// triage/media folders took uploads from every company).
+function requireCompany(companyId: string): string {
+  if (!companyId) throw new Error('No company in session');
+  return companyId;
+}
+
+export async function uploadPdf(companyId: string, file: File): Promise<string> {
   const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const fileRef = ref(storage, `triage/pdfs/${uid}.pdf`);
+  const fileRef = ref(storage, `triage/${requireCompany(companyId)}/pdfs/${uid}.pdf`);
   await uploadBytes(fileRef, file);
   return getDownloadURL(fileRef);
 }
@@ -95,10 +103,10 @@ export interface UploadedMedia {
  * (rather than an in-memory blob: URL) is what allows the asset to survive a
  * page reload.
  */
-export async function uploadMedia(file: File): Promise<UploadedMedia> {
+export async function uploadMedia(companyId: string, file: File): Promise<UploadedMedia> {
   const safeName = file.name.replace(/[^\w.\-]+/g, '_');
   const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const fileRef = ref(storage, `triage/media/${uid}-${safeName}`);
+  const fileRef = ref(storage, `triage/${requireCompany(companyId)}/media/${uid}-${safeName}`);
   await uploadBytes(fileRef, file, { contentType: file.type || undefined });
   const url = await getDownloadURL(fileRef);
   return {
