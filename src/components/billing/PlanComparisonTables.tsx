@@ -5,7 +5,6 @@ import {
   COUNT_LIMIT_ROWS,
   ENTERPRISE_PLANS,
   LOCKED_FEATURE_ROWS,
-  OPEN_ON_EVERY_PLAN,
   PLAN_DISPLAY_NAME,
   PLAN_ORDER,
   PLAN_PRICES,
@@ -76,7 +75,7 @@ export function PlanLimitsTable() {
 export function LockedFeaturesTable() {
   return (
     <section>
-      <Heading title="Locked features" note="Only the main and heavy-data features are locked; everything else is open on every plan." />
+      <Heading title="Unlock features" note="Only the main and heavy-data features are locked; everything else is open on every plan." />
       <div className={BOX}>
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
@@ -110,9 +109,6 @@ export function LockedFeaturesTable() {
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-slate-400 mt-2">
-        <span className="font-semibold text-slate-300">Open on every plan:</span> {OPEN_ON_EVERY_PLAN}
-      </p>
     </section>
   );
 }

@@ -48,11 +48,6 @@ export const LOCKED_FEATURE_ROWS: Array<{ key: keyof PlanLimitConfig['features']
   { key: 'audits', label: 'Audits' },
 ];
 
-/** Features that are open on every plan — shown under the locked-features table. */
-export const OPEN_ON_EVERY_PLAN =
-  'Machine registry & QR codes, breakdowns, work orders, PM scheduling, parts catalog, dashboards, machine health score, ' +
-  'work request portal, shift handover, training, safety, triage, Kaizen, evaluations, CSV export, file storage (no limit).';
-
 /** "Unlimited", a count, or "N / month" — for one cell of the limits table. */
 export function formatLimit(value: number | null, perMonth = false): string {
   if (value === null) return 'Unlimited';

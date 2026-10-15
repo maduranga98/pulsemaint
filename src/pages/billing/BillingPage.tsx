@@ -8,7 +8,7 @@ import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
 import { PLAN_PRICES } from '../../lib/planCatalog';
-import { LockedFeaturesTable, PlanLimitsTable } from '../../components/billing/PlanComparisonTables';
+import { LockedFeaturesTable } from '../../components/billing/PlanComparisonTables';
 import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
 import CancellationReasonDialog from '../../components/billing/CancellationReasonDialog';
 import TermsCheckbox from '../../components/legal/TermsCheckbox';
@@ -586,8 +586,7 @@ export default function BillingPage() {
         })}
       </div>
 
-      {/* Side-by-side limits and locked features for every plan */}
-      <PlanLimitsTable />
+      {/* Which features each plan unlocks */}
       <LockedFeaturesTable />
 
       {/* Payment methods, account credit & billing history. Cards are only
