@@ -111,20 +111,30 @@ export function useMachines({
       limit(pageSize + 1),
     );
 
-    onSnapshot(q, (snapshot) => {
-      const pageDocs = snapshot.docs.slice(0, pageSize);
-      const newMachines = pageDocs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Machine[];
+    // One-off read: a live listener here kept appending on every change, so an
+    // edited machine showed up twice (old + new copy). De-dupe by id as well.
+    getDocs(q)
+      .then((snapshot) => {
+        const pageDocs = snapshot.docs.slice(0, pageSize);
+        const newMachines = pageDocs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Machine[];
 
-      setMachines((prev) => [...prev, ...newMachines]);
-      setHasMore(snapshot.docs.length > pageSize);
+        setMachines((prev) => {
+          const seen = new Set(prev.map((m) => m.id));
+          return [...prev, ...newMachines.filter((m) => !seen.has(m.id))];
+        });
+        setHasMore(snapshot.docs.length > pageSize);
 
-      if (pageDocs.length > 0) {
-        setLastDoc(pageDocs[pageDocs.length - 1]);
-      }
-    });
+        if (pageDocs.length > 0) {
+          setLastDoc(pageDocs[pageDocs.length - 1]);
+        }
+      })
+      .catch((err) => {
+        console.error('Error loading more machines:', err);
+        setError(err.message || 'Failed to load more machines');
+      });
   };
 
   const refresh = () => {
