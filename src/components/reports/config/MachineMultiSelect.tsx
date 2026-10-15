@@ -4,6 +4,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
 import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelect';
+import { plantConstraints } from '../../../lib/plantQuery';
 
 /**
  * Machine filter backed by the real machines registry so selected values are
@@ -30,7 +31,7 @@ export default function MachineMultiSelect({ values, onChange }: { values: strin
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
         try {
-          const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
+          const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk), ...plantConstraints('machines')));
           snap.docs.forEach((d) => {
             const data = d.data();
             opts.push({

@@ -11,6 +11,7 @@ import {
   isPickableWorkOrder,
   woFinishedAtMs,
 } from '@/lib/recordReferences';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export interface RecordReference {
   type: 'work_order' | 'breakdown';
@@ -46,6 +47,7 @@ async function loadDirect(profile: Profile, inScope: Matcher): Promise<RecordRef
   if (profile.role !== 'floor_operator') {
     const constraints: QueryConstraint[] = [
       where('siteId', '==', siteId),
+      ...plantConstraints('workOrders'),
       where('status', 'in', [...FINISHED_WO_STATUSES]),
       orderBy('createdAt', 'desc'),
       limit(MAX),
@@ -67,7 +69,7 @@ async function loadDirect(profile: Profile, inScope: Matcher): Promise<RecordRef
 
   try {
     const snap = await getDocs(
-      query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), where('status', '==', 'closed'), limit(MAX)),
+      query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), ...plantConstraints('breakdown_tickets'), where('status', '==', 'closed'), limit(MAX)),
     );
     snap.docs.forEach((d) => {
       const b = d.data();

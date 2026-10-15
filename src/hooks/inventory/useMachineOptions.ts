@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export interface MachineOption {
   id: string;
@@ -31,7 +32,7 @@ export function useMachineOptions() {
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
         try {
-          const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
+          const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk), ...plantConstraints('machines')));
           snap.docs.filter((d) => d.get('status') !== 'scrapped').forEach((d) => {
             const data = d.data();
             opts.push({

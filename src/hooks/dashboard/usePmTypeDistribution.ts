@@ -4,6 +4,7 @@ import { db } from '../../lib/firebase';
 import { toDate, monthKey } from '../../services/analyticsAggregation';
 import type { PMType } from '../../types/pm.types';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export interface PmTypeCount {
   pmType: PMType;
@@ -35,6 +36,7 @@ export function usePmTypeDistribution(companyId: string, months?: string[]) {
         query(
           collection(db, 'workOrders'),
           where('siteId', '==', companyId),
+          ...plantConstraints('workOrders'),
           where('woType', '==', 'PREVENTIVE'),
         ),
       );

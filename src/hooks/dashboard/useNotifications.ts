@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { isNotificationVisibleTo } from '../../lib/notifications/recipients';
 import type { DashboardNotification } from '../../types/analytics.types';
 import { useDepartmentScope } from '../useDepartmentScope';
+import { plantConstraints } from '../../lib/plantQuery';
 
 /**
  * Dashboard notification feed. Applies the same strict targeting as the
@@ -28,6 +29,7 @@ export function useNotifications(companyId: string) {
     const q = query(
       collection(db, 'notifications'),
       where('companyId', '==', companyId),
+      ...plantConstraints('notifications'),
       orderBy('timestamp', 'desc'),
       limit(50),
     );

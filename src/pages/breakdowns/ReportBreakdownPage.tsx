@@ -13,6 +13,7 @@ import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
 import { suggestBreakdownRootCause, type BreakdownRCASuggestion } from '../../lib/breakdownRCA';
 import { markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
+import { plantConstraints } from '../../lib/plantQuery';
 
 interface MachineOption {
   id: string;
@@ -98,7 +99,7 @@ export default function ReportBreakdownPage() {
     setMachinesLoading(true);
     setMachinesTimedOut(false);
     const timer = setTimeout(() => setMachinesTimedOut(true), 8000);
-    getDocs(query(collection(db, 'machines'), where('siteId', '==', siteId)))
+    getDocs(query(collection(db, 'machines'), where('siteId', '==', siteId), ...plantConstraints('machines')))
       .then(async (snap) => {
         const list: MachineOption[] = snap.docs
           .filter((d) => d.get('status') !== 'scrapped')

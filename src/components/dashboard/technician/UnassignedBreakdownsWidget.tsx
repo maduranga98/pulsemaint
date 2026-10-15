@@ -12,6 +12,7 @@ import { markMachineUnderMaintenance } from '../../../lib/machineOperationalStat
 import { useTranslation } from 'react-i18next';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
 import { fetchBusyTechnicians } from '../../../services/technicianAvailability.service';
+import { plantConstraints } from '../../../lib/plantQuery';
 
 interface UnassignedBreakdownsWidgetProps {
   siteId: string;
@@ -49,6 +50,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
+      ...plantConstraints('breakdown_tickets'),
       where('status', '==', 'reported'),
     );
     const unsub = onSnapshot(

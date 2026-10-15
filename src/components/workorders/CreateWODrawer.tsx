@@ -26,6 +26,7 @@ import { formatMachineLocation } from '../../lib/machineLocation';
 import { useSafetyBlacklist } from '../../hooks/safety/useSafety';
 import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
 import { useBusyTechnicians } from '../../hooks/useBusyTechnicians';
+import { plantConstraints } from '../../lib/plantQuery';
 
 type MachineOption = {
   id: string;
@@ -151,7 +152,7 @@ export function CreateWODrawer({
       try {
         const siteIdList = siteIds && siteIds.length > 0 ? siteIds : [companyId];
         const machineSnap = await getDocs(
-          query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
+          query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10)), ...plantConstraints('machines')),
         );
         if (cancelled) return;
         // Scrapped machines stay on record but can't take new work.
@@ -207,7 +208,7 @@ export function CreateWODrawer({
         // Load open breakdown tickets so they can be linked to this WO.
         try {
           const bdSnap = await getDocs(
-            query(collection(db, 'breakdown_tickets'), where('siteId', 'in', siteIdList.slice(0, 10))),
+            query(collection(db, 'breakdown_tickets'), where('siteId', 'in', siteIdList.slice(0, 10)), ...plantConstraints('breakdown_tickets')),
           );
           if (!cancelled) {
             const TERMINAL = new Set(['resolved', 'closed']);

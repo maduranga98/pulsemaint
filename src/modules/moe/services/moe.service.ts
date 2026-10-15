@@ -18,6 +18,7 @@ import type {
   MoeTrendPoint,
 } from '../types/moe.types';
 import { DEFAULT_MOE_CONFIG, getMoeStatus } from '../types/moe.types';
+import { plantConstraints } from '../../../lib/plantQuery';
 
 // ─── Config ────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,7 @@ export function calculateMoeScore(
 // ─── Data fetch helpers ──────────────────────────────────────────────────────
 
 async function fetchActiveMachines(siteId: string): Promise<Machine[]> {
-  const q = query(collection(db, 'machines'), where('siteId', '==', siteId));
+  const q = query(collection(db, 'machines'), where('siteId', '==', siteId), ...plantConstraints('machines'));
   const snap = await getDocs(q);
   return snap.docs
     .map((d) => ({ id: d.id, ...d.data() } as Machine))
@@ -96,7 +97,7 @@ async function fetchBreakdownStatsForSite(
   start: Date,
   end: Date,
 ): Promise<Map<string, { count: number; downtimeMinutes: number }>> {
-  const q = query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId));
+  const q = query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), ...plantConstraints('breakdown_tickets'));
   const snap = await getDocs(q);
   const byMachine = new Map<string, { count: number; downtimeMinutes: number }>();
 
@@ -123,7 +124,7 @@ async function fetchPmStatsForSite(
   end: Date,
 ): Promise<Map<string, { scheduled: number; onTime: number }>> {
   // pm_history docs use `companyId` for tenant scoping (same value as siteId).
-  const q = query(collection(db, 'pm_history'), where('companyId', '==', siteId));
+  const q = query(collection(db, 'pm_history'), where('companyId', '==', siteId), ...plantConstraints('pm_history'));
   const snap = await getDocs(q);
   const byMachine = new Map<string, { scheduled: number; onTime: number }>();
 
@@ -277,8 +278,8 @@ export async function fetchMoeTrendForMachine(
 
   // Per-day machine-scoped stats are recomputed directly against the raw
   // collections with day-length windows below.
-  const bdQ = query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), where('machineId', '==', machineId));
-  const pmQ = query(collection(db, 'pm_history'), where('companyId', '==', siteId), where('machineId', '==', machineId));
+  const bdQ = query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), ...plantConstraints('breakdown_tickets'), where('machineId', '==', machineId));
+  const pmQ = query(collection(db, 'pm_history'), where('companyId', '==', siteId), ...plantConstraints('pm_history'), where('machineId', '==', machineId));
   const [bdSnap, pmSnap] = await Promise.all([getDocs(bdQ), getDocs(pmQ)]);
   const breakdowns = bdSnap.docs.map((d) => d.data() as Breakdown);
   const pms = pmSnap.docs.map((d) => d.data() as Record<string, unknown>);

@@ -10,6 +10,7 @@ import {
 } from '@/lib/contractors/contractorJobStats';
 import { usePlantMachineIds } from '@/hooks/usePlantMachineIds';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 type JobRow = ContractorJobStatRow<Timestamp>;
 
@@ -55,7 +56,7 @@ export function useContractorJobStats(): {
       return;
     }
     const unsub = onSnapshot(
-      query(collection(db, 'workOrders'), where('siteId', '==', siteId), where('woType', '==', 'CONTRACTOR')),
+      query(collection(db, 'workOrders'), where('siteId', '==', siteId), ...plantConstraints('workOrders'), where('woType', '==', 'CONTRACTOR')),
       (snap) => {
         setWoRows(
           snap.docs

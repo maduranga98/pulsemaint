@@ -22,6 +22,7 @@ import type {
   TechnicianStatusDoc,
   DashboardNotification,
 } from '../types/analytics.types';
+import { plantConstraints } from '../lib/plantQuery';
 
 const currentMonthKey = () => monthKey(new Date());
 
@@ -112,6 +113,7 @@ export function subscribeNotifications(
   const q = query(
     collection(db, 'notifications'),
     where('companyId', '==', companyId),
+    ...plantConstraints('notifications'),
     orderBy('timestamp', 'desc'),
     limit(50),
   );
@@ -134,6 +136,7 @@ export function subscribeActiveBreakdownCount(
   const q = query(
     collection(db, 'breakdown_tickets'),
     where('companyId', '==', companyId),
+    ...plantConstraints('breakdown_tickets'),
   );
   return onSnapshot(q, (snap) => {
     const closed = new Set(['closed', 'resolved', 'cancelled']);
@@ -148,6 +151,7 @@ export function subscribeOpenWorkOrderCount(
   const q = query(
     collection(db, 'workOrders'),
     where('companyId', '==', companyId),
+    ...plantConstraints('workOrders'),
     where('status', 'in', ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL']),
   );
   return onSnapshot(q, (snap) => callback(snap.size));
