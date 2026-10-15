@@ -8478,7 +8478,9 @@
             "noShiftAssigned": "මුරයක් පවරා නැත",
             "address": "ලිපිනය",
             "addressPlaceholder": "උදා. 123 ප්‍රධාන වීදිය, කොළඹ",
-            "noDepartment": "දෙපාර්තමේන්තුවක් නැත"
+            "noDepartment": "දෙපාර්තමේන්තුවක් නැත",
+            "hourlyRate": "ශ්‍රම ගාස්තුව (පැයකට)",
+            "hourlyRatePlaceholder": "මෙම පුද්ගලයාගේ සටහන් කළ පැය සඳහා පිරිවැය ගණනය කිරීමට භාවිත වේ"
           },
           "errors": {
             "fullNameRequired": "සම්පූර්ණ නම අවශ්‍යයි.",
@@ -9030,7 +9032,8 @@
           "poor": "දුර්වලයි",
           "none": "දත්ත නැත"
         }
-      }
+      },
+      "incompleteData": "සමහර වාර්තා පූරණය කළ නොහැකි විය ({{sources}}), එබැවින් මෙම අගයන් අසම්පූර්ණ විය හැක. නැවත උත්සාහ කිරීමට පිටුව නැවුම් කරන්න."
     },
     "myShift": {
       "title": "මගේ මුරය",
@@ -10243,7 +10246,9 @@
           "eGWr2025001": "උදා. WR-2025-001",
           "documentAnyModificationsMadeTo": "මෙම යන්ත්‍රයට කළ වෙනස් කිරීම් ලේඛනගත කරන්න...",
           "anyOtherRelevantInformation": "වෙනත් අදාළ තොරතුරු...",
-          "newDepartmentName": "නව දෙපාර්තමේන්තු නාමය"
+          "newDepartmentName": "නව දෙපාර්තමේන්තු නාමය",
+          "healthScoreAuto": "සෞඛ්‍ය ලකුණු",
+          "healthScoreAutoHint": "පසුගිය දින 90 තුළ ඇති වූ බිඳවැටීම් සහ PM කාර්යයන් අනුව ස්වයංක්‍රීයව ගණනය කෙරේ — අතින් සැකසිය නොහැක."
         },
         "machineHealthScore": {
           "healthScore": "සෞඛ්‍ය ලකුණ"

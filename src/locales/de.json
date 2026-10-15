@@ -7370,7 +7370,8 @@
           "poor": "Schlecht",
           "none": "Keine Daten"
         }
-      }
+      },
+      "incompleteData": "Einige Datensätze konnten nicht geladen werden ({{sources}}), daher sind diese Zahlen möglicherweise unvollständig. Laden Sie die Seite neu, um es erneut zu versuchen."
     },
     "moe": {
       "filter": {
@@ -8835,7 +8836,9 @@
             "noShiftAssigned": "Keine Schicht zugewiesen",
             "address": "Adresse",
             "addressPlaceholder": "z. B. Musterstraße 123, 12345 Musterstadt",
-            "noDepartment": "Keine Abteilung"
+            "noDepartment": "Keine Abteilung",
+            "hourlyRate": "Arbeitskostensatz (pro Stunde)",
+            "hourlyRatePlaceholder": "Wird zur Kostenberechnung der erfassten Stunden dieser Person verwendet"
           },
           "errors": {
             "fullNameRequired": "Der vollständige Name ist erforderlich.",
@@ -9977,7 +9980,9 @@
           "eGWr2025001": "z. B. WR-2025-001",
           "documentAnyModificationsMadeTo": "Dokumentiere Änderungen an dieser Maschine...",
           "anyOtherRelevantInformation": "Weitere relevante Informationen...",
-          "newDepartmentName": "Name der neuen Abteilung"
+          "newDepartmentName": "Name der neuen Abteilung",
+          "healthScoreAuto": "Zustandswert",
+          "healthScoreAutoHint": "Wird automatisch aus den Ausfällen und der vorbeugenden Wartung der letzten 90 Tage berechnet – kann nicht manuell festgelegt werden."
         },
         "machineHealthScore": {
           "healthScore": "Zustandswert"

@@ -12,6 +12,9 @@
  */
 
 const OPEN_BREAKDOWN = (status) => !["resolved", "closed", "cancelled"].includes(String(status ?? ""));
+const NOT_DONE_OUTCOMES = new Set(["failed", "not_complete"]);
+/** A sign-off as failed / not complete doesn't put the machine back in service. */
+const signOffRestoresMachine = (wo) => !NOT_DONE_OUTCOMES.has(String(wo.signOffOutcome ?? ""));
 
 /**
  * @param {*} value Timestamp / Date / millis / ISO / {seconds}
@@ -94,7 +97,13 @@ function computeDowntimeEvents(breakdowns, workOrders, now = new Date(), legacyB
 
     const signOffs = linked.map((w) => ms(workOrderSignOff(w))).filter((x) => x !== null);
     const allSignedOff = linked.length > 0 && linked.every((w) => workOrderSignOff(w));
-    let end = allSignedOff && signOffs.length ? new Date(Math.max(...signOffs)) : null;
+    let end = null;
+    if (allSignedOff && signOffs.length) {
+      const lastAt = Math.max(...signOffs);
+      const last = linked.find((w) => ms(workOrderSignOff(w)) === lastAt);
+      if (signOffRestoresMachine(last)) end = new Date(lastAt);
+      else if (!OPEN_BREAKDOWN(b.status)) end = toDateValue(b.closedAt) || toDateValue(b.resolvedAt) || new Date(lastAt);
+    }
     if (!end && linked.length === 0) {
       end = toDateValue(b.closedAt) || toDateValue(b.resolvedAt);
     }
@@ -117,11 +126,15 @@ function computeDowntimeEvents(breakdowns, workOrders, now = new Date(), legacyB
       kind: "breakdown",
       sourceId: String(b.id),
       machineId: b.machineId != null ? String(b.machineId) : null,
+      machineName: String(b.machineName ?? b.machineId ?? ""),
+      machineCriticality: Number(b.machineCriticality ?? 3),
       start,
       end,
       ongoing,
       hours,
       row: b,
+      // The date analytics bucket this event under (as the app does).
+      anchor: b.reportedAt ?? b.createdAt,
     });
   });
 
@@ -136,11 +149,14 @@ function computeDowntimeEvents(breakdowns, workOrders, now = new Date(), legacyB
       kind: "maintenance",
       sourceId: String(wo.id),
       machineId: wo.machineId != null ? String(wo.machineId) : null,
+      machineName: String(wo.machineName ?? wo.machineId ?? ""),
+      machineCriticality: Number(wo.machineCriticality ?? 3),
       start,
       end,
       ongoing: false,
       hours: hoursBetween(start, end),
       row: wo,
+      anchor: wo.actualEndTime ?? wo.createdAt,
     });
   });
 

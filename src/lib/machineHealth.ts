@@ -13,18 +13,24 @@
  *   Additions:
  *     - PM completed on time: +5 points each (max +20 total)
  *   Final: clamped to 0–100
+ *
+ * The score is computed server-side (functions/src/machines/machineHealth.js,
+ * a port of machineHealthScoreFromRecords below — kept in sync by
+ * src/lib/__tests__/machineHealthParity.test.ts) and stored on
+ * machines/{id}.healthScore, so every screen, report and MOE snapshot shows
+ * the same number. It is never typed in by hand.
  */
 
 import type { Timestamp } from 'firebase/firestore';
 
 interface BreakdownForHealth {
   severity: 'critical' | 'high' | 'medium' | 'low';
-  date: Timestamp;
+  date: Timestamp | Date;
 }
 
 interface MaintenanceWorkForHealth {
   type: string;
-  dateCompleted: Timestamp;
+  dateCompleted: Timestamp | Date;
 }
 
 export interface HealthScoreInput {
@@ -71,6 +77,82 @@ export function calculateMachineHealthScore(input: HealthScoreInput): number {
 
   // Clamp to 0-100
   return Math.max(0, Math.min(100, score));
+}
+
+export const HEALTH_WINDOW_DAYS = 90;
+const DAY_MS = 86_400_000;
+const SEVERITIES = new Set(['critical', 'high', 'medium', 'low']);
+
+type Row = Record<string, any>;
+
+function toDateOrNull(value: unknown): Date | null {
+  if (!value) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  const v = value as { toDate?: () => Date; seconds?: number };
+  if (typeof v.toDate === 'function') return v.toDate();
+  if (typeof v.seconds === 'number') return new Date(v.seconds * 1000);
+  const d = new Date(value as string | number);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * The health-score inputs from a machine's raw records:
+ *  - breakdowns reported in the last 90 days, cancelled ones excluded; one
+ *    not assessed yet (no severity) counts as medium;
+ *  - overdue PMs: occurrences still open past their due date, plus those
+ *    closed as missed that were due in the last 90 days;
+ *  - PMs completed on time in the last 90 days.
+ */
+export function machineHealthInputs(
+  machineStatus: unknown,
+  breakdowns: Row[],
+  pmHistory: Row[],
+  now: Date = new Date(),
+): HealthScoreInput {
+  const since = now.getTime() - HEALTH_WINDOW_DAYS * DAY_MS;
+  const inWindow = (d: Date | null) => !!d && d.getTime() >= since && d.getTime() <= now.getTime();
+
+  const breakdownsLast90Days: BreakdownForHealth[] = [];
+  breakdowns.forEach((b) => {
+    if (String(b.status ?? '') === 'cancelled') return;
+    const reported = toDateOrNull(b.reportedAt ?? b.createdAt);
+    if (!inWindow(reported)) return;
+    const severity = SEVERITIES.has(String(b.severity)) ? (b.severity as BreakdownForHealth['severity']) : 'medium';
+    breakdownsLast90Days.push({ severity, date: reported! });
+  });
+
+  let overduePMs = 0;
+  const maintenanceCompletedLast90Days: MaintenanceWorkForHealth[] = [];
+  pmHistory.forEach((p) => {
+    const status = String(p.status ?? '');
+    const due = toDateOrNull(p.dueDate);
+    const completed = toDateOrNull(p.completedDate);
+    if (status === 'completed_on_time') {
+      if (inWindow(completed ?? due)) maintenanceCompletedLast90Days.push({ type: 'pm', dateCompleted: (completed ?? due)! });
+      return;
+    }
+    if (status === 'completed_late') return;
+    if (status === 'missed') {
+      if (inWindow(due)) overduePMs += 1;
+      return;
+    }
+    // Still open (in progress / overdue): overdue once its due date has passed.
+    if (!completed && due && due.getTime() < now.getTime()) overduePMs += 1;
+  });
+
+  const status: HealthScoreInput['status'] =
+    machineStatus === 'under_maintenance' || machineStatus === 'decommissioned' ? machineStatus : 'active';
+  return { status, breakdownsLast90Days, maintenanceCompletedLast90Days, overduePMs };
+}
+
+/** The machine's health score from its raw records (see machineHealthInputs). */
+export function machineHealthScoreFromRecords(
+  machineStatus: unknown,
+  breakdowns: Row[],
+  pmHistory: Row[],
+  now: Date = new Date(),
+): number {
+  return calculateMachineHealthScore(machineHealthInputs(machineStatus, breakdowns, pmHistory, now));
 }
 
 export function getHealthScoreColor(score: number): string {

@@ -138,6 +138,13 @@ export interface AnalyticsMonthly {
   pmComplianceRate: number;
   pmCompletedOnTime?: number;
   pmMissed?: number;
+  // Work orders whose SLA deadline fell in the month: met vs breached
+  // (overallSlaCompliance = met / (met + breached), 100 when none fell due).
+  slaMet?: number;
+  slaBreached?: number;
+  // Data sources that failed to load while computing these numbers — the
+  // figures are then incomplete and the page says so.
+  incompleteSources?: string[];
   topProblemMachines: TopProblemMachine[];
   technicianPerformance: TechnicianPerformanceRecord[];
   contractorPerformance: ContractorPerformanceRecord[];

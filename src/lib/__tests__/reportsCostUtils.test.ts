@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   topHealthScores,
-  computeWoTotalCost,
   totalCostByWoType,
   computeStockStatusBuckets,
   downtimeByWeekday,
@@ -43,20 +42,6 @@ describe('topHealthScores', () => {
   it('handles fewer rows than count', () => {
     const rows = [{ machineName: 'A', healthScore: 10 }];
     expect(topHealthScores(rows, 5)).toEqual([{ label: 'A', value: 10 }]);
-  });
-});
-
-describe('computeWoTotalCost', () => {
-  it('sums parts + labor for a non-contractor WO', () => {
-    expect(computeWoTotalCost(150, 50, 0)).toBe(200);
-  });
-
-  it('includes contractor total project cost for a contractor WO', () => {
-    expect(computeWoTotalCost(150, 0, 5000)).toBe(5150);
-  });
-
-  it('treats missing values as zero', () => {
-    expect(computeWoTotalCost(0, 0, 0)).toBe(0);
   });
 });
 

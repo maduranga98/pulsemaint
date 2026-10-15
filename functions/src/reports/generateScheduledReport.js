@@ -25,7 +25,8 @@ const SOURCE_MAP = {
   low_stock_alert: ["inventoryParts"],
   pm_compliance: ["pm_history"],
   training_compliance: ["trainingAssignments"],
-  sla_compliance: ["breakdown_tickets"],
+  // SLA deadlines live on work orders — breakdown tickets never carry one.
+  sla_compliance: ["workOrders"],
   shift_handover_summary: ["shift_handovers"],
   downtime_analysis: ["breakdown_tickets"],
   executive_monthly: ["analytics_monthly"],
@@ -61,7 +62,7 @@ function computeNextRunAt(frequency, dayOfWeek, dayOfMonth, from) {
 }
 
 /** Sources that describe current state rather than events in a period. */
-const SNAPSHOT_SOURCES = new Set(["machines", "machine_health", "inventoryParts", "analytics_monthly"]);
+const SNAPSHOT_SOURCES = new Set(["machines", "machine_health", "inventoryParts"]);
 /** Reads per source per run — enough for a month of a large plant. */
 const MAX_ROWS_PER_SOURCE = 20000;
 
@@ -83,9 +84,22 @@ function reportPeriod(frequency, now) {
   return {from: new Date(today.getTime() - days * 86400000), to: new Date(today.getTime() - 1)};
 }
 
-/** The event date of a row (same fields the in-app report builder reads). */
-function rowDate(row) {
-  const raw = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt ?? row.raisedAt ?? row.performedAt;
+/**
+ * The date that places a row in a period — the dashboards' rule (and the
+ * in-app report builder's): a breakdown when reported, a PM occurrence when
+ * due, a stock movement when performed, a work order's SLA by its deadline.
+ * @param {object} row record
+ * @param {string} source collection
+ * @param {string} reportType report type
+ * @return {Date|null} date
+ */
+function rowDate(row, source, reportType) {
+  let raw;
+  if (reportType === "sla_compliance") raw = row.slaDeadline;
+  else if (source === "breakdown_tickets") raw = row.reportedAt ?? row.createdAt;
+  else if (source === "pm_history") raw = row.dueDate ?? row.completedDate;
+  else if (source === "stockMovements") raw = row.performedAt ?? row.createdAt;
+  else raw = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt ?? row.raisedAt ?? row.performedAt;
   if (raw && typeof raw.toDate === "function") return raw.toDate();
   const d = raw ? new Date(raw) : null;
   return d && !Number.isNaN(d.getTime()) ? d : null;
@@ -109,8 +123,15 @@ async function fetchRows(schedule, period) {
       if (snap.size >= MAX_ROWS_PER_SOURCE) logger.warn(`generateScheduledReport: ${source} capped at ${MAX_ROWS_PER_SOURCE} rows`);
       snap.forEach((doc) => {
         const row = {id: doc.id, ...doc.data()};
-        if (!SNAPSHOT_SOURCES.has(source)) {
-          const at = rowDate(row);
+        // Cancelled tickets were never breakdowns (the dashboards don't count them).
+        if (source === "breakdown_tickets" && row.status === "cancelled") return;
+        if (source === "analytics_monthly") {
+          // The months the period covers (generateMonthlyAnalytics keeps them current).
+          const first = period.from.toISOString().slice(0, 7);
+          const last = period.to.toISOString().slice(0, 7);
+          if (!row.month || row.month < first || row.month > last) return;
+        } else if (!SNAPSHOT_SOURCES.has(source)) {
+          const at = rowDate(row, source, schedule.reportType);
           if (!at || at < period.from || at > period.to) return;
         }
         if (plantId) {
