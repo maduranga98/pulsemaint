@@ -8,6 +8,7 @@ import {
   isNotificationVisibleTo,
   isOversightCopy,
   isOwnAction,
+  isRoutineOversightCopy,
   notificationDisplayMessage,
   resolveRecipientRoles,
   roleLabel,
@@ -137,6 +138,7 @@ describe('isHiddenAdminAction / isNotificationVisibleTo', () => {
     targetUserIds: [],
     actorRole: 'admin',
     actorUserId: 'a-1',
+    severity: 'high',
   };
 
   it('keeps an admin action out of a plant manager’s bar', () => {
@@ -296,5 +298,45 @@ describe('isNotificationInReaderScope', () => {
 
   it('keeps plant-less (company-wide / legacy) notifications visible', () => {
     expect(isNotificationInReaderScope({ recipientRoles: ['supervisor'] }, scope, 'u1')).toBe(true);
+  });
+});
+
+describe('isRoutineOversightCopy', () => {
+  const traineeOverdue = {
+    recipientRoles: resolveRecipientRoles(['trainee'], []),
+    recipientUserIds: [],
+    targetRoles: ['trainee'],
+    targetUserIds: [],
+    actorRole: null,
+    actorUserId: null,
+    severity: 'medium',
+  };
+
+  it('hides a routine item raised for another role from a plant manager', () => {
+    expect(isRoutineOversightCopy(traineeOverdue, 'plant_manager', 'pm-1')).toBe(true);
+    expect(isNotificationVisibleTo(traineeOverdue, 'plant_manager', 'pm-1')).toBe(false);
+    expect(isNotificationVisibleTo(traineeOverdue, 'admin', 'a-1')).toBe(false);
+  });
+
+  it('keeps it for the people it was raised for', () => {
+    expect(isNotificationVisibleTo(traineeOverdue, 'trainee', 't-1')).toBe(true);
+  });
+
+  it('keeps high and critical items for oversight roles', () => {
+    expect(isNotificationVisibleTo({ ...traineeOverdue, severity: 'critical' }, 'plant_manager', 'pm-1')).toBe(true);
+    expect(isNotificationVisibleTo({ ...traineeOverdue, severity: 'high' }, 'admin', 'a-1')).toBe(true);
+  });
+
+  it('keeps items addressed to the oversight reader or done by them', () => {
+    const own = { ...traineeOverdue, targetRoles: ['plant_manager'] };
+    expect(isNotificationVisibleTo(own, 'plant_manager', 'pm-1')).toBe(true);
+    const byId = { ...traineeOverdue, targetRoles: [], targetUserIds: ['pm-1'], recipientUserIds: ['pm-1'] };
+    expect(isNotificationVisibleTo(byId, 'plant_manager', 'pm-1')).toBe(true);
+    expect(isNotificationVisibleTo({ ...traineeOverdue, actorUserId: 'pm-1' }, 'plant_manager', 'pm-1')).toBe(true);
+  });
+
+  it('keeps legacy items with no recorded target', () => {
+    const legacy = { recipientRoles: ['plant_manager'], severity: 'low' };
+    expect(isNotificationVisibleTo(legacy, 'plant_manager', 'pm-1')).toBe(true);
   });
 });

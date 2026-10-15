@@ -10,6 +10,8 @@ import { useAuthStore } from '../../../store/authStore';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
+import { usePlantNameLookup } from '../../../hooks/usePlantNameLookup';
+import PlantBadge from '../shared/PlantBadge';
 
 /**
  * "Hold · Approval" requests raised by technicians/trainees that are still
@@ -27,6 +29,7 @@ export default function PendingApprovalsWidget() {
   const { t } = useTranslation();
   const { workOrders, loading, error, refetch } = useWorkOrders();
   const inScopedPlant = useRecordPlantMatcher();
+  const plantName = usePlantNameLookup();
   const me = useAuthStore((s) => s.userProfile);
   const navigate = useNavigate();
   const { resolveApprovalRequest, loading: resolving } = useApprovalRequest();
@@ -121,9 +124,12 @@ export default function PendingApprovalsWidget() {
                         <p className="text-sm font-semibold text-[#F0F4F8] truncate">{wo.woNumber || wo.id}</p>
                         <p className="text-xs text-[#8BA3BF] truncate">{wo.machineName}</p>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/30 whitespace-nowrap">
-                        {t('common.widgets.pendingApprovalsWidget.pendingBadge')}
-                      </span>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/30 whitespace-nowrap">
+                          {t('common.widgets.pendingApprovalsWidget.pendingBadge')}
+                        </span>
+                        <PlantBadge name={plantName(wo.machinePlantId)} />
+                      </div>
                     </div>
                     <p className="text-xs text-[#8BA3BF]">
                       <span className="font-medium text-[#F0F4F8]">{request.technicianName}</span> {t('common.widgets.pendingApprovalsWidget.requested')}: {request.note}
@@ -240,9 +246,12 @@ export default function PendingApprovalsWidget() {
                         {r.machineName ? ` · ${r.machineName}` : ''}
                       </p>
                     </div>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-300 ring-1 ring-blue-500/30 whitespace-nowrap">
-                      {t('common.widgets.pendingApprovalsWidget.partsBadge', 'Parts')}
-                    </span>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-300 ring-1 ring-blue-500/30 whitespace-nowrap">
+                        {t('common.widgets.pendingApprovalsWidget.partsBadge', 'Parts')}
+                      </span>
+                      <PlantBadge name={plantName(r.plantId)} />
+                    </div>
                   </div>
                   <p className="text-xs text-[#8BA3BF]">
                     <span className="font-medium text-[#F0F4F8]">{r.requestedByName}</span>

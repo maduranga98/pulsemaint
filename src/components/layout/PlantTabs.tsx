@@ -1,7 +1,13 @@
+import { useLocation } from 'react-router-dom';
+import { Building2, LayoutGrid } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useActivePlantStore } from '../../store/activePlantStore';
 import { usePlants } from '../../hooks/usePlants';
 import { useTranslation } from 'react-i18next';
+
+// Admin group (Settings, Billing, Feedback & Requests) and Help are about the
+// company/account, not a plant, so the plant switcher is hidden there.
+const PLANT_FREE_PREFIXES = ['/app/settings', '/app/billing', '/app/support-requests', '/app/help'];
 
 /**
  * Admin-only plant switcher. Plant is the main scoping category across the
@@ -14,6 +20,7 @@ import { useTranslation } from 'react-i18next';
  */
 export function PlantTabs() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const { activePlants, loading } = usePlants(companyId);
@@ -21,35 +28,50 @@ export function PlantTabs() {
   const setActivePlant = useActivePlantStore((s) => s.setActivePlant);
 
   if (userProfile?.role !== 'admin' || loading || activePlants.length === 0) return null;
+  if (PLANT_FREE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
+
+  const options: { id: string | null; label: string }[] = [
+    { id: null, label: t('common.layout.plantTabs.allPlants', 'All Plants') },
+    ...activePlants.map((p) => ({ id: p.id, label: p.name })),
+  ];
 
   return (
-    <div className="shrink-0 bg-[#0F1E35] border-b border-[#1E3A5F] px-4 lg:px-6 overflow-x-auto scrollbar-hide">
-      <div className="flex items-center gap-1 h-10">
-        <button
-          type="button"
-          onClick={() => setActivePlant(null)}
-          className={`px-3 h-7 rounded-md text-[12px] font-medium whitespace-nowrap transition-colors ${
-            activePlantId === null
-              ? 'bg-[#1A56DB] text-white'
-              : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#D5DEEA]'
-          }`}
+    <div className="shrink-0 border-b border-[#1E3A5F] bg-[#0B172A] px-4 py-2.5 lg:px-6">
+      <div className="flex items-center gap-3">
+        <span className="hidden shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#6C87A6] sm:flex">
+          <Building2 className="h-3.5 w-3.5" />
+          {t('common.layout.plantTabs.viewing', 'Viewing')}
+        </span>
+        <div
+          role="tablist"
+          aria-label={t('common.layout.plantTabs.label', 'Plant')}
+          className="scrollbar-hide flex min-w-0 items-center gap-1 overflow-x-auto rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-1"
         >
-          {t('common.layout.plantTabs.allPlants', 'All Plants')}
-        </button>
-        {activePlants.map((plant) => (
-          <button
-            key={plant.id}
-            type="button"
-            onClick={() => setActivePlant(plant.id)}
-            className={`px-3 h-7 rounded-md text-[12px] font-medium whitespace-nowrap transition-colors ${
-              activePlantId === plant.id
-                ? 'bg-[#1A56DB] text-white'
-                : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#D5DEEA]'
-            }`}
-          >
-            {plant.name}
-          </button>
-        ))}
+          {options.map((o) => {
+            const active = activePlantId === o.id;
+            return (
+              <button
+                key={o.id ?? 'all'}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setActivePlant(o.id)}
+                className={`flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 text-[12.5px] font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] ${
+                  active
+                    ? 'bg-gradient-to-b from-[#2563EB] to-[#1A56DB] text-white shadow-md shadow-[#1A56DB]/30'
+                    : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
+                }`}
+              >
+                {o.id === null ? (
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                ) : (
+                  <span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-white' : 'bg-[#10B981]'}`} />
+                )}
+                {o.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

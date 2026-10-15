@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useFactoryFloorAttention, type FloorMachine } from '../../../hooks/dashboard/useFactoryFloorAttention';
+import { usePlantNameLookup } from '../../../hooks/usePlantNameLookup';
+import PlantBadge from '../shared/PlantBadge';
 
 interface FactoryFloorMapProps {
   companyId: string;
@@ -19,6 +21,7 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
   // its last work order is signed off and its breakdowns are resolved.
   const { machines: attention, loading, error } = useFactoryFloorAttention(companyId);
   const [selected, setSelected] = useState<FloorMachine | null>(null);
+  const plantName = usePlantNameLookup();
 
   return (
     <DashboardWidget
@@ -45,11 +48,14 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
                   <p className="truncate text-sm font-semibold text-[#F0F4F8]">{m.machineName}</p>
                   <p className="truncate text-[11px]" style={{ color: meta.color }}>{meta.label}</p>
                 </div>
-                {m.openWoCount > 0 && (
-                  <span className="shrink-0 rounded-full bg-[#1A56DB]/20 px-2 py-0.5 text-[10px] font-semibold text-[#5B8DEF]">
-                    {m.openWoCount} WO
-                  </span>
-                )}
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  {m.openWoCount > 0 && (
+                    <span className="rounded-full bg-[#1A56DB]/20 px-2 py-0.5 text-[10px] font-semibold text-[#5B8DEF]">
+                      {m.openWoCount} WO
+                    </span>
+                  )}
+                  <PlantBadge name={plantName(m.plantId)} />
+                </div>
               </button>
             );
           })}
@@ -66,6 +72,7 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
                 <p className="mt-0.5 flex items-center gap-1 text-xs text-[#8BA3BF]">
                   <MapPin className="h-3 w-3" /> {selected.location || t('common.dashboard.floorMap.noLocation')}
                 </p>
+                <div className="mt-1.5"><PlantBadge name={plantName(selected.plantId)} /></div>
               </div>
               <button type="button" onClick={() => setSelected(null)} className="text-[#8BA3BF] hover:text-white" aria-label={t('common.ui.close')}>
                 <X className="h-5 w-5" />

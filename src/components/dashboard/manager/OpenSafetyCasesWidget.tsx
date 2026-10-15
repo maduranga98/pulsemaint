@@ -4,6 +4,8 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useSafetyCases } from '../../../hooks/safety/useSafety';
 import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
+import { usePlantNameLookup } from '../../../hooks/usePlantNameLookup';
+import PlantBadge from '../shared/PlantBadge';
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: '#EF4444',
@@ -21,6 +23,7 @@ export default function OpenSafetyCasesWidget({ companyId }: { companyId: string
   const { t } = useTranslation();
   const { cases, loading } = useSafetyCases(companyId);
   const { plantId } = useDepartmentScope();
+  const plantName = usePlantNameLookup();
   const openCases = useMemo(
     () => cases.filter((c) => c.status !== 'closed' && (!plantId || c.plantId === plantId)),
     [cases, plantId],
@@ -49,7 +52,8 @@ export default function OpenSafetyCasesWidget({ companyId }: { companyId: string
                   <p className="truncate text-sm font-semibold text-[#F0F4F8]">{c.title}</p>
                   <p className="truncate text-[11px] text-[#8BA3BF] capitalize">{c.type.replace(/_/g, ' ')}</p>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5">
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                  <PlantBadge name={plantName(c.plantId)} />
                   <span className="rounded-full bg-[#1E3A5F] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#8BA3BF]">
                     {STATUS_LABEL[c.status] ?? c.status}
                   </span>
