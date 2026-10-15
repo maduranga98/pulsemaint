@@ -12,6 +12,12 @@ FirmiCore is a multi-tenant maintenance-management platform (CMMS): machine regi
 
 Do not commit directly to `main`. For every fix or change, create a feature branch (e.g. `fix/<short-description>` or `claude/<short-description>`), commit there, and open a PR into `main` instead of pushing straight to it.
 
+## Working with the owner
+
+- The owner writes requests in English and Sinhala, often as several tasks in one message or added mid-task. Keep a task list of every request (TaskCreate/TaskUpdate) and finish each one, in the order given unless told otherwise.
+- When any task or step fails, is skipped, or can't be verified (a check that wouldn't run, a missing credential, a deploy-time step only the owner can do), review it before finishing and report it **in Sinhala**: what failed, why it failed, and what should be done to fix it. Never present such a step as done.
+- Open a PR for every change (never commit to `main`). Merge only when the owner asks for it; a merge approval for one PR does not carry over to later ones.
+
 ## Commands
 
 Frontend (run from repo root):
