@@ -121,6 +121,49 @@ export function emptyLead(now = Date.now()): LeadInput {
   };
 }
 
+/** The bits of a registered company (a trial request) the lead matching reads. */
+export interface TrialRequestLike {
+  id: string;
+  name: string;
+  adminName: string | null;
+  adminEmail: string | null;
+  country: string | null;
+  industry: string | null;
+}
+
+const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/**
+ * The lead a trial request belongs to: already linked to the company, else the
+ * same admin e-mail, else the same business name. Active leads win over archived ones.
+ */
+export function findLeadForTrialRequest(req: TrialRequestLike, leads: Lead[]): Lead | null {
+  const email = req.adminEmail?.trim().toLowerCase() ?? '';
+  const name = normName(req.name);
+  const rank = (l: Lead) => (l.archived ? 1 : 0);
+  const pick = (found: Lead[]) => [...found].sort((a, b) => rank(a) - rank(b))[0] ?? null;
+  return (
+    pick(leads.filter((l) => l.companyId === req.id))
+    ?? (email ? pick(leads.filter((l) => l.email.trim().toLowerCase() === email)) : null)
+    ?? (name ? pick(leads.filter((l) => normName(l.businessName) === name)) : null)
+  );
+}
+
+/** A new lead for a trial request that has no lead yet, already linked to its company. */
+export function trialRequestToLeadInput(req: TrialRequestLike, now = Date.now()): LeadInput {
+  return {
+    ...emptyLead(now),
+    businessName: req.name,
+    contactPerson: req.adminName ?? '',
+    email: req.adminEmail ?? '',
+    district: req.country || 'LK',
+    industry: req.industry ?? '',
+    source: 'Trial request',
+    notes: 'Asked for a free trial from the app.',
+    companyId: req.id,
+  };
+}
+
 export function isOpen(lead: Pick<Lead, 'status' | 'archived'>): boolean {
   return !lead.archived && lead.status !== 'closed_won' && lead.status !== 'closed_lost';
 }

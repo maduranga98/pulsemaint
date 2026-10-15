@@ -158,7 +158,6 @@ import PlatformCompaniesPage from '../pages/platform/PlatformCompaniesPage';
 import PlatformCompanyDetailPage from '../pages/platform/PlatformCompanyDetailPage';
 import PlatformPaymentsPage from '../pages/platform/PlatformPaymentsPage';
 import PlatformPlansPage from '../pages/platform/PlatformPlansPage';
-import PlatformTrialRequestsPage from '../pages/platform/PlatformTrialRequestsPage';
 import { PlatformRequestsPage, PlatformRequestDetailPage } from '../pages/platform/PlatformRequestsPage';
 import PlatformLeadsPage from '../pages/platform/leads/PlatformLeadsPage';
 import PlatformCallsPage from '../pages/platform/leads/PlatformCallsPage';
@@ -1082,7 +1081,7 @@ export default function AppRouter() {
           guard (Firebase custom claim), outside the tenant app. */}
       <Route path="/platform" element={<PlatformLayout />}>
         <Route index element={<PlatformOverviewPage />} />
-        <Route path="trial-requests" element={<PlatformTrialRequestsPage />} />
+        <Route path="trial-requests" element={<Navigate to="/platform/leads?view=trials" replace />} />
         <Route path="companies" element={<PlatformCompaniesPage />} />
         <Route path="companies/:companyId" element={<PlatformCompanyDetailPage />} />
         <Route path="payments" element={<PlatformPaymentsPage />} />
