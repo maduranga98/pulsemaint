@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { isWorkPermitOverdue } from '@/types/safety';
 import type { DashboardNotificationType } from '@/types/analytics.types';
 import type { UserRole } from '@/types/auth';
+import { plantConstraints } from '../lib/plantQuery';
 
 export interface DerivedAlert {
   id: string;
@@ -46,7 +47,8 @@ function useCollectionWhenAllowed(
       return;
     }
     const unsub = onSnapshot(
-      query(collection(db, name), where('companyId', '==', companyId)),
+      // pm_schedules are plant-scoped (no-op for the other collections).
+      query(collection(db, name), where('companyId', '==', companyId), ...plantConstraints(name)),
       (snap) => setDocs(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
       () => setDocs([]),
     );

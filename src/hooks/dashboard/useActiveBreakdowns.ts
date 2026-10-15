@@ -4,6 +4,7 @@ import { db } from '../../lib/firebase';
 import { useDepartmentScope } from '../useDepartmentScope';
 import type { Breakdown } from '../../types';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export function useActiveBreakdowns(siteId: string, statusFilter?: (status: string) => boolean) {
   const [allBreakdowns, setAllBreakdowns] = useState<Breakdown[]>([]);
@@ -22,6 +23,7 @@ export function useActiveBreakdowns(siteId: string, statusFilter?: (status: stri
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
+      ...plantConstraints('breakdown_tickets'),
     );
 
     const CLOSED = new Set(['closed', 'resolved', 'cancelled']);

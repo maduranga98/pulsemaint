@@ -15,6 +15,7 @@ import type { Breakdown } from '@/types/breakdown';
 import type { WorkOrder } from '@/types/workOrder';
 import type { StaffRequest } from '@/types/staffRequest';
 import { field, fmtTs, labelCls } from '../requestUi';
+import { plantConstraints } from '../../../lib/plantQuery';
 
 type Tab = 'work_order' | 'breakdown';
 
@@ -58,7 +59,7 @@ export default function GrantRecordsModal({ request: r, onClose }: { request: St
     if (!siteId) return;
     setBdLoading(true);
     return onSnapshot(
-      query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), orderBy('reportedAt', 'desc')),
+      query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), ...plantConstraints('breakdown_tickets'), orderBy('reportedAt', 'desc')),
       (snap) => {
         setAllBreakdowns(snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Breakdown));
         setBdLoading(false);

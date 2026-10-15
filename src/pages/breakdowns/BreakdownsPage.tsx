@@ -16,6 +16,7 @@ import { TranslatedText } from '../../components/ui';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 import type { WorkOrder } from '../../types/workOrder';
 import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 function roleLabel(role: string | undefined, t: TFunction): string {
   if (!role) return '';
@@ -134,6 +135,7 @@ export default function BreakdownsPage() {
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
+      ...plantConstraints('breakdown_tickets'),
       orderBy('reportedAt', 'desc'),
     );
     const unsub = onSnapshot(

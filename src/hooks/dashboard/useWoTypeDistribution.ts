@@ -3,6 +3,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { toDate, monthKey } from '../../services/analyticsAggregation';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export interface WoTypeCount {
   type: string;
@@ -30,7 +31,7 @@ export function useWoTypeDistribution(companyId: string, months?: string[]) {
     setError(null);
     try {
       const snap = await getDocs(
-        query(collection(db, 'workOrders'), where('siteId', '==', companyId)),
+        query(collection(db, 'workOrders'), where('siteId', '==', companyId), ...plantConstraints('workOrders')),
       );
       const monthSet = monthsKey ? new Set(monthsKey.split(',')) : null;
       const counts: Record<string, number> = {};

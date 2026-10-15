@@ -7,6 +7,14 @@ import { playNotificationSound, showDeviceNotification } from '@/lib/notificatio
 import type { DashboardNotification } from '@/types/analytics.types';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { usePlants } from '@/hooks/usePlants';
+import { rulesPlantId } from '@/lib/plantQuery';
+
+/** Milliseconds of a Firestore timestamp (0 while a server timestamp is pending). */
+function timestampMs(value: unknown): number {
+  const v = value as { toMillis?: () => number; seconds?: number } | null | undefined;
+  if (v && typeof v.toMillis === 'function') return v.toMillis();
+  return v && typeof v.seconds === 'number' ? v.seconds * 1000 : 0;
+}
 
 /**
  * Notifications currently waiting for the signed-in user.
@@ -37,27 +45,56 @@ export function useMyNotifications() {
   const { plants } = usePlants(companyId);
   const plantNames = useMemo(() => new Map(plants.map((p) => [p.id, p.name])), [plants]);
 
+  const userId = userProfile?.id ?? '';
   useEffect(() => {
     if (!companyId) {
       setLoading(false);
       return;
     }
-    const q = query(
-      collection(db, 'notifications'),
-      where('companyId', '==', companyId),
-      orderBy('timestamp', 'desc'),
-      limit(100)
+    // firestore.rules let a plant-scoped user read only their own plant's
+    // notifications, the all-plants ones (no plant) and any addressed to them
+    // by name — one query each, merged (this also keeps a busy plant from
+    // pushing everyone else's out of a company-wide "latest 100").
+    // Admins and users without a plant read the company's latest.
+    const myPlant = rulesPlantId();
+    const notificationsRef = collection(db, 'notifications');
+    const inCompany = where('companyId', '==', companyId);
+    const newest = orderBy('timestamp', 'desc');
+    const queries = myPlant
+      ? [
+          query(notificationsRef, inCompany, where('plantId', '==', myPlant), newest, limit(100)),
+          query(notificationsRef, inCompany, where('plantId', '==', null), newest, limit(100)),
+          query(notificationsRef, inCompany, where('recipientUserIds', 'array-contains', userId), newest, limit(50)),
+        ]
+      : [query(notificationsRef, inCompany, newest, limit(100))];
+    const parts: DashboardNotification[][] = queries.map(() => []);
+    const ready = queries.map(() => false);
+    const emit = () => {
+      if (!ready.every(Boolean)) return;
+      const byId = new Map<string, DashboardNotification>();
+      parts.flat().forEach((n) => byId.set(n.id, n));
+      const merged = [...byId.values()]
+        .sort((a, b) => timestampMs(b.timestamp) - timestampMs(a.timestamp))
+        .slice(0, 100);
+      setAll(merged);
+      setLoading(false);
+    };
+    const unsubs = queries.map((q, i) =>
+      onSnapshot(
+        q,
+        (snap) => {
+          parts[i] = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as DashboardNotification);
+          ready[i] = true;
+          emit();
+        },
+        () => {
+          ready[i] = true;
+          emit();
+        },
+      ),
     );
-    const unsub = onSnapshot(
-      q,
-      (snap) => {
-        setAll(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as DashboardNotification));
-        setLoading(false);
-      },
-      () => setLoading(false)
-    );
-    return () => unsub();
-  }, [companyId]);
+    return () => unsubs.forEach((u) => u());
+  }, [companyId, userId]);
 
   const notifications = useMemo(() => {
     if (!userProfile) return [];

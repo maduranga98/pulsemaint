@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
+import { plantConstraints } from '../../lib/plantQuery';
 
 /** WO statuses that still need attention on the floor — everything up to and
  *  including completion (a completed WO still awaits the supervisor's sign-off).
@@ -62,7 +63,7 @@ export function useFactoryFloorAttention(companyId: string) {
     }
     setWoLoading(true);
     const unsub = onSnapshot(
-      query(collection(db, 'workOrders'), where('companyId', '==', companyId)),
+      query(collection(db, 'workOrders'), where('companyId', '==', companyId), ...plantConstraints('workOrders')),
       (snap) => {
         setWos(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setWoLoading(false);
@@ -82,7 +83,7 @@ export function useFactoryFloorAttention(companyId: string) {
     }
     setBdLoading(true);
     const unsub = onSnapshot(
-      query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId)),
+      query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId), ...plantConstraints('breakdown_tickets')),
       (snap) => {
         setBreakdowns(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setBdLoading(false);

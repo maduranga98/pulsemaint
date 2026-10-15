@@ -3,6 +3,7 @@ import { collection, query, where, onSnapshot, type Timestamp } from 'firebase/f
 import { db } from '../lib/firebase';
 import type { WOStats, WOType, WOStatus } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
+import { plantConstraints } from '../lib/plantQuery';
 
 interface UseWOStatsResult {
   stats: WOStats | null;
@@ -39,7 +40,7 @@ export function useWOStats(): UseWOStatsResult {
     // Live subscription so the WO stats bar updates automatically as work
     // orders progress. Aggregated in memory to avoid composite-index needs.
     const unsub = onSnapshot(
-      query(collection(db, 'workOrders'), where('siteId', '==', siteId)),
+      query(collection(db, 'workOrders'), where('siteId', '==', siteId), ...plantConstraints('workOrders')),
       (snap) => {
         const startOfWeek = new Date();
         startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());

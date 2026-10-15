@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { TechnicianStatusDoc } from '../../types/analytics.types';
+import { plantConstraints } from '../../lib/plantQuery';
 
 interface ShiftSessionRow {
   userId: string;
@@ -77,6 +78,7 @@ export function useTechnicianStatuses(companyId: string) {
     const workOrdersQuery = query(
       collection(db, 'workOrders'),
       where('companyId', '==', companyId),
+      ...plantConstraints('workOrders'),
       where('status', 'in', ['IN_PROGRESS', 'COMPLETED', 'SIGNED_OFF', 'CLOSED']),
     );
     const unsubWorkOrders = onSnapshot(

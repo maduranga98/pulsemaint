@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, type Query } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { WorkOrder } from '../../types';
+import { plantConstraints } from '../../lib/plantQuery';
 
 const ACTIVE_STATUSES = new Set([
   'OPEN',
@@ -50,7 +51,7 @@ export function useMyJobQueue(technicianId: string, siteId: string, includeOwned
     // assigned to them, so their query must constrain on assignedTechnicianIds
     // to be permitted (and to match the security rule).
     const q: Query = includeOwned
-      ? query(collection(db, 'workOrders'), where('siteId', '==', siteId))
+      ? query(collection(db, 'workOrders'), where('siteId', '==', siteId), ...plantConstraints('workOrders'))
       : query(
           collection(db, 'workOrders'),
           where('assignedTechnicianIds', 'array-contains', technicianId),

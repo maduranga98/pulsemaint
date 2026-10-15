@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { plantConstraints, rulesPlantId } from '../lib/plantQuery';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useDepartmentScope } from './useDepartmentScope';
@@ -30,13 +31,16 @@ function emit() {
 }
 
 function ensureSubscribed(companyId: string) {
-  if (currentCompanyId === companyId && unsubscribe) return;
+  // Keyed by company and the plant the rules confine this user to (a
+  // plant-scoped user may only list their own plant's machines).
+  const key = `${companyId}|${rulesPlantId() ?? '*'}`;
+  if (currentCompanyId === key && unsubscribe) return;
   unsubscribe?.();
-  currentCompanyId = companyId;
+  currentCompanyId = key;
   machineScopes = new Map();
   // Machines are keyed by siteId (== companyId), like everywhere else.
   unsubscribe = onSnapshot(
-    query(collection(db, 'machines'), where('siteId', '==', companyId)),
+    query(collection(db, 'machines'), where('siteId', '==', companyId), ...plantConstraints('machines')),
     (snap) => {
       const next = new Map<string, MachineScope>();
       snap.docs.forEach((d) => {

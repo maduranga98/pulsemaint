@@ -2,6 +2,7 @@ import { collection, query, where, orderBy, limit, getDocs } from 'firebase/fire
 import { db } from './firebase';
 import type { Breakdown, BreakdownType } from '../types/breakdown';
 import { generateClaudeJsonWithSources, isClaudeEnabled, type ClaudeSource } from './claude';
+import { plantConstraints } from './plantQuery';
 
 // Kept in sync with SUPPORTED_LANGUAGES in lib/i18n.ts so the AI response
 // language always matches the app's currently selected UI language rather
@@ -181,6 +182,7 @@ async function fetchRecentHistory(machineId: string, excludeIds: string[]): Prom
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('machineId', '==', machineId),
+      ...plantConstraints('breakdown_tickets'),
       orderBy('reportedAt', 'desc'),
       limit(8),
     );
