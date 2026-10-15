@@ -18,7 +18,7 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
 const {openOccurrenceStatus, complianceRate, toDate, DAY_MS} = require("./pmScheduling");
-const {recordPmCompletion, DONE_STATUSES} = require("./pmCompliance");
+const {recordPmCompletion, recordPmNotDone, DONE_STATUSES, NOT_DONE_OUTCOMES} = require("./pmCompliance");
 
 const db = getFirestore("default");
 
@@ -94,6 +94,11 @@ exports.checkPmOverdue = onSchedule(
           if (history.woId) {
             const woSnap = await db.collection("workOrders").doc(String(history.woId)).get();
             const wo = woSnap.exists ? woSnap.data() : null;
+            if (wo && NOT_DONE_OUTCOMES.has(wo.signOffOutcome)) {
+              // Signed off as failed / not complete — the PM wasn't done.
+              await recordPmNotDone(woSnap.id, wo);
+              continue;
+            }
             if (wo && DONE_STATUSES.has(wo.status)) {
               await recordPmCompletion(woSnap.id, wo);
               continue;

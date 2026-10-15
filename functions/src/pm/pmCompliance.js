@@ -14,6 +14,8 @@ const {complianceRate, toDate, DAY_MS} = require("./pmScheduling");
 const db = getFirestore("default");
 
 const DONE_STATUSES = new Set(["COMPLETED", "SIGNED_OFF", "CLOSED"]);
+// Sign-off outcomes that mean the work wasn't done.
+const NOT_DONE_OUTCOMES = new Set(["failed", "not_complete"]);
 
 /**
  * End of the due day (UTC) — a PM finished any time on its due date is on time.
@@ -50,6 +52,8 @@ async function findHistoryRef(woId, wo) {
  */
 async function recordPmCompletion(woId, wo) {
   if (wo.woType !== "PREVENTIVE" || !DONE_STATUSES.has(wo.status)) return null;
+  // Signed off as failed / not complete: the PM wasn't done (recordPmNotDone).
+  if (NOT_DONE_OUTCOMES.has(wo.signOffOutcome)) return null;
   const historyRef = await findHistoryRef(woId, wo);
   const completedDate = toDate(wo.actualEndTime) || new Date();
 
@@ -105,7 +109,56 @@ async function recordPmCompletion(woId, wo) {
   });
 }
 
-module.exports = {recordPmCompletion, endOfDueDay, DONE_STATUSES};
+/**
+ * A PM work order signed off as failed / not complete: the PM wasn't done,
+ * so its occurrence is recorded as missed — undoing the completion recorded
+ * when the technician marked the work complete — and the schedule's counters
+ * and compliance rate follow. A one-off schedule closed by that completion
+ * is reopened. Idempotent.
+ * @param {string} woId work order id
+ * @param {object} wo work order data
+ * @return {Promise<string|null>} "missed", or null when nothing changed
+ */
+async function recordPmNotDone(woId, wo) {
+  if (wo.woType !== "PREVENTIVE" || !NOT_DONE_OUTCOMES.has(wo.signOffOutcome)) return null;
+  const historyRef = await findHistoryRef(woId, wo);
+  if (!historyRef) return null;
+
+  return db.runTransaction(async (tx) => {
+    const historySnap = await tx.get(historyRef);
+    if (!historySnap.exists) return null;
+    const history = historySnap.data();
+    if (history.status === "missed" && history.notDoneOutcome) return null;
+
+    const scheduleId = history.scheduleId || wo.pmScheduleId || null;
+    const scheduleRef = scheduleId ? db.collection("pm_schedules").doc(String(scheduleId)) : null;
+    const scheduleSnap = scheduleRef ? await tx.get(scheduleRef) : null;
+    const prev = String(history.status || "");
+
+    tx.update(historyRef, {
+      status: "missed",
+      notDoneOutcome: wo.signOffOutcome,
+      notDoneReason: wo.signOffOutcomeReason || null,
+      completedDate: null,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    if (scheduleSnap && scheduleSnap.exists) {
+      const s = scheduleSnap.data();
+      const counters = {
+        completedOnTime: Math.max(0, (s.completedOnTime || 0) - (prev === "completed_on_time" ? 1 : 0)),
+        completedLate: Math.max(0, (s.completedLate || 0) - (prev === "completed_late" ? 1 : 0)),
+        missed: (s.missed || 0) + (prev === "missed" ? 0 : 1),
+      };
+      const update = {...counters, complianceRate: complianceRate(counters), updatedAt: FieldValue.serverTimestamp()};
+      if (s.recurrenceType === "one_time" && s.status === "completed") update.status = "active";
+      tx.update(scheduleRef, update);
+    }
+    return "missed";
+  });
+}
+
+module.exports = {recordPmCompletion, recordPmNotDone, endOfDueDay, DONE_STATUSES, NOT_DONE_OUTCOMES};
 
 /**
  * Keeps a PM schedule's "linked work order" status (activeWoStatus, shown on

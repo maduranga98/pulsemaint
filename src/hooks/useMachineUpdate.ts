@@ -106,7 +106,7 @@ export function useMachineUpdate({
       if (photoUrls) updateData.photos = photoUrls;
       if (documents) updateData.documents = documents;
       if (payload.compatiblePartIds) updateData.compatiblePartIds = payload.compatiblePartIds;
-      if (payload.healthScore !== undefined) updateData.healthScore = payload.healthScore;
+      // healthScore is computed server-side (functions/src/machines/machineHealth.js).
       if (payload.warrantyItems !== undefined) {
         updateData.warrantyItems = payload.warrantyItems.map((w) => ({
           partName: w.partName,

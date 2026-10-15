@@ -7230,7 +7230,8 @@
           "poor": "较差",
           "none": "无数据"
         }
-      }
+      },
+      "incompleteData": "部分记录无法加载（{{sources}}），因此这些数字可能不完整。请刷新页面重试。"
     },
     "moe": {
       "filter": {
@@ -8695,7 +8696,9 @@
             "noShiftAssigned": "未分配班次",
             "address": "地址",
             "addressPlaceholder": "例如：某某市某某路 123 号",
-            "noDepartment": "无部门"
+            "noDepartment": "无部门",
+            "hourlyRate": "人工费率（每小时）",
+            "hourlyRatePlaceholder": "用于计算此人登记工时的成本"
           },
           "errors": {
             "fullNameRequired": "姓名为必填项。",
@@ -9837,7 +9840,9 @@
           "eGWr2025001": "例如：WR-2025-001",
           "documentAnyModificationsMadeTo": "记录对该设备所做的改造...",
           "anyOtherRelevantInformation": "其他相关信息...",
-          "newDepartmentName": "新部门名称"
+          "newDepartmentName": "新部门名称",
+          "healthScoreAuto": "健康评分",
+          "healthScoreAutoHint": "根据过去 90 天的故障和预防性维护自动计算，无法手动设置。"
         },
         "machineHealthScore": {
           "healthScore": "健康评分"

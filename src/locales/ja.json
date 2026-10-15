@@ -7230,7 +7230,8 @@
           "poor": "不良",
           "none": "データなし"
         }
-      }
+      },
+      "incompleteData": "一部の記録を読み込めませんでした（{{sources}}）。そのため、これらの数値は不完全な可能性があります。ページを再読み込みしてもう一度お試しください。"
     },
     "moe": {
       "filter": {
@@ -8695,7 +8696,9 @@
             "noShiftAssigned": "シフト未割り当て",
             "address": "住所",
             "addressPlaceholder": "例：東京都千代田区丸の内1-1-1",
-            "noDepartment": "部門未設定"
+            "noDepartment": "部門未設定",
+            "hourlyRate": "人件費単価（時間あたり）",
+            "hourlyRatePlaceholder": "この人の記録された作業時間の原価計算に使用されます"
           },
           "errors": {
             "fullNameRequired": "氏名は必須です。",
@@ -9837,7 +9840,9 @@
           "eGWr2025001": "例：WR-2025-001",
           "documentAnyModificationsMadeTo": "この設備への改造内容を記録...",
           "anyOtherRelevantInformation": "その他の関連情報...",
-          "newDepartmentName": "新しい部門名"
+          "newDepartmentName": "新しい部門名",
+          "healthScoreAuto": "健全性スコア",
+          "healthScoreAutoHint": "過去90日間の故障と予防保全から自動的に計算されます。手動では設定できません。"
         },
         "machineHealthScore": {
           "healthScore": "健全性スコア"

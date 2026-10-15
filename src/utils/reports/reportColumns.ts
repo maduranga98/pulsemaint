@@ -163,9 +163,8 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'woType', label: 'WO Type', labelKey: 'common.reports.columns.maintenance_cost.woType' },
     { key: 'machineName', label: 'Machine', labelKey: 'common.reports.columns.maintenance_cost.machineName' },
     { key: 'machineDepartment', label: 'Department', labelKey: 'common.reports.columns.maintenance_cost.machineDepartment' },
-    // Single, all-in figure: parts cost + labor + contractor total project
-    // cost (auto-parts + contractor's own cost, from sign-off) already
-    // summed per work order in fetchReportRows.
+    // Single, all-in figure per work order: parts + labour + the contractor's
+    // own charge (the dashboards' definition — see fetchReportRows).
     { key: 'totalCost', label: 'Total Cost', format: 'currency', labelKey: 'common.reports.columns.maintenance_cost.totalCost' },
     { key: 'signedOffDate', label: 'Signed Off Date', format: 'date', labelKey: 'common.reports.columns.maintenance_cost.signedOffDate' },
   ],

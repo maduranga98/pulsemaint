@@ -1,4 +1,4 @@
-import { collection, getDocs, limit, onSnapshot, query, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import type {
@@ -12,6 +12,21 @@ import type {
 import { getEffectivePMHistoryStatus } from '../utils/pm.utils';
 import { computeEffectiveCostPerHour } from '../lib/downtimeCost';
 import { computeDowntimeEvents, sumDowntimeHours } from '../lib/machineDowntime';
+import { HEALTH_WINDOW_DAYS, machineHealthScoreFromRecords } from '../lib/machineHealth';
+import {
+  woCost as sharedWoCost,
+  woPartsCost as sharedWoPartsCost,
+  woLaborCost,
+  woDoneAt,
+  woSlaOutcome,
+  slaCompliance,
+  isCancelledBreakdown,
+  isCountableContractorJob,
+  contractorJobCost,
+  contractorJobCostDate,
+  elapsedHoursInMonths,
+  mtbfDays,
+} from '../lib/analytics/maintenanceMetrics';
 
 // ---------------------------------------------------------------------------
 // Client-side analytics aggregation.
@@ -26,8 +41,6 @@ import { computeDowntimeEvents, sumDowntimeHours } from '../lib/machineDowntime'
 
 type Row = Record<string, any>;
 
-const FETCH_LIMIT = 3000;
-
 export function toDate(value: unknown): Date | null {
   if (!value) return null;
   if (typeof value === 'object' && value !== null && 'seconds' in (value as Record<string, unknown>)) {
@@ -38,8 +51,20 @@ export function toDate(value: unknown): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-const dateKey = (d: Date) => d.toISOString().slice(0, 10);
-export const monthKey = (d: Date) => d.toISOString().slice(0, 7);
+// Calendar keys in local time (the plant's own clock) — UTC keys put events
+// from 00:00–05:30 in Sri Lanka on the previous day, and month-end events in
+// the previous month.
+const pad2 = (n: number) => String(n).padStart(2, '0');
+export const dateKey = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+export const monthKey = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+
+// Sources that failed to load in the current session (permissions, network)
+// — surfaced on the result as `incompleteSources` instead of silently
+// counting them as zero.
+const failedSources = new Set<string>();
+export function incompleteSources(): string[] {
+  return [...failedSources];
+}
 
 /**
  * A month selector for the analytics computations: a single 'YYYY-MM', a list
@@ -66,13 +91,17 @@ async function fetchAll(source: string, companyId: string): Promise<Row[]> {
   const cached = fetchCache.get(key);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.promise;
 
+  // Every record of the company — the old limit(3000) with no ordering
+  // returned an arbitrary subset once a company had more, so totals were
+  // silently wrong.
   const promise = (async () => {
     try {
-      const snap = await getDocs(
-        query(collection(db, source), where('companyId', '==', companyId), limit(FETCH_LIMIT)),
-      );
+      const snap = await getDocs(query(collection(db, source), where('companyId', '==', companyId)));
+      failedSources.delete(source);
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    } catch {
+    } catch (err) {
+      console.error(`Analytics: could not load ${source}`, err);
+      failedSources.add(source);
       fetchCache.delete(key);
       return [];
     }
@@ -92,11 +121,12 @@ async function fetchMachines(companyId: string): Promise<Row[]> {
 
   const promise = (async () => {
     try {
-      const snap = await getDocs(
-        query(collection(db, 'machines'), where('siteId', '==', companyId), limit(FETCH_LIMIT)),
-      );
+      const snap = await getDocs(query(collection(db, 'machines'), where('siteId', '==', companyId)));
+      failedSources.delete('machines');
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    } catch {
+    } catch (err) {
+      console.error('Analytics: could not load machines', err);
+      failedSources.add('machines');
       fetchCache.delete(key);
       return [];
     }
@@ -105,19 +135,11 @@ async function fetchMachines(companyId: string): Promise<Row[]> {
   return promise;
 }
 
-// Parts-only cost for a work order — the sum of the inventory parts consumed.
-function woPartsCost(wo: Row): number {
-  return Array.isArray(wo.partsUsed)
-    ? wo.partsUsed.reduce((s: number, p: Row) => s + Number(p.totalCost ?? 0), 0)
-    : 0;
-}
-
-function woCost(wo: Row): number {
-  const labor = Array.isArray(wo.technicianWorkLogs)
-    ? wo.technicianWorkLogs.reduce((s: number, l: Row) => s + Number(l.laborCost ?? 0), 0)
-    : 0;
-  return woPartsCost(wo) + labor;
-}
+// Cost rules shared with reports (lib/analytics/maintenanceMetrics): parts
+// consumed + labour (logged hours × labour rate, priced by the costWorkOrder
+// Cloud Function).
+const woPartsCost = sharedWoPartsCost;
+const woCost = sharedWoCost;
 
 const SEVERITY_RANK: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
 const SEVERITY_BY_RANK: Array<TopProblemMachine['severity']> = ['low', 'low', 'medium', 'high', 'critical'];
@@ -127,7 +149,8 @@ const severityFromRank = (rank: number): TopProblemMachine['severity'] =>
 const isCompletedWoStatus = (status: string) =>
   ['COMPLETED', 'SIGNED_OFF', 'CLOSED'].includes(String(status ?? ''));
 
-const breakdownDowntimeHours = (b: Row): number => {
+/** Recorded downtime estimate, for old tickets with nothing to measure from. */
+export const breakdownDowntimeHours = (b: Row): number => {
   const mins = Number(
     b.estimatedDowntimeMinutes ?? b.oeeImpact?.downtimeMinutes ?? 0,
   );
@@ -139,7 +162,7 @@ const breakdownDowntimeHours = (b: Row): number => {
 // Monthly aggregation
 // ---------------------------------------------------------------------------
 
-interface MonthlyRawData {
+export interface MonthlyRawData {
   breakdowns: Row[];
   workOrders: Row[];
   contractorJobs: Row[];
@@ -191,14 +214,17 @@ export function subscribeMonthlyAnalytics(
     assign: (rows: Row[]) => void,
   ) =>
     onSnapshot(
-      query(collection(db, source), where('companyId', '==', companyId), limit(FETCH_LIMIT)),
+      query(collection(db, source), where('companyId', '==', companyId)),
       (snap) => {
         assign(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        failedSources.delete(source);
         ready[source] = true;
         emit();
       },
-      () => {
-        // Permission / index errors: treat as empty so the dashboard still renders.
+      (err) => {
+        // The dashboard still renders, flagged as incomplete.
+        console.error(`Analytics: could not load ${source}`, err);
+        failedSources.add(source);
         ready[source] = true;
         emit();
       },
@@ -206,13 +232,16 @@ export function subscribeMonthlyAnalytics(
 
   // Machines are scoped by siteId, not companyId — see fetchMachines().
   const unsubMachines = onSnapshot(
-    query(collection(db, 'machines'), where('siteId', '==', companyId), limit(FETCH_LIMIT)),
+    query(collection(db, 'machines'), where('siteId', '==', companyId)),
     (snap) => {
       raw.machines = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      failedSources.delete('machines');
       ready.machines = true;
       emit();
     },
-    () => {
+    (err) => {
+      console.error('Analytics: could not load machines', err);
+      failedSources.add('machines');
       ready.machines = true;
       emit();
     },
@@ -233,14 +262,18 @@ export function subscribeMonthlyAnalytics(
  * plantId, and every other record by its denormalized machinePlantId/plantId
  * or, failing that, by whether its machine belongs to the plant.
  */
-function scopeRawToPlant(raw: MonthlyRawData, plantId: string): MonthlyRawData {
-  const machines = raw.machines.filter((m) => m.plantId === plantId);
-  const machineIds = new Set(machines.map((m) => String(m.id)));
-  const inPlant = (row: Row) => {
+function plantRowFilter(machines: Row[], plantId: string): (row: Row) => boolean {
+  const machineIds = new Set(machines.filter((m) => m.plantId === plantId).map((m) => String(m.id)));
+  return (row: Row) => {
     const rowPlant = row.machinePlantId ?? row.plantId;
     if (rowPlant) return rowPlant === plantId;
     return row.machineId != null && machineIds.has(String(row.machineId));
   };
+}
+
+function scopeRawToPlant(raw: MonthlyRawData, plantId: string): MonthlyRawData {
+  const machines = raw.machines.filter((m) => m.plantId === plantId);
+  const inPlant = plantRowFilter(raw.machines, plantId);
   return {
     machines,
     breakdowns: raw.breakdowns.filter(inPlant),
@@ -250,10 +283,15 @@ function scopeRawToPlant(raw: MonthlyRawData, plantId: string): MonthlyRawData {
   };
 }
 
-function buildMonthlyAnalytics(
+/**
+ * The monthly figures from raw records. Exported for the parity test with the
+ * server copy (functions/src/analytics/monthlyAnalytics.js).
+ */
+export function buildMonthlyAnalytics(
   companyId: string,
   month: MonthArg,
   { breakdowns, workOrders, contractorJobs, pmHistory, machines }: MonthlyRawData,
+  now: Date = new Date(),
 ): AnalyticsMonthly {
   // month === 'all' aggregates across all time (dashboard fallback); a string
   // is a single month; an array is a multi-month range (the range selector).
@@ -261,32 +299,26 @@ function buildMonthlyAnalytics(
   const lastMonth = matcher.list ? matcher.list[matcher.list.length - 1] : null;
   const inMonth = (value: unknown) => matcher.has(toDate(value));
 
-  const monthBreakdowns = breakdowns.filter((b) => inMonth(b.reportedAt ?? b.createdAt));
-  const monthWOs = workOrders.filter((w) => inMonth(w.actualEndTime ?? w.createdAt));
-  const monthContractor = contractorJobs.filter((c) => inMonth(c.createdAt ?? c.workCompletedAt));
-  const monthPm = pmHistory.filter((p) => inMonth(p.completedDate ?? p.dueDate));
-
-  // MTTR (hours) over resolved breakdowns this month.
-  const mttrValues: number[] = [];
-  monthBreakdowns.forEach((b) => {
-    const start = toDate(b.reportedAt);
-    const end = toDate(b.resolvedAt);
-    if (start && end && end > start) mttrValues.push((end.getTime() - start.getTime()) / 3_600_000);
-  });
-  const avgMttrHours = mttrValues.length ? mttrValues.reduce((a, c) => a + c, 0) / mttrValues.length : 0;
-
-  // SLA compliance.
-  const slaTotal = monthBreakdowns.length;
-  const slaBreaches = monthBreakdowns.filter((b) => b.slaBreached === true).length;
-  const overallSlaCompliance = slaTotal ? ((slaTotal - slaBreaches) / slaTotal) * 100 : 100;
+  // Cancelled tickets were never failures — not in counts, groupings or MTBF.
+  const monthBreakdowns = breakdowns.filter((b) => !isCancelledBreakdown(b) && inMonth(b.reportedAt ?? b.createdAt));
+  // Work counts (and costs) when it was done; cancelled work orders are out.
+  const monthWOs = workOrders.filter((w) => String(w.status ?? '') !== 'CANCELLED' && inMonth(woDoneAt(w) ?? w.createdAt));
+  // Contractor cost counts when the work was done (like work orders), not
+  // when the job was raised; cancelled jobs cost nothing.
+  const monthContractor = contractorJobs.filter((c) => isCountableContractorJob(c) && inMonth(contractorJobCostDate(c)));
+  // A PM occurrence belongs to the month it was due, whenever it was done.
+  const monthPm = pmHistory.filter((p) => inMonth(p.dueDate ?? p.completedDate));
 
   // Costs.
   const woCostTotal = monthWOs.reduce((s, w) => s + woCost(w), 0);
-  const contractorCostTotal = monthContractor.reduce(
-    (s, c) => s + Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0),
-    0,
-  );
+  const contractorCostTotal = monthContractor.reduce((s, c) => s + contractorJobCost(c), 0);
   const totalMaintenanceCost = woCostTotal + contractorCostTotal;
+
+  // SLA compliance — work orders whose SLA deadline fell in the period: done
+  // in time vs late / still open past it. (Breakdown tickets carry no SLA
+  // deadline of their own, so the old ticket-based figure was always 100 %.)
+  const sla = slaCompliance(workOrders, (d) => matcher.has(d), now);
+  const overallSlaCompliance = sla.rate ?? 100;
 
   // Production downtime is captured primarily from work-order completion
   // durations for unplanned work (breakdowns / corrective), where the real
@@ -295,9 +327,15 @@ function buildMonthlyAnalytics(
   // instead of sitting at zero when breakdowns carry no downtime field.
   // Downtime is real elapsed time: breakdown reported → supervisor sign-off,
   // and other maintenance start → sign-off (see lib/machineDowntime).
-  const monthDowntime = computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours)
+  const monthDowntime = computeDowntimeEvents(breakdowns, workOrders, now, breakdownDowntimeHours)
     .filter((e) => inMonth(e.anchor));
   const totalProductionHoursLost = sumDowntimeHours(monthDowntime);
+
+  // MTTR (hours): mean time to restore a broken-down machine — reported until
+  // signed off, the same window downtime is measured over. Breakdowns still
+  // open aren't restored yet, so they don't count.
+  const mttrValues = monthDowntime.filter((e) => e.kind === 'breakdown' && !e.ongoing).map((e) => e.hours);
+  const avgMttrHours = mttrValues.length ? mttrValues.reduce((a, c) => a + c, 0) / mttrValues.length : 0;
 
   // Downtime cost: each machine's own Downtime Cost (LKR/hour, set on the
   // Machine record) applied to that machine's downtime hours this month —
@@ -334,7 +372,8 @@ function buildMonthlyAnalytics(
   const pmRelevant = pmEff.filter((s) => s && s !== 'in_progress');
   const pmOnTime = pmEff.filter((s) => s === 'completed_on_time').length;
   const pmMissed = pmEff.filter((s) => s === 'missed' || s === 'overdue').length;
-  const pmComplianceRate = pmRelevant.length ? (pmOnTime / pmRelevant.length) * 100 : 0;
+  // Nothing fell due → 100 (the server's schedule complianceRate uses the same rule).
+  const pmComplianceRate = pmRelevant.length ? (pmOnTime / pmRelevant.length) * 100 : 100;
 
   // Breakdown groupings.
   const breakdownByType: Record<string, number> = {};
@@ -398,7 +437,7 @@ function buildMonthlyAnalytics(
     const id = String(c.machineId ?? c.machineName ?? '');
     if (!id) return;
     const m = ensureMachine(id, String(c.machineName ?? id), Number(c.machineCriticality ?? 3));
-    m.cost += Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
+    m.cost += contractorJobCost(c);
   });
   const topProblemMachines: TopProblemMachine[] = Array.from(machineAgg.values())
     // Rank by WO count, then breakdown count as a tie-breaker.
@@ -411,18 +450,24 @@ function buildMonthlyAnalytics(
       severity: severityFromRank(_sevRank),
     }));
 
-  // MTBF (days): for machines with breakdowns, days-in-window / count, averaged.
-  // Over a multi-month range the window is the sum of days across its months.
-  const daysInMonth = matcher.list == null
-    ? 30
-    : matcher.list.reduce(
-        (s, mk) => s + new Date(Number(mk.slice(0, 4)), Number(mk.slice(5, 7)), 0).getDate(),
-        0,
-      );
-  const mtbfValues = Array.from(machineAgg.values())
-    .filter((m) => m.breakdownCount > 0)
-    .map((m) => daysInMonth / m.breakdownCount);
-  const avgMtbfDays = mtbfValues.length ? mtbfValues.reduce((a, c) => a + c, 0) / mtbfValues.length : 0;
+  // MTBF (days): operating time between failures — for each machine that
+  // failed, (elapsed window − its downtime) / its failures, averaged. The
+  // window only counts time that has passed (the current month up to now);
+  // 'all' uses the span from the first breakdown to now.
+  const firstBreakdown = monthBreakdowns.reduce<Date | null>((min, b) => {
+    const d = toDate(b.reportedAt ?? b.createdAt);
+    return d && (!min || d < min) ? d : min;
+  }, null);
+  const windowHours = matcher.list == null
+    ? (firstBreakdown ? Math.max(0, now.getTime() - firstBreakdown.getTime()) / 3_600_000 : 0)
+    : elapsedHoursInMonths(matcher.list, now);
+  const failures = new Map<string, number>();
+  const downtimeByMachine = new Map<string, number>();
+  machineAgg.forEach((m) => {
+    if (m.breakdownCount > 0) failures.set(m.machineId, m.breakdownCount);
+    downtimeByMachine.set(m.machineId, m.downtimeHours);
+  });
+  const avgMtbfDays = mtbfDays(failures, downtimeByMachine, windowHours);
 
   // Technician performance. Response time = (work started) - (created); SLA
   // compliance from the WO's slaBreached flag — both from real WO data.
@@ -451,8 +496,11 @@ function buildMonthlyAnalytics(
       rec.jobsCompleted += 1;
       if (w.totalDurationMinutes) rec._repair.push(Number(w.totalDurationMinutes) / 60);
       if (responseMins != null) rec._response.push(responseMins);
-      rec._slaTotal += 1;
-      if (w.slaBreached !== true) rec._slaOk += 1;
+      const outcome = woSlaOutcome(w, now);
+      if (outcome === 'met' || outcome === 'breached') {
+        rec._slaTotal += 1;
+        if (outcome === 'met') rec._slaOk += 1;
+      }
       techAgg.set(id, rec);
     });
   });
@@ -529,6 +577,9 @@ function buildMonthlyAnalytics(
     totalProductionHoursLost: Number(totalProductionHoursLost.toFixed(1)),
     totalDowntimeCost: Math.round(totalDowntimeCost),
     pmComplianceRate: Number(pmComplianceRate.toFixed(1)),
+    slaMet: sla.met,
+    slaBreached: sla.breached,
+    incompleteSources: incompleteSources(),
     pmCompletedOnTime: pmOnTime,
     pmMissed,
     topProblemMachines,
@@ -553,9 +604,13 @@ export async function computeBreakdownHeatmap(
   toDate_: string,
   plantId: string | null = null,
 ): Promise<Array<{ day: number; hour: number; count: number; machineNames: string[] }>> {
-  const breakdowns = (await fetchAll('breakdown_tickets', companyId)).filter(
-    (b) => !plantId || b.machinePlantId === plantId,
-  );
+  const [allBreakdowns, machines] = await Promise.all([
+    fetchAll('breakdown_tickets', companyId),
+    plantId ? fetchMachines(companyId) : Promise.resolve([] as Row[]),
+  ]);
+  // Older tickets carry no machinePlantId — fall back to the machine's plant.
+  const inPlant = plantId ? plantRowFilter(machines, plantId) : () => true;
+  const breakdowns = allBreakdowns.filter((b) => !isCancelledBreakdown(b) && inPlant(b));
   const from = new Date(`${fromDate}T00:00:00`);
   const to = new Date(`${toDate_}T23:59:59.999`);
 
@@ -586,12 +641,17 @@ export async function computeCostByWoType(
   month: MonthArg,
   plantId: string | null = null,
 ): Promise<Array<{ woType: string; cost: number }>> {
-  const workOrders = (await fetchAll('workOrders', companyId)).filter(
-    (w) => !plantId || w.machinePlantId === plantId,
-  );
+  const [allWorkOrders, machines] = await Promise.all([
+    fetchAll('workOrders', companyId),
+    plantId ? fetchMachines(companyId) : Promise.resolve([] as Row[]),
+  ]);
+  const inPlant = plantId ? plantRowFilter(machines, plantId) : () => true;
+  const workOrders = allWorkOrders.filter((w) => inPlant(w));
   const matcher = monthMatcher(month);
   const inMonth = (value: unknown) => matcher.has(toDate(value));
-  const monthWOs = workOrders.filter((w) => inMonth(w.actualEndTime ?? w.createdAt));
+  // Same rows as the monthly maintenance cost: by when the work was done,
+  // cancelled work orders out.
+  const monthWOs = workOrders.filter((w) => String(w.status ?? '') !== 'CANCELLED' && inMonth(woDoneAt(w) ?? w.createdAt));
 
   const totals = new Map<string, number>();
   monthWOs.forEach((w) => {
@@ -635,16 +695,15 @@ export async function computeDailyAnalytics(
       )
     : { breakdowns: allBreakdowns, workOrders: allWorkOrders, contractorJobs: allContractorJobs, pmHistory: allPmHistory };
 
-  // Real elapsed downtime per breakdown (reported → supervisor sign-off).
-  const downtimeByBreakdown = new Map<string, number>();
-  computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours).forEach((e) => {
-    if (e.kind === 'breakdown') downtimeByBreakdown.set(e.sourceId, e.hours);
-  });
+  const now = new Date();
+  // Real elapsed downtime (reported → supervisor sign-off, other maintenance
+  // start → sign-off) — the same events the monthly figures sum.
+  const downtimeEvents = computeDowntimeEvents(breakdowns, workOrders, now, breakdownDowntimeHours);
 
   // Build an empty entry for each date in range so charts have continuous data.
   const byDate = new Map<string, AnalyticsDaily>();
-  const start = new Date(fromDate);
-  const end = new Date(toDate_);
+  const start = new Date(`${fromDate}T00:00:00`);
+  const end = new Date(`${toDate_}T00:00:00`);
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const key = dateKey(d);
     byDate.set(key, {
@@ -662,7 +721,7 @@ export async function computeDailyAnalytics(
       wosCompleted: 0,
       pmsCompleted: 0,
       pmsMissed: 0,
-      pmComplianceRate: 0,
+      pmComplianceRate: 100,
       productionHoursLost: 0,
       maintenanceCostLKR: 0,
       partsCostLKR: 0,
@@ -675,79 +734,85 @@ export async function computeDailyAnalytics(
       updatedAt: Timestamp.now(),
     });
   }
+  const dayOf = (value: unknown) => {
+    const d = toDate(value);
+    return d ? byDate.get(dateKey(d)) : undefined;
+  };
 
-  const mttrAccum = new Map<string, number[]>();
-  const slaAccum = new Map<string, { total: number; breached: number }>();
-
+  // Cancelled tickets were never failures.
   breakdowns.forEach((b) => {
-    const opened = toDate(b.reportedAt ?? b.createdAt);
-    if (opened) {
-      const k = dateKey(opened);
-      const e = byDate.get(k);
-      if (e) {
-        e.breakdownsOpened += 1;
-        if (String(b.severity) === 'critical') e.criticalBreakdowns += 1;
-        e.productionHoursLost += downtimeByBreakdown.get(String(b.id)) ?? breakdownDowntimeHours(b);
-        const sla = slaAccum.get(k) ?? { total: 0, breached: 0 };
-        sla.total += 1;
-        if (b.slaBreached === true) sla.breached += 1;
-        slaAccum.set(k, sla);
-      }
-    }
-    const resolved = toDate(b.resolvedAt);
-    if (resolved && opened && resolved > opened) {
-      const k = dateKey(resolved);
-      const e = byDate.get(k);
-      if (e) {
-        e.breakdownsClosed += 1;
-        const arr = mttrAccum.get(k) ?? [];
-        arr.push((resolved.getTime() - opened.getTime()) / 3_600_000);
-        mttrAccum.set(k, arr);
-      }
-    }
+    if (isCancelledBreakdown(b)) return;
+    const e = dayOf(b.reportedAt ?? b.createdAt);
+    if (!e) return;
+    e.breakdownsOpened += 1;
+    if (String(b.severity) === 'critical') e.criticalBreakdowns += 1;
+  });
+
+  // Downtime on the day it is attributed to (as the monthly total does);
+  // MTTR and "closed" on the day the machine was signed back into service.
+  const mttrAccum = new Map<string, number[]>();
+  downtimeEvents.forEach((ev) => {
+    const anchored = dayOf(ev.anchor);
+    if (anchored) anchored.productionHoursLost += ev.hours;
+    if (ev.kind !== 'breakdown' || ev.ongoing) return;
+    const k = dateKey(ev.end);
+    const e = byDate.get(k);
+    if (!e) return;
+    e.breakdownsClosed += 1;
+    mttrAccum.set(k, [...(mttrAccum.get(k) ?? []), ev.hours]);
   });
 
   workOrders.forEach((w) => {
-    const created = toDate(w.createdAt);
-    if (created) {
-      const e = byDate.get(dateKey(created));
-      if (e) e.wosOpened += 1;
-    }
-    const done = toDate(w.actualEndTime);
-    if (done && isCompletedWoStatus(w.status)) {
-      const e = byDate.get(dateKey(done));
-      if (e) {
-        e.wosCompleted += 1;
-        const cost = woCost(w);
-        e.maintenanceCostLKR += cost;
-        e.partsCostLKR += Array.isArray(w.partsUsed)
-          ? w.partsUsed.reduce((s: number, p: Row) => s + Number(p.totalCost ?? 0), 0)
-          : 0;
-      }
-    }
+    const opened = dayOf(w.createdAt);
+    if (opened) opened.wosOpened += 1;
+    if (!isCompletedWoStatus(w.status)) return;
+    const e = dayOf(woDoneAt(w));
+    if (!e) return;
+    e.wosCompleted += 1;
+    const parts = woPartsCost(w);
+    const labour = woLaborCost(w);
+    e.partsCostLKR += parts;
+    e.laborCostLKR += labour;
+    e.maintenanceCostLKR += parts + labour;
   });
 
+  // SLA: work orders whose deadline fell on the day — met vs breached.
+  const slaAccum = new Map<string, { met: number; breached: number }>();
+  workOrders.forEach((w) => {
+    const deadline = toDate(w.slaDeadline);
+    if (!deadline) return;
+    const k = dateKey(deadline);
+    if (!byDate.has(k)) return;
+    const outcome = woSlaOutcome(w, now);
+    if (outcome !== 'met' && outcome !== 'breached') return;
+    const acc = slaAccum.get(k) ?? { met: 0, breached: 0 };
+    acc[outcome] += 1;
+    slaAccum.set(k, acc);
+  });
+
+  // Contractor cost when the work was done; cancelled jobs cost nothing.
   contractorJobs.forEach((c) => {
-    const done = toDate(c.workCompletedAt ?? c.createdAt);
-    if (done) {
-      const e = byDate.get(dateKey(done));
-      if (e) {
-        const amount = Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
-        e.contractorCostLKR += amount;
-        e.maintenanceCostLKR += amount;
-      }
-    }
+    if (!isCountableContractorJob(c)) return;
+    const e = dayOf(contractorJobCostDate(c));
+    if (!e) return;
+    const amount = contractorJobCost(c);
+    e.contractorCostLKR += amount;
+    e.maintenanceCostLKR += amount;
   });
 
+  // PM occurrences on the day they were due (the monthly rule), with overdue
+  // ones still open counted as missed.
+  const pmOnTime = new Map<string, number>();
   pmHistory.forEach((p) => {
-    const done = toDate(p.completedDate);
-    if (done) {
-      const e = byDate.get(dateKey(done));
-      if (e) {
-        if (p.status === 'completed_on_time' || p.status === 'completed_late') e.pmsCompleted += 1;
-        if (p.status === 'missed') e.pmsMissed += 1;
-      }
-    }
+    const d = toDate(p.dueDate ?? p.completedDate);
+    if (!d) return;
+    const k = dateKey(d);
+    const e = byDate.get(k);
+    if (!e) return;
+    const status = getEffectivePMHistoryStatus(p, now);
+    if (status === 'completed_on_time' || status === 'completed_late') e.pmsCompleted += 1;
+    if (status === 'missed' || status === 'overdue') e.pmsMissed += 1;
+    if (status === 'completed_on_time') pmOnTime.set(k, (pmOnTime.get(k) ?? 0) + 1);
   });
 
   // Finalise per-day derived values.
@@ -755,11 +820,13 @@ export async function computeDailyAnalytics(
     const mttr = mttrAccum.get(k);
     if (mttr && mttr.length) e.mttrHours = Number((mttr.reduce((a, c) => a + c, 0) / mttr.length).toFixed(2));
     const sla = slaAccum.get(k);
-    if (sla && sla.total) e.slaComplianceRate = Number((((sla.total - sla.breached) / sla.total) * 100).toFixed(1));
+    if (sla && sla.met + sla.breached) e.slaComplianceRate = Number(((sla.met / (sla.met + sla.breached)) * 100).toFixed(1));
     const pmTotal = e.pmsCompleted + e.pmsMissed;
-    e.pmComplianceRate = pmTotal ? Number(((e.pmsCompleted / pmTotal) * 100).toFixed(1)) : 0;
+    // On time / everything that fell due — 100 when nothing did (monthly rule).
+    e.pmComplianceRate = pmTotal ? Number((((pmOnTime.get(k) ?? 0) / pmTotal) * 100).toFixed(1)) : 100;
     e.maintenanceCostLKR = Math.round(e.maintenanceCostLKR);
     e.partsCostLKR = Math.round(e.partsCostLKR);
+    e.laborCostLKR = Math.round(e.laborCostLKR);
     e.contractorCostLKR = Math.round(e.contractorCostLKR);
     e.productionHoursLost = Number(e.productionHoursLost.toFixed(1));
   });
@@ -771,7 +838,12 @@ export async function computeDailyAnalytics(
 // Machine health (derived from breakdowns + work orders)
 // ---------------------------------------------------------------------------
 
-type HealthEntry = MachineHealthDoc & { _mttr: number[]; _breakdownDates: Date[]; _realHealth: number | null };
+type HealthEntry = MachineHealthDoc & {
+  _breakdowns: Row[];
+  _pmHistory: Row[];
+  _machineStatus: unknown;
+  _storedHealth: number | null;
+};
 
 function mapMachineStatus(status: unknown): MachineHealthDoc['currentStatus'] {
   switch (String(status ?? '')) {
@@ -798,22 +870,44 @@ async function fetchMachinesForSites(): Promise<Row[]> {
     try {
       const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
       snap.docs.forEach((d) => rows.push({ id: d.id, ...d.data() }));
-    } catch {
-      /* ignore */
+      failedSources.delete('machines');
+    } catch (err) {
+      console.error('Analytics: could not load machines', err);
+      failedSources.add('machines');
     }
   }
   return rows;
 }
 
+const OPEN_BREAKDOWN_STATUSES = new Set([
+  'reported', 'acknowledged', 'triage_in_progress', 'assigned', 'en_route',
+  'repair_in_progress', 'on_hold_parts', 'on_hold_approval',
+]);
+const isOpenBreakdown = (b: Row) => OPEN_BREAKDOWN_STATUSES.has(String(b.status ?? ''));
+const isOpenWo = (w: Row) => !isCompletedWoStatus(w.status) && String(w.status ?? '') !== 'CANCELLED';
+
+/**
+ * Per-machine health, with the same definitions as the server snapshot
+ * (functions/src/machines/machineHealth.js) and the monthly figures:
+ *  - healthScore: the score the server computed and stored on the machine
+ *    (lib/machineHealth.ts formula); computed here from the same records
+ *    only for machines the server hasn't scored yet;
+ *  - MTTR: mean reported → sign-off time of breakdowns restored in the last
+ *    90 days; MTBF: (90 days − downtime) / failures in that window;
+ *  - open counts exclude cancelled records; MTD cost is parts + labour of
+ *    work done this month.
+ */
 export async function computeMachineHealth(companyId: string): Promise<MachineHealthDoc[]> {
-  const [breakdowns, workOrders, machineDocs] = await Promise.all([
+  const [breakdowns, workOrders, pmHistory, machineDocs] = await Promise.all([
     fetchAll('breakdown_tickets', companyId),
     fetchAll('workOrders', companyId),
+    fetchAll('pm_history', companyId),
     fetchMachinesForSites(),
   ]);
 
   const now = new Date();
   const monthStr = monthKey(now);
+  const windowStart = now.getTime() - HEALTH_WINDOW_DAYS * 86_400_000;
   const machines = new Map<string, HealthEntry>();
 
   const ensure = (id: string, seed: Row): HealthEntry => {
@@ -822,7 +916,7 @@ export async function computeMachineHealth(companyId: string): Promise<MachineHe
       m = {
         companyId,
         machineId: id,
-        machineIdCode: String(seed.machineId ?? id).slice(0, 6).toUpperCase(),
+        machineIdCode: String(id).slice(0, 6).toUpperCase(),
         machineName: String(seed.machineName ?? id),
         department: String(seed.machineDepartment ?? seed.department ?? ''),
         location: String(seed.machineLocation ?? seed.location ?? ''),
@@ -840,79 +934,85 @@ export async function computeMachineHealth(companyId: string): Promise<MachineHe
         watchFlag: false,
         watchFlagLevel: null,
         updatedAt: Timestamp.now(),
-        _mttr: [],
-        _breakdownDates: [],
-        _realHealth: null,
+        _breakdowns: [],
+        _pmHistory: [],
+        _machineStatus: null,
+        _storedHealth: null,
       };
       machines.set(id, m);
     }
     return m;
   };
 
-  // Seed every known machine with its real record so all machines appear and
-  // carry their stored health score / service dates.
+  // Seed every known machine with its real record so all machines appear.
   machineDocs.forEach((doc) => {
     const m = ensure(doc.id, {
-      machineId: doc.id,
       machineName: doc.name,
       machineDepartment: doc.department,
-      machineLocation: doc.floor ?? doc.bay ?? doc.station ?? doc.location,
+      machineLocation: [doc.floor, doc.bay, doc.station].filter((x) => x != null && x !== '').join(' · '),
     });
+    m._machineStatus = doc.status;
     m.currentStatus = mapMachineStatus(doc.status);
-    m._realHealth = typeof doc.healthScore === 'number' ? doc.healthScore : null;
+    // Server-computed score (it stamps healthScoreUpdatedAt); older,
+    // hand-set values are recomputed below instead.
+    m._storedHealth = doc.healthScoreUpdatedAt && typeof doc.healthScore === 'number' ? doc.healthScore : null;
     m.lastServiceDate = (doc.lastServiceDate as Timestamp) ?? null;
     m.nextPmDue = (doc.nextPmDue as Timestamp) ?? null;
   });
 
   breakdowns.forEach((b) => {
+    if (isCancelledBreakdown(b)) return;
     const id = String(b.machineId ?? b.machineName ?? 'unknown');
     const m = ensure(id, b);
+    m._breakdowns.push(b);
     const opened = toDate(b.reportedAt ?? b.createdAt);
     if (opened) {
-      m._breakdownDates.push(opened);
       if (monthKey(opened) === monthStr) m.breakdownCountMTD += 1;
       if (!m.lastBreakdownDate || opened > toDate(m.lastBreakdownDate)!) {
         m.lastBreakdownDate = Timestamp.fromDate(opened);
       }
     }
-    const status = String(b.status ?? '');
-    if (!['resolved', 'closed'].includes(status)) {
-      m.openBreakdownCount += 1;
-      m.currentStatus = 'breakdown';
-    }
-    const resolved = toDate(b.resolvedAt);
-    if (opened && resolved && resolved > opened) {
-      m._mttr.push((resolved.getTime() - opened.getTime()) / 3_600_000);
-    }
+    if (isOpenBreakdown(b)) m.openBreakdownCount += 1;
   });
 
+  pmHistory.forEach((p) => {
+    const m = p.machineId != null ? machines.get(String(p.machineId)) : undefined;
+    if (m) m._pmHistory.push(p);
+  });
+
+  const woByMachine = new Map<string, Row[]>();
   workOrders.forEach((w) => {
     const id = String(w.machineId ?? '');
     if (!id) return;
     const m = machines.get(id);
     if (!m) return;
-    if (!isCompletedWoStatus(w.status)) m.openWoCount += 1;
-    const done = toDate(w.actualEndTime);
-    if (done && monthKey(done) === monthStr) m.maintenanceCostMTD += woCost(w);
+    woByMachine.set(id, [...(woByMachine.get(id) ?? []), w]);
+    if (isOpenWo(w)) m.openWoCount += 1;
+    const done = woDoneAt(w);
+    if (isCompletedWoStatus(w.status) && done && monthKey(done) === monthStr) m.maintenanceCostMTD += woCost(w);
   });
 
   return Array.from(machines.values()).map((m) => {
-    const mttrHours = m._mttr.length ? m._mttr.reduce((a, c) => a + c, 0) / m._mttr.length : 0;
-    // MTBF: span of observed breakdowns / count.
-    let mtbfDays = 0;
-    if (m._breakdownDates.length >= 2) {
-      const sorted = m._breakdownDates.sort((a, b) => a.getTime() - b.getTime());
-      const spanDays = (sorted[sorted.length - 1].getTime() - sorted[0].getTime()) / 86_400_000;
-      mtbfDays = spanDays / (m._breakdownDates.length - 1);
-    } else if (m._breakdownDates.length === 1) {
-      mtbfDays = (now.getTime() - m._breakdownDates[0].getTime()) / 86_400_000;
-    }
-    // Prefer the machine's stored health score; otherwise derive one by
-    // penalising open / recent breakdowns.
-    const healthScore = m._realHealth != null
-      ? Math.max(0, Math.min(100, m._realHealth))
-      : Math.max(0, Math.min(100, 100 - m.openBreakdownCount * 25 - m.breakdownCountMTD * 5));
-    const watchFlag = m.openBreakdownCount > 0 || m.breakdownCountMTD >= 3;
+    const events = computeDowntimeEvents(m._breakdowns, woByMachine.get(m.machineId) ?? [], now, breakdownDowntimeHours)
+      .filter((e) => {
+        const at = toDate(e.anchor);
+        return !!at && at.getTime() >= windowStart;
+      });
+    const restored = events.filter((e) => e.kind === 'breakdown' && !e.ongoing).map((e) => e.hours);
+    const mttrHours = restored.length ? restored.reduce((a, c) => a + c, 0) / restored.length : 0;
+    const failures = m._breakdowns.filter((b) => {
+      const d = toDate(b.reportedAt ?? b.createdAt);
+      return !!d && d.getTime() >= windowStart;
+    }).length;
+    const mtbf = mtbfDays(
+      new Map([[m.machineId, failures]]),
+      new Map([[m.machineId, sumDowntimeHours(events)]]),
+      HEALTH_WINDOW_DAYS * 24,
+    );
+    const healthScore = m._storedHealth ?? machineHealthScoreFromRecords(m._machineStatus, m._breakdowns, m._pmHistory, now);
+    const currentStatus = m.currentStatus === 'decommissioned'
+      ? 'decommissioned'
+      : m.openBreakdownCount > 0 ? 'breakdown' : m.currentStatus;
     const watchFlagLevel = m.openBreakdownCount > 0
       ? 'critical_watch'
       : m.breakdownCountMTD >= 3
@@ -925,9 +1025,9 @@ export async function computeMachineHealth(companyId: string): Promise<MachineHe
       machineName: m.machineName,
       department: m.department,
       location: m.location,
-      currentStatus: m.currentStatus,
-      healthScore,
-      mtbfDays: Number(mtbfDays.toFixed(1)),
+      currentStatus,
+      healthScore: Math.max(0, Math.min(100, healthScore)),
+      mtbfDays: Number(mtbf.toFixed(1)),
       mttrHours: Number(mttrHours.toFixed(2)),
       lastBreakdownDate: m.lastBreakdownDate,
       lastServiceDate: m.lastServiceDate,
@@ -936,7 +1036,7 @@ export async function computeMachineHealth(companyId: string): Promise<MachineHe
       openWoCount: m.openWoCount,
       breakdownCountMTD: m.breakdownCountMTD,
       maintenanceCostMTD: Math.round(m.maintenanceCostMTD),
-      watchFlag,
+      watchFlag: watchFlagLevel !== null,
       watchFlagLevel: watchFlagLevel as MachineHealthDoc['watchFlagLevel'],
       updatedAt: Timestamp.now(),
     };
@@ -1040,6 +1140,7 @@ export async function computePlantEfficiency(companyId: string, months: string[]
   };
 
   breakdowns.forEach((b) => {
+    if (isCancelledBreakdown(b)) return;
     add(b, b.reportedAt ?? b.createdAt, (f) => { f.breakdowns += 1; });
   });
   computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours).forEach((e) => {
@@ -1049,16 +1150,19 @@ export async function computePlantEfficiency(companyId: string, months: string[]
     });
   });
   workOrders.forEach((w) => {
+    if (String(w.status ?? '') === 'CANCELLED') return;
     // Count work orders by when they were raised…
     add(w, w.createdAt, (f) => { f.workOrders += 1; });
-    // …and cost / downtime by when the work was done, as monthly analytics does.
-    add(w, w.actualEndTime ?? w.createdAt, (f) => {
+    // …and cost by when the work was done, as monthly analytics does.
+    add(w, woDoneAt(w) ?? w.createdAt, (f) => {
       f.maintenanceCost += woCost(w);
     });
   });
+  // Contractor cost when the work was done; cancelled jobs cost nothing.
   contractorJobs.forEach((c) => {
-    add(c, c.createdAt ?? c.workCompletedAt, (f) => {
-      f.maintenanceCost += Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
+    if (!isCountableContractorJob(c)) return;
+    add(c, contractorJobCostDate(c), (f) => {
+      f.maintenanceCost += contractorJobCost(c);
     });
   });
 

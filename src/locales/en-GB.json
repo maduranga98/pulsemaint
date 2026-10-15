@@ -1089,6 +1089,27 @@
       "reason": "Reason",
       "signOut": "Sign out",
       "registerNote": "After you register, our team reviews your company before you can sign in — usually within one working day. We'll email you as soon as it's approved."
+    },
+    "analytics": {
+      "incompleteData": "Some records couldn't be loaded ({{sources}}), so these figures may be incomplete. Refresh the page to try again."
+    },
+    "settings": {
+      "users": {
+        "modal": {
+          "fields": {
+            "hourlyRate": "Labour rate (per hour)",
+            "hourlyRatePlaceholder": "Used to cost this person's logged hours"
+          }
+        }
+      }
+    },
+    "ui2": {
+      "machines": {
+        "machineForm": {
+          "healthScoreAuto": "Health Score",
+          "healthScoreAutoHint": "Calculated automatically from the last 90 days of breakdowns and PM work — it can't be set by hand."
+        }
+      }
     }
   }
 }
