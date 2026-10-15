@@ -108,6 +108,7 @@ const {
   stampPlantOnBreakdown,
   stampPlantOnPmSchedule,
   stampPlantOnPmHistory,
+  stampPlantOnNotification,
   propagateMachinePlant,
   backfillPlantStamps,
 } = require("./src/machines/plantStamps");
@@ -116,6 +117,7 @@ exports.stampPlantOnWorkOrder = stampPlantOnWorkOrder;
 exports.stampPlantOnBreakdown = stampPlantOnBreakdown;
 exports.stampPlantOnPmSchedule = stampPlantOnPmSchedule;
 exports.stampPlantOnPmHistory = stampPlantOnPmHistory;
+exports.stampPlantOnNotification = stampPlantOnNotification;
 exports.propagateMachinePlant = propagateMachinePlant;
 exports.backfillPlantStamps = backfillPlantStamps;
 
