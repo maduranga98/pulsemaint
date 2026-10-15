@@ -100,10 +100,24 @@ exports.markMachineDownOnBreakdownReported = markMachineDownOnBreakdownReported;
 exports.reactivateMachineOnBreakdownClose = reactivateMachineOnBreakdownClose;
 exports.reactivateMachineOnWOSignOff = reactivateMachineOnWOSignOff;
 
-const {stampWorkOrderPlant, stampBreakdownPlant} = require("./src/machines/stampMachinePlant");
+// Plant stamps on every machine-linked record (replacing the create-only
+// stampWorkOrderPlant / stampBreakdownPlant), open work following a machine
+// moved to another plant, and a one-time backfill of existing records.
+const {
+  stampPlantOnWorkOrder,
+  stampPlantOnBreakdown,
+  stampPlantOnPmSchedule,
+  stampPlantOnPmHistory,
+  propagateMachinePlant,
+  backfillPlantStamps,
+} = require("./src/machines/plantStamps");
 
-exports.stampWorkOrderPlant = stampWorkOrderPlant;
-exports.stampBreakdownPlant = stampBreakdownPlant;
+exports.stampPlantOnWorkOrder = stampPlantOnWorkOrder;
+exports.stampPlantOnBreakdown = stampPlantOnBreakdown;
+exports.stampPlantOnPmSchedule = stampPlantOnPmSchedule;
+exports.stampPlantOnPmHistory = stampPlantOnPmHistory;
+exports.propagateMachinePlant = propagateMachinePlant;
+exports.backfillPlantStamps = backfillPlantStamps;
 
 const {syncMachineNextPm, syncMachineLastService} = require("./src/machines/syncMachineServiceDates");
 
@@ -113,6 +127,11 @@ exports.syncMachineLastService = syncMachineLastService;
 const {getPublicMachine} = require("./src/machines/publicMachine");
 
 exports.getPublicMachine = getPublicMachine;
+
+// Company-wide plan-limit counts (plant-scoped roles can't count other plants' records).
+const {getPlanUsage} = require("./src/billing/planUsage");
+
+exports.getPlanUsage = getPlanUsage;
 
 const {costWorkOrder} = require("./src/workorders/costWorkOrder");
 
