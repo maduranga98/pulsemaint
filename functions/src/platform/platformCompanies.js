@@ -11,6 +11,9 @@ const { approvalStatusOf, emailApprovalDecision, clearRegistrationAlert } = requ
 const DAY = 86_400_000;
 const COMPANY_ROLES = ["admin", "plant_manager", "supervisor", "technician", "store_keeper", "hr_officer", "trainee", "floor_operator", "safety_officer"];
 
+const ENTERPRISE_TIERS = ["enterprise1", "enterprise2", "enterprise3", "unlimited"];
+const LIMIT_KEYS = ["users", "plants", "machines", "inventoryItems", "pmSchedules", "workOrdersPerMonth"];
+
 async function adminContact(company) {
   if (!company.adminUserId) return { name: null, email: null };
   const snap = await db.doc(`companies/${company.id}/users/${company.adminUserId}`).get();
@@ -37,6 +40,8 @@ function companySummary(id, c) {
     lastReminderAt: toMillis(c.lastPaymentReminderAt),
     platformNote: c.platformNote ?? null,
     planSetBy: c.planSetBy ?? null,
+    enterpriseTier: c.enterpriseTier ?? null,
+    limitOverrides: c.limitOverrides ?? null,
     approvalStatus: approvalStatusOf(c),
     rejectionReason: c.rejectionReason ?? null,
     approvedAt: toMillis(c.approvedAt),
@@ -302,6 +307,12 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
         const { plan, billingCycle } = request.data;
         if (!["starter", "workshop", "factory", "enterprise"].includes(plan)) throw new HttpsError("invalid-argument", "Unknown plan");
         if (!["monthly", "yearly"].includes(billingCycle)) throw new HttpsError("invalid-argument", "Unknown billing cycle");
+        // Enterprise is sized per customer: an optional tier narrows its
+        // limits (no tier = unlimited). Other plans never carry a tier.
+        const tier = request.data.enterpriseTier ?? null;
+        if (tier !== null && (plan !== "enterprise" || !ENTERPRISE_TIERS.includes(tier))) {
+          throw new HttpsError("invalid-argument", "Unknown Enterprise tier");
+        }
         // A plan Lumora assigns is the company's real subscription (e.g. an
         // Enterprise contract billed outside Stripe): it ends the trial, so
         // the company gets that plan's full access and limits with no trial
@@ -312,10 +323,27 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
           billingCycle,
           planSetBy: "platform",
           planSetAt: FieldValue.serverTimestamp(),
+          enterpriseTier: tier ?? FieldValue.delete(),
           status: c.status === "suspended" && c.suspendedBy === "platform" ? "suspended" : "active",
           trialEndsAt: null,
           ...stamp,
         });
+        break;
+      }
+      case "setLimits": {
+        // Per-company count overrides (grandfathered or negotiated limits,
+        // add-ons). A number sets the limit, null makes it unlimited, a key
+        // left out keeps the plan's value; an empty object clears them all.
+        const raw = request.data.limitOverrides ?? {};
+        if (typeof raw !== "object" || Array.isArray(raw)) throw new HttpsError("invalid-argument", "limitOverrides must be an object");
+        const clean = {};
+        for (const [key, value] of Object.entries(raw)) {
+          if (!LIMIT_KEYS.includes(key)) throw new HttpsError("invalid-argument", `Unknown limit: ${key}`);
+          if (value === null) clean[key] = null;
+          else if (Number.isInteger(value) && value >= 0 && value <= 1_000_000) clean[key] = value;
+          else throw new HttpsError("invalid-argument", `${key} must be a whole number or unlimited`);
+        }
+        await ref.update({ limitOverrides: Object.keys(clean).length ? clean : FieldValue.delete(), ...stamp });
         break;
       }
       case "cancelSubscription":

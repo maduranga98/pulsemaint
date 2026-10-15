@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/store/authStore';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface CostDisplayProps {
   amount: number;
@@ -18,5 +19,5 @@ export function CostDisplay({ amount, hideFromRole = true, className = '' }: Cos
     maximumFractionDigits: 2,
   }).format(amount);
 
-  return <span className={className}>LKR {formatted}</span>;
+  return <span className={className}>{getCompanyCurrency()} {formatted}</span>;
 }

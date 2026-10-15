@@ -22,6 +22,7 @@ import {
 import type { KaizenStatus, KaizenCategory } from '../types/kaizen.types';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 interface Props {
   isProPlan?: boolean;
 }
@@ -91,7 +92,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
       label: 'Total Annual Benefit',
       value:
         stats.totalActualBenefit > 0
-          ? `LKR ${(stats.totalActualBenefit * 12).toLocaleString()}`
+          ? `${getCompanyCurrency()} ${(stats.totalActualBenefit * 12).toLocaleString()}`
           : '',
       icon: <DollarSign size={18} className="text-purple-500" />,
       color: 'purple',
@@ -236,7 +237,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
               >
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip formatter={(v) => [`LKR ${(v as number).toLocaleString()}`, 'Monthly'] as [string, string]} />
+                <Tooltip formatter={(v) => [`${getCompanyCurrency()} ${(v as number).toLocaleString()}`, 'Monthly'] as [string, string]} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   <Cell fill="#1A56DB" />
                   <Cell fill="#10B981" />

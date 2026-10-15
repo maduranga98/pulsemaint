@@ -60,7 +60,7 @@ function HistoryEntry({ entry, t }: { entry: MachineHistoryEntry; t: TFunction }
               {entry.testRunResult?.toUpperCase()}
             </span>
             {totalCost > 0 && (
-              <p className="text-xs text-gray-400 mt-0.5">LKR {totalCost.toLocaleString()}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{getCompanyCurrency()} {totalCost.toLocaleString()}</p>
             )}
           </div>
         </div>
@@ -96,7 +96,7 @@ function HistoryEntry({ entry, t }: { entry: MachineHistoryEntry; t: TFunction }
                 {partsUsed.map((p, i) => (
                   <div key={i} className="flex justify-between text-xs">
                     <span>{p.partName} × {p.quantity} {p.unit}</span>
-                    <span className="text-gray-500">LKR {p.totalCost?.toLocaleString()}</span>
+                    <span className="text-gray-500">{getCompanyCurrency()} {p.totalCost?.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -119,6 +119,7 @@ function HistoryEntry({ entry, t }: { entry: MachineHistoryEntry; t: TFunction }
 }
 
 import { useState } from 'react';
+import { getCompanyCurrency } from '@/lib/currency';
 
 export function MachineHistoryTimeline({ machineId, machineName }: MachineHistoryTimelineProps) {
   const { t } = useTranslation();

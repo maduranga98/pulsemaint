@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Building2, LayoutGrid } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -27,11 +28,21 @@ export function PlantTabs() {
   const activePlantId = useActivePlantStore((s) => s.activePlantId);
   const setActivePlant = useActivePlantStore((s) => s.setActivePlant);
 
-  if (userProfile?.role !== 'admin' || loading || activePlants.length === 0) return null;
+  // The dashboard is always about one plant: no "All Plants" there, and a
+  // plant is selected for the admin if none (or a no-longer-active one) is.
+  const onDashboard = pathname === '/app/dashboard' || pathname.startsWith('/app/dashboard/');
+  const isAdmin = userProfile?.role === 'admin';
+  const needsPlant = onDashboard && isAdmin && !loading && activePlants.length > 0
+    && !activePlants.some((p) => p.id === activePlantId);
+  useEffect(() => {
+    if (needsPlant) setActivePlant(activePlants[0].id);
+  }, [needsPlant, activePlants, setActivePlant]);
+
+  if (!isAdmin || loading || activePlants.length === 0) return null;
   if (PLANT_FREE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
 
   const options: { id: string | null; label: string }[] = [
-    { id: null, label: t('common.layout.plantTabs.allPlants', 'All Plants') },
+    ...(onDashboard ? [] : [{ id: null, label: t('common.layout.plantTabs.allPlants', 'All Plants') }]),
     ...activePlants.map((p) => ({ id: p.id, label: p.name })),
   ];
 

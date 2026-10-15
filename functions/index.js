@@ -891,6 +891,8 @@ const {
 const {
   platformListPayments, platformDailyBillingDigest,
 } = require("./src/platform/platformPayments");
+const {platformTranscribeCall} = require("./src/platform/callRecordings");
+exports.platformTranscribeCall = platformTranscribeCall;
 const {onSupportRequestCreated, onSupportMessageCreated, onSupportRequestStatusChanged} = require("./src/platform/supportRequests");
 const {onCompanyRegistered} = require("./src/platform/companyApprovals");
 const {onUserMappingWritten, syncCompanyClaim} = require("./src/auth/companyClaim");

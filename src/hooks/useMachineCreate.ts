@@ -10,6 +10,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../lib/firebase';
 import { generateMachineQrUrl } from '../lib/machineQr';
 import type { Machine, CreateMachinePayload } from '../types/machine';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface UseMachineCreateOptions {
   onSuccess?: (machine: Machine) => void;
@@ -118,7 +119,7 @@ export function useMachineCreate({
         costPerHourDown: null,
         unitsPerHour: null,
         unitValue: null,
-        costCurrency: 'LKR',
+        costCurrency: getCompanyCurrency() as Machine['costCurrency'],
         createdAt: serverTimestamp(),
         createdBy: userId,
         updatedAt: serverTimestamp(),

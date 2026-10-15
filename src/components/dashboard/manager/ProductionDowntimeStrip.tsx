@@ -1,6 +1,7 @@
 import DashboardWidget from '../shared/DashboardWidget';
 import { useDashboardStore } from '../../../store/dashboard.store';
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 
 
 interface ProductionDowntimeStripProps {
@@ -30,7 +31,7 @@ export default function ProductionDowntimeStrip({}: ProductionDowntimeStripProps
         <div className="flex justify-center gap-8 mt-4 text-xs">
           <div>
             <p className="text-[#8BA3BF]">{t('common.widgets.productionDowntimeStrip.downtimeCost')}</p>
-            <p className="text-[#F0F4F8] font-semibold">LKR {downtimeCost.toLocaleString()}</p>
+            <p className="text-[#F0F4F8] font-semibold">{getCompanyCurrency()} {downtimeCost.toLocaleString()}</p>
           </div>
         </div>
       </div>

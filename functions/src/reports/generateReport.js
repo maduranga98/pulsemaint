@@ -5,6 +5,7 @@ const logger = require("firebase-functions/logger");
 const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 const { randomUUID } = require("crypto");
+const { companyHasFeature } = require("../lib/planFeatures");
 const { buildReportHtml } = require("./templates/base.template");
 const { buildBreakdownSummaryTemplate } = require("./templates/breakdown-summary.template");
 const { buildWorkOrderDetailTemplate } = require("./templates/work-order-detail.template");
@@ -102,6 +103,9 @@ exports.generateReport = onCall({ memory: "2GiB", timeoutSeconds: 300 }, async (
   }
 
   const user = await requireAccess(request, reportType, companyId);
+  if (!(await companyHasFeature(companyId, "analyticsReports"))) {
+    throw new HttpsError("permission-denied", "Report exports are not included in your plan. Upgrade to use them.");
+  }
   const rows = await queryReportData(reportType, companyId, dateFrom, dateTo);
   const content = REPORTS[reportType].build(rows, options);
   const html = buildReportHtml({

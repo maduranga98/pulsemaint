@@ -4,6 +4,7 @@ import EmptyState from '../shared/EmptyState';
 import { usePurchaseOrders } from '../../../hooks/inventory/usePurchaseOrders';
 import { usePlantNameLookup } from '../../../hooks/usePlantNameLookup';
 import PlantBadge from '../shared/PlantBadge';
+import { getCompanyCurrency } from '@/lib/currency';
 
 /** Purchase orders currently awaiting approval — live so a new request
  * appears here the moment a store keeper raises one. */
@@ -37,7 +38,7 @@ export default function LivePOsWidget() {
               <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
                 <PlantBadge name={plantName(po.plantId)} />
                 <span className="rounded-full bg-[#1A56DB]/20 px-2 py-0.5 text-[10px] font-semibold text-[#5B8DEF]">
-                  LKR {po.totalOrderValue.toLocaleString()}
+                  {getCompanyCurrency()} {po.totalOrderValue.toLocaleString()}
                 </span>
               </div>
             </div>

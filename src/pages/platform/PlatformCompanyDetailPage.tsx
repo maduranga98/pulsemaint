@@ -8,6 +8,8 @@ import {
 } from '@/services/platformService';
 import { Badge, Card, ErrorNote, Loading, PageHeader, PLAN_NAMES, btn, fmtDate, fmtDateTime, fmtMoney, input, relDays, statusTone } from './platformUi';
 import RejectCompanyDialog from './RejectCompanyDialog';
+import { ENTERPRISE_TIER_LABEL, COUNT_LIMIT_ROWS, formatLimit } from '@/lib/planCatalog';
+import { limitsForCompany, planLimitsFor, type CountLimitKey, type EnterpriseTier } from '@/lib/planLimits';
 
 const COMPANY_ROLES = ['admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer'];
 
@@ -17,6 +19,7 @@ type Prompt =
   | { kind: 'email'; user: PlatformUser }
   | { kind: 'trial' }
   | { kind: 'plan' }
+  | { kind: 'limits' }
   | { kind: 'note' };
 
 const BILLING_REASON: Record<string, string> = {
@@ -38,6 +41,9 @@ export default function PlatformCompanyDetailPage() {
   const [value, setValue] = useState('');
   const [plan, setPlan] = useState<PlanId>('starter');
   const [cycle, setCycle] = useState<Cycle>('monthly');
+  const [tier, setTier] = useState<EnterpriseTier | ''>('');
+  // One text box per count limit: empty = the plan's value, a number, or "unlimited".
+  const [limitInputs, setLimitInputs] = useState<Record<string, string>>({});
   const [resetLink, setResetLink] = useState('');
   const [rejecting, setRejecting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -48,6 +54,7 @@ export default function PlatformCompanyDetailPage() {
       setData(d);
       setPlan(d.company.plan);
       setCycle(d.company.billingCycle);
+      setTier(d.company.enterpriseTier ?? '');
     }).catch((e) => setError(errorText(e, 'Could not load the company')));
     platformService.auditLog(companyId).then((r) => setAudit(r.entries)).catch(() => {});
   }, [companyId]);
@@ -87,6 +94,13 @@ export default function PlatformCompanyDetailPage() {
   }
 
   function openPrompt(p: Prompt) {
+    if (p.kind === 'limits') {
+      const overrides = data?.company.limitOverrides ?? {};
+      setLimitInputs(Object.fromEntries(COUNT_LIMIT_ROWS.map((r) => {
+        const v = overrides[r.key];
+        return [r.key, v === undefined ? '' : v === null ? 'unlimited' : String(v)];
+      })));
+    }
     setPrompt(p);
     setValue(p.kind === 'role' ? p.user.role ?? 'technician' : p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '14' : '');
   }
@@ -165,6 +179,26 @@ export default function PlatformCompanyDetailPage() {
             <button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'note' })}>Internal note</button>
             <button className={btn.danger} disabled={busy} onClick={() => { setDeleteConfirm(''); setDeleting(true); }}>Close permanently…</button>
           </div>
+        </Card>
+
+        <Card title="Plan limits">
+          <p className="mb-3 text-xs text-slate-400">What this company can actually use: its plan{c.plan === 'enterprise' ? (c.enterpriseTier ? ` (${ENTERPRISE_TIER_LABEL[c.enterpriseTier]})` : ' (no tier — unlimited)') : ''}, then any limits set for this company on top.</p>
+          <table className="w-full text-sm">
+            <tbody>
+              {COUNT_LIMIT_ROWS.map((r) => {
+                const effective = limitsForCompany({ plan: c.plan, enterpriseTier: c.enterpriseTier, limitOverrides: c.limitOverrides });
+                const overridden = c.limitOverrides != null && r.key in c.limitOverrides;
+                return (
+                  <tr key={r.key} className="border-b border-[#1E3A5F]/60 last:border-0">
+                    <td className="py-1.5 text-slate-400">{r.label}</td>
+                    <td className="py-1.5 font-semibold">{formatLimit(effective[r.key], r.perMonth)}</td>
+                    <td className="py-1.5 text-xs text-amber-300">{overridden ? 'set for this company' : ''}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div className="mt-4"><button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'limits' })}>Edit limits</button></div>
         </Card>
 
         <Card title="Billing emails">
@@ -383,6 +417,7 @@ export default function PlatformCompanyDetailPage() {
               {prompt.kind === 'email' && `Change sign-in email for ${prompt.user.fullName ?? prompt.user.uid}`}
               {prompt.kind === 'trial' && 'Extend the trial by (days)'}
               {prompt.kind === 'plan' && 'Set plan manually'}
+              {prompt.kind === 'limits' && 'Limits for this company'}
               {prompt.kind === 'note' && 'Internal note (only superadmins see this)'}
             </h3>
             {prompt.kind === 'role' ? (
@@ -400,7 +435,28 @@ export default function PlatformCompanyDetailPage() {
                 <select className={input} value={cycle} onChange={(e) => setCycle(e.target.value as Cycle)}>
                   <option value="monthly">Monthly</option><option value="yearly">Yearly</option>
                 </select>
+                {plan === 'enterprise' && (
+                  <select className={input} value={tier} onChange={(e) => setTier(e.target.value as EnterpriseTier | '')}>
+                    <option value="">No tier — unlimited</option>
+                    {(Object.keys(ENTERPRISE_TIER_LABEL) as EnterpriseTier[]).map((t) => <option key={t} value={t}>{ENTERPRISE_TIER_LABEL[t]}</option>)}
+                  </select>
+                )}
                 <p className="text-xs text-slate-400">For contracts billed outside Stripe (e.g. Enterprise). This <strong>ends the trial</strong>: the company gets this plan's full features and limits right away. A Stripe subscription change will overwrite it.</p>
+              </div>
+            ) : prompt.kind === 'limits' ? (
+              <div className="space-y-2">
+                {COUNT_LIMIT_ROWS.map((r) => (
+                  <label key={r.key} className="flex items-center gap-3 text-sm">
+                    <span className="w-48 shrink-0 text-slate-300">{r.label}</span>
+                    <input
+                      className={input}
+                      value={limitInputs[r.key] ?? ''}
+                      placeholder={`Plan: ${formatLimit(planLimitsFor(c.plan)[r.key])}`}
+                      onChange={(e) => setLimitInputs((m) => ({ ...m, [r.key]: e.target.value }))}
+                    />
+                  </label>
+                ))}
+                <p className="text-xs text-slate-400">Leave a box empty to use the plan's limit. Type a whole number to set this company's limit, or <strong>unlimited</strong> for no limit. Use it for add-ons or to keep an existing customer on their old limits.</p>
               </div>
             ) : prompt.kind === 'note' ? (
               <textarea className={`${input} h-32`} value={value} onChange={(e) => setValue(e.target.value)} />
@@ -425,7 +481,19 @@ export default function PlatformCompanyDetailPage() {
                   if (prompt.kind === 'role') void user(prompt.user, { action: 'setRole', role: value }, 'Role changed');
                   if (prompt.kind === 'email') void user(prompt.user, { action: 'updateEmail', email: value }, 'Sign-in email updated');
                   if (prompt.kind === 'trial') void company({ action: 'extendTrial', days: Number(value) }, 'Trial extended');
-                  if (prompt.kind === 'plan') void company({ action: 'setPlan', plan, billingCycle: cycle }, 'Plan assigned — trial ended, the company now has full access on this plan');
+                  if (prompt.kind === 'plan') void company({ action: 'setPlan', plan, billingCycle: cycle, enterpriseTier: plan === 'enterprise' && tier ? tier : null }, 'Plan assigned — trial ended, the company now has full access on this plan');
+                  if (prompt.kind === 'limits') {
+                    const limitOverrides: Partial<Record<CountLimitKey, number | null>> = {};
+                    for (const r of COUNT_LIMIT_ROWS) {
+                      const raw = (limitInputs[r.key] ?? '').trim().toLowerCase();
+                      if (!raw) continue;
+                      if (raw === 'unlimited') { limitOverrides[r.key] = null; continue; }
+                      const n = Number(raw);
+                      if (!Number.isInteger(n) || n < 0) { setError(`${r.label}: enter a whole number, "unlimited", or leave it empty`); return; }
+                      limitOverrides[r.key] = n;
+                    }
+                    void company({ action: 'setLimits', limitOverrides }, 'Limits saved');
+                  }
                   if (prompt.kind === 'note') void company({ action: 'note', text: value }, 'Note saved');
                 }}
               >

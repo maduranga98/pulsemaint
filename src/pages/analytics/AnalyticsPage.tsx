@@ -29,6 +29,8 @@ import {
   monthsForDashboardRange,
   type DashboardRange as Range,
 } from '../../utils/analytics/dashboardRange';
+import { getCompanyCurrency } from '@/lib/currency';
+import { PlanFeatureGate } from '@/components/settings/PlanFeatureGate';
 
 type Tab = 'breakdowns' | 'pm' | 'workorders' | 'machines' | 'plants' | 'safety' | 'team';
 
@@ -88,7 +90,7 @@ export default function AnalyticsPage() {
     },
     {
       label: t('common.analytics.mainPage.kpis.maintenanceCost'),
-      value: `LKR ${((monthly?.totalMaintenanceCost ?? 0) / 1000).toFixed(0)}K`,
+      value: `${getCompanyCurrency()} ${((monthly?.totalMaintenanceCost ?? 0) / 1000).toFixed(0)}K`,
       color: 'amber' as const,
     },
     {
@@ -202,7 +204,12 @@ export default function AnalyticsPage() {
         )}
 
         {tab === 'machines' && <TopProblemMachinesChart companyId={companyId} month={months} />}
-        {tab === 'plants' && <PlantEfficiencyTab companyId={companyId} months={months} />}
+        {/* Plants and Team are advanced analytics — Factory Pro and above. */}
+        {tab === 'plants' && (
+          <PlanFeatureGate feature="advancedAnalytics">
+            <PlantEfficiencyTab companyId={companyId} months={months} />
+          </PlanFeatureGate>
+        )}
 
         {tab === 'safety' && (
           <div className="space-y-6">
@@ -212,10 +219,12 @@ export default function AnalyticsPage() {
         )}
 
         {tab === 'team' && (
-          <div className="space-y-6">
-            <TechnicianPerformanceTable companyId={companyId} month={months} />
-            <TopPerformersWidget companyId={companyId} />
-          </div>
+          <PlanFeatureGate feature="advancedAnalytics">
+            <div className="space-y-6">
+              <TechnicianPerformanceTable companyId={companyId} month={months} />
+              <TopPerformersWidget companyId={companyId} />
+            </div>
+          </PlanFeatureGate>
         )}
       </div>
     </div>
