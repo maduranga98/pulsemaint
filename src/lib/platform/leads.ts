@@ -106,6 +106,11 @@ export interface LeadActivity {
   /** When it happened, ms (client clock — what the day report filters on). */
   at: number;
   authorEmail: string | null;
+  /** Recorded call audio kept on the lead's profile, with its transcript and summary. */
+  recording?: { path: string; url: string; mime: string; durationSec: number; sizeBytes: number } | null;
+  transcript?: string | null;
+  /** Language that was spoken, e.g. "Sinhala". */
+  spokenLanguage?: string | null;
 }
 
 export function emptyLead(now = Date.now()): LeadInput {
@@ -307,7 +312,7 @@ export function leadImportTemplateRows(): string[][] {
 
 export function dayReportToCsv(report: DayReport, leads: Lead[]): string {
   const byId = new Map(leads.map((l) => [l.id, l]));
-  return toCsv(['Time', 'Garage', 'Customer', 'Phone', 'Location', 'Type', 'Outcome', 'Tags', 'Note', 'Status now', 'Demo', 'Next follow-up'], report.rows.map((a) => {
+  return toCsv(['Time', 'Business name', 'Customer', 'Phone', 'Location', 'Type', 'Outcome', 'Tags', 'Note', 'Status now', 'Demo', 'Next follow-up'], report.rows.map((a) => {
     const lead = byId.get(a.leadId);
     return [
       isoDateTime(a.at), lead?.businessName ?? a.leadName, lead?.contactPerson ?? '', lead?.phone ?? '', lead?.location ?? '',

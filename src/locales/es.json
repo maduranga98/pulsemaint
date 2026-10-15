@@ -214,7 +214,7 @@
           "autoApprovalEligible": "✓ Elegible para aprobación automática: todos los artículos en stock y dentro del umbral",
           "autoApprovalNotEligible": "✗ No elegible para aprobación automática: {{reasons}}",
           "someUnavailable": "Algunos artículos no disponibles. ",
-          "costExceedsThreshold": "El costo supera el umbral de LKR {{threshold}}.",
+          "costExceedsThreshold": "El costo supera el umbral de {{currency}} {{threshold}}.",
           "writtenOff": "Cancelado por {{name}} — no se devolverá: {{reason}}"
         },
         "availabilityIndicator": {
@@ -762,7 +762,7 @@
           "warrantyFiles": "Documentos de Garantía / Imágenes (opcional)",
           "filesSelected_one": "{{count}} archivo seleccionado",
           "filesSelected_other": "{{count}} archivos seleccionados",
-          "unitCost": "Costo Unitario (LKR)",
+          "unitCost": "Costo Unitario ({{currency}})",
           "supplier": "Proveedor",
           "selectSupplier": "Seleccione un proveedor…",
           "noSuppliers": "Aún no hay proveedores.",
@@ -774,7 +774,7 @@
           "supplierPartCodePlaceholder": "Autocompletado del proveedor, editable",
           "leadTimeDays": "Tiempo de Entrega (Días)",
           "lastPurchaseDate": "Fecha de Última Compra",
-          "lastPurchasePrice": "Precio de Última Compra (LKR)",
+          "lastPurchasePrice": "Precio de Última Compra ({{currency}})",
           "notes": "Notas",
           "notesPlaceholder": "Notas adicionales…"
         }
@@ -1324,7 +1324,7 @@
         },
         "receiveItemRow": {
           "ordered": "Pedido:",
-          "unitCostLkr": "Coste unitario (LKR)",
+          "unitCostLkr": "Coste unitario ({{currency}})",
           "condition": "Estado",
           "notesOptional": "Notas (opcional)",
           "remove": "Quitar",
@@ -2638,8 +2638,8 @@
         "addPartUsedButton": "Agregar Pieza",
         "sourceLabelStock": "Desde Stock",
         "sourceLabelExternal": "Compra Externa",
-        "unitCostLabel": "Costo Unitario (LKR)",
-        "totalCostLabel": "Costo Total (LKR)",
+        "unitCostLabel": "Costo Unitario ({{currency}})",
+        "totalCostLabel": "Costo Total ({{currency}})",
         "techLogsLabel": "Registros de Trabajo del Equipo",
         "hoursWorkedLabel": "Horas Trabajadas",
         "tasksDescLabel": "Tareas Realizadas",
@@ -2834,7 +2834,7 @@
         "removePartLabel": "Quitar pieza",
         "qtyLabel": "Cant.",
         "unitLabel": "Unidad",
-        "unitCostLabel": "Costo unitario (LKR)",
+        "unitCostLabel": "Costo unitario ({{currency}})",
         "catalogPriceTitle": "Precio de catálogo — no editable",
         "totalLabel": "Total: {{amount}}",
         "addExternalPartButton": "+ Agregar pieza externa / comprada",
@@ -5825,7 +5825,7 @@
         "invoiceUpload": {
           "title": "Subir Factura del Contratista",
           "referencePlaceholder": "Referencia de la factura",
-          "amountPlaceholder": "Importe (LKR)",
+          "amountPlaceholder": "Importe ({{currency}})",
           "uploadPdf": "Subir Factura en PDF"
         },
         "invoiceComparison": {
@@ -6366,7 +6366,7 @@
             "routingSwift": "Código de Ruta / SWIFT",
             "tinNumber": "Número de Identificación Tributaria",
             "projectClientName": "Nombre del Proyecto / Cliente",
-            "costLkr": "Costo (LKR)",
+            "costLkr": "Costo ({{currency}})",
             "ratingPlaceholder": "Valoración…",
             "duration": "Duración (p. ej. 3 meses)",
             "contractType": "Tipo de Contrato (p. ej. fijo, T&M)",
@@ -10001,8 +10001,8 @@
           "location": "Ubicación",
           "beforePhotos": "Fotos de antes",
           "suggestedSolution": "Solución propuesta",
-          "estimatedCostLkr": "Coste estimado (LKR)",
-          "monthlyBenefitLkr": "Beneficio mensual (LKR)",
+          "estimatedCostLkr": "Coste estimado ({{currency}})",
+          "monthlyBenefitLkr": "Beneficio mensual ({{currency}})",
           "tags": "Etiquetas",
           "hereSHowYourKaizen": "Así aparecerá tu Kaizen en el tablero:",
           "summary": "Resumen",
@@ -10056,8 +10056,8 @@
           "priority": "Prioridad",
           "raisedBy": "Propuesto por",
           "status": "Estado",
-          "actualCostLkr": "Coste real (LKR)",
-          "actualBenefitMoLkr": "Beneficio real/mes (LKR)",
+          "actualCostLkr": "Coste real ({{currency}})",
+          "actualBenefitMoLkr": "Beneficio real/mes ({{currency}})",
           "topContributorThisMonth": "Mejor colaborador del mes"
         },
         "kaizenStats": {

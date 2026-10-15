@@ -13,6 +13,7 @@ import type { KaizenCard } from '../types/kaizen.types';
 import { Timestamp } from 'firebase/firestore';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 const DRAFT_KEY = 'kaizen_form_draft';
 
 const schema = z.object({
@@ -465,10 +466,10 @@ export function KaizenForm({ onClose, onCreated }: Props) {
                 <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.category2')}</span> {KAIZEN_CATEGORY_META[values.category ?? 'efficiency'].label}</p>
                 <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.priority2')}</span> {KAIZEN_PRIORITY_META[values.priority ?? 'medium'].label}</p>
                 {values.estimatedCost != null && values.estimatedCost > 0 && (
-                  <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.estCost')}</span> LKR {values.estimatedCost.toLocaleString()}</p>
+                  <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.estCost')}</span> {getCompanyCurrency()} {values.estimatedCost.toLocaleString()}</p>
                 )}
                 {values.estimatedBenefit != null && values.estimatedBenefit > 0 && (
-                  <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.monthlyBenefit')}</span> LKR {values.estimatedBenefit.toLocaleString()}</p>
+                  <p><span className="text-gray-500">{t('common.ui2.kaizen.kaizenForm.monthlyBenefit')}</span> {getCompanyCurrency()} {values.estimatedBenefit.toLocaleString()}</p>
                 )}
               </div>
             </div>

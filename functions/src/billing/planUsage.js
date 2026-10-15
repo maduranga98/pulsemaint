@@ -1,6 +1,7 @@
 /**
  * getPlanUsage — the company-wide count of a plan-limited resource (machines,
- * inventory items, active PM schedules, users, work orders this month).
+ * inventory items, active PM schedules, seats, plants, work orders this
+ * month), counted exactly as fetchResourceCount in src/hooks/usePlanLimitCheck.ts.
  *
  * Plan limits are per company, but plant-scoped roles may only read their
  * own plant's records (firestore.rules), so the browser can't count the
@@ -13,7 +14,7 @@ const {getFirestore, Timestamp} = require("firebase-admin/firestore");
 const {requireMember} = require("../lib/access");
 const {safeZone, localDateKey, localDayWindow} = require("../lib/zonedTime");
 
-const RESOURCES = new Set(["machines", "inventoryItems", "pmSchedules", "users", "workOrdersThisMonth"]);
+const RESOURCES = new Set(["machines", "inventoryItems", "pmSchedules", "users", "plants", "workOrdersThisMonth"]);
 
 exports.getPlanUsage = onCall({maxInstances: 20}, async (request) => {
   const {companyId, resource} = request.data || {};
@@ -30,7 +31,14 @@ exports.getPlanUsage = onCall({maxInstances: 20}, async (request) => {
   } else if (resource === "pmSchedules") {
     q = db.collection("pm_schedules").where("companyId", "==", companyId).where("status", "in", ["active", "paused"]);
   } else if (resource === "users") {
-    q = db.collection(`companies/${companyId}/users`);
+    // Seats in use: members plus invitations still waiting to be accepted.
+    const [members, invited] = await Promise.all([
+      db.collection(`companies/${companyId}/users`).count().get(),
+      db.collection(`companies/${companyId}/invitations`).where("status", "==", "pending").count().get(),
+    ]);
+    return {count: members.data().count + invited.data().count};
+  } else if (resource === "plants") {
+    q = db.collection("plants").where("companyId", "==", companyId);
   } else {
     // Since the start of this month on the company's own calendar.
     const company = await db.collection("companies").doc(companyId).get();

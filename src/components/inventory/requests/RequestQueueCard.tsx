@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { PartsRequest, RequestStatus } from '@/types/inventory';
 import { RequestPriorityBadge } from './RequestPriorityBadge';
 import { ReturnCell, type ReturnInfo } from './RequestQueueRow';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface Props {
   request: PartsRequest;
@@ -96,7 +97,7 @@ export function RequestQueueCard({ request, returnInfo, onReview, canManageRetur
       {/* Footer */}
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-600 font-medium">
-          LKR {request.totalEstimatedCost.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {getCompanyCurrency()} {request.totalEstimatedCost.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <span className={age.isOld ? 'text-red-600 font-semibold' : 'text-gray-500'}>
           {age.label}

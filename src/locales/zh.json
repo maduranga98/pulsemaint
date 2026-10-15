@@ -762,7 +762,7 @@
           "warrantyFiles": "保修文档/图片（可选）",
           "filesSelected_one": "已选择 {{count}} 个文件",
           "filesSelected_other": "已选择 {{count}} 个文件",
-          "unitCost": "单价（LKR）",
+          "unitCost": "单价（{{currency}}）",
           "supplier": "供应商",
           "selectSupplier": "选择供应商…",
           "noSuppliers": "尚无供应商。",
@@ -774,7 +774,7 @@
           "supplierPartCodePlaceholder": "自动填充自供应商，可编辑",
           "leadTimeDays": "交货周期（天）",
           "lastPurchaseDate": "上次采购日期",
-          "lastPurchasePrice": "上次采购价格（LKR）",
+          "lastPurchasePrice": "上次采购价格（{{currency}}）",
           "notes": "备注",
           "notesPlaceholder": "其他备注…"
         }
@@ -1324,7 +1324,7 @@
         },
         "receiveItemRow": {
           "ordered": "订购：",
-          "unitCostLkr": "单价（LKR）",
+          "unitCostLkr": "单价（{{currency}}）",
           "condition": "状况",
           "notesOptional": "备注（可选）",
           "remove": "移除",
@@ -2666,8 +2666,8 @@
         "addPartUsedButton": "添加备件",
         "sourceLabelStock": "来自库存",
         "sourceLabelExternal": "外部采购",
-        "unitCostLabel": "单价（LKR）",
-        "totalCostLabel": "总价（LKR）",
+        "unitCostLabel": "单价（{{currency}}）",
+        "totalCostLabel": "总价（{{currency}}）",
         "techLogsLabel": "团队工作记录",
         "hoursWorkedLabel": "工作时长",
         "tasksDescLabel": "已执行任务",
@@ -2862,7 +2862,7 @@
         "removePartLabel": "移除备件",
         "qtyLabel": "数量",
         "unitLabel": "单位",
-        "unitCostLabel": "单价（LKR）",
+        "unitCostLabel": "单价（{{currency}}）",
         "catalogPriceTitle": "目录价格 — 不可编辑",
         "totalLabel": "合计：{{amount}}",
         "addExternalPartButton": "+ 添加外部/采购备件",
@@ -5825,7 +5825,7 @@
         "invoiceUpload": {
           "title": "上传承包商发票",
           "referencePlaceholder": "发票编号",
-          "amountPlaceholder": "金额（LKR）",
+          "amountPlaceholder": "金额（{{currency}}）",
           "uploadPdf": "上传发票 PDF"
         },
         "invoiceComparison": {
@@ -6366,7 +6366,7 @@
             "routingSwift": "汇款代码 / SWIFT",
             "tinNumber": "税号（TIN）",
             "projectClientName": "项目 / 客户名称",
-            "costLkr": "费用（LKR）",
+            "costLkr": "费用（{{currency}}）",
             "ratingPlaceholder": "评分…",
             "duration": "工期（例如 3 个月）",
             "contractType": "合同类型（例如固定价、按工时计价）",
@@ -10001,8 +10001,8 @@
           "location": "位置",
           "beforePhotos": "改善前照片",
           "suggestedSolution": "建议方案",
-          "estimatedCostLkr": "预估成本（LKR）",
-          "monthlyBenefitLkr": "月效益（LKR）",
+          "estimatedCostLkr": "预估成本（{{currency}}）",
+          "monthlyBenefitLkr": "月效益（{{currency}}）",
           "tags": "标签",
           "hereSHowYourKaizen": "您的改善提案在看板上的显示效果：",
           "summary": "摘要",
@@ -10056,8 +10056,8 @@
           "priority": "优先级",
           "raisedBy": "提交人",
           "status": "状态",
-          "actualCostLkr": "实际成本（LKR）",
-          "actualBenefitMoLkr": "实际月效益（LKR）",
+          "actualCostLkr": "实际成本（{{currency}}）",
+          "actualBenefitMoLkr": "实际月效益（{{currency}}）",
           "topContributorThisMonth": "本月最佳贡献者"
         },
         "kaizenStats": {

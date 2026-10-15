@@ -30,13 +30,13 @@ import { useToast } from '@/hooks/useToast';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { PurchaseOrderItemRow, type POItemRowData } from './PurchaseOrderItemRow';
 import { SupplierPartsPicker } from './SupplierPartsPicker';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface PurchaseOrderFormProps {
   initialPO?: PurchaseOrder;
   onSave: (saved: PurchaseOrder) => void;
 }
 
-const CURRENCY_OPTIONS: InventoryCurrency[] = ['LKR', 'USD', 'SGD', 'Other'];
 
 const emptyItem = (): POItemRowData => ({
   partId: '',
@@ -109,7 +109,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       supplierAddress: initialPO?.supplierAddress ?? '',
       deliveryAddress: initialPO?.deliveryAddress ?? '',
       paymentTerms: initialPO?.paymentTerms ?? '',
-      currency: initialPO?.currency ?? 'LKR',
+      currency: initialPO?.currency ?? (getCompanyCurrency() as InventoryCurrency),
       items: [],
       notes: initialPO?.notes ?? '',
     },
@@ -470,7 +470,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
                   {...field}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {CURRENCY_OPTIONS.map((c) => (
+                  {[...new Set<string>([field.value, getCompanyCurrency()])].map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>

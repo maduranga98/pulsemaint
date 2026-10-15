@@ -3,15 +3,16 @@ import { collection, query, where, getCountFromServer, Timestamp } from 'firebas
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { planLimitsFor, isAtOrOverLimit } from '../lib/planLimits';
+import { limitsForCompany, isAtOrOverLimit } from '../lib/planLimits';
 
-export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'users';
+export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'users' | 'plants';
 
 const RESOURCE_LABEL: Record<CountedResource, string> = {
   machines: 'machine',
   inventoryItems: 'inventory item',
   pmSchedules: 'PM schedule',
   users: 'user',
+  plants: 'plant',
 };
 
 interface UsePlanLimitCheckResult {
@@ -57,6 +58,16 @@ export async function fetchResourceCount(resource: CountedResource, companyId: s
 }
 
 async function countDirect(resource: CountedResource, companyId: string): Promise<number> {
+  if (resource === 'users') {
+    // Seats in use: everyone already in the company plus invitations still
+    // waiting to be accepted — otherwise a full set of pending invites could
+    // push the company past its limit once they all join.
+    const [members, invited] = await Promise.all([
+      getCountFromServer(query(collection(db, `companies/${companyId}/users`))),
+      getCountFromServer(query(collection(db, `companies/${companyId}/invitations`), where('status', '==', 'pending'))),
+    ]);
+    return members.data().count + invited.data().count;
+  }
   const q =
     resource === 'machines'
       ? query(collection(db, 'machines'), where('siteId', '==', companyId))
@@ -68,6 +79,8 @@ async function countDirect(resource: CountedResource, companyId: string): Promis
           where('companyId', '==', companyId),
           where('status', 'in', ['active', 'paused']),
         )
+      : resource === 'plants'
+      ? query(collection(db, 'plants'), where('companyId', '==', companyId))
       : query(collection(db, `companies/${companyId}/users`));
   const snap = await getCountFromServer(q);
   return snap.data().count;
@@ -86,12 +99,13 @@ async function countDirect(resource: CountedResource, companyId: string): Promis
  */
 export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const plan = useAuthStore((s) => s.company?.plan);
+  const company = useAuthStore((s) => s.company);
+  const plan = company?.plan;
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
-  const limits = planLimitsFor(plan);
+  const limits = limitsForCompany(company);
   const limit = limits[resource];
 
   useEffect(() => {
@@ -148,12 +162,13 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
  */
 export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const plan = useAuthStore((s) => s.company?.plan);
+  const company = useAuthStore((s) => s.company);
+  const plan = company?.plan;
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
-  const limit = planLimitsFor(plan).workOrdersPerMonth;
+  const limit = limitsForCompany(company).workOrdersPerMonth;
 
   useEffect(() => {
     if (!companyId || limit === null) {

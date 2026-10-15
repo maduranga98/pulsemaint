@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from '../../../store/authStore';
 import { voteOnKaizen } from '../services/kaizen.service';
 import { toast } from 'sonner';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface Props {
   card: KaizenCardType;
@@ -48,8 +49,8 @@ export function KaizenCard({ card, onClick, isProPlan = false }: Props) {
   const benefitLabel =
     benefitLKR != null
       ? benefitLKR >= 1000
-        ? `LKR ${Math.round(benefitLKR / 1000)}K/mo`
-        : `LKR ${benefitLKR}/mo`
+        ? `${getCompanyCurrency()} ${Math.round(benefitLKR / 1000)}K/mo`
+        : `${getCompanyCurrency()} ${benefitLKR}/mo`
       : null;
 
   return (
