@@ -93,10 +93,6 @@ const PLANS: PlanDef[] = [
           'inventoryPartsCatalog',
         ],
       },
-      {
-        categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['shiftHandoverBriefings', 'trainingSafetyWorkspace'],
-      },
     ],
   },
   {
@@ -117,7 +113,7 @@ const PLANS: PlanDef[] = [
       },
       {
         categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['contractorManagement'],
+        itemKeys: ['contractorManagement', 'shiftHandoverBriefings', 'trainingSafetyWorkspace'],
       },
       {
         categoryKey: 'common.billing.categories.analyticsReporting',
