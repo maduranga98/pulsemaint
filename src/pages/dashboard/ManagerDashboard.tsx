@@ -13,6 +13,7 @@ import {
 
 import LiveShiftStatusWidget from '../../components/dashboard/manager/LiveShiftStatusWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
+import PlantOverviewWidget from '../../components/dashboard/manager/PlantOverviewWidget';
 import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
 import OpenSafetyCasesWidget from '../../components/dashboard/manager/OpenSafetyCasesWidget';
 import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
@@ -127,6 +128,9 @@ export default function ManagerDashboard() {
             <KpiCard key={idx} data={kpi as any} />
           ))}
         </div>
+
+        {/* All Plants view: per-plant breakdown so every number has a plant. */}
+        <PlantOverviewWidget siteId={siteId} companyId={companyId} />
 
         {/* Live factory floor: every machine with an open WO or breakdown. */}
         <FactoryFloorMap companyId={companyId} />

@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { usePurchaseOrders } from '../../../hooks/inventory/usePurchaseOrders';
+import { usePlantNameLookup } from '../../../hooks/usePlantNameLookup';
+import PlantBadge from '../shared/PlantBadge';
 
 /** Purchase orders currently awaiting approval — live so a new request
  * appears here the moment a store keeper raises one. */
@@ -9,6 +11,7 @@ export default function LivePOsWidget() {
   const { t } = useTranslation();
   // usePurchaseOrders is already limited to the caller's plant.
   const { orders, loading, error } = usePurchaseOrders('pending_approval');
+  const plantName = usePlantNameLookup();
 
   return (
     <DashboardWidget
@@ -31,9 +34,12 @@ export default function LivePOsWidget() {
                 <p className="truncate text-sm font-semibold text-[#F0F4F8]">{po.poNumber}</p>
                 <p className="truncate text-[11px] text-[#8BA3BF]">{po.supplierName}</p>
               </div>
-              <span className="shrink-0 rounded-full bg-[#1A56DB]/20 px-2 py-0.5 text-[10px] font-semibold text-[#5B8DEF]">
-                LKR {po.totalOrderValue.toLocaleString()}
-              </span>
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                <PlantBadge name={plantName(po.plantId)} />
+                <span className="rounded-full bg-[#1A56DB]/20 px-2 py-0.5 text-[10px] font-semibold text-[#5B8DEF]">
+                  LKR {po.totalOrderValue.toLocaleString()}
+                </span>
+              </div>
             </div>
           ))}
         </div>

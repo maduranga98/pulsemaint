@@ -29,6 +29,8 @@ export interface FloorMachine {
   machineId: string;
   machineName: string;
   location: string;
+  /** The machine's plant (from its work orders / breakdowns), when stamped. */
+  plantId: string | null;
   currentStatus: 'breakdown' | 'maintenance';
   openWoCount: number;
   openBreakdownCount: number;
@@ -95,13 +97,14 @@ export function useFactoryFloorAttention(companyId: string) {
   const machines = useMemo<FloorMachine[]>(() => {
     const byId = new Map<string, FloorMachine>();
 
-    const ensure = (machineId: string, machineName: string, location: string): FloorMachine => {
+    const ensure = (machineId: string, machineName: string, location: string, plantId: string | null): FloorMachine => {
       let m = byId.get(machineId);
       if (!m) {
         m = {
           machineId,
           machineName: machineName || 'Machine',
           location: location || '',
+          plantId,
           currentStatus: 'maintenance',
           openWoCount: 0,
           openBreakdownCount: 0,
@@ -110,6 +113,7 @@ export function useFactoryFloorAttention(companyId: string) {
         byId.set(machineId, m);
       }
       if (!m.location && location) m.location = location;
+      if (!m.plantId && plantId) m.plantId = plantId;
       return m;
     };
 
@@ -119,7 +123,7 @@ export function useFactoryFloorAttention(companyId: string) {
       if (!inScopedPlant(raw as { machinePlantId?: string; machineId?: string })) continue;
       const machineId = String(raw.machineId ?? '');
       if (!machineId) continue;
-      const m = ensure(machineId, String(raw.machineName ?? ''), String(raw.machineLocation ?? ''));
+      const m = ensure(machineId, String(raw.machineName ?? ''), String(raw.machineLocation ?? ''), (raw.machinePlantId as string | undefined) ?? null);
       m.openWoCount += 1;
       m.wos.push({
         woNumber: String(raw.woNumber ?? ''),
@@ -134,7 +138,7 @@ export function useFactoryFloorAttention(companyId: string) {
       if (!inScopedPlant(raw as { machinePlantId?: string; machineId?: string })) continue;
       const machineId = String(raw.machineId ?? '');
       if (!machineId) continue;
-      const m = ensure(machineId, String(raw.machineName ?? ''), String(raw.location ?? ''));
+      const m = ensure(machineId, String(raw.machineName ?? ''), String(raw.location ?? ''), (raw.machinePlantId as string | undefined) ?? null);
       m.openBreakdownCount += 1;
       m.currentStatus = 'breakdown';
     }

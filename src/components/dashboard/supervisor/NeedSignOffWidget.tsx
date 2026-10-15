@@ -4,6 +4,8 @@ import { useWorkOrders } from '../../../hooks/useWorkOrders';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
+import { usePlantNameLookup } from '../../../hooks/usePlantNameLookup';
+import PlantBadge from '../shared/PlantBadge';
 import { WODetailPanel } from '../../workorders/WODetailPanel';
 import { isReadyToFinalise } from '../../../hooks/useMyWorkCompletion';
 
@@ -19,6 +21,7 @@ export default function NeedSignOffWidget() {
   const { t } = useTranslation();
   const { workOrders, loading, error, refetch } = useWorkOrders();
   const inScopedPlant = useRecordPlantMatcher();
+  const plantName = usePlantNameLookup();
   const [openWoId, setOpenWoId] = useState<string | null>(null);
   const openWo = openWoId ? workOrders.find((w) => w.id === openWoId) ?? null : null;
 
@@ -62,11 +65,14 @@ export default function NeedSignOffWidget() {
                 <p className="text-sm text-[#F0F4F8] truncate">{wo.woNumber || wo.id}</p>
                 <p className="text-xs text-[#8BA3BF] truncate">{wo.machineName}</p>
               </div>
-              <span className={`shrink-0 px-2 py-0.5 rounded text-[11px] font-semibold text-white ${wo.status === 'COMPLETED' ? 'bg-emerald-600' : 'bg-blue-600'}`}>
-                {wo.status === 'COMPLETED'
-                  ? t('common.workOrders.detailPanel.signOffCloseButton')
-                  : t('common.workOrders.copy.completeButton')}
-              </span>
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <span className={`px-2 py-0.5 rounded text-[11px] font-semibold text-white ${wo.status === 'COMPLETED' ? 'bg-emerald-600' : 'bg-blue-600'}`}>
+                  {wo.status === 'COMPLETED'
+                    ? t('common.workOrders.detailPanel.signOffCloseButton')
+                    : t('common.workOrders.copy.completeButton')}
+                </span>
+                <PlantBadge name={plantName(wo.machinePlantId)} />
+              </div>
             </button>
           ))}
           {rows.length > 5 && (

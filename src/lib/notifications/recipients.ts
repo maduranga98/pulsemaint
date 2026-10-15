@@ -197,19 +197,43 @@ export function isHiddenAdminAction(
 }
 
 /**
+ * An oversight copy of something raised for other people that isn't serious.
+ *
+ * Admins and plant managers are copied on everything, which buried them in
+ * routine items for others (a trainee's overdue module, a technician's
+ * assignment). They keep what was raised for them, what they did themselves,
+ * and anything high/critical — the rest is not theirs to act on.
+ */
+export function isRoutineOversightCopy(
+  notification: NotificationActor & { severity?: string | null },
+  role: UserRole | undefined,
+  userId: string | undefined,
+): boolean {
+  if (!role || !OVERSIGHT_ROLES.includes(role)) return false;
+  if (isOwnAction(notification, userId)) return false;
+  if (isAddressedToUser(notification, role, userId)) return false;
+  const targetRoles = notification.targetRoles ?? [];
+  const targetUserIds = notification.targetUserIds ?? [];
+  // No recorded target (legacy): can't tell who it was for, so keep it.
+  if (targetRoles.length === 0 && targetUserIds.length === 0) return false;
+  return notification.severity !== 'critical' && notification.severity !== 'high';
+}
+
+/**
  * Whether a notification belongs in this user's bell at all: targeted at
- * them, inside their plant/department, and not an admin action a plant
- * manager has no part in.
+ * them, inside their plant/department, not an admin action a plant manager
+ * has no part in, and not a routine oversight copy of someone else's item.
  */
 export function isNotificationVisibleTo(
-  notification: NotificationTargeting & NotificationActor,
+  notification: NotificationTargeting & NotificationActor & { severity?: string | null },
   role: UserRole | undefined,
   userId: string | undefined,
   scope?: NotificationReaderScope | null,
 ): boolean {
   if (!isNotificationForUser(notification, role, userId)) return false;
   if (!isNotificationInReaderScope(notification, scope, userId)) return false;
-  return !isHiddenAdminAction(notification, role, userId);
+  if (isHiddenAdminAction(notification, role, userId)) return false;
+  return !isRoutineOversightCopy(notification, role, userId);
 }
 
 /**
