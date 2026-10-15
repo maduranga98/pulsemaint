@@ -3,6 +3,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { Breakdown } from '../../types';
 import type { SlaStatusSummary } from '../../types/analytics.types';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export function useSlaStatus(siteId: string) {
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
@@ -20,6 +21,7 @@ export function useSlaStatus(siteId: string) {
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
+      ...plantConstraints('breakdown_tickets'),
     );
 
     const CLOSED = new Set(['closed', 'resolved']);

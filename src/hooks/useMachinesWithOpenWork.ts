@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { plantConstraints } from '../lib/plantQuery';
 
 // Kept in step with src/lib/machineOperationalStatus.ts.
 const CLOSED_BREAKDOWN_STATUSES = new Set(['resolved', 'closed', 'cancelled']);
@@ -30,7 +31,7 @@ export function useMachinesWithOpenWork(companyId: string | undefined): Machines
   useEffect(() => {
     if (!companyId) return;
     const unsubBd = onSnapshot(
-      query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId)),
+      query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId), ...plantConstraints('breakdown_tickets')),
       (snap) => {
         const ids = new Set<string>();
         snap.docs.forEach((d) => {
@@ -43,7 +44,7 @@ export function useMachinesWithOpenWork(companyId: string | undefined): Machines
       () => setBdOk(false),
     );
     const unsubWo = onSnapshot(
-      query(collection(db, 'workOrders'), where('companyId', '==', companyId)),
+      query(collection(db, 'workOrders'), where('companyId', '==', companyId), ...plantConstraints('workOrders')),
       (snap) => {
         const ids = new Set<string>();
         snap.docs.forEach((d) => {

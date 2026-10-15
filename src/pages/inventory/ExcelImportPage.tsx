@@ -29,6 +29,7 @@ import { ImportUploadStep } from '@/components/inventory/import/ImportUploadStep
 import { ImportValidationResults } from '@/components/inventory/import/ImportValidationResults';
 import { ImportProgressScreen } from '@/components/inventory/import/ImportProgressScreen';
 import { ImportCompleteScreen } from '@/components/inventory/import/ImportCompleteScreen';
+import { plantConstraints } from '../../lib/plantQuery';
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
@@ -232,7 +233,7 @@ export function ExcelImportPage() {
       for (let i = 0; i < scopeSiteIds.length; i += 10) {
         const chunk = scopeSiteIds.slice(i, i + 10);
         const machinesSnap = await getDocs(
-          query(collection(db, 'machines'), where('siteId', 'in', chunk)),
+          query(collection(db, 'machines'), where('siteId', 'in', chunk), ...plantConstraints('machines')),
         );
         machinesSnap.docs.forEach((d) => {
           const data = d.data() as { name?: string };

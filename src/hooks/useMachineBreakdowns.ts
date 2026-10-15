@@ -11,6 +11,7 @@ import {
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { plantConstraints } from '../lib/plantQuery';
 
 export interface BreakdownHistoryItem {
   id: string;
@@ -44,6 +45,7 @@ export function useMachineBreakdowns(machineId: string | null | undefined) {
         let q = query(
           collection(db, 'breakdown_tickets'),
           where('machineId', '==', machineId),
+          ...plantConstraints('breakdown_tickets'),
           orderBy('reportedAt', 'desc'),
           limit(PAGE_SIZE),
         );

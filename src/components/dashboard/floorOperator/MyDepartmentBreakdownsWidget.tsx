@@ -7,6 +7,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownStatus } from '../../../types/breakdown';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
+import { plantConstraints } from '../../../lib/plantQuery';
 
 interface MyDepartmentBreakdownsWidgetProps {
   siteId: string;
@@ -45,6 +46,7 @@ export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBre
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
+      ...plantConstraints('breakdown_tickets'),
       orderBy('reportedAt', 'desc'),
       limit(20),
     );

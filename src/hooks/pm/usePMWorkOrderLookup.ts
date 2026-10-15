@@ -3,6 +3,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { WOStatus, WOType } from '../../types/workOrder';
 import type { PMType } from '../../types/pm.types';
+import { plantConstraints } from '../../lib/plantQuery';
 
 export interface PMWorkOrderLookupEntry {
   woNumber: string;
@@ -36,6 +37,7 @@ export function usePMWorkOrderLookup(siteId: string): Map<string, PMWorkOrderLoo
       collection(db, 'workOrders'),
       where('woType', '==', 'PREVENTIVE'),
       where('siteId', '==', siteId),
+      ...plantConstraints('workOrders'),
     );
 
     const unsubscribe = onSnapshot(

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { plantConstraints } from '../../lib/plantQuery';
 
 interface UseTraineeWorkOrderCountsResult {
   counts: Record<string, number>;
@@ -23,7 +24,7 @@ export function useTraineeWorkOrderCounts(): UseTraineeWorkOrderCountsResult {
     }
 
     setLoading(true);
-    const q = query(collection(db, 'workOrders'), where('siteId', '==', siteId));
+    const q = query(collection(db, 'workOrders'), where('siteId', '==', siteId), ...plantConstraints('workOrders'));
 
     const unsubscribe = onSnapshot(
       q,

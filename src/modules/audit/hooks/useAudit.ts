@@ -25,6 +25,7 @@ import {
   ensureDefaultTemplates,
   deleteTemplate,
 } from '../services/audit.service';
+import { plantConstraints } from '../../../lib/plantQuery';
 
 /**
  * Categories retired from the app that may still have legacy Firestore
@@ -165,6 +166,7 @@ export function useAuditMachines(): { machines: Machine[]; loading: boolean } {
     const q = query(
       collection(db, 'machines'),
       where('siteId', '==', siteId),
+      ...plantConstraints('machines'),
       orderBy('name'),
     );
     const unsub = onSnapshot(

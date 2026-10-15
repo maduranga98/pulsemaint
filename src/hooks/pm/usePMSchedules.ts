@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { PMSchedule, CreatePMPayload, UpdatePMPayload, PMFilters } from '../../types/pm.types';
+import { plantConstraints } from '../../lib/plantQuery';
 
 const COLLECTION = 'pm_schedules';
 
@@ -41,6 +42,7 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
     const q = query(
       collection(db, COLLECTION),
       where('companyId', '==', companyId),
+      ...plantConstraints('pm_schedules'),
     );
 
     const unsubscribe = onSnapshot(
