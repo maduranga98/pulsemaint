@@ -132,21 +132,14 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
           </div>
 
           {/* Status / owner */}
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3">
             <label className="block">
               <span className="mb-1 block text-xs text-slate-400">Status</span>
               <select className={input} value={lead.status} disabled={busy} onChange={(e) => void run(() => setLeadStatus(lead, e.target.value as LeadStatus))}>
                 {LEAD_STATUSES.map((s) => <option key={s} value={s}>{LEAD_STATUS_LABEL[s]}</option>)}
               </select>
             </label>
-            <label className="block">
-              <span className="mb-1 block text-xs text-slate-400">Assigned to</span>
-              <select className={input} value={lead.assignedTo ?? ''} disabled={busy} onChange={(e) => void run(() => updateLead(lead, { assignedTo: e.target.value || null }))}>
-                <option value="">— Unassigned</option>
-                {team.filter((m) => m.active || m.id === lead.assignedTo).map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-              </select>
-            </label>
-            <p className="text-xs text-slate-500 sm:col-span-2">
+            <p className="text-xs text-slate-500">
               Calls made: <span className="text-slate-300">{lead.callsMade}</span>
               {lead.marketerId && <> · Brought in by <span className="text-slate-300">{member(lead.marketerId)?.name ?? 'removed member'}</span></>}
               {lead.createdByEmail && <> · Added by {lead.createdByEmail}</>}
