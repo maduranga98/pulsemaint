@@ -7,6 +7,8 @@ import { useAuthStore } from '../../store/authStore';
 import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
+import { PLAN_PRICES } from '../../lib/planCatalog';
+import { LockedFeaturesTable, PlanLimitsTable } from '../../components/billing/PlanComparisonTables';
 import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
 import CancellationReasonDialog from '../../components/billing/CancellationReasonDialog';
 import TermsCheckbox from '../../components/legal/TermsCheckbox';
@@ -16,6 +18,7 @@ type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
 
 interface PlanLimits {
+  plants: string;
   machines: string;
   inventoryItems: string;
   pmSchedules: string;
@@ -35,6 +38,7 @@ function fmtNumber(n: number | null): string {
 function limitsFor(plan: Plan): PlanLimits {
   const c: PlanLimitConfig = PLAN_LIMITS[plan];
   return {
+    plants: fmtNumber(c.plants),
     machines: fmtNumber(c.machines),
     inventoryItems: fmtNumber(c.inventoryItems),
     pmSchedules: fmtNumber(c.pmSchedules),
@@ -71,8 +75,8 @@ const PLANS: PlanDef[] = [
   {
     id: 'starter',
     nameKey: 'common.billing.plans.starter.name',
-    monthlyPrice: 29,
-    yearlyPrice: 278,
+    monthlyPrice: PLAN_PRICES.starter.monthly,
+    yearlyPrice: PLAN_PRICES.starter.yearly,
     descriptionKey: 'common.billing.plans.starter.description',
     icon: <Star className="h-5 w-5" />,
     color: 'text-slate-400',
@@ -89,13 +93,17 @@ const PLANS: PlanDef[] = [
           'inventoryPartsCatalog',
         ],
       },
+      {
+        categoryKey: 'common.billing.categories.teamOperations',
+        itemKeys: ['shiftHandoverBriefings', 'trainingSafetyWorkspace'],
+      },
     ],
   },
   {
     id: 'workshop',
     nameKey: 'common.billing.plans.workshop.name',
-    monthlyPrice: 59,
-    yearlyPrice: 566,
+    monthlyPrice: PLAN_PRICES.workshop.monthly,
+    yearlyPrice: PLAN_PRICES.workshop.yearly,
     descriptionKey: 'common.billing.plans.workshop.description',
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
@@ -105,20 +113,23 @@ const PLANS: PlanDef[] = [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInBasicExporting'] },
       {
         categoryKey: 'common.billing.categories.inventoryProcurement',
-        itemKeys: ['autoPoEmail', 'qrScanLowStock'],
+        itemKeys: ['purchaseOrdersFeature', 'autoPoEmail', 'qrScanLowStock'],
       },
       {
         categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['contractorManagement', 'shiftHandoverBriefings', 'trainingSafetyWorkspace'],
+        itemKeys: ['contractorManagement'],
       },
-      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['pmComplianceDashboard', 'basicAnalytics'] },
+      {
+        categoryKey: 'common.billing.categories.analyticsReporting',
+        itemKeys: ['analyticsExportsSheets', 'aiSuggestionsTranslation'],
+      },
     ],
   },
   {
     id: 'factory',
     nameKey: 'common.billing.plans.factory.name',
-    monthlyPrice: 249,
-    yearlyPrice: 2390,
+    monthlyPrice: PLAN_PRICES.factory.monthly,
+    yearlyPrice: PLAN_PRICES.factory.yearly,
     descriptionKey: 'common.billing.plans.factory.description',
     icon: <Factory className="h-5 w-5" />,
     color: 'text-violet-400',
@@ -127,14 +138,18 @@ const PLANS: PlanDef[] = [
     limits: limitsFor('factory'),
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInWorkshop'] },
-      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['moeTrendAnalytics'] },
+      {
+        categoryKey: 'common.billing.categories.analyticsReporting',
+        itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature'],
+      },
+      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['upToThreePlants'] },
     ],
   },
   {
     id: 'enterprise',
     nameKey: 'common.billing.plans.enterprise.name',
-    monthlyPrice: null,
-    yearlyPrice: null,
+    monthlyPrice: PLAN_PRICES.enterprise.monthly,
+    yearlyPrice: PLAN_PRICES.enterprise.yearly,
     descriptionKey: 'common.billing.plans.enterprise.description',
     icon: <Building2 className="h-5 w-5" />,
     color: 'text-amber-400',
@@ -143,21 +158,26 @@ const PLANS: PlanDef[] = [
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInFactoryPro'] },
       {
-        categoryKey: 'common.billing.categories.enterpriseSecurity',
-        itemKeys: [
-          'tpmMaturityRoadmap',
-          'multiSiteManagement',
-          'safetyWorkspaceFeature',
-          'triageKnowledgeBuilder',
-          'advancedReportsHub',
-          'ssoSaml',
-          'customIntegrationsApi',
-          'dedicatedSupportSla',
-        ],
+        categoryKey: 'common.billing.categories.teamOperations',
+        itemKeys: ['sizedToYourCompany', 'pricedIndividually'],
       },
     ],
   },
 ];
+
+// Copy for plan bullets added with the 2026 plan rework. They are not in the
+// locale files yet, so they render in English (and in the other languages
+// until translated) via defaultValue.
+const NEW_FEATURE_TEXT: Record<string, string> = {
+  purchaseOrdersFeature: 'Purchase orders',
+  analyticsExportsSheets: 'Analytics, report exports & Google Sheets export',
+  aiSuggestionsTranslation: 'AI suggestions & translation',
+  advancedAnalyticsFeature: 'Advanced analytics: plants & team tabs, scheduled reports',
+  auditsFeature: 'Audits',
+  upToThreePlants: 'Up to 3 plants in the company',
+  sizedToYourCompany: 'Users, plants, machines and more sized to your company',
+  pricedIndividually: 'Priced individually for your company',
+};
 
 const PLAN_RANK: Record<Plan, number> = {
   starter: 0,
@@ -468,26 +488,30 @@ export default function BillingPage() {
               <div className="rounded-lg bg-[#0A1628] border border-[#1E3A5F] p-3">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">{t('common.billing.limits.title')}</p>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                  <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">{t('common.billing.limits.machines')}</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.machines || t('common.billing.unlimited')}</dd>
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">{t('common.billing.limits.users')}</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.users || t('common.billing.unlimited')}</dd>
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">{t('common.billing.limits.inventoryItems')}</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.inventoryItems || t('common.billing.unlimited')}</dd>
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">{t('common.billing.limits.pmSchedules')}</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.pmSchedules || t('common.billing.unlimited')}</dd>
-                  </div>
+                  {([
+                    ['users', 'common.billing.limits.users', plan.limits.users],
+                    ['plants', 'common.billing.limits.plants', plan.limits.plants],
+                    ['machines', 'common.billing.limits.machines', plan.limits.machines],
+                    ['inventoryItems', 'common.billing.limits.inventoryItems', plan.limits.inventoryItems],
+                    ['pmSchedules', 'common.billing.limits.pmSchedules', plan.limits.pmSchedules],
+                  ] as const).map(([id, labelKey, value]) => (
+                    <div key={id} className="flex justify-between gap-2">
+                      <dt className="text-slate-400">
+                        {t(labelKey, { defaultValue: id === 'plants' ? 'Plants' : undefined })}
+                      </dt>
+                      <dd className="font-semibold text-slate-200">
+                        {isEnterprise ? t('common.billing.customPrice') : value || t('common.billing.unlimited')}
+                      </dd>
+                    </div>
+                  ))}
                   <div className="flex justify-between gap-2 col-span-2">
                     <dt className="text-slate-400">{t('common.billing.limits.workOrders')}</dt>
                     <dd className="font-semibold text-slate-200">
-                      {plan.limits.workOrders ? t('common.billing.limits.perMonthValue', { count: plan.limits.workOrders }) : t('common.billing.unlimited')}
+                      {isEnterprise
+                        ? t('common.billing.customPrice')
+                        : plan.limits.workOrders
+                        ? t('common.billing.limits.perMonthValue', { count: plan.limits.workOrders })
+                        : t('common.billing.unlimited')}
                     </dd>
                   </div>
                 </dl>
@@ -505,6 +529,7 @@ export default function BillingPage() {
                         <li key={key} className="flex items-start gap-2 text-sm text-slate-300">
                           <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
                           {t(`common.billing.features.${key}`, {
+                            defaultValue: NEW_FEATURE_TEXT[key],
                             basicName: t('common.billing.plans.starter.name'),
                             workshopName: t('common.billing.plans.workshop.name'),
                             factoryName: t('common.billing.plans.factory.name'),
@@ -560,6 +585,10 @@ export default function BillingPage() {
           );
         })}
       </div>
+
+      {/* Side-by-side limits and locked features for every plan */}
+      <PlanLimitsTable />
+      <LockedFeaturesTable />
 
       {/* Payment methods, account credit & billing history. Cards are only
           entered on Stripe's hosted pages, so FirmiCore never stores card data. */}

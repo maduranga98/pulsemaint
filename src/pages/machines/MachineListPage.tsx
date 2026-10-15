@@ -6,7 +6,7 @@ import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/fi
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { fetchResourceCount } from '../../hooks/usePlanLimitCheck';
-import { planLimitsFor, checkImportAllowed, importBlockMessage } from '../../lib/planLimits';
+import { limitsForCompany, checkImportAllowed, importBlockMessage } from '../../lib/planLimits';
 import { useMachines } from '../../hooks/useMachines';
 import { useCompanyParts } from '../../hooks/inventory/useCompanyParts';
 import { lowSparePartsByMachine, sortLowSpareFirst } from '../../lib/machineSpareParts';
@@ -216,7 +216,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   const [pickedPlantId, setPickedPlantId] = useState('');
   const importPlantId = plantId ?? (pickedPlantId || null);
 
-  const plan = useAuthStore((s) => s.company?.plan);
+  const company = useAuthStore((s) => s.company);
   const [importError, setImportError] = useState<string | null>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,7 +225,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
     e.target.value = '';
     if (!file) return;
     setImportError(null);
-    const limit = planLimitsFor(plan).machines;
+    const limit = limitsForCompany(company).machines;
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const parsed = parseCsv(ev.target?.result as string, t);
@@ -253,7 +253,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
     if (!validRows.length || !importPlantId) return;
     // Re-check against a fresh count: the plan limit may have been reached
     // since the file was chosen (e.g. machines added in another tab).
-    const limit = planLimitsFor(plan).machines;
+    const limit = limitsForCompany(company).machines;
     if (limit !== null) {
       try {
         const existingCount = await fetchResourceCount('machines', siteId);

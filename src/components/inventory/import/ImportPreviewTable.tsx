@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { ParsedPartRow } from '@/types/inventory';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface ImportPreviewTableProps {
   rows: ParsedPartRow[];
@@ -66,7 +67,7 @@ export function ImportPreviewTable({
                   <td className="px-3 py-2 text-gray-600">{row.category || ''}</td>
                   <td className="px-3 py-2 text-gray-600">{row.unit || ''}</td>
                   <td className="px-3 py-2 text-gray-800">{row.currentStock || '0'}</td>
-                  <td className="px-3 py-2 text-gray-800">{row.unitCost ? `LKR ${row.unitCost}` : ''}</td>
+                  <td className="px-3 py-2 text-gray-800">{row.unitCost ? `${getCompanyCurrency()} ${row.unitCost}` : ''}</td>
                   <td className="px-3 py-2">
                     <span
                       className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide

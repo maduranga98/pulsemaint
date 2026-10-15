@@ -10,6 +10,7 @@ import { useCompanyUsers } from '../../hooks/useCompanyUsers';
 import { PartSearchInput } from '../inventory/shared/PartSearchInput';
 import type { WorkOrder, PartUsed, PostRepairChecklistItem } from '../../types/workOrder';
 import { buildTechnicianWorkLogs } from '../../lib/workorders/technicianWorkLogs';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface WOCompletionFormProps {
   workOrder: WorkOrder;
@@ -423,7 +424,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                     </div>
                   </div>
                   <p className="text-right text-xs text-gray-500">
-                    {t('common.workOrders.completionForm.totalLabel', { amount: `LKR ${part.totalCost.toLocaleString()}` })}
+                    {t('common.workOrders.completionForm.totalLabel', { amount: `${getCompanyCurrency()} ${part.totalCost.toLocaleString()}` })}
                   </p>
                 </div>
               );
@@ -450,7 +451,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
               <p className="text-right text-sm text-gray-600">
                 {t('common.workOrders.completionForm.totalPartsCost')}&nbsp;
                 <span className="font-semibold text-gray-900">
-                  LKR {partsUsed.reduce((s, p) => s + (p.totalCost || 0), 0).toLocaleString()}
+                  {getCompanyCurrency()} {partsUsed.reduce((s, p) => s + (p.totalCost || 0), 0).toLocaleString()}
                 </span>
               </p>
             )}

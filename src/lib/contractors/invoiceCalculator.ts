@@ -1,4 +1,5 @@
 import type { Contractor, ContractorJob } from './contractorTypes';
+import { getCompanyCurrency } from '@/lib/currency';
 
 export interface SystemInvoice {
   laborHours: number;
@@ -65,7 +66,7 @@ export function calculateVariance(systemTotal: number, contractorTotal: number):
 }
 
 export function formatLkr(value: number | null | undefined): string {
-  return `LKR ${(value ?? 0).toLocaleString('en-LK', {
+  return `${getCompanyCurrency()} ${(value ?? 0).toLocaleString('en-LK', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;

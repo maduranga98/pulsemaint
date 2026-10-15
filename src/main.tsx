@@ -1,7 +1,10 @@
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './style.css';
-import './lib/i18n';
+import i18n from './lib/i18n';
+import { startCurrencySync } from './lib/currency';
+
+startCurrencySync(i18n);
 
 // Register service worker for PWA offline support
 if ('serviceWorker' in navigator) {

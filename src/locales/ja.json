@@ -214,7 +214,7 @@
           "autoApprovalEligible": "✓ 自動承認対象：すべての項目が在庫あり、しきい値内",
           "autoApprovalNotEligible": "✗ 自動承認対象外：{{reasons}}",
           "someUnavailable": "一部の項目が利用できません。",
-          "costExceedsThreshold": "費用がしきい値 LKR {{threshold}} を超えています。",
+          "costExceedsThreshold": "費用がしきい値 {{currency}} {{threshold}} を超えています。",
           "writtenOff": "{{name}} がキャンセル — 返却されません：{{reason}}"
         },
         "availabilityIndicator": {
@@ -762,7 +762,7 @@
           "warrantyFiles": "保証書類／画像（任意）",
           "filesSelected_one": "{{count}} 件のファイルを選択",
           "filesSelected_other": "{{count}} 件のファイルを選択",
-          "unitCost": "単価（LKR）",
+          "unitCost": "単価（{{currency}}）",
           "supplier": "サプライヤー",
           "selectSupplier": "サプライヤーを選択…",
           "noSuppliers": "まだサプライヤーがありません。",
@@ -774,7 +774,7 @@
           "supplierPartCodePlaceholder": "サプライヤーから自動入力、編集可能",
           "leadTimeDays": "リードタイム（日）",
           "lastPurchaseDate": "前回購入日",
-          "lastPurchasePrice": "前回購入価格（LKR）",
+          "lastPurchasePrice": "前回購入価格（{{currency}}）",
           "notes": "メモ",
           "notesPlaceholder": "その他のメモ…"
         }
@@ -1324,7 +1324,7 @@
         },
         "receiveItemRow": {
           "ordered": "発注数：",
-          "unitCostLkr": "単価（LKR）",
+          "unitCostLkr": "単価（{{currency}}）",
           "condition": "状態",
           "notesOptional": "メモ（任意）",
           "remove": "削除",
@@ -2666,8 +2666,8 @@
         "addPartUsedButton": "部品を追加",
         "sourceLabelStock": "在庫から",
         "sourceLabelExternal": "外部購入",
-        "unitCostLabel": "単価（LKR）",
-        "totalCostLabel": "合計金額（LKR）",
+        "unitCostLabel": "単価（{{currency}}）",
+        "totalCostLabel": "合計金額（{{currency}}）",
         "techLogsLabel": "チーム作業記録",
         "hoursWorkedLabel": "作業時間",
         "tasksDescLabel": "実施タスク",
@@ -2862,7 +2862,7 @@
         "removePartLabel": "部品を削除",
         "qtyLabel": "数量",
         "unitLabel": "単位",
-        "unitCostLabel": "単価（LKR）",
+        "unitCostLabel": "単価（{{currency}}）",
         "catalogPriceTitle": "カタログ価格 — 編集不可",
         "totalLabel": "合計：{{amount}}",
         "addExternalPartButton": "+ 外部／購入部品を追加",
@@ -5825,7 +5825,7 @@
         "invoiceUpload": {
           "title": "契約業者請求書をアップロード",
           "referencePlaceholder": "請求書番号",
-          "amountPlaceholder": "金額 (LKR)",
+          "amountPlaceholder": "金額 ({{currency}})",
           "uploadPdf": "請求書PDFをアップロード"
         },
         "invoiceComparison": {
@@ -6366,7 +6366,7 @@
             "routingSwift": "支店コード / SWIFT",
             "tinNumber": "納税者番号(TIN)",
             "projectClientName": "プロジェクト / クライアント名",
-            "costLkr": "費用 (LKR)",
+            "costLkr": "費用 ({{currency}})",
             "ratingPlaceholder": "評価…",
             "duration": "期間(例: 3か月)",
             "contractType": "契約形態(例: 固定額、T&M)",
@@ -9996,8 +9996,8 @@
           "location": "場所",
           "beforePhotos": "改善前の写真",
           "suggestedSolution": "提案する解決策",
-          "estimatedCostLkr": "見積コスト（LKR）",
-          "monthlyBenefitLkr": "月間効果（LKR）",
+          "estimatedCostLkr": "見積コスト（{{currency}}）",
+          "monthlyBenefitLkr": "月間効果（{{currency}}）",
           "tags": "タグ",
           "hereSHowYourKaizen": "ボード上での表示イメージ：",
           "summary": "概要",
@@ -10051,8 +10051,8 @@
           "priority": "優先度",
           "raisedBy": "提案者",
           "status": "状態",
-          "actualCostLkr": "実績コスト（LKR）",
-          "actualBenefitMoLkr": "実績効果/月（LKR）",
+          "actualCostLkr": "実績コスト（{{currency}}）",
+          "actualBenefitMoLkr": "実績効果/月（{{currency}}）",
           "topContributorThisMonth": "今月のトップ貢献者"
         },
         "kaizenStats": {

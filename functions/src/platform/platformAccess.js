@@ -7,8 +7,8 @@ const db = getFirestore("default");
 // Used only for the platform console's revenue estimates.
 const PLAN_PRICES = {
   starter: { monthly: 29, yearly: 278 },
-  workshop: { monthly: 59, yearly: 566 },
-  factory: { monthly: 249, yearly: 2390 },
+  workshop: { monthly: 79, yearly: 758 },
+  factory: { monthly: 199, yearly: 1910 },
 };
 
 /** Lumora Ventures staff alerts (daily billing digest, new support requests). */

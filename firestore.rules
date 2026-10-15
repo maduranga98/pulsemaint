@@ -1019,7 +1019,8 @@ service cloud.firestore {
         && request.resource.data.id == companyId
         && request.resource.data.approvalStatus == 'pending'
         && request.resource.data.status == 'trial'
-        && request.resource.data.plan == 'starter';
+        && request.resource.data.plan == 'starter'
+        && !request.resource.data.keys().hasAny(['enterpriseTier', 'limitOverrides']);
 
       // Plan/subscription fields are Stripe-controlled — only the
       // stripeWebhook Cloud Function (via the Admin SDK, which bypasses
@@ -1032,7 +1033,7 @@ service cloud.firestore {
           'cancelAtPeriodEnd', 'billingTermsVersion', 'billingTermsAcceptedAt', 'billingTermsAcceptedBy',
           'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy',
           'approvalStatus', 'approvedAt', 'approvedBy', 'rejectionReason',
-          'planSetBy', 'planSetAt', 'leaveRequestedAt', 'cancellationReasonPendingId',
+          'planSetBy', 'planSetAt', 'enterpriseTier', 'limitOverrides', 'leaveRequestedAt', 'cancellationReasonPendingId',
           'suspendedReason', 'suspendedBy', 'suspendedAt', 'paymentFailed', 'paymentFailedAt', 'paymentFailureMessage'];
         return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
       }
