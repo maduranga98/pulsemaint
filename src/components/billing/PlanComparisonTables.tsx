@@ -87,7 +87,7 @@ export function LockedFeaturesTable() {
           <thead>
             <tr className="border-b border-[#1E3A5F]">
               <th className={TH}>{t('common.billing.unlock.feature', 'Feature')}</th>
-              {PLAN_ORDER.map((p) => <th key={p} className={TH}>{PLAN_DISPLAY_NAME[p]}</th>)}
+              {PLAN_ORDER.map((p) => <th key={p} className={TH}>{t(`common.billing.plans.${p}.name`, PLAN_DISPLAY_NAME[p])}</th>)}
             </tr>
           </thead>
           <tbody>
