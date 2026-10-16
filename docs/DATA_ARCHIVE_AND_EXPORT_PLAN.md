@@ -108,7 +108,12 @@ Optional later: deliver the ZIP to the customer's Google Drive (OAuth for Sheets
 |---|---|---|---|
 | Signed download link by email + Settings → Archives | Nothing yet (design) | Cloud Function + page | Default. Link valid 7 days, regenerated on request; our copy kept 12 months |
 | Customer's Google Drive | Browser-only Google sign-in for Sheets (`VITE_GOOGLE_OAUTH_CLIENT_ID`, scopes spreadsheets + drive.file) — gives a short-lived token while the admin is present | A server-side "connect Google Drive" flow with offline access (refresh token stored encrypted), resumable upload of multi-GB files from the bucket, `drive.file` scope (only files the app creates) | Uses the customer's own Drive quota, which also removes our download cost. Drive cannot run `index.html` — the user still downloads and extracts the ZIP. Upload the ZIP, not loose files |
-| OneDrive / Dropbox / SFTP / customer S3 bucket | None | One connector each | Later, on demand; Enterprise |
+| Microsoft OneDrive / SharePoint | None | Microsoft Graph sign-in + resumable upload session (≈ 4 days) | Common in Sri Lankan businesses — first phase with Drive |
+| S3-compatible (Amazon S3, Wasabi, Backblaze B2, DigitalOcean Spaces, MinIO) | None | One connector, write-only access key (≈ 3 days) | Covers many providers |
+| Dropbox, Azure Blob (SAS URL), SFTP, WebDAV (Nextcloud, ownCloud, NAS) | None | One connector each (≈ 2–3 days each) | Second phase |
+| On-premises NAS / server behind a firewall | Not reachable from the cloud | Download only, or a small local agent later | — |
+
+Common to every connector: credentials encrypted in Secret Manager with write-only scope, a "test connection" upload, resumable upload with checksum verification, retries then fallback to the emailed link, audit log, and online copies are removed only after the upload is verified. Egress from our bucket (≈ $0.12–0.15/GB) is our cost; consider making upload a Growth-and-above feature.
 | Local download only | — | — | Fallback |
 
 Automatic upload cannot reuse today's Sheets sign-in because the monthly job runs when nobody is signed in.
