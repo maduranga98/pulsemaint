@@ -12,7 +12,7 @@ import { countryLabel, resolveCountry } from '@/lib/countries';
  */
 
 export const LEAD_STATUSES = [
-  'new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'negotiation', 'closed_won', 'closed_lost',
+  'new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'trial_requested', 'negotiation', 'closed_won', 'closed_lost',
 ] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
@@ -23,10 +23,14 @@ export const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
   follow_up: 'Follow-up',
   demo_booked: 'Demo booked',
   demo_done: 'Demo done',
+  trial_requested: 'Trial requested',
   negotiation: 'Negotiation',
   closed_won: 'Closed won',
   closed_lost: 'Closed lost',
 };
+
+/** Kanban columns. Closed lost has no column: those leads stay in the data (list view, stats) but are off the board. */
+export const BOARD_STATUSES = LEAD_STATUSES.filter((s) => s !== 'closed_lost');
 
 export const LEAD_TAGS = ['Feature', 'Bug', 'Complaint', 'Hot', 'Price', 'Other'] as const;
 export const LEAD_SOURCES = ['Facebook ad', 'Google ad', 'Website', 'Referral', 'WhatsApp', 'Event', 'Cold call', 'Partner', 'Other'] as const;
