@@ -86,6 +86,33 @@ Rules for the archiver:
 
 Optional later: deliver the ZIP to the customer's Google Drive (OAuth for Sheets already exists); keep 320 px thumbnails online so lists still show previews; re-import for restore.
 
+## 5a. Viewing an archive (offline viewer)
+
+- **How a customer opens it:** extract the ZIP (not preview it inside the ZIP), open `index.html` in any browser. No login, no internet, no FirmiCore. Windows "Open" inside the ZIP does not work because the viewer needs its sibling files — the README says "Extract all first".
+- **Viewer technology:** plain HTML + JavaScript bundled in the ZIP. Data is shipped as sharded `data/*.js` files (not `fetch()` of JSON — browsers block that on `file://`), with a small built-in search index. Attachments are normal relative links: images open in a gallery, videos and PDFs open in the browser, other files download.
+- **Tabs and what each shows:**
+  - *Work orders* — list (number, machine, type, dates, status, cost) with search and filters; detail page with checklist, work logs, parts and labour, root cause, sign-off and a gallery of all attachments (field media, completion photos, CAD/warranty files as links).
+  - *Breakdowns* — same pattern: severity, downtime, root cause, media.
+  - *Work permits* — category, validity, precautions, issuer, closure, attachments.
+  - *Inventory* — parts snapshot at archive time and stock movements for the archived period (CSV + searchable table), linked to the work orders that consumed them; purchase orders with invoice files.
+  - *Audits / Kaizen / evaluations / staff requests (with replies)* — each its own tab.
+  - *Training and trainee programmes* — certificates and results summary; compliance copies.
+  - *Machines and contractors* (retired ones) — profile plus their documents.
+- **Also in the ZIP:** `data/*.csv` for Excel, `record.pdf` per record, manifest with checksums, `README.txt`.
+- **In-app option (later):** an admin-only "Open archive" page where the admin drops the ZIP; it is read locally in the browser (nothing uploaded) and shown with the normal FirmiCore screens.
+- **Phones:** large ZIPs are awkward on phones; the CSV and per-record PDFs are the fallback.
+
+## 5b. Delivery targets ("upload to the user's own storage")
+
+| Target | What exists today | What is needed | Notes |
+|---|---|---|---|
+| Signed download link by email + Settings → Archives | Nothing yet (design) | Cloud Function + page | Default. Link valid 7 days, regenerated on request; our copy kept 12 months |
+| Customer's Google Drive | Browser-only Google sign-in for Sheets (`VITE_GOOGLE_OAUTH_CLIENT_ID`, scopes spreadsheets + drive.file) — gives a short-lived token while the admin is present | A server-side "connect Google Drive" flow with offline access (refresh token stored encrypted), resumable upload of multi-GB files from the bucket, `drive.file` scope (only files the app creates) | Uses the customer's own Drive quota, which also removes our download cost. Drive cannot run `index.html` — the user still downloads and extracts the ZIP. Upload the ZIP, not loose files |
+| OneDrive / Dropbox / SFTP / customer S3 bucket | None | One connector each | Later, on demand; Enterprise |
+| Local download only | — | — | Fallback |
+
+Automatic upload cannot reuse today's Sheets sign-in because the monthly job runs when nobody is signed in.
+
 ## 6. Cost (USD / month, plan caps; typical use ≈ 25%)
 
 | Plan (window) | Online | Archive + delivery | Without policy, year 3 / year 5 |
