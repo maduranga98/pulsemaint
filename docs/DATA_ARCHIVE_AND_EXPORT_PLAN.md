@@ -23,8 +23,11 @@ Facts below come from `storage.rules`, `docs/STORAGE_AND_DATA_LIFECYCLE.si.md`, 
 ## 3. Policy
 
 - **Online window** (counted from the record's close date): Starter 12 months, Growth 18, Factory 24, Enterprise per contract (default 24). Extra 12 months is an add-on ($5 / $15 / $60 per month).
-- **Archived:** files of closed work orders and breakdowns, completed audits (`audit_*`, `audits`), closed Kaizen, closed staff requests, paid PO invoices.
-- **Never archived:** live master files (machine photos/manuals, contractor documents and certificates, warranty files, training content and library, logo), safety training submissions and certificates (compliance). A per-company **legal hold** flag stops archiving and removal.
+- **Exported, then removed online (always with all their attachments):** closed work orders and breakdowns, completed audits, closed Kaizen, closed staff requests (replies included), paid PO invoices.
+- **Retired master data** (decommissioned machines, inactive contractors, discontinued parts): exported with their photos, manuals, certificates and warranty files 24 months after retirement, then removed.
+- **Copied, never removed:** safety training submissions and certificates, training certificates, offboard reports — compliance copies are included in the ZIP.
+- **On demand:** the admin can request a full-company export (every record + every attachment) at any time; it also runs automatically when a company is closed.
+- **Never touched:** live files of active machines and contractors, the training content library, the logo. A per-company **legal hold** flag stops archiving and removal.
 - **Records stay in Firestore** (searchable, with an `archive: {archiveId, archivedAt}` marker); only the files leave.
 - **Removal rule:** online copies are removed after the admin confirms the download, or 60 days after the first notice (stated in the terms). The ZIP itself stays 12 months in Archive-class storage for re-download, then is deleted with a final notice. Nothing is removed unless the ZIP's checksums were verified.
 - **Retention guidance** (docs/STORAGE_AND_DATA_LIFECYCLE.si.md §5): work orders and breakdowns 5+ years, safety 5–7 years — after handover the customer holds the legal copy; say so in the terms.
@@ -36,13 +39,41 @@ Facts below come from `storage.rules`, `docs/STORAGE_AND_DATA_LIFECYCLE.si.md`, 
 FirmiCore-Archive-<company>-<period>-part1of3.zip      (≤ 2 GB per part, ZIP64)
  ├─ index.html          offline viewer: search by date / machine / number, no login, no server
  ├─ viewer/             bundled JS & CSS (no CDN)
- ├─ records/<number>/   record.pdf (same content as the Maintenance History export), record.json, media/<original files>
+ ├─ records/<number>/   record.pdf (same content as the Maintenance History export), record.json, attachments/<original files>
+ ├─ conversation/       staff-request replies and their attachments
+ ├─ master/             retired machines, contractors, parts with their documents
+ ├─ compliance/         copies of safety training submissions and training certificates
  ├─ data/               records.csv, records.json
  ├─ manifest.json       archive id, company, period, counts, SHA-256 of every file, format version
  └─ README.txt          how to open and verify
 ```
 Standard formats only (PDF, JPEG, PNG, MP4, CSV, JSON, HTML).
 `record.pdf` should reuse the existing renderer (`src/utils/reports/pdf/maintenanceRecordPdf.ts`, jsPDF in the browser today); the server side needs either a port or the existing puppeteer setup used by `generateReport`.
+
+## 4a. Attachment inventory — every record exports with its files
+
+| Record | Files live under | How the record points to them | In the ZIP | After export |
+|---|---|---|---|---|
+| Work order | `workorders/{siteId}/{woId}/documents`, `field-media`, `completion/{photos,cad,warranty}`, `approval-requests` | `documents[]` `{url, storagePath}`; completion `finalPhotoUrls[]` (URLs only); approval `attachments[]` | `records/<WO>/attachments/…` | removed |
+| Breakdown | `breakdowns/{siteId}/{ticketId}/media` | media URLs on the ticket (field name to confirm in code) | `records/<TICKET>/attachments/…` | removed |
+| Audit | `audit_attachments/{plantId}/{session}/…`, `audits/{plantId}/{audit}/{item}.jpg`, `audit_reports/{plantId}/{id}.pdf` | URLs on session / item docs | `records/<AUDIT>/attachments/…` + report PDF | removed |
+| Kaizen card | `kaizen/{plantId}/{card}/…` | URLs on the card | `records/<CARD>/attachments/…` | removed |
+| Evaluation | `evaluation_attachments/{companyId}/{evaluation}/…` | URLs on the evaluation | `records/<EVAL>/attachments/…` | removed |
+| Staff request + replies | `companies/{c}/staff_requests/{request}/…` | `attachments[]` on the request and on each reply | `records/<REQ>/attachments/` and `conversation/` | removed |
+| Purchase order | `companies/{c}/purchaseOrders/{po}/invoice` | invoice URL on the PO | `records/<PO>/attachments/…` | removed |
+| Retired machine | `companies/{c}/machines/{id}/photos`, `documents` | URLs on the machine | `master/machines/<id>/…` | removed 24 months after retirement |
+| Inactive contractor | `companies/{c}/contractors/{id}/documents`, `…/technicians/certifications` | URLs on contractor / technician docs | `master/contractors/<id>/…` | removed 24 months after inactive |
+| Discontinued part | `companies/{c}/inventoryParts/{id}/warranty` | URLs on the part | `master/parts/<id>/…` | removed 24 months after discontinuation |
+| Safety training submission | `safetyTrainingSubmissions/{c}/{invite}/attempt-N` | written by the callable, linked from the invite | `compliance/safety-training/…` | **copy only** |
+| Training certificates, offboard reports, weekend summaries | `companies/{c}/trainee-programmes/…`, `training/offboard-reports/…` | URLs on the certificate / report docs | `compliance/training/…` | **copy only** |
+
+Rules for the archiver:
+- Resolve each file from `storagePath` or, when only a URL exists, by decoding the object path from the download URL; then also **list the record's folder** so files with no reference are not lost (they go under `unreferenced/`).
+- Every attachment gets an entry in `record.json`: original name, object path, size, content type, uploader, upload date, SHA-256, ZIP entry. Files that cannot be found are listed under `missing` — never silently skipped.
+- Name collisions inside a record folder get a numeric suffix; the original name is kept in the manifest.
+- Large files are streamed (never fully in memory); parts split at ≤ 2 GB with a file never split across parts.
+- Safety cases and permits: no stored files were found in `src/types/safety.ts` — confirm before shipping. Contractor safety-form photos and voice notes are encoded in the browser but are stored as files by the server (`safetyTrainingSubmissions/…`), so they are covered by the compliance copy.
+- `records/<number>/record.pdf` embeds the images; for archived records the in-app PDF export must fall back to the ZIP's copy.
 
 ## 5. Pipeline (Cloud Functions + Cloud Tasks)
 
