@@ -22,7 +22,7 @@ Facts below come from `storage.rules`, `docs/STORAGE_AND_DATA_LIFECYCLE.si.md`, 
 
 ## 3. Policy
 
-- **Online window** (counted from the record's close date): Starter 12 months, Growth 18, Factory 24, Enterprise per contract (default 24). Extra 12 months is an add-on ($5 / $15 / $60 per month).
+- **Online window** (counted from the record's close date): **12 months for plant managers and admins on every plan; 30 days for supervisors and other roles** (see `DATA_RETENTION_AND_VISIBILITY_PLAN.md`). Longer online history is an add-on ($5 / $15 / $60 per month for Starter / Growth / Factory); Enterprise per contract.
 - **Exported, then removed online (always with all their attachments):** closed work orders and breakdowns, completed audits, closed Kaizen, closed staff requests (replies included), paid PO invoices.
 - **Retired master data** (decommissioned machines, inactive contractors, discontinued parts): exported with their photos, manuals, certificates and warranty files 24 months after retirement, then removed.
 - **Copied, never removed:** safety training submissions and certificates, training certificates, offboard reports — compliance copies are included in the ZIP.
