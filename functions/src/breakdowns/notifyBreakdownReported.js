@@ -64,7 +64,9 @@ exports.notifyBreakdownReported = onDocumentCreated(
         const department = ticket.machineDepartment || machine.department || null;
 
         const [usersSnap, shiftSnap] = await Promise.all([
-          db.collection("users").where("companyId", "==", companyId)
+          // The company's user profiles (role, department, plant) — the
+          // top-level `users` docs are only login mappings.
+          db.collection("companies").doc(String(companyId)).collection("users")
               .where("role", "in", [...TECHNICIAN_ROLES, ...SUPERVISOR_ROLES]).get(),
           db.collection("shift_sessions").where("companyId", "==", companyId)
               .where("status", "==", "active").get(),
