@@ -2064,7 +2064,7 @@ service cloud.firestore {
       allow create, update: if isSuperadmin()
         && request.resource.data.businessName is string
         && request.resource.data.businessName.size() > 0 && request.resource.data.businessName.size() <= 500
-        && request.resource.data.status in ['new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'negotiation', 'closed_won', 'closed_lost'];
+        && request.resource.data.status in ['new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'trial_requested', 'negotiation', 'closed_won', 'closed_lost'];
     }
     // History is append-only; it is only removed together with its lead.
     match /platformLeadActivities/{activityId} {

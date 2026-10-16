@@ -5,7 +5,7 @@ import {
   BarChart3, CalendarCheck, CalendarDays, Download, FileText, KanbanSquare, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
 } from 'lucide-react';
 import {
-  LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, leadsToCsv, matchesSearch, revenueText,
+  BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, leadsToCsv, matchesSearch, revenueText,
   type Lead, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
 import { assignLeads, setLeadStatus, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
@@ -160,7 +160,7 @@ export default function PlatformLeadsPage() {
       ) : view === 'board' ? (
         <div className="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8">
           <div className="flex gap-3">
-            {LEAD_STATUSES.map((s) => (
+            {BOARD_STATUSES.map((s) => (
               <div
                 key={s}
                 className={`flex w-72 shrink-0 flex-col rounded-xl ${dragOver === s ? 'ring-2 ring-blue-500' : ''}`}
