@@ -1,5 +1,7 @@
 # FirmiCore pricing, limits and rollout plan (proposal — not implemented)
 
+> **Update 2026-10-16 (v2):** prices and limits below were revised after comparing MaintenancePro and FixAhead. The authoritative chart is `docs/FirmiCore-Pricing-Chart.pdf` (Starter $29, Growth $89, Factory $349, Enterprise from $1,499; adds limits on inventory parts, POs, breakdown reports, PM schedules, contractors, training modules and scheduled reports). Where this file differs, the PDF wins; phases in §4 still apply.
+
 Status: **proposal for approval.** No code has been changed. Prices are USD per company per month.
 Unit costs marked (v) were checked against Google/Anthropic pricing pages via search; (a) are assumptions to be measured (see §6).
 
