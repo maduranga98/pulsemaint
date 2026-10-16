@@ -11,6 +11,7 @@ import { groupBreakdownsByMachine } from '../../../lib/breakdowns/groupByMachine
 import { markMachineUnderMaintenance } from '../../../lib/machineOperationalStatus';
 import { useTranslation } from 'react-i18next';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
+import { fetchBusyTechnicians } from '../../../services/technicianAvailability.service';
 
 interface UnassignedBreakdownsWidgetProps {
   siteId: string;
@@ -72,6 +73,13 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
     if (!userProfile || tickets.length === 0) return;
     setAttendingMachineId(machineId);
     try {
+      // One job at a time: still on another breakdown or work order means
+      // submitting that first.
+      const busy = (await fetchBusyTechnicians({ siteId, selfId: userProfile.id, allowMachineId: machineId })).get(userProfile.id);
+      if (busy) {
+        toast.error(t('common.breakdowns.selfAttendBusy', { ref: busy.ref, machine: busy.machineName ?? '' }));
+        return;
+      }
       const batch = writeBatch(db);
       for (const t of tickets) {
         batch.update(doc(db, 'breakdown_tickets', t.id), {

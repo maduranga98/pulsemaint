@@ -66,6 +66,7 @@ exports.notifyInvoiceVariance = notifyInvoiceVariance;
 
 const { schedulePmCheck } = require("./src/pm/schedulePmCheck");
 const { checkPmOverdue } = require("./src/pm/checkPmOverdue");
+const { alertPmStartTime } = require("./src/pm/alertPmStartTime");
 const { expireTrials } = require("./src/billing/expireTrials");
 const { updatePmComplianceOnWoClose } = require("./src/pm/updatePmComplianceOnWoClose");
 const { triggerManualPM } = require("./src/pm/triggerManualPM");
@@ -74,6 +75,7 @@ exports.schedulePmCheck = schedulePmCheck;
 exports.checkPmOverdue = checkPmOverdue;
 exports.expireTrials = expireTrials;
 exports.updatePmComplianceOnWoClose = updatePmComplianceOnWoClose;
+exports.alertPmStartTime = alertPmStartTime;
 exports.triggerManualPM = triggerManualPM;
 
 // ---------------------------------------------------------------------------
@@ -89,6 +91,14 @@ const {
 exports.markMachineDownOnBreakdownReported = markMachineDownOnBreakdownReported;
 exports.reactivateMachineOnBreakdownClose = reactivateMachineOnBreakdownClose;
 exports.reactivateMachineOnWOSignOff = reactivateMachineOnWOSignOff;
+
+// ---------------------------------------------------------------------------
+// Breakdowns — alert the machine's department technicians and on-shift supervisors
+// ---------------------------------------------------------------------------
+
+const { notifyBreakdownReported } = require("./src/breakdowns/notifyBreakdownReported");
+
+exports.notifyBreakdownReported = notifyBreakdownReported;
 
 const {stampWorkOrderPlant, stampBreakdownPlant} = require("./src/machines/stampMachinePlant");
 

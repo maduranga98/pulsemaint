@@ -8,7 +8,6 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { getBreakdownsHomeRoute } from '../../lib/auth';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
-import { notifyRoles } from '../../services/notifications.service';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
@@ -230,18 +229,9 @@ export default function ReportBreakdownPage() {
       // rely on the markMachineDownOnBreakdownReported Cloud Function and on
       // the list/profile showing status from open work.
       void markMachineUnderMaintenance(machine.id);
-      void notifyRoles(userProfile.companyId, ['supervisor', 'plant_manager', 'admin'], {
-        type: 'breakdown',
-        message: `${machine.name}: new breakdown reported${machineStillRunning ? ' (still running, degraded)' : ''}`,
-        oversightMessage: `reported a new breakdown on ${machine.name}`,
-        actorName: userProfile.fullName ?? '',
-        actorRole: userProfile.role,
-        actorUserId: userProfile.id,
-        linkTo: '/app/breakdowns',
-        // Only the machine's plant and department hear about it.
-        plantId: machine.plantId ?? undefined,
-        department: machine.department || null,
-      });
+      // The alert to the machine's department technicians and on-shift
+      // supervisors is raised server-side (notifyBreakdownReported), so it
+      // also covers QR reports and reporters who can't read who is on shift.
 
       // Show an AI suggestion (drawn from the machine's model/manufacturer
       // and its past breakdown/root-cause history) before leaving the page,

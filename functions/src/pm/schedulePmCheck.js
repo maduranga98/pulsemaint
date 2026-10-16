@@ -124,6 +124,11 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
       const scheduleId = docSnap.id;
       const companyId = schedule.companyId;
 
+      // A one-off PM raised from the Work Order drawer already has its own
+      // work order (linkedWoId); generating another here would duplicate it.
+      // Its start-time alert comes from alertPmStartTime.
+      if (schedule.recurrenceType === "one_time" || schedule.linkedWoId) continue;
+
       try {
         // Generate WO number
         const year = now.getFullYear();
@@ -271,6 +276,8 @@ exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Col
           dueStart.setHours(0, 0, 0, 0);
           const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           await notifyPmDue(schedule, woNumber, woRef.id, dueStart < todayStart);
+          // Already alerted — keep alertPmStartTime from alerting this WO again.
+          await woRef.update({pmStartAlertSentAt: FieldValue.serverTimestamp()});
         } catch (notifyErr) {
           logger.error(`PM due notification failed for ${scheduleId}`, notifyErr);
         }

@@ -1,24 +1,77 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { CreatePMFormValues } from '../../../schemas/pm';
 import { PM_SKILLS_OPTIONS } from '../../../constants/pmConfig';
+import { db } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/authStore';
+import { useBusyTechnicians } from '../../../hooks/useBusyTechnicians';
+import { sameDepartment } from '../../../hooks/useRecordPlantMatcher';
+
+interface TechOption {
+  id: string;
+  name: string;
+  department?: string;
+  plantId: string | null;
+}
 
 export function Step4TeamAssign() {
   const { t } = useTranslation();
   const { register, watch, setValue, formState: { errors } } = useFormContext<CreatePMFormValues>();
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const companyId = userProfile?.companyId;
+  const siteId = userProfile?.siteIds?.[0] || companyId;
   const assignedTechnicianIds = watch('assignedTechnicianIds') || [];
   const assignedTechnicianNames = watch('assignedTechnicianNames') || [];
   const skillsRequired = watch('skillsRequired') || [];
-  const [newTechName, setNewTechName] = useState('');
+  const machineDepartment = watch('department');
+  const machinePlantId = watch('plantId');
+  const [pool, setPool] = useState<TechOption[]>([]);
+  const [search, setSearch] = useState('');
 
-  const addTechnician = () => {
-    const trimmed = newTechName.trim();
-    if (!trimmed) return;
-    const id = `tech-${Date.now()}`;
-    setValue('assignedTechnicianIds', [...assignedTechnicianIds, id]);
-    setValue('assignedTechnicianNames', [...assignedTechnicianNames, trimmed]);
-    setNewTechName('');
+  // Same pool and scoping as a Work Order's team: technicians/trainees of the
+  // machine's plant and department.
+  useEffect(() => {
+    if (!companyId) return;
+    let cancelled = false;
+    getDocs(collection(db, `companies/${companyId}/users`))
+      .then((snap) => {
+        if (cancelled) return;
+        setPool(
+          snap.docs
+            .map((d) => ({ id: d.id, ...(d.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+            .filter((u) => u.role === 'technician' || u.role === 'trainee')
+            .map((u) => ({
+              id: u.id,
+              name: `${(u.fullName as string) ?? (u.email as string) ?? u.id}${u.role === 'trainee' ? ' (Trainee)' : ''}`,
+              department: u.department as string | undefined,
+              plantId: (u.plantId as string | null | undefined) ?? null,
+            })),
+        );
+      })
+      .catch(() => !cancelled && setPool([]));
+    return () => {
+      cancelled = true;
+    };
+  }, [companyId]);
+
+  // Technicians mid-job (a started WO, or an unsubmitted breakdown) can't be
+  // given another, exactly as when a Work Order is created.
+  const { busy } = useBusyTechnicians(siteId);
+
+  const options = pool
+    .filter((u) => (!machinePlantId || u.plantId === machinePlantId) && (!machineDepartment || sameDepartment(u.department, machineDepartment)))
+    .filter((u) => u.name.toLowerCase().includes(search.trim().toLowerCase()));
+
+  const toggleTechnician = (tech: TechOption) => {
+    const index = assignedTechnicianIds.indexOf(tech.id);
+    if (index >= 0) {
+      removeTechnician(index);
+    } else {
+      setValue('assignedTechnicianIds', [...assignedTechnicianIds, tech.id]);
+      setValue('assignedTechnicianNames', [...assignedTechnicianNames, tech.name]);
+    }
   };
 
   const removeTechnician = (index: number) => {
@@ -43,22 +96,44 @@ export function Step4TeamAssign() {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.pmSchedules.createForm.step4.assignedTechniciansLabel')}</label>
 
-        <div className="flex gap-2 mb-2">
-          <input
-            type="text"
-            value={newTechName}
-            onChange={(e) => setNewTechName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnician())}
-            placeholder={t('common.pmSchedules.createForm.step4.technicianNamePlaceholder')}
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-          <button
-            type="button"
-            onClick={addTechnician}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
-          >
-            {t('common.pmSchedules.createForm.step4.add')}
-          </button>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t('common.workOrders.copy.techniciansPlaceholder')}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none mb-2"
+        />
+        <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100 mb-3">
+          {options.length === 0 ? (
+            <p className="text-xs text-gray-400 px-3 py-2">{t('common.workOrders.teamAssignment.noTechniciansFound')}</p>
+          ) : (
+            options.map((tech) => {
+              const selected = assignedTechnicianIds.includes(tech.id);
+              const job = busy.get(tech.id);
+              // Someone already on the schedule can still be removed.
+              const unavailable = !!job && !selected;
+              return (
+                <button
+                  key={tech.id}
+                  type="button"
+                  disabled={unavailable}
+                  onClick={() => toggleTechnician(tech)}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors ${
+                    unavailable ? 'opacity-60 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50'
+                  } ${selected ? 'bg-blue-50' : ''}`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={`h-5 w-5 rounded border-2 flex items-center justify-center ${selected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
+                      {selected && <span className="text-white text-xs">✓</span>}
+                    </span>
+                    <span className="font-medium">{tech.name}</span>
+                    <span className="text-gray-400">{tech.department}</span>
+                  </span>
+                  {job && <span className="text-xs text-amber-700">{t('common.workOrders.teamAssignment.busyInline', { ref: job.ref })}</span>}
+                </button>
+              );
+            })
+          )}
         </div>
 
         {assignedTechnicianNames.length > 0 && (

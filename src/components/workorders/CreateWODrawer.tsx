@@ -20,6 +20,7 @@ import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '../../types/saf
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { useSafetyBlacklist } from '../../hooks/safety/useSafety';
 import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
+import { useBusyTechnicians } from '../../hooks/useBusyTechnicians';
 
 type MachineOption = {
   id: string;
@@ -394,6 +395,21 @@ export function CreateWODrawer({
     (!woPlantId || u.plantId === woPlantId) && (!woDepartment || sameDepartment(u.department, woDepartment));
   const supervisors = supervisorPool.filter(inWoScope);
   const technicians = technicianPool.filter(inWoScope);
+
+  // Technicians mid-job (a started WO, or a breakdown they're attending and
+  // haven't submitted) can't be given another. The breakdown(s) this WO is
+  // being raised for don't count against their own attender, and neither
+  // does other work on the same machine.
+  const busyIgnoreIds = [
+    linkedBreakdownId,
+    ...(linkedBreakdownIds ?? []),
+    linkedBreakdown?.id,
+    ...linkedBreakdownGroup.map((b) => b.id),
+  ].filter((id): id is string => !!id);
+  const { busy: busyTechnicians } = useBusyTechnicians(open ? (siteIds?.[0] || companyId) : undefined, {
+    ignoreBreakdownIds: busyIgnoreIds,
+    allowMachineId: (watchField('machineId') as string | undefined) || null,
+  });
 
   // Auto-suggest due date from priority
   useEffect(() => {
@@ -865,6 +881,7 @@ export function CreateWODrawer({
                   name: t.name,
                   department: t.department ?? '',
                   activeWOCount: 0,
+                  busyRef: busyTechnicians.get(t.id)?.ref ?? null,
                 }))}
               supervisors={supervisors.map((s) => ({ id: s.id, name: s.name, role: s.role, department: s.department ?? '' }))}
               contractors={registeredContractors

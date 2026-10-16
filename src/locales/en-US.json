@@ -3598,6 +3598,9 @@
       "pageTitle": "Breakdowns",
       "summary": "{{count}} {{filter}} across {{machineCount}} machines",
       "reportViaQr": "Report via QR",
+      "attendedByInline": "Attended by {{name}}",
+      "awaitingSignOff": "Awaiting sign-off",
+      "selfAttendBusy": "You're still on {{ref}} {{machine}}. Submit your current job before taking another.",
       "reportBreakdown": "Report Breakdown",
       "tabs": {
         "reported": "reported",
@@ -3681,6 +3684,7 @@
         "empty": "No technicians or trainees are currently clocked in. Ask them to start their shift, or assign once someone is on duty.",
         "unnamed": "Unnamed",
         "onShift": "On shift",
+        "busy": "Busy — on {{ref}}",
         "cancel": "Cancel",
         "assigning": "Assigning…",
         "assign": "Assign"
@@ -3694,6 +3698,7 @@
         "productionImpact": "Production Impact",
         "attemptedFixes": "Attempted Fixes",
         "technicianFindings": "What Happened (Technician/Trainee Findings)",
+        "completionNotes": "What was done to complete the fix",
         "assignedTechnicians": "Assigned Technicians",
         "attachedMedia": "Attached Media",
         "attachmentAlt": "Attachment {{index}}",
@@ -3781,6 +3786,13 @@
         "attemptedFixesLabel": "Attempted fixes",
         "technicianFindingsLabel": "What happened? (technician/trainee findings)",
         "technicianFindingsPlaceholder": "Your own account of what happened, separate from the reporter's description. Or tap the mic and tell us.",
+        "quickFixLabel": "What you did and how you completed it *",
+        "quickFixHint": "Low severity: describe the fix. Submitting sends it to your supervisor for sign-off — no work order is needed.",
+        "quickFixPlaceholder": "Type it, or tap the mic and tell us.",
+        "quickFixRequired": "Describe what you did and how you completed it before submitting.",
+        "submitForSignOff": "Submit for sign-off",
+        "quickFixSubmitted": "Submitted — sent to your supervisor for sign-off.",
+        "alreadyAttended": "{{name}} is already attending this breakdown.",
         "rca": {
           "title": "AI root-cause suggestions",
           "cta": "Get AI Suggestions",
@@ -4328,6 +4340,7 @@
         "assignInternalTechniciansLabel": "Assign internal technicians",
         "optionalLabel": "(optional)",
         "activeWOsInline": "{{count}} active WOs",
+        "busyInline": "Busy — on {{ref}}",
         "chooseContactPerson": "Choose a contact person…",
         "primaryContactOption": "{{name}} (primary contact)"
       },
