@@ -121,6 +121,12 @@ Every role except admin raises requests from **My Requests** (`/app/requests`): 
 ### Breakdowns
 Report, track, and resolve equipment breakdowns. Kanban-style status board, severity/type/root-cause tracking, notification log (push/SMS/email/in-app), QR-triggered check-in/report flows, optional WhatsApp integration. Open to `floor_operator`, `technician`, `supervisor`, `plant_manager`, `admin`, `trainee` (editing excludes trainee).
 
+**Attending, low-severity fixes and availability.**
+- *Alerts:* when a breakdown is reported (any source, including the public QR form) the `notifyBreakdownReported` Cloud Function notifies the technicians registered to the machine's department/plant and the supervisors of that department who are on shift right now (active `shift_sessions`); admin and plant manager are copied as usual.
+- *Ownership:* once a technician/trainee attends a ticket themselves it leaves the Reported tab and is hidden from other technicians/trainees (anyone it is assigned to, e.g. WO teammates, still sees it). Supervisors and above see it in the **Open** tab with "Attended by …". A ticket a supervisor assigned stays in **Assigned**. Hiding is a UI filter (`src/lib/breakdownWorkflow.ts`), not a Firestore rule.
+- *Low severity:* picking **Low** on the attend form shows a required "what you did and how you completed it" field (typed or voice) and submits the ticket as `resolved` (`completedWithoutWO`, `completionNotes`) — no work order. Supervisors/plant managers/admin are notified and use **Sign Off & Close** on the ticket; closing records `closedBy`/`closedByName`. Other severities still go through a work order.
+- *Availability:* a technician who has started a work order, or is attending a breakdown whose assessment/fix they haven't submitted, can't be assigned another job — they show as Busy in the assign-technician modal and the Create Work Order team picker, and can't self-attend another breakdown (other work on the same machine is allowed). Checked by `fetchBusyTechnicians`; PM schedule assignment is not covered.
+
 ### Work Orders
 Full work-order lifecycle: `DRAFT → OPEN → ASSIGNED → IN_PROGRESS → ON_HOLD (parts/approval) → COMPLETED → SIGNED_OFF → CLOSED/CANCELLED`. Supports multi-technician checklists with measurement inputs, time-segment tracking (travel/waiting/working), parts requests, and root-cause capture. Work orders can be **created** by supervisors, plant managers, and admins. "My Work Orders" gives technicians/trainees a personal task view.
 

@@ -16,6 +16,8 @@ import { TranslatedText } from '../../components/ui';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 import type { WorkOrder } from '../../types/workOrder';
 import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
+import { breakdownBucket, isHiddenFromOthers } from '../../lib/breakdownWorkflow';
+import { fetchBusyTechnicians } from '../../services/technicianAvailability.service';
 
 function roleLabel(role: string | undefined, t: TFunction): string {
   if (!role) return '';
@@ -157,6 +159,10 @@ export default function BreakdownsPage() {
     // other role stops seeing a ticket the moment it's closed, including on
     // the "Closed" tab itself.
     if (role !== 'admin') list = list.filter((b) => !closedSet.has(b.status));
+    // A ticket another technician/trainee is attending is theirs alone —
+    // nobody else in that role sees it. Supervisors and above keep it, in
+    // the Open tab, with the attender named.
+    if (canAttend) list = list.filter((b) => !isHiddenFromOthers(b, role, userProfile?.id));
     // Plant is the main scoping category — plant_manager/store_keeper/
     // hr_officer/safety_officer/technician/trainee/supervisor/floor_operator
     // only see breakdowns for their own registered plant (admin: whichever
@@ -167,10 +173,7 @@ export default function BreakdownsPage() {
     // Technician/trainee/supervisor/floor_operator are further scoped to
     // their own registered department within that plant — everyone else
     // keeps full in-plant visibility.
-    if (filter === 'reported') list = list.filter((b) => b.status === 'reported');
-    if (filter === 'assigned') list = list.filter((b) => b.status === 'assigned');
-    if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status) && b.status !== 'reported' && b.status !== 'assigned');
-    if (filter === 'closed') list = list.filter((b) => closedSet.has(b.status));
+    list = list.filter((b) => breakdownBucket(b) === filter);
     if (severityFilter !== 'all') {
       const sevMatch = severityFilter === 'normal' ? 'low' : severityFilter;
       list = list.filter((b) => b.severity === sevMatch);
@@ -185,7 +188,7 @@ export default function BreakdownsPage() {
       );
     }
     return list;
-  }, [breakdowns, filter, severityFilter, search, scopedDepartment, scopedPlantId, role, inScopedPlant]);
+  }, [breakdowns, filter, severityFilter, search, scopedDepartment, scopedPlantId, role, canAttend, userProfile?.id, inScopedPlant]);
 
   // Multiple open tickets on the same machine are shown as one row so a
   // supervisor isn't assigning/attending the same machine ticket by ticket.
@@ -371,6 +374,13 @@ export default function BreakdownsPage() {
     if (tickets.length === 0) return;
     setAttendingMachineId(group.machineId);
     try {
+      // One job at a time: a technician still on another breakdown or work
+      // order can't take this one until they've submitted that.
+      const busy = (await fetchBusyTechnicians({ siteId: siteId ?? '', selfId: userProfile.id, allowMachineId: group.machineId })).get(userProfile.id);
+      if (busy) {
+        setError(t('common.breakdowns.selfAttendBusy', { ref: busy.ref, machine: busy.machineName ?? '' }));
+        return;
+      }
       const batch = writeBatch(db);
       for (const t of tickets) {
         batch.update(doc(db, 'breakdown_tickets', t.id), {
@@ -592,6 +602,7 @@ export default function BreakdownsPage() {
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[representative.status]}`}>
                           {t(`common.breakdowns.status.${representative.status}`)}
                         </span>
+                        <AttendanceNote tickets={g.tickets} />
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 min-w-[120px]">
@@ -746,6 +757,7 @@ export default function BreakdownsPage() {
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[representative.status]}`}>
                       {t(`common.breakdowns.status.${representative.status}`)}
                     </span>
+                    <AttendanceNote tickets={g.tickets} />
                     <div className="flex items-center gap-2 mt-2">
                       <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
                         <div
@@ -856,6 +868,8 @@ export default function BreakdownsPage() {
       {assigningGroup && userProfile && (
         <AssignTechnicianModal
           companyId={userProfile.companyId}
+          siteId={siteId}
+          allowMachineId={assigningGroup.machineId}
           assigning={assignBusy}
           onClose={() => setAssigningGroup(null)}
           onAssign={handleAssign}
@@ -872,6 +886,29 @@ export default function BreakdownsPage() {
           prefilledMachineId={createWOTickets[0].machineId}
           defaultWoType="BREAKDOWN"
         />
+      )}
+    </div>
+  );
+}
+
+// Who is on a machine's tickets and whether the fix is waiting on sign-off —
+// the at-a-glance answer to "is anyone on this?" for supervisors and above,
+// since an attended ticket no longer shows for other technicians.
+function AttendanceNote({ tickets }: { tickets: Breakdown[] }) {
+  const { t } = useTranslation();
+  const attenders = Array.from(new Set(tickets.map((tk) => tk.attendedByName).filter((n): n is string => !!n)))
+    .map(stripRoleSuffix);
+  const awaitingSignOff = tickets.some((tk) => tk.status === 'resolved');
+  if (attenders.length === 0 && !awaitingSignOff) return null;
+  return (
+    <div className="mt-1.5 space-y-1">
+      {attenders.length > 0 && (
+        <p className="text-xs text-slate-600">{t('common.breakdowns.attendedByInline', { name: attenders.join(', ') })}</p>
+      )}
+      {awaitingSignOff && (
+        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+          {t('common.breakdowns.awaitingSignOff')}
+        </span>
       )}
     </div>
   );
@@ -1043,6 +1080,13 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
           <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.technicianFindings')}</p>
           <MergedField tickets={tickets} get={(ticket) => (ticket as any).technicianFindings} />
         </div>
+
+        {tickets.some((tk) => tk.completionNotes) && (
+          <div className="sm:col-span-2">
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.completionNotes')}</p>
+            <MergedField tickets={tickets} get={(ticket) => ticket.completionNotes} />
+          </div>
+        )}
 
         <div className="sm:col-span-2">
           <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.assignedTechnicians')}</p>

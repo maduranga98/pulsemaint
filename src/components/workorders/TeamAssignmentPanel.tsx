@@ -9,6 +9,8 @@ interface TechnicianOption {
   name: string;
   department: string;
   activeWOCount: number;
+  /** Set when the technician is mid-job (WO or breakdown) and so can't be assigned another. */
+  busyRef?: string | null;
 }
 
 interface ContractorOption {
@@ -45,6 +47,36 @@ function supervisorOptionLabel(s: SupervisorOption): string {
   const roleLabel = supervisorRoleLabel(s.role);
   const parts = [s.name, roleLabel, s.department].filter(Boolean);
   return parts.join(' — ');
+}
+
+/** One selectable technician. Someone mid-job can't be newly picked (but a
+ *  technician already picked can still be unticked). */
+function TechnicianRow({ tech, selected, onToggle }: { tech: TechnicianOption; selected: boolean; onToggle: () => void }) {
+  const { t } = useTranslation();
+  const unavailable = !!tech.busyRef && !selected;
+  return (
+    <button
+      type="button"
+      disabled={unavailable}
+      onClick={onToggle}
+      className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors ${
+        unavailable ? 'opacity-60 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50'
+      } ${selected ? 'bg-blue-50' : ''}`}
+    >
+      <span className="flex items-center gap-2">
+        <span className={`h-5 w-5 rounded border-2 flex items-center justify-center ${selected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
+          {selected && <span className="text-white text-xs">✓</span>}
+        </span>
+        <span className="font-medium">{tech.name}</span>
+        <span className="text-gray-400">{tech.department}</span>
+      </span>
+      {tech.busyRef ? (
+        <span className="text-xs text-amber-700">{t('common.workOrders.teamAssignment.busyInline', { ref: tech.busyRef })}</span>
+      ) : (
+        <span className="text-xs text-gray-500">{t('common.workOrders.teamAssignment.activeWOsInline', { count: tech.activeWOCount })}</span>
+      )}
+    </button>
+  );
 }
 
 interface TeamAssignmentPanelProps {
@@ -219,27 +251,7 @@ export function TeamAssignmentPanel({
               filteredTechs.map((tech) => {
                 const isSelected = selectedTechIds.includes(tech.id);
                 return (
-                  <button
-                    key={tech.id}
-                    type="button"
-                    onClick={() => toggleTechnician(tech)}
-                    className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                      isSelected ? 'bg-blue-50' : ''
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={`h-5 w-5 rounded border-2 flex items-center justify-center ${
-                          isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-                        }`}
-                      >
-                        {isSelected && <span className="text-white text-xs">✓</span>}
-                      </span>
-                      <span className="font-medium">{tech.name}</span>
-                      <span className="text-gray-400">{tech.department}</span>
-                    </span>
-                    <span className="text-xs text-gray-500">{t('common.workOrders.teamAssignment.activeWOsInline', { count: tech.activeWOCount })}</span>
-                  </button>
+                  <TechnicianRow key={tech.id} tech={tech} selected={isSelected} onToggle={() => toggleTechnician(tech)} />
                 );
               })
             )}
@@ -426,23 +438,7 @@ export function TeamAssignmentPanel({
                 filteredTechs.map((tech) => {
                   const isSelected = selectedTechIds.includes(tech.id);
                   return (
-                    <button
-                      key={tech.id}
-                      type="button"
-                      onClick={() => toggleTechnician(tech)}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                        isSelected ? 'bg-blue-50' : ''
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className={`h-5 w-5 rounded border-2 flex items-center justify-center ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
-                          {isSelected && <span className="text-white text-xs">✓</span>}
-                        </span>
-                        <span className="font-medium">{tech.name}</span>
-                        <span className="text-gray-400">{tech.department}</span>
-                      </span>
-                      <span className="text-xs text-gray-500">{t('common.workOrders.teamAssignment.activeWOsInline', { count: tech.activeWOCount })}</span>
-                    </button>
+                    <TechnicianRow key={tech.id} tech={tech} selected={isSelected} onToggle={() => toggleTechnician(tech)} />
                   );
                 })
               )}

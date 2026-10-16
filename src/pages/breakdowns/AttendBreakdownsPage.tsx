@@ -12,6 +12,7 @@ import { getBreakdownsHomeRoute } from '../../lib/auth';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 import { VoiceDictationButton } from '../../components/ui';
 import { RCASuggestionPanel } from '../../components/breakdowns/RCASuggestionPanel';
+import { notifyRoles } from '../../services/notifications.service';
 
 function getSeverities(t: TFunction): { value: BreakdownSeverity; label: string; color: string }[] {
   return [
@@ -76,6 +77,9 @@ export default function AttendBreakdownsPage() {
   const [breakdownType, setBreakdownType] = useState<BreakdownType>('mechanical');
   const [attemptedFixes, setAttemptedFixes] = useState('');
   const [technicianFindings, setTechnicianFindings] = useState('');
+  // Low severity is fixed on the spot with no work order: the technician
+  // writes up what they did and the ticket goes to a supervisor to sign off.
+  const [completionNotes, setCompletionNotes] = useState('');
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -112,9 +116,21 @@ export default function AttendBreakdownsPage() {
   // A ticket nobody has taken ownership of yet can't be assessed here either.
   const blocked = !loading && list.length > 0 && list.every((t) => t.status === 'reported');
 
+  // A ticket someone else is attending is theirs alone — opening its link
+  // must not quietly add a second person to it.
+  const takenBy = list.find(
+    (tk) => tk.attendedBy && tk.attendedBy !== userProfile?.id && !(tk.assignedTechnicianIds ?? []).includes(userProfile?.id ?? ''),
+  );
+  const takenByOther = !loading && !!takenBy;
+  const isQuickFix = severity === 'low';
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!userProfile || list.length === 0) return;
+    if (isQuickFix && !completionNotes.trim()) {
+      setError(t('common.breakdowns.attendPage.quickFixRequired'));
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -144,6 +160,17 @@ export default function AttendBreakdownsPage() {
           attemptedFixes: attemptedFixes.trim(),
           technicianFindings: technicianFindings.trim(),
           ...(uploadedUrls.length > 0 ? { photos: arrayUnion(...uploadedUrls) } : {}),
+          ...(isQuickFix ? {
+            // Fixed on the spot — no work order. `resolved` is the state a
+            // supervisor signs off from (Sign Off & Close), which closes it.
+            status: 'resolved',
+            resolvedAt: Timestamp.now(),
+            resolvedBy: userProfile.id,
+            resolvedByName: userProfile.fullName,
+            completionNotes: completionNotes.trim(),
+            correctiveActions: completionNotes.trim(),
+            completedWithoutWO: true,
+          } : {}),
           ...(!ticket.attendedBy ? {
             attendedBy: userProfile.id,
             attendedByName: userProfile.fullName,
@@ -155,24 +182,42 @@ export default function AttendBreakdownsPage() {
           } : {}),
           updatedAt: Timestamp.now(),
           statusHistory: arrayUnion({
-            status: ticket.status,
+            status: isQuickFix ? 'resolved' : ticket.status,
             changedBy: userProfile.id,
             changedByName: userProfile.fullName,
             changedAt: new Date().toISOString(),
-            note: list.length > 1
-              ? t('common.breakdowns.attendPage.notes.assessedAlongside', { count: list.length - 1, machineName })
-              : t('common.breakdowns.attendPage.notes.assessedSolo'),
+            note: isQuickFix
+              ? `Fix completed by ${userProfile.fullName} — sent for supervisor sign-off`
+              : list.length > 1
+                ? t('common.breakdowns.attendPage.notes.assessedAlongside', { count: list.length - 1, machineName })
+                : t('common.breakdowns.attendPage.notes.assessedSolo'),
           }),
         });
       }
       await batch.commit();
+      if (isQuickFix) {
+        void notifyRoles(userProfile.companyId, ['supervisor', 'plant_manager', 'admin'], {
+          type: 'breakdown',
+          message: `${machineName}: fix completed by ${userProfile.fullName} — awaiting your sign-off`,
+          oversightMessage: `completed a low-severity fix on ${machineName} — awaiting sign-off`,
+          actorName: userProfile.fullName ?? '',
+          actorRole: userProfile.role,
+          actorUserId: userProfile.id,
+          linkTo: `/app/breakdowns/${list[0].id}`,
+          plantId: list[0].machinePlantId ?? undefined,
+          department: list[0].machineDepartment || null,
+        });
+      }
       toast.success(
-        list.length > 1
+        isQuickFix
+          ? t('common.breakdowns.attendPage.quickFixSubmitted')
+          : list.length > 1
           ? t('common.breakdowns.attendPage.toasts.savedMultiple', { count: list.length })
           : t('common.breakdowns.attendPage.toasts.saved'),
       );
-      // Stays in the Assigned bucket (status is untouched here) — a Work
-      // Order is what actually advances it into Open. Return to the
+      // Non-low tickets stay put (status is untouched here) — a Work Order
+      // is what advances them; a low-severity fix is already with the
+      // supervisor for sign-off. Either way, return to the
       // technician/trainee's dashboard rather than the Breakdowns list.
       navigate('/app/dashboard', { replace: true });
     } catch (err: any) {
@@ -199,6 +244,22 @@ export default function AttendBreakdownsPage() {
         <div className="text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700">{error}</p>
+          <button onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role))} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+            {t('common.breakdowns.attendPage.backToBreakdowns')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (takenByOther) {
+    return (
+      <div className="min-h-full flex items-center justify-center">
+        <div className="text-center max-w-sm">
+          <Lock className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+          <p className="text-slate-700 font-medium">
+            {t('common.breakdowns.attendPage.alreadyAttended', { name: takenBy?.attendedByName ?? '' })}
+          </p>
           <button onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role))} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
             {t('common.breakdowns.attendPage.backToBreakdowns')}
           </button>
@@ -322,6 +383,29 @@ export default function AttendBreakdownsPage() {
             />
           </div>
 
+          {isQuickFix && (
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4">
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-slate-800">{t('common.breakdowns.attendPage.quickFixLabel')}</label>
+                <VoiceDictationButton
+                  disabled={saving}
+                  className="w-8 h-8"
+                  onTranscript={(text) => setCompletionNotes((prev) => (prev ? `${prev} ${text}` : text))}
+                />
+              </div>
+              <p className="text-xs text-slate-500 mb-2">{t('common.breakdowns.attendPage.quickFixHint')}</p>
+              <textarea
+                value={completionNotes}
+                onChange={(e) => setCompletionNotes(e.target.value)}
+                disabled={saving}
+                rows={4}
+                required
+                placeholder={t('common.breakdowns.attendPage.quickFixPlaceholder')}
+                className="w-full px-4 py-2 border border-slate-200 bg-white rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              />
+            </div>
+          )}
+
           <RCASuggestionPanel
             machineId={list[0]?.machineId ?? ''}
             machineName={machineName}
@@ -363,6 +447,8 @@ export default function AttendBreakdownsPage() {
           <button type="submit" disabled={saving} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50">
             {saving
               ? t('common.breakdowns.attendPage.saving')
+              : isQuickFix
+                ? t('common.breakdowns.attendPage.submitForSignOff')
               : list.length > 1
                 ? t('common.breakdowns.attendPage.saveAssessmentMultiple', { count: list.length })
                 : t('common.breakdowns.attendPage.saveAssessment')}

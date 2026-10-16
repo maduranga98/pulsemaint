@@ -90,6 +90,14 @@ exports.markMachineDownOnBreakdownReported = markMachineDownOnBreakdownReported;
 exports.reactivateMachineOnBreakdownClose = reactivateMachineOnBreakdownClose;
 exports.reactivateMachineOnWOSignOff = reactivateMachineOnWOSignOff;
 
+// ---------------------------------------------------------------------------
+// Breakdowns — alert the machine's department technicians and on-shift supervisors
+// ---------------------------------------------------------------------------
+
+const { notifyBreakdownReported } = require("./src/breakdowns/notifyBreakdownReported");
+
+exports.notifyBreakdownReported = notifyBreakdownReported;
+
 const {stampWorkOrderPlant, stampBreakdownPlant} = require("./src/machines/stampMachinePlant");
 
 exports.stampWorkOrderPlant = stampWorkOrderPlant;

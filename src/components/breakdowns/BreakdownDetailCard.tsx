@@ -124,6 +124,14 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
           </div>
         )}
 
+        {b.completionNotes && (
+          <div>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.completionNotes')}</p>
+            <TranslatedText as="p" className="text-slate-800 text-sm" text={b.completionNotes} />
+            {b.resolvedByName && <p className="text-xs text-slate-400 mt-1">{b.resolvedByName}</p>}
+          </div>
+        )}
+
         <div className="flex items-center gap-4 text-sm">
           <span className={`px-2 py-1 rounded text-xs font-medium ${b.machineStillRunning ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
             {b.machineStillRunning ? t('common.breakdowns.detailCard.machineStillRunning') : t('common.breakdowns.detailCard.machineStopped')}

@@ -2344,6 +2344,9 @@
       "pageTitle": "බිඳවැටීම්",
       "summary": "යන්ත්‍ර {{machineCount}} හරහා {{filter}} {{count}}",
       "reportViaQr": "QR මගින් වාර්තා කරන්න",
+      "attendedByInline": "හසුරුවන්නේ {{name}}",
+      "awaitingSignOff": "අත්සන් කිරීම බලා සිටී",
+      "selfAttendBusy": "ඔබ තවමත් {{ref}} {{machine}} හි සිටී. තවත් කාර්යයක් ගැනීමට පෙර වත්මන් කාර්යය යවන්න.",
       "reportBreakdown": "බිඳවැටීමක් වාර්තා කරන්න",
       "tabs": {
         "reported": "වාර්තා කළ",
@@ -2438,6 +2441,13 @@
         "attemptedFixesLabel": "උත්සාහ කළ විසඳුම්",
         "technicianFindingsLabel": "සිදු වූයේ කුමක්ද? (තාක්ෂණ ශිල්පී/අභ්‍යාසලාභී සොයාගැනීම්)",
         "technicianFindingsPlaceholder": "වාර්තා කළ අයගේ විස්තරයෙන් වෙන්ව, සිදු වූ දේ පිළිබඳ ඔබේම විස්තරය. නැතහොත් මයික් එක ඔබා අපට කියන්න.",
+        "quickFixLabel": "ඔබ කළ දේ සහ එය නිම කළ ආකාරය *",
+        "quickFixHint": "අඩු බරපතලකම: අලුත්වැඩියාව විස්තර කරන්න. යැවූ විට අත්සන් කිරීම සඳහා ඔබේ අධීක්ෂක වෙත යයි — වැඩ ඇණවුමක් අවශ්‍ය නොවේ.",
+        "quickFixPlaceholder": "ටයිප් කරන්න, නැතහොත් මයික් එක ස්පර්ශ කර කියන්න.",
+        "quickFixRequired": "යැවීමට පෙර ඔබ කළ දේ සහ එය නිම කළ ආකාරය විස්තර කරන්න.",
+        "submitForSignOff": "අත්සන් කිරීමට යවන්න",
+        "quickFixSubmitted": "යවන ලදී — අත්සන් කිරීම සඳහා ඔබේ අධීක්ෂක වෙත යැවිණි.",
+        "alreadyAttended": "මෙම බිඳවැටීම {{name}} දැනටමත් හසුරුවමින් සිටී.",
         "attachMediaLabel": "මාධ්‍ය අමුණන්න (ඡායාරූප/වීඩියෝ)",
         "filesSelected_one": "ගොනු {{count}}ක් තෝරා ඇත",
         "filesSelected_other": "ගොනු {{count}}ක් තෝරා ඇත",
@@ -2555,6 +2565,7 @@
         "empty": "දැනට කිසිදු තාක්ෂණ ශිල්පියෙක් හෝ අභ්‍යාසලාභියෙක් මුරයට පැමිණ නැත. ඔවුන්ගේ මුරය ආරම්භ කරන ලෙස ඉල්ලන්න, නැතහොත් යමෙකු රාජකාරියට පැමිණි පසු පවරන්න.",
         "unnamed": "නම් නොකළ",
         "onShift": "මුරයේ",
+        "busy": "කාර්යබහුල — {{ref}} හි",
         "cancel": "අවලංගු කරන්න",
         "assigning": "පවරමින්…",
         "assign": "පවරන්න"
@@ -2568,6 +2579,7 @@
         "productionImpact": "නිෂ්පාදන බලපෑම",
         "attemptedFixes": "උත්සාහ කළ විසඳුම්",
         "technicianFindings": "සිදු වූ දේ (තාක්ෂණ ශිල්පී/අභ්‍යාසලාභී සොයාගැනීම්)",
+        "completionNotes": "අලුත්වැඩියාව නිම කිරීමට කළ දේ",
         "assignedTechnicians": "පවරා ඇති තාක්ෂණ ශිල්පීන්",
         "attachedMedia": "අමුණා ඇති මාධ්‍ය",
         "attachmentAlt": "ඇමුණුම {{index}}",
@@ -2722,7 +2734,8 @@
         "noContractorTeamMembers": "මෙම කොන්ත්‍රාත්කරු සඳහා තවම කණ්ඩායම් සාමාජිකයින් ලියාපදිංචි කර නැත. කොන්ත්‍රාත්කරුගේ කණ්ඩායම් සාමාජිකයින් ටැබයේ ඔවුන් එක් කරන්න.",
         "assignInternalTechniciansLabel": "අභ්‍යන්තර තාක්ෂණ ශිල්පීන් පවරන්න",
         "optionalLabel": "(විකල්ප)",
-        "activeWOsInline": "සක්‍රිය WO {{count}}"
+        "activeWOsInline": "සක්‍රිය WO {{count}}",
+        "busyInline": "කාර්යබහුල — {{ref}} හි"
       },
       "technicianSheet": {
         "approvalAttachmentsLabel": "ඇමුණුම් (විකල්ප)",
