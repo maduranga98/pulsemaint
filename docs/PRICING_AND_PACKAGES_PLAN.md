@@ -1,6 +1,6 @@
 # FirmiCore pricing, limits and rollout plan (proposal — not implemented)
 
-> **Update 2026-10-16 (v3):** prices and limits below were revised after comparing MaintenancePro, FixAhead, MaintainX, UpKeep, Limble, Fiix, Hippo, eMaint, Atlas and local listings. The authoritative chart is `docs/FirmiCore-Pricing-Chart.pdf` (Starter $25, Growth $89, Factory $379, Enterprise from $1,499; light users 10/50/250; storage 5/50/500 GB; adds limits on inventory parts, POs, breakdown reports, PM schedules, contractors, training modules and scheduled reports). Where this file differs, the PDF wins; phases in §4 still apply.
+> **Update 2026-10-16 (v4 — Enterprise is a custom quote, nothing unlimited; see the last two pages of the PDF):** prices and limits below were revised after comparing MaintenancePro, FixAhead, MaintainX, UpKeep, Limble, Fiix, Hippo, eMaint, Atlas and local listings. The authoritative chart is `docs/FirmiCore-Pricing-Chart.pdf` (Starter $25, Growth $89, Factory $379, Enterprise from $1,499; light users 10/50/250; storage 5/50/500 GB; adds limits on inventory parts, POs, breakdown reports, PM schedules, contractors, training modules and scheduled reports). Where this file differs, the PDF wins; phases in §4 still apply.
 
 Status: **proposal for approval.** No code has been changed. Prices are USD per company per month.
 Unit costs marked (v) were checked against Google/Anthropic pricing pages via search; (a) are assumptions to be measured (see §6).
@@ -46,12 +46,11 @@ Records are never deleted; lookback only limits what dashboards load. At a stora
 Add-ons (≥3× cost): +50 GB $6 · extra full user $9 · extra light user $2 · 500 AI credits $25.
 Trial (14 days): everything except multi-plant, 1 GB, 20 credits, Starter user counts.
 
-### Enterprise = everything, unlimited
-- All feature flags true (including `multiSite`), every numeric limit `null`, `lookback = all`.
-- Sold by Lumora (superadmin sets the plan in the platform console; no self-serve Stripe price needed — same flow as today's `platformUpdateCompany`).
-- **"Unlimited" is a contract term, not an absence of monitoring.** A silent alert goes to `platformNotifications` when a company passes 2 TB stored or 5,000 AI credits/month; beyond that, cost-plus overage by contract. Without this, one heavy customer can erase the margin.
-- Margin check (300 full + 500 light users, 2 TB, 5,000 credits): cost ≈ $331 → **78%** margin; with 3× the read volume ≈ $542 → **64%**.
-- Listed Enterprise items that **do not exist in code**: SSO/SAML, public API/integrations, SLA support. Do not advertise them until built; remove from the Billing card or mark "on request". TPM/5S (`src/modules/tpm`, `fives`) are built but not routed — wire them or drop from the card.
+### Enterprise = custom quote, nothing unlimited
+- All modules available (including multi-plant), but **every limit and the price are set per contract**. The PDF's last two pages hold the unit-price table, sizing formulas, three worked quotes and the quoting rules (minimum $1,000/month, annual contract, prepay −15%, overage 1.5×, no "unlimited" line).
+- Implementation: Enterprise plan config stores per-company numeric limits on the company document (set by superadmin in the platform console) instead of `null`; `planLimitsFor` must read those overrides. Lumora sets the plan manually and invoices outside self-serve Stripe.
+- Worked margins: quote A (60 full + 200 light users, 600 machines) $2,253/mo, ≈ 90% (86% stress); quote B (3 plants, 150 full users) $5,549/mo, ≈ 87% (77% stress).
+- Listed Enterprise items that **do not exist in code**: SSO/SAML, public API/integrations, SLA support — quote only as scoped paid development. TPM/5S (`src/modules/tpm`, `fives`) are built but not routed.
 
 ### Margins at full use (cost model, see §6)
 | | Typical reads | Reads ×3 |
