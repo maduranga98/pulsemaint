@@ -6,8 +6,8 @@ import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
 import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
-import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
-import { PLAN_PRICES } from '../../lib/planCatalog';
+import { PLAN_LIMITS } from '../../lib/planLimits';
+import { COUNT_LIMIT_ROWS, PLAN_DISPLAY_NAME, PLAN_PRICES, formatLimit } from '../../lib/planCatalog';
 import { LockedFeaturesTable, PlanLimitsTable } from '../../components/billing/PlanComparisonTables';
 import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
 import CancellationReasonDialog from '../../components/billing/CancellationReasonDialog';
@@ -16,36 +16,6 @@ import { TERMS_VERSION } from '../../lib/legal/terms';
 
 type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
-
-interface PlanLimits {
-  plants: string;
-  machines: string;
-  inventoryItems: string;
-  pmSchedules: string;
-  workOrders: string;
-  users: string;
-}
-
-// "Unlimited" itself is translated at render time (t('common.billing.unlimited'))
-// — these display strings only carry the numbers/format, not full copy.
-function fmtNumber(n: number | null): string {
-  return n === null ? '' : n.toLocaleString();
-}
-
-// Derives the display strings from the single numeric source of truth
-// (PLAN_LIMITS in lib/planLimits.ts, also used for actual enforcement) so
-// this card's numbers can never drift from what's really enforced.
-function limitsFor(plan: Plan): PlanLimits {
-  const c: PlanLimitConfig = PLAN_LIMITS[plan];
-  return {
-    plants: fmtNumber(c.plants),
-    machines: fmtNumber(c.machines),
-    inventoryItems: fmtNumber(c.inventoryItems),
-    pmSchedules: fmtNumber(c.pmSchedules),
-    workOrders: c.workOrdersPerMonth === null ? '' : `${c.workOrdersPerMonth}`,
-    users: fmtNumber(c.users),
-  };
-}
 
 interface FeatureGroup {
   categoryKey: string;
@@ -61,14 +31,13 @@ interface PlanDef {
   icon: React.ReactNode;
   color: string;
   borderColor: string;
-  limits: PlanLimits;
   featureGroups: FeatureGroup[];
   highlight?: boolean;
 }
 
-// Yearly billing is discounted 20% off (roughly 2.4 months free) vs. paying
-// monthly on every paid plan — kept in sync with the customer-facing pricing
-// sheet (FirmiCore-Customer-Booklet.pdf) and the Product & Sales Catalog.
+// Yearly billing = pay 10 months, get 12 on every paid plan — kept in sync
+// with the customer-facing price chart. Limits and prices come from
+// planLimits.ts / planCatalog.ts.
 // Copy lives under common.billing.plans.<id>/common.billing.features.<key> in
 // the locale files — this array only holds the keys and the numbers.
 const PLANS: PlanDef[] = [
@@ -81,7 +50,6 @@ const PLANS: PlanDef[] = [
     icon: <Star className="h-5 w-5" />,
     color: 'text-slate-400',
     borderColor: 'border-slate-700',
-    limits: limitsFor('starter'),
     featureGroups: [
       {
         categoryKey: 'common.billing.categories.coreMaintenance',
@@ -91,11 +59,13 @@ const PLANS: PlanDef[] = [
           'basicWorkOrders',
           'pmSchedulesFeature',
           'inventoryPartsCatalog',
+          'purchaseOrdersSmall',
+          'reportsFeature',
         ],
       },
       {
-        categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['shiftHandoverBriefings', 'trainingSafetyWorkspace'],
+        categoryKey: 'common.billing.categories.analyticsReporting',
+        itemKeys: ['aiSuggestionsTranslation', 'noStorageLimit'],
       },
     ],
   },
@@ -108,20 +78,15 @@ const PLANS: PlanDef[] = [
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
     borderColor: 'border-blue-800/60',
-    limits: limitsFor('workshop'),
     featureGroups: [
-      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInBasicExporting'] },
+      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInStarter'] },
       {
         categoryKey: 'common.billing.categories.inventoryProcurement',
-        itemKeys: ['purchaseOrdersFeature', 'autoPoEmail', 'qrScanLowStock'],
+        itemKeys: ['autoPoEmail', 'qrScanLowStock'],
       },
       {
         categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['contractorManagement'],
-      },
-      {
-        categoryKey: 'common.billing.categories.analyticsReporting',
-        itemKeys: ['analyticsExportsSheets', 'aiSuggestionsTranslation'],
+        itemKeys: ['contractorManagement', 'shiftHandoverBriefings', 'trainingSafetyWorkspace'],
       },
     ],
   },
@@ -135,14 +100,12 @@ const PLANS: PlanDef[] = [
     color: 'text-violet-400',
     borderColor: 'border-violet-700/60',
     highlight: true,
-    limits: limitsFor('factory'),
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInWorkshop'] },
       {
         categoryKey: 'common.billing.categories.analyticsReporting',
-        itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature'],
+        itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature', 'kaizenEvaluations'],
       },
-      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['upToThreePlants'] },
     ],
   },
   {
@@ -154,12 +117,11 @@ const PLANS: PlanDef[] = [
     icon: <Building2 className="h-5 w-5" />,
     color: 'text-amber-400',
     borderColor: 'border-amber-700/50',
-    limits: limitsFor('enterprise'),
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInFactoryPro'] },
       {
         categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['sizedToYourCompany', 'pricedIndividually'],
+        itemKeys: ['multiPlantManagement', 'sizedToYourCompany', 'pricedIndividually'],
       },
     ],
   },
@@ -169,14 +131,17 @@ const PLANS: PlanDef[] = [
 // locale files yet, so they render in English (and in the other languages
 // until translated) via defaultValue.
 const NEW_FEATURE_TEXT: Record<string, string> = {
-  purchaseOrdersFeature: 'Purchase orders',
-  analyticsExportsSheets: 'Analytics, report exports & Google Sheets export',
-  aiSuggestionsTranslation: 'AI suggestions & translation',
+  purchaseOrdersSmall: 'Suppliers & purchase orders',
+  reportsFeature: 'Reports & CSV export',
+  noStorageLimit: 'No storage limit · 13 languages (Sinhala, Tamil)',
+  everythingInStarter: 'Everything in {{basicName}}',
+  aiSuggestionsTranslation: 'AI suggestions & translation (monthly credits)',
   advancedAnalyticsFeature: 'Advanced analytics: plants & team tabs, scheduled reports',
   auditsFeature: 'Audits',
-  upToThreePlants: 'Up to 3 plants in the company',
-  sizedToYourCompany: 'Users, plants, machines and more sized to your company',
-  pricedIndividually: 'Priced individually for your company',
+  kaizenEvaluations: 'Kaizen & evaluations',
+  multiPlantManagement: 'Multi-plant management',
+  sizedToYourCompany: 'Every limit is a number in your contract',
+  pricedIndividually: 'Custom quote — from $1,000 / month, annual contract',
 };
 
 const PLAN_RANK: Record<Plan, number> = {
@@ -419,7 +384,7 @@ export default function BillingPage() {
             >
               {cycle === 'yearly' ? t('common.billing.cycle.yearlyPlans') : t('common.billing.cycle.monthlyPlans')}
               {cycle === 'yearly' && (
-                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">{t('common.billing.cycle.save20')}</span>
+                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">{t('common.billing.cycle.twoMonthsFree', { defaultValue: '2 months free' })}</span>
               )}
             </button>
           ))}
@@ -437,7 +402,7 @@ export default function BillingPage() {
           const isDowngrade = kind === 'downgrade';
           const isEnterprise = plan.id === 'enterprise';
           const price = planPrice(plan, billingCycle);
-          const planName = t(plan.nameKey);
+          const planName = PLAN_DISPLAY_NAME[plan.id];
 
           return (
             <div
@@ -487,33 +452,17 @@ export default function BillingPage() {
               {/* Plan limits */}
               <div className="rounded-lg bg-[#0A1628] border border-[#1E3A5F] p-3">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">{t('common.billing.limits.title')}</p>
-                <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                  {([
-                    ['users', 'common.billing.limits.users', plan.limits.users],
-                    ['plants', 'common.billing.limits.plants', plan.limits.plants],
-                    ['machines', 'common.billing.limits.machines', plan.limits.machines],
-                    ['inventoryItems', 'common.billing.limits.inventoryItems', plan.limits.inventoryItems],
-                    ['pmSchedules', 'common.billing.limits.pmSchedules', plan.limits.pmSchedules],
-                  ] as const).map(([id, labelKey, value]) => (
-                    <div key={id} className="flex justify-between gap-2">
-                      <dt className="text-slate-400">
-                        {t(labelKey, { defaultValue: id === 'plants' ? 'Plants' : undefined })}
-                      </dt>
-                      <dd className="font-semibold text-slate-200">
-                        {isEnterprise ? t('common.billing.customPrice') : value || t('common.billing.unlimited')}
+                <dl className="grid grid-cols-1 gap-y-1 text-xs">
+                  {COUNT_LIMIT_ROWS.map((row) => (
+                    <div key={row.key} className="flex justify-between gap-2">
+                      <dt className="text-slate-400">{row.label}</dt>
+                      <dd className="font-semibold text-slate-200 text-right">
+                        {isEnterprise
+                          ? t('common.billing.customPrice')
+                          : formatLimit(PLAN_LIMITS[plan.id][row.key], row.perMonth, row.months)}
                       </dd>
                     </div>
                   ))}
-                  <div className="flex justify-between gap-2 col-span-2">
-                    <dt className="text-slate-400">{t('common.billing.limits.workOrders')}</dt>
-                    <dd className="font-semibold text-slate-200">
-                      {isEnterprise
-                        ? t('common.billing.customPrice')
-                        : plan.limits.workOrders
-                        ? t('common.billing.limits.perMonthValue', { count: plan.limits.workOrders })
-                        : t('common.billing.unlimited')}
-                    </dd>
-                  </div>
                 </dl>
               </div>
 
@@ -530,9 +479,9 @@ export default function BillingPage() {
                           <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
                           {t(`common.billing.features.${key}`, {
                             defaultValue: NEW_FEATURE_TEXT[key],
-                            basicName: t('common.billing.plans.starter.name'),
-                            workshopName: t('common.billing.plans.workshop.name'),
-                            factoryName: t('common.billing.plans.factory.name'),
+                            basicName: PLAN_DISPLAY_NAME.starter,
+                            workshopName: PLAN_DISPLAY_NAME.workshop,
+                            factoryName: PLAN_DISPLAY_NAME.factory,
                           })}
                         </li>
                       ))}

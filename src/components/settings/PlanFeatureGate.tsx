@@ -19,6 +19,8 @@ const FEATURE_LABEL: Record<FeatureKey, string> = {
   moeAnalytics: 'MOE trend analytics & machine comparison',
   advancedAnalytics: 'Advanced analytics',
   audits: 'Audits',
+  kaizen: 'Kaizen',
+  evaluations: 'Evaluations',
 };
 
 interface PlanFeatureGateProps {

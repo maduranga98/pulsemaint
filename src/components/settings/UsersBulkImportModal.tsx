@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Upload, Download, AlertCircle, CheckCircle, FileSpreadsheet } from 'lucide-react';
 import type { UserRole } from '@/types/auth';
-import { MAX_IMPORT_ROWS, MAX_IMPORT_FILE_BYTES } from '@/lib/planLimits';
+import { MAX_IMPORT_ROWS, MAX_IMPORT_FILE_BYTES, isLightUserRole } from '@/lib/planLimits';
 
 /**
  * PM-081 — Import Users via a downloadable Excel template; on upload,
@@ -33,6 +33,8 @@ export interface ParsedUserRow {
 interface Props {
   /** Seats left on the plan (null = unlimited). Imports with more valid rows than this are blocked. */
   remainingSeats?: number | null;
+  /** Seats left for floor operators / trainees (light users); null = unlimited. */
+  remainingLightSeats?: number | null;
   /** Plant names available for the "Plant" column, e.g. from usePlants(companyId). Pass [] if plants aren't in use. */
   plantNames: string[];
   onClose: () => void;
@@ -44,7 +46,7 @@ function normalizeRole(value: string): UserRole | null {
   return (VALID_ROLES as string[]).includes(v) ? (v as UserRole) : null;
 }
 
-export function UsersBulkImportModal({ plantNames, remainingSeats = null, onClose, onImport }: Props) {
+export function UsersBulkImportModal({ plantNames, remainingSeats = null, remainingLightSeats = null, onClose, onImport }: Props) {
   const { t } = useTranslation();
   const [rows, setRows] = useState<ParsedUserRow[]>([]);
   const [fileName, setFileName] = useState('');
@@ -111,9 +113,14 @@ export function UsersBulkImportModal({ plantNames, remainingSeats = null, onClos
         };
       });
 
-      const validCount = parsed.filter((r) => !r.error).length;
-      if (remainingSeats !== null && validCount > remainingSeats) {
-        throw new Error(t('common.settings.users.bulkImport.overPlanLimit', 'Import blocked: {{count}} new user(s) would exceed your plan limit. You can add {{remaining}} more. Remove rows or upgrade your plan.', { count: validCount, remaining: remainingSeats }));
+      const valid = parsed.filter((r) => !r.error);
+      const validLight = valid.filter((r) => isLightUserRole(r.role)).length;
+      const validFull = valid.length - validLight;
+      if (remainingSeats !== null && validFull > remainingSeats) {
+        throw new Error(t('common.settings.users.bulkImport.overPlanLimit', 'Import blocked: {{count}} new user(s) would exceed your plan limit. You can add {{remaining}} more. Remove rows or upgrade your plan.', { count: validFull, remaining: remainingSeats }));
+      }
+      if (remainingLightSeats !== null && validLight > remainingLightSeats) {
+        throw new Error(`Import blocked: ${validLight} new operator/trainee user(s) would exceed your light-user limit. You can add ${remainingLightSeats} more. Remove rows or upgrade your plan.`);
       }
 
       if (parsed.length === 0) {

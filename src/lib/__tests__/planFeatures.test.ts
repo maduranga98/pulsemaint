@@ -30,8 +30,17 @@ describe('isFeatureAvailable', () => {
     expect(isFeatureAvailable(trial(-1), 'contractors')).toBe(false);
   });
   it('follows the plan matrix for active companies', () => {
-    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(true);
-    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'purchaseOrders')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'shiftHandover')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'safety')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'purchaseOrders')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'autoPOEmail')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'analyticsReports')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'aiAssist')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'training')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'kaizen')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'evaluations')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'factory', status: 'active' }, 'kaizen')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'purchaseOrders')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'analyticsReports')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'moeAnalytics')).toBe(false);
@@ -52,6 +61,8 @@ describe('featureForPath', () => {
     expect(featureForPath('/app/analytics')).toBe('analyticsReports');
     expect(featureForPath('/app/reports/history')).toBe('analyticsReports');
     expect(featureForPath('/app/audit')).toBe('audits');
+    expect(featureForPath('/app/kaizen/new')).toBe('kaizen');
+    expect(featureForPath('/app/evaluations')).toBe('evaluations');
   });
   it('leaves other pages alone', () => {
     expect(featureForPath('/app/shift/my')).toBeNull();

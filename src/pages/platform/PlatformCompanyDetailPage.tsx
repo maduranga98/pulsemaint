@@ -191,7 +191,7 @@ export default function PlatformCompanyDetailPage() {
                 return (
                   <tr key={r.key} className="border-b border-[#1E3A5F]/60 last:border-0">
                     <td className="py-1.5 text-slate-400">{r.label}</td>
-                    <td className="py-1.5 font-semibold">{formatLimit(effective[r.key], r.perMonth)}</td>
+                    <td className="py-1.5 font-semibold">{formatLimit(effective[r.key], r.perMonth, r.months)}</td>
                     <td className="py-1.5 text-xs text-amber-300">{overridden ? 'set for this company' : ''}</td>
                   </tr>
                 );
@@ -451,7 +451,7 @@ export default function PlatformCompanyDetailPage() {
                     <input
                       className={input}
                       value={limitInputs[r.key] ?? ''}
-                      placeholder={`Plan: ${formatLimit(planLimitsFor(c.plan)[r.key])}`}
+                      placeholder={`Plan: ${formatLimit(planLimitsFor(c.plan)[r.key], false, r.months)}`}
                       onChange={(e) => setLimitInputs((m) => ({ ...m, [r.key]: e.target.value }))}
                     />
                   </label>

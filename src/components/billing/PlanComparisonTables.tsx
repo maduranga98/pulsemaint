@@ -4,6 +4,8 @@ import {
   ADDONS,
   COUNT_LIMIT_ROWS,
   ENTERPRISE_PLANS,
+  ENTERPRISE_RATE_CARD,
+  ENTERPRISE_RULES,
   LOCKED_FEATURE_ROWS,
   OPEN_ON_EVERY_PLAN,
   PLAN_DISPLAY_NAME,
@@ -25,11 +27,11 @@ function Heading({ title, note }: { title: string; note?: string }) {
   );
 }
 
-/** Count limits of Starter, Workshop, Factory and Enterprise (Enterprise is sized per customer). */
+/** Count limits of Starter, Growth, Factory and Enterprise (Enterprise is sized per customer). */
 export function PlanLimitsTable() {
   return (
     <section>
-      <Heading title="Plan limits" note="Counts apply to the whole company. File storage is not limited on any plan." />
+      <Heading title="Plan limits" note="Counts apply to the whole company. Yearly billing = pay 10 months, get 12. File storage is not limited on any plan." />
       <div className={BOX}>
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
@@ -43,7 +45,7 @@ export function PlanLimitsTable() {
               <td className={`${TD} text-slate-400`}>Price / month</td>
               {PLAN_ORDER.map((p) => (
                 <td key={p} className={`${TD} font-semibold`}>
-                  {PLAN_PRICES[p].monthly === null ? 'Custom' : `$${PLAN_PRICES[p].monthly}`}
+                  {PLAN_PRICES[p].monthly === null ? `from $${(PLAN_PRICES[p].minMonthly ?? 0).toLocaleString('en-US')}` : `$${PLAN_PRICES[p].monthly}`}
                 </td>
               ))}
             </tr>
@@ -51,7 +53,7 @@ export function PlanLimitsTable() {
               <td className={`${TD} text-slate-400`}>Price / year</td>
               {PLAN_ORDER.map((p) => (
                 <td key={p} className={`${TD} font-semibold`}>
-                  {PLAN_PRICES[p].yearly === null ? 'Custom' : `$${PLAN_PRICES[p].yearly.toLocaleString('en-US')}`}
+                  {PLAN_PRICES[p].yearly === null ? 'Annual contract' : `$${PLAN_PRICES[p].yearly.toLocaleString('en-US')}`}
                 </td>
               ))}
             </tr>
@@ -60,7 +62,7 @@ export function PlanLimitsTable() {
                 <td className={`${TD} text-slate-400`}>{row.label}</td>
                 {PLAN_ORDER.map((p) => (
                   <td key={p} className={TD}>
-                    {p === 'enterprise' ? 'Custom' : formatLimit(PLAN_LIMITS[p][row.key], row.perMonth)}
+                    {p === 'enterprise' ? 'Custom' : formatLimit(PLAN_LIMITS[p][row.key], row.perMonth, row.months)}
                   </td>
                 ))}
               </tr>
@@ -76,7 +78,7 @@ export function PlanLimitsTable() {
 export function LockedFeaturesTable() {
   return (
     <section>
-      <Heading title="Locked features" note="Only the main and heavy-data features are locked; everything else is open on every plan." />
+      <Heading title="Features by plan" note="Only the main and heavy-data features differ; everything else is open on every plan." />
       <div className={BOX}>
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
@@ -97,7 +99,7 @@ export function LockedFeaturesTable() {
               </tr>
             ))}
             <tr>
-              <td className={TD}>More than 1 plant</td>
+              <td className={TD}>Multi-plant management</td>
               {PLAN_ORDER.map((p) => {
                 const plants = PLAN_LIMITS[p].plants;
                 return (
@@ -125,46 +127,67 @@ function Mark({ on, label }: { on: boolean; label?: string }) {
   );
 }
 
-/** Sized Enterprise plans with list prices — platform console only. */
+/** Enterprise limit presets, rate card and rules — platform console only. */
 export function EnterprisePlansTable() {
   return (
-    <section>
-      <Heading title="Enterprise plans" note="List prices to quote from — every Enterprise plan is priced individually per customer and includes every feature." />
-      <div className={BOX}>
-        <table className="w-full min-w-[640px] border-collapse">
-          <thead>
-            <tr className="border-b border-[#1E3A5F]">
-              <th className={TH}> </th>
-              {ENTERPRISE_PLANS.map((e) => <th key={e.id} className={TH}>{e.name}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-[#1E3A5F]/60">
-              <td className={`${TD} text-slate-400`}>Price / month</td>
-              {ENTERPRISE_PLANS.map((e) => (
-                <td key={e.id} className={`${TD} font-semibold`}>{e.from ? 'From ' : ''}${e.monthly.toLocaleString('en-US')}{e.from ? ' (quote)' : ''}</td>
-              ))}
-            </tr>
-            <tr className="border-b border-[#1E3A5F]/60">
-              <td className={`${TD} text-slate-400`}>Price / year</td>
-              {ENTERPRISE_PLANS.map((e) => (
-                <td key={e.id} className={`${TD} font-semibold`}>{e.from ? 'From ' : ''}${e.yearly.toLocaleString('en-US')}{e.from ? ' (quote)' : ''}</td>
-              ))}
-            </tr>
-            {COUNT_LIMIT_ROWS.map((row) => (
-              <tr key={row.key} className="border-b border-[#1E3A5F]/60 last:border-0">
-                <td className={`${TD} text-slate-400`}>{row.label}</td>
-                {ENTERPRISE_PLANS.map((e) => (
-                  <td key={e.id} className={TD}>{formatLimit(ENTERPRISE_TIER_LIMITS[e.id][row.key], row.perMonth)}</td>
-                ))}
+    <section className="space-y-6">
+      <div>
+        <Heading
+          title="Enterprise: limit presets"
+          note={`Starting sizes to put a company on. Enterprise is quoted per customer from the rate card below — minimum $${(PLAN_PRICES.enterprise.minMonthly ?? 0).toLocaleString('en-US')} / month, annual contract — and includes every feature.`}
+        />
+        <div className={BOX}>
+          <table className="w-full min-w-[640px] border-collapse">
+            <thead>
+              <tr className="border-b border-[#1E3A5F]">
+                <th className={TH}> </th>
+                {ENTERPRISE_PLANS.map((e) => <th key={e.id} className={TH}>{e.name}</th>)}
               </tr>
-            ))}
-            <tr>
-              <td className={`${TD} text-slate-400`}>All locked features</td>
-              {ENTERPRISE_PLANS.map((e) => <td key={e.id} className={TD}><Mark on /></td>)}
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {COUNT_LIMIT_ROWS.map((row) => (
+                <tr key={row.key} className="border-b border-[#1E3A5F]/60 last:border-0">
+                  <td className={`${TD} text-slate-400`}>{row.label}</td>
+                  {ENTERPRISE_PLANS.map((e) => (
+                    <td key={e.id} className={TD}>{formatLimit(ENTERPRISE_TIER_LIMITS[e.id][row.key], row.perMonth, row.months)}</td>
+                  ))}
+                </tr>
+              ))}
+              <tr>
+                <td className={`${TD} text-slate-400`}>All features</td>
+                {ENTERPRISE_PLANS.map((e) => <td key={e.id} className={TD}><Mark on /></td>)}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <Heading title="Enterprise: how a quote is built" note="Every limit is a number in the contract. Add the lines you need." />
+        <div className={BOX}>
+          <table className="w-full min-w-[640px] border-collapse">
+            <thead>
+              <tr className="border-b border-[#1E3A5F]">
+                <th className={TH}>Line</th>
+                <th className={TH}>How we set the limit</th>
+                <th className={TH}>Price</th>
+                <th className={TH}>Volume price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ENTERPRISE_RATE_CARD.map((r) => (
+                <tr key={r.line} className="border-b border-[#1E3A5F]/60 last:border-0">
+                  <td className={`${TD} font-medium`}>{r.line}</td>
+                  <td className={`${TD} text-slate-400`}>{r.limit}</td>
+                  <td className={`${TD} font-semibold`}>{r.price}</td>
+                  <td className={`${TD} text-slate-400`}>{r.volume ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <ul className="mt-2 list-disc pl-5 text-xs text-slate-400 space-y-0.5">
+          {ENTERPRISE_RULES.map((r) => <li key={r}>{r}</li>)}
+        </ul>
       </div>
     </section>
   );
@@ -174,7 +197,7 @@ export function EnterprisePlansTable() {
 export function AddOnsTable() {
   return (
     <section>
-      <Heading title="Add-ons" note="Sold by Lumora and applied to a company as limit overrides on its detail page." />
+      <Heading title="Add-ons (any paid plan)" note="Sold by Lumora and applied to a company as limit overrides on its detail page." />
       <div className={BOX}>
         <table className="w-full min-w-[420px] border-collapse">
           <thead>

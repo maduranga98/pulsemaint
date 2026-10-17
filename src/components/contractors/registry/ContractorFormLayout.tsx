@@ -9,6 +9,7 @@ import { useContractor } from '@/hooks/contractors/useContractor';
 import { useContractorDocuments } from '@/hooks/contractors/useContractorDocuments';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
+import { assertWithinPlanLimit } from '@/hooks/usePlanLimitCheck';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 import ContractorFormSection1 from './ContractorFormSection1';
 import ContractorFormSection2 from './ContractorFormSection2';
@@ -47,6 +48,7 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
   const { plantId: scopedPlantId } = useDepartmentScope();
   const access = useContractorAccess();
   const companyId = userProfile?.companyId;
+  const company = useAuthStore((s) => s.company);
   const { contractorId } = useParams<{ contractorId: string }>();
   const { contractor, loading: loadingContractor } = useContractor(mode === 'edit' ? contractorId : undefined);
   // Previously-uploaded documents, so the edit form shows the "Initial
@@ -217,6 +219,7 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       createdAt: serverTimestamp(),
       createdBy: userProfile?.id ?? null,
     };
+    if (companyId) await assertWithinPlanLimit('contractors', companyId, company);
     const docRef = await addDoc(collection(db, 'contractors'), createPayload);
     return docRef.id;
   }

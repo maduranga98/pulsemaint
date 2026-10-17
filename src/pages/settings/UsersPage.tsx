@@ -33,6 +33,7 @@ import { useShiftConfig } from '../../hooks/useShiftConfig';
 import { useDepartments } from '../../hooks/useDepartments';
 import { usePlants } from '../../hooks/usePlants';
 import { usePlanLimitCheck } from '../../hooks/usePlanLimitCheck';
+import { isLightUserRole } from '../../lib/planLimits';
 import {
   createInvitation,
   getCompanyInvitations,
@@ -263,6 +264,9 @@ export default function UsersPage() {
   const canManageUsers = currentUser?.role === 'admin' || currentUser?.role === 'plant_manager' || currentUser?.role === 'hr_officer';
   const toast = useToast();
   const userLimit = usePlanLimitCheck('users');
+  const lightUserLimit = usePlanLimitCheck('lightUsers');
+  // Floor operators and trainees count against the light-user cap; every other role against full users.
+  const seatLimitFor = (role: string) => (isLightUserRole(role) ? lightUserLimit : userLimit);
   const { shifts, reload: reloadShifts } = useShiftConfig();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -384,6 +388,13 @@ export default function UsersPage() {
 
   const handleEdit = async (userId: string, values: UserFormValues) => {
     if (!company?.id) throw new Error('No company in session');
+    // Moving someone between a light seat (operator/trainee) and a full seat
+    // uses up the other cap, so it needs the same check as inviting.
+    const before = users.find((u) => u.id === userId);
+    if (before && isLightUserRole(before.role) !== isLightUserRole(values.role)) {
+      const target = seatLimitFor(values.role);
+      if (target.atLimit) throw new Error(target.message ?? 'User limit reached on your current plan.');
+    }
     const ref = doc(db, `companies/${company.id}/users/${userId}`);
     await updateDoc(ref, {
       fullName: values.fullName.trim(),
@@ -410,8 +421,9 @@ export default function UsersPage() {
 
   const handleInvite = async (values: InviteFormValues) => {
     if (!company?.id || !currentUser) throw new Error('No company in session');
-    if (userLimit.atLimit) {
-      throw new Error(userLimit.message ?? 'User limit reached on your current plan.');
+    const seatLimit = seatLimitFor(values.role);
+    if (seatLimit.atLimit) {
+      throw new Error(seatLimit.message ?? 'User limit reached on your current plan.');
     }
     const isTrainee = values.role === 'trainee';
     const trainingStart = isTrainee && values.trainingStartDate ? new Date(values.trainingStartDate) : null;
@@ -457,16 +469,19 @@ export default function UsersPage() {
     // Re-check right before each row too (userLimit.count is a snapshot from
     // when the page loaded) so a large CSV stops at the plan's actual cap
     // instead of creating everything then reporting failures after the fact.
-    const userCap = userLimit.limit;
+    // Counts added in this import, per seat type, on top of the snapshot.
+    const createdBySeat = { full: 0, light: 0 };
     // Departments named in the file, per plant — any the plant doesn't have
     // yet are added to it once the invitations are created.
     const departmentsByPlant = new Map<string, string[]>();
     // Admin's selected plant tab is the default plant for rows with no Plant.
     const adminTabPlantId = useActivePlantStore.getState().activePlantId;
     for (const row of rows) {
-      if (userCap !== null && userLimit.count + created >= userCap) {
+      const rowSeat = seatLimitFor(row.role);
+      const seatKey = isLightUserRole(row.role) ? 'light' : 'full';
+      if (rowSeat.limit !== null && rowSeat.count + createdBySeat[seatKey] >= rowSeat.limit) {
         failed += 1;
-        errors.push(`${row.email}: user limit reached on your current plan`);
+        errors.push(`${row.email}: ${seatKey} user limit reached on your current plan`);
         continue;
       }
       try {
@@ -496,6 +511,7 @@ export default function UsersPage() {
           invitedByName: currentUser.fullName,
         }, t);
         created += 1;
+        createdBySeat[seatKey] += 1;
         if (plantId && department) {
           departmentsByPlant.set(plantId, [...(departmentsByPlant.get(plantId) ?? []), department]);
         }
@@ -928,6 +944,7 @@ export default function UsersPage() {
       {importOpen && (
         <UsersBulkImportModal
           remainingSeats={userLimit.limit === null ? null : Math.max(0, userLimit.limit - userLimit.count)}
+          remainingLightSeats={lightUserLimit.limit === null ? null : Math.max(0, lightUserLimit.limit - lightUserLimit.count)}
           plantNames={activePlants.map((p) => p.name)}
           onClose={() => setImportOpen(false)}
           onImport={handleBulkImport}

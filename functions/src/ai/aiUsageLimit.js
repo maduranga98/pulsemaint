@@ -9,6 +9,7 @@
  */
 const {HttpsError} = require("firebase-functions/v2/https");
 const {FieldValue} = require("firebase-admin/firestore");
+const {aiCreditLimit} = require("../lib/planFeatures");
 
 const num = (name, fallback) => {
   const v = Number(process.env[name]);
@@ -41,4 +42,38 @@ async function consumeAiQuota(db, {uid, companyId}, now = new Date()) {
   });
 }
 
-module.exports = {consumeAiQuota, PER_USER_PER_HOUR, PER_COMPANY_PER_DAY, hourKey, dayKey};
+const monthKey = (now) => now.toISOString().slice(0, 7); // 2026-10
+
+/**
+ * Charges `cost` AI credits (1 = a normal suggestion, 6 = one with web
+ * research) against the company's monthly allowance from its plan — see
+ * aiCreditLimit() in lib/planFeatures.js — or throws resource-exhausted.
+ * Counters live in `aiUsage/credits_{companyId}_{YYYY-MM}`. Returns the
+ * credits used and the allowance (null = unlimited).
+ */
+async function consumeMonthlyCredits(db, {companyId, cost}, now = new Date()) {
+  if (!companyId) return {used: 0, limit: null};
+  const companySnap = await db.collection("companies").doc(companyId).get();
+  const limit = aiCreditLimit(companySnap.exists ? companySnap.data() : null);
+  const ref = db.collection("aiUsage").doc(`credits_${companyId}_${monthKey(now)}`);
+  const used = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const current = snap.exists ? snap.get("used") || 0 : 0;
+    if (limit !== null && current + cost > limit) {
+      throw new HttpsError("resource-exhausted",
+          `Your plan's ${limit} AI credits for this month are used up. Add credits or upgrade to continue.`);
+    }
+    tx.set(ref, {used: current + cost, companyId, month: monthKey(now), updatedAt: FieldValue.serverTimestamp()}, {merge: true});
+    return current + cost;
+  });
+  return {used, limit};
+}
+
+/** Gives credits back when the AI provider failed after they were charged. */
+async function refundMonthlyCredits(db, {companyId, cost}, now = new Date()) {
+  if (!companyId) return;
+  const ref = db.collection("aiUsage").doc(`credits_${companyId}_${monthKey(now)}`);
+  await ref.set({used: FieldValue.increment(-cost), updatedAt: FieldValue.serverTimestamp()}, {merge: true}).catch(() => {});
+}
+
+module.exports = {consumeAiQuota, consumeMonthlyCredits, refundMonthlyCredits, monthKey, PER_USER_PER_HOUR, PER_COMPANY_PER_DAY, hourKey, dayKey};

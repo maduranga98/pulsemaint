@@ -24,6 +24,8 @@ import type {
 import ModuleAssignForm from '../ModuleAssignForm';
 import ModuleStatusBadge from './shared/ModuleStatusBadge';
 import { LibraryEmpty, LibraryLoading } from './shared/LibraryStates';
+import { checkPlanLimit } from '@/hooks/usePlanLimitCheck';
+import { toast } from 'sonner';
 
 const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor', 'safety_officer'];
 // Safety Training modules live exclusively on the Safety Trainings page —
@@ -61,6 +63,7 @@ export default function TrainingModuleLibrary({
   const role = useAuthStore((s) => s.userProfile?.role);
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
+  const company = useAuthStore((s) => s.company);
   const canAuthor = !!role && CAN_AUTHOR_ROLES.includes(role);
   // Matches the firestore.rules delete rule for trainingModules — admin only.
   const canDelete = role === 'admin';
@@ -99,7 +102,13 @@ export default function TrainingModuleLibrary({
     if (!companyId || !userId) return;
     setSeeding(true);
     try {
-      for (const sample of sampleTrainingLibraryModules()) {
+      const samples = sampleTrainingLibraryModules();
+      const blocked = await checkPlanLimit('trainingModules', companyId, company, samples.length);
+      if (blocked) {
+        toast.error(blocked);
+        return;
+      }
+      for (const sample of samples) {
         const { quiz: practiceQuiz, finalTest, ...rest } = sample;
         await addDoc(collection(db, 'trainingModules'), {
           ...rest,
