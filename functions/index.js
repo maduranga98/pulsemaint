@@ -97,8 +97,11 @@ exports.reactivateMachineOnWOSignOff = reactivateMachineOnWOSignOff;
 // ---------------------------------------------------------------------------
 
 const { notifyBreakdownReported } = require("./src/breakdowns/notifyBreakdownReported");
+const { escalateUnackedBreakdowns, cleanupOldNotifications } = require("./src/notifications/notificationAutomation");
 
 exports.notifyBreakdownReported = notifyBreakdownReported;
+exports.escalateUnackedBreakdowns = escalateUnackedBreakdowns;
+exports.cleanupOldNotifications = cleanupOldNotifications;
 
 const {stampWorkOrderPlant, stampBreakdownPlant} = require("./src/machines/stampMachinePlant");
 

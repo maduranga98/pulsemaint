@@ -22,6 +22,7 @@ exports.checkUnacceptedHandovers = onSchedule("every 30 minutes", async () => {
       body: `${handover.shiftName} handover has been pending for ${ageMinutes} minutes.`,
       targetRoles: ageMinutes >= 60 ? ["plant_manager", "admin"] : ["plant_manager"],
       handoverId: doc.id,
+      dedupeKey: `handover-unaccepted:${doc.id}:${level}`,
       channel: ["push", "sms"],
     });
 

@@ -1872,7 +1872,11 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      // Readers may only mark a notification read (add themselves to
+      // readBy / flip read) — never rewrite its message, targeting or
+      // company.
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy', 'read']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role == 'admin';
     }

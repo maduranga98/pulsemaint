@@ -1,4 +1,5 @@
 const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {sendNotification} = require("../lib/notify");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const logger = require("firebase-functions/logger");
@@ -93,14 +94,14 @@ exports.onOffboardTrainingCompleted = onDocumentUpdated(
         lastActivityAt: FieldValue.serverTimestamp(),
       });
 
-      await db.collection("companies").doc(companyId).collection("notificationLogs").add({
-        type: "offboard_training_completed",
-        title: "Offboard training report submitted",
-        body: `${after.traineeName || "An employee"} submitted their knowledge report for "${after.moduleName || "an offboard training"}".`,
-        assignmentId: event.params.assignmentId,
-        targetUserIds: [after.assignedBy].filter(Boolean),
-        targetRoles: ["hr_officer"],
-        createdAt: FieldValue.serverTimestamp(),
+      await sendNotification(db, {
+        companyId,
+        type: "training",
+        message: `${after.traineeName || "An employee"} submitted their knowledge report for "${after.moduleName || "an offboard training"}"`,
+        linkTo: "/app/training",
+        roles: ["hr_officer"],
+        userIds: [after.assignedBy],
+        dedupeKey: `offboard-completed:${event.params.assignmentId}`,
       });
     } catch (err) {
       logger.error("onOffboardTrainingCompleted failed to finalize", {error: err.message, assignmentId: event.params.assignmentId});
