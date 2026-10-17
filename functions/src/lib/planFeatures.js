@@ -40,8 +40,8 @@ function aiCreditsLimit(company) {
 // src/lib/planLimits.ts — keep the two in sync (a unit test compares them).
 const COUNT_LIMITS = {
   starter: {fullUsers: 3, lightUsers: 10, plants: 1, machines: 15, inventoryItems: 100, pmSchedules: 30},
-  workshop: {fullUsers: 10, lightUsers: 50, plants: 1, machines: 75, inventoryItems: 2000, pmSchedules: 400},
-  factory: {fullUsers: 40, lightUsers: 250, plants: 1, machines: 400, inventoryItems: 10000, pmSchedules: 3000},
+  workshop: {fullUsers: 10, lightUsers: 50, plants: 3, machines: 75, inventoryItems: 2000, pmSchedules: 400},
+  factory: {fullUsers: 40, lightUsers: 250, plants: 5, machines: 400, inventoryItems: 10000, pmSchedules: 3000},
   enterprise: {fullUsers: null, lightUsers: null, plants: null, machines: null, inventoryItems: null, pmSchedules: null},
 };
 const ENTERPRISE_TIER_COUNTS = {

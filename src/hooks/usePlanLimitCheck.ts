@@ -6,13 +6,15 @@ import { useAuthStore } from '../store/authStore';
 import { limitsForCompany, isAtOrOverLimit, seatTypeForRole, seatCountsFrom, LIGHT_USER_ROLES, type SeatType } from '../lib/planLimits';
 import { PLAN_DISPLAY_NAME } from '../lib/planCatalog';
 
-export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'plants';
+export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'plants' | 'contractors' | 'trainingModules';
 
 const RESOURCE_LABEL: Record<CountedResource, string> = {
   machines: 'machine',
   inventoryItems: 'inventory item',
   pmSchedules: 'PM schedule',
   plants: 'plant',
+  contractors: 'contractor',
+  trainingModules: 'training module',
 };
 
 interface UsePlanLimitCheckResult {
@@ -36,21 +38,21 @@ function planDisplayName(plan: string | undefined): string {
 export async function fetchResourceCount(resource: CountedResource, companyId: string): Promise<number> {
   // Plants are company-level records every member can read; the rest are counted by
   // the server, because plant-scoped roles may only read their own plant's records.
-  if (resource === 'plants') return countDirect(resource, companyId);
-  return countViaServer(resource, companyId, () => countDirect(resource, companyId));
+  if (resource === 'plants' || resource === 'contractors' || resource === 'trainingModules') return countDirect(resource, companyId);
+  return countViaServer(resource as UsageResource, companyId, () => countDirect(resource, companyId));
 }
 
-type UsageResource = Exclude<CountedResource, 'plants'>;
+type UsageResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'breakdownsThisMonth' | 'workOrdersThisMonth';
 
 /**
  * The company-wide count, from the getPlanUsage function: plan limits are per
  * company, but plant-scoped roles may only read their own plant's records.
  * Falls back to counting directly while the function isn't deployed yet.
  */
-async function countViaServer(resource: CountedResource, companyId: string, direct: () => Promise<number>): Promise<number> {
+async function countViaServer(resource: UsageResource, companyId: string, direct: () => Promise<number>): Promise<number> {
   try {
     const call = httpsCallable<{ companyId: string; resource: UsageResource }, { count: number }>(functions, 'getPlanUsage');
-    const res = await call({ companyId, resource: resource as UsageResource });
+    const res = await call({ companyId, resource });
     return Number(res.data.count) || 0;
   } catch (err) {
     const code = (err as { code?: string }).code ?? '';
@@ -74,6 +76,12 @@ async function countDirect(resource: CountedResource, companyId: string): Promis
       getCountFromServer(query(collection(db, 'plants'), where('companyId', '==', companyId), where('status', '==', 'inactive'))),
     ]);
     return Math.max(0, all.data().count - off.data().count);
+  }
+  if (resource === 'contractors') {
+    return (await getCountFromServer(query(collection(db, 'contractors'), where('companyId', '==', companyId)))).data().count;
+  }
+  if (resource === 'trainingModules') {
+    return (await getCountFromServer(query(collection(db, 'trainingModules'), where('companyId', '==', companyId)))).data().count;
   }
   const q =
     resource === 'inventoryItems'
@@ -258,21 +266,19 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
   };
 }
 
-/**
- * Live count of work orders created since the start of the current calendar
- * month, checked against the plan's workOrdersPerMonth cap. Kept separate
- * from usePlanLimitCheck because it's a range query, not a plain equality
- * count, and no plan caps it any more (null = unlimited).
- */
-export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
+function useMonthlyCountLimit(opts: {
+  collectionName: string;
+  dateField: string;
+  usage: UsageResource;
+  limit: number | null;
+  noun: string;
+}): UsePlanLimitCheckResult {
+  const { collectionName, dateField, usage, limit, noun } = opts;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const company = useAuthStore((s) => s.company);
-  const plan = company?.plan;
+  const plan = useAuthStore((s) => s.company?.plan);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-
-  const limit = limitsForCompany(company).workOrdersPerMonth;
 
   useEffect(() => {
     if (!companyId || limit === null) {
@@ -285,16 +291,20 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    const q = query(
-      collection(db, 'workOrders'),
-      where('siteId', '==', companyId),
-      where('createdAt', '>=', Timestamp.fromDate(startOfMonth)),
-    );
-    getCountFromServer(q)
-      .then((snap) => {
-        if (!cancelled) setCount(snap.data().count);
+    const direct = async () => {
+      const q = query(
+        collection(db, collectionName),
+        where('siteId', '==', companyId),
+        where(dateField, '>=', Timestamp.fromDate(startOfMonth)),
+      );
+      return (await getCountFromServer(q)).data().count;
+    };
+    countViaServer(usage, companyId, direct)
+      .then((n) => {
+        if (!cancelled) setCount(n);
       })
       .catch(() => {
+        // Can't verify the live count: don't let a failed read bypass the plan limit.
         if (!cancelled) setFailed(true);
       })
       .finally(() => {
@@ -303,7 +313,7 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
     return () => {
       cancelled = true;
     };
-  }, [companyId, limit]);
+  }, [companyId, limit, collectionName, dateField, usage]);
 
   const atLimit = !loading && (failed || isAtOrOverLimit(count, limit));
 
@@ -313,15 +323,40 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
     limit,
     atLimit,
     message: failed
-      ? "We couldn't verify your monthly work order limit right now. Check your connection and try again."
+      ? `We couldn't verify your monthly ${noun} limit right now. Check your connection and try again.`
       : atLimit
-      ? `You've reached the ${limit}/month work order limit on your ${planDisplayName(plan)} plan. Upgrade to create more this month.`
+      ? `You've reached the ${limit}/month ${noun} limit on your ${planDisplayName(plan)} plan. Upgrade to create more this month.`
       : null,
   };
 }
 
+/** Work orders created since the start of this calendar month vs the plan's workOrdersPerMonth cap. */
+export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
+  const company = useAuthStore((s) => s.company);
+  return useMonthlyCountLimit({
+    collectionName: 'workOrders',
+    dateField: 'createdAt',
+    usage: 'workOrdersThisMonth',
+    limit: limitsForCompany(company).workOrdersPerMonth,
+    noun: 'work order',
+  });
+}
+
+/** Breakdown reports raised since the start of this calendar month vs the plan's breakdownsPerMonth cap. */
+export function useMonthlyBreakdownLimitCheck(): UsePlanLimitCheckResult {
+  const company = useAuthStore((s) => s.company);
+  return useMonthlyCountLimit({
+    collectionName: 'breakdown_tickets',
+    dateField: 'reportedAt',
+    usage: 'breakdownsThisMonth',
+    limit: limitsForCompany(company).breakdownsPerMonth,
+    noun: 'breakdown report',
+  });
+}
+
 /** Ready-to-show text for a count limit that has been reached. */
 function limitReachedMessage(limit: number, label: string, plan: string | undefined): string {
+  if (limit === 0) return `Your ${planDisplayName(plan)} plan doesn't include ${label}s. Upgrade to add them.`;
   return `You've reached the ${limit} ${label} limit on your ${planDisplayName(plan)} plan. Upgrade to add more.`;
 }
 
@@ -377,4 +412,32 @@ export async function checkSeatChange(opts: {
   } catch {
     return "We couldn't verify your user limit right now. Check your connection and try again.";
   }
+}
+
+/** Thrown by assertWithinPlanLimit; its message is meant to be shown to the user as is. */
+export class PlanLimitError extends Error {}
+
+/**
+ * Throws when creating `adding` more of a resource would pass the company's plan
+ * limit. For create flows that have no hook (seeders, editors that save on first
+ * change): call it right before the write.
+ */
+export async function assertWithinPlanLimit(
+  resource: CountedResource,
+  companyId: string,
+  company: Parameters<typeof limitsForCompany>[0],
+  adding = 1,
+): Promise<void> {
+  const message = await checkCanCreate(resource, company, companyId, adding);
+  if (message) throw new PlanLimitError(message);
+}
+
+/** Like assertWithinPlanLimit, but returns the message (or null when allowed) instead of throwing. */
+export async function checkPlanLimit(
+  resource: CountedResource,
+  companyId: string,
+  company: Parameters<typeof limitsForCompany>[0],
+  adding = 1,
+): Promise<string | null> {
+  return checkCanCreate(resource, company, companyId, adding);
 }

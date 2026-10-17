@@ -24,6 +24,10 @@ interface PlanLimits {
   machines: string;
   inventoryItems: string;
   pmSchedules: string;
+  workOrdersPerMonth: string;
+  breakdownsPerMonth: string;
+  contractors: string;
+  trainingModules: string;
   aiCredits: string;
   analyticsHistory: string;
 }
@@ -46,6 +50,10 @@ function limitsFor(plan: Plan): PlanLimits {
     machines: fmtNumber(c.machines),
     inventoryItems: fmtNumber(c.inventoryItems),
     pmSchedules: fmtNumber(c.pmSchedules),
+    workOrdersPerMonth: fmtNumber(c.workOrdersPerMonth),
+    breakdownsPerMonth: fmtNumber(c.breakdownsPerMonth),
+    contractors: c.contractors === 0 ? '—' : fmtNumber(c.contractors),
+    trainingModules: c.trainingModules === 0 ? '—' : fmtNumber(c.trainingModules),
     aiCredits: fmtNumber(c.aiCreditsPerMonth),
     analyticsHistory: c.analyticsHistoryMonths === null ? '' : `${c.analyticsHistoryMonths}`,
   };
@@ -105,7 +113,7 @@ const PLANS: PlanDef[] = [
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInStarter'] },
       { categoryKey: 'common.billing.categories.inventoryProcurement', itemKeys: ['autoPoEmail', 'qrScanLowStock'] },
-      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['growthTeam'] },
+      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['growthTeam', 'multiPlant'] },
       { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['aiCreditsFeature', 'analyticsHistoryFeature'] },
     ],
   },
@@ -122,7 +130,7 @@ const PLANS: PlanDef[] = [
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInWorkshop'] },
       { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature', 'aiCreditsFeature', 'analyticsHistoryFeature'] },
-      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['kaizenEvaluations'] },
+      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['kaizenEvaluations', 'multiPlant'] },
     ],
   },
   {
@@ -494,6 +502,10 @@ export default function BillingPage() {
                     ['machines', 'Machines', plan.limits.machines],
                     ['inventoryItems', 'Inventory parts', plan.limits.inventoryItems],
                     ['pmSchedules', 'PM schedules', plan.limits.pmSchedules],
+                    ['workOrdersPerMonth', 'Work orders / month', plan.limits.workOrdersPerMonth],
+                    ['breakdownsPerMonth', 'Breakdown reports / month', plan.limits.breakdownsPerMonth],
+                    ['contractors', 'Contractors', plan.limits.contractors],
+                    ['trainingModules', 'Training modules', plan.limits.trainingModules],
                     ['aiCredits', 'AI credits / month', plan.limits.aiCredits],
                     ['analyticsHistory', 'Analytics history', plan.limits.analyticsHistory ? `${plan.limits.analyticsHistory} months` : ''],
                   ] as const).map(([id, label, value]) => (

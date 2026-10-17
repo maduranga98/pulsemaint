@@ -452,7 +452,7 @@ export default function PlatformCompanyDetailPage() {
                     <input
                       className={input}
                       value={limitInputs[r.key] ?? ''}
-                      placeholder={`Plan: ${formatLimit(planLimitsFor(c.plan)[r.key])}`}
+                      placeholder={`Plan: ${formatLimit(planLimitsFor(c.plan)[r.key], false, r.months)}`}
                       onChange={(e) => setLimitInputs((m) => ({ ...m, [r.key]: e.target.value }))}
                     />
                   </label>
