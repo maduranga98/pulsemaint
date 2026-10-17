@@ -11,6 +11,8 @@ import { TRAINEE_TRAINING_TYPE_LABELS } from '@/lib/training/trainingTypes';
 import type { TraineeTrainingType, TrainingModuleStatus } from '@/lib/training/trainingTypes';
 import ModuleStatusBadge from './shared/ModuleStatusBadge';
 import { LibraryEmpty, LibraryLoading } from './shared/LibraryStates';
+import { checkPlanLimit } from '@/hooks/usePlanLimitCheck';
+import { toast } from 'sonner';
 
 const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor'];
 const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [TraineeTrainingType, string][];
@@ -40,6 +42,7 @@ export default function TraineeModuleLibrary({ title }: { title?: string }) {
   const role = useAuthStore((s) => s.userProfile?.role);
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
+  const company = useAuthStore((s) => s.company);
   const canAuthor = !!role && CAN_AUTHOR_ROLES.includes(role);
   // Matches the firestore.rules delete rule for trainingModules — admin only.
   const canDelete = role === 'admin';
@@ -77,7 +80,13 @@ export default function TraineeModuleLibrary({ title }: { title?: string }) {
     if (!companyId || !userId) return;
     setSeeding(true);
     try {
-      for (const sample of sampleTraineeProgrammeModules()) {
+      const samples = sampleTraineeProgrammeModules();
+      const blocked = await checkPlanLimit('trainingModules', companyId, company, samples.length);
+      if (blocked) {
+        toast.error(blocked);
+        return;
+      }
+      for (const sample of samples) {
         const { quiz: practiceQuiz, finalTest, ...rest } = sample;
         await addDoc(collection(db, 'trainingModules'), {
           ...rest,

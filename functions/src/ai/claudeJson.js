@@ -3,7 +3,7 @@ const { defineSecret } = require("firebase-functions/params");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { Anthropic } = require("@anthropic-ai/sdk");
-const { consumeAiQuota } = require("./aiUsageLimit");
+const { consumeAiQuota, consumeMonthlyCredits, refundMonthlyCredits } = require("./aiUsageLimit");
 const { companyHasFeature } = require("../lib/planFeatures");
 
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
@@ -17,6 +17,8 @@ const MAX_SYSTEM_CHARS = 4000;
 const MAX_SCHEMA_CHARS = 4000;
 const WEB_SEARCH_MAX_TOKENS = 8192;
 const MAX_WEB_SEARCHES = 3;
+// AI credits: a normal suggestion costs 1, one with web research 6 — mirrors AI_CREDIT_COST in src/lib/planLimits.ts.
+const CREDIT_COST = { standard: 1, webResearch: 6 };
 const CLOSED_WO_STATUSES = new Set(["SIGNED_OFF", "CLOSED"]);
 
 /**
@@ -102,6 +104,11 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
   // Per-user (hourly) and per-company (daily) caps — see aiUsageLimit.js.
   await consumeAiQuota(db, {uid: request.auth.uid, companyId: userSnap.get("companyId")});
 
+  // Monthly credit allowance of the plan. Charged up front, refunded below
+  // if the provider call fails.
+  const creditCost = webSearch ? CREDIT_COST.webResearch : CREDIT_COST.standard;
+  await consumeMonthlyCredits(db, {companyId: userSnap.get("companyId"), cost: creditCost});
+
   let fullPrompt = prompt;
   if (machineId) {
     const history = await machineHistoryContext(machineId, userSnap.data()).catch((err) => {
@@ -145,6 +152,7 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
       response = await client.messages.create(params);
     }
   } catch (err) {
+    await refundMonthlyCredits(db, {companyId: userSnap.get("companyId"), cost: creditCost});
     if (err instanceof Anthropic.RateLimitError) {
       throw new HttpsError("resource-exhausted", "AI provider rate limit reached");
     }

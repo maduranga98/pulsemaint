@@ -4,14 +4,26 @@ export type Plan = CompanyProfile['plan'];
 
 /** The count limits a plan carries. null = unlimited. */
 export interface PlanCountLimits {
-  /** Total users of the company, every role together. */
+  /** Full users: every role except floor operators and trainees (pending invitations included). */
   users: number | null;
+  /** Light users: floor operators and trainees. */
+  lightUsers: number | null;
   /** Plants registered in the company. */
   plants: number | null;
   machines: number | null;
   inventoryItems: number | null;
   pmSchedules: number | null;
   workOrdersPerMonth: number | null;
+  /** Breakdown reports raised per calendar month. */
+  breakdownsPerMonth: number | null;
+  /** Registered contractors (each of contractors / training modules has its own cap). */
+  contractors: number | null;
+  /** Training modules authored (both libraries together). */
+  trainingModules: number | null;
+  /** AI credits per month: 1 = a normal suggestion, 6 = one with web research. */
+  aiCreditsPerMonth: number | null;
+  /** How many months back Analytics can look. */
+  analyticsHistoryMonths: number | null;
 }
 
 export type CountLimitKey = keyof PlanCountLimits;
@@ -36,8 +48,20 @@ export interface PlanLimitConfig extends PlanCountLimits {
     /** Analytics: plants + team tabs, scheduled reports. */
     advancedAnalytics: boolean;
     audits: boolean;
+    kaizen: boolean;
+    evaluations: boolean;
   };
 }
+
+/** Roles that count as light users (no full seat): floor operators and trainees. */
+export const LIGHT_USER_ROLES: readonly string[] = ['floor_operator', 'trainee'];
+
+export function isLightUserRole(role: string | undefined | null): boolean {
+  return !!role && LIGHT_USER_ROLES.includes(role);
+}
+
+/** AI credit cost of one request: a normal suggestion is 1, one with web research is 6. */
+export const AI_CREDIT_COST = { standard: 1, webResearch: 6 } as const;
 
 // Single source of truth for plan limits/features — kept in sync with the
 // customer-facing pricing sheet and mirrored in BillingPage's plan cards and
@@ -46,34 +70,50 @@ export interface PlanLimitConfig extends PlanCountLimits {
 // call site, so the two never drift apart again. Storage is not limited.
 export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
   starter: {
-    users: 5,
+    users: 3,
+    lightUsers: 10,
     plants: 1,
-    machines: 10,
-    inventoryItems: 10,
-    pmSchedules: 10,
-    workOrdersPerMonth: 10,
+    machines: 15,
+    inventoryItems: 100,
+    pmSchedules: 30,
+    workOrdersPerMonth: 60,
+    breakdownsPerMonth: 40,
+    contractors: 0,
+    trainingModules: 0,
+    aiCreditsPerMonth: 20,
+    analyticsHistoryMonths: 12,
     features: {
       autoPOEmail: false,
       qrLowStockAlerts: false,
-      purchaseOrders: false,
+      purchaseOrders: true,
       contractors: false,
-      shiftHandover: true,
-      training: true,
-      safety: true,
-      analyticsReports: false,
-      aiAssist: false,
+      shiftHandover: false,
+      training: false,
+      safety: false,
+      analyticsReports: true,
+      aiAssist: true,
       moeAnalytics: false,
       advancedAnalytics: false,
       audits: false,
+      kaizen: false,
+      evaluations: false,
     },
   },
+  // Sold as "Growth". The plan id stays `workshop` — it is stored on company
+  // documents and mapped to Stripe prices.
   workshop: {
     users: 10,
+    lightUsers: 50,
     plants: 1,
-    machines: 25,
-    inventoryItems: 40,
-    pmSchedules: 30,
-    workOrdersPerMonth: 50,
+    machines: 75,
+    inventoryItems: 2000,
+    pmSchedules: 400,
+    workOrdersPerMonth: 400,
+    breakdownsPerMonth: 300,
+    contractors: 25,
+    trainingModules: 25,
+    aiCreditsPerMonth: 150,
+    analyticsHistoryMonths: 36,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
@@ -87,15 +127,23 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
       moeAnalytics: false,
       advancedAnalytics: false,
       audits: false,
+      kaizen: false,
+      evaluations: false,
     },
   },
   factory: {
-    users: 30,
-    plants: 3,
-    machines: 70,
-    inventoryItems: 100,
-    pmSchedules: 50,
-    workOrdersPerMonth: 100,
+    users: 40,
+    lightUsers: 250,
+    plants: 1,
+    machines: 400,
+    inventoryItems: 10000,
+    pmSchedules: 3000,
+    workOrdersPerMonth: 2500,
+    breakdownsPerMonth: 2000,
+    contractors: 250,
+    trainingModules: 250,
+    aiCreditsPerMonth: 800,
+    analyticsHistoryMonths: null,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
@@ -109,18 +157,26 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
       moeAnalytics: true,
       advancedAnalytics: true,
       audits: true,
+      kaizen: true,
+      evaluations: true,
     },
   },
-  // Enterprise is priced and sized per customer. With no tier set it is
-  // unlimited (the original behaviour); a tier or per-company overrides
-  // narrow it — see limitsForCompany().
+  // Enterprise is priced and sized per customer (every limit is a number in
+  // the contract). With no tier set it is unlimited; a tier or per-company
+  // overrides narrow it — see limitsForCompany(). Multi-plant is Enterprise only.
   enterprise: {
     users: null,
+    lightUsers: null,
     plants: null,
     machines: null,
     inventoryItems: null,
     pmSchedules: null,
     workOrdersPerMonth: null,
+    breakdownsPerMonth: null,
+    contractors: null,
+    trainingModules: null,
+    aiCreditsPerMonth: null,
+    analyticsHistoryMonths: null,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
@@ -134,6 +190,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
       moeAnalytics: true,
       advancedAnalytics: true,
       audits: true,
+      kaizen: true,
+      evaluations: true,
     },
   },
 };
@@ -142,10 +200,26 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
 export type EnterpriseTier = 'enterprise1' | 'enterprise2' | 'enterprise3' | 'unlimited';
 
 export const ENTERPRISE_TIER_LIMITS: Record<EnterpriseTier, PlanCountLimits> = {
-  enterprise1: { users: 100, plants: 5, machines: 300, inventoryItems: 1000, pmSchedules: 300, workOrdersPerMonth: 500 },
-  enterprise2: { users: 250, plants: 10, machines: 1000, inventoryItems: 5000, pmSchedules: 1000, workOrdersPerMonth: 2000 },
-  enterprise3: { users: 500, plants: 25, machines: 3000, inventoryItems: 20000, pmSchedules: 3000, workOrdersPerMonth: 6000 },
-  unlimited: { users: null, plants: null, machines: null, inventoryItems: null, pmSchedules: null, workOrdersPerMonth: null },
+  enterprise1: {
+    users: 100, lightUsers: 400, plants: 5, machines: 300, inventoryItems: 5000, pmSchedules: 1000,
+    workOrdersPerMonth: 1000, breakdownsPerMonth: 600, contractors: 100, trainingModules: 100,
+    aiCreditsPerMonth: 1500, analyticsHistoryMonths: 60,
+  },
+  enterprise2: {
+    users: 250, lightUsers: 1000, plants: 10, machines: 1000, inventoryItems: 20000, pmSchedules: 3000,
+    workOrdersPerMonth: 4000, breakdownsPerMonth: 2000, contractors: 300, trainingModules: 300,
+    aiCreditsPerMonth: 3750, analyticsHistoryMonths: 60,
+  },
+  enterprise3: {
+    users: 500, lightUsers: 2500, plants: 25, machines: 3000, inventoryItems: 60000, pmSchedules: 9000,
+    workOrdersPerMonth: 12000, breakdownsPerMonth: 6000, contractors: 800, trainingModules: 800,
+    aiCreditsPerMonth: 7500, analyticsHistoryMonths: 120,
+  },
+  unlimited: {
+    users: null, lightUsers: null, plants: null, machines: null, inventoryItems: null, pmSchedules: null,
+    workOrdersPerMonth: null, breakdownsPerMonth: null, contractors: null, trainingModules: null,
+    aiCreditsPerMonth: null, analyticsHistoryMonths: null,
+  },
 };
 
 export function planLimitsFor(plan: Plan | undefined | null): PlanLimitConfig {
@@ -158,7 +232,7 @@ export function planLimitsFor(plan: Plan | undefined | null): PlanLimitConfig {
 }
 
 /** Company fields that can change its limits beyond the plain plan. */
-export interface PlanLimitCompany {
+export interface PlanLimitCompany extends PlanCompanyState {
   plan?: Plan | null;
   /** Enterprise only: which sized Enterprise plan the company is on. */
   enterpriseTier?: EnterpriseTier | null;
@@ -178,6 +252,13 @@ export function limitsForCompany(company: PlanLimitCompany | undefined | null): 
   const base = planLimitsFor(company?.plan);
   const tier = company?.plan === 'enterprise' && company.enterpriseTier ? ENTERPRISE_TIER_LIMITS[company.enterpriseTier] : null;
   const merged: PlanLimitConfig = { ...base, ...(tier ?? {}), features: base.features };
+  // A running trial unlocks every module, so the modules Starter doesn't
+  // include (contractors, training) need a usable cap while it runs.
+  if (company && company.status === 'trial' && !isTrialExpired(company)) {
+    for (const key of ['contractors', 'trainingModules'] as const) {
+      if (merged[key] === 0) merged[key] = PLAN_LIMITS.workshop[key];
+    }
+  }
   const overrides = company?.limitOverrides;
   if (overrides) {
     for (const key of Object.keys(overrides) as CountLimitKey[]) {
@@ -302,6 +383,8 @@ const FEATURE_PATH_PREFIXES: Array<[string, FeatureKey]> = [
   ['/app/analytics', 'analyticsReports'],
   ['/app/reports', 'analyticsReports'],
   ['/app/audit', 'audits'],
+  ['/app/kaizen', 'kaizen'],
+  ['/app/evaluations', 'evaluations'],
 ];
 
 /** The plan feature a path belongs to, or null when it isn't plan-gated. */

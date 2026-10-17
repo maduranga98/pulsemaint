@@ -60,7 +60,6 @@ async function notifyPmDue(schedule, woNumber, woId, overdue) {
   let targetRoles = [];
   if (userIds.length === 0) targetRoles = ["technician", "supervisor"];
   else if (!schedule.supervisorInChargeId) targetRoles = ["supervisor"];
-  const oversight = ["admin", "plant_manager"];
   const when = overdue ? "is overdue" : "is due today";
   await db.collection("notifications").add({
     companyId: schedule.companyId,
@@ -71,7 +70,7 @@ async function notifyPmDue(schedule, woNumber, woId, overdue) {
     timestamp: FieldValue.serverTimestamp(),
     read: false,
     readBy: [],
-    recipientRoles: [...new Set([...targetRoles, ...oversight])],
+    recipientRoles: targetRoles,
     recipientUserIds: userIds,
     targetRoles,
     targetUserIds: userIds,
