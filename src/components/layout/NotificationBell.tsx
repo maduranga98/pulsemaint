@@ -207,6 +207,9 @@ export default function NotificationBell() {
                             {n.plantId && plantNames.get(n.plantId) && (
                               <span className="rounded bg-blue-100 px-1.5 py-px text-[10px] font-semibold text-blue-700">{plantNames.get(n.plantId)}</span>
                             )}
+                            {(n.department || n.actorDepartment) && (
+                              <span className="rounded bg-slate-100 px-1.5 py-px text-[10px] font-semibold text-slate-600">{n.department || n.actorDepartment}</span>
+                            )}
                             {relativeTime(n.timestamp)}
                           </p>
                         </div>

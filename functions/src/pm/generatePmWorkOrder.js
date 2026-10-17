@@ -306,7 +306,7 @@ async function notifyPmRaised(schedule, woNumber, woId, dueDate, source) {
     timestamp: FieldValue.serverTimestamp(),
     read: false,
     readBy: [],
-    recipientRoles: [...new Set([...targetRoles, "admin", "plant_manager"])],
+    recipientRoles: targetRoles,
     recipientUserIds: userIds,
     targetRoles,
     targetUserIds: userIds,

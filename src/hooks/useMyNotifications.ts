@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { collection, doc, onSnapshot, orderBy, query, updateDoc, where, arrayUnion, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import { isNotificationUnreadBy, isNotificationVisibleTo, notificationDisplayMessage } from '@/lib/notifications/recipients';
+import { isNotificationUnreadBy, isNotificationVisibleTo, notificationDisplayMessage, notificationLocationLabel } from '@/lib/notifications/recipients';
 import { playNotificationSound, showDeviceNotification } from '@/lib/notifications/deviceNotify';
 import type { DashboardNotification } from '@/types/analytics.types';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
@@ -21,11 +21,11 @@ function timestampMs(value: unknown): number {
  *
  * Two rules, both enforced through the pure helpers in
  * `lib/notifications/recipients`:
- *  - Targeting is strict — one role's notifications never appear in another
- *    role's bar; only the oversight roles (admin, plant_manager) are copied
- *    on everything, and that copy is made at write time. The one subtraction
- *    from that copy is admin company-administration work, which is dropped
- *    from a plant manager's bar unless it was raised for them.
+ *  - Targeting is strict — a notification reaches only the roles and people it
+ *    names. Admins and plant managers are not copied on everything: each sees
+ *    only what was raised for their role or for them personally, and a plant
+ *    manager only from their own plant. Every entry shows its plant and, when
+ *    known, its department.
  *  - Reading one clears it. The bar is a list of things still to look at, so
  *    a notification the user has already opened drops out of it. `readBy` is
  *    per-user, so clearing yours never hides it from anyone else.
@@ -126,9 +126,10 @@ export function useMyNotifications() {
     if (freshOnes.length === 0) return;
     playNotificationSound();
     for (const n of freshOnes.slice(0, 5)) {
-      const plantName = n.plantId ? plantNames.get(n.plantId) : null;
-      showDeviceNotification(plantName ? `FirmiCore · ${plantName}` : 'FirmiCore', {
-        body: `${plantName ? `[${plantName}] ` : ''}${notificationDisplayMessage(n, userProfile.role, userProfile.id)}`,
+      // "Plant · Department" so the reader knows where it came from.
+      const where = notificationLocationLabel(n, plantNames);
+      showDeviceNotification(where ? `FirmiCore · ${where}` : 'FirmiCore', {
+        body: `${where ? `[${where}] ` : ''}${notificationDisplayMessage(n, userProfile.role, userProfile.id)}`,
         tag: n.id,
         onClick: () => {
           if (n.linkTo) window.location.assign(n.linkTo);

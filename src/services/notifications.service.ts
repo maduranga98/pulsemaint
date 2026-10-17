@@ -34,6 +34,10 @@ interface CreateNotificationInput {
   /** Department the event concerns (e.g. the machine's) — department-scoped
    *  roles outside it don't see it. Defaults to none (whole plant). */
   department?: string | null;
+  /** Department of the user who raised it, shown next to the plant so a plant
+   *  manager can see which department it came from. Display only. Defaults
+   *  to the signed-in user's department. */
+  actorDepartment?: string | null;
 }
 
 /**
@@ -43,12 +47,9 @@ interface CreateNotificationInput {
  * through this instead of writing to `notifications` directly, so
  * targeting stays consistent.
  *
- * Admins and plant managers are copied on every targeted notification: they
- * are accountable for everything happening in the plant, and previously only
- * saw the subset of notifications that happened to name their role. A
- * broadcast (no roles and no users) is left untouched — it already reaches
- * everyone, and narrowing it to the oversight roles would hide it from the
- * people it was meant for.
+ * A notification reaches only the roles and people it names — admins and
+ * plant managers get it only when their role (or they personally) were named.
+ * It always carries the plant and, when known, the department it came from.
  */
 export async function createNotification(input: CreateNotificationInput): Promise<void> {
   const {
@@ -66,6 +67,10 @@ export async function createNotification(input: CreateNotificationInput): Promis
     department = null,
   } = input;
   if (!companyId) return;
+  const actorDepartment =
+    input.actorDepartment !== undefined
+      ? input.actorDepartment
+      : useAuthStore.getState().userProfile?.department ?? null;
   const plantId =
     input.plantId !== undefined
       ? input.plantId
@@ -83,9 +88,8 @@ export async function createNotification(input: CreateNotificationInput): Promis
       readBy: [],
       recipientRoles: roles,
       recipientUserIds,
-      // Who it was originally raised for, before the oversight copy was
-      // appended — the bell needs this to tell "addressed to me" from
-      // "I'm seeing it as oversight" and word the entry accordingly.
+      // Who it was raised for (same as the recipients now that nobody is
+      // copied automatically); kept so older readers still work.
       targetRoles: recipientRoles,
       targetUserIds: recipientUserIds,
       actorName,
@@ -94,6 +98,7 @@ export async function createNotification(input: CreateNotificationInput): Promis
       oversightMessage,
       plantId: plantId ?? null,
       department: department || null,
+      actorDepartment: actorDepartment || null,
     });
   } catch (err) {
     // Notifications are best-effort — never let a failed notification write
