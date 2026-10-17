@@ -19,8 +19,6 @@ const logger = require("firebase-functions/logger");
 
 const db = getFirestore("default");
 
-// Mirrors src/lib/notifications/recipients.ts (OVERSIGHT_ROLES).
-const OVERSIGHT_ROLES = ["admin", "plant_manager"];
 // Only a PM nobody has started yet needs the "time to start" nudge.
 const NOT_STARTED = ["OPEN", "ASSIGNED"];
 // Look back a day so a missed run (or a deploy gap) still alerts, without
@@ -80,7 +78,7 @@ exports.alertPmStartTime = onSchedule({schedule: "*/15 * * * *", timeZone: "Asia
           timestamp: FieldValue.serverTimestamp(),
           read: false,
           readBy: [],
-          recipientRoles: OVERSIGHT_ROLES,
+          recipientRoles: userIds.length ? [] : ["supervisor", "technician"],
           recipientUserIds: userIds,
           targetRoles: userIds.length ? [] : ["supervisor", "technician"],
           targetUserIds: userIds,

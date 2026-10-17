@@ -4,10 +4,6 @@ const logger = require("firebase-functions/logger");
 
 const db = getFirestore("default");
 
-// Mirrors src/lib/notifications/recipients.ts (OVERSIGHT_ROLES) — kept in
-// sync by hand since Cloud Functions doesn't share code with the client.
-const OVERSIGHT_ROLES = ["admin", "plant_manager"];
-
 const TECHNICIAN_ROLES = ["technician"];
 const SUPERVISOR_ROLES = ["supervisor", "maintenance_supervisor"];
 
@@ -87,11 +83,12 @@ exports.notifyBreakdownReported = onDocumentCreated(
           timestamp: FieldValue.serverTimestamp(),
           read: false,
           readBy: [],
-          // Plant leadership is copied on everything, as the app does for
-          // every targeted notification.
-          recipientRoles: OVERSIGHT_ROLES,
+          // The department's technicians and on-shift supervisors by id, and
+          // the plant manager role — the bell narrows that to the machine's
+          // plant, and the entry names the plant and department.
+          recipientRoles: ["plant_manager"],
           recipientUserIds,
-          targetRoles: OVERSIGHT_ROLES,
+          targetRoles: ["plant_manager"],
           targetUserIds: recipientUserIds,
           actorName: null,
           actorRole: null,

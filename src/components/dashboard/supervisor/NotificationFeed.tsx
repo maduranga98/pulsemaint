@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Bell } from 'lucide-react';
 import { useNotifications } from '../../../hooks/dashboard/useNotifications';
+import { usePlants } from '../../../hooks/usePlants';
 import DashboardWidget from '../shared/DashboardWidget';
 import NotificationFeedItem from './NotificationFeedItem';
 import EmptyState from '../shared/EmptyState';
@@ -24,6 +25,8 @@ export default function NotificationFeed({ companyId }: NotificationFeedProps) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<DashboardNotificationType | 'all'>('all');
   const { notifications, loading, error } = useNotifications(companyId);
+  const { plants } = usePlants(companyId);
+  const plantNames = useMemo(() => new Map(plants.map((p) => [p.id, p.name])), [plants]);
 
   const filtered =
     filter === 'all' ? notifications : notifications.filter((n) => n.type === filter);
@@ -65,7 +68,7 @@ export default function NotificationFeed({ companyId }: NotificationFeedProps) {
         ) : (
           <div className="divide-y divide-[#1E3A5F]/50">
             {filtered.map((n) => (
-              <NotificationFeedItem key={n.id} notification={n} />
+              <NotificationFeedItem key={n.id} notification={n} plantNames={plantNames} />
             ))}
           </div>
         )}

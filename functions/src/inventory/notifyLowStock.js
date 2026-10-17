@@ -73,7 +73,7 @@ async function notifySpareLow(companyId, partId, part) {
     timestamp: FieldValue.serverTimestamp(),
     read: false,
     readBy: [],
-    recipientRoles: ["store_keeper", "admin", "plant_manager"],
+    recipientRoles: ["store_keeper"],
     recipientUserIds: [],
     targetRoles: ["store_keeper"],
     targetUserIds: [],

@@ -1,7 +1,7 @@
 import { AlertTriangle, Wrench, Package, Calendar, Bell, GraduationCap, ClipboardCheck, FileText, MessageSquare } from 'lucide-react';
 import { relativeTime } from '../../../utils/analytics.utils';
 import { useAuthStore } from '../../../store/authStore';
-import { notificationDisplayMessage } from '../../../lib/notifications/recipients';
+import { notificationDisplayMessage, notificationLocationLabel } from '../../../lib/notifications/recipients';
 import type { DashboardNotification, DashboardNotificationType } from '../../../types/analytics.types';
 
 const ICON_MAP: Record<DashboardNotificationType, typeof Bell> = {
@@ -25,10 +25,13 @@ const COLOR_MAP: Record<string, string> = {
 
 interface NotificationFeedItemProps {
   notification: DashboardNotification;
+  /** plantId → name, so the entry can say which plant it came from. */
+  plantNames?: Map<string, string>;
 }
 
-export default function NotificationFeedItem({ notification }: NotificationFeedItemProps) {
+export default function NotificationFeedItem({ notification, plantNames }: NotificationFeedItemProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
+  const where = notificationLocationLabel(notification, plantNames);
   const Icon = ICON_MAP[notification.type] ?? Bell;
   const colorClass = COLOR_MAP[notification.severity] ?? 'text-[#8BA3BF]';
   // Same wording rules as the notification bell: the reader's own actions read
@@ -44,6 +47,7 @@ export default function NotificationFeedItem({ notification }: NotificationFeedI
         <p className="text-sm text-[#F0F4F8] leading-snug">{message}</p>
         <div className="flex items-center gap-2 mt-1">
           <span className={`w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')}`} />
+          {where && <span className="text-[11px] font-semibold text-[#8BA3BF]">{where}</span>}
           <span className="text-[11px] text-[#8BA3BF]">{relativeTime(notification.timestamp)}</span>
         </div>
       </div>
