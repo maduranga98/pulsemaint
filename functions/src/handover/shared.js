@@ -1,5 +1,6 @@
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
+const {sendNotification} = require("../lib/notify");
 
 const db = getFirestore("default");
 
@@ -28,10 +29,20 @@ function getCompanyId(data) {
   return data.companyId || data.siteId || data.factoryId || "";
 }
 
+// Handover alerts used to be written to companies/{id}/notificationLogs, which
+// nothing reads, so they never reached anyone. They now go to the bell's
+// `notifications` collection like every other alert.
 async function addNotification(companyId, payload) {
-  await db.collection("companies").doc(companyId).collection("notificationLogs").add({
-    ...payload,
-    createdAt: FieldValue.serverTimestamp(),
+  await sendNotification(db, {
+    companyId,
+    type: "alert",
+    message: payload.title ? `${payload.title}: ${payload.body || ""}`.trim() : payload.body,
+    oversightMessage: payload.body || null,
+    severity: /unaccepted_60|critical/.test(payload.type || "") ? "high" : "medium",
+    linkTo: "/app/shift/handover/history",
+    roles: payload.targetRoles,
+    userIds: payload.targetUserIds,
+    dedupeKey: payload.dedupeKey,
   });
 }
 
