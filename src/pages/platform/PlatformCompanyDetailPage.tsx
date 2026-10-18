@@ -102,7 +102,7 @@ export default function PlatformCompanyDetailPage() {
       })));
     }
     setPrompt(p);
-    setValue(p.kind === 'role' ? p.user.role ?? 'technician' : p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '14' : '');
+    setValue(p.kind === 'role' ? p.user.role ?? 'technician' : p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '7' : '');
   }
 
   if (!data) return error ? <ErrorNote message={error} /> : <Loading />;
@@ -129,7 +129,7 @@ export default function PlatformCompanyDetailPage() {
               <p className="font-semibold text-white">{c.approvalStatus === 'pending' ? 'Waiting for your approval' : 'Registration rejected'}</p>
               <p className="text-sm text-slate-300">
                 {c.approvalStatus === 'pending'
-                  ? `Registered ${fmtDateTime(c.createdAt)} by ${c.adminName ?? 'the admin'}${c.adminEmail ? ` (${c.adminEmail})` : ''}. Nobody can use FirmiCore until you approve it; the 14-day trial starts on approval.`
+                  ? `Registered ${fmtDateTime(c.createdAt)} by ${c.adminName ?? 'the admin'}${c.adminEmail ? ` (${c.adminEmail})` : ''}. Nobody can use FirmiCore until you approve it; the 7-day trial starts on approval.`
                   : c.rejectionReason ? `Reason: ${c.rejectionReason}` : 'No reason recorded.'}
               </p>
             </div>
