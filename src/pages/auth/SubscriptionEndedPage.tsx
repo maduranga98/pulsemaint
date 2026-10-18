@@ -24,22 +24,24 @@ export default function SubscriptionEndedPage() {
   const trialExpired = reason === 'trial_expired';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
-          <PauseCircle className="w-8 h-8 text-amber-600" />
+    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex items-center justify-center p-4">
+      <div className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-[#1A56DB]/20 blur-3xl" />
+      <div className="pointer-events-none absolute top-24 -right-20 h-80 w-80 rounded-full bg-[#00C2FF]/10 blur-3xl" />
+      <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0D1B33]/90 shadow-2xl shadow-black/40 backdrop-blur p-8 text-center space-y-6">
+        <div className="w-16 h-16 bg-amber-500/15 rounded-full flex items-center justify-center mx-auto">
+          <PauseCircle className="w-8 h-8 text-amber-400" />
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-white!">
             {paymentFailed
               ? t('common.subscriptionEnded.paymentFailedTitle', { defaultValue: 'Payment failed' })
               : trialExpired
               ? t('common.subscriptionEnded.trialEndedTitle', { defaultValue: 'Free trial ended' })
               : t('common.subscriptionEnded.title')}
           </h2>
-          {companyName && <p className="text-sm font-medium text-gray-500">{companyName}</p>}
-          <p className="text-gray-600">
+          {companyName && <p className="text-sm font-medium text-slate-400">{companyName}</p>}
+          <p className="text-slate-300">
             {paymentFailed
               ? t('common.subscriptionEnded.paymentFailedBody', {
                   defaultValue: "We couldn't collect your company's latest FirmiCore payment, so access is paused for all users until it goes through. Your data has not been deleted and everything comes back as soon as the payment succeeds.",
@@ -51,9 +53,9 @@ export default function SubscriptionEndedPage() {
               : t('common.subscriptionEnded.body')}
           </p>
           {paymentFailed && company?.paymentFailureMessage && (
-            <p className="text-sm text-red-600">{company.paymentFailureMessage}</p>
+            <p className="text-sm text-red-400">{company.paymentFailureMessage}</p>
           )}
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-400">
             {isAdmin
               ? paymentFailed
                 ? t('common.subscriptionEnded.paymentFailedAdminHint', { defaultValue: 'As the company admin, update your card in Billing & Plan, or send a request to the FirmiCore team if you need help.' })
@@ -66,7 +68,7 @@ export default function SubscriptionEndedPage() {
           {isAdmin && (
             <button
               onClick={() => navigate('/app/billing')}
-              className="w-full flex items-center justify-center gap-2 bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#1A56DB] to-[#1D6FF2] hover:brightness-110 text-white font-semibold shadow-lg shadow-[#1A56DB]/30 py-2 rounded-xl transition-all h-11"
             >
               <CreditCard className="w-4 h-4" />
               {t('common.subscriptionEnded.renew')}
@@ -75,7 +77,7 @@ export default function SubscriptionEndedPage() {
           {isAdmin && (
             <button
               onClick={() => navigate('/app/support-requests')}
-              className="w-full flex items-center justify-center gap-2 border border-blue-200 text-blue-700 font-medium py-2 rounded-lg hover:bg-blue-50 transition-colors h-11"
+              className="w-full flex items-center justify-center gap-2 border border-[#00C2FF]/30 text-[#00C2FF] font-medium py-2 rounded-xl hover:bg-[#00C2FF]/10 transition-colors h-11"
             >
               <LifeBuoy className="w-4 h-4" />
               {t('common.subscriptionEnded.contactSupport', { defaultValue: 'Send a request to FirmiCore' })}
@@ -83,7 +85,7 @@ export default function SubscriptionEndedPage() {
           )}
           <button
             onClick={() => void logout().then(() => navigate('/login'))}
-            className="w-full flex items-center justify-center gap-2 border border-gray-200 text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11"
+            className="w-full flex items-center justify-center gap-2 border border-white/10 bg-[#0B1526] text-slate-100 font-medium py-2 rounded-xl hover:bg-white/5 transition-colors h-11"
           >
             <LogOut className="w-4 h-4" />
             {t('common.subscriptionEnded.signOut')}
