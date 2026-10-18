@@ -8973,16 +8973,16 @@
       },
       "plans": {
         "starter": {
-          "name": "ベーシック",
-          "description": "始めたばかりの小規模チーム向け。"
+          "name": "Starter",
+          "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "ワークショップ",
-          "description": "体系化されたワークフローを持つ成長中の工房向け。"
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "ファクトリープロ",
-          "description": "生産施設向けの完全なMOE分析。"
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "エンタープライズ",

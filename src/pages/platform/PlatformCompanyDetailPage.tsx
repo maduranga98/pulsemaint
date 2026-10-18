@@ -97,7 +97,8 @@ export default function PlatformCompanyDetailPage() {
     if (p.kind === 'limits') {
       const overrides = data?.company.limitOverrides ?? {};
       setLimitInputs(Object.fromEntries(COUNT_LIMIT_ROWS.map((r) => {
-        const v = overrides[r.key];
+        // Overrides saved before full/light seats were split used one `users` cap.
+        const v = overrides[r.key] ?? (r.key === 'fullUsers' ? (overrides as { users?: number | null }).users : undefined);
         return [r.key, v === undefined ? '' : v === null ? 'unlimited' : String(v)];
       })));
     }
@@ -191,7 +192,7 @@ export default function PlatformCompanyDetailPage() {
                 return (
                   <tr key={r.key} className="border-b border-[#1E3A5F]/60 last:border-0">
                     <td className="py-1.5 text-slate-400">{r.label}</td>
-                    <td className="py-1.5 font-semibold">{formatLimit(effective[r.key], r.perMonth)}</td>
+                    <td className="py-1.5 font-semibold">{formatLimit(effective[r.key], r.perMonth, r.months)}</td>
                     <td className="py-1.5 text-xs text-amber-300">{overridden ? 'set for this company' : ''}</td>
                   </tr>
                 );

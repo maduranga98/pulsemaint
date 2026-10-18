@@ -3765,16 +3765,16 @@
       },
       "plans": {
         "starter": {
-          "name": "මූලික",
-          "description": "ආරම්භ වන තනි කුඩා කණ්ඩායමක් සඳහා."
+          "name": "Starter",
+          "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "වැඩමුළුව",
-          "description": "ව්‍යුහගත වැඩ ප්‍රවාහ සහිත වර්ධනය වන වැඩමුළු සඳහා."
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "Factory Pro",
-          "description": "නිෂ්පාදන පහසුකම් සඳහා සම්පූර්ණ MOE විශ්ලේෂණ."
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "ව්‍යවසාය",

@@ -8973,16 +8973,16 @@
       },
       "plans": {
         "starter": {
-          "name": "Básico",
-          "description": "Para un solo equipo pequeño que está empezando."
+          "name": "Starter",
+          "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "Taller",
-          "description": "Para talleres en crecimiento con flujos de trabajo estructurados."
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "Factory Pro",
-          "description": "Análisis MOE completo para plantas de producción."
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "Empresarial",

@@ -8973,16 +8973,16 @@
       },
       "plans": {
         "starter": {
-          "name": "基础版",
-          "description": "适合刚起步的单个小团队。"
+          "name": "Starter",
+          "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "车间版",
-          "description": "适合拥有结构化工作流程的成长型车间。"
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "工厂专业版",
-          "description": "为生产工厂提供完整的 MOE 分析。"
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "企业版",

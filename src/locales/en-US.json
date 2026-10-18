@@ -260,16 +260,16 @@
       },
       "plans": {
         "starter": {
-          "name": "Basic",
+          "name": "Starter",
           "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "Workshop",
-          "description": "For growing workshops with structured workflows."
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "Factory Pro",
-          "description": "Full MOE analytics for production facilities."
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "Enterprise",

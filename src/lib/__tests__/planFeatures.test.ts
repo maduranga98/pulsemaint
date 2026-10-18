@@ -30,8 +30,13 @@ describe('isFeatureAvailable', () => {
     expect(isFeatureAvailable(trial(-1), 'contractors')).toBe(false);
   });
   it('follows the plan matrix for active companies', () => {
-    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(true);
-    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'purchaseOrders')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'training')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'kaizen')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'purchaseOrders')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'starter', status: 'active' }, 'contractors')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'training')).toBe(true);
+    expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'evaluations')).toBe(false);
+    expect(isFeatureAvailable({ plan: 'factory', status: 'active' }, 'kaizen')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'purchaseOrders')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'analyticsReports')).toBe(true);
     expect(isFeatureAvailable({ plan: 'workshop', status: 'active' }, 'moeAnalytics')).toBe(false);
@@ -47,6 +52,8 @@ describe('featureForPath', () => {
     expect(featureForPath('/app/shift/handover/create')).toBe('shiftHandover');
     expect(featureForPath('/app/training/my-modules')).toBe('training');
     expect(featureForPath('/app/safety/permits')).toBe('safety');
+    expect(featureForPath('/app/kaizen')).toBe('kaizen');
+    expect(featureForPath('/app/evaluations')).toBe('evaluations');
     expect(featureForPath('/app/moe')).toBe('moeAnalytics');
     expect(featureForPath('/app/inventory/purchase-orders/new')).toBe('purchaseOrders');
     expect(featureForPath('/app/analytics')).toBe('analyticsReports');
