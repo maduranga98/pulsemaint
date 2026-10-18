@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, updateDoc, addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -30,11 +30,6 @@ export default function OnboardingWizard() {
   const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
   const timezoneOptions = getTimezoneOptions();
   const [currency, setCurrency] = useState<'LKR' | 'USD' | 'AED' | 'SAR'>('LKR');
-
-  // Step 2
-  const [machineName, setMachineName] = useState('');
-  const [machineType, setMachineType] = useState('');
-  const [machineLocation, setMachineLocation] = useState('');
 
   // Hydrate defaults from company once loaded
   useEffect(() => {
@@ -84,25 +79,6 @@ export default function OnboardingWizard() {
     setCompany({ ...company, language, timezone, currency, logoUrl });
   };
 
-  const saveStep2 = async () => {
-    if (!machineName) return;
-    await addDoc(collection(db, 'machines'), {
-      companyId: company.id,
-      siteId: userProfile.siteIds[0] || company.id,
-      name: machineName,
-      type: machineType || 'other',
-      department: machineLocation || null,
-      status: 'active',
-      criticality: 3,
-      healthScore: 100,
-      createdAt: serverTimestamp(),
-      createdBy: userProfile.id,
-      updatedAt: serverTimestamp(),
-      updatedBy: userProfile.id,
-      source: 'onboarding',
-    });
-  };
-
   const completeOnboarding = async () => {
     const completedAt = Timestamp.now();
     await updateDoc(doc(db, 'companies', company.id), { onboardingCompletedAt: completedAt });
@@ -120,31 +96,12 @@ export default function OnboardingWizard() {
     try {
       if (step === 1) {
         await saveStep1();
-        setStep(2);
-      } else if (step === 2) {
-        await saveStep2();
         await completeOnboarding();
-        setStep(3);
+        setStep(2);
       }
     } catch (err: any) {
       console.error('Onboarding step failed:', err);
       setError({ message: err?.message || t('common.auth.onboarding.errors.generic') });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSkipStep = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      if (step === 2) {
-        await completeOnboarding();
-        setStep(3);
-      }
-    } catch (err: any) {
-      console.error('Onboarding skip failed:', err);
-      setError({ message: err?.message || t('common.auth.onboarding.errors.completeFailed') });
     } finally {
       setLoading(false);
     }
@@ -168,7 +125,7 @@ export default function OnboardingWizard() {
 
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            {[1, 2, 3].map((s) => (
+            {[1, 2].map((s) => (
               <div
                 key={s}
                 className={`h-1.5 flex-1 rounded-full mx-1 transition-colors ${
@@ -177,7 +134,7 @@ export default function OnboardingWizard() {
               />
             ))}
           </div>
-          <p className="text-slate-400 text-xs text-center">{t('common.auth.register.stepOf', { step: Math.min(step, 3), total: 3 })}</p>
+          <p className="text-slate-400 text-xs text-center">{t('common.auth.register.stepOf', { step: Math.min(step, 2), total: 2 })}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-[#0D1B33]/90 p-5 shadow-2xl shadow-black/40 backdrop-blur sm:p-7 space-y-6">
@@ -276,62 +233,7 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {step === 2 && (
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white!">{t('common.auth.onboarding.addFirstMachine')}</h2>
-              <p className="text-sm text-slate-400">{t('common.auth.onboarding.addFirstMachineHint')}</p>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">{t('common.auth.onboarding.machineName')}</label>
-                <input
-                  type="text"
-                  value={machineName}
-                  onChange={(e) => setMachineName(e.target.value)}
-                  placeholder={t('common.auth.onboarding.machineNamePlaceholder')}
-                  className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 outline-none transition-all focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">{t('common.auth.onboarding.machineType')}</label>
-                <select
-                  value={machineType}
-                  onChange={(e) => setMachineType(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 outline-none transition-all focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20"
-                >
-                  <option value="">{t('common.auth.onboarding.selectType')}</option>
-                  <option value="cnc_machine">{t('common.auth.onboarding.types.cnc')}</option>
-                  <option value="conveyor">{t('common.auth.onboarding.types.conveyor')}</option>
-                  <option value="hydraulic_press">{t('common.auth.onboarding.types.hydraulicPress')}</option>
-                  <option value="lathe">{t('common.auth.onboarding.types.lathe')}</option>
-                  <option value="compressor">{t('common.auth.onboarding.types.compressor')}</option>
-                  <option value="other">{t('common.auth.onboarding.types.other')}</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">{t('common.auth.onboarding.location')}</label>
-                <input
-                  type="text"
-                  value={machineLocation}
-                  onChange={(e) => setMachineLocation(e.target.value)}
-                  placeholder={t('common.auth.onboarding.locationPlaceholder')}
-                  className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 outline-none transition-all focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20"
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={handleSkipStep}
-                disabled={loading}
-                className="w-full text-[#00C2FF] hover:underline text-sm disabled:opacity-50"
-              >
-                {t('common.auth.onboarding.skip')}
-              </button>
-            </div>
-          )}
-
-          {step >= 3 && (
+          {step >= 2 && (
             <div className="text-center space-y-6">
               <div className="w-16 h-16 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-emerald-400" />
@@ -355,25 +257,15 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {step < 3 && (
+          {step < 2 && (
             <div className="flex gap-4">
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setStep(step - 1)}
-                  disabled={loading}
-                  className="flex-1 border border-white/10 bg-[#0B1526] text-slate-100 font-medium py-2 rounded-xl hover:bg-white/5 transition-colors h-11 disabled:opacity-50"
-                >
-                  {t('common.auth.register.back')}
-                </button>
-              )}
               <button
                 type="button"
                 onClick={handleNextStep}
                 disabled={loading}
                 className="flex-1 bg-gradient-to-r from-[#1A56DB] to-[#1D6FF2] hover:brightness-110 text-white font-semibold shadow-lg shadow-[#1A56DB]/30 py-2 rounded-xl transition-all disabled:opacity-50 h-11 flex items-center justify-center gap-2"
               >
-                {loading ? t('common.auth.onboarding.saving') : step === 2 ? t('common.auth.onboarding.complete') : t('common.auth.register.continue')}
+                {loading ? t('common.auth.onboarding.saving') : t('common.auth.onboarding.complete')}
                 {!loading && <ChevronRight className="w-4 h-4" />}
               </button>
             </div>
