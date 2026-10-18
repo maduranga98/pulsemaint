@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
@@ -390,6 +390,15 @@ export default function AppLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // The shell is exactly one screen tall and scrolls inside its own panes, so
+  // the page behind it must never scroll or show its white background (a
+  // stray element after #root used to expose a blank white band under the
+  // content).
+  useEffect(() => {
+    document.documentElement.classList.add('app-shell-active');
+    return () => document.documentElement.classList.remove('app-shell-active');
+  }, []);
   const { logout } = useAuthActions();
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);

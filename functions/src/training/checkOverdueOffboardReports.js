@@ -37,12 +37,10 @@ exports.checkOverdueOffboardReports = onSchedule("every 24 hours", async () => {
 
       const targetRoles = ["hr_officer"];
       const targetUserIds = [assignment.traineeId].filter(Boolean);
-      let title = "Knowledge report overdue";
 
       if (daysOverdue >= ESCALATION_DAYS_OVERDUE) {
         targetRoles.push("supervisor");
         if (assignment.assignedBy) targetUserIds.push(assignment.assignedBy);
-        title = "Knowledge report overdue — escalated";
         escalationsSent++;
       } else {
         remindersSent++;
