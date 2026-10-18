@@ -925,6 +925,8 @@ service cloud.firestore {
         && request.resource.data.approvalStatus == 'pending'
         && request.resource.data.status == 'trial'
         && request.resource.data.plan == 'starter'
+        // The free trial is 7 days; a client can't register itself a longer one.
+        && request.resource.data.trialEndsAt <= request.time + duration.value(8, 'd')
         && !request.resource.data.keys().hasAny(['enterpriseTier', 'limitOverrides']);
 
       // Plan/subscription fields are Stripe-controlled — only the

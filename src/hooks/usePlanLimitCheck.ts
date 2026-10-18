@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 import { collection, query, where, getCountFromServer, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { limitsForCompany, isAtOrOverLimit } from '../lib/planLimits';
+import { limitsForCompany, isAtOrOverLimit, seatTypeForRole, LIGHT_USER_ROLES, type SeatType } from '../lib/planLimits';
+import { PLAN_DISPLAY_NAME } from '../lib/planCatalog';
 
-export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'users' | 'plants';
+export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'plants';
 
 const RESOURCE_LABEL: Record<CountedResource, string> = {
   machines: 'machine',
   inventoryItems: 'inventory item',
   pmSchedules: 'PM schedule',
-  users: 'user',
   plants: 'plant',
 };
 
@@ -19,13 +19,12 @@ interface UsePlanLimitCheckResult {
   count: number;
   limit: number | null;
   atLimit: boolean;
-  /** e.g. "You've reached the 10 machine limit on your Basic plan." — ready to show in a banner/toast. */
+  /** e.g. "You've reached the 10 machine limit on your Starter plan." — ready to show in a banner/toast. */
   message: string | null;
 }
 
 function planDisplayName(plan: string | undefined): string {
-  if (!plan) return 'Basic';
-  return plan.charAt(0).toUpperCase() + plan.slice(1);
+  return PLAN_DISPLAY_NAME[plan as keyof typeof PLAN_DISPLAY_NAME] ?? PLAN_DISPLAY_NAME.starter;
 }
 
 /**
@@ -34,16 +33,6 @@ function planDisplayName(plan: string | undefined): string {
  * number the single-create forms use.
  */
 export async function fetchResourceCount(resource: CountedResource, companyId: string): Promise<number> {
-  if (resource === 'users') {
-    // Seats in use: everyone already in the company plus invitations still
-    // waiting to be accepted — otherwise a full set of pending invites could
-    // push the company past its limit once they all join.
-    const [members, invited] = await Promise.all([
-      getCountFromServer(query(collection(db, `companies/${companyId}/users`))),
-      getCountFromServer(query(collection(db, `companies/${companyId}/invitations`), where('status', '==', 'pending'))),
-    ]);
-    return members.data().count + invited.data().count;
-  }
   const q =
     resource === 'machines'
       ? query(collection(db, 'machines'), where('siteId', '==', companyId))
@@ -55,11 +44,105 @@ export async function fetchResourceCount(resource: CountedResource, companyId: s
           where('companyId', '==', companyId),
           where('status', 'in', ['active', 'paused']),
         )
-      : resource === 'plants'
-      ? query(collection(db, 'plants'), where('companyId', '==', companyId))
-      : query(collection(db, `companies/${companyId}/users`));
+      : query(collection(db, 'plants'), where('companyId', '==', companyId));
   const snap = await getCountFromServer(q);
   return snap.data().count;
+}
+
+export interface SeatCounts {
+  full: number;
+  light: number;
+}
+
+/**
+ * Seats in use: everyone already in the company plus invitations still
+ * waiting to be accepted — otherwise a full set of pending invites could push
+ * the company past its limit once they all join. Light seats are the
+ * floor-operator and trainee roles, everything else is a full seat.
+ */
+export async function fetchSeatCounts(companyId: string): Promise<SeatCounts> {
+  const members = collection(db, `companies/${companyId}/users`);
+  const invites = query(collection(db, `companies/${companyId}/invitations`), where('status', '==', 'pending'));
+  const light = [...LIGHT_USER_ROLES];
+  const [mAll, mLight, iAll, iLight] = await Promise.all([
+    getCountFromServer(query(members)),
+    getCountFromServer(query(members, where('role', 'in', light))),
+    getCountFromServer(invites),
+    getCountFromServer(query(invites, where('role', 'in', light))),
+  ]);
+  const lightCount = mLight.data().count + iLight.data().count;
+  return { full: mAll.data().count + iAll.data().count - lightCount, light: lightCount };
+}
+
+export interface SeatUsage {
+  loading: boolean;
+  counts: SeatCounts;
+  limits: { full: number | null; light: number | null };
+  /** Seats still free for a seat type (null = unlimited). */
+  remaining: (seat: SeatType) => number | null;
+  /** Whether one more user with this role fits — false while the live count can't be verified. */
+  canAdd: (role: string | null | undefined) => boolean;
+  /** Ready-to-show reason a user with this role can't be added, or null. */
+  messageFor: (role: string | null | undefined) => string | null;
+}
+
+/**
+ * Live full/light seat usage against the plan. Replaces the old single
+ * "total users" cap: Starter 3 full + 10 light, Growth 10 + 50, and so on.
+ */
+export function useSeatUsage(): SeatUsage {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const company = useAuthStore((s) => s.company);
+  const [counts, setCounts] = useState<SeatCounts>({ full: 0, light: 0 });
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const limits = limitsForCompany(company);
+  const fullLimit = limits.fullUsers;
+  const lightLimit = limits.lightUsers;
+
+  useEffect(() => {
+    if (!companyId) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setFailed(false);
+    fetchSeatCounts(companyId)
+      .then((c) => {
+        if (!cancelled) setCounts(c);
+      })
+      .catch(() => {
+        // Can't verify the live count → don't let a failed read bypass the plan limit.
+        if (!cancelled) setFailed(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [companyId, fullLimit, lightLimit]);
+
+  const limitOf = (seat: SeatType) => (seat === 'light' ? lightLimit : fullLimit);
+  const remaining = (seat: SeatType) => {
+    const limit = limitOf(seat);
+    return limit === null ? null : Math.max(0, limit - counts[seat]);
+  };
+  const messageFor = (role: string | null | undefined): string | null => {
+    const seat = seatTypeForRole(role);
+    if (failed) return "We couldn't verify your user limit right now. Check your connection and try again.";
+    if (loading || remaining(seat) !== 0) return null;
+    return `You've reached the ${limitOf(seat)} ${seat} user limit on your ${planDisplayName(company?.plan)} plan. Upgrade to add more.`;
+  };
+  return {
+    loading,
+    counts,
+    limits: { full: fullLimit, light: lightLimit },
+    remaining,
+    canAdd: (role) => !loading && !failed && remaining(seatTypeForRole(role)) !== 0,
+    messageFor,
+  };
 }
 
 /**
@@ -134,7 +217,7 @@ export function usePlanLimitCheck(resource: CountedResource): UsePlanLimitCheckR
  * Live count of work orders created since the start of the current calendar
  * month, checked against the plan's workOrdersPerMonth cap. Kept separate
  * from usePlanLimitCheck because it's a range query, not a plain equality
- * count, and only Basic has a cap at all (everything else is unlimited).
+ * count, and no plan caps it any more (null = unlimited).
  */
 export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
