@@ -165,6 +165,8 @@ export interface CreateMachinePayload {
   installationDate: Date | null;
   nextPmDue: Date | null;
   expectedLifespanYears: number | null;
+  purchasePrice?: number | null;
+  scrapValue?: number | null;
   department: string;
   floor: string | null;
   bay: string | null;
@@ -194,6 +196,8 @@ export interface UpdateMachinePayload {
   installationDate?: Date | null;
   nextPmDue?: Date | null;
   expectedLifespanYears?: number | null;
+  purchasePrice?: number | null;
+  scrapValue?: number | null;
   department?: string;
   floor?: string | null;
   bay?: string | null;

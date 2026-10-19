@@ -66,6 +66,8 @@ export function EditMachinePage() {
         installationDate: formData.installationDate || null,
         nextPmDue: formData.nextPmDue || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
+        ...(formData.purchasePrice !== undefined ? { purchasePrice: formData.purchasePrice } : {}),
+        ...(formData.scrapValue !== undefined ? { scrapValue: formData.scrapValue } : {}),
         department: formData.department,
         plantId: formData.plantId ?? undefined,
         floor: formData.floor || null,
