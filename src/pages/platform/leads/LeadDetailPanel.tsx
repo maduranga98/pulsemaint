@@ -69,7 +69,7 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
   }
 
   const member = (id: string | null) => team.find((m) => m.id === id);
-  const wa = whatsappNumber(lead.phone);
+  const wa = whatsappNumber(lead.whatsapp || lead.phone);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -112,11 +112,11 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
 
           {/* Contact */}
           <div className="space-y-2 text-sm">
-            {lead.phone && (
+            {(lead.phone || lead.whatsapp) && (
               <div className="flex flex-wrap items-center gap-2">
-                <Phone className="h-4 w-4 text-slate-500" /><span className="text-white">{lead.phone}</span>
-                <a href={`tel:${lead.phone.replace(/\s/g, '')}`} className="rounded border border-slate-600 px-2 py-0.5 text-xs text-slate-200 hover:bg-slate-800">Call</a>
-                {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-emerald-700/60 px-2 py-0.5 text-xs text-emerald-300 hover:bg-emerald-900/30"><MessageCircle className="h-3 w-3" /> WhatsApp</a>}
+                <Phone className="h-4 w-4 text-slate-500" /><span className="text-white">{lead.phone || lead.whatsapp}</span>
+                <a href={`tel:${(lead.phone || lead.whatsapp).replace(/\s/g, '')}`} className="rounded border border-slate-600 px-2 py-0.5 text-xs text-slate-200 hover:bg-slate-800">Call</a>
+                {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-emerald-700/60 px-2 py-0.5 text-xs text-emerald-300 hover:bg-emerald-900/30"><MessageCircle className="h-3 w-3" /> WhatsApp{lead.whatsapp && lead.whatsapp !== lead.phone ? ` ${lead.whatsapp}` : ''}</a>}
               </div>
             )}
             {lead.email && <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-500" /><a href={`mailto:${lead.email}`} className="text-blue-300!">{lead.email}</a></p>}

@@ -30,16 +30,15 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
    */
   function applyPaste(text: string) {
     const p = parseLeadText(text);
-    const extra = p.whatsapp && p.whatsapp !== p.phone ? `WhatsApp: ${p.whatsapp}` : '';
     setF((prev) => ({
       ...prev,
       businessName: p.company || p.name || prev.businessName,
       contactPerson: p.name || prev.contactPerson,
       phone: p.phone || prev.phone,
+      whatsapp: p.whatsapp && p.whatsapp !== (p.phone || prev.phone) ? p.whatsapp : prev.whatsapp,
       email: p.email || prev.email,
       website: p.website || prev.website,
       location: p.location || prev.location,
-      notes: extra && !prev.notes.includes(extra) ? [prev.notes, extra].filter(Boolean).join('\n') : prev.notes,
     }));
   }
 
@@ -92,6 +91,9 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
         <Field label="Contact person"><input className={input} value={f.contactPerson} onChange={(e) => set('contactPerson', e.target.value)} placeholder="Nimal Silva" /></Field>
         <Field label="Phone" hint={dup ? `Same number as “${dup.businessName}” — possible duplicate.` : undefined}>
           <input className={input} value={f.phone} onChange={(e) => set('phone', e.target.value)} placeholder="077 123 4567" inputMode="tel" />
+        </Field>
+        <Field label="WhatsApp" hint="Only if different from the phone — leave empty to use the phone number.">
+          <input className={input} value={f.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} placeholder="077 123 4567" inputMode="tel" />
         </Field>
         <Field label="Email"><input className={input} type="email" value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="owner@example.com" /></Field>
         <Field label="Website" hint="Shows as a link that opens in a new tab.">

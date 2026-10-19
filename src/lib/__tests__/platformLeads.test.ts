@@ -85,6 +85,9 @@ describe('search and phone helpers', () => {
     expect(whatsappNumber('+94 77 123 4567')).toBe('94771234567');
     expect(phoneKey('0771234567')).toBe(phoneKey('+94771234567'));
   });
+  it('finds a lead by its separate WhatsApp number', () => {
+    expect(matchesSearch(lead({ whatsapp: '+94 75 237 3073' }), '752373')).toBe(true);
+  });
 });
 
 describe('dayReport', () => {
@@ -197,5 +200,13 @@ WhatsApp number: +94752373073`);
   it('still guesses from unlabelled text', () => {
     const p = parseLeadText('Nimal Silva\n077 123 4567\nnimal@silva.lk');
     expect(p).toMatchObject({ name: 'Nimal Silva', company: '', phone: '0771234567', email: 'nimal@silva.lk' });
+  });
+});
+
+describe('import whatsapp column', () => {
+  it('maps a WhatsApp column to its own field and falls back to it for the phone', () => {
+    const rows = [['Company', 'Full name', 'WhatsApp number'], ['CIC Holdings', 'Nilanka', '+94752373073']];
+    const r = parseImportRows(rows, { now: NOW });
+    expect(r.leads[0]).toMatchObject({ businessName: 'CIC Holdings', phone: '+94752373073', whatsapp: '' });
   });
 });

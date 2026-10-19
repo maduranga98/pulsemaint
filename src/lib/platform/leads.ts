@@ -54,6 +54,8 @@ export interface Lead {
   businessName: string;
   contactPerson: string;
   phone: string;
+  /** WhatsApp number when it differs from the phone; empty means the phone is used. */
+  whatsapp: string;
   email: string;
   /** Their website, stored as typed; use `websiteUrl` for a clickable href. */
   website: string;
@@ -119,7 +121,7 @@ export interface LeadActivity {
 
 export function emptyLead(now = Date.now()): LeadInput {
   return {
-    businessName: '', contactPerson: '', phone: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
+    businessName: '', contactPerson: '', phone: '', whatsapp: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
     leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false,
     priceQuoted: '', closedAmount: 0, currency: 'LKR', mainProblem: '', tags: [], notes: '', assignedTo: null, marketerId: null, companyId: null,
   };
@@ -219,7 +221,7 @@ export function matchesSearch(lead: Lead, q: string): boolean {
   const digits = needle.replace(/\D/g, '');
   return [lead.businessName, lead.contactPerson, lead.location, lead.district, lead.email, lead.source, lead.campaign]
     .some((v) => v?.toLowerCase().includes(needle))
-    || (digits.length >= 3 && lead.phone.replace(/\D/g, '').includes(digits));
+    || (digits.length >= 3 && `${lead.phone}${lead.whatsapp}`.replace(/\D/g, '').includes(digits));
 }
 
 /** Sri Lankan numbers → wa.me digits (07x… → 947x…). Other numbers are kept as typed. */
@@ -295,13 +297,13 @@ function isoDateTime(ms: number | null): string {
 
 /** Same fields as the Add lead form (no campaign / assignment columns). */
 export const LEAD_EXPORT_HEADER = [
-  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
+  'Business name', 'Contact person', 'Phone', 'WhatsApp', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
   'Calls made', 'Next call', 'Follow-up note', 'Demo', 'Price told', 'Closed amount', 'Currency', 'Main problem', 'Tags', 'Notes',
 ];
 
 export function leadsToCsv(leads: Lead[]): string {
   return toCsv(LEAD_EXPORT_HEADER, leads.map((l) => [
-    l.businessName, l.contactPerson, l.phone, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
+    l.businessName, l.contactPerson, l.phone, l.whatsapp, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
     LEAD_STATUS_LABEL[l.status], l.callsMade, isoDateTime(l.nextCallAt), l.followUpNote, isoDateTime(l.demoAt), l.priceQuoted,
     l.closedAmount || '', l.currency, l.mainProblem, l.tags.join('; '), l.notes,
   ]));
@@ -350,10 +352,11 @@ export function activityOutcomeLabel(a: Pick<LeadActivity, 'type' | 'outcome' | 
 // ---------------------------------------------------------------------------
 
 const HEADER_ALIASES: Record<keyof Pick<LeadInput,
-  'businessName' | 'contactPerson' | 'phone' | 'email' | 'location' | 'district' | 'source' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
+  'businessName' | 'contactPerson' | 'phone' | 'whatsapp' | 'email' | 'location' | 'district' | 'source' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
   businessName: ['business name', 'business', 'company', 'company name', 'garage', 'organisation', 'organization', 'factory', 'name of business'],
   contactPerson: ['contact person', 'contact', 'full name', 'name', 'owner', 'contact name', 'first name'],
-  phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel', 'whatsapp'],
+  phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel'],
+  whatsapp: ['whatsapp', 'whatsapp number', 'whatsapp no', 'whats app'],
   email: ['email', 'e-mail', 'email address'],
   location: ['location', 'city', 'town', 'address', 'area'],
   // Country (stored in `district`); older sheets with a district column still land here.
@@ -430,6 +433,8 @@ export function parseImportRows(table: unknown[][], defaults: { source?: string;
       else lead[field] = String(raw).trim().replace(/^p:\+?/, (m) => (field === 'phone' ? (m.includes('+') ? '+' : '') : m));
     }
     if (!lead.businessName) lead.businessName = lead.contactPerson;
+    if (!lead.phone) lead.phone = lead.whatsapp;
+    if (lead.whatsapp === lead.phone) lead.whatsapp = '';
     // Country names or codes → ISO code; anything unknown is kept as typed. Default: Sri Lanka.
     lead.district = lead.district ? resolveCountry(lead.district) : 'LK';
     if (!lead.businessName || (!lead.phone && !lead.email)) {
