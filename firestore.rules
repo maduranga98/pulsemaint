@@ -2091,6 +2091,12 @@ service cloud.firestore {
         && request.resource.data.businessName.size() > 0 && request.resource.data.businessName.size() <= 500
         && request.resource.data.status in ['new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'trial_requested', 'negotiation', 'closed_won', 'closed_lost'];
     }
+    // Records removed by the server-side plan-limit triggers (a full copy, so
+    // they can be restored). Written by Cloud Functions only.
+    match /planLimitViolations/{id} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
     // History is append-only; it is only removed together with its lead.
     match /platformLeadActivities/{activityId} {
       allow read, delete: if isSuperadmin();
