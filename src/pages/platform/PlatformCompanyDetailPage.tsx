@@ -97,12 +97,13 @@ export default function PlatformCompanyDetailPage() {
     if (p.kind === 'limits') {
       const overrides = data?.company.limitOverrides ?? {};
       setLimitInputs(Object.fromEntries(COUNT_LIMIT_ROWS.map((r) => {
-        const v = overrides[r.key];
+        // Overrides saved before full/light seats were split used one `users` cap.
+        const v = overrides[r.key] ?? (r.key === 'fullUsers' ? (overrides as { users?: number | null }).users : undefined);
         return [r.key, v === undefined ? '' : v === null ? 'unlimited' : String(v)];
       })));
     }
     setPrompt(p);
-    setValue(p.kind === 'role' ? p.user.role ?? 'technician' : p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '14' : '');
+    setValue(p.kind === 'role' ? p.user.role ?? 'technician' : p.kind === 'email' ? p.user.email ?? '' : p.kind === 'note' ? data?.company.platformNote ?? '' : p.kind === 'trial' ? '7' : '');
   }
 
   if (!data) return error ? <ErrorNote message={error} /> : <Loading />;
@@ -129,7 +130,7 @@ export default function PlatformCompanyDetailPage() {
               <p className="font-semibold text-white">{c.approvalStatus === 'pending' ? 'Waiting for your approval' : 'Registration rejected'}</p>
               <p className="text-sm text-slate-300">
                 {c.approvalStatus === 'pending'
-                  ? `Registered ${fmtDateTime(c.createdAt)} by ${c.adminName ?? 'the admin'}${c.adminEmail ? ` (${c.adminEmail})` : ''}. Nobody can use FirmiCore until you approve it; the 14-day trial starts on approval.`
+                  ? `Registered ${fmtDateTime(c.createdAt)} by ${c.adminName ?? 'the admin'}${c.adminEmail ? ` (${c.adminEmail})` : ''}. Nobody can use FirmiCore until you approve it; the 7-day trial starts on approval.`
                   : c.rejectionReason ? `Reason: ${c.rejectionReason}` : 'No reason recorded.'}
               </p>
             </div>
@@ -191,7 +192,7 @@ export default function PlatformCompanyDetailPage() {
                 return (
                   <tr key={r.key} className="border-b border-[#1E3A5F]/60 last:border-0">
                     <td className="py-1.5 text-slate-400">{r.label}</td>
-                    <td className="py-1.5 font-semibold">{formatLimit(effective[r.key], r.perMonth)}</td>
+                    <td className="py-1.5 font-semibold">{formatLimit(effective[r.key], r.perMonth, r.months)}</td>
                     <td className="py-1.5 text-xs text-amber-300">{overridden ? 'set for this company' : ''}</td>
                   </tr>
                 );

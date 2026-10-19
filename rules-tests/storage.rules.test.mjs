@@ -111,3 +111,23 @@ describe('upload content checks', () => {
     await assertSucceeds(uploadBytes(ref(member('A'), fresh('companies/A/training-content/')), new Uint8Array(60 * 1024 * 1024), { contentType: 'video/mp4' }));
   });
 });
+
+describe('outsourced maintenance invoices', () => {
+  const base = 'companies/A/machineOutsourced/m1/';
+  it('members of the company upload PDFs and photos and read them back; others cannot', async () => {
+    const pdf = ref(member('A'), `${base}${++n}_invoice.pdf`);
+    await assertSucceeds(uploadBytes(pdf, bytes(), { contentType: 'application/pdf' }));
+    await assertSucceeds(getBytes(pdf));
+    await assertSucceeds(uploadBytes(ref(member('A'), `${base}${++n}_bill.jpg`), bytes(), { contentType: 'image/jpeg' }));
+    await assertFails(getBytes(ref(member('B'), pdf.fullPath)));
+    await assertFails(uploadBytes(ref(member('B'), `${base}${++n}_x.pdf`), bytes(), { contentType: 'application/pdf' }));
+    await assertFails(uploadBytes(ref(anon(), `${base}${++n}_x.pdf`), bytes(), { contentType: 'application/pdf' }));
+  });
+  it('active content is refused and a deleted job can remove its files', async () => {
+    await assertFails(uploadBytes(ref(member('A'), `${base}${++n}_x.html`), bytes(), { contentType: 'text/html' }));
+    const f = ref(member('A'), `${base}${++n}_gone.pdf`);
+    await assertSucceeds(uploadBytes(f, bytes(), { contentType: 'application/pdf' }));
+    await assertSucceeds(deleteObject(f));
+    await assertFails(deleteObject(ref(member('B'), `${base}${++n}_x.pdf`)));
+  });
+});

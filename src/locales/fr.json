@@ -1957,10 +1957,135 @@
       "noMachinesMatch": "Aucune machine ne correspond à vos filtres",
       "addFirstMachine": "Ajouter la Première Machine",
       "clearFilters": "Effacer les Filtres",
+      "asset": {
+        "annualDepreciation": "Amortissement annuel",
+        "accumulatedDepreciation": "Amortissement cumulé",
+        "perYear": "{{amount}} / an",
+        "importNote": "Les prix et valeurs de rebut sont lus en {{currency}} (la devise de votre entreprise) et enregistrés uniquement pour les administrateurs et responsables d'usine.",
+        "cancel": "Annuler",
+        "close": "Fermer",
+        "edit": "Modifier",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Valeur de l'actif enregistrée.",
+        "saveFailed": "Enregistrement impossible.",
+        "title": "Valeur de l'actif et coût de possession",
+        "purchasePrice": "Prix d'achat",
+        "scrapValue": "Valeur de rebut attendue",
+        "depreciationHint": "La valeur actuelle est calculée par amortissement linéaire depuis la date d'achat sur la durée de vie prévue (à renseigner dans Modifier la machine).",
+        "currentValue": "Valeur actuelle",
+        "currentValueMissing": "Ajoutez le prix, la date d'achat et la durée de vie",
+        "outsourcedJobs": "Travaux sous-traités (enregistrés ici)",
+        "workOrders": "Ordres de travail (pièces + frais de sous-traitants)",
+        "totalMaintenance": "Total dépensé en maintenance",
+        "totalOwnership": "Coût total de possession",
+        "scrapProceeds": "Montant de la mise au rebut / vente",
+        "adviceWatch": "Les dépenses de maintenance approchent la moitié du prix de cette machine — à surveiller.",
+        "adviceReplace": "Envisagez de la remplacer : les dépenses de maintenance sont très élevées par rapport au prix ou à la valeur actuelle de la machine.",
+        "errAmounts": "Les montants doivent être supérieurs ou égaux à 0.",
+        "errScrapOverPrice": "La valeur de rebut ne peut pas dépasser le prix d'achat.",
+        "scrap": {
+          "title": "Mettre {{name}} au rebut",
+          "intro": "La machine passe en bas de la liste, marquée Mise au rebut. Son historique est conservé et ses plannings de MP actifs sont archivés (ils reviennent si vous annulez la mise au rebut).",
+          "date": "Date de mise au rebut",
+          "reason": "Motif",
+          "reasons": {
+            "broken": "Irréparable",
+            "old": "Trop ancienne",
+            "uneconomical": "Réparation non rentable",
+            "replaced": "Remplacée par une nouvelle machine",
+            "other": "Autre"
+          },
+          "details": "Détails (facultatif)",
+          "detailsPlaceholder": "Ce qui s'est passé, qui l'a achetée…",
+          "amount": "Montant rebut / vente ({{currency}})",
+          "approvedBy": "Approuvé par",
+          "confirm": "Mettre la machine au rebut",
+          "errDate": "Choisissez la date de mise au rebut.",
+          "errApprover": "Indiquez qui a approuvé la mise au rebut.",
+          "errAmount": "Le montant doit être supérieur ou égal à 0.",
+          "done": "{{name}} marquée comme mise au rebut.",
+          "pmArchived": " {{count}} planning(s) de MP archivé(s).",
+          "pmRestored": "{{count}} planning(s) de MP réactivé(s).",
+          "pmNotRestored": "{{count}} n'ont pas pu être réactivés : la limite de plannings de MP de votre forfait est atteinte.",
+          "failed": "Impossible de mettre la machine au rebut.",
+          "menu": "Mettre au rebut…",
+          "bannerOn": "Cette machine a été mise au rebut le {{date}}.",
+          "banner": "Cette machine a été mise au rebut.",
+          "broughtIn": "a rapporté {{amount}}",
+          "approvedByLine": "approuvé par {{name}}",
+          "bannerKept": "Son historique de pannes, de maintenance et de coûts reste enregistré.",
+          "undo": "Annuler la mise au rebut",
+          "undoConfirm": "Remettre {{name}} en service ? L'enregistrement de mise au rebut sera supprimé.",
+          "restored": "Machine restaurée.",
+          "restoreFailed": "Impossible de restaurer la machine."
+        },
+        "outsourced": {
+          "fromWorkOrder": "Ajoutez-les lors de la création d'un ordre de travail sous-traitant (Ordres de travail → Créer, type Sous-traitant).",
+          "woSectionTitle": "Détails du travail sous-traité (facultatif)",
+          "woSectionHint": "À remplir si le sous-traitant a déjà fait le travail : pièces posées, prix et facture. Enregistré dans l'historique de maintenance de la machine.",
+          "title": "Maintenance sous-traitée",
+          "subtitle": "Travaux d'entreprises extérieures, avec pièces posées, coût et factures.",
+          "total": "Total à ce jour : {{amount}}.",
+          "add": "Ajouter un travail sous-traité",
+          "empty": "Aucun travail sous-traité enregistré pour cette machine.",
+          "deleteConfirm": "Supprimer ce travail de {{name}} et ses factures ? Action irréversible.",
+          "deleteFailed": "Suppression impossible.",
+          "delete": "Supprimer",
+          "invoice": "Facture {{number}}",
+          "part": "Pièce",
+          "partNo": "N° de pièce",
+          "fittedAs": "Posé comme",
+          "replaced": "Remplacé",
+          "added": "Ajouté",
+          "qty": "Qté",
+          "unitPrice": "Prix unitaire",
+          "colTotal": "Total",
+          "partsAndLabour": "Pièces {{parts}} + main-d'œuvre / service {{labour}}",
+          "dialogTitle": "Ajouter une maintenance sous-traitée",
+          "contractor": "Sous-traitant / entreprise",
+          "contractorPlaceholder": "Choisissez parmi vos sous-traitants ou saisissez",
+          "typeOfWork": "Type de travail",
+          "jobTypes": {
+            "repair": "Réparation",
+            "service": "Entretien",
+            "overhaul": "Révision",
+            "installation": "Installation / mise à niveau",
+            "other": "Autre"
+          },
+          "started": "Début",
+          "finished": "Fin",
+          "whatWasDone": "Travail effectué",
+          "whatPlaceholder": "ex. : Remplacement des roulements principaux et réalignement de l'arbre",
+          "partsHeading": "Pièces remplacées ou ajoutées",
+          "addPart": "Ajouter une pièce",
+          "removePart": "Retirer la pièce",
+          "noParts": "Aucune pièce posée ? Laissez vide et saisissez seulement la main-d'œuvre / le service.",
+          "partPlaceholder": "Roulement 6205",
+          "labourLabel": "Main-d'œuvre / service ({{currency}})",
+          "invoiceNumber": "Numéro de facture",
+          "totalParts": "Pièces",
+          "totalLabour": "Main-d'œuvre / service",
+          "totalCost": "Coût total",
+          "invoicesLabel": "Factures / reçus (PDF ou photos, 15 Mo max. chacun)",
+          "filesSelected": "{{count}} fichier(s) sélectionné(s)",
+          "notes": "Notes",
+          "notesPlaceholder": "Garantie accordée, suivi nécessaire…",
+          "saveJob": "Enregistrer le travail",
+          "saved": "Travail sous-traité enregistré.",
+          "saveFailed": "Impossible d'enregistrer le travail.",
+          "errContractor": "Indiquez le sous-traitant / l'entreprise.",
+          "errStart": "Indiquez la date de début.",
+          "errDates": "La date de fin précède la date de début.",
+          "errParts": "Chaque pièce nécessite une quantité supérieure à 0 et un prix.",
+          "errLabour": "Le coût de main-d'œuvre ne peut pas être négatif."
+        }
+      },
       "statusLabels": {
         "active": "Active",
         "under_maintenance": "En Maintenance",
-        "decommissioned": "Hors Service"
+        "decommissioned": "Hors Service",
+        "scrapped": "Mise au rebut"
       },
       "criticalityLabels": {
         "1": "Faible",
@@ -2025,7 +2150,8 @@
         "statusOptions": {
           "active": "Active",
           "under_maintenance": "En Maintenance",
-          "decommissioned": "Hors Service"
+          "decommissioned": "Hors Service",
+          "scrapped": "Mise au rebut"
         },
         "criticalityOptions": {
           "5": "5 - Critique pour la Mission",
@@ -2172,6 +2298,9 @@
       "pageTitle": "Pannes",
       "summary": "{{count}} {{filter}} sur {{machineCount}} machines",
       "reportViaQr": "Signaler via QR",
+      "attendedByInline": "Prise en charge par {{name}}",
+      "awaitingSignOff": "En attente de validation",
+      "selfAttendBusy": "Vous êtes encore sur {{ref}} {{machine}}. Envoyez votre travail en cours avant d'en prendre un autre.",
       "reportBreakdown": "Signaler une Panne",
       "tabs": {
         "reported": "signalées",
@@ -2255,6 +2384,7 @@
         "empty": "Aucun technicien ou stagiaire n'est actuellement pointé. Demandez-leur de commencer leur service, ou assignez une fois que quelqu'un est disponible.",
         "unnamed": "Sans nom",
         "onShift": "En service",
+        "busy": "Occupé — sur {{ref}}",
         "cancel": "Annuler",
         "assigning": "Assignation…",
         "assign": "Assigner"
@@ -2268,6 +2398,7 @@
         "productionImpact": "Impact sur la Production",
         "attemptedFixes": "Solutions Tentées",
         "technicianFindings": "Ce Qui S'est Passé (Constats du Technicien/Stagiaire)",
+        "completionNotes": "Ce qui a été fait pour terminer la réparation",
         "assignedTechnicians": "Techniciens Assignés",
         "attachedMedia": "Pièces Jointes",
         "attachmentAlt": "Pièce jointe {{index}}",
@@ -2355,6 +2486,13 @@
         "attemptedFixesLabel": "Solutions tentées",
         "technicianFindingsLabel": "Que s'est-il passé ? (constats du technicien/stagiaire)",
         "technicianFindingsPlaceholder": "Votre propre récit de ce qui s'est passé, distinct de la description du déclarant. Ou appuyez sur le micro et racontez-nous.",
+        "quickFixLabel": "Ce que vous avez fait et comment vous l'avez terminé *",
+        "quickFixHint": "Gravité faible : décrivez la réparation. L'envoi la transmet à votre superviseur pour validation — aucun ordre de travail n'est nécessaire.",
+        "quickFixPlaceholder": "Saisissez-le, ou appuyez sur le micro et dictez-le.",
+        "quickFixRequired": "Décrivez ce que vous avez fait et comment vous l'avez terminé avant d'envoyer.",
+        "submitForSignOff": "Envoyer pour validation",
+        "quickFixSubmitted": "Envoyé — transmis à votre superviseur pour validation.",
+        "alreadyAttended": "{{name}} s'occupe déjà de cette panne.",
         "attachMediaLabel": "Joindre des fichiers (photos/vidéo)",
         "filesSelected_one": "{{count}} fichier sélectionné",
         "filesSelected_other": "{{count}} fichiers sélectionnés",
@@ -2496,6 +2634,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "Non inclus dans votre forfait : passez à un forfait supérieur pour utiliser les ordres de travail sous-traitants.",
       "types": {
         "BREAKDOWN": "Réparation de Panne",
         "CORRECTIVE": "Maintenance Corrective",
@@ -2874,6 +3013,7 @@
         "assignInternalTechniciansLabel": "Assigner des techniciens internes",
         "optionalLabel": "(facultatif)",
         "activeWOsInline": "{{count}} OT actifs",
+        "busyInline": "Occupé — sur {{ref}}",
         "chooseContactPerson": "Choisissez un contact…",
         "primaryContactOption": "{{name}} (contact principal)"
       },
@@ -8960,16 +9100,16 @@
       },
       "plans": {
         "starter": {
-          "name": "Basique",
-          "description": "Pour une seule petite équipe qui démarre."
+          "name": "Starter",
+          "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "Atelier",
-          "description": "Pour les ateliers en croissance avec des flux de travail structurés."
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "Factory Pro",
-          "description": "Analyses MOE complètes pour les sites de production."
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "Entreprise",
@@ -10504,6 +10644,34 @@
               "Utilisez l'option de téléchargement ou d'impression pour l'enregistrer en image ou en PDF, ou imprimez-le directement pour le fixer sur la machine.",
               "Scanner ce code QR plus tard ouvre directement ce profil."
             ]
+          },
+          {
+            "title": "Enregistrer le prix d'achat d'une machine et voir sa valeur",
+            "steps": [
+              "Ouvrez Machines et utilisez Ajouter une machine (ou Modifier sur une machine existante). Les admins et responsables d'usine voient Prix d'achat et Valeur de rebut attendue à côté de la date d'achat et de la durée de vie prévue.",
+              "Saisissez le prix d'achat et la valeur attendue à la mise au rebut. Les montants sont dans la devise de votre entreprise.",
+              "Ouvrez la machine et regardez Aperçu : la carte Valeur de l'actif affiche l'amortissement annuel, l'amortissement cumulé et la valeur actuelle, calculés de façon linéaire sur la durée de vie prévue.",
+              "Beaucoup de machines à ajouter ? Téléchargez le modèle CSV depuis Importer : il contient les colonnes expected_lifespan_years, purchase_price et scrap_value.",
+              "La carte additionne aussi ce qui a été dépensé en maintenance et vous prévient quand réparer coûte plus que la machine ne vaut."
+            ]
+          },
+          {
+            "title": "Mettre une machine au rebut",
+            "steps": [
+              "Ouvrez la machine et choisissez Plus → Mettre au rebut… (admins et responsables d'usine).",
+              "Choisissez la date et le motif, saisissez ce que la mise au rebut ou la vente a rapporté et qui l'a approuvée, puis confirmez.",
+              "La machine est marquée Mise au rebut (rose) et passe en bas de la liste des machines. Son historique est conservé et ses plannings de MP sont archivés.",
+              "Elle n'apparaît plus lors de la création d'ordres de travail, de rapports de panne ou de plannings de MP, et ne compte plus dans la limite de machines de votre forfait.",
+              "Mise au rebut par erreur ? Ouvrez la machine et choisissez Annuler la mise au rebut : la machine et ses plannings de MP archivés reviennent."
+            ]
+          },
+          {
+            "title": "Faire la visite guidée d'une page machine",
+            "steps": [
+              "Ouvrez une machine et appuyez sur Visite de la page à côté de son statut.",
+              "Une carte désigne le statut, la santé et l'entretien, l'onglet Maintenance, le menu Plus et (pour les admins et responsables d'usine) la carte Valeur de l'actif.",
+              "Utilisez Suivant et Précédent pour avancer, ou Passer la visite pour arrêter. Vous pouvez la relancer à tout moment."
+            ]
           }
         ]
       },
@@ -10555,6 +10723,17 @@
               "Il note les pièces utilisées, les remarques et tout média (photos) au fur et à mesure.",
               "Une fois terminé, il le soumet pour signature.",
               "Un superviseur ou un niveau supérieur examine la liste de contrôle complétée et les détails de la signature, puis clôture l'ordre de travail."
+            ]
+          },
+          {
+            "title": "Enregistrer un travail fait par un sous-traitant externe",
+            "steps": [
+              "Créez un ordre de travail et choisissez le type Sous-traitant (il faut le module Sous-traitants dans votre forfait).",
+              "À l'étape de l'équipe, choisissez l'entreprise sous-traitante.",
+              "Sous Détails du travail sous-traité (facultatif), renseignez le type de travail, les dates et ce qui a été fait.",
+              "Ajoutez chaque pièce remplacée ou ajoutée avec sa quantité et son prix unitaire, puis la main-d'œuvre ou le service. Le total est calculé pour vous.",
+              "Saisissez le numéro de facture et joignez la facture (PDF ou photo).",
+              "Créez l'ordre de travail. Les détails sont enregistrés dans l'onglet Maintenance de la machine, où les coûts, pièces et liens de factures restent conservés."
             ]
           }
         ]
@@ -10969,6 +11148,107 @@
             ]
           }
         ]
+      }
+    },
+    "tour": {
+      "bannerTitle": "Faites la visite guidée",
+      "bannerBody": "Un court parcours qui présente le menu, les notifications et votre équipe, étape par étape.",
+      "bannerButton": "Démarrer la visite"
+    }
+  },
+  "tour": {
+    "ui": {
+      "next": "Suivant",
+      "back": "Précédent",
+      "done": "Terminer",
+      "skip": "Passer la visite",
+      "close": "Fermer",
+      "stepOf": "{{current}} sur {{total}}",
+      "nothingToShow": "Il n'y a encore rien à montrer sur cet écran.",
+      "pageTour": "Visite de la page"
+    },
+    "main": {
+      "welcome": {
+        "title": "Bienvenue sur FirmiCore",
+        "body": "Faisons un tour rapide des principales parties de l'application. Cela ne prend qu'une minute : utilisez Suivant pour avancer ou Passer à tout moment. Vous pouvez le revoir depuis Aide et support."
+      },
+      "dashboard": {
+        "title": "Votre tableau de bord",
+        "body": "Votre page d'accueil. Elle montre ce qui demande de l'attention aujourd'hui : pannes ouvertes, ordres de travail, MP à faire et alertes de votre rôle."
+      },
+      "plants": {
+        "title": "Onglets des sites",
+        "body": "Changez de site ici. Tout ce qui suit (machines, ordres de travail, personnes) dépend du site choisi."
+      },
+      "group_maintenance": {
+        "title": "Maintenance",
+        "body": "Machines, pannes, ordres de travail et plannings de MP sont ici. Commencez ici pour signaler une panne ou consulter une machine."
+      },
+      "group_safety": {
+        "title": "Sécurité",
+        "body": "Permis de travail, dossiers de sécurité, formations sécurité et liste noire des sous-traitants."
+      },
+      "group_inventory": {
+        "title": "Stock",
+        "body": "Catalogue de pièces, demandes de stock et bons de commande. Les pièces en stock bas sont signalées."
+      },
+      "group_triage_training": {
+        "title": "Triage et formation",
+        "body": "Parcours guidés de dépannage et modules de formation, affectations et certificats."
+      },
+      "group_workforce": {
+        "title": "Équipes",
+        "body": "Sous-traitants, votre équipe, relèves d'équipe et demandes aux responsables."
+      },
+      "group_insights": {
+        "title": "Analyses",
+        "body": "Analyses, rapports, MOE, audits et évaluations : chiffres et rapports issus de vos propres données."
+      },
+      "group_admin": {
+        "title": "Administration",
+        "body": "Paramètres, utilisateurs, sites, facturation et demandes de support de votre entreprise."
+      },
+      "language": {
+        "title": "Langue",
+        "body": "Changez la langue de l'application à tout moment. Votre choix est mémorisé."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "body": "La cloche affiche les nouvelles pannes, affectations, validations et alertes. Un chiffre rouge signifie qu'un élément attend."
+      },
+      "shift": {
+        "title": "Votre équipe",
+        "body": "Démarrez votre équipe ici et terminez-la par une relève, pour que l'équipe suivante sache ce qui s'est passé."
+      },
+      "profile": {
+        "title": "Votre compte",
+        "body": "Votre nom et votre rôle. Utilisez Déconnexion à côté quand vous avez terminé."
+      },
+      "help": {
+        "title": "Aide et support",
+        "body": "Guides pas à pas pour chaque module. Vous pouvez refaire cette visite d'ici quand vous le souhaitez."
+      }
+    },
+    "machine": {
+      "status": {
+        "title": "Statut et criticité",
+        "body": "Indique si la machine est active, en maintenance ou mise au rebut (rose, en bas de la liste) et sa criticité."
+      },
+      "health": {
+        "title": "Santé et entretien",
+        "body": "Score de santé, dernier entretien et prochaine MP en un coup d'œil."
+      },
+      "tabs": {
+        "title": "Onglet Maintenance",
+        "body": "Ouvrez Maintenance pour voir l'historique des travaux et les travaux sous-traités enregistrés, avec pièces posées, coûts et factures."
+      },
+      "more": {
+        "title": "Autres actions",
+        "body": "Créez un ordre de travail, signalez un problème, exportez les détails et (admins et responsables d'usine) Mettre au rebut. La mise au rebut garde l'historique et archive ses plannings de MP."
+      },
+      "asset": {
+        "title": "Valeur de l'actif et coût",
+        "body": "Prix d'achat, valeur de rebut, amortissement annuel et valeur actuelle, plus tout ce qui a été dépensé en maintenance, pour décider quand réparer ou remplacer."
       }
     }
   }

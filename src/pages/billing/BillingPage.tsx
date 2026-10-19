@@ -18,12 +18,14 @@ type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
 
 interface PlanLimits {
+  fullUsers: string;
+  lightUsers: string;
   plants: string;
   machines: string;
   inventoryItems: string;
   pmSchedules: string;
-  workOrders: string;
-  users: string;
+  aiCredits: string;
+  analyticsHistory: string;
 }
 
 // "Unlimited" itself is translated at render time (t('common.billing.unlimited'))
@@ -38,12 +40,14 @@ function fmtNumber(n: number | null): string {
 function limitsFor(plan: Plan): PlanLimits {
   const c: PlanLimitConfig = PLAN_LIMITS[plan];
   return {
+    fullUsers: fmtNumber(c.fullUsers),
+    lightUsers: fmtNumber(c.lightUsers),
     plants: fmtNumber(c.plants),
     machines: fmtNumber(c.machines),
     inventoryItems: fmtNumber(c.inventoryItems),
     pmSchedules: fmtNumber(c.pmSchedules),
-    workOrders: c.workOrdersPerMonth === null ? '' : `${c.workOrdersPerMonth}`,
-    users: fmtNumber(c.users),
+    aiCredits: fmtNumber(c.aiCreditsPerMonth),
+    analyticsHistory: c.analyticsHistoryMonths === null ? '' : `${c.analyticsHistoryMonths}`,
   };
 }
 
@@ -66,9 +70,8 @@ interface PlanDef {
   highlight?: boolean;
 }
 
-// Yearly billing is discounted 20% off (roughly 2.4 months free) vs. paying
-// monthly on every paid plan — kept in sync with the customer-facing pricing
-// sheet (FirmiCore-Customer-Booklet.pdf) and the Product & Sales Catalog.
+// Yearly billing is pay-10-months-get-12 (about 17% off) vs. paying monthly on
+// every paid plan — kept in sync with the pricing page on firmicore.com.
 // Copy lives under common.billing.plans.<id>/common.billing.features.<key> in
 // the locale files — this array only holds the keys and the numbers.
 const PLANS: PlanDef[] = [
@@ -83,20 +86,9 @@ const PLANS: PlanDef[] = [
     borderColor: 'border-slate-700',
     limits: limitsFor('starter'),
     featureGroups: [
-      {
-        categoryKey: 'common.billing.categories.coreMaintenance',
-        itemKeys: [
-          'machineRegistryQr',
-          'breakdownReporting',
-          'basicWorkOrders',
-          'pmSchedulesFeature',
-          'inventoryPartsCatalog',
-        ],
-      },
-      {
-        categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['shiftHandoverBriefings', 'trainingSafetyWorkspace'],
-      },
+      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['starterCore'] },
+      { categoryKey: 'common.billing.categories.inventoryProcurement', itemKeys: ['starterInventory'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['aiCreditsFeature', 'analyticsHistoryFeature'] },
     ],
   },
   {
@@ -108,21 +100,13 @@ const PLANS: PlanDef[] = [
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
     borderColor: 'border-blue-800/60',
+    highlight: true,
     limits: limitsFor('workshop'),
     featureGroups: [
-      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInBasicExporting'] },
-      {
-        categoryKey: 'common.billing.categories.inventoryProcurement',
-        itemKeys: ['purchaseOrdersFeature', 'autoPoEmail', 'qrScanLowStock'],
-      },
-      {
-        categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['contractorManagement'],
-      },
-      {
-        categoryKey: 'common.billing.categories.analyticsReporting',
-        itemKeys: ['analyticsExportsSheets', 'aiSuggestionsTranslation'],
-      },
+      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInStarter'] },
+      { categoryKey: 'common.billing.categories.inventoryProcurement', itemKeys: ['autoPoEmail', 'qrScanLowStock'] },
+      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['growthTeam'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['aiCreditsFeature', 'analyticsHistoryFeature'] },
     ],
   },
   {
@@ -134,15 +118,11 @@ const PLANS: PlanDef[] = [
     icon: <Factory className="h-5 w-5" />,
     color: 'text-violet-400',
     borderColor: 'border-violet-700/60',
-    highlight: true,
     limits: limitsFor('factory'),
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInWorkshop'] },
-      {
-        categoryKey: 'common.billing.categories.analyticsReporting',
-        itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature'],
-      },
-      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['upToThreePlants'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature', 'aiCreditsFeature', 'analyticsHistoryFeature'] },
+      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['kaizenEvaluations'] },
     ],
   },
   {
@@ -157,27 +137,41 @@ const PLANS: PlanDef[] = [
     limits: limitsFor('enterprise'),
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInFactoryPro'] },
-      {
-        categoryKey: 'common.billing.categories.teamOperations',
-        itemKeys: ['sizedToYourCompany', 'pricedIndividually'],
-      },
+      { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['multiPlant', 'sizedToYourCompany', 'yearlyPrepayDiscounts'] },
     ],
   },
 ];
 
 // Copy for plan bullets added with the 2026 plan rework. They are not in the
 // locale files yet, so they render in English (and in the other languages
-// until translated) via defaultValue.
+// until translated) via defaultValue. {{ai}} and {{months}} come from
+// PLAN_LIMITS at render time (see featureText), so they can't drift.
 const NEW_FEATURE_TEXT: Record<string, string> = {
-  purchaseOrdersFeature: 'Purchase orders',
-  analyticsExportsSheets: 'Analytics, report exports & Google Sheets export',
-  aiSuggestionsTranslation: 'AI suggestions & translation',
+  starterCore: 'Machines & QR codes, breakdowns, work orders, PM and reports',
+  starterInventory: 'Small inventory, suppliers & purchase orders',
+  everythingInStarter: 'Everything in {{basicName}}',
+  growthTeam: 'Contractors, shift handover, training & safety',
+  kaizenEvaluations: 'Kaizen & evaluations',
+  aiCreditsFeature: '{{ai}} AI credits per month',
+  analyticsHistoryFeature: '{{months}} months of analytics history',
+  fullAnalyticsHistory: 'Full analytics history',
   advancedAnalyticsFeature: 'Advanced analytics: plants & team tabs, scheduled reports',
   auditsFeature: 'Audits',
-  upToThreePlants: 'Up to 3 plants in the company',
-  sizedToYourCompany: 'Users, plants, machines and more sized to your company',
-  pricedIndividually: 'Priced individually for your company',
+  multiPlant: 'Multi-plant management',
+  sizedToYourCompany: 'Limits sized to your headcount, machines and volumes',
+  yearlyPrepayDiscounts: 'Yearly prepay and multi-year discounts',
 };
+
+/** Values for the {{ai}}/{{months}} placeholders of one plan's bullets; Factory's "36 months" becomes full history. */
+function featureText(plan: Plan, key: string): { key: string; ai: string; months: string } {
+  const c = PLAN_LIMITS[plan];
+  const fullHistory = key === 'analyticsHistoryFeature' && c.analyticsHistoryMonths === null;
+  return {
+    key: fullHistory ? 'fullAnalyticsHistory' : key,
+    ai: fmtNumber(c.aiCreditsPerMonth),
+    months: `${c.analyticsHistoryMonths ?? ''}`,
+  };
+}
 
 const PLAN_RANK: Record<Plan, number> = {
   starter: 0,
@@ -224,7 +218,7 @@ function TrialBanner({
       className={`rounded-xl p-4 border flex items-center gap-3 ${
         expired
           ? 'bg-red-900/20 border-red-700/50 text-red-300'
-          : daysLeft !== null && daysLeft <= 7
+          : daysLeft !== null && daysLeft <= 3
           ? 'bg-amber-900/20 border-amber-700/50 text-amber-300'
           : 'bg-blue-900/20 border-blue-700/50 text-blue-300'
       }`}
@@ -419,7 +413,7 @@ export default function BillingPage() {
             >
               {cycle === 'yearly' ? t('common.billing.cycle.yearlyPlans') : t('common.billing.cycle.monthlyPlans')}
               {cycle === 'yearly' && (
-                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">{t('common.billing.cycle.save20')}</span>
+                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">{t('common.billing.cycle.save2months', { defaultValue: '2 months free' })}</span>
               )}
             </button>
           ))}
@@ -481,6 +475,11 @@ export default function BillingPage() {
                       : t('common.billing.cycleNote.monthly')}
                   </p>
                 )}
+                {isEnterprise && (
+                  <p className="text-[11px] font-medium text-slate-300 mt-1">
+                    {t('common.billing.enterpriseFrom', { defaultValue: 'From $1,000/month · annual contract' })}
+                  </p>
+                )}
                 <p className="text-xs text-slate-400 mt-1.5">{t(plan.descriptionKey)}</p>
               </div>
 
@@ -489,31 +488,24 @@ export default function BillingPage() {
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">{t('common.billing.limits.title')}</p>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                   {([
-                    ['users', 'common.billing.limits.users', plan.limits.users],
-                    ['plants', 'common.billing.limits.plants', plan.limits.plants],
-                    ['machines', 'common.billing.limits.machines', plan.limits.machines],
-                    ['inventoryItems', 'common.billing.limits.inventoryItems', plan.limits.inventoryItems],
-                    ['pmSchedules', 'common.billing.limits.pmSchedules', plan.limits.pmSchedules],
-                  ] as const).map(([id, labelKey, value]) => (
+                    ['fullUsers', 'Full users', plan.limits.fullUsers],
+                    ['lightUsers', 'Light users', plan.limits.lightUsers],
+                    ['plants', 'Plants', plan.limits.plants],
+                    ['machines', 'Machines', plan.limits.machines],
+                    ['inventoryItems', 'Inventory parts', plan.limits.inventoryItems],
+                    ['pmSchedules', 'PM schedules', plan.limits.pmSchedules],
+                    ['aiCredits', 'AI credits / month', plan.limits.aiCredits],
+                    ['analyticsHistory', 'Analytics history', plan.limits.analyticsHistory ? `${plan.limits.analyticsHistory} months` : ''],
+                  ] as const).map(([id, label, value]) => (
                     <div key={id} className="flex justify-between gap-2">
-                      <dt className="text-slate-400">
-                        {t(labelKey, { defaultValue: id === 'plants' ? 'Plants' : undefined })}
-                      </dt>
+                      <dt className="text-slate-400">{t(`common.billing.limits.${id}`, { defaultValue: label })}</dt>
                       <dd className="font-semibold text-slate-200">
-                        {isEnterprise ? t('common.billing.customPrice') : value || t('common.billing.unlimited')}
+                        {isEnterprise
+                          ? t('common.billing.customPrice')
+                          : value || (id === 'analyticsHistory' ? t('common.billing.fullHistory', { defaultValue: 'Full' }) : t('common.billing.unlimited'))}
                       </dd>
                     </div>
                   ))}
-                  <div className="flex justify-between gap-2 col-span-2">
-                    <dt className="text-slate-400">{t('common.billing.limits.workOrders')}</dt>
-                    <dd className="font-semibold text-slate-200">
-                      {isEnterprise
-                        ? t('common.billing.customPrice')
-                        : plan.limits.workOrders
-                        ? t('common.billing.limits.perMonthValue', { count: plan.limits.workOrders })
-                        : t('common.billing.unlimited')}
-                    </dd>
-                  </div>
                 </dl>
               </div>
 
@@ -528,8 +520,10 @@ export default function BillingPage() {
                       {group.itemKeys.map((key) => (
                         <li key={key} className="flex items-start gap-2 text-sm text-slate-300">
                           <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
-                          {t(`common.billing.features.${key}`, {
-                            defaultValue: NEW_FEATURE_TEXT[key],
+                          {t(`common.billing.features.${featureText(plan.id, key).key}`, {
+                            defaultValue: NEW_FEATURE_TEXT[featureText(plan.id, key).key],
+                            ai: featureText(plan.id, key).ai,
+                            months: featureText(plan.id, key).months,
                             basicName: t('common.billing.plans.starter.name'),
                             workshopName: t('common.billing.plans.workshop.name'),
                             factoryName: t('common.billing.plans.factory.name'),
@@ -635,7 +629,7 @@ export default function BillingPage() {
 
       {/* Note */}
       <p className="text-xs text-slate-500 text-center pb-4">
-        {t('common.billing.footer.note')}{' '}
+        {t('common.billing.footer.noteV2', { defaultValue: 'Prices shown in USD. Yearly billing is pay 10 months, get 12. Enterprise starts from $1,000/month on an annual contract. Contact' })}{' '}
         <a href="mailto:info@lumoraventures.com" className="underline hover:text-slate-400">
           info@lumoraventures.com
         </a>{' '}

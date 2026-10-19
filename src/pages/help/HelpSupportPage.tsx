@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Search, X } from 'lucide-react';
+import { Compass, Search, X } from 'lucide-react';
+import { useTour } from '@/features/tour/TourProvider';
 import { useAuthStore } from '@/store/authStore';
 import { HELP_MODULE_ROUTES, ROLE_HELP_MODULES, type HelpModuleId } from './helpContent';
 
@@ -20,6 +21,7 @@ export default function HelpSupportPage() {
   const { t } = useTranslation();
   const role = useAuthStore((s) => s.userProfile?.role);
   const [query, setQuery] = useState('');
+  const { start: startTour } = useTour();
 
   const moduleIds = role ? ROLE_HELP_MODULES[role] : [];
 
@@ -52,6 +54,22 @@ export default function HelpSupportPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">{t('help.pageTitle')}</h1>
         <p className="mt-1 text-slate-600">{t('help.pageSubtitle')}</p>
+      </div>
+
+      {/* Guided tour: a floating card that walks through the menu, one stop at a time. */}
+      <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-blue-200 bg-blue-50/60 p-4">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-[#1A56DB]"><Compass className="h-5 w-5" /></span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-slate-900">{t('help.tour.bannerTitle')}</p>
+          <p className="mt-0.5 text-sm text-slate-600">{t('help.tour.bannerBody')}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => startTour('main')}
+          className="shrink-0 rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1648B8]"
+        >
+          {t('help.tour.bannerButton')}
+        </button>
       </div>
 
       <div className="mb-6">

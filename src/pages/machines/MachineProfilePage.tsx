@@ -14,6 +14,15 @@ import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields
 import type { WOType } from '../../types/workOrder';
 import { MachineSparePartsPanel } from '../../components/machines/MachineSparePartsPanel';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
+import { OutsourcedMaintenanceSection } from '../../components/machines/OutsourcedMaintenanceSection';
+import { MachineAssetCard } from '../../components/machines/MachineAssetCard';
+import { ScrapMachineDialog } from '../../components/machines/ScrapMachineDialog';
+import { restoreSchedulesAfterUnscrap } from '../../services/machineScrap.service';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { toast } from 'sonner';
+import { HelpCircle } from 'lucide-react';
+import { useTour } from '../../features/tour/TourProvider';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
@@ -22,8 +31,11 @@ export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
+  const company = useAuthStore((state) => state.company);
+  const { start: startTour } = useTour();
   const [activeTab, setActiveTab] = useState<TabName>('overview');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showScrap, setShowScrap] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,6 +89,27 @@ export function MachineProfilePage() {
   const canEditMachine =
     userProfile.role === 'supervisor' || userProfile.role === 'plant_manager' || userProfile.role === 'admin';
 
+  // Money decisions (scrapping, asset value) stay with managers and admins.
+  const canManageAsset = userProfile.role === 'plant_manager' || userProfile.role === 'admin';
+  const isScrapped = machine.status === 'scrapped';
+  const scrap = machine.scrapRecord;
+
+  async function undoScrap() {
+    if (!window.confirm(t('common.machines.asset.scrap.undoConfirm', { name: machine!.name }))) return;
+    try {
+      await updateDoc(doc(db, 'machines', machine!.id), { status: 'active', scrapRecord: null, updatedAt: serverTimestamp() });
+      let note = '';
+      try {
+        const r = await restoreSchedulesAfterUnscrap(company, userProfile!.companyId, machine!.id);
+        if (r.restored) note += ` ${t('common.machines.asset.scrap.pmRestored', { count: r.restored })}`;
+        if (r.left) note += ` ${t('common.machines.asset.scrap.pmNotRestored', { count: r.left })}`;
+      } catch { /* the machine is back; schedules can be re-activated by hand */ }
+      toast.success(`${t('common.machines.asset.scrap.restored')}${note}`);
+    } catch (e) {
+      toast.error((e as Error).message || t('common.machines.asset.scrap.restoreFailed'));
+    }
+  }
+
   const tabs: { name: TabName; label: string }[] = [
     { name: 'overview', label: t('common.machines.profile.tabs.overview') },
     { name: 'documents', label: t('common.machines.profile.tabs.documents') },
@@ -106,19 +139,44 @@ export function MachineProfilePage() {
               </p>
             </div>
 
-            <div className="flex gap-2">
-              <MachineStatusBadge status={effectiveMachineStatus(machine, openWork) as typeof machine.status} size="lg" />
-              <MachineCriticalityBadge criticality={machine.criticality} size="lg" />
+            <div className="flex flex-wrap items-center gap-2">
+              <div data-tour="machine-status" className="flex gap-2">
+                <MachineStatusBadge status={effectiveMachineStatus(machine, openWork) as typeof machine.status} size="lg" />
+                <MachineCriticalityBadge criticality={machine.criticality} size="lg" />
+              </div>
+              <button
+                type="button"
+                onClick={() => startTour('machine')}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              >
+                <HelpCircle className="h-4 w-4" /> {t('tour.ui.pageTour')}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
+      {isScrapped && (
+        <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+          <p className="font-semibold">{scrap?.scrappedAt ? t('common.machines.asset.scrap.bannerOn', { date: formatDate(scrap.scrappedAt.toDate()) }) : t('common.machines.asset.scrap.banner')}</p>
+          {scrap && (
+            <p className="mt-1 text-rose-800">
+              {t(`common.machines.asset.scrap.reasons.${scrap.reason}`)}
+              {scrap.proceeds > 0 && ` · ${t('common.machines.asset.scrap.broughtIn', { amount: `${scrap.currency} ${scrap.proceeds.toLocaleString()}` })}`}
+              {scrap.approvedBy && ` · ${t('common.machines.asset.scrap.approvedByLine', { name: scrap.approvedBy })}`}
+              {scrap.note && ` — ${scrap.note}`}
+            </p>
+          )}
+          <p className="mt-1 text-xs text-rose-700">{t('common.machines.asset.scrap.bannerKept')}</p>
+          {canManageAsset && <button type="button" onClick={() => void undoScrap()} className="mt-2 text-xs font-medium text-rose-700 underline">{t('common.machines.asset.scrap.undo')}</button>}
+        </div>
+      )}
+
       {/* Spare parts — low-stock ones listed first */}
       <MachineSparePartsPanel companyId={userProfile.companyId} machineId={machine.id} />
 
       {/* Health Score Banner */}
-      <div className="bg-white border border-gray-200 rounded-xl mb-5">
+      <div data-tour="machine-health" className="bg-white border border-gray-200 rounded-xl mb-5">
         <div className="p-4 sm:p-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
@@ -170,6 +228,7 @@ export function MachineProfilePage() {
               </button>
               <div className="relative" ref={moreMenuRef}>
                 <button
+                  data-tour="machine-more"
                   onClick={() => setShowMoreMenu((v) => !v)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
                 >
@@ -177,18 +236,18 @@ export function MachineProfilePage() {
                 </button>
                 {showMoreMenu && (
                   <div className="absolute right-0 mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-200 z-10 py-1">
-                    <button
+                    {!isScrapped && <button
                       onClick={() => { navigate(`/app/work-orders?create=1&machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       {t('common.machines.profile.createWorkOrder')}
-                    </button>
-                    <button
+                    </button>}
+                    {!isScrapped && <button
                       onClick={() => { navigate(`/app/breakdowns/report?machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       {t('common.machines.profile.reportIssue')}
-                    </button>
+                    </button>}
                     <button
                       onClick={() => { exportMachineDetailsPdf(machine); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -196,6 +255,14 @@ export function MachineProfilePage() {
                       {t('common.machines.profile.exportDetailsPdf')}
                     </button>
                     <hr className="my-1 border-gray-100" />
+                    {canManageAsset && !isScrapped && (
+                      <button
+                        onClick={() => { setShowScrap(true); setShowMoreMenu(false); }}
+                        className="w-full text-left px-4 py-2 text-sm text-rose-700 hover:bg-rose-50"
+                      >
+                        {t('common.machines.asset.scrap.menu')}
+                      </button>
+                    )}
                     <button
                       onClick={() => { navigate(`/app/machines/${machine.id}/edit?action=decommission`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
@@ -210,12 +277,17 @@ export function MachineProfilePage() {
         </div>
       </div>
 
+      {showScrap && (
+        <ScrapMachineDialog machine={machine} userName={userProfile.fullName ?? ''} userId={userProfile.id} companyId={userProfile.companyId} onClose={() => setShowScrap(false)} />
+      )}
+
       {/* Tabs */}
       <div className="mb-5">
         <div className="flex gap-1 border-b border-gray-200 bg-white overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.name}
+              data-tour={`machine-tab-${tab.name}`}
               onClick={() => {
                 if (tab.name !== 'analytics' || !analyticsTabDisabled) {
                   setActiveTab(tab.name);
@@ -236,10 +308,10 @@ export function MachineProfilePage() {
 
       {/* Tab Content */}
       <div>
-        {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} />}
+        {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} showAsset={canManageAsset} siteId={machine.siteId} />}
         {activeTab === 'documents' && <DocumentsTab machine={machine} />}
         {activeTab === 'history' && <HistoryTab machine={machine} />}
-        {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
+        {activeTab === 'maintenance' && <MaintenanceTab machine={machine} showOutsourced={canEditMachine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
       </div>
     </div>
@@ -247,7 +319,7 @@ export function MachineProfilePage() {
 }
 
 // Tab Components
-function OverviewTab({ machine, canEdit }: any) {
+function OverviewTab({ machine, canEdit, showAsset, siteId }: any) {
   const { t } = useTranslation();
   const na = t('common.machines.profile.na');
   return (
@@ -356,6 +428,8 @@ function OverviewTab({ machine, canEdit }: any) {
 
       {/* Downtime Cost */}
       <DowntimeCostFields machine={machine} canEdit={canEdit} />
+
+      {showAsset && <MachineAssetCard machine={machine} siteId={siteId} />}
     </div>
   );
 }
@@ -417,10 +491,13 @@ function HistoryTab({ machine }: any) {
   );
 }
 
-function MaintenanceTab({ machine }: any) {
+function MaintenanceTab({ machine, showOutsourced }: any) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
+    <div>
+      {showOutsourced && <OutsourcedMaintenanceSection machineId={machine.id} siteId={machine.siteId} />}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
+      </div>
     </div>
   );
 }

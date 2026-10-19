@@ -750,7 +750,8 @@
         "statusOptions": {
           "active": "செயலில்",
           "under_maintenance": "பராமரிப்பில்",
-          "decommissioned": "நீக்கப்பட்டது"
+          "decommissioned": "நீக்கப்பட்டது",
+          "scrapped": "ஸ்க்ராப் செய்யப்பட்டது"
         },
         "criticalityOptions": {
           "5": "5 - மிக முக்கியம்",

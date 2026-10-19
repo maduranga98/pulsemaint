@@ -1,5 +1,6 @@
 const {onSchedule} = require("firebase-functions/v2/scheduler");
-const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
+const {sendNotification} = require("../lib/notify");
+const {getFirestore, Timestamp} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
 const db = getFirestore("default");
@@ -36,26 +37,24 @@ exports.checkOverdueOffboardReports = onSchedule("every 24 hours", async () => {
 
       const targetRoles = ["hr_officer"];
       const targetUserIds = [assignment.traineeId].filter(Boolean);
-      let title = "Knowledge report overdue";
 
       if (daysOverdue >= ESCALATION_DAYS_OVERDUE) {
         targetRoles.push("supervisor");
         if (assignment.assignedBy) targetUserIds.push(assignment.assignedBy);
-        title = "Knowledge report overdue — escalated";
         escalationsSent++;
       } else {
         remindersSent++;
       }
 
-      await db.collection("companies").doc(companyId).collection("notificationLogs").add({
-        type: "offboard_report_overdue",
-        title,
-        body: `${assignment.traineeName || "An employee"}'s knowledge report for "${assignment.moduleName || "an offboard training"}" is ${daysOverdue} day(s) overdue.`,
-        assignmentId: docSnap.id,
-        targetUserIds: [...new Set(targetUserIds)],
-        targetRoles: [...new Set(targetRoles)],
-        daysOverdue,
-        createdAt: FieldValue.serverTimestamp(),
+      await sendNotification(db, {
+        companyId,
+        type: "training",
+        message: `${assignment.traineeName || "An employee"}'s knowledge report for "${assignment.moduleName || "an offboard training"}" is ${daysOverdue} day(s) overdue`,
+        severity: "high",
+        linkTo: "/app/training",
+        roles: [...new Set(targetRoles)],
+        userIds: [...new Set(targetUserIds)],
+        dedupeKey: `offboard-overdue:${docSnap.id}:${daysOverdue}`,
       });
 
       await docSnap.ref.update({

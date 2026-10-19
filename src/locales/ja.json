@@ -1957,10 +1957,135 @@
       "noMachinesMatch": "フィルタに一致する設備がありません",
       "addFirstMachine": "最初の設備を追加",
       "clearFilters": "フィルタをクリア",
+      "asset": {
+        "annualDepreciation": "年間減価償却",
+        "accumulatedDepreciation": "これまでの減価償却",
+        "perYear": "{{amount}} / 年",
+        "importNote": "価格とスクラップ価値は {{currency}}（会社の通貨）として読み込まれ、管理者とプラントマネージャーの場合のみ保存されます。",
+        "cancel": "キャンセル",
+        "close": "閉じる",
+        "edit": "編集",
+        "save": "保存",
+        "saving": "保存中…",
+        "saved": "資産価値を保存しました。",
+        "saveFailed": "保存できませんでした。",
+        "title": "資産価値と所有コスト",
+        "purchasePrice": "購入価格",
+        "scrapValue": "想定スクラップ価値",
+        "depreciationHint": "現在価値は購入日から想定耐用年数にわたる定額法で計算されます（両方とも「設備を編集」で設定してください）。",
+        "currentValue": "現在価値",
+        "currentValueMissing": "価格・購入日・耐用年数を入力してください",
+        "outsourcedJobs": "外注作業（ここに記録）",
+        "workOrders": "作業指示（部品＋請負費用）",
+        "totalMaintenance": "保全費用の合計",
+        "totalOwnership": "総所有コスト",
+        "scrapProceeds": "スクラップ／売却額",
+        "adviceWatch": "保全費用の合計がこの設備の価格の半分に近づいています。注意してください。",
+        "adviceReplace": "交換を検討してください：保全費用がこの設備の価格または現在価値に比べて非常に高くなっています。",
+        "errAmounts": "金額は0以上にしてください。",
+        "errScrapOverPrice": "スクラップ価値は購入価格を超えられません。",
+        "scrap": {
+          "title": "{{name}} を廃棄",
+          "intro": "設備はリストの最下部に「廃棄済み」として移動します。履歴は保持され、有効なPM計画はアーカイブされます（廃棄を取り消すと戻ります）。",
+          "date": "廃棄日",
+          "reason": "理由",
+          "reasons": {
+            "broken": "修理不能な故障",
+            "old": "老朽化",
+            "uneconomical": "修理する価値がない",
+            "replaced": "新しい設備に置き換え",
+            "other": "その他"
+          },
+          "details": "詳細（任意）",
+          "detailsPlaceholder": "経緯、購入者など…",
+          "amount": "スクラップ／売却額（{{currency}}）",
+          "approvedBy": "承認者",
+          "confirm": "設備を廃棄",
+          "errDate": "廃棄日を選択してください。",
+          "errApprover": "廃棄を承認した人を入力してください。",
+          "errAmount": "スクラップ／売却額は0以上にしてください。",
+          "done": "{{name}} を廃棄済みにしました。",
+          "pmArchived": " PM計画{{count}}件をアーカイブしました。",
+          "pmRestored": "PM計画{{count}}件を再び有効にしました。",
+          "pmNotRestored": "{{count}}件は再有効化できませんでした — プランのPM計画の上限に達しています。",
+          "failed": "設備を廃棄できませんでした。",
+          "menu": "設備を廃棄…",
+          "bannerOn": "この設備は{{date}}に廃棄されました。",
+          "banner": "この設備は廃棄されました。",
+          "broughtIn": "{{amount}}の収入",
+          "approvedByLine": "{{name}}が承認",
+          "bannerKept": "故障・保全・コストの履歴は記録に残ります。",
+          "undo": "廃棄を取り消す",
+          "undoConfirm": "{{name}}を運用に戻しますか？廃棄記録は削除されます。",
+          "restored": "設備を復元しました。",
+          "restoreFailed": "設備を復元できませんでした。"
+        },
+        "outsourced": {
+          "fromWorkOrder": "請負業者の作業指示を作成するときに追加します（作業指示 → 作成、種類は請負業者）。",
+          "woSectionTitle": "外注作業の詳細（任意）",
+          "woSectionHint": "請負業者がすでに作業を終えている場合に入力：取付部品、価格、請求書。設備の保全履歴に保存されます。",
+          "title": "外注保全",
+          "subtitle": "外部業者による作業（取付部品、費用、請求書付き）。",
+          "total": "これまでの合計：{{amount}}。",
+          "add": "外注作業を追加",
+          "empty": "この設備の外注作業はまだ記録されていません。",
+          "deleteConfirm": "この{{name}}の作業と請求書を削除しますか？元に戻せません。",
+          "deleteFailed": "削除できませんでした。",
+          "delete": "削除",
+          "invoice": "請求書 {{number}}",
+          "part": "部品",
+          "partNo": "部品番号",
+          "fittedAs": "取付区分",
+          "replaced": "交換",
+          "added": "追加",
+          "qty": "数量",
+          "unitPrice": "単価",
+          "colTotal": "合計",
+          "partsAndLabour": "部品 {{parts}} ＋ 作業/サービス {{labour}}",
+          "dialogTitle": "外注保全を追加",
+          "contractor": "請負業者／会社",
+          "contractorPlaceholder": "登録業者から選択、または入力",
+          "typeOfWork": "作業の種類",
+          "jobTypes": {
+            "repair": "修理",
+            "service": "点検整備",
+            "overhaul": "オーバーホール",
+            "installation": "設置／アップグレード",
+            "other": "その他"
+          },
+          "started": "開始",
+          "finished": "完了",
+          "whatWasDone": "作業内容",
+          "whatPlaceholder": "例：主軸受を交換し、シャフトを再調整",
+          "partsHeading": "交換・追加した部品",
+          "addPart": "部品を追加",
+          "removePart": "部品を削除",
+          "noParts": "部品の取付がない場合は空欄のまま、作業/サービス料金のみ入力してください。",
+          "partPlaceholder": "ベアリング 6205",
+          "labourLabel": "作業/サービス料金（{{currency}}）",
+          "invoiceNumber": "請求書番号",
+          "totalParts": "部品",
+          "totalLabour": "作業/サービス",
+          "totalCost": "総費用",
+          "invoicesLabel": "請求書／領収書（PDFまたは写真、各15MBまで）",
+          "filesSelected": "{{count}}件のファイルを選択",
+          "notes": "メモ",
+          "notesPlaceholder": "保証あり、フォロー要…",
+          "saveJob": "作業を保存",
+          "saved": "外注作業を保存しました。",
+          "saveFailed": "作業を保存できませんでした。",
+          "errContractor": "作業を行った請負業者／会社を入力してください。",
+          "errStart": "開始日を入力してください。",
+          "errDates": "完了日が開始日より前です。",
+          "errParts": "各部品には0より大きい数量と価格が必要です。",
+          "errLabour": "作業費用はマイナスにできません。"
+        }
+      },
       "statusLabels": {
         "active": "稼働中",
         "under_maintenance": "メンテナンス中",
-        "decommissioned": "廃止済み"
+        "decommissioned": "廃止済み",
+        "scrapped": "廃棄済み"
       },
       "criticalityLabels": {
         "1": "低",
@@ -2025,7 +2150,8 @@
         "statusOptions": {
           "active": "稼働中",
           "under_maintenance": "メンテナンス中",
-          "decommissioned": "廃止済み"
+          "decommissioned": "廃止済み",
+          "scrapped": "廃棄済み"
         },
         "criticalityOptions": {
           "5": "5 - ミッションクリティカル",
@@ -2172,6 +2298,9 @@
       "pageTitle": "故障管理",
       "summary": "{{machineCount}} 台の設備で{{filter}}が {{count}} 件",
       "reportViaQr": "QR で報告",
+      "attendedByInline": "対応者：{{name}}",
+      "awaitingSignOff": "承認待ち",
+      "selfAttendBusy": "{{ref}} {{machine}} の対応が未完了です。現在の作業を送信してから次の作業を引き受けてください。",
       "reportBreakdown": "故障を報告",
       "tabs": {
         "reported": "報告済み",
@@ -2255,6 +2384,7 @@
         "empty": "現在打刻して勤務中の技術者・研修生がいません。シフトを開始してもらうか、誰かが勤務可能になってから割り当ててください。",
         "unnamed": "名前未設定",
         "onShift": "勤務中",
+        "busy": "対応中 — {{ref}}",
         "cancel": "キャンセル",
         "assigning": "割り当て中…",
         "assign": "割り当て"
@@ -2268,6 +2398,7 @@
         "productionImpact": "生産への影響",
         "attemptedFixes": "試みた対処",
         "technicianFindings": "発生した内容（技術者・研修生の所見）",
+        "completionNotes": "修理完了のために行った内容",
         "assignedTechnicians": "割り当てられた技術者",
         "attachedMedia": "添付メディア",
         "attachmentAlt": "添付ファイル {{index}}",
@@ -2355,6 +2486,13 @@
         "attemptedFixesLabel": "試みた対処",
         "technicianFindingsLabel": "何が起きましたか？（技術者・研修生の所見）",
         "technicianFindingsPlaceholder": "報告者の説明とは別の、あなた自身の状況説明。またはマイクをタップしてお伝えください。",
+        "quickFixLabel": "実施した内容と完了させた方法 *",
+        "quickFixHint": "重大度が低い場合：修理内容を記入してください。送信すると上長の承認に回り、作業指示書は不要です。",
+        "quickFixPlaceholder": "入力するか、マイクをタップして話してください。",
+        "quickFixRequired": "送信する前に、実施した内容と完了させた方法を記入してください。",
+        "submitForSignOff": "承認のため送信",
+        "quickFixSubmitted": "送信しました — 上長の承認に回りました。",
+        "alreadyAttended": "この故障は既に {{name}} が対応中です。",
         "attachMediaLabel": "メディアを添付（写真/動画）",
         "filesSelected_one": "{{count}} 件のファイルを選択",
         "filesSelected_other": "{{count}} 件のファイルを選択",
@@ -2496,6 +2634,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "お使いのプランには含まれていません。請負業者の作業指示を使うにはプランをアップグレードしてください。",
       "pageTitle": "作業指示書",
       "count": "作業指示書 {{count}} 件",
       "createButton": "+ 作業指示書を作成",
@@ -2902,6 +3041,7 @@
         "assignInternalTechniciansLabel": "社内技術者を割り当て",
         "optionalLabel": "（任意）",
         "activeWOsInline": "進行中の作業指示書 {{count}} 件",
+        "busyInline": "対応中 — {{ref}}",
         "chooseContactPerson": "連絡担当者を選択…",
         "primaryContactOption": "{{name}}（主担当）"
       },
@@ -8960,16 +9100,16 @@
       },
       "plans": {
         "starter": {
-          "name": "ベーシック",
-          "description": "始めたばかりの小規模チーム向け。"
+          "name": "Starter",
+          "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "ワークショップ",
-          "description": "体系化されたワークフローを持つ成長中の工房向け。"
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "ファクトリープロ",
-          "description": "生産施設向けの完全なMOE分析。"
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "エンタープライズ",
@@ -10504,6 +10644,34 @@
               "ダウンロードまたは印刷オプションを使って画像やPDFとして保存するか、直接印刷して機械に貼り付けます。",
               "後でそのQRコードをスキャンすると、このプロフィールが直接開きます。"
             ]
+          },
+          {
+            "title": "設備の購入価格を記録して価値を確認する",
+            "steps": [
+              "設備を開き、設備を追加（または既存設備の編集）を使います。管理者とプラントマネージャーには、購入日と想定耐用年数の隣に購入価格と想定スクラップ価値が表示されます。",
+              "購入価格と、廃棄時に見込まれる価値を入力します。金額は会社の通貨です。",
+              "設備を開いて概要を見ると、資産価値カードに年間減価償却、これまでの減価償却、現在価値（想定耐用年数での定額法）が表示されます。",
+              "多くの設備を追加する場合は、インポートからCSVテンプレートをダウンロードします。expected_lifespan_years、purchase_price、scrap_valueの列があります。",
+              "カードは保全に使った費用も合計し、修理費が設備の価値を上回ると警告します。"
+            ]
+          },
+          {
+            "title": "設備を廃棄する",
+            "steps": [
+              "設備を開き、その他 → 設備を廃棄…を選びます（管理者・プラントマネージャー）。",
+              "日付と理由を選び、廃棄または売却で得た金額と承認者を入力して確定します。",
+              "設備は「廃棄済み」（ピンク）になり、設備リストの最下部に移動します。履歴は残り、PM計画はアーカイブされます。",
+              "作業指示・故障報告・PM計画の作成時には表示されなくなり、プランの設備数上限にも数えられません。",
+              "誤って廃棄した場合は、設備を開いて廃棄を取り消すを選びます。設備とアーカイブされたPM計画が戻ります。"
+            ]
+          },
+          {
+            "title": "設備ページのガイドツアーを見る",
+            "steps": [
+              "任意の設備を開き、ステータスの隣にあるページツアーを押します。",
+              "カードがステータス、健全性と整備情報、保全タブ、その他メニュー、そして（管理者・プラントマネージャーには）資産価値カードを順に指します。",
+              "次へ・前へで進み、ツアーをスキップで終了します。いつでもやり直せます。"
+            ]
           }
         ]
       },
@@ -10555,6 +10723,17 @@
               "作業を進めながら使用した部品、メモ、写真などのメディアを記録します。",
               "完了後、サインオフのために提出します。",
               "監督者以上が完了したチェックリストとサインオフ内容を確認し、作業指示をクローズします。"
+            ]
+          },
+          {
+            "title": "外部の請負業者が行った作業を記録する",
+            "steps": [
+              "作業指示を作成し、種類で請負業者を選びます（プランに請負業者モジュールが必要です）。",
+              "チームの手順で請負業者の会社を選びます。",
+              "外注作業の詳細（任意）に、作業の種類、日付、実施内容を入力します。",
+              "交換または追加した部品を数量と単価とともに追加し、次に作業またはサービス料金を入力します。合計は自動計算されます。",
+              "請求書番号を入力し、請求書（PDFまたは写真）を添付します。",
+              "作業指示を作成します。詳細は設備の保全タブに保存され、費用・部品・請求書リンクが記録として残ります。"
             ]
           }
         ]
@@ -10969,6 +11148,107 @@
             ]
           }
         ]
+      }
+    },
+    "tour": {
+      "bannerTitle": "ガイドツアーを始める",
+      "bannerBody": "メニュー、通知、シフトを一つずつ案内する短いガイドです。",
+      "bannerButton": "ツアー開始"
+    }
+  },
+  "tour": {
+    "ui": {
+      "next": "次へ",
+      "back": "前へ",
+      "done": "完了",
+      "skip": "ツアーをスキップ",
+      "close": "閉じる",
+      "stepOf": "{{current}} / {{total}}",
+      "nothingToShow": "この画面にはまだ表示できるものがありません。",
+      "pageTour": "ページツアー"
+    },
+    "main": {
+      "welcome": {
+        "title": "FirmiCoreへようこそ",
+        "body": "アプリの主な機能を手短にご案内します。1分ほどで終わります。「次へ」で進み、いつでもスキップできます。ヘルプとサポートからもう一度見られます。"
+      },
+      "dashboard": {
+        "title": "ダッシュボード",
+        "body": "ホーム画面です。今日対応が必要なもの（未対応の故障、作業指示、期限のPM、役割に応じたアラート）が表示されます。"
+      },
+      "plants": {
+        "title": "工場タブ",
+        "body": "ここで工場を切り替えます。下の設備・作業指示・人員はすべて選んだ工場に合わせて表示されます。"
+      },
+      "group_maintenance": {
+        "title": "保全",
+        "body": "設備、故障、作業指示、PM計画はここにあります。故障の報告や設備の確認はここから始めます。"
+      },
+      "group_safety": {
+        "title": "安全",
+        "body": "作業許可、安全ケース、安全研修、請負業者のブラックリスト。"
+      },
+      "group_inventory": {
+        "title": "在庫",
+        "body": "スペアパーツカタログ、在庫依頼、発注書。在庫が少ない部品は目印が付きます。"
+      },
+      "group_triage_training": {
+        "title": "トリアージと研修",
+        "body": "故障対応のガイド付きフローと、研修モジュール・割り当て・修了証。"
+      },
+      "group_workforce": {
+        "title": "人員",
+        "body": "請負業者、シフト、シフト引き継ぎ、管理者への依頼。"
+      },
+      "group_insights": {
+        "title": "分析",
+        "body": "分析、レポート、MOE、監査、評価。自社データから作られる数値とレポートです。"
+      },
+      "group_admin": {
+        "title": "管理",
+        "body": "会社の設定、ユーザー、工場、請求、サポート依頼。"
+      },
+      "language": {
+        "title": "言語",
+        "body": "いつでもアプリの言語を切り替えられます。選択は保存されます。"
+      },
+      "notifications": {
+        "title": "通知",
+        "body": "ベルには新しい故障、割り当て、承認、アラートが表示されます。赤い数字は対応待ちがあることを示します。"
+      },
+      "shift": {
+        "title": "シフト",
+        "body": "ここでシフトを開始し、終了時に引き継ぎを行うと、次のチームに状況が伝わります。"
+      },
+      "profile": {
+        "title": "アカウント",
+        "body": "お名前と役割です。終了時は隣のサインアウトを使ってください。"
+      },
+      "help": {
+        "title": "ヘルプとサポート",
+        "body": "各モジュールの手順ガイド。このツアーはここからいつでも再開できます。"
+      }
+    },
+    "machine": {
+      "status": {
+        "title": "ステータスと重要度",
+        "body": "設備が稼働中・保全中・廃棄済み（ピンク、リスト最下部）のどれか、重要度も表示します。"
+      },
+      "health": {
+        "title": "健全性と整備",
+        "body": "健全性スコア、前回の整備、次回PM期限をひと目で確認できます。"
+      },
+      "tabs": {
+        "title": "保全タブ",
+        "body": "保全を開くと、作業履歴と保存済みの外注作業（取付部品・費用・請求書）が見られます。"
+      },
+      "more": {
+        "title": "その他の操作",
+        "body": "作業指示の作成、問題の報告、詳細の出力、そして（管理者・プラントマネージャー）設備の廃棄ができます。廃棄しても履歴は残り、PM計画はアーカイブされます。"
+      },
+      "asset": {
+        "title": "資産価値とコスト",
+        "body": "購入価格、スクラップ価値、年間減価償却、現在価値と、保全に使った費用の合計。修理か交換かの判断に役立ちます。"
       }
     }
   }

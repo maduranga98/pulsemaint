@@ -258,9 +258,17 @@ async function generatePmWorkOrder(params) {
   });
 
   if (result) {
-    await notifyPmRaised(result.schedule, result.woNumber, result.woId, dueDate, source).catch((err) =>
-      logger.error("PM work order notification failed", {scheduleId, err}),
-    );
+    let notified = true;
+    await notifyPmRaised(result.schedule, result.woNumber, result.woId, dueDate, source).catch((err) => {
+      notified = false;
+      logger.error("PM work order notification failed", {scheduleId, err});
+    });
+    // Already alerted — keep alertPmStartTime from alerting this work order again.
+    if (notified) {
+      await db.collection("workOrders").doc(result.woId).update({pmStartAlertSentAt: FieldValue.serverTimestamp()}).catch((err) =>
+        logger.error("PM start-alert flag failed", {scheduleId, err}),
+      );
+    }
   }
   return result;
 }

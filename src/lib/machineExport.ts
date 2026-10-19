@@ -28,6 +28,7 @@ const STATUS_LABELS: Record<MachineStatus, string> = {
   active: 'Active',
   under_maintenance: 'Under Maintenance',
   decommissioned: 'Decommissioned',
+  scrapped: 'Scrapped',
 };
 
 export function formatMachineStatusLabel(status: MachineStatus): string {

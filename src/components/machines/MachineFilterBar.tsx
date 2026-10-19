@@ -12,6 +12,7 @@ const statusOptions: { value: MachineStatus; labelKey: string }[] = [
   { value: 'active', labelKey: 'common.machines.filters.statusOptions.active' },
   { value: 'under_maintenance', labelKey: 'common.machines.filters.statusOptions.under_maintenance' },
   { value: 'decommissioned', labelKey: 'common.machines.filters.statusOptions.decommissioned' },
+  { value: 'scrapped', labelKey: 'common.machines.filters.statusOptions.scrapped' },
 ];
 
 const criticalityOptions: { value: MachineCriticality; labelKey: string }[] = [

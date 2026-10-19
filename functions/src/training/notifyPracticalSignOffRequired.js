@@ -1,5 +1,6 @@
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
-const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const {sendNotification} = require("../lib/notify");
+const {getFirestore} = require("firebase-admin/firestore");
 
 const db = getFirestore("default");
 
@@ -7,12 +8,12 @@ exports.notifyPracticalSignOffRequired = onDocumentCreated({ database: "default"
   const assignment = event.data.data();
   if (!assignment.requiresPracticalSignOff) return;
   const companyId = assignment.companyId || "";
-  await db.collection("companies").doc(companyId).collection("notificationLogs").add({
-    type: "practical_sign_off_required",
-    title: "Practical sign-off required",
-    body: "A training assignment requires supervisor practical sign-off.",
-    assignmentId: event.params.assignmentId,
-    targetRoles: ["supervisor", "admin"],
-    createdAt: FieldValue.serverTimestamp(),
+  await sendNotification(db, {
+    companyId,
+    type: "training",
+    message: "A training assignment requires supervisor practical sign-off",
+    linkTo: "/app/training",
+    roles: ["supervisor"],
+    dedupeKey: `practical-signoff:${event.params.assignmentId}`,
   });
 });

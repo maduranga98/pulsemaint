@@ -46,7 +46,7 @@ export function useMyNotifications() {
       collection(db, 'notifications'),
       where('companyId', '==', companyId),
       orderBy('timestamp', 'desc'),
-      limit(100)
+      limit(300)
     );
     const unsub = onSnapshot(
       q,

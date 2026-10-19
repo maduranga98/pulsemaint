@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import { ToastProvider } from './contexts/ToastContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import AppRouter from './router/AppRouter';
+import { TourProvider } from './features/tour/TourProvider';
 
 export default function App() {
   return (
@@ -14,7 +15,9 @@ export default function App() {
         }}
       >
         <ToastProvider>
-          <AppRouter />
+          <TourProvider>
+            <AppRouter />
+          </TourProvider>
           <Toaster position="top-right" richColors />
         </ToastProvider>
       </BrowserRouter>

@@ -12,7 +12,7 @@ const DAY = 86_400_000;
 const COMPANY_ROLES = ["admin", "plant_manager", "supervisor", "technician", "store_keeper", "hr_officer", "trainee", "floor_operator", "safety_officer"];
 
 const ENTERPRISE_TIERS = ["enterprise1", "enterprise2", "enterprise3", "unlimited"];
-const LIMIT_KEYS = ["users", "plants", "machines", "inventoryItems", "pmSchedules", "workOrdersPerMonth"];
+const LIMIT_KEYS = ["fullUsers", "lightUsers", "plants", "machines", "inventoryItems", "pmSchedules", "workOrdersPerMonth", "aiCreditsPerMonth", "analyticsHistoryMonths"];
 
 async function adminContact(company) {
   if (!company.adminUserId) return { name: null, email: null };
@@ -264,7 +264,7 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
           approvedAt: FieldValue.serverTimestamp(),
           approvedBy: actor.email ?? actor.uid,
           rejectionReason: FieldValue.delete(),
-          ...(restartTrial ? { trialEndsAt: Timestamp.fromMillis(Date.now() + 14 * DAY) } : {}),
+          ...(restartTrial ? { trialEndsAt: Timestamp.fromMillis(Date.now() + 7 * DAY) } : {}),
           ...stamp,
         });
         await clearRegistrationAlert(companyId);

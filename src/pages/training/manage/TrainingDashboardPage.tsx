@@ -11,6 +11,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { createInvitation } from '@/lib/invitations';
+import { checkSeatChange } from '@/hooks/usePlanLimitCheck';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import type { QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 import TrainingDashboard from '@/components/training/manager/TrainingDashboard';
@@ -161,6 +162,12 @@ export default function TrainingDashboardPage() {
     setAddSaving(true);
     setAddError(null);
     try {
+      // A trainee takes a light seat — stop here when the plan has none left.
+      const seatProblem = await checkSeatChange({ company, companyId, toRole: 'trainee' });
+      if (seatProblem) {
+        setAddError(seatProblem);
+        return;
+      }
       await createInvitation({
         companyId,
         companyName: company?.name ?? '',

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { X, UserPlus, Clock } from 'lucide-react';
 import { db } from '../../lib/firebase';
+import { useBusyTechnicians } from '../../hooks/useBusyTechnicians';
 
 interface Candidate {
   id: string;
@@ -12,6 +13,10 @@ interface Candidate {
 
 interface AssignTechnicianModalProps {
   companyId: string;
+  /** Used to find technicians already mid-job, who can't be given another. */
+  siteId?: string;
+  /** Work on this machine doesn't make a technician unavailable for more work on it. */
+  allowMachineId?: string | null;
   onClose: () => void;
   onAssign: (candidate: Candidate) => void | Promise<void>;
   assigning?: boolean;
@@ -19,8 +24,9 @@ interface AssignTechnicianModalProps {
 
 const ASSIGNABLE_ROLES = ['technician', 'trainee'];
 
-export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning }: AssignTechnicianModalProps) {
+export function AssignTechnicianModal({ companyId, siteId, allowMachineId, onClose, onAssign, assigning }: AssignTechnicianModalProps) {
   const { t } = useTranslation();
+  const { busy } = useBusyTechnicians(siteId, { allowMachineId });
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -53,7 +59,7 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
       .finally(() => setLoading(false));
   }, [companyId]);
 
-  const selected = candidates.find((c) => c.id === selectedId) ?? null;
+  const selected = candidates.find((c) => c.id === selectedId && !busy.has(c.id)) ?? null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-start sm:items-center justify-center bg-black/50 p-4 py-8">
@@ -77,22 +83,34 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
           <p className="text-sm text-slate-500">{t('common.breakdowns.assignModal.empty')}</p>
         ) : (
           <div className="space-y-1.5 max-h-64 overflow-y-auto mb-4">
-            {candidates.map((c) => (
-              <button
-                type="button"
-                key={c.id}
-                onClick={() => setSelectedId(c.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
-                  selectedId === c.id ? 'border-blue-600 ring-2 ring-blue-100 bg-blue-50' : 'border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <span className="font-medium text-slate-800">{c.fullName || t('common.breakdowns.assignModal.unnamed')}</span>
-                <span className="ml-2 text-xs text-slate-500 capitalize">{c.role}</span>
-                <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-600">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {t('common.breakdowns.assignModal.onShift')}
-                </span>
-              </button>
-            ))}
+            {candidates.map((c) => {
+              const job = busy.get(c.id);
+              return (
+                <button
+                  type="button"
+                  key={c.id}
+                  disabled={!!job}
+                  onClick={() => setSelectedId(c.id)}
+                  className={`w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
+                    job
+                      ? 'border-slate-200 bg-slate-50 opacity-70 cursor-not-allowed'
+                      : selectedId === c.id ? 'border-blue-600 ring-2 ring-blue-100 bg-blue-50' : 'border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="font-medium text-slate-800">{c.fullName || t('common.breakdowns.assignModal.unnamed')}</span>
+                  <span className="ml-2 text-xs text-slate-500 capitalize">{c.role}</span>
+                  {job ? (
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-amber-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> {t('common.breakdowns.assignModal.busy', { ref: job.ref })}
+                    </span>
+                  ) : (
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-600">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {t('common.breakdowns.assignModal.onShift')}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         )}
 

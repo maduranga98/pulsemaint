@@ -36,7 +36,15 @@ function encodingFor(path, contentType) {
   return null;
 }
 
-async function transcribe(gcsUri, encoding, languageHint) {
+/** The reason Google gave (status + message), short enough to show the superadmin who made the call. */
+function describeSpeechError(err) {
+  const g = (err && err.response && err.response.data && err.response.data.error) || {};
+  const status = g.status || (err && err.code) || "";
+  const message = g.message || (err && err.message) || String(err);
+  return `${status ? `${status}: ` : ""}${message}`.replace(/\s+/g, " ").slice(0, 240);
+}
+
+async function transcribe(gcsUri, encoding, languageHint, {punctuation = true} = {}) {
   const auth = new google.auth.GoogleAuth({scopes: ["https://www.googleapis.com/auth/cloud-platform"]});
   const speech = google.speech({version: "v1", auth});
   const auto = !languageHint || languageHint === "auto";
@@ -44,7 +52,7 @@ async function transcribe(gcsUri, encoding, languageHint) {
     encoding,
     languageCode: auto ? AUTO_PRIMARY : languageHint,
     ...(auto ? {alternativeLanguageCodes: AUTO_ALTERNATIVES} : {}),
-    enableAutomaticPunctuation: true,
+    ...(punctuation ? {enableAutomaticPunctuation: true} : {}),
   };
   const {data: op} = await speech.speech.longrunningrecognize({requestBody: {config, audio: {uri: gcsUri}}});
   const started = Date.now();
@@ -126,13 +134,25 @@ exports.platformTranscribeCall = onCall(
       const encoding = encodingFor(storagePath, meta.contentType);
       if (!encoding) throw new HttpsError("failed-precondition", "This recording format can't be transcribed (use Chrome, Edge or Firefox)");
 
+      const gcsUri = `gs://${file.bucket.name}/${storagePath}`;
       let transcribed;
       try {
-        transcribed = await transcribe(`gs://${file.bucket.name}/${storagePath}`, encoding, languageHint);
+        try {
+          transcribed = await transcribe(gcsUri, encoding, languageHint);
+        } catch (err) {
+          if (err instanceof HttpsError) throw err;
+          // Not every language supports every option (e.g. punctuation); retry once with the bare config.
+          logger.warn("platformTranscribeCall: retrying without punctuation", {storagePath, err: describeSpeechError(err)});
+          transcribed = await transcribe(gcsUri, encoding, languageHint, {punctuation: false});
+        }
       } catch (err) {
         if (err instanceof HttpsError) throw err;
-        logger.error("platformTranscribeCall: speech-to-text failed", {storagePath, err: String(err)});
-        throw new HttpsError("internal", "Speech-to-Text failed — check that the Cloud Speech-to-Text API is enabled for the project");
+        const reason = describeSpeechError(err);
+        logger.error("platformTranscribeCall: speech-to-text failed", {storagePath, err: reason});
+        const hint = /SERVICE_DISABLED|has not been used|is disabled/i.test(reason) ?
+          " — enable the Cloud Speech-to-Text API for the project" :
+          /PERMISSION_DENIED/i.test(reason) ? " — the Cloud Functions service account lacks permission" : "";
+        throw new HttpsError("internal", `Speech-to-Text failed (${reason})${hint}`);
       }
       if (!transcribed.transcript) {
         return {transcript: "", languageCode: transcribed.languageCode, languageName: languageName(transcribed.languageCode), summary: "", requirements: [], followUps: []};

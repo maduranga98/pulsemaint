@@ -28,7 +28,7 @@ interface MaintenanceWorkForHealth {
 }
 
 export interface HealthScoreInput {
-  status: 'active' | 'under_maintenance' | 'decommissioned';
+  status: 'active' | 'under_maintenance' | 'decommissioned' | 'scrapped';
   breakdownsLast90Days: BreakdownForHealth[];
   maintenanceCompletedLast90Days: MaintenanceWorkForHealth[];
   overduePMs: number;

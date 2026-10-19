@@ -66,6 +66,8 @@ export function EditMachinePage() {
         installationDate: formData.installationDate || null,
         nextPmDue: formData.nextPmDue || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
+        ...(formData.purchasePrice !== undefined ? { purchasePrice: formData.purchasePrice } : {}),
+        ...(formData.scrapValue !== undefined ? { scrapValue: formData.scrapValue } : {}),
         department: formData.department,
         plantId: formData.plantId ?? undefined,
         floor: formData.floor || null,
@@ -98,7 +100,7 @@ export function EditMachinePage() {
           });
         } catch (partsErr) {
           console.error('Spare parts could not be saved', partsErr);
-          showError('Machine updated, but its spare parts could not be saved.');
+          showError(partsErr instanceof Error && partsErr.message.includes('limit') ? `Machine updated, but its spare parts were not added. ${partsErr.message}` : 'Machine updated, but its spare parts could not be saved.');
         }
       }
       // A department typed for this machine becomes one of its plant's departments.

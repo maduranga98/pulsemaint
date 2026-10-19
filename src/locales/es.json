@@ -1957,10 +1957,135 @@
       "noMachinesMatch": "Ninguna máquina coincide con sus filtros",
       "addFirstMachine": "Añadir Primera Máquina",
       "clearFilters": "Borrar Filtros",
+      "asset": {
+        "annualDepreciation": "Depreciación anual",
+        "accumulatedDepreciation": "Depreciación acumulada",
+        "perYear": "{{amount}} / año",
+        "importNote": "Los precios y valores de desecho se leen en {{currency}} (la moneda de su empresa) y solo se guardan para administradores y gerentes de planta.",
+        "cancel": "Cancelar",
+        "close": "Cerrar",
+        "edit": "Editar",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Valor del activo guardado.",
+        "saveFailed": "No se pudo guardar.",
+        "title": "Valor del activo y costo de propiedad",
+        "purchasePrice": "Precio de compra",
+        "scrapValue": "Valor de desecho esperado",
+        "depreciationHint": "El valor actual se calcula con depreciación lineal desde la fecha de compra durante la vida útil esperada (configure ambos en Editar máquina).",
+        "currentValue": "Valor actual",
+        "currentValueMissing": "Agregue precio, fecha de compra y vida útil",
+        "outsourcedJobs": "Trabajos subcontratados (registrados aquí)",
+        "workOrders": "Órdenes de trabajo (repuestos + cargos de contratistas)",
+        "totalMaintenance": "Total gastado en mantenimiento",
+        "totalOwnership": "Costo total de propiedad",
+        "scrapProceeds": "Importe de desecho / venta",
+        "adviceWatch": "El gasto total de mantenimiento se acerca a la mitad de lo que costó esta máquina; vigílelo.",
+        "adviceReplace": "Considere reemplazarla: lo gastado en mantenimiento es muy alto frente al precio o valor actual de la máquina.",
+        "errAmounts": "Los importes deben ser 0 o más.",
+        "errScrapOverPrice": "El valor de desecho no puede superar el precio de compra.",
+        "scrap": {
+          "title": "Desechar {{name}}",
+          "intro": "La máquina pasa al final de la lista marcada como Desechada. Se conserva su historial y sus programas de MP activos se archivan (vuelven si deshace el desecho).",
+          "date": "Fecha de desecho",
+          "reason": "Motivo",
+          "reasons": {
+            "broken": "Averiada sin reparación posible",
+            "old": "Demasiado antigua",
+            "uneconomical": "No vale la pena repararla",
+            "replaced": "Reemplazada por una máquina nueva",
+            "other": "Otro"
+          },
+          "details": "Detalles (opcional)",
+          "detailsPlaceholder": "Qué pasó, quién la compró…",
+          "amount": "Importe de desecho / venta ({{currency}})",
+          "approvedBy": "Aprobado por",
+          "confirm": "Desechar máquina",
+          "errDate": "Elija la fecha de desecho.",
+          "errApprover": "Indique quién aprobó desechar esta máquina.",
+          "errAmount": "El importe de desecho / venta debe ser 0 o más.",
+          "done": "{{name}} marcada como desechada.",
+          "pmArchived": " {{count}} programa(s) de MP archivado(s).",
+          "pmRestored": "{{count}} programa(s) de MP reactivado(s).",
+          "pmNotRestored": "{{count}} no se pudieron reactivar: se alcanzó el límite de programas de MP de su plan.",
+          "failed": "No se pudo desechar la máquina.",
+          "menu": "Desechar máquina…",
+          "bannerOn": "Esta máquina se desechó el {{date}}.",
+          "banner": "Esta máquina fue desechada.",
+          "broughtIn": "ingresó {{amount}}",
+          "approvedByLine": "aprobado por {{name}}",
+          "bannerKept": "Su historial de averías, mantenimiento y costos se conserva.",
+          "undo": "Deshacer desecho",
+          "undoConfirm": "¿Volver a poner {{name}} en servicio? Se eliminará el registro de desecho.",
+          "restored": "Máquina restaurada.",
+          "restoreFailed": "No se pudo restaurar la máquina."
+        },
+        "outsourced": {
+          "fromWorkOrder": "Agréguelos al crear una orden de trabajo de contratista (Órdenes de trabajo → Crear, tipo Contratista).",
+          "woSectionTitle": "Detalles del trabajo subcontratado (opcional)",
+          "woSectionHint": "Complételo si el contratista ya hizo el trabajo: repuestos instalados, precios y factura. Se guarda en el historial de mantenimiento de la máquina.",
+          "title": "Mantenimiento subcontratado",
+          "subtitle": "Trabajos de empresas externas, con repuestos instalados, costo y facturas.",
+          "total": "Total hasta ahora: {{amount}}.",
+          "add": "Añadir trabajo subcontratado",
+          "empty": "Aún no hay trabajos subcontratados registrados para esta máquina.",
+          "deleteConfirm": "¿Eliminar este trabajo de {{name}} y sus facturas? No se puede deshacer.",
+          "deleteFailed": "No se pudo eliminar.",
+          "delete": "Eliminar",
+          "invoice": "Factura {{number}}",
+          "part": "Repuesto",
+          "partNo": "N.º de repuesto",
+          "fittedAs": "Instalado como",
+          "replaced": "Reemplazado",
+          "added": "Añadido",
+          "qty": "Cant.",
+          "unitPrice": "Precio unitario",
+          "colTotal": "Total",
+          "partsAndLabour": "Repuestos {{parts}} + mano de obra / servicio {{labour}}",
+          "dialogTitle": "Añadir mantenimiento subcontratado",
+          "contractor": "Contratista / empresa",
+          "contractorPlaceholder": "Elija de sus contratistas o escriba",
+          "typeOfWork": "Tipo de trabajo",
+          "jobTypes": {
+            "repair": "Reparación",
+            "service": "Servicio",
+            "overhaul": "Revisión general",
+            "installation": "Instalación / mejora",
+            "other": "Otro"
+          },
+          "started": "Inicio",
+          "finished": "Fin",
+          "whatWasDone": "Qué se hizo",
+          "whatPlaceholder": "p. ej., Se cambiaron los rodamientos principales y se realineó el eje",
+          "partsHeading": "Repuestos reemplazados o añadidos",
+          "addPart": "Añadir repuesto",
+          "removePart": "Quitar repuesto",
+          "noParts": "¿Sin repuestos? Déjelo vacío e ingrese solo la mano de obra / servicio.",
+          "partPlaceholder": "Rodamiento 6205",
+          "labourLabel": "Mano de obra / servicio ({{currency}})",
+          "invoiceNumber": "Número de factura",
+          "totalParts": "Repuestos",
+          "totalLabour": "Mano de obra / servicio",
+          "totalCost": "Costo total",
+          "invoicesLabel": "Facturas / recibos (PDF o fotos, hasta 15 MB cada uno)",
+          "filesSelected": "{{count}} archivo(s) seleccionado(s)",
+          "notes": "Notas",
+          "notesPlaceholder": "Garantía otorgada, requiere seguimiento…",
+          "saveJob": "Guardar trabajo",
+          "saved": "Trabajo subcontratado guardado.",
+          "saveFailed": "No se pudo guardar el trabajo.",
+          "errContractor": "Indique el contratista / empresa que hizo el trabajo.",
+          "errStart": "Indique la fecha de inicio del trabajo.",
+          "errDates": "La fecha de fin es anterior a la de inicio.",
+          "errParts": "Cada repuesto necesita una cantidad mayor que 0 y un precio.",
+          "errLabour": "El costo de mano de obra no puede ser negativo."
+        }
+      },
       "statusLabels": {
         "active": "Activa",
         "under_maintenance": "En Mantenimiento",
-        "decommissioned": "Fuera de Servicio"
+        "decommissioned": "Fuera de Servicio",
+        "scrapped": "Desechada"
       },
       "criticalityLabels": {
         "1": "Baja",
@@ -2025,7 +2150,8 @@
         "statusOptions": {
           "active": "Activa",
           "under_maintenance": "En Mantenimiento",
-          "decommissioned": "Fuera de Servicio"
+          "decommissioned": "Fuera de Servicio",
+          "scrapped": "Desechada"
         },
         "criticalityOptions": {
           "5": "5 - Crítica para la Misión",
@@ -2172,6 +2298,9 @@
       "pageTitle": "Averías",
       "summary": "{{count}} {{filter}} en {{machineCount}} máquinas",
       "reportViaQr": "Reportar vía QR",
+      "attendedByInline": "Atendida por {{name}}",
+      "awaitingSignOff": "Pendiente de aprobación",
+      "selfAttendBusy": "Sigue en {{ref}} {{machine}}. Envíe su trabajo actual antes de tomar otro.",
       "reportBreakdown": "Reportar Avería",
       "tabs": {
         "reported": "reportadas",
@@ -2255,6 +2384,7 @@
         "empty": "Actualmente no hay técnicos ni aprendices marcados como en turno. Pídales que inicien su turno, o asigne cuando alguien esté disponible.",
         "unnamed": "Sin nombre",
         "onShift": "En turno",
+        "busy": "Ocupado — en {{ref}}",
         "cancel": "Cancelar",
         "assigning": "Asignando…",
         "assign": "Asignar"
@@ -2268,6 +2398,7 @@
         "productionImpact": "Impacto en Producción",
         "attemptedFixes": "Soluciones Intentadas",
         "technicianFindings": "Qué Sucedió (Hallazgos del Técnico/Aprendiz)",
+        "completionNotes": "Qué se hizo para completar la reparación",
         "assignedTechnicians": "Técnicos Asignados",
         "attachedMedia": "Archivos Adjuntos",
         "attachmentAlt": "Adjunto {{index}}",
@@ -2355,6 +2486,13 @@
         "attemptedFixesLabel": "Soluciones intentadas",
         "technicianFindingsLabel": "¿Qué sucedió? (hallazgos del técnico/aprendiz)",
         "technicianFindingsPlaceholder": "Su propio relato de lo sucedido, aparte de la descripción del reportante. O toque el micrófono y cuéntenos.",
+        "quickFixLabel": "Qué hizo y cómo lo completó *",
+        "quickFixHint": "Gravedad baja: describa la reparación. Al enviarlo pasa a su supervisor para su aprobación; no se necesita orden de trabajo.",
+        "quickFixPlaceholder": "Escríbalo o toque el micrófono y dígalo.",
+        "quickFixRequired": "Describa qué hizo y cómo lo completó antes de enviar.",
+        "submitForSignOff": "Enviar para aprobación",
+        "quickFixSubmitted": "Enviado: pasó a su supervisor para su aprobación.",
+        "alreadyAttended": "{{name}} ya está atendiendo esta avería.",
         "attachMediaLabel": "Adjuntar archivos (fotos/video)",
         "filesSelected_one": "{{count}} archivo seleccionado",
         "filesSelected_other": "{{count}} archivos seleccionados",
@@ -2496,6 +2634,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "No incluido en su plan: mejore su plan para usar órdenes de trabajo de contratistas.",
       "types": {
         "BREAKDOWN": "Reparación de Avería",
         "CORRECTIVE": "Mantenimiento Correctivo",
@@ -2874,6 +3013,7 @@
         "assignInternalTechniciansLabel": "Asignar técnicos internos",
         "optionalLabel": "(opcional)",
         "activeWOsInline": "{{count}} OT activas",
+        "busyInline": "Ocupado — en {{ref}}",
         "chooseContactPerson": "Elige una persona de contacto…",
         "primaryContactOption": "{{name}} (contacto principal)"
       },
@@ -8960,16 +9100,16 @@
       },
       "plans": {
         "starter": {
-          "name": "Básico",
-          "description": "Para un solo equipo pequeño que está empezando."
+          "name": "Starter",
+          "description": "For a single small team getting started."
         },
         "workshop": {
-          "name": "Taller",
-          "description": "Para talleres en crecimiento con flujos de trabajo estructurados."
+          "name": "Growth",
+          "description": "For growing teams with structured workflows."
         },
         "factory": {
-          "name": "Factory Pro",
-          "description": "Análisis MOE completo para plantas de producción."
+          "name": "Factory",
+          "description": "Full MOE analytics, audits and Kaizen for production facilities."
         },
         "enterprise": {
           "name": "Empresarial",
@@ -10504,6 +10644,34 @@
               "Usa la opción de descarga o impresión para guardarlo como imagen o PDF, o imprímelo directamente para pegarlo en la máquina.",
               "Escanear ese código QR más tarde abre directamente este perfil."
             ]
+          },
+          {
+            "title": "Registre el precio de compra de una máquina y vea su valor",
+            "steps": [
+              "Abra Máquinas y use Añadir máquina (o Editar en una existente). Los administradores y gerentes de planta ven Precio de compra y Valor de desecho esperado junto a la fecha de compra y la vida útil esperada.",
+              "Ingrese el precio de compra y el valor que espera al desechar la máquina. Los importes están en la moneda de su empresa.",
+              "Abra la máquina y vea Resumen: la tarjeta Valor del activo muestra la depreciación anual, la acumulada y el valor actual, calculados de forma lineal durante la vida útil esperada.",
+              "¿Va a añadir muchas máquinas? Descargue la plantilla CSV desde Importar: tiene las columnas expected_lifespan_years, purchase_price y scrap_value.",
+              "La tarjeta también suma lo gastado en mantenimiento y avisa cuando reparar cuesta más de lo que vale la máquina."
+            ]
+          },
+          {
+            "title": "Desechar una máquina",
+            "steps": [
+              "Abra la máquina y elija Más → Desechar máquina… (administradores y gerentes de planta).",
+              "Elija la fecha y el motivo, ingrese lo que aportó el desecho o la venta y quién lo aprobó, y confirme.",
+              "La máquina se marca como Desechada (rosa) y pasa al final de la lista de Máquinas. Su historial se conserva y sus programas de MP se archivan.",
+              "Ya no aparece al crear órdenes de trabajo, reportes de avería ni programas de MP, y deja de contar para el límite de máquinas de su plan.",
+              "¿La desechó por error? Abra la máquina y elija Deshacer desecho: la máquina y sus programas de MP archivados vuelven."
+            ]
+          },
+          {
+            "title": "Haga el recorrido guiado de una página de máquina",
+            "steps": [
+              "Abra cualquier máquina y pulse Recorrido de la página junto a su estado.",
+              "Una tarjeta señala el estado, la salud y el servicio, la pestaña Mantenimiento, el menú Más y (para administradores y gerentes de planta) la tarjeta Valor del activo.",
+              "Use Siguiente y Anterior para avanzar u Omitir recorrido para detenerlo. Puede iniciarlo de nuevo cuando quiera."
+            ]
           }
         ]
       },
@@ -10555,6 +10723,17 @@
               "Registra los repuestos usados, notas y cualquier medio (fotos) sobre la marcha.",
               "Al terminar, la envía para firma.",
               "Un supervisor o superior revisa la lista completada y los detalles de la firma, y cierra la orden de trabajo."
+            ]
+          },
+          {
+            "title": "Registre el trabajo hecho por un contratista externo",
+            "steps": [
+              "Cree una orden de trabajo y elija el tipo Contratista (requiere el módulo Contratistas en su plan).",
+              "En el paso del equipo, elija la empresa contratista.",
+              "En Detalles del trabajo subcontratado (opcional), complete el tipo de trabajo, las fechas y lo que se hizo.",
+              "Añada cada repuesto reemplazado o añadido con su cantidad y precio unitario, y luego la mano de obra o el servicio. El total se calcula solo.",
+              "Ingrese el número de factura y adjunte la factura (PDF o foto).",
+              "Cree la orden de trabajo. Los detalles se guardan en la pestaña Mantenimiento de la máquina, donde quedan registrados los costos, repuestos y enlaces a las facturas."
             ]
           }
         ]
@@ -10969,6 +11148,107 @@
             ]
           }
         ]
+      }
+    },
+    "tour": {
+      "bannerTitle": "Haga el recorrido guiado",
+      "bannerBody": "Un breve recorrido que le muestra el menú, las notificaciones y su turno, paso a paso.",
+      "bannerButton": "Iniciar recorrido"
+    }
+  },
+  "tour": {
+    "ui": {
+      "next": "Siguiente",
+      "back": "Anterior",
+      "done": "Listo",
+      "skip": "Omitir recorrido",
+      "close": "Cerrar",
+      "stepOf": "{{current}} de {{total}}",
+      "nothingToShow": "Aún no hay nada que mostrar en esta pantalla.",
+      "pageTour": "Recorrido de la página"
+    },
+    "main": {
+      "welcome": {
+        "title": "Bienvenido a FirmiCore",
+        "body": "Hagamos un recorrido rápido por las partes principales de la aplicación. Solo toma un minuto: use Siguiente para avanzar u Omitir cuando quiera. Puede repetirlo desde Ayuda y soporte."
+      },
+      "dashboard": {
+        "title": "Su panel",
+        "body": "Su página de inicio. Muestra lo que necesita atención hoy: averías abiertas, órdenes de trabajo, MP pendientes y alertas de su rol."
+      },
+      "plants": {
+        "title": "Pestañas de plantas",
+        "body": "Cambie entre sus plantas aquí. Todo lo de abajo (máquinas, órdenes de trabajo, personas) sigue la planta que elija."
+      },
+      "group_maintenance": {
+        "title": "Mantenimiento",
+        "body": "Aquí están las máquinas, averías, órdenes de trabajo y programas de MP. Empiece aquí para reportar una avería o revisar una máquina."
+      },
+      "group_safety": {
+        "title": "Seguridad",
+        "body": "Permisos de trabajo, casos de seguridad, formaciones de seguridad y la lista negra de contratistas."
+      },
+      "group_inventory": {
+        "title": "Inventario",
+        "body": "Catálogo de repuestos, solicitudes de stock y órdenes de compra. Los repuestos con poco stock se marcan para usted."
+      },
+      "group_triage_training": {
+        "title": "Triaje y formación",
+        "body": "Flujos guiados para diagnosticar fallos, y módulos de formación, asignaciones y certificados."
+      },
+      "group_workforce": {
+        "title": "Personal",
+        "body": "Contratistas, su turno, relevos de turno y solicitudes a los gerentes."
+      },
+      "group_insights": {
+        "title": "Análisis",
+        "body": "Analítica, informes, MOE, auditorías y evaluaciones: cifras e informes creados con sus propios datos."
+      },
+      "group_admin": {
+        "title": "Administración",
+        "body": "Ajustes, usuarios, plantas, facturación y solicitudes de soporte de su empresa."
+      },
+      "language": {
+        "title": "Idioma",
+        "body": "Cambie el idioma de la aplicación cuando quiera. Se recuerda su elección."
+      },
+      "notifications": {
+        "title": "Notificaciones",
+        "body": "La campana muestra nuevas averías, asignaciones, aprobaciones y alertas. Un número rojo indica que hay algo pendiente."
+      },
+      "shift": {
+        "title": "Su turno",
+        "body": "Inicie su turno aquí y ciérrelo con un relevo al terminar, para que el siguiente equipo sepa qué pasó."
+      },
+      "profile": {
+        "title": "Su cuenta",
+        "body": "Su nombre y rol. Use Cerrar sesión junto a él cuando termine."
+      },
+      "help": {
+        "title": "Ayuda y soporte",
+        "body": "Guías paso a paso de cada módulo. Puede repetir este recorrido desde aquí cuando quiera."
+      }
+    },
+    "machine": {
+      "status": {
+        "title": "Estado y criticidad",
+        "body": "Muestra si la máquina está activa, en mantenimiento o desechada (rosa, al final de la lista) y qué tan crítica es."
+      },
+      "health": {
+        "title": "Salud y servicio",
+        "body": "Puntuación de salud, último servicio y próximo MP de un vistazo."
+      },
+      "tabs": {
+        "title": "Pestaña Mantenimiento",
+        "body": "Abra Mantenimiento para ver el historial de trabajos y los trabajos subcontratados guardados, con repuestos instalados, costos y facturas."
+      },
+      "more": {
+        "title": "Más acciones",
+        "body": "Cree una orden de trabajo, reporte un problema, exporte detalles y (administradores y gerentes de planta) Desechar máquina. Desechar conserva el historial y archiva sus programas de MP."
+      },
+      "asset": {
+        "title": "Valor del activo y costo",
+        "body": "Precio de compra, valor de desecho, depreciación anual y valor actual, más todo lo gastado en mantenimiento, para decidir cuándo reparar o reemplazar."
       }
     }
   }

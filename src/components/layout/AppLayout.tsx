@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
@@ -11,6 +11,9 @@ import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
 import PlantTabs from './PlantTabs';
 import { useSupportUnreadCount } from '../../hooks/useSupportUnreadCount';
+import { useTour } from '../../features/tour/TourProvider';
+import { companyApproval } from '../../lib/companyApproval';
+import { isTrialExpired } from '../../lib/planLimits';
 
 interface NavItem {
   labelKey: string;
@@ -335,6 +338,24 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
+/** Opens the main guided tour once, the first time a user lands on their dashboard on a desktop screen. */
+function TourAutoStart() {
+  const { startOnce, running } = useTour();
+  const { pathname } = useLocation();
+  const ready = useAuthStore((s) => {
+    const c = s.company;
+    if (!s.userProfile || !c) return false;
+    if (companyApproval(c.approvalStatus) !== 'approved' || c.status === 'suspended' || isTrialExpired(c)) return false;
+    return !(s.userProfile.role === 'admin' && c.cancellationReasonPendingId); // that dialog can't be skipped — don't stack on it
+  });
+  useEffect(() => {
+    if (!ready || running || !pathname.startsWith('/app/dashboard') || window.innerWidth < 1024) return;
+    const timer = window.setTimeout(() => startOnce('main'), 1500);
+    return () => window.clearTimeout(timer);
+  }, [ready, running, pathname, startOnce]);
+  return null;
+}
+
 function TrialExpiryBanner() {
   const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
@@ -345,7 +366,8 @@ function TrialExpiryBanner() {
     : null;
 
   const expired = daysLeft !== null && daysLeft <= 0;
-  const urgent = daysLeft !== null && daysLeft <= 7;
+  // A trial is 7 days long, so "urgent" means the last 3 days (otherwise the banner would show all trial long).
+  const urgent = daysLeft !== null && daysLeft <= 3;
 
   if (!expired && !urgent) return null;
 
@@ -390,6 +412,15 @@ export default function AppLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // The shell is exactly one screen tall and scrolls inside its own panes, so
+  // the page behind it must never scroll or show its white background (a
+  // stray element after #root used to expose a blank white band under the
+  // content).
+  useEffect(() => {
+    document.documentElement.classList.add('app-shell-active');
+    return () => document.documentElement.classList.remove('app-shell-active');
+  }, []);
   const { logout } = useAuthActions();
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
@@ -452,6 +483,7 @@ export default function AppLayout() {
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto scrollbar-hide">
           {visibleDashboard && (
             <NavLink
+              data-tour="nav-dashboard"
               to={visibleDashboard.to}
               end
               onClick={() => setSidebarOpen(false)}
@@ -477,6 +509,7 @@ export default function AppLayout() {
               <div key={group.id}>
                 <button
                   type="button"
+                  data-tour={`nav-group-${group.id}`}
                   onClick={() => setManualOpenGroupId(isOpen ? null : group.id)}
                   aria-expanded={isOpen}
                   className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-[11px] font-semibold uppercase tracking-wide transition-colors ${
@@ -518,6 +551,7 @@ export default function AppLayout() {
             <>
               <div className="my-2 border-t border-[#1E3A5F]" />
               <NavLink
+                data-tour="nav-help"
                 to={visibleHelp.to}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
@@ -575,7 +609,7 @@ export default function AppLayout() {
               </div>
               <div className="text-[11px] text-[#8BA3BF]">{roleLabel(role)}</div>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#1A56DB]/20 text-[#60A5FA] flex items-center justify-center text-[12px] font-semibold border border-[#1E3A5F]">
+            <div data-tour="profile" className="w-8 h-8 rounded-full bg-[#1A56DB]/20 text-[#60A5FA] flex items-center justify-center text-[12px] font-semibold border border-[#1E3A5F]">
               {initials(userProfile?.fullName)}
             </div>
             <button
@@ -591,6 +625,7 @@ export default function AppLayout() {
         <PlantTabs />
 
         <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto scrollbar-hide">
+          <TourAutoStart />
           <TrialExpiryBanner />
           {/* A subscription cancelled in the Stripe portal without a reason: admins must give one (can't be skipped). */}
           {role === 'admin' && company?.cancellationReasonPendingId && location.pathname !== '/app/billing' && (

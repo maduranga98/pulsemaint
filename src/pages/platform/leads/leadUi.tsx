@@ -10,6 +10,7 @@ export const STATUS_STYLE: Record<LeadStatus, { header: string; badge: string }>
   follow_up: { header: 'bg-cyan-700', badge: 'bg-cyan-900/60 text-cyan-200' },
   demo_booked: { header: 'bg-violet-600', badge: 'bg-violet-900/60 text-violet-200' },
   demo_done: { header: 'bg-fuchsia-600', badge: 'bg-fuchsia-900/60 text-fuchsia-200' },
+  trial_requested: { header: 'bg-indigo-600', badge: 'bg-indigo-900/60 text-indigo-200' },
   negotiation: { header: 'bg-amber-600', badge: 'bg-amber-900/60 text-amber-200' },
   closed_won: { header: 'bg-emerald-600', badge: 'bg-emerald-900/60 text-emerald-200' },
   closed_lost: { header: 'bg-red-700', badge: 'bg-red-900/60 text-red-200' },

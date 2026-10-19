@@ -59,7 +59,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
       query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
       (snap) => {
         setMachines(
-          snap.docs.map((d) => {
+          snap.docs.filter((d) => d.get('status') !== 'scrapped').map((d) => {
             const data = d.data() as Record<string, unknown>;
             return {
               id: d.id,

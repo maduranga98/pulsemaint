@@ -32,7 +32,7 @@ export function useMachineOptions() {
         const chunk = siteIds.slice(i, i + 10);
         try {
           const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
-          snap.docs.forEach((d) => {
+          snap.docs.filter((d) => d.get('status') !== 'scrapped').forEach((d) => {
             const data = d.data();
             opts.push({
               id: d.id,

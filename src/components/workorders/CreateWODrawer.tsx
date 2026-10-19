@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { OutsourcedJobFields, draftDayMs, emptyJobDraft, isJobDraftFilled, jobDraftError, type OutsourcedJobDraft } from '../machines/OutsourcedJobFields';
+import { createOutsourcedMaintenance } from '../../services/machineOutsourced.service';
+import { getCompanyCurrency } from '@/lib/currency';
+import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { isFeatureAvailable } from '../../lib/planLimits';
 import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder';
 import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } from '../../constants/woConfig';
 import { PM_TYPES_ORDERED, PM_TYPE_CONFIG } from '../../constants/pmConfig';
@@ -20,6 +25,7 @@ import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '../../types/saf
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { useSafetyBlacklist } from '../../hooks/safety/useSafety';
 import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
+import { useBusyTechnicians } from '../../hooks/useBusyTechnicians';
 
 type MachineOption = {
   id: string;
@@ -117,9 +123,13 @@ export function CreateWODrawer({
   const [wpHazards, setWpHazards] = useState('');
   const [wpPpe, setWpPpe] = useState('');
   const [wpPrecautions, setWpPrecautions] = useState<Record<string, boolean>>({});
+  // Outsourced work details (contractor work orders): saved to the machine's maintenance history on create.
+  const [outsourced, setOutsourced] = useState<OutsourcedJobDraft>(emptyJobDraft);
 
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const company = useAuthStore((s) => s.company);
   // A supervisor (or any other department-scoped role that can reach this
   // drawer) can only raise a work order against a machine in their own
   // registered department.
@@ -144,7 +154,8 @@ export function CreateWODrawer({
           query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
         );
         if (cancelled) return;
-        const machineOptions = machineSnap.docs.map((d) => {
+        // Scrapped machines stay on record but can't take new work.
+        const machineOptions = machineSnap.docs.filter((d) => d.get('status') !== 'scrapped').map((d) => {
           const data = d.data() as Record<string, unknown>;
           return {
             id: d.id,
@@ -395,6 +406,21 @@ export function CreateWODrawer({
   const supervisors = supervisorPool.filter(inWoScope);
   const technicians = technicianPool.filter(inWoScope);
 
+  // Technicians mid-job (a started WO, or a breakdown they're attending and
+  // haven't submitted) can't be given another. The breakdown(s) this WO is
+  // being raised for don't count against their own attender, and neither
+  // does other work on the same machine.
+  const busyIgnoreIds = [
+    linkedBreakdownId,
+    ...(linkedBreakdownIds ?? []),
+    linkedBreakdown?.id,
+    ...linkedBreakdownGroup.map((b) => b.id),
+  ].filter((id): id is string => !!id);
+  const { busy: busyTechnicians } = useBusyTechnicians(open ? (siteIds?.[0] || companyId) : undefined, {
+    ignoreBreakdownIds: busyIgnoreIds,
+    allowMachineId: (watchField('machineId') as string | undefined) || null,
+  });
+
   // Auto-suggest due date from priority
   useEffect(() => {
     const sla = getSlaDeadline(new Date(), priority, woType);
@@ -420,6 +446,14 @@ export function CreateWODrawer({
       setSubmitErrors([pmScheduleLimit.message ?? 'PM schedule limit reached on your current plan.']);
       return;
     }
+    const outsourcedFilled = values.woType === 'CONTRACTOR' && isJobDraftFilled(outsourced);
+    if (outsourcedFilled) {
+      const problem = !(values.contractorCompanyName as string | null)?.trim() ? 'errContractor' : jobDraftError(outsourced);
+      if (problem) {
+        setSubmitErrors([t(`common.machines.asset.outsourced.${problem}`)]);
+        return;
+      }
+    }
     const wpCategoryDef = WORK_PERMIT_CATEGORIES.find((c) => c.value === wpCategory)!;
     const woId = await createWO({
       ...values,
@@ -438,7 +472,33 @@ export function CreateWODrawer({
           }
         : null,
     });
+    if (woId && outsourcedFilled && companyId) {
+      // The work order exists either way; a failure here only skips the cost record.
+      try {
+        await createOutsourcedMaintenance(companyId, {
+          siteId: siteIds?.[0] || companyId,
+          machineId: values.machineId,
+          contractorId: (values.contractorCompanyId as string | null) ?? null,
+          contractorName: (values.contractorCompanyName as string | null) ?? '',
+          workOrderId: woId,
+          jobType: outsourced.jobType,
+          description: outsourced.description.trim() || values.description?.slice(0, 500) || '',
+          startedAt: draftDayMs(outsourced.startedAt),
+          completedAt: outsourced.completedAt ? draftDayMs(outsourced.completedAt) : null,
+          parts: outsourced.parts.filter((p) => p.name.trim()).map((p) => ({ ...p, name: p.name.trim(), partNumber: p.partNumber?.trim() || undefined })),
+          labourCost: Number(outsourced.labour) || 0,
+          currency: getCompanyCurrency(),
+          invoiceNumber: outsourced.invoiceNumber.trim(),
+          notes: outsourced.notes.trim(),
+          createdBy: userProfile?.id ?? '',
+          createdByName: userProfile?.fullName ?? '',
+        }, outsourced.files);
+      } catch (e) {
+        toast.error((e as Error).message || t('common.machines.asset.outsourced.saveFailed'));
+      }
+    }
     if (woId) {
+      setOutsourced(emptyJobDraft());
       onCreated?.(woId);
       onClose();
       form.reset();
@@ -572,19 +632,23 @@ export function CreateWODrawer({
                     {WO_TYPES_ORDERED.map((type) => {
                       const cfg = WO_TYPE_CONFIG[type];
                       const isSelected = woType === type;
+                      // Contractor work orders belong to the Contractors module, which some plans don't include.
+                      const lockedByPlan = type === 'CONTRACTOR' && !isFeatureAvailable(company, 'contractors');
                       return (
                         <button
                           key={type}
                           type="button"
+                          disabled={lockedByPlan}
+                          title={lockedByPlan ? t('common.workOrders.typeLockedByPlan') : undefined}
                           onClick={() => form.setValue('woType', type as WOType)}
                           className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                             isSelected
                               ? `border-[${cfg.color}] ${cfg.bgClass} ${cfg.textClass}`
                               : 'border-gray-100 hover:border-gray-300 text-gray-600'
-                          }`}
+                          } ${lockedByPlan ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
                           <span className="text-2xl">{cfg.icon}</span>
-                          <span className="text-center leading-tight text-xs">{t(`common.workOrders.types.${type}`)}</span>
+                          <span className="text-center leading-tight text-xs">{lockedByPlan ? '🔒 ' : ''}{t(`common.workOrders.types.${type}`)}</span>
                         </button>
                       );
                     })}
@@ -855,6 +919,7 @@ export function CreateWODrawer({
 
           {/* ── STEP 2: Team Assignment ── */}
           {step === 2 && (
+            <>
             <TeamAssignmentPanel
               form={form}
               isContractorWO={isContractorWO}
@@ -865,6 +930,7 @@ export function CreateWODrawer({
                   name: t.name,
                   department: t.department ?? '',
                   activeWOCount: 0,
+                  busyRef: busyTechnicians.get(t.id)?.ref ?? null,
                 }))}
               supervisors={supervisors.map((s) => ({ id: s.id, name: s.name, role: s.role, department: s.department ?? '' }))}
               contractors={registeredContractors
@@ -884,6 +950,14 @@ export function CreateWODrawer({
                   isActive: c.status === 'active',
                 }))}
             />
+            {isContractorWO && (
+              <div className="mt-5 rounded-xl border border-gray-200 bg-white p-4">
+                <h3 className="text-sm font-semibold text-gray-900">{t('common.machines.asset.outsourced.woSectionTitle')}</h3>
+                <p className="mb-3 mt-0.5 text-xs text-gray-500">{t('common.machines.asset.outsourced.woSectionHint')}</p>
+                <OutsourcedJobFields value={outsourced} onChange={setOutsourced} />
+              </div>
+            )}
+            </>
           )}
 
           {/* ── STEP 3: Checklist ── */}

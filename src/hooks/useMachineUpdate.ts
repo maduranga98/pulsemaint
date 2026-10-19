@@ -93,6 +93,8 @@ export function useMachineUpdate({
       if (payload.nextPmDue !== undefined) {
         updateData.nextPmDue = payload.nextPmDue ? Timestamp.fromDate(payload.nextPmDue) : null;
       }
+      if (payload.purchasePrice !== undefined) updateData.purchasePrice = payload.purchasePrice;
+      if (payload.scrapValue !== undefined) updateData.scrapValue = payload.scrapValue;
       if (payload.expectedLifespanYears !== undefined) {
         updateData.expectedLifespanYears = payload.expectedLifespanYears;
       }

@@ -54,6 +54,10 @@ async function runPool(items, limit, worker) {
  */
 async function processCalendarSchedule(docSnap, now) {
   const schedule = docSnap.data();
+  // A one-off PM raised from the Work Order drawer already has its own work
+  // order (linkedWoId); generating another here would duplicate it. Its
+  // start-time alert comes from alertPmStartTime.
+  if (schedule.recurrenceType === "one_time" || schedule.linkedWoId) return "skipped";
   const plan = planCalendarRun(schedule, now);
   if (plan.action === "end") {
     await docSnap.ref.update({status: "completed", endedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp()});

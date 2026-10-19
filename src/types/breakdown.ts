@@ -146,6 +146,15 @@ export interface Breakdown {
   slaBreached: boolean;
 
   // Resolution
+  // Low-severity breakdowns are fixed by the attending technician without a
+  // work order: they describe what they did, the ticket moves to `resolved`
+  // and waits for a supervisor (or above) to sign it off.
+  completionNotes?: string | null;
+  completedWithoutWO?: boolean;
+  resolvedBy?: string | null;
+  resolvedByName?: string | null;
+  closedBy?: string | null;
+  closedByName?: string | null;
   rootCause: RootCause | null;
   rootCauseDescription: string | null;
   correctiveActions: string | null;

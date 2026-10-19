@@ -1,4 +1,5 @@
 const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {sendNotification} = require("../lib/notify");
 const {db, FieldValue, calculateVariance, logger} = require("./shared");
 
 exports.notifyInvoiceVariance = onDocumentUpdated({ database: "default", document: "contractorJobs/{jobId}" }, async (event) => {
@@ -14,15 +15,15 @@ exports.notifyInvoiceVariance = onDocumentUpdated({ database: "default", documen
   });
 
   if (variance.invoiceVarianceFlagged) {
-    await db.collection("companies").doc(after.companyId).collection("notificationLogs").add({
-      type: "contractor_invoice_variance",
-      contractorJobId: event.params.jobId,
-      contractorName: after.contractorName,
-      workOrderNumber: after.workOrderNumber,
-      systemAmount: after.systemInvoiceAmount || 0,
-      contractorAmount: after.contractorInvoiceAmount,
-      variancePercent: variance.invoiceVariancePercent,
-      createdAt: FieldValue.serverTimestamp(),
+    await sendNotification(db, {
+      companyId: after.companyId,
+      type: "alert",
+      message: `Invoice variance of ${variance.invoiceVariancePercent}% on contractor job ${after.workOrderNumber || event.params.jobId}` +
+        (after.contractorName ? ` (${after.contractorName})` : ""),
+      severity: "high",
+      linkTo: `/app/contractors/jobs/${event.params.jobId}/invoice`,
+      roles: ["hr_officer", "supervisor"],
+      dedupeKey: `invoice-variance:${event.params.jobId}:${variance.invoiceVariancePercent}`,
     });
   }
 

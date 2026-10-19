@@ -24,16 +24,21 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
   const [error, setError] = useState('');
   const set = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) => setF((p) => ({ ...p, [k]: v }));
 
-  /** Fill name (as business and contact), phone, email and website from pasted text; never overwrites with blanks. */
+  /**
+   * Fill the form from pasted text: company → business name, person → contact person, plus phone, email, website
+   * and location. A lone name (no company given) is used for both. Never overwrites with blanks.
+   */
   function applyPaste(text: string) {
     const p = parseLeadText(text);
     setF((prev) => ({
       ...prev,
-      businessName: p.name || prev.businessName,
+      businessName: p.company || p.name || prev.businessName,
       contactPerson: p.name || prev.contactPerson,
       phone: p.phone || prev.phone,
+      whatsapp: p.whatsapp && p.whatsapp !== (p.phone || prev.phone) ? p.whatsapp : prev.whatsapp,
       email: p.email || prev.email,
       website: p.website || prev.website,
+      location: p.location || prev.location,
     }));
   }
 
@@ -76,8 +81,8 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
       {error && <div className="mb-3"><ErrorNote message={error} /></div>}
       {!lead && (
         <div className="mb-3">
-          <Field label="Paste details" hint="Paste a message or contact — the name, phone, email and website fill in below.">
-            <textarea className={input} rows={3} placeholder={'Nimal Silva\n077 123 4567\nsilva.lk'} onChange={(e) => applyPaste(e.target.value)} />
+          <Field label="Paste details" hint="Paste a message or contact — the company, contact person, phone, WhatsApp, email and website fill in below.">
+            <textarea className={input} rows={3} placeholder={'Full name: Nimal Silva\nCompany name: Silva Engineering\nPhone number: 077 123 4567'} onChange={(e) => applyPaste(e.target.value)} />
           </Field>
         </div>
       )}
@@ -86,6 +91,9 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
         <Field label="Contact person"><input className={input} value={f.contactPerson} onChange={(e) => set('contactPerson', e.target.value)} placeholder="Nimal Silva" /></Field>
         <Field label="Phone" hint={dup ? `Same number as “${dup.businessName}” — possible duplicate.` : undefined}>
           <input className={input} value={f.phone} onChange={(e) => set('phone', e.target.value)} placeholder="077 123 4567" inputMode="tel" />
+        </Field>
+        <Field label="WhatsApp" hint="Only if different from the phone — leave empty to use the phone number.">
+          <input className={input} value={f.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} placeholder="077 123 4567" inputMode="tel" />
         </Field>
         <Field label="Email"><input className={input} type="email" value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="owner@example.com" /></Field>
         <Field label="Website" hint="Shows as a link that opens in a new tab.">
