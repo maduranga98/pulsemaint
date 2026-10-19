@@ -2806,6 +2806,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "ඔබේ plan හි ඇතුළත් නැත — contractor වැඩ ඇණවුම් භාවිතයට plan එක උසස් කරන්න.",
       "pageTitle": "කාර්ය නියෝග",
       "count": "කාර්ය නියෝග {{count}}",
       "createButton": "+ කාර්ය නියෝගයක් සාදන්න",

@@ -2634,6 +2634,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "您的套餐不包含此功能——升级后即可使用承包商工单。",
       "pageTitle": "工单",
       "count": "共 {{count}} 张工单",
       "createButton": "+ 创建工单",

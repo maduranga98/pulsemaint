@@ -2634,6 +2634,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "Non inclus dans votre forfait : passez à un forfait supérieur pour utiliser les ordres de travail sous-traitants.",
       "types": {
         "BREAKDOWN": "Réparation de Panne",
         "CORRECTIVE": "Maintenance Corrective",

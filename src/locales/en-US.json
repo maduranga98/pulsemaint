@@ -4060,6 +4060,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "Not included in your plan — upgrade to use contractor work orders.",
       "pageTitle": "Work Orders",
       "count": "{{count}} work orders",
       "createButton": "+ Create Work Order",

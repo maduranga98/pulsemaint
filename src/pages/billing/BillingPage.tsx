@@ -218,7 +218,7 @@ function TrialBanner({
       className={`rounded-xl p-4 border flex items-center gap-3 ${
         expired
           ? 'bg-red-900/20 border-red-700/50 text-red-300'
-          : daysLeft !== null && daysLeft <= 7
+          : daysLeft !== null && daysLeft <= 3
           ? 'bg-amber-900/20 border-amber-700/50 text-amber-300'
           : 'bg-blue-900/20 border-blue-700/50 text-blue-300'
       }`}
