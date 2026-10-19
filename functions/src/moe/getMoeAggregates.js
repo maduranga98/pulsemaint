@@ -9,6 +9,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
+const {requireMember} = require("../lib/access");
 
 const db = getFirestore("default");
 const CRITICAL_THRESHOLD_DEFAULT = 70;
@@ -21,6 +22,8 @@ const getMoeAggregates = onCall(async (request) => {
   if (!tenantId || !startDate || !endDate) {
     throw new HttpsError("invalid-argument", "tenantId, startDate, endDate are required");
   }
+  // tenantId is the caller's company id — never read another company's MOE.
+  await requireMember(request, tenantId);
 
   try {
     let q = db

@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { scoreQuizAttempt, hasPassedQuiz } from '@/lib/training/quizScorer';
+import { httpsCallable } from 'firebase/functions';
+import { toast } from 'sonner';
+import { functions } from '@/lib/firebase';
 import type {
   TrainingAssignment,
   TrainingModule,
   QuizSessionState,
   QuizQuestion,
   QuestionType,
-  QuizAttempt,
+  QuizAttemptResult,
 } from '@/lib/training/trainingTypes';
 
 // ---------------------------------------------------------------------------
@@ -63,6 +63,9 @@ export function useQuizSession(): UseQuizSessionReturn {
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const submitRef = useRef<() => Promise<void>>();
+  // The timer auto-submits once. If the server rejects it (e.g. offline),
+  // the trainee retries with the Submit button instead of an endless loop.
+  const autoSubmitTriedRef = useRef(false);
 
   // ---------------------------------------------------------------------------
   // Cooldown ticker
@@ -129,8 +132,10 @@ export function useQuizSession(): UseQuizSessionReturn {
       session.timeRemaining !== null &&
       session.timeRemaining <= 0 &&
       !session.isSubmitted &&
-      !isSubmitting
+      !isSubmitting &&
+      !autoSubmitTriedRef.current
     ) {
+      autoSubmitTriedRef.current = true;
       submitRef.current?.();
     }
   }, [session?.timeRemaining, session?.isSubmitted, isSubmitting]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -254,100 +259,29 @@ export function useQuizSession(): UseQuizSessionReturn {
     setIsSubmitting(true);
 
     try {
-      // Always derive elapsed time from wall-clock time. The previous
-      // fallback (`questions.length * 60`) when the countdown hit zero was an
-      // arbitrary guess unrelated to how long the trainee actually spent, and
-      // skewed reports/analytics that key off timeTakenSeconds.
-      const timeTakenSeconds = Math.round(
-        (Date.now() - session.startedAt.getTime()) / 1000
-      );
-
-      const raw = scoreQuizAttempt(session.questions, session.answers);
-
-      // We need the module's passingScore — fetch from the session's questions context.
-      // passingScore lives on the module; we resolve it from the assignment doc update.
-      // For now, use the module's passingScore that was baked into the session start.
-      // The caller (startQuiz) stored questions with full data so we rely on hasPassedQuiz
-      // called with the score we get and the module's passingScore stored in Firestore.
-      // We'll write passed=false initially and compute it after reading from Firestore.
-      // Instead, derive passingScore from the quiz metadata on the module embedded in assignment.
-      // The cleanest approach: the component that calls startQuiz passes the module;
-      // here we recalculate using the score against the assignment's linked module passingScore.
-      // We store module.passingScore in session via a convention:
-      // Actually we don't have it here — we'll compute passed=false at write time
-      // and let Firestore rules / security handle it. The component should call submitQuiz
-      // with access to the module. But per spec, submitQuiz takes no args.
-      // Workaround: use the quiz's passingScore field if available on the questions array
-      // or store it in session state. We'll extend QuizSessionState in the session object
-      // as a local-only field (the type doesn't prevent extra keys at runtime).
-      // Best approach: store passingScore in localStorage alongside the session.
-      const passingScoreRaw = localStorage.getItem(`quiz_passing_${session.assignmentId}`);
-      const passingScore = passingScoreRaw ? parseInt(passingScoreRaw, 10) : 70;
-
-      const passed = hasPassedQuiz(raw.score, passingScore);
-
-      // Trainee-programme modules (Trainee Management library) are not signed
-      // off or certified one-by-one: passing the module's final test just
-      // completes it (`quiz_passed`). The single practical sign-off — and the
-      // one programme certificate — happen once, at programme completion.
-      // Marking the module `certified` here would fire the
-      // `generateTrainingCertificate` Cloud Function and mint a certificate per
-      // module, which is exactly what we must avoid. Regular training-library
-      // modules keep the per-module practical sign-off (`awaiting_practical`).
-      const isProgrammeModule =
-        localStorage.getItem(`quiz_scope_${session.assignmentId}`) === 'trainee_management';
-
-      const result = { ...raw, passed, timeTakenSeconds };
-
-      // Firestore has no atomic "keep the max" update, so we read the prior
-      // best score (persisted alongside the session at startQuiz) and only
-      // move it up — otherwise a lower-scoring retry silently overwrote a
-      // previously passing bestScore shown across the app and used to
-      // compute the trainee's final programme mark.
-      const priorBestRaw = localStorage.getItem(`quiz_bestscore_${session.assignmentId}`);
-      const priorBest = priorBestRaw ? parseInt(priorBestRaw, 10) : 0;
-      const bestScore = Math.max(priorBest, result.score);
-
-      const attemptId = `attempt_${session.attemptNumber}_${Date.now()}`;
-      const now = Timestamp.now();
-
-      const attempt: QuizAttempt = {
-        attemptId,
-        attemptNumber: session.attemptNumber,
-        startedAt: Timestamp.fromDate(session.startedAt),
-        completedAt: now,
-        score: result.score,
-        passed,
-        totalQuestions: result.totalQuestions,
-        correctAnswers: result.correctAnswers,
-        answers: result.answers,
-        timeTakenSeconds: result.timeTakenSeconds,
-      };
-
-      const assignmentRef = doc(db, 'trainingAssignments', session.assignmentId);
-
-      await updateDoc(assignmentRef, {
-        quizAttempts: arrayUnion(attempt),
-        attemptsUsed: session.attemptNumber,
-        latestScore: result.score,
-        bestScore,
-        quizPassed: passed,
-        ...(passed
-          ? isProgrammeModule
-            ? {
-                quizPassedAt: now,
-                status: 'quiz_passed',
-                completedAt: now,
-              }
-            : {
-                quizPassedAt: now,
-                status: 'awaiting_practical',
-              }
-          : {
-              status: 'quiz_failed',
-            }),
-        lastActivityAt: now,
+      // Graded on the server (submitTrainingQuiz) against the quiz stored on
+      // the module, using the quiz's own pass mark — the browser only sends
+      // the selected answers. The server also enforces attempts, the
+      // failed-attempt cooldown and required lessons, and writes the attempt,
+      // score and status; trainees cannot write those fields themselves.
+      const submit = httpsCallable<
+        { assignmentId: string; answers: Record<string, string[]>; startedAtMs: number },
+        QuizAttemptResult & { attemptNumber: number; passingScore: number }
+      >(functions, 'submitTrainingQuiz');
+      const { data } = await submit({
+        assignmentId: session.assignmentId,
+        answers: session.answers,
+        startedAtMs: session.startedAt.getTime(),
       });
+      const passed = data.passed;
+      const result: QuizAttemptResult = {
+        score: data.score,
+        passed: data.passed,
+        totalQuestions: data.totalQuestions,
+        correctAnswers: data.correctAnswers,
+        timeTakenSeconds: data.timeTakenSeconds,
+        answers: data.answers,
+      };
 
       // Cooldown on failure. The cooldown-ticker effect only recomputes
       // `cooldownSeconds` when `session.assignmentId` changes (i.e. on quiz
@@ -371,6 +305,8 @@ export function useQuizSession(): UseQuizSessionReturn {
       );
     } catch (err) {
       console.error('Failed to submit quiz:', err);
+      const message = err instanceof Error && err.message ? err.message : 'Could not submit the quiz. Please try again.';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -379,27 +315,15 @@ export function useQuizSession(): UseQuizSessionReturn {
   // Keep submitRef in sync so the auto-submit effect can call the latest version
   submitRef.current = submitQuiz;
 
-  // Extended startQuiz that also persists passingScore
+  // Starting a quiz clears any leftover per-assignment keys an older build
+  // kept in localStorage (pass mark, best score, library scope) — grading
+  // now happens on the server and none of them are read any more.
   const startQuizWithPassingScore = useCallback(
     (assignment: TrainingAssignment, module: TrainingModule) => {
-      if (module.quiz) {
-        // The pass mark shown to the trainee (pre-screen, results screen) comes
-        // from the quiz, which the quiz builder edits independently of the
-        // module-level default. Grading against `module.passingScore` meant a
-        // trainee could be failed against a different threshold than the one
-        // displayed. Prefer the quiz's own pass mark.
-        localStorage.setItem(
-          `quiz_passing_${assignment.id}`,
-          String(module.quiz.passingScore ?? module.passingScore)
-        );
-        localStorage.setItem(
-          `quiz_bestscore_${assignment.id}`,
-          String(assignment.bestScore ?? 0)
-        );
-        // Remember whether this is a trainee-programme module so submitQuiz can
-        // decide between an outright completion and a per-module sign-off.
-        localStorage.setItem(`quiz_scope_${assignment.id}`, module.libraryScope ?? 'training');
-      }
+      localStorage.removeItem(`quiz_passing_${assignment.id}`);
+      localStorage.removeItem(`quiz_bestscore_${assignment.id}`);
+      localStorage.removeItem(`quiz_scope_${assignment.id}`);
+      autoSubmitTriedRef.current = false;
       startQuiz(assignment, module);
     },
     [startQuiz]

@@ -15,7 +15,10 @@ What is covered:
 
 - **Privilege escalation** — a user cannot change their own role/company/plant/department, re-activate themselves, or create a profile/mapping outside company registration or a valid pending invitation.
 - **Tenant isolation** — admins, supervisors, technicians of one company cannot read, update, delete or create another company's work orders, breakdown tickets, machines, LOTO permits, condition readings, machine history, MOE data and settings. The queries the app actually runs (by `siteId`, `companyId`, `machineId`, `workOrderId`) are tested.
-- **Flows that must keep working** — company registration, invitation acceptance, login mapping sync, assigned-technician updates, QR (anonymous) breakdown report and machine lookup.
+- **Deactivated users** — an inactive mapping loses all access at once; only admin / HR change someone's role mapping and nobody their own.
+- **Training integrity** — trainees can't write quiz results, pass flags or certification; managers never sign off their own.
+- **Cross-company writes by id** — triage flows/sessions, PM schedules, PM history; technicians edit only breakdown tickets they work on; notifications are marked read per user only.
+- **Flows that must keep working** — company registration, invitation acceptance, login mapping sync, assigned-technician updates, the QR (anonymous) breakdown report (tied to the scanned machine's company/plant; the machine itself is read through the `getPublicMachine` callable).
 - **Storage** — company isolation, create-only evidence, active-content types rejected, size caps.
 
 When you add a collection or Storage path, add a matching case here.

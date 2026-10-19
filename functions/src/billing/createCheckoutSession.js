@@ -35,6 +35,7 @@ exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (re
   const userDoc = await db.collection("users").doc(request.auth.uid).get();
   const userData = userDoc.data();
   if (!userData?.companyId) throw new HttpsError("failed-precondition", "No company on user profile");
+  if (userData.status === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated");
   if (userData.role !== "admin") throw new HttpsError("permission-denied", "Only admins can change the plan");
 
   const companyRef = db.collection("companies").doc(userData.companyId);

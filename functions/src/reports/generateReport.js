@@ -28,42 +28,40 @@ const { buildSafetyNearMissTemplate } = require("./templates/safety-near-miss.te
 const { buildAuditTrailTemplate } = require("./templates/audit-trail.template");
 
 const db = getFirestore("default");
+const {requireMember} = require("../lib/access");
 
 const REPORTS = {
   breakdown_summary: { name: "Breakdown Summary Report", sources: ["breakdown_tickets"], build: buildBreakdownSummaryTemplate },
-  work_order_detail: { name: "Work Order Detail Report", sources: ["work_orders"], build: buildWorkOrderDetailTemplate },
-  machine_history: { name: "Machine History Report", sources: ["machines", "work_orders", "breakdown_tickets", "pm_history"], build: buildMachineHistoryTemplate },
+  work_order_detail: { name: "Work Order Detail Report", sources: ["workOrders"], build: buildWorkOrderDetailTemplate },
+  machine_history: { name: "Machine History Report", sources: ["machines", "workOrders", "breakdown_tickets", "pm_history"], build: buildMachineHistoryTemplate },
   machine_health_score: { name: "Machine Health Score Report", sources: ["machine_health"], build: buildMachineHealthTemplate },
-  maintenance_cost: { name: "Maintenance Cost Report", sources: ["work_orders", "inventory_logs", "contractor_jobs"], build: buildMaintenanceCostTemplate },
-  technician_performance: { name: "Technician Performance Report", sources: ["work_orders"], build: buildTechnicianPerformanceTemplate },
-  contractor_performance: { name: "Contractor Performance Report", sources: ["contractor_jobs", "contractor_profiles"], build: buildContractorPerformanceTemplate },
-  contractor_invoice_comparison: { name: "Contractor Invoice Comparison", sources: ["contractor_jobs"], build: buildContractorInvoiceTemplate },
-  inventory_usage: { name: "Inventory Usage Report", sources: ["inventory_logs"], build: buildInventoryUsageTemplate },
-  parts_consumption: { name: "Parts Consumption Report", sources: ["inventory_logs", "work_orders"], build: buildPartsConsumptionTemplate },
-  low_stock_alert: { name: "Low Stock Alert Report", sources: ["inventory"], build: buildLowStockTemplate },
+  maintenance_cost: { name: "Maintenance Cost Report", sources: ["workOrders", "stockMovements", "contractorJobs"], build: buildMaintenanceCostTemplate },
+  technician_performance: { name: "Technician Performance Report", sources: ["workOrders"], build: buildTechnicianPerformanceTemplate },
+  contractor_performance: { name: "Contractor Performance Report", sources: ["contractorJobs", "contractors"], build: buildContractorPerformanceTemplate },
+  contractor_invoice_comparison: { name: "Contractor Invoice Comparison", sources: ["contractorJobs"], build: buildContractorInvoiceTemplate },
+  inventory_usage: { name: "Inventory Usage Report", sources: ["stockMovements"], build: buildInventoryUsageTemplate },
+  parts_consumption: { name: "Parts Consumption Report", sources: ["stockMovements", "workOrders"], build: buildPartsConsumptionTemplate },
+  low_stock_alert: { name: "Low Stock Alert Report", sources: ["inventoryParts"], build: buildLowStockTemplate },
   pm_compliance: { name: "PM Compliance Report", sources: ["pm_history", "pm_schedules"], build: buildPmComplianceTemplate },
   training_compliance: { name: "Training Compliance Report", sources: ["training_records"], build: buildTrainingComplianceTemplate },
-  sla_compliance: { name: "SLA Compliance Report", sources: ["breakdown_tickets", "work_orders"], build: buildSlaComplianceTemplate },
+  sla_compliance: { name: "SLA Compliance Report", sources: ["breakdown_tickets", "workOrders"], build: buildSlaComplianceTemplate },
   shift_handover_summary: { name: "Shift Handover Summary", sources: ["shift_handovers"], build: buildShiftHandoverTemplate },
-  downtime_analysis: { name: "Downtime Analysis Report", sources: ["breakdown_tickets", "work_orders"], build: buildDowntimeAnalysisTemplate },
+  downtime_analysis: { name: "Downtime Analysis Report", sources: ["breakdown_tickets", "workOrders"], build: buildDowntimeAnalysisTemplate },
   executive_monthly: { name: "Executive Monthly Report", sources: ["analytics_monthly"], build: buildExecutiveMonthlyTemplate },
   safety_near_miss: { name: "Safety & Near-Miss Report", sources: ["shift_handovers", "breakdown_tickets"], build: buildSafetyNearMissTemplate },
   audit_trail: { name: "Audit Trail Report", sources: ["audit_logs"], build: buildAuditTrailTemplate },
 };
 
-async function requireAccess(uid, reportType, companyId) {
-  // User profiles live under companies/{companyId}/users/{uid} in this app.
-  // Fall back to the top-level users collection for legacy compatibility.
-  let data;
-  if (companyId) {
-    const scoped = await db.doc(`companies/${companyId}/users/${uid}`).get();
-    if (scoped.exists) data = scoped.data();
-  }
-  if (!data) {
-    const top = await db.collection("users").doc(uid).get();
-    if (top.exists) data = top.data();
-  }
-  const role = data?.role;
+/**
+ * The caller must be an active member of the company the report is for —
+ * the companyId comes from the browser, so it is never trusted on its own —
+ * and hold a role that may run this report.
+ */
+async function requireAccess(request, reportType, companyId) {
+  const member = await requireMember(request, companyId);
+  const profileSnap = await db.doc(`companies/${companyId}/users/${request.auth.uid}`).get();
+  const data = {...(profileSnap.exists ? profileSnap.data() : {}), ...member};
+  const role = data.role;
   if (!role) throw new HttpsError("permission-denied", "User profile is missing a role.");
   if (["admin", "plant_manager"].includes(role)) return data;
   if (reportType === "audit_trail" && !["admin", "hr_officer"].includes(role)) {
@@ -104,7 +102,7 @@ exports.generateReport = onCall({ memory: "2GiB", timeoutSeconds: 300 }, async (
     throw new HttpsError("invalid-argument", "reportType, dateFrom, dateTo, and companyId are required.");
   }
 
-  const user = await requireAccess(request.auth.uid, reportType, companyId);
+  const user = await requireAccess(request, reportType, companyId);
   if (!(await companyHasFeature(companyId, "analyticsReports"))) {
     throw new HttpsError("permission-denied", "Report exports are not included in your plan. Upgrade to use them.");
   }

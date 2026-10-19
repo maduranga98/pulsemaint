@@ -104,7 +104,9 @@ export default function OffboardTrainingCompletionForm({
         },
         status: 'awaiting_practical',
         lastActivityAt: serverTimestamp(),
-        completedAt: existing?.reportSubmittedAt ? undefined : Timestamp.now(),
+        // First submission only — Firestore rejects an `undefined` value, so a
+        // resubmission must leave the field out instead.
+        ...(existing?.reportSubmittedAt ? {} : { completedAt: Timestamp.now() }),
       });
       setDone(true);
     } catch (err) {

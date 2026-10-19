@@ -32,6 +32,7 @@ exports.listRecordReferences = onCall(async (request) => {
   const mapping = await db.collection("users").doc(uid).get();
   const companyId = mapping.exists ? mapping.data().companyId : null;
   if (!companyId) throw new HttpsError("failed-precondition", "No company for this user.");
+  if (mapping.data().status === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated.");
 
   const meSnap = await db.doc(`companies/${companyId}/users/${uid}`).get();
   if (!meSnap.exists) throw new HttpsError("failed-precondition", "No profile for this user.");

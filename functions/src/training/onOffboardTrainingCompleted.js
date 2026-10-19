@@ -90,6 +90,9 @@ exports.onOffboardTrainingCompleted = onDocumentUpdated(
       await event.data.after.ref.update({
         "offboardCompletion.reportGeneratedPdfUrl": downloadUrl,
         status: "certified",
+        // Server-only marker generateTrainingCertificate checks before it
+        // issues the certificate (trainees can't write this field).
+        completedVia: "offboard_report",
         completedAt: FieldValue.serverTimestamp(),
         lastActivityAt: FieldValue.serverTimestamp(),
       });

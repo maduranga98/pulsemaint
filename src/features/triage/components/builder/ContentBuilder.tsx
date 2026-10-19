@@ -186,13 +186,13 @@ export function ContentBuilder() {
         extra = { videoId: extractVideoId(form.videoUrl) };
       } else if (form.type === 'pdf') {
         let fileUrl = form.pdfUrl.trim();
-        if (pdfFile) fileUrl = await uploadPdf(pdfFile);
+        if (pdfFile) fileUrl = await uploadPdf(companyId, pdfFile);
         extra = { fileUrl };
       } else if (form.type === 'image' || form.type === 'media') {
         // Upload the chosen file to Firebase Storage and persist the download URL
         // (never an in-memory blob: URL, which dies on reload).
         if (mediaFile) {
-          const uploaded = await uploadMedia(mediaFile);
+          const uploaded = await uploadMedia(companyId, mediaFile);
           extra = {
             fileUrl: uploaded.url,
             fileType: uploaded.fileType,

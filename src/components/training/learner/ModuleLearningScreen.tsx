@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useState } from 'react';
 import { ArrowLeft, Clock, BookOpen, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +44,8 @@ export default function ModuleLearningScreen({
     setFinalizing(true);
     try {
       await markAssignmentComplete(assignment.id);
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : 'Could not complete this module.');
     } finally {
       setFinalizing(false);
     }

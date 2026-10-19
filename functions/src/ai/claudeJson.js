@@ -92,6 +92,7 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
 
   const userSnap = await db.collection("users").doc(request.auth.uid).get();
   if (!userSnap.exists) throw new HttpsError("permission-denied", "No app profile for this user");
+  if (userSnap.get("status") === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated");
 
   // AI suggestions and translation are on every plan, capped by the plan's
   // monthly AI credits (a running trial follows Starter's credits).

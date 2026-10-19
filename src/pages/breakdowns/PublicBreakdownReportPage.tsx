@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { addDoc, collection, doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { signOut } from 'firebase/auth';
 import { AlertCircle, CheckCircle2, QrCode } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { auth, db } from '../../lib/firebase';
+import { auth, db, functions } from '../../lib/firebase';
 import { signInAnonymouslyForReport } from '../../lib/auth';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
@@ -17,6 +18,18 @@ interface MachineInfo {
   plantId?: string | null;
   location?: string;
   criticality?: 1 | 2 | 3 | 4 | 5;
+  siteId: string;
+}
+
+interface PublicMachine {
+  id: string;
+  name: string;
+  department: string;
+  plantId: string | null;
+  floor: string | null;
+  bay: string | null;
+  station: string | null;
+  criticality: 1 | 2 | 3 | 4 | 5 | null;
   siteId: string;
 }
 
@@ -117,24 +130,27 @@ export default function PublicBreakdownReportPage() {
           await signInAnonymouslyForReport();
           createdAnonymousSessionRef.current = true;
         }
-        const snap = await getDoc(doc(db, 'machines', machineId));
+        // Only the public fields come back — anonymous visitors can't read
+        // the machine document itself (firestore.rules).
+        const getPublicMachine = httpsCallable<{ machineId: string }, PublicMachine>(functions, 'getPublicMachine');
+        const { data } = await getPublicMachine({ machineId });
         if (cancelled) return;
-        if (!snap.exists()) {
+        setMachine({
+          id: data.id,
+          name: data.name || 'Unnamed machine',
+          department: data.department,
+          plantId: data.plantId ?? null,
+          location: formatMachineLocation(data.floor, data.bay, data.station),
+          criticality: data.criticality ?? undefined,
+          siteId: data.siteId,
+        });
+      } catch (err: any) {
+        if (cancelled) return;
+        if (err?.code === 'functions/not-found') {
           setMachineError('Machine not found. The QR code may be out of date.');
         } else {
-          const data = snap.data() as any;
-          setMachine({
-            id: snap.id,
-            name: data.name || 'Unnamed machine',
-            department: data.department,
-            plantId: data.plantId ?? null,
-            location: formatMachineLocation(data.floor, data.bay, data.station),
-            criticality: data.criticality,
-            siteId: data.siteId,
-          });
+          setMachineError(err?.message || 'Failed to load machine.');
         }
-      } catch (err: any) {
-        if (!cancelled) setMachineError(err?.message || 'Failed to load machine.');
       } finally {
         if (!cancelled) setLoadingMachine(false);
       }

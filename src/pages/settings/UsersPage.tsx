@@ -407,10 +407,15 @@ export default function UsersPage() {
       plantId: values.role === 'admin' ? null : (values.plantId || currentUser?.plantId || null),
       updatedAt: serverTimestamp(),
     });
-    // Keep the global mapping doc in sync so Firestore rules pick up the new role.
+    // Keep the global mapping doc in sync so Firestore rules pick up the new
+    // role / plant / department / status right away (the onCompanyUserWritten
+    // Cloud Function also mirrors the profile, and disables the login of a
+    // deactivated user on every device).
     await setDoc(doc(db, `users/${userId}`), {
       role: values.role,
       plantId: values.role === 'admin' ? null : (values.plantId || currentUser?.plantId || null),
+      department: values.department.trim() || null,
+      status: values.status === 'inactive' ? 'inactive' : 'active',
     }, { merge: true });
     await syncShiftMembership(userId, values.fullName.trim(), values.shiftId || null);
     toast.success(t('common.settings.users.userUpdatedToast', 'User updated'));
@@ -1467,6 +1472,12 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
   const { t } = useTranslation();
   const isView = state.mode === 'view';
   const initial: UserFormValues = toForm(state.user);
+  // Role, status, department and plant decide what someone can reach. Only an
+  // admin changes their own; an HR officer edits other people's (never
+  // granting admin) — firestore.rules enforce the same.
+  const me = useAuthStore((s) => s.userProfile);
+  const accessLocked = isView || (me?.role !== 'admin' && me?.id === state.user.id);
+  const roleOptions = me?.role === 'admin' ? ROLE_OPTIONS : ROLE_OPTIONS.filter((r) => r !== 'admin' || r === state.user.role);
 
   const [values, setValues] = useState<UserFormValues>(initial);
   const [saving, setSaving] = useState(false);
@@ -1558,10 +1569,10 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               <select
                 value={values.role}
                 onChange={(e) => set('role', e.target.value as UserRole)}
-                disabled={isView}
+                disabled={accessLocked}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               >
-                {ROLE_OPTIONS.map((r) => (
+                {roleOptions.map((r) => (
                   <option key={r} value={r}>
                     {getRoleLabel(r, t)}
                   </option>
@@ -1572,7 +1583,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               <select
                 value={values.status}
                 onChange={(e) => set('status', e.target.value as UserProfile['status'])}
-                disabled={isView}
+                disabled={accessLocked}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               >
                 {STATUS_OPTIONS.map((s) => (
@@ -1600,7 +1611,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
                 value={values.department}
                 onChange={(v) => set('department', v)}
                 plantId={values.role === 'admin' ? null : (values.plantId || null)}
-                disabled={isView}
+                disabled={accessLocked}
               />
             </Field>
           </div>
@@ -1610,7 +1621,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               <PlantSelect
                 value={values.plantId}
                 onChange={(v) => set('plantId', v)}
-                disabled={isView}
+                disabled={accessLocked}
               />
             </Field>
           )}
