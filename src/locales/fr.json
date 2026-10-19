@@ -1958,6 +1958,9 @@
       "addFirstMachine": "Ajouter la Première Machine",
       "clearFilters": "Effacer les Filtres",
       "asset": {
+        "annualDepreciation": "Amortissement annuel",
+        "accumulatedDepreciation": "Amortissement cumulé",
+        "perYear": "{{amount}} / an",
         "importNote": "Les prix et valeurs de rebut sont lus en {{currency}} (la devise de votre entreprise) et enregistrés uniquement pour les administrateurs et responsables d'usine.",
         "cancel": "Annuler",
         "close": "Fermer",

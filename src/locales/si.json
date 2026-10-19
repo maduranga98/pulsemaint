@@ -2282,6 +2282,9 @@
         }
       },
       "asset": {
+        "annualDepreciation": "වාර්ෂික ක්ෂය වීම (Depreciation)",
+        "accumulatedDepreciation": "මෙතෙක් ක්ෂය වූ ප්‍රමාණය",
+        "perYear": "අවුරුද්දකට {{amount}}",
         "importNote": "මිල සහ scrap අගයන් {{currency}} (ඔබේ සමාගමේ මුදල් ඒකකය) ලෙස කියවන අතර සුරකින්නේ admin සහ plant manager සඳහා පමණි.",
         "cancel": "අවලංගු කරන්න",
         "close": "වසන්න",

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import { formatMoney, getCompanyCurrency } from '@/lib/currency';
-import { bookValue, replaceAdvice, workOrderCost } from '../../lib/machineAsset';
+import { annualDepreciation, bookValue, depreciationSoFar, replaceAdvice, workOrderCost } from '../../lib/machineAsset';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { subscribeOutsourcedMaintenance } from '../../services/machineOutsourced.service';
 import type { Machine } from '../../types/machine';
@@ -44,6 +44,8 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
     purchasePrice: machine.purchasePrice, scrapValue: machine.scrapValue,
     purchasedAtMs: toMs(machine.purchaseDate), lifespanYears: machine.expectedLifespanYears,
   }), [machine.purchasePrice, machine.scrapValue, machine.purchaseDate, machine.expectedLifespanYears]);
+  const yearly = annualDepreciation({ purchasePrice: machine.purchasePrice, scrapValue: machine.scrapValue, lifespanYears: machine.expectedLifespanYears });
+  const written = depreciationSoFar(machine.purchasePrice, book);
   const advice = ADVICE[replaceAdvice({ purchasePrice: machine.purchasePrice, maintenanceCost: maintenanceTotal, bookValue: book })];
 
   async function save() {
@@ -97,6 +99,8 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
           <dl className="grid gap-x-10 gap-y-2 text-sm sm:grid-cols-2">
             {row(t('common.machines.asset.purchasePrice'), money(machine.purchasePrice))}
             {row(t('common.machines.asset.scrapValue'), money(machine.scrapValue))}
+            {row(t('common.machines.asset.annualDepreciation'), yearly == null ? t('common.machines.asset.currentValueMissing') : t('common.machines.asset.perYear', { amount: money(yearly) }))}
+            {row(t('common.machines.asset.accumulatedDepreciation'), written == null ? t('common.machines.asset.currentValueMissing') : `${money(written.amount)} (${written.percent}%)`)}
             {row(t('common.machines.asset.currentValue'), book == null ? t('common.machines.asset.currentValueMissing') : money(book))}
             {row(t('common.machines.asset.outsourcedJobs'), money(outsourcedTotal))}
             {row(t('common.machines.asset.workOrders'), money(woTotal))}

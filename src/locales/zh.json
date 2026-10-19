@@ -1958,6 +1958,9 @@
       "addFirstMachine": "添加第一台设备",
       "clearFilters": "清除筛选",
       "asset": {
+        "annualDepreciation": "年折旧",
+        "accumulatedDepreciation": "累计折旧",
+        "perYear": "{{amount}} / 年",
         "importNote": "价格和报废价值按 {{currency}}（贵公司货币）读取，仅为管理员和工厂经理保存。",
         "cancel": "取消",
         "close": "关闭",

@@ -1958,6 +1958,9 @@
       "addFirstMachine": "Erste Maschine Hinzufügen",
       "clearFilters": "Filter Zurücksetzen",
       "asset": {
+        "annualDepreciation": "Jährliche Abschreibung",
+        "accumulatedDepreciation": "Bisherige Abschreibung",
+        "perYear": "{{amount}} / Jahr",
         "importNote": "Preise und Schrottwerte werden in {{currency}} (Ihrer Firmenwährung) gelesen und nur für Admins und Werksleiter gespeichert.",
         "cancel": "Abbrechen",
         "close": "Schließen",

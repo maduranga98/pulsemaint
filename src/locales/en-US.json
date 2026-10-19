@@ -3384,6 +3384,9 @@
       "addFirstMachine": "Add First Machine",
       "clearFilters": "Clear Filters",
       "asset": {
+        "annualDepreciation": "Annual depreciation",
+        "accumulatedDepreciation": "Depreciation so far",
+        "perYear": "{{amount}} / year",
         "importNote": "Prices and scrap values are read in {{currency}} (your company currency) and saved for admins and plant managers only.",
         "cancel": "Cancel",
         "close": "Close",
