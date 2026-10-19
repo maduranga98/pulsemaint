@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { UserPlus, Pencil } from 'lucide-react';
 import {
   LEAD_CURRENCIES, LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, emptyLead, parseLeadText, phoneKey,
-  type Lead, type LeadInput, type TeamMember,
+  formatLeadNumber, type Lead, type LeadInput, type TeamMember,
 } from '@/lib/platform/leads';
 import { createLead, updateLead } from '@/services/platformLeadsService';
-import { ErrorNote, btn, input } from '../platformUi';
+import { ErrorNote, btn, fmtDateTime, input } from '../platformUi';
 import { Field, Modal, fromDateInput, fromLocalInput, toDateInput, toLocalInput } from './leadUi';
 import CountryInput from '@/components/common/CountryInput';
 
 function pick(l: Lead): LeadInput {
-  const { id: _i, createdAt: _c, updatedAt: _u, lastActivityAt: _a, createdByEmail: _e, archived: _ar, closedAt: _cl, ...rest } = l;
+  const { id: _i, leadNumber: _n, createdAt: _c, updatedAt: _u, lastActivityAt: _a, createdByEmail: _e, archived: _ar, closedAt: _cl, ...rest } = l;
   return rest;
 }
 
@@ -79,6 +79,11 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
       </>}
     >
       {error && <div className="mb-3"><ErrorNote message={error} /></div>}
+      <p className="mb-3 text-xs text-slate-400">
+        {lead
+          ? <>Lead <span className="font-mono font-semibold text-slate-200">{formatLeadNumber(lead.leadNumber) || '—'}</span> · created {fmtDateTime(lead.createdAt)}</>
+          : <>Gets the next lead number automatically when saved · created {fmtDateTime(Date.now())}</>}
+      </p>
       {!lead && (
         <div className="mb-3">
           <Field label="Paste details" hint="Paste a message or contact — the company, contact person, phone, WhatsApp, email and website fill in below.">

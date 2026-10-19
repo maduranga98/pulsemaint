@@ -5,7 +5,7 @@ import {
   FlaskConical, ListTodo, StickyNote, Trash2, Wallet, X,
 } from 'lucide-react';
 import {
-  CALL_OUTCOMES, CALL_OUTCOME_LABEL, LEAD_STATUSES, LEAD_STATUS_LABEL, activityOutcomeLabel, activityTypeLabel, fmtAmount, trialDay, TRIAL_DAYS, websiteUrl, whatsappNumber,
+  CALL_OUTCOMES, CALL_OUTCOME_LABEL, formatLeadNumber, LEAD_STATUSES, LEAD_STATUS_LABEL, activityOutcomeLabel, activityTypeLabel, fmtAmount, trialDay, TRIAL_DAYS, websiteUrl, whatsappNumber,
   type CallOutcome, type Lead, type LeadActivity, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
 import {
@@ -85,6 +85,7 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
       <aside className="flex h-full w-full max-w-xl flex-col border-l border-[#1E3A5F] bg-[#0F1E35]">
         <div className="flex items-start gap-3 border-b border-[#1E3A5F] px-5 py-4">
           <div className="min-w-0 flex-1">
+            <p className="font-mono text-xs text-slate-500">{formatLeadNumber(lead.leadNumber)} · Created {fmtDateTime(lead.createdAt ?? lead.leadDate)}</p>
             <h2 className="truncate text-lg font-bold text-white!">{lead.businessName}</h2>
             {lead.contactPerson && <p className="text-sm text-slate-400">{lead.contactPerson}</p>}
             <div className="mt-2 flex flex-wrap items-center gap-1.5">

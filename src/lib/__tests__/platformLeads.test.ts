@@ -10,7 +10,7 @@ const NOW = new Date(2026, 9, 9, 12, 0).getTime();
 function lead(over: Partial<Lead> = {}): Lead {
   return {
     ...emptyLead(NOW), id: Math.random().toString(36).slice(2), businessName: 'Silva Auto', phone: '0771234567',
-    archived: false, createdAt: null, updatedAt: null, lastActivityAt: null, createdByEmail: null, closedAt: null, ...over,
+    archived: false, leadNumber: null, createdAt: null, updatedAt: null, lastActivityAt: null, createdByEmail: null, closedAt: null, ...over,
   };
 }
 
@@ -226,5 +226,14 @@ describe('trial tracking', () => {
     expect(trialDay({ trialStartedAt: null }, NOW)).toBeNull();
     expect(trialDay({ trialStartedAt: NOW }, NOW)).toBe(1);
     expect(trialDay({ trialStartedAt: NOW - 86_400_000 * 2 }, NOW)).toBe(3);
+  });
+});
+
+describe('formatLeadNumber', () => {
+  it('pads the running number and hides a missing one', async () => {
+    const { formatLeadNumber } = await import('../platform/leads');
+    expect(formatLeadNumber(7)).toBe('L-0007');
+    expect(formatLeadNumber(12345)).toBe('L-12345');
+    expect(formatLeadNumber(null)).toBe('');
   });
 });

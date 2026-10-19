@@ -2339,6 +2339,12 @@ service cloud.firestore {
       allow write: if false;
     }
     // History is append-only; it is only removed together with its lead.
+    // Running counter behind the lead numbers (`next` = the number the next lead gets).
+    match /platformCounters/{counterId} {
+      allow read: if isSuperadmin();
+      allow create, update: if isSuperadmin()
+        && request.resource.data.next is int && request.resource.data.next >= 1;
+    }
     match /platformLeadActivities/{activityId} {
       allow read, delete: if isSuperadmin();
       allow create: if isSuperadmin()

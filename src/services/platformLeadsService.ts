@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, serverTimestamp, updateDoc, where, writeBatch,
+  addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, runTransaction, serverTimestamp, updateDoc, where, writeBatch,
   type DocumentData, type Unsubscribe,
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -20,6 +20,7 @@ const leadsCol = collection(db, 'platformLeads');
 const actsCol = collection(db, 'platformLeadActivities');
 const featuresCol = collection(db, 'platformFeatureRequests');
 const teamCol = collection(db, 'platformSalesTeam');
+const counterRef = doc(db, 'platformCounters', 'leads');
 
 const tsMs = (v: unknown): number | null =>
   v && typeof (v as { toMillis?: () => number }).toMillis === 'function' ? (v as { toMillis: () => number }).toMillis() : typeof v === 'number' ? v : null;
@@ -37,7 +38,7 @@ function toLead(id: string, d: DocumentData): Lead {
     nextCallAt: num(d.nextCallAt), followUpNote: str(d.followUpNote), demoAt: num(d.demoAt), demoRequested: d.demoRequested === true, trialStartedAt: num(d.trialStartedAt),
     priceQuoted: str(d.priceQuoted), closedAmount: num(d.closedAmount) ?? 0, currency: d.currency === 'USD' ? 'USD' : 'LKR',
     closedAt: num(d.closedAt), mainProblem: str(d.mainProblem), tags: Array.isArray(d.tags) ? d.tags.filter((t: unknown) => typeof t === 'string') : [],
-    notes: str(d.notes), assignedTo: d.assignedTo ?? null, marketerId: d.marketerId ?? null, companyId: d.companyId ?? null, archived: d.archived === true,
+    notes: str(d.notes), assignedTo: d.assignedTo ?? null, marketerId: d.marketerId ?? null, companyId: d.companyId ?? null, archived: d.archived === true, leadNumber: num(d.leadNumber),
     createdAt: tsMs(d.createdAt), updatedAt: tsMs(d.updatedAt), lastActivityAt: num(d.lastActivityAt), createdByEmail: d.createdByEmail ?? null,
   };
 }
@@ -97,11 +98,43 @@ function logActivity(lead: Pick<Lead, 'id' | 'businessName'>, a: Partial<Omit<Le
   });
 }
 
+/**
+ * Lead numbers run 1, 2, 3… in the order leads were added, from the `platformCounters/leads` counter.
+ * The first time the counter is needed, leads that predate numbering are numbered oldest-first.
+ */
+async function ensureLeadNumbers(): Promise<void> {
+  if ((await getDoc(counterRef)).exists()) return;
+  const snap = await getDocs(leadsCol);
+  const rows = snap.docs
+    .filter((d) => num(d.get('leadNumber')) === null)
+    .sort((a, b) => (tsMs(a.get('createdAt')) ?? 0) - (tsMs(b.get('createdAt')) ?? 0));
+  let n = snap.docs.reduce((m, d) => Math.max(m, num(d.get('leadNumber')) ?? 0), 0);
+  for (let i = 0; i < rows.length; i += 400) {
+    const batch = writeBatch(db);
+    for (const d of rows.slice(i, i + 400)) batch.update(d.ref, { leadNumber: ++n });
+    await batch.commit();
+  }
+  await runTransaction(db, async (tx) => {
+    if (!(await tx.get(counterRef)).exists()) tx.set(counterRef, { next: n + 1 });
+  });
+}
+
+/** Reserves `count` consecutive lead numbers and returns the first. */
+async function reserveLeadNumbers(count: number): Promise<number> {
+  await ensureLeadNumbers();
+  return runTransaction(db, async (tx) => {
+    const first = Number((await tx.get(counterRef)).get('next')) || 1;
+    tx.set(counterRef, { next: first + count });
+    return first;
+  });
+}
+
 export async function createLead(input: LeadInput): Promise<string> {
   const { uid, email } = me();
   const now = Date.now();
+  const leadNumber = await reserveLeadNumbers(1);
   const ref = await addDoc(leadsCol, {
-    ...cleanInput(input), archived: false, closedAt: input.status === 'closed_won' || input.status === 'closed_lost' ? now : null,
+    ...cleanInput(input), leadNumber, archived: false, closedAt: input.status === 'closed_won' || input.status === 'closed_lost' ? now : null,
     lastActivityAt: null, createdBy: uid, createdByEmail: email, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
   });
   return ref.id;
@@ -110,11 +143,13 @@ export async function createLead(input: LeadInput): Promise<string> {
 /** Bulk import in batches of 400 (Firestore's batch limit is 500). */
 export async function importLeads(inputs: LeadInput[]): Promise<number> {
   const { uid, email } = me();
+  if (!inputs.length) return 0;
+  let leadNumber = await reserveLeadNumbers(inputs.length);
   for (let i = 0; i < inputs.length; i += 400) {
     const batch = writeBatch(db);
     for (const input of inputs.slice(i, i + 400)) {
       batch.set(doc(leadsCol), {
-        ...cleanInput(input), archived: false, closedAt: null, lastActivityAt: null, createdBy: uid, createdByEmail: email,
+        ...cleanInput(input), leadNumber: leadNumber++, archived: false, closedAt: null, lastActivityAt: null, createdBy: uid, createdByEmail: email,
         importedAt: serverTimestamp(), createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
       });
     }

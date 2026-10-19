@@ -7,12 +7,12 @@ import {
   BarChart3, CalendarCheck, CalendarDays, Download, FileText, FlaskConical, Hourglass, KanbanSquare, Rocket, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
 } from 'lucide-react';
 import {
-  BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, trialDay, TRIAL_DAYS, leadsToCsv, matchesSearch, revenueText,
+  BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, formatLeadNumber, isOpen, leadStats, trialDay, TRIAL_DAYS, leadsToCsv, matchesSearch, revenueText,
   type Lead, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
 import { assignLeads, setLeadStatus, setTrialStarted, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
 import { platformService, errorText, type PlatformCompany } from '@/services/platformService';
-import { ErrorNote, Loading, PageHeader, btn, fmtDateTime, input } from '../platformUi';
+import { ErrorNote, Loading, PageHeader, btn, fmtDate, fmtDateTime, input } from '../platformUi';
 import LeadFormDialog from './LeadFormDialog';
 import LeadDetailPanel from './LeadDetailPanel';
 import DayReportDialog from './DayReportDialog';
@@ -236,7 +236,7 @@ export default function PlatformLeadsPage() {
                 <tr>
                   <th className="px-3 py-2"><input type="checkbox" checked={filtered.length > 0 && selected.size === filtered.length}
                     onChange={(e) => setSelected(e.target.checked ? new Set(filtered.map((l) => l.id)) : new Set())} /></th>
-                  <th className="px-3 py-2">Business</th><th className="px-3 py-2">Contact</th><th className="px-3 py-2">Phone</th><th className="px-3 py-2">Location</th>
+                  <th className="px-3 py-2">Lead #</th><th className="px-3 py-2">Created</th><th className="px-3 py-2">Business</th><th className="px-3 py-2">Contact</th><th className="px-3 py-2">Phone</th><th className="px-3 py-2">Location</th>
                   <th className="px-3 py-2">Source</th><th className="px-3 py-2">Assigned</th><th className="px-3 py-2">Status</th><th className="px-3 py-2 text-right">Calls</th><th className="px-3 py-2">Next call</th>
                 </tr>
               </thead>
@@ -250,6 +250,8 @@ export default function PlatformLeadsPage() {
                         setSelected(next);
                       }} />
                     </td>
+                    <td className="px-3 py-2 font-mono text-xs text-slate-300">{formatLeadNumber(l.leadNumber)}</td>
+                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-400">{fmtDate(l.createdAt ?? l.leadDate)}</td>
                     <td className="px-3 py-2"><span className="font-medium text-white">{l.businessName}</span> <span className="ml-1 inline-flex gap-1">{l.tags.map((t) => <TagChip key={t} tag={t} />)}</span></td>
                     <td className="px-3 py-2 text-slate-300">{l.contactPerson}</td>
                     <td className="px-3 py-2 font-mono text-xs text-slate-300">{l.phone}</td>
@@ -296,6 +298,7 @@ function LeadCard({ lead, owner, onOpen }: { lead: Lead; owner: string; onOpen: 
       onClick={onOpen}
       className="cursor-pointer rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3 hover:border-blue-700"
     >
+      <p className="font-mono text-[10px] text-slate-500">{formatLeadNumber(lead.leadNumber)} · {fmtDate(lead.createdAt ?? lead.leadDate)}</p>
       <p className="truncate text-sm font-semibold text-white" title={lead.businessName}>{lead.businessName}</p>
       <div className="mt-0.5 flex justify-between gap-2 text-xs text-slate-400">
         <span className="truncate">{lead.contactPerson}</span>
