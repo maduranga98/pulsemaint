@@ -4,7 +4,8 @@ import { Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { db } from '../../lib/firebase';
 import { formatMoney } from '@/lib/currency';
-import { bookValue, replaceAdvice } from '../../lib/machineAsset';
+import { bookValue, replaceAdvice, workOrderCost } from '../../lib/machineAsset';
+import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { subscribeOutsourcedMaintenance } from '../../services/machineOutsourced.service';
 import type { Machine } from '../../types/machine';
 
@@ -12,8 +13,8 @@ const input = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm';
 
 const ADVICE = {
   ok: null,
-  watch: { text: 'Maintenance spend is approaching half of what this machine cost — keep an eye on it.', cls: 'border-amber-200 bg-amber-50 text-amber-800' },
-  replace: { text: 'Consider replacing: what has been spent on outside maintenance is now very high compared with this machine’s price or current value.', cls: 'border-rose-200 bg-rose-50 text-rose-800' },
+  watch: { text: 'Total maintenance spend is approaching half of what this machine cost — keep an eye on it.', cls: 'border-amber-200 bg-amber-50 text-amber-800' },
+  replace: { text: 'Consider replacing: what has been spent on maintenance is now very high compared with this machine’s price or current value.', cls: 'border-rose-200 bg-rose-50 text-rose-800' },
 } as const;
 
 const toMs = (t: { toDate?: () => Date; seconds?: number } | null | undefined): number | null =>
@@ -29,6 +30,10 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
   const [price, setPrice] = useState(machine.purchasePrice != null ? String(machine.purchasePrice) : '');
   const [scrapValue, setScrapValue] = useState(machine.scrapValue != null ? String(machine.scrapValue) : '');
   const [outsourcedTotal, setOutsourcedTotal] = useState(0);
+  // Parts and contractor charges on this machine's finished work orders.
+  const { workOrders } = useWorkOrders({ machineId: machine.id });
+  const woTotal = useMemo(() => workOrders.reduce((s, wo) => s + workOrderCost(wo), 0), [workOrders]);
+  const maintenanceTotal = outsourcedTotal + woTotal;
 
   useEffect(() => subscribeOutsourcedMaintenance(siteId, machine.id,
     (rows) => setOutsourcedTotal(rows.reduce((s, r) => s + r.totalCost, 0)), () => setOutsourcedTotal(0)), [siteId, machine.id]);
@@ -37,7 +42,7 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
     purchasePrice: machine.purchasePrice, scrapValue: machine.scrapValue,
     purchasedAtMs: toMs(machine.purchaseDate), lifespanYears: machine.expectedLifespanYears,
   }), [machine.purchasePrice, machine.scrapValue, machine.purchaseDate, machine.expectedLifespanYears]);
-  const advice = ADVICE[replaceAdvice({ purchasePrice: machine.purchasePrice, maintenanceCost: outsourcedTotal, bookValue: book })];
+  const advice = ADVICE[replaceAdvice({ purchasePrice: machine.purchasePrice, maintenanceCost: maintenanceTotal, bookValue: book })];
 
   async function save() {
     const p = price.trim() === '' ? null : Number(price);
@@ -91,8 +96,10 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
             {row('Purchase price', money(machine.purchasePrice))}
             {row('Expected scrap value', money(machine.scrapValue))}
             {row('Current value', book == null ? 'Add price, purchase date and lifespan' : money(book))}
-            {row('Outside maintenance so far', money(outsourcedTotal))}
-            {machine.purchasePrice != null && row('Total cost of ownership', money(machine.purchasePrice + outsourcedTotal), true)}
+            {row('Outsourced jobs (recorded here)', money(outsourcedTotal))}
+            {row('Work orders (parts + contractor charges)', money(woTotal))}
+            {row('Total spent on maintenance', money(maintenanceTotal), true)}
+            {machine.purchasePrice != null && row('Total cost of ownership', money(machine.purchasePrice + maintenanceTotal), true)}
             {machine.scrapRecord && row('Scrap / sale amount', `${machine.scrapRecord.currency} ${machine.scrapRecord.proceeds.toLocaleString()}`)}
           </dl>
           {advice && <p className={`mt-4 rounded-lg border p-3 text-sm ${advice.cls}`}>{advice.text}</p>}

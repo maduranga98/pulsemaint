@@ -67,3 +67,19 @@ export function replaceAdvice(opts: { purchasePrice: number | null | undefined; 
   if (ratio >= 0.6 || (opts.bookValue != null && opts.maintenanceCost > opts.bookValue)) return 'replace';
   return ratio >= 0.4 ? 'watch' : 'ok';
 }
+
+const FINISHED_WO = new Set(['COMPLETED', 'SIGNED_OFF', 'CLOSED']);
+
+/**
+ * What one finished work order cost: parts taken from stock or bought, plus the contractor's own charge on
+ * contractor work orders. Unfinished work orders count as 0.
+ */
+export function workOrderCost(wo: {
+  status: string;
+  partsUsed?: { quantity?: number; unitCost?: number; totalCost?: number }[] | null;
+  projectCost?: number | null;
+}): number {
+  if (!FINISHED_WO.has(wo.status)) return 0;
+  const parts = (wo.partsUsed ?? []).reduce((s, p) => s + (num(p.totalCost) || num(p.quantity) * num(p.unitCost)), 0);
+  return parts + num(wo.projectCost);
+}
