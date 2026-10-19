@@ -165,6 +165,8 @@ export interface LeadStats {
   open: number;
   demos: number;
   demosToday: number;
+  /** Open leads currently on a trial (status "trial requested"). */
+  trials: number;
   followUpsDue: number;
   won: number;
   revenue: Record<string, number>;
@@ -173,12 +175,13 @@ export interface LeadStats {
 export function leadStats(leads: Lead[], now = Date.now()): LeadStats {
   const end = endOfDay(now);
   const start = startOfDay(now);
-  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, followUpsDue: 0, won: 0, revenue: {} };
+  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, trials: 0, followUpsDue: 0, won: 0, revenue: {} };
   for (const l of leads) {
     if (l.archived) continue;
     if (isOpen(l)) s.open++;
     if (l.status === 'demo_booked' || l.status === 'demo_done') s.demos++;
     if (l.demoAt && l.demoAt >= start && l.demoAt <= end) s.demosToday++;
+    if (l.status === 'trial_requested') s.trials++;
     if (isOpen(l) && l.nextCallAt && l.nextCallAt <= end) s.followUpsDue++;
     if (l.status === 'closed_won') {
       s.won++;

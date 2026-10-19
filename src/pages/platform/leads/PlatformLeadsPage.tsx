@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type DragEvent } from 'react';
 import { countryLabel } from '@/lib/countries';
 import { useSearchParams } from 'react-router-dom';
 import {
-  BarChart3, CalendarCheck, CalendarDays, Download, FileText, KanbanSquare, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
+  BarChart3, CalendarCheck, CalendarDays, Download, FileText, FlaskConical, KanbanSquare, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
 } from 'lucide-react';
 import {
   BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, leadsToCsv, matchesSearch, revenueText,
@@ -123,10 +123,11 @@ export default function PlatformLeadsPage() {
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       {notice && <div className="mb-4 rounded-lg border border-emerald-700/50 bg-emerald-900/20 p-3 text-sm text-emerald-300">{notice}</div>}
 
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
         <StatTile icon={Users} tone="text-sky-300 bg-sky-900/40" value={stats.open} label="Open leads" />
         <StatTile icon={CalendarCheck} tone="text-violet-300 bg-violet-900/40" value={stats.demos} label="Demo booked or done" />
         <StatTile icon={CalendarDays} tone="text-fuchsia-300 bg-fuchsia-900/40" value={stats.demosToday} label="Demos today" />
+        <StatTile icon={FlaskConical} tone="text-orange-300 bg-orange-900/40" value={stats.trials} label="On trial" />
         <StatTile icon={PhoneCall} tone="text-amber-300 bg-amber-900/40" value={stats.followUpsDue} label="Follow-ups due" />
         <StatTile icon={Trophy} tone="text-emerald-300 bg-emerald-900/40" value={stats.won} label="Closed won" />
         <StatTile icon={Wallet} tone="text-teal-300 bg-teal-900/40" value={revenueText(stats.revenue)} label="Revenue" />

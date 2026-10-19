@@ -54,7 +54,7 @@ describe('leadStats', () => {
       lead({ status: 'closed_won', closedAmount: 50, currency: 'USD' }),
       lead({ status: 'new', archived: true, nextCallAt: NOW }),
     ], NOW);
-    expect(s).toEqual({ open: 3, demos: 1, demosToday: 1, followUpsDue: 1, won: 2, revenue: { LKR: 8000, USD: 50 } });
+    expect(s).toEqual({ open: 3, demos: 1, demosToday: 1, trials: 0, followUpsDue: 1, won: 2, revenue: { LKR: 8000, USD: 50 } });
   });
 });
 
