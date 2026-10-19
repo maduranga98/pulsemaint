@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { collection, query, where, getCountFromServer, getDocs, Timestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { limitsForCompany, isAtOrOverLimit, seatTypeForRole, seatCountsFrom, LIGHT_USER_ROLES, type SeatType } from '../lib/planLimits';
 import { PLAN_DISPLAY_NAME } from '../lib/planCatalog';
@@ -33,6 +34,32 @@ function planDisplayName(plan: string | undefined): string {
  * number the single-create forms use.
  */
 export async function fetchResourceCount(resource: CountedResource, companyId: string): Promise<number> {
+  // Plants are company-level records every member can read; the rest are counted by
+  // the server, because plant-scoped roles may only read their own plant's records.
+  if (resource === 'plants') return countDirect(resource, companyId);
+  return countViaServer(resource, companyId, () => countDirect(resource, companyId));
+}
+
+type UsageResource = Exclude<CountedResource, 'plants'>;
+
+/**
+ * The company-wide count, from the getPlanUsage function: plan limits are per
+ * company, but plant-scoped roles may only read their own plant's records.
+ * Falls back to counting directly while the function isn't deployed yet.
+ */
+async function countViaServer(resource: CountedResource, companyId: string, direct: () => Promise<number>): Promise<number> {
+  try {
+    const call = httpsCallable<{ companyId: string; resource: UsageResource }, { count: number }>(functions, 'getPlanUsage');
+    const res = await call({ companyId, resource: resource as UsageResource });
+    return Number(res.data.count) || 0;
+  } catch (err) {
+    const code = (err as { code?: string }).code ?? '';
+    if (code !== 'functions/not-found' && code !== 'functions/unimplemented') throw err;
+    return direct();
+  }
+}
+
+async function countDirect(resource: CountedResource, companyId: string): Promise<number> {
   // Scrapped machines stay on record but no longer count against the plan.
   if (resource === 'machines') {
     const [all, scrapped] = await Promise.all([

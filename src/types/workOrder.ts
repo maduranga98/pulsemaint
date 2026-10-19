@@ -262,6 +262,8 @@ export interface WorkOrder {
   id: string;
   woNumber: string;
   siteId: string;
+  /** Owning company (stamped by onWOCreated when a client omits it). */
+  companyId?: string;
 
   // Basic Info
   woType: WOType;
