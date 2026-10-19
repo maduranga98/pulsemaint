@@ -100,28 +100,31 @@ function logActivity(lead: Pick<Lead, 'id' | 'businessName'>, a: Partial<Omit<Le
 
 /**
  * Lead numbers run 1, 2, 3… in the order leads were added, from the `platformCounters/leads` counter.
- * The first time the counter is needed, leads that predate numbering are numbered oldest-first.
+ * Numbers any leads that have none yet, oldest first, continuing after the highest number in use.
+ * Safe to call repeatedly; returns how many leads it numbered.
  */
-async function ensureLeadNumbers(): Promise<void> {
-  if ((await getDoc(counterRef)).exists()) return;
-  const snap = await getDocs(leadsCol);
+export async function numberUnnumberedLeads(): Promise<number> {
+  const [counter, snap] = await Promise.all([getDoc(counterRef), getDocs(leadsCol)]);
   const rows = snap.docs
     .filter((d) => num(d.get('leadNumber')) === null)
     .sort((a, b) => (tsMs(a.get('createdAt')) ?? 0) - (tsMs(b.get('createdAt')) ?? 0));
-  let n = snap.docs.reduce((m, d) => Math.max(m, num(d.get('leadNumber')) ?? 0), 0);
+  if (counter.exists() && !rows.length) return 0;
+  let n = Math.max(snap.docs.reduce((m, d) => Math.max(m, num(d.get('leadNumber')) ?? 0), 0), (Number(counter.get('next')) || 1) - 1);
   for (let i = 0; i < rows.length; i += 400) {
     const batch = writeBatch(db);
     for (const d of rows.slice(i, i + 400)) batch.update(d.ref, { leadNumber: ++n });
     await batch.commit();
   }
   await runTransaction(db, async (tx) => {
-    if (!(await tx.get(counterRef)).exists()) tx.set(counterRef, { next: n + 1 });
+    const next = Number((await tx.get(counterRef)).get('next')) || 1;
+    if (next <= n) tx.set(counterRef, { next: n + 1 });
   });
+  return rows.length;
 }
 
 /** Reserves `count` consecutive lead numbers and returns the first. */
 async function reserveLeadNumbers(count: number): Promise<number> {
-  await ensureLeadNumbers();
+  await numberUnnumberedLeads();
   return runTransaction(db, async (tx) => {
     const first = Number((await tx.get(counterRef)).get('next')) || 1;
     tx.set(counterRef, { next: first + count });
