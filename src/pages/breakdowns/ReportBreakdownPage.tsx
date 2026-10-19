@@ -101,6 +101,7 @@ export default function ReportBreakdownPage() {
     getDocs(query(collection(db, 'machines'), where('siteId', '==', siteId)))
       .then(async (snap) => {
         const list: MachineOption[] = snap.docs
+          .filter((d) => d.get('status') !== 'scrapped')
           .filter((d) => !scopedPlantId || ((d.data() as any).plantId ?? null) === scopedPlantId)
           .map((d) => {
           const data = d.data() as any;

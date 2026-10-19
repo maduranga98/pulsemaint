@@ -145,7 +145,8 @@ export function CreateWODrawer({
           query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
         );
         if (cancelled) return;
-        const machineOptions = machineSnap.docs.map((d) => {
+        // Scrapped machines stay on record but can't take new work.
+        const machineOptions = machineSnap.docs.filter((d) => d.get('status') !== 'scrapped').map((d) => {
           const data = d.data() as Record<string, unknown>;
           return {
             id: d.id,
