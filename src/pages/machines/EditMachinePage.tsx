@@ -75,7 +75,6 @@ export function EditMachinePage() {
         station: formData.station || null,
         status: formData.status,
         criticality: formData.criticality as any,
-        healthScore: (formData as any).healthScore,
         warrantyItems: (formData as any).warrantyItems?.map((w: any) => ({
           partName: w.partName,
           expiryDate: w.expiryDate,

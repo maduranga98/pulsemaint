@@ -132,9 +132,12 @@ export function useSignOff(): UseSignOffResult {
 
         // The linked PM schedule follows server-side (syncPmScheduleWoStatus).
 
-        // Keep linked breakdown tickets and the machine in sync — closing the
-        // WO closes its breakdowns and, if nothing else is open, reactivates
-        // the machine.
+        // Keep linked breakdown tickets and the machine in sync. A complete
+        // sign-off closes the WO's breakdowns and, if nothing else is open,
+        // reactivates the machine. Signed off as failed / not complete, the
+        // fault isn't fixed: the breakdowns are reopened (ready for a new work
+        // order) and the machine stays down — downtime keeps counting.
+        const workDone = payload.outcome === 'complete';
         let woNumber = woId;
         let woPlantId: string | undefined;
         let woDepartment: string | null = null;
@@ -173,30 +176,51 @@ export function useSignOff(): UseSignOffResult {
             );
           }
 
-          // Close every breakdown this WO covers — a WO raised for a machine
-          // group links all of its tickets, not just the primary one.
+          // Every breakdown this WO covers — a WO raised for a machine group
+          // links all of its tickets, not just the primary one.
           const breakdownIds = Array.from(
             new Set([data?.linkedBreakdownId, ...(data?.linkedBreakdownIds ?? [])].filter(Boolean) as string[]),
           );
-          const bdStatus: BreakdownStatus = 'closed';
-          await Promise.all(breakdownIds.map((breakdownId) =>
-            updateDoc(doc(db, 'breakdown_tickets', breakdownId), {
-              status: bdStatus,
-              closedAt: serverTimestamp(),
-              statusHistory: arrayUnion({
+          if (workDone) {
+            const bdStatus: BreakdownStatus = 'closed';
+            await Promise.all(breakdownIds.map((breakdownId) =>
+              updateDoc(doc(db, 'breakdown_tickets', breakdownId), {
                 status: bdStatus,
-                changedBy: user.uid,
-                changedByName: actorName,
-                changedAt: now,
-                note: `WO ${woNumber} signed off and closed`,
-              }),
-            }).catch((e) => console.error('Failed to close linked breakdown on sign-off', e)),
-          ));
+                closedAt: serverTimestamp(),
+                statusHistory: arrayUnion({
+                  status: bdStatus,
+                  changedBy: user.uid,
+                  changedByName: actorName,
+                  changedAt: now,
+                  note: `WO ${woNumber} signed off and closed`,
+                }),
+              }).catch((e) => console.error('Failed to close linked breakdown on sign-off', e)),
+            ));
 
-          // Only now — with the WO and its breakdowns closed — can the machine
-          // go back to active (the check would otherwise see them still open).
-          if (data?.machineId) {
-            await markMachineActiveIfNoOpenWork(data.machineId);
+            // Only now — with the WO and its breakdowns closed — can the machine
+            // go back to active (the check would otherwise see them still open).
+            if (data?.machineId) {
+              await markMachineActiveIfNoOpenWork(data.machineId);
+            }
+          } else {
+            // Back to "assigned" with no linked work order, so "Create Work
+            // Order" is offered again; the failed one stays in its history.
+            const bdStatus: BreakdownStatus = 'assigned';
+            await Promise.all(breakdownIds.map((breakdownId) =>
+              updateDoc(doc(db, 'breakdown_tickets', breakdownId), {
+                status: bdStatus,
+                linkedWOId: null,
+                linkedWONumber: null,
+                previousWOIds: arrayUnion(woId),
+                statusHistory: arrayUnion({
+                  status: bdStatus,
+                  changedBy: user.uid,
+                  changedByName: actorName,
+                  changedAt: now,
+                  note: `WO ${woNumber} signed off as ${outcomeLabel.toLowerCase()}${reason ? ` (${reason})` : ''} — breakdown reopened for a new work order`,
+                }),
+              }).catch((e) => console.error('Failed to reopen linked breakdown on sign-off', e)),
+            ));
           }
         } catch (bdErr) {
           console.error('Failed to sync breakdown on sign-off', bdErr);
@@ -206,10 +230,11 @@ export function useSignOff(): UseSignOffResult {
           // Oversight roles are copied on every notification (see
           // notifications.service), so signing off a work order now reaches
           // admins and plant managers whoever performed it.
+          const outcomeText = workDone ? '' : ` as ${outcomeLabel.toLowerCase()} — its breakdown is open again`;
           void notifyRoles(profile.companyId, ['supervisor'], {
             type: 'work_order',
-            message: `${actorName || 'Someone'} signed off and closed work order ${woNumber}`,
-            oversightMessage: `signed off and closed work order ${woNumber}`,
+            message: `${actorName || 'Someone'} signed off and closed work order ${woNumber}${outcomeText}`,
+            oversightMessage: `signed off and closed work order ${woNumber}${outcomeText}`,
             actorName,
             actorRole: profile.role,
             actorUserId: profile.id,
@@ -231,7 +256,9 @@ export function useSignOff(): UseSignOffResult {
           }).catch(() => {});
         }
 
-        toast.success('Work order signed off and closed.');
+        toast.success(workDone
+          ? 'Work order signed off and closed.'
+          : 'Work order closed. Its breakdown is open again — raise a new work order to fix it.');
         // AI root-cause analysis over the whole job — usually already produced
         // on the sign-off form; only runs here if it wasn't (saved on the WO,
         // shown on the signed-off summary).

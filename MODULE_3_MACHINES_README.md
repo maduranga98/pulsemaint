@@ -190,10 +190,11 @@ Color coding: Green (70+), Amber (40-69), Red (0-39)
 - Output: Firebase Storage URL of PDF sticker sheet
 - Uses Puppeteer for print-ready PDF generation
 
-### recalculateMachineHealth
-- Trigger: Firestore onWrite on machines/{id}/maintenanceHistory
-- Action: Recalculate health score after breakdown/WO close
-- Updates: machines/{id}.healthScore
+### Machine health (implemented — `functions/src/machines/machineHealth.js`)
+- Triggers: breakdown_tickets, pm_history, workOrders and machines writes, plus a daily run (the 90-day window moves)
+- Action: Recalculate the health score above (a breakdown not assessed yet counts as medium; cancelled ones don't count; overdue = still open past due or closed as missed)
+- Updates: machines/{id}.healthScore + healthScoreUpdatedAt, and the machine_health/{companyId}_{machineId} snapshot
+- The machine form shows the score read-only; firestore.rules reject client edits
 
 ### cleanOrphanedMachineFiles
 - Trigger: Firestore onDelete on machines/{id}

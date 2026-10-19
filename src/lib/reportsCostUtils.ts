@@ -23,20 +23,6 @@ export function topHealthScores(
 }
 
 /**
- * Total cost for a single work order in the Maintenance Cost report: used
- * parts cost + labor cost + the contractor's "total project cost" captured
- * at sign-off (already includes its own auto-computed parts share — see
- * SignOffForm.tsx) for contractor work orders.
- */
-export function computeWoTotalCost(
-  partsCost: number,
-  laborCost: number,
-  contractorProjectCost: number,
-): number {
-  return (partsCost || 0) + (laborCost || 0) + (contractorProjectCost || 0);
-}
-
-/**
  * Sums Total Cost per WO Type — used by the Maintenance Cost report's chart
  * ("Total Cost vs WO Type").
  */

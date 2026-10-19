@@ -10,6 +10,7 @@ import {
 } from '../../schemas/machine';
 import type { MachineType, DocumentType, Machine } from '../../types/machine';
 import { MachineFormStepper } from './MachineFormStepper';
+import { MachineHealthScore } from './MachineHealthScore';
 import { useDepartments } from '../../hooks/useDepartments';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { usePlants } from '../../hooks/usePlants';
@@ -726,35 +727,25 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              {mode === 'create' ? 'Initial Health Score' : 'Health Score'} (0 = Critical, 100 = Perfect)
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('common.ui2.machines.machineForm.healthScoreAuto', 'Health Score')}
             </label>
-            <Controller
-              name="healthScore"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={field.value ?? 100}
-                    onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                  <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>{t('common.ui2.machines.machineForm.critical0')}</span>
-                    <span className={`font-medium ${(field.value ?? 100) >= 70 ? 'text-green-600' : (field.value ?? 100) >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
-                      {field.value ?? 100}%
-                    </span>
-                    <span>{t('common.ui2.machines.machineForm.perfect100')}</span>
-                  </div>
-                </>
-              )}
-            />
-            {(errors as any).healthScore && (
-              <p className="text-red-600 text-sm mt-1">{(errors as any).healthScore.message}</p>
+            {mode !== 'create' && (
+              <Controller
+                name="healthScore"
+                control={control}
+                render={({ field }) => <MachineHealthScore score={Number(field.value ?? 100)} variant="bar" />}
+              />
             )}
+            {/* Computed by the server from the last 90 days of breakdowns and
+                PM (lib/machineHealth.ts) — not editable, so every screen and
+                report shows the same number. */}
+            <p className="text-xs text-gray-500 mt-1">
+              {t(
+                'common.ui2.machines.machineForm.healthScoreAutoHint',
+                'Calculated automatically from the last 90 days of breakdowns and PM work — it can\'t be set by hand.',
+              )}
+            </p>
           </div>
 
           <div>

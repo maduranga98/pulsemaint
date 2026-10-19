@@ -3,10 +3,7 @@ import {
   query,
   where,
   orderBy,
-  getDocs,
   onSnapshot,
-  doc,
-  getDoc,
   limit,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -14,6 +11,8 @@ import {
   computeDailyAnalytics,
   computeMonthlyAnalytics,
   computeMachineHealth,
+  monthKey,
+  dateKey,
   type MonthArg,
 } from './analyticsAggregation';
 import type {
@@ -24,7 +23,15 @@ import type {
   DashboardNotification,
 } from '../types/analytics.types';
 
-const currentMonthKey = () => new Date().toISOString().slice(0, 7);
+const currentMonthKey = () => monthKey(new Date());
+
+// Every figure is computed live from the operational records. The
+// pre-aggregated analytics_daily / analytics_monthly / machine_health
+// documents used to win when present, and the old jobs that wrote them stored
+// 0 for cost, PM compliance and hours lost (machine_health only covered
+// machines that had a breakdown) — so "All Plants" showed zeros while a single
+// plant showed real figures. analytics_monthly / machine_health are now
+// written with these same definitions, for scheduled reports only.
 
 // ---------------------------------------------------------------------------
 // Daily Analytics
@@ -36,26 +43,7 @@ export async function fetchDailyAnalytics(
   toDate: string,
   plantId: string | null = null,
 ): Promise<AnalyticsDaily[]> {
-  // Pre-aggregated docs are company-wide — a single plant is always computed
-  // from its own raw records.
-  if (plantId) return computeDailyAnalytics(companyId, fromDate, toDate, plantId);
-  const q = query(
-    collection(db, 'analytics_daily'),
-    where('companyId', '==', companyId),
-    where('date', '>=', fromDate),
-    where('date', '<=', toDate),
-    orderBy('date', 'asc'),
-  );
-  try {
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      return snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as AnalyticsDaily));
-    }
-  } catch {
-    // Query rejected (missing composite index or security rules) — fall
-    // through to computing from the raw collections.
-  }
-  return computeDailyAnalytics(companyId, fromDate, toDate);
+  return computeDailyAnalytics(companyId, fromDate, toDate, plantId);
 }
 
 // ---------------------------------------------------------------------------
@@ -67,37 +55,11 @@ export async function fetchMonthlyAnalytics(
   month: MonthArg,
   plantId: string | null = null,
 ): Promise<AnalyticsMonthly | null> {
-  // Pre-aggregated docs are company-wide — a single plant is always computed
-  // from its own raw records.
-  if (plantId) return computeMonthlyAnalytics(companyId, month, plantId);
-  // A multi-month range has no single precomputed doc — compute it from raw
-  // data. A single month can still use its precomputed aggregate when present.
-  if (typeof month === 'string') {
-    const ref = doc(db, 'analytics_monthly', `${companyId}_${month}`);
-    try {
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        return { ...snap.data(), id: snap.id } as unknown as AnalyticsMonthly;
-      }
-    } catch {
-      // Reading a non-existent doc is rejected by the security rules
-      // (permission-denied instead of not-found), which used to abort here and
-      // leave the dashboards empty. Fall through to computing from raw data.
-    }
-  }
-  return computeMonthlyAnalytics(companyId, month);
+  return computeMonthlyAnalytics(companyId, month, plantId);
 }
 
 export async function fetchLatestMonthlyAnalytics(companyId: string): Promise<AnalyticsMonthly | null> {
-  const q = query(
-    collection(db, 'analytics_monthly'),
-    where('companyId', '==', companyId),
-    orderBy('month', 'desc'),
-    limit(1),
-  );
-  const snap = await getDocs(q);
-  if (snap.empty) return computeMonthlyAnalytics(companyId, currentMonthKey());
-  return { ...snap.docs[0].data(), id: snap.docs[0].id } as unknown as AnalyticsMonthly;
+  return computeMonthlyAnalytics(companyId, currentMonthKey());
 }
 
 // ---------------------------------------------------------------------------
@@ -105,31 +67,20 @@ export async function fetchLatestMonthlyAnalytics(companyId: string): Promise<An
 // ---------------------------------------------------------------------------
 
 export async function fetchMachineHealth(companyId: string): Promise<MachineHealthDoc[]> {
-  const q = query(
-    collection(db, 'machine_health'),
-    where('companyId', '==', companyId),
-  );
-  const snap = await getDocs(q);
-  if (snap.empty) return computeMachineHealth(companyId);
-  return snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as MachineHealthDoc));
+  return computeMachineHealth(companyId);
 }
 
 export function subscribeMachineHealth(
   companyId: string,
   callback: (data: MachineHealthDoc[]) => void,
 ) {
-  const q = query(
-    collection(db, 'machine_health'),
-    where('companyId', '==', companyId),
-  );
-  return onSnapshot(q, (snap) => {
-    if (snap.empty) {
-      computeMachineHealth(companyId).then(callback).catch(() => callback([]));
-      return;
-    }
-    const data = snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as MachineHealthDoc));
-    callback(data);
-  });
+  let active = true;
+  computeMachineHealth(companyId)
+    .then((data) => active && callback(data))
+    .catch(() => active && callback([]));
+  return () => {
+    active = false;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -185,7 +136,7 @@ export function subscribeActiveBreakdownCount(
     where('companyId', '==', companyId),
   );
   return onSnapshot(q, (snap) => {
-    const closed = new Set(['closed', 'resolved']);
+    const closed = new Set(['closed', 'resolved', 'cancelled']);
     callback(snap.docs.filter((d) => !closed.has(String(d.data().status))).length);
   });
 }
@@ -226,6 +177,6 @@ export function getDateRange(range: '7D' | '30D' | '3M' | '6M' | '12M'): { from:
       from.setMonth(to.getMonth() - 12);
       break;
   }
-  const fmt = (d: Date) => d.toISOString().split('T')[0];
-  return { from: fmt(from), to: fmt(to) };
+  // Local calendar days, the same keys the daily analytics bucket by.
+  return { from: dateKey(from), to: dateKey(to) };
 }

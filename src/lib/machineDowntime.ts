@@ -54,6 +54,15 @@ export function toDateValue(value: unknown): Date | null {
 
 const ms = (d: Date | null) => (d ? d.getTime() : null);
 
+const NOT_DONE_OUTCOMES = new Set(['failed', 'not_complete']);
+
+/**
+ * Did this sign-off put the machine back in service? Not when the work was
+ * signed off as failed / not complete — the breakdown stays open for a new
+ * work order and the machine stays down.
+ */
+export const signOffRestoresMachine = (wo: Row) => !NOT_DONE_OUTCOMES.has(String(wo.signOffOutcome ?? ''));
+
 /** Sign-off moment of a work order: the supervisor's sign-off, else its close time. */
 export function workOrderSignOff(wo: Row): Date | null {
   return toDateValue(wo.supervisorSignOffAt) ?? toDateValue(wo.closedAt);
@@ -119,9 +128,17 @@ export function computeDowntimeEvents(
     }
 
     const signOffs = linked.map((w) => ms(workOrderSignOff(w))).filter((x): x is number => x !== null);
-    // Signed off = every linked WO is done; the machine is back at the last sign-off.
+    // Signed off = every linked WO is done; the machine is back at the last
+    // sign-off — unless that one was failed / not complete.
     const allSignedOff = linked.length > 0 && linked.every((w) => workOrderSignOff(w));
-    let end: Date | null = allSignedOff && signOffs.length ? new Date(Math.max(...signOffs)) : null;
+    let end: Date | null = null;
+    if (allSignedOff && signOffs.length) {
+      const lastAt = Math.max(...signOffs);
+      const last = linked.find((w) => ms(workOrderSignOff(w)) === lastAt)!;
+      if (signOffRestoresMachine(last)) end = new Date(lastAt);
+      // Older tickets a failed sign-off closed anyway: down until then.
+      else if (!OPEN_BREAKDOWN(b.status)) end = toDateValue(b.closedAt) ?? toDateValue(b.resolvedAt) ?? new Date(lastAt);
+    }
     if (!end && linked.length === 0) {
       end = toDateValue(b.closedAt) ?? toDateValue(b.resolvedAt);
     }

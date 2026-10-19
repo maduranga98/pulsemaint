@@ -21,9 +21,22 @@ import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useActivePlantStore } from '../store/activePlantStore';
 import { resolveScopedPlantId } from '../hooks/useDepartmentScope';
-import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggregation';
+import { breakdownDowntimeHours, computeMonthlyAnalytics, computeMachineHealth, dateKey } from './analyticsAggregation';
+import {
+  asDate,
+  contractorJobCost,
+  contractorJobCostDate,
+  isCancelledBreakdown,
+  isCountableContractorJob,
+  woDoneAt,
+  woLaborCost,
+  woPartsCost,
+  woSlaOutcome,
+} from '../lib/analytics/maintenanceMetrics';
+import { computeDowntimeEvents } from '../lib/machineDowntime';
+import { getEffectivePMHistoryStatus } from '../utils/pm.utils';
 import { fetchTeamPerformanceByUser } from './teamPerformance.service';
-import { computeWoTotalCost, flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
+import { flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
 import { getCategoryLabel } from '../modules/audit/types/audit.types';
 import type { TFunction } from 'i18next';
 import i18n, { type AppLanguage } from '../lib/i18n';
@@ -245,6 +258,23 @@ async function scopedGetDocs<A, D extends DocumentData>(q: Query<A, D>): Promise
   } as unknown as QuerySnapshot<A, D>;
 }
 
+/**
+ * Is a date inside the report's range? Compared on the plant's local calendar
+ * day (the dashboards' rule) — toISOString() put anything between local
+ * midnight and the UTC offset on the previous day. Undated rows are outside
+ * every range.
+ */
+function inReportRange(value: unknown, config: ReportConfig): boolean {
+  const d = asDate(value);
+  if (!d) return false;
+  const key = dateKey(d);
+  return key >= config.dateFrom && key <= config.dateTo;
+}
+
+const matchesSelected = (value: unknown, selected: string[]) =>
+  selected.length === 0 ||
+  (value != null && selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
+
 // Breakdown Summary columns holding free text entered by people (not enums),
 // translated into the viewer's language by fetchReportRows.
 export const BREAKDOWN_SUMMARY_FREE_TEXT_KEYS = ['description', 'attemptedFixes', 'technicianFindings'] as const;
@@ -311,41 +341,43 @@ export async function fetchReportRows(
   // shared machines/departments/woTypes/contractors filter block further down
   // this function never ran for this report — every filter silently produced
   // zero matches. Filters are now applied explicitly below before returning.
+  // Same definitions as the dashboards' maintenance cost
+  // (lib/analytics/maintenanceMetrics): a work order's parts + labour count
+  // when the work was done, a contractor job's own charge when it was
+  // completed — the sign-off total repeats the work order's parts, which
+  // this report used to add twice. Every record is read (no 1000-row cap),
+  // cancelled ones are left out, and contractor jobs without a work order
+  // get their own row.
   if (reportType === 'maintenance_cost') {
     const [woSnap, contractorSnap] = await Promise.all([
-      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000))),
-      scopedGetDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000))),
+      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId))),
+      scopedGetDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId))),
     ]);
 
-    // Contractor total project cost (parts auto-included + contractor's own
-    // cost, captured at sign-off — see SignOffForm.tsx), keyed by workOrderId.
-    const contractorCostByWoId = new Map<string, { cost: number; signedOffAt: unknown }>();
+    const woIds = new Set(woSnap.docs.map((d) => d.id));
+    const jobsByWo = new Map<string, Record<string, unknown>[]>();
+    const standaloneJobs: { id: string; data: Record<string, unknown> }[] = [];
     contractorSnap.docs.forEach((item) => {
       const c = item.data();
+      if (!isCountableContractorJob(c)) return;
       const woId = String(c.workOrderId ?? '');
-      if (!woId) return;
-      const cost = Number(c.totalProjectCost ?? c.systemInvoiceAmount ?? 0);
-      contractorCostByWoId.set(woId, { cost, signedOffAt: c.signedOffAt ?? null });
+      if (woId && woIds.has(woId)) jobsByWo.set(woId, [...(jobsByWo.get(woId) ?? []), c]);
+      else standaloneJobs.push({ id: item.id, data: c });
     });
-
-    const woCost = (w: Record<string, unknown>) => {
-      const partsCost = Array.isArray(w.partsUsed)
-        ? (w.partsUsed as Record<string, unknown>[]).reduce((s, p) => s + Number(p.totalCost ?? 0), 0)
-        : 0;
-      const laborCost = Array.isArray(w.technicianWorkLogs)
-        ? (w.technicianWorkLogs as Record<string, unknown>[]).reduce((s, l) => s + Number(l.laborCost ?? 0), 0)
-        : 0;
-      return { partsCost, laborCost };
-    };
 
     const costRows: Record<string, unknown>[] = [];
     woSnap.docs.forEach((item) => {
       const w = item.data();
-      const { partsCost, laborCost } = woCost(w);
-      const contractorEntry = contractorCostByWoId.get(item.id);
-      const contractorCost = contractorEntry?.cost ?? 0;
+      if (String(w.status ?? '') === 'CANCELLED') return;
+      const woDate = woDoneAt(w) ?? asDate(w.createdAt);
+      const woInRange = inReportRange(woDate, config);
+      const partsCost = woInRange ? woPartsCost(w) : 0;
+      const laborCost = woInRange ? woLaborCost(w) : 0;
+      const jobs = (jobsByWo.get(item.id) ?? []).filter((c) => inReportRange(contractorJobCostDate(c), config));
+      const contractorCost = jobs.reduce((sum, c) => sum + contractorJobCost(c), 0);
       if (partsCost === 0 && laborCost === 0 && contractorCost === 0) return;
       const department = String(w.machineDepartment ?? w.department ?? '');
+      const lastJob = jobs[jobs.length - 1];
       costRows.push({
         id: item.id,
         source: 'Work Order',
@@ -361,29 +393,45 @@ export async function fetchReportRows(
         laborCost,
         partsCost,
         contractorCost,
-        totalCost: computeWoTotalCost(partsCost, laborCost, contractorCost),
-        signedOffDate: contractorEntry?.signedOffAt ?? w.supervisorSignOffAt ?? null,
-        createdAt: w.actualEndTime ?? w.createdAt ?? null,
+        totalCost: partsCost + laborCost + contractorCost,
+        signedOffDate: lastJob?.signedOffAt ?? w.supervisorSignOffAt ?? null,
+        // The date that put the row in the range.
+        createdAt: woInRange || !lastJob ? woDate : contractorJobCostDate(lastJob),
+      });
+    });
+    standaloneJobs.forEach(({ id, data: c }) => {
+      const when = contractorJobCostDate(c);
+      if (!inReportRange(when, config)) return;
+      const contractorCost = contractorJobCost(c);
+      if (contractorCost === 0) return;
+      const department = String(c.machineDepartment ?? c.department ?? '');
+      costRows.push({
+        id,
+        source: 'Contractor Job',
+        reference: c.workOrderNumber ?? id,
+        woTicket: c.workOrderNumber ?? id,
+        woType: 'CONTRACTOR',
+        machineName: c.machineName ?? '',
+        machineId: c.machineId ?? '',
+        machineDepartment: department,
+        department,
+        contractorCompanyId: c.contractorId ?? '',
+        priority: c.priority ?? '',
+        laborCost: 0,
+        partsCost: 0,
+        contractorCost,
+        totalCost: contractorCost,
+        signedOffDate: c.signedOffAt ?? null,
+        createdAt: when,
       });
     });
 
-    const matchesList = (value: unknown, selected: string[]) =>
-      selected.length === 0 ||
-      (value != null && selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
-
-    const filtered = costRows.filter((row) => {
-      if (!matchesList(row.machineId, config.machines)) return false;
-      if (!matchesList(row.department, config.departments)) return false;
-      if (!matchesList(row.woType, config.woTypes)) return false;
-      if (!matchesList(row.contractorCompanyId, config.contractors)) return false;
-      if (!matchesList(row.priority, config.priorities)) return false;
-      const raw = row.createdAt as { toDate?: () => Date } | null;
-      const d = raw && typeof raw.toDate === 'function' ? raw.toDate().toISOString().slice(0, 10) : null;
-      if (!d) return true;
-      return d >= config.dateFrom && d <= config.dateTo;
-    });
-
-    return filtered;
+    return costRows.filter((row) =>
+      matchesSelected(row.machineId, config.machines)
+      && matchesSelected(row.department, config.departments)
+      && matchesSelected(row.woType, config.woTypes)
+      && matchesSelected(row.contractorCompanyId, config.contractors)
+      && matchesSelected(row.priority, config.priorities));
   }
 
   // Contractor Performance is a per-contractor rollup of their contractor
@@ -392,7 +440,7 @@ export async function fetchReportRows(
   // aggregates, not fields on a single job document.
   if (reportType === 'contractor_performance') {
     const snap = await scopedGetDocs(
-      query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000)),
+      query(collection(db, 'contractorJobs'), where('companyId', '==', companyId)),
     );
 
     const byContractor = new Map<string, {
@@ -425,14 +473,14 @@ export async function fetchReportRows(
     // signedOffAt for the date range (a contractor job only has one
     // meaningful date: when it was signed off) and contractorId for the
     // Contractor filter.
+    // Dated like the dashboards' contractor cost — when the work was
+    // completed / signed off — on the local calendar; cancelled jobs out.
     const filteredDocs = snap.docs.filter((item) => {
       const c = item.data();
+      if (!isCountableContractorJob(c)) return false;
       const contractorRef = c.contractorId ?? c.manualContractorName ?? c.contractorName;
       if (!matchesList(contractorRef, config.contractors)) return false;
-      const signedOffMs = asMs(c.signedOffAt);
-      if (signedOffMs === 0) return true;
-      const isoDate = new Date(signedOffMs).toISOString().slice(0, 10);
-      return isoDate >= config.dateFrom && isoDate <= config.dateTo;
+      return inReportRange(contractorJobCostDate(c), config);
     });
 
     filteredDocs.forEach((item) => {
@@ -493,13 +541,13 @@ export async function fetchReportRows(
     const restrictToGeneral = wantGeneral && !wantSafety;
 
     const [assignmentSnap, programmeSnap, usersSnap] = await Promise.all([
-      scopedGetDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId), limit(2000))),
-      scopedGetDocs(query(collection(db, 'traineeProgrammes'), where('companyId', '==', companyId), limit(1000))),
+      scopedGetDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId))),
+      scopedGetDocs(query(collection(db, 'traineeProgrammes'), where('companyId', '==', companyId))),
       // The top-level `users` collection is only an auth-routing mapping doc
       // ({ uid, companyId, role, siteId }); role lookups need the real
       // per-company profile at companies/{companyId}/users (see
       // teamPerformance.service.ts for the same fix on the Name bug).
-      scopedGetDocs(query(collection(db, `companies/${companyId}/users`), limit(1000))),
+      scopedGetDocs(query(collection(db, `companies/${companyId}/users`))),
     ]);
 
     const roleByUserId = new Map<string, string>();
@@ -570,46 +618,105 @@ export async function fetchReportRows(
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  // Downtime Analysis: computed from workOrders (createdAt → sign-off), not
-  // breakdown_tickets — breakdown_tickets doesn't carry a sign-off timestamp,
-  // so downtime (created → signed off) can't be computed from it. Only
-  // work orders that have actually been signed off have a known downtime.
+  // Downtime Analysis: the same downtime events the dashboards' Production
+  // Hours Lost sums (lib/machineDowntime) — a breakdown from when it was
+  // reported until its work order was signed off, other maintenance from
+  // when work started until sign-off, each work order counted once. Machines
+  // still down show the time so far. (It used to be every signed-off work
+  // order's created → sign-off time, counting breakdown repairs twice and
+  // planned work from when it was raised.)
   if (reportType === 'downtime_analysis') {
-    const woSnap = await scopedGetDocs(
-      query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000)),
+    const [woSnap, bdSnap] = await Promise.all([
+      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId))),
+      scopedGetDocs(query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId))),
+    ]);
+    const workOrders = woSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>);
+    const breakdowns = bdSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>);
+    const woById = new Map(workOrders.map((w) => [String(w.id), w]));
+    const rowsOut: Record<string, unknown>[] = [];
+    computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours).forEach((e) => {
+      if (!inReportRange(e.anchor, config)) return;
+      const r = e.row as Record<string, unknown>;
+      const linkedWo = e.kind === 'breakdown' && r.linkedWOId ? woById.get(String(r.linkedWOId)) : undefined;
+      rowsOut.push({
+        id: `${e.kind}_${e.sourceId}`,
+        woTicket: e.kind === 'breakdown'
+          ? (linkedWo?.woNumber ?? r.ticketNumber ?? e.sourceId)
+          : (r.woNumber ?? e.sourceId),
+        machineName: e.machineName ?? r.machineName ?? '',
+        machineId: e.machineId ?? '',
+        location: r.machineLocation ?? '',
+        woType: e.kind === 'breakdown' ? 'BREAKDOWN' : (r.woType ?? ''),
+        department: r.machineDepartment ?? '',
+        createdAt: e.start,
+        downtimeMinutes: Math.round(e.hours * 60),
+        ongoing: e.ongoing,
+      });
+    });
+    return rowsOut.filter(
+      (row) =>
+        matchesSelected(row.machineId, config.machines) &&
+        matchesSelected(row.department, config.departments) &&
+        matchesSelected(row.woType, config.woTypes),
     );
+  }
+
+  // SLA Compliance: SLA deadlines live on work orders (set by the onWOCreated
+  // function) — breakdown tickets never carry one, so the old ticket-based
+  // report showed no deadline and nothing breached. One row per work order
+  // whose deadline falls in the range, met / breached as the dashboards count it.
+  if (reportType === 'sla_compliance') {
+    const woSnap = await scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId)));
+    const now = new Date();
+    const translate = t ?? i18n.t.bind(i18n);
+    const statusLabel = (key: 'within' | 'atRisk' | 'breached') =>
+      String(translate(`common.reports.config.enums.slaStatus.${key}`));
     const rowsOut: Record<string, unknown>[] = [];
     woSnap.docs.forEach((item) => {
       const w = item.data();
-      const createdAt = w.createdAt as Timestamp | undefined;
-      const signedOffAt = w.supervisorSignOffAt as Timestamp | undefined;
-      if (!createdAt || typeof createdAt.toDate !== 'function') return;
-      if (!signedOffAt || typeof signedOffAt.toDate !== 'function') return;
-      const createdDate = createdAt.toDate();
-      const downtimeMinutes = Math.max(0, (signedOffAt.toDate().getTime() - createdDate.getTime()) / 60000);
-      const isoDate = createdDate.toISOString().slice(0, 10);
-      if (isoDate < config.dateFrom || isoDate > config.dateTo) return;
+      const deadline = asDate(w.slaDeadline);
+      if (!deadline || !inReportRange(deadline, config)) return;
+      const outcome = woSlaOutcome(w, now);
+      if (!outcome) return;
+      // At risk: still open with under 30 minutes left (the warning the
+      // slaBreachCheck function sends).
+      const key = outcome === 'breached'
+        ? 'breached'
+        : outcome === 'pending' && deadline.getTime() - now.getTime() <= 30 * 60_000 ? 'atRisk' : 'within';
+      if (config.slaStatuses.length > 0 && !matchesSelected(statusLabel(key), config.slaStatuses)) return;
       rowsOut.push({
         id: item.id,
-        woTicket: w.woNumber ?? item.id,
+        ticketNumber: w.woNumber ?? item.id,
         machineName: w.machineName ?? '',
         machineId: w.machineId ?? '',
-        location: w.machineLocation ?? '',
-        woType: w.woType ?? '',
         department: w.machineDepartment ?? '',
-        createdAt,
-        downtimeMinutes: Math.round(downtimeMinutes),
+        severity: w.priority ?? '',
+        status: w.status ?? '',
+        slaDeadline: w.slaDeadline,
+        slaBreached: outcome === 'breached',
+        slaOutcome: outcome,
+        slaStatus: statusLabel(key),
+        reportedAt: w.createdAt ?? null,
+        resolvedAt: woDoneAt(w),
       });
     });
-    const matchesList = (value: unknown, selected: string[]) =>
-      selected.length === 0 ||
-      (value != null && selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
     return rowsOut.filter(
       (row) =>
-        matchesList(row.machineId, config.machines) &&
-        matchesList(row.department, config.departments) &&
-        matchesList(row.woType, config.woTypes),
+        matchesSelected(row.machineId, config.machines) &&
+        matchesSelected(row.department, config.departments) &&
+        matchesSelected(row.severity, config.severities),
     );
+  }
+
+  // Machine Health: the same per-machine figures as the dashboards (score
+  // computed by the server from breakdowns + PM; MTBF / MTTR over 90 days).
+  if (reportType === 'machine_health_score') {
+    const machines = await computeMachineHealth(companyId);
+    const scope = reportPlantScope;
+    return machines
+      .filter((m) => !scope || scope.machineIds.has(m.machineId))
+      .map((m) => ({ id: m.machineId, ...m }) as Record<string, unknown>)
+      .filter((row) => matchesSelected(row.id, config.machines) && matchesSelected(row.department, config.departments));
   }
 
   // Audit Trail now reads the Audit module's own completed sessions
@@ -656,7 +763,7 @@ export async function fetchReportRows(
   // Raised By, Date.
   if (reportType === 'po_history') {
     const poSnap = await scopedGetDocs(
-      query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId), limit(1000)),
+      query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId)),
     );
     const pos = poSnap.docs.map((item) => ({ id: item.id, ...item.data() }));
     const filteredPos = pos.filter((po) => {
@@ -672,7 +779,7 @@ export async function fetchReportRows(
   // hazards, unsafe acts) reported across the plant, most recent first.
   if (reportType === 'safety_incidents') {
     const snap = await scopedGetDocs(
-      query(collection(db, 'safety_cases'), where('companyId', '==', companyId), limit(1000)),
+      query(collection(db, 'safety_cases'), where('companyId', '==', companyId)),
     );
     return snap.docs
       .map((d) => d.data() as Record<string, unknown>)
@@ -700,7 +807,7 @@ export async function fetchReportRows(
   // Work Permit History — the Permit-to-Work register, most recent first.
   if (reportType === 'work_permit_history') {
     const snap = await scopedGetDocs(
-      query(collection(db, 'work_permits'), where('companyId', '==', companyId), limit(1000)),
+      query(collection(db, 'work_permits'), where('companyId', '==', companyId)),
     );
     const permitDate = (v: unknown): string => {
       const s = String(v ?? '');
@@ -751,7 +858,7 @@ export async function fetchReportRows(
     // name/type/purchased/installed/department/location/last-service/next-PM),
     // not a per-work-order history list.
     machine_history: ['machines'],
-    machine_health_score: ['machine_health'],
+    machine_health_score: [],
     maintenance_cost: ['workOrders', 'stockMovements', 'contractorJobs'],
     // technician_performance (display name: "Team Performance Report") is a
     // computed branch below — role aggregation, not a raw collection.
@@ -764,7 +871,8 @@ export async function fetchReportRows(
     // training_compliance is a computed branch below (per-person rollup of
     // trainingAssignments + traineeProgrammes) — not a raw collection dump.
     training_compliance: [],
-    sla_compliance: ['breakdown_tickets'],
+    // sla_compliance and machine_health_score are computed branches above.
+    sla_compliance: [],
     // The Shift Handovers tab lists supervisor handovers *and* completed
     // shift sessions for every other role (see HandoverHistoryPage). The
     // report used to read handovers alone, so it showed a fraction of the
@@ -793,7 +901,7 @@ export async function fetchReportRows(
   // health scores) — filtering them by createdAt against the report date range
   // hid every entity registered before the range and produced empty reports.
   // Only event-style rows participate in date filtering.
-  const snapshotSources = new Set(['machines', 'machine_health', 'inventoryParts', 'analytics_monthly']);
+  const snapshotSources = new Set(['machines', 'inventoryParts']);
   const locationOf = (data: Record<string, unknown>): string =>
     [data.floor, data.bay, data.station]
       .filter((part) => part != null && part !== '')
@@ -835,13 +943,13 @@ export async function fetchReportRows(
       const out: { id: string; data: () => Record<string, unknown> }[] = [];
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
-        const snap = await scopedGetDocs(query(collection(db, source), where('siteId', 'in', chunk), limit(1000)));
+        const snap = await scopedGetDocs(query(collection(db, source), where('siteId', 'in', chunk)));
         snap.docs.forEach((d) => out.push(d));
       }
       return out;
     };
     try {
-      const snap = await scopedGetDocs(query(collection(db, source), where('companyId', '==', companyId), limit(1000)));
+      const snap = await scopedGetDocs(query(collection(db, source), where('companyId', '==', companyId)));
       docs = snap.docs;
       // Some collections (e.g. workOrders / breakdown_tickets) are scoped by
       // siteId, and older documents may lack a companyId field — so a
@@ -865,18 +973,10 @@ export async function fetchReportRows(
         continue;
       }
     }
-    // machine_health is a pre-aggregated collection normally populated by a
-    // backend job that doesn't exist yet, so it's always empty — fall back to
-    // the same on-the-fly computation the dashboard's machine health map uses
-    // so the report isn't permanently blank.
-    if (source === 'machine_health' && docs.length === 0) {
-      const computed = await computeMachineHealth(companyId);
-      computed.forEach((entry) => rows.push({ source, row: { id: entry.machineId, ...entry } }));
-      continue;
-    }
-
     docs.forEach((item) => {
       const data = item.data();
+      // Cancelled tickets were never breakdowns — the dashboards don't count them either.
+      if (reportType === 'breakdown_summary' && isCancelledBreakdown(data)) return;
       if (reportType === 'low_stock_alert') {
         const current = Number(data.currentStock ?? data.currentQty ?? data.stockQuantity ?? 0);
         const min = Number(data.minStockLevel ?? data.reorderLevel ?? 0);
@@ -893,6 +993,18 @@ export async function fetchReportRows(
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
       const stats = (data.stats as Record<string, unknown> | undefined) ?? {};
       const row: Record<string, unknown> = { id: item.id, ...data, ...stats };
+
+      // PM Compliance: an occurrence still open past its due date is overdue
+      // (the dashboards count it as missed) even before the hourly function
+      // stamps it — show it that way, with the days it is overdue.
+      if (reportType === 'pm_compliance') {
+        const effective = getEffectivePMHistoryStatus(data);
+        row.status = effective;
+        const due = asDate(data.dueDate);
+        if (effective === 'overdue' && due && data.daysOverdue == null) {
+          row.daysOverdue = Math.max(0, Math.floor((Date.now() - due.getTime()) / 86_400_000));
+        }
+      }
 
       // Breakdown Summary: expose a single "RCA Reason" cell — the free-text
       // root-cause description when present, otherwise the readable enum.
@@ -968,7 +1080,7 @@ export async function fetchReportRows(
   if (reportType === 'shift_handover_summary' && rows.length > 0) {
     try {
       const shiftSnap = await scopedGetDocs(
-        query(collection(db, 'shift_config'), where('companyId', '==', companyId), limit(500)),
+        query(collection(db, 'shift_config'), where('companyId', '==', companyId)),
       );
       const departmentByShiftId = new Map<string, string>();
       shiftSnap.docs.forEach((item) => {
@@ -991,7 +1103,7 @@ export async function fetchReportRows(
   // something real to compare against.
   if (reportType === 'inventory_usage' && rows.length > 0) {
     const partsSnap = await scopedGetDocs(
-      query(collection(db, 'inventoryParts'), where('companyId', '==', companyId), limit(2000)),
+      query(collection(db, 'inventoryParts'), where('companyId', '==', companyId)),
     );
     const categoryByPartId = new Map<string, string>();
     partsSnap.docs.forEach((item) => {
@@ -1007,7 +1119,7 @@ export async function fetchReportRows(
     const returnableRows = rows.filter(({ row }) => row.movementType === 'issue' && row.isReturnable);
     if (returnableRows.length > 0) {
       const returnsSnap = await scopedGetDocs(
-        query(collection(db, 'partReturns'), where('companyId', '==', companyId), limit(2000)),
+        query(collection(db, 'partReturns'), where('companyId', '==', companyId)),
       );
       const returnStatusByKey = new Map<string, string>();
       returnsSnap.docs.forEach((item) => {
@@ -1043,7 +1155,7 @@ export async function fetchReportRows(
   // a refill date). See the PR description for the honest limitation.
   if (reportType === 'low_stock_alert' && rows.length > 0) {
     const poSnap = await scopedGetDocs(
-      query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId), limit(1000)),
+      query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId)),
     );
     const posByPartId = new Map<string, { status: string; raisedAtMs: number }[]>();
     poSnap.docs.forEach((item) => {
@@ -1148,17 +1260,26 @@ export async function fetchReportRows(
     );
   }
 
+  // Each record on the date that places it in a period — the dashboards'
+  // rule: a breakdown when reported, a PM occurrence when due, a stock
+  // movement when performed — on the local calendar. Records with no date
+  // can't be placed in a range and are left out (they used to be included
+  // in every range, and stock movements — dated performedAt — never filtered).
+  const rowDateOf = (source: string, row: Record<string, unknown>): unknown => {
+    if (source === 'breakdown_tickets') return row.reportedAt ?? row.createdAt;
+    if (source === 'pm_history') return row.dueDate ?? row.completedDate;
+    if (source === 'stockMovements') return row.performedAt ?? row.createdAt;
+    if (source === 'shift_sessions') return row.actualStart ?? row.createdAt;
+    return row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt ?? row.raisedAt ?? row.performedAt;
+  };
   const dateFiltered = rows
     .filter(({ source, row }) => {
       if (snapshotSources.has(source)) return true;
-      const rawDate = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt ?? row.raisedAt;
-      const rowDate = rawDate && typeof (rawDate as Timestamp).toDate === 'function'
-        ? (rawDate as Timestamp).toDate().toISOString().slice(0, 10)
-        : String(rawDate ?? '');
-      if (rowDate && /^\d{4}-\d{2}-\d{2}/.test(rowDate)) {
-        return rowDate >= config.dateFrom && rowDate <= config.dateTo;
+      const rawDate = rowDateOf(source, row);
+      if (typeof rawDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        return rawDate >= config.dateFrom && rawDate <= config.dateTo;
       }
-      return true;
+      return inReportRange(rawDate, config);
     })
     .map(({ row }) => row);
 
@@ -1174,9 +1295,9 @@ export async function fetchReportRows(
     selected.length === 0 ||
     (Array.isArray(values) && values.some((v) => selected.some((s) => s.toLowerCase() === String(v).toLowerCase())));
 
-  // machine_health_score and machine_history are both keyed by machine doc-id
-  // (one row per machine); other reports reference the machine via machineId.
-  const isMachineReport = reportType === 'machine_health_score' || reportType === 'machine_history';
+  // machine_history is keyed by machine doc-id (one row per machine); other
+  // reports reference the machine via machineId.
+  const isMachineReport = reportType === 'machine_history';
 
   const filtered = dateFiltered.filter((row) => {
     // Machine rows themselves carry the machine ID as the doc ID; other rows

@@ -7370,7 +7370,8 @@
           "poor": "Mauvaise",
           "none": "Aucune donnée"
         }
-      }
+      },
+      "incompleteData": "Certains enregistrements n'ont pas pu être chargés ({{sources}}) ; ces chiffres peuvent donc être incomplets. Actualisez la page pour réessayer."
     },
     "moe": {
       "filter": {
@@ -8835,7 +8836,9 @@
             "noShiftAssigned": "Aucune équipe assignée",
             "address": "Adresse",
             "addressPlaceholder": "ex. 123 rue Principale, Springfield",
-            "noDepartment": "Aucun service"
+            "noDepartment": "Aucun service",
+            "hourlyRate": "Taux horaire de main-d'œuvre",
+            "hourlyRatePlaceholder": "Sert à chiffrer les heures enregistrées par cette personne"
           },
           "errors": {
             "fullNameRequired": "Le nom complet est requis.",
@@ -9977,7 +9980,9 @@
           "eGWr2025001": "ex. WR-2025-001",
           "documentAnyModificationsMadeTo": "Documentez les modifications apportées à cette machine...",
           "anyOtherRelevantInformation": "Toute autre information utile...",
-          "newDepartmentName": "Nom du nouveau service"
+          "newDepartmentName": "Nom du nouveau service",
+          "healthScoreAuto": "Score de santé",
+          "healthScoreAutoHint": "Calculé automatiquement à partir des pannes et de la maintenance préventive des 90 derniers jours — il ne peut pas être saisi manuellement."
         },
         "machineHealthScore": {
           "healthScore": "Score de santé"

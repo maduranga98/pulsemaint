@@ -6,7 +6,9 @@ import {
   query,
   orderBy,
   doc,
+  getDoc,
   setDoc,
+  deleteDoc,
   updateDoc,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -98,6 +100,11 @@ interface UserFormValues {
   address: string;
   status: UserProfile['status'];
   plantId: string;
+  /**
+   * Hourly labour rate (company currency): '' = none on record; null = not
+   * loaded (or not visible to this user) — saving then leaves it untouched.
+   */
+  hourlyRate: string | null;
 }
 
 interface InviteFormValues {
@@ -246,6 +253,7 @@ function toForm(u: UserProfile): UserFormValues {
     address: u.address ?? '',
     status: u.status,
     plantId: u.plantId ?? '',
+    hourlyRate: null,
   };
 }
 
@@ -417,6 +425,23 @@ export default function UsersPage() {
       department: values.department.trim() || null,
       status: values.status === 'inactive' ? 'inactive' : 'active',
     }, { merge: true });
+    // Labour rate: its own management-only document (pay data stays off the
+    // profile, which every manager can read); the costWorkOrder function
+    // prices logged hours with it.
+    if (values.hourlyRate !== null && canEditUsers && (currentUser?.role === 'admin' || userId !== currentUser?.id)) {
+      const rateRef = doc(db, `companies/${company.id}/labourRates/${userId}`);
+      const rate = values.hourlyRate.trim() === '' ? null : Number(values.hourlyRate);
+      if (rate === null) {
+        // Cleared: no rate on record (their hours are then costed at nothing).
+        await deleteDoc(rateRef);
+      } else if (Number.isFinite(rate) && rate >= 0) {
+        await setDoc(rateRef, {
+          hourlyRate: rate,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser?.id ?? null,
+        });
+      }
+    }
     await syncShiftMembership(userId, values.fullName.trim(), values.shiftId || null);
     toast.success(t('common.settings.users.userUpdatedToast', 'User updated'));
   };
@@ -1483,6 +1508,24 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Labour rate is visible to admin / HR / plant manager, editable by admin
+  // and HR (never by HR for themselves) — matching firestore.rules.
+  const canSeeRate = me?.role === 'admin' || me?.role === 'hr_officer' || me?.role === 'plant_manager';
+  const canEditRate = !isView && (me?.role === 'admin' || (me?.role === 'hr_officer' && me?.id !== state.user.id));
+  useEffect(() => {
+    if (!canSeeRate || !state.user.companyId) return;
+    let cancelled = false;
+    getDoc(doc(db, `companies/${state.user.companyId}/labourRates/${state.user.id}`))
+      .then((snap) => {
+        const rate = snap.exists() ? snap.data().hourlyRate : null;
+        if (!cancelled) setValues((v) => ({ ...v, hourlyRate: typeof rate === 'number' ? String(rate) : '' }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [canSeeRate, state.user.companyId, state.user.id]);
+
   const set = <K extends keyof UserFormValues>(key: K, value: UserFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
 
@@ -1655,6 +1698,22 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               </select>
             </Field>
           </div>
+
+          {canSeeRate && (
+            <Field label={t('common.settings.users.modal.fields.hourlyRate', 'Labour rate (per hour)')}>
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
+                value={values.hourlyRate ?? ''}
+                onChange={(e) => set('hourlyRate', e.target.value)}
+                disabled={!canEditRate || values.hourlyRate === null}
+                placeholder={t('common.settings.users.modal.fields.hourlyRatePlaceholder', 'Used to cost this person\'s logged hours')}
+                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+              />
+            </Field>
+          )}
 
           <Field label={t('common.settings.users.modal.fields.address', 'Address')}>
             <input

@@ -114,6 +114,10 @@ const {getPublicMachine} = require("./src/machines/publicMachine");
 
 exports.getPublicMachine = getPublicMachine;
 
+const {costWorkOrder} = require("./src/workorders/costWorkOrder");
+
+exports.costWorkOrder = costWorkOrder;
+
 // ---------------------------------------------------------------------------
 // Training Module — Cloud Functions
 // ---------------------------------------------------------------------------
@@ -179,20 +183,29 @@ exports.generateScheduledReport = generateScheduledReport;
 // Analytics Module — Cloud Functions
 // ---------------------------------------------------------------------------
 
-const { generateDailyAnalytics } = require("./src/analytics/generateDailyAnalytics");
+// generateDailyAnalytics, recalculateMtbf and recalculateMttr are retired:
+// they wrote analytics_daily / machine_health figures with their own
+// definitions (UTC days, MTTR from repair start, MTBF between closures) that
+// contradicted the dashboards, and nothing reads analytics_daily any more.
+// Machine MTBF / MTTR / health now come from src/machines/machineHealth.js.
 const { generateMonthlyAnalytics } = require("./src/analytics/generateMonthlyAnalytics");
-const { updateMachineHealth } = require("./src/analytics/updateMachineHealth");
+const {
+  updateMachineHealth,
+  machineHealthOnPmHistoryWrite,
+  machineHealthOnWorkOrderWrite,
+  machineHealthOnMachineWrite,
+  recomputeMachineHealthDaily,
+} = require("./src/machines/machineHealth");
 const { updateTechnicianStatus } = require("./src/analytics/updateTechnicianStatus");
-const { recalculateMtbf } = require("./src/analytics/recalculateMtbf");
-const { recalculateMttr } = require("./src/analytics/recalculateMttr");
 const { metricsDaily } = require("./src/analytics/metricsDaily");
 
-exports.generateDailyAnalytics = generateDailyAnalytics;
 exports.generateMonthlyAnalytics = generateMonthlyAnalytics;
 exports.updateMachineHealth = updateMachineHealth;
+exports.machineHealthOnPmHistoryWrite = machineHealthOnPmHistoryWrite;
+exports.machineHealthOnWorkOrderWrite = machineHealthOnWorkOrderWrite;
+exports.machineHealthOnMachineWrite = machineHealthOnMachineWrite;
+exports.recomputeMachineHealthDaily = recomputeMachineHealthDaily;
 exports.updateTechnicianStatus = updateTechnicianStatus;
-exports.recalculateMtbf = recalculateMtbf;
-exports.recalculateMttr = recalculateMttr;
 exports.metricsDaily = metricsDaily;
 
 // ---------------------------------------------------------------------------
