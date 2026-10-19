@@ -123,9 +123,9 @@ export interface LeadActivity {
   spokenLanguage?: string | null;
 }
 
-/** Display form of a lead number, e.g. 7 → "L-0007". */
+/** Display form of a lead number: just the running number, e.g. 7 → "7". */
 export function formatLeadNumber(n: number | null | undefined): string {
-  return typeof n === 'number' && n > 0 ? `L-${String(n).padStart(4, '0')}` : '';
+  return typeof n === 'number' && n > 0 ? String(n) : '';
 }
 
 export function emptyLead(now = Date.now()): LeadInput {

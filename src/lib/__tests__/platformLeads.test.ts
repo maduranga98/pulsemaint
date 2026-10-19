@@ -230,10 +230,10 @@ describe('trial tracking', () => {
 });
 
 describe('formatLeadNumber', () => {
-  it('pads the running number and hides a missing one', async () => {
+  it('shows the running number as is and hides a missing one', async () => {
     const { formatLeadNumber } = await import('../platform/leads');
-    expect(formatLeadNumber(7)).toBe('L-0007');
-    expect(formatLeadNumber(12345)).toBe('L-12345');
+    expect(formatLeadNumber(7)).toBe('7');
+    expect(formatLeadNumber(12345)).toBe('12345');
     expect(formatLeadNumber(null)).toBe('');
   });
 });
