@@ -14,6 +14,7 @@ import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields
 import type { WOType } from '../../types/workOrder';
 import { MachineSparePartsPanel } from '../../components/machines/MachineSparePartsPanel';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
+import { OutsourcedMaintenanceSection } from '../../components/machines/OutsourcedMaintenanceSection';
 import { MachineAssetCard } from '../../components/machines/MachineAssetCard';
 import { ScrapMachineDialog } from '../../components/machines/ScrapMachineDialog';
 import { SCRAP_REASON_LABEL } from '../../lib/machineAsset';
@@ -289,7 +290,7 @@ export function MachineProfilePage() {
         {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} showAsset={canManageAsset} siteId={machine.siteId} />}
         {activeTab === 'documents' && <DocumentsTab machine={machine} />}
         {activeTab === 'history' && <HistoryTab machine={machine} />}
-        {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
+        {activeTab === 'maintenance' && <MaintenanceTab machine={machine} showOutsourced={canEditMachine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
       </div>
     </div>
@@ -469,10 +470,13 @@ function HistoryTab({ machine }: any) {
   );
 }
 
-function MaintenanceTab({ machine }: any) {
+function MaintenanceTab({ machine, showOutsourced }: any) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
+    <div>
+      {showOutsourced && <OutsourcedMaintenanceSection machineId={machine.id} siteId={machine.siteId} />}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
+      </div>
     </div>
   );
 }
