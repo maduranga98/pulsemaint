@@ -258,7 +258,7 @@ export function MachineProfilePage() {
       </div>
 
       {showScrap && (
-        <ScrapMachineDialog machine={machine} userName={userProfile.fullName ?? ''} userId={userProfile.id} onClose={() => setShowScrap(false)} />
+        <ScrapMachineDialog machine={machine} userName={userProfile.fullName ?? ''} userId={userProfile.id} companyId={userProfile.companyId} onClose={() => setShowScrap(false)} />
       )}
 
       {/* Tabs */}

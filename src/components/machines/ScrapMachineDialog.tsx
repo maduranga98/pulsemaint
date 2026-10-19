@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { doc, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, serverTimestamp, Timestamp, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { db } from '../../lib/firebase';
 import { getCompanyCurrency } from '@/lib/currency';
@@ -9,8 +9,8 @@ import type { Machine } from '../../types/machine';
 const field = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none';
 
 /** Records that a machine was scrapped (or sold for scrap). The machine and its history stay on record. */
-export function ScrapMachineDialog({ machine, userName, userId, onClose }: {
-  machine: Machine; userName: string; userId: string; onClose: () => void;
+export function ScrapMachineDialog({ machine, userName, userId, companyId, onClose }: {
+  machine: Machine; userName: string; userId: string; companyId: string; onClose: () => void;
 }) {
   const currency = getCompanyCurrency();
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -36,7 +36,17 @@ export function ScrapMachineDialog({ machine, userName, userId, onClose }: {
         },
         updatedAt: serverTimestamp(),
       });
-      toast.success(`${machine.name} marked as scrapped.`);
+      // A scrapped machine has nothing left to service: pause its active PM schedules (best effort).
+      let paused = 0;
+      try {
+        const snap = await getDocs(query(collection(db, 'pm_schedules'),
+          where('companyId', '==', companyId), where('machineId', '==', machine.id), where('status', '==', 'active')));
+        const batch = writeBatch(db);
+        snap.docs.forEach((d) => batch.update(d.ref, { status: 'paused', updatedAt: serverTimestamp() }));
+        if (!snap.empty) await batch.commit();
+        paused = snap.size;
+      } catch { /* the machine is scrapped either way; schedules can be paused by hand */ }
+      toast.success(`${machine.name} marked as scrapped.${paused ? ` ${paused} PM schedule(s) paused.` : ''}`);
       onClose();
     } catch (e) {
       toast.error((e as Error).message || 'Could not scrap the machine.');
@@ -50,7 +60,7 @@ export function ScrapMachineDialog({ machine, userName, userId, onClose }: {
       <div className="w-full max-w-md space-y-4 rounded-xl bg-white p-5 shadow-xl">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Scrap {machine.name}</h2>
-          <p className="mt-1 text-sm text-gray-600">The machine moves to the bottom of the list marked <b className="text-rose-700">Scrapped</b>. Its history is kept.</p>
+          <p className="mt-1 text-sm text-gray-600">The machine moves to the bottom of the list marked <b className="text-rose-700">Scrapped</b>. Its history is kept and its active PM schedules are paused.</p>
         </div>
         <label className="block text-sm"><span className="mb-1 block font-medium text-gray-700">Scrap date</span>
           <input type="date" className={field} value={date} onChange={(e) => setDate(e.target.value)} /></label>
