@@ -3607,7 +3607,7 @@
         "active": "Active",
         "under_maintenance": "Under Maintenance",
         "decommissioned": "Decommissioned",
-      "scrapped": "Scrapped"
+        "scrapped": "Scrapped"
       },
       "criticalityLabels": {
         "1": "Low",
@@ -3673,7 +3673,7 @@
           "active": "Active",
           "under_maintenance": "Under Maintenance",
           "decommissioned": "Decommissioned",
-        "scrapped": "Scrapped"
+          "scrapped": "Scrapped"
         },
         "criticalityOptions": {
           "5": "5 - Mission Critical",
@@ -10745,6 +10745,34 @@
               "Use the download or print option to save it as an image or PDF, or print it directly to attach to the machine.",
               "Scanning that QR code later opens the machine straight to this profile."
             ]
+          },
+          {
+            "title": "Record a machine's purchase price and see its value",
+            "steps": [
+              "Open Machines and use Add Machine (or Edit on an existing machine). Admins and plant managers see Purchase price and Expected scrap value next to the purchase date and expected lifespan.",
+              "Enter the purchase price and the value you expect when the machine is scrapped. Amounts are in your company currency.",
+              "Open the machine and look at Overview: the Asset value card shows annual depreciation, depreciation so far and the current value, worked out in a straight line over the expected lifespan.",
+              "Adding many machines? Download the CSV template from Import — it has expected_lifespan_years, purchase_price and scrap_value columns.",
+              "The card also adds up what has been spent on maintenance and warns you when repairing costs more than the machine is worth."
+            ]
+          },
+          {
+            "title": "Scrap a machine",
+            "steps": [
+              "Open the machine and choose More → Scrap machine… (admins and plant managers).",
+              "Pick the date and the reason, enter what the scrap or sale brought in and who approved it, then confirm.",
+              "The machine is marked Scrapped (rose) and moves to the bottom of the Machines list. Its history stays, and its PM schedules are archived.",
+              "It no longer shows up when you create work orders, breakdown reports or PM schedules, and it stops counting towards your plan's machine limit.",
+              "Scrapped by mistake? Open the machine and choose Undo scrap — the machine and its archived PM schedules come back."
+            ]
+          },
+          {
+            "title": "Take the guided tour of a machine page",
+            "steps": [
+              "Open any machine and press Page tour next to its status.",
+              "A card points to the status, health and service information, the Maintenance tab, the More menu and (for admins and plant managers) the Asset value card.",
+              "Use Next and Previous to move along, or Skip tour to stop. You can start it again any time."
+            ]
           }
         ]
       },
@@ -10796,6 +10824,17 @@
               "They record parts used, notes, and any media (photos) as they go.",
               "Once finished, they submit it for sign-off.",
               "A supervisor or above reviews the completed checklist and sign-off details, then closes the work order."
+            ]
+          },
+          {
+            "title": "Record work done by an outside contractor",
+            "steps": [
+              "Create a work order and choose the Contractor type (it needs the Contractors module on your plan).",
+              "On the team step, pick the contractor company.",
+              "Under Outsourced work details (optional), fill in the type of work, the dates and what was done.",
+              "Add each part that was replaced or added with its quantity and unit price, then the labour or service charge. The total is worked out for you.",
+              "Enter the invoice number and attach the invoice (PDF or photo).",
+              "Create the work order. The details are saved to the machine's Maintenance tab, where the costs, parts and invoice links stay on record."
             ]
           }
         ]

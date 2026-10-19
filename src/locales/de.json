@@ -10644,6 +10644,34 @@
               "Nutzen Sie die Download- oder Druckoption, um ihn als Bild oder PDF zu speichern, oder drucken Sie ihn direkt aus, um ihn an der Maschine anzubringen.",
               "Das spätere Scannen dieses QR-Codes öffnet direkt dieses Profil."
             ]
+          },
+          {
+            "title": "Kaufpreis einer Maschine erfassen und ihren Wert sehen",
+            "steps": [
+              "Öffnen Sie Maschinen und nutzen Sie Maschine hinzufügen (oder Bearbeiten bei einer vorhandenen). Admins und Werksleiter sehen Kaufpreis und Erwarteter Schrottwert neben Kaufdatum und erwarteter Lebensdauer.",
+              "Geben Sie den Kaufpreis und den erwarteten Wert bei der Verschrottung ein. Beträge sind in Ihrer Firmenwährung.",
+              "Öffnen Sie die Maschine und sehen Sie Übersicht: Die Karte Anlagenwert zeigt jährliche Abschreibung, bisherige Abschreibung und den aktuellen Wert, linear über die erwartete Lebensdauer berechnet.",
+              "Viele Maschinen auf einmal? Laden Sie unter Import die CSV-Vorlage herunter – sie enthält die Spalten expected_lifespan_years, purchase_price und scrap_value.",
+              "Die Karte addiert auch die Instandhaltungskosten und warnt, wenn die Reparatur mehr kostet, als die Maschine wert ist."
+            ]
+          },
+          {
+            "title": "Eine Maschine verschrotten",
+            "steps": [
+              "Öffnen Sie die Maschine und wählen Sie Mehr → Maschine verschrotten… (Admins und Werksleiter).",
+              "Wählen Sie Datum und Grund, tragen Sie ein, was Schrott oder Verkauf eingebracht haben und wer es genehmigt hat, und bestätigen Sie.",
+              "Die Maschine wird als Verschrottet (rosa) markiert und rutscht ans Ende der Maschinenliste. Ihr Verlauf bleibt erhalten, ihre PM-Pläne werden archiviert.",
+              "Sie erscheint nicht mehr bei Arbeitsaufträgen, Störungsmeldungen oder PM-Plänen und zählt nicht mehr zum Maschinenlimit Ihres Tarifs.",
+              "Versehentlich verschrottet? Öffnen Sie die Maschine und wählen Sie Verschrottung rückgängig – die Maschine und ihre archivierten PM-Pläne kommen zurück."
+            ]
+          },
+          {
+            "title": "Die geführte Tour einer Maschinenseite starten",
+            "steps": [
+              "Öffnen Sie eine Maschine und drücken Sie neben dem Status auf Seitentour.",
+              "Eine Karte zeigt auf Status, Zustand und Wartung, den Tab Instandhaltung, das Menü Mehr und (für Admins und Werksleiter) die Karte Anlagenwert.",
+              "Mit Weiter und Zurück gehen Sie voran, mit Tour überspringen beenden Sie sie. Sie können sie jederzeit neu starten."
+            ]
           }
         ]
       },
@@ -10695,6 +10723,17 @@
               "Er erfasst dabei verwendete Teile, Notizen und etwaige Medien (Fotos).",
               "Nach Abschluss reicht er ihn zur Abzeichnung ein.",
               "Ein Vorgesetzter oder höher prüft die abgeschlossene Checkliste und die Abzeichnungsdetails und schließt den Arbeitsauftrag."
+            ]
+          },
+          {
+            "title": "Von einem externen Auftragnehmer ausgeführte Arbeit erfassen",
+            "steps": [
+              "Erstellen Sie einen Arbeitsauftrag und wählen Sie den Typ Auftragnehmer (das Modul Auftragnehmer muss in Ihrem Tarif enthalten sein).",
+              "Wählen Sie im Schritt Team die Auftragnehmer-Firma.",
+              "Unter Details zur Fremdvergabe (optional) tragen Sie Art der Arbeit, Daten und das Ausgeführte ein.",
+              "Fügen Sie jedes ersetzte oder hinzugefügte Teil mit Menge und Stückpreis hinzu, danach Arbeits- oder Servicekosten. Die Summe wird berechnet.",
+              "Tragen Sie die Rechnungsnummer ein und hängen Sie die Rechnung an (PDF oder Foto).",
+              "Erstellen Sie den Arbeitsauftrag. Die Angaben werden im Tab Instandhaltung der Maschine gespeichert, wo Kosten, Teile und Rechnungslinks erhalten bleiben."
             ]
           }
         ]

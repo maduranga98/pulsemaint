@@ -10644,6 +10644,34 @@
               "Utilisez l'option de téléchargement ou d'impression pour l'enregistrer en image ou en PDF, ou imprimez-le directement pour le fixer sur la machine.",
               "Scanner ce code QR plus tard ouvre directement ce profil."
             ]
+          },
+          {
+            "title": "Enregistrer le prix d'achat d'une machine et voir sa valeur",
+            "steps": [
+              "Ouvrez Machines et utilisez Ajouter une machine (ou Modifier sur une machine existante). Les admins et responsables d'usine voient Prix d'achat et Valeur de rebut attendue à côté de la date d'achat et de la durée de vie prévue.",
+              "Saisissez le prix d'achat et la valeur attendue à la mise au rebut. Les montants sont dans la devise de votre entreprise.",
+              "Ouvrez la machine et regardez Aperçu : la carte Valeur de l'actif affiche l'amortissement annuel, l'amortissement cumulé et la valeur actuelle, calculés de façon linéaire sur la durée de vie prévue.",
+              "Beaucoup de machines à ajouter ? Téléchargez le modèle CSV depuis Importer : il contient les colonnes expected_lifespan_years, purchase_price et scrap_value.",
+              "La carte additionne aussi ce qui a été dépensé en maintenance et vous prévient quand réparer coûte plus que la machine ne vaut."
+            ]
+          },
+          {
+            "title": "Mettre une machine au rebut",
+            "steps": [
+              "Ouvrez la machine et choisissez Plus → Mettre au rebut… (admins et responsables d'usine).",
+              "Choisissez la date et le motif, saisissez ce que la mise au rebut ou la vente a rapporté et qui l'a approuvée, puis confirmez.",
+              "La machine est marquée Mise au rebut (rose) et passe en bas de la liste des machines. Son historique est conservé et ses plannings de MP sont archivés.",
+              "Elle n'apparaît plus lors de la création d'ordres de travail, de rapports de panne ou de plannings de MP, et ne compte plus dans la limite de machines de votre forfait.",
+              "Mise au rebut par erreur ? Ouvrez la machine et choisissez Annuler la mise au rebut : la machine et ses plannings de MP archivés reviennent."
+            ]
+          },
+          {
+            "title": "Faire la visite guidée d'une page machine",
+            "steps": [
+              "Ouvrez une machine et appuyez sur Visite de la page à côté de son statut.",
+              "Une carte désigne le statut, la santé et l'entretien, l'onglet Maintenance, le menu Plus et (pour les admins et responsables d'usine) la carte Valeur de l'actif.",
+              "Utilisez Suivant et Précédent pour avancer, ou Passer la visite pour arrêter. Vous pouvez la relancer à tout moment."
+            ]
           }
         ]
       },
@@ -10695,6 +10723,17 @@
               "Il note les pièces utilisées, les remarques et tout média (photos) au fur et à mesure.",
               "Une fois terminé, il le soumet pour signature.",
               "Un superviseur ou un niveau supérieur examine la liste de contrôle complétée et les détails de la signature, puis clôture l'ordre de travail."
+            ]
+          },
+          {
+            "title": "Enregistrer un travail fait par un sous-traitant externe",
+            "steps": [
+              "Créez un ordre de travail et choisissez le type Sous-traitant (il faut le module Sous-traitants dans votre forfait).",
+              "À l'étape de l'équipe, choisissez l'entreprise sous-traitante.",
+              "Sous Détails du travail sous-traité (facultatif), renseignez le type de travail, les dates et ce qui a été fait.",
+              "Ajoutez chaque pièce remplacée ou ajoutée avec sa quantité et son prix unitaire, puis la main-d'œuvre ou le service. Le total est calculé pour vous.",
+              "Saisissez le numéro de facture et joignez la facture (PDF ou photo).",
+              "Créez l'ordre de travail. Les détails sont enregistrés dans l'onglet Maintenance de la machine, où les coûts, pièces et liens de factures restent conservés."
             ]
           }
         ]

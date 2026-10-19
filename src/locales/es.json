@@ -10644,6 +10644,34 @@
               "Usa la opción de descarga o impresión para guardarlo como imagen o PDF, o imprímelo directamente para pegarlo en la máquina.",
               "Escanear ese código QR más tarde abre directamente este perfil."
             ]
+          },
+          {
+            "title": "Registre el precio de compra de una máquina y vea su valor",
+            "steps": [
+              "Abra Máquinas y use Añadir máquina (o Editar en una existente). Los administradores y gerentes de planta ven Precio de compra y Valor de desecho esperado junto a la fecha de compra y la vida útil esperada.",
+              "Ingrese el precio de compra y el valor que espera al desechar la máquina. Los importes están en la moneda de su empresa.",
+              "Abra la máquina y vea Resumen: la tarjeta Valor del activo muestra la depreciación anual, la acumulada y el valor actual, calculados de forma lineal durante la vida útil esperada.",
+              "¿Va a añadir muchas máquinas? Descargue la plantilla CSV desde Importar: tiene las columnas expected_lifespan_years, purchase_price y scrap_value.",
+              "La tarjeta también suma lo gastado en mantenimiento y avisa cuando reparar cuesta más de lo que vale la máquina."
+            ]
+          },
+          {
+            "title": "Desechar una máquina",
+            "steps": [
+              "Abra la máquina y elija Más → Desechar máquina… (administradores y gerentes de planta).",
+              "Elija la fecha y el motivo, ingrese lo que aportó el desecho o la venta y quién lo aprobó, y confirme.",
+              "La máquina se marca como Desechada (rosa) y pasa al final de la lista de Máquinas. Su historial se conserva y sus programas de MP se archivan.",
+              "Ya no aparece al crear órdenes de trabajo, reportes de avería ni programas de MP, y deja de contar para el límite de máquinas de su plan.",
+              "¿La desechó por error? Abra la máquina y elija Deshacer desecho: la máquina y sus programas de MP archivados vuelven."
+            ]
+          },
+          {
+            "title": "Haga el recorrido guiado de una página de máquina",
+            "steps": [
+              "Abra cualquier máquina y pulse Recorrido de la página junto a su estado.",
+              "Una tarjeta señala el estado, la salud y el servicio, la pestaña Mantenimiento, el menú Más y (para administradores y gerentes de planta) la tarjeta Valor del activo.",
+              "Use Siguiente y Anterior para avanzar u Omitir recorrido para detenerlo. Puede iniciarlo de nuevo cuando quiera."
+            ]
           }
         ]
       },
@@ -10695,6 +10723,17 @@
               "Registra los repuestos usados, notas y cualquier medio (fotos) sobre la marcha.",
               "Al terminar, la envía para firma.",
               "Un supervisor o superior revisa la lista completada y los detalles de la firma, y cierra la orden de trabajo."
+            ]
+          },
+          {
+            "title": "Registre el trabajo hecho por un contratista externo",
+            "steps": [
+              "Cree una orden de trabajo y elija el tipo Contratista (requiere el módulo Contratistas en su plan).",
+              "En el paso del equipo, elija la empresa contratista.",
+              "En Detalles del trabajo subcontratado (opcional), complete el tipo de trabajo, las fechas y lo que se hizo.",
+              "Añada cada repuesto reemplazado o añadido con su cantidad y precio unitario, y luego la mano de obra o el servicio. El total se calcula solo.",
+              "Ingrese el número de factura y adjunte la factura (PDF o foto).",
+              "Cree la orden de trabajo. Los detalles se guardan en la pestaña Mantenimiento de la máquina, donde quedan registrados los costos, repuestos y enlaces a las facturas."
             ]
           }
         ]
