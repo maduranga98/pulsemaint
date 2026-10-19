@@ -16,6 +16,9 @@ interface TourApi {
   running: boolean;
 }
 
+/** Tours already opened automatically in this page session — keeps a browser that blocks localStorage from showing one again and again. */
+const autoStarted = new Set<string>();
+
 const TourContext = createContext<TourApi>({ start: () => false, startOnce: () => false, running: false });
 export const useTour = () => useContext(TourContext);
 
@@ -60,8 +63,10 @@ export function TourProvider({ children }: { children: ReactNode }) {
   }, [begin, t]);
 
   const startOnce = useCallback((tour: TourId, minSteps = 3) => {
-    if (!userId || run || readTourOutcome(userId, tour)) return false;
-    return begin(tour, minSteps);
+    if (!userId || run || autoStarted.has(`${userId}:${tour}`) || readTourOutcome(userId, tour)) return false;
+    const started = begin(tour, minSteps);
+    if (started) autoStarted.add(`${userId}:${tour}`);
+    return started;
   }, [begin, run, userId]);
 
   const finish = useCallback((outcome: 'completed' | 'dismissed') => {
