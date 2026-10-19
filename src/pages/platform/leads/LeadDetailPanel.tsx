@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 import { countryLabel } from '@/lib/countries';
 import {
   Archive, ArchiveRestore, Bug, Building2, CalendarClock, Globe, History, Mail, MapPin, MessageCircle, Pencil, Phone, PhoneCall,
-  ListTodo, StickyNote, Trash2, Wallet, X,
+  FlaskConical, ListTodo, StickyNote, Trash2, Wallet, X,
 } from 'lucide-react';
 import {
-  CALL_OUTCOMES, CALL_OUTCOME_LABEL, LEAD_STATUSES, LEAD_STATUS_LABEL, activityOutcomeLabel, activityTypeLabel, fmtAmount, websiteUrl, whatsappNumber,
+  CALL_OUTCOMES, CALL_OUTCOME_LABEL, LEAD_STATUSES, LEAD_STATUS_LABEL, activityOutcomeLabel, activityTypeLabel, fmtAmount, trialDay, TRIAL_DAYS, websiteUrl, whatsappNumber,
   type CallOutcome, type Lead, type LeadActivity, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
 import {
   addLeadNote, bookDemo, clearNextCall, createFeatureRequest, deleteLead, logCall, markDemoDone, setArchived, setLeadStatus,
-  subscribeLeadActivities,
+  setTrialStarted, subscribeLeadActivities,
 } from '@/services/platformLeadsService';
 import { ErrorNote, btn, fmtDateTime, input } from '../platformUi';
 import { StatusPill, TagChip, fromLocalInput, toLocalInput, whenLabel } from './leadUi';
@@ -69,7 +69,7 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
   }
 
   const member = (id: string | null) => team.find((m) => m.id === id);
-  const wa = whatsappNumber(lead.phone);
+  const wa = whatsappNumber(lead.whatsapp || lead.phone);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -112,11 +112,11 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
 
           {/* Contact */}
           <div className="space-y-2 text-sm">
-            {lead.phone && (
+            {(lead.phone || lead.whatsapp) && (
               <div className="flex flex-wrap items-center gap-2">
-                <Phone className="h-4 w-4 text-slate-500" /><span className="text-white">{lead.phone}</span>
-                <a href={`tel:${lead.phone.replace(/\s/g, '')}`} className="rounded border border-slate-600 px-2 py-0.5 text-xs text-slate-200 hover:bg-slate-800">Call</a>
-                {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-emerald-700/60 px-2 py-0.5 text-xs text-emerald-300 hover:bg-emerald-900/30"><MessageCircle className="h-3 w-3" /> WhatsApp</a>}
+                <Phone className="h-4 w-4 text-slate-500" /><span className="text-white">{lead.phone || lead.whatsapp}</span>
+                <a href={`tel:${(lead.phone || lead.whatsapp).replace(/\s/g, '')}`} className="rounded border border-slate-600 px-2 py-0.5 text-xs text-slate-200 hover:bg-slate-800">Call</a>
+                {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-emerald-700/60 px-2 py-0.5 text-xs text-emerald-300 hover:bg-emerald-900/30"><MessageCircle className="h-3 w-3" /> WhatsApp{lead.whatsapp && lead.whatsapp !== lead.phone ? ` ${lead.whatsapp}` : ''}</a>}
               </div>
             )}
             {lead.email && <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-500" /><a href={`mailto:${lead.email}`} className="text-blue-300!">{lead.email}</a></p>}
@@ -146,6 +146,24 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
               {lead.createdByEmail && <> · Added by {lead.createdByEmail}</>}
             </p>
           </div>
+
+          {/* Free trial: asked for vs actually using */}
+          {(lead.status === 'trial_requested' || lead.trialStartedAt) && (
+            <div className="rounded-lg border border-orange-800/50 bg-orange-950/20 p-3">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-orange-300"><FlaskConical className="h-3.5 w-3.5" /> Free trial</p>
+              {lead.trialStartedAt ? (
+                <>
+                  <p className="mt-1 text-sm text-white">Using the trial since {fmtDateTime(lead.trialStartedAt)} <span className="text-xs text-slate-400">· day {trialDay(lead)} of {TRIAL_DAYS}</span></p>
+                  <button className="mt-1 text-xs text-slate-400 hover:text-white" disabled={busy} onClick={() => void run(() => setTrialStarted(lead, false))}>Not using it after all</button>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 text-sm text-slate-300">Asked for a trial — hasn't started using it yet.</p>
+                  <button className={`${btn.primary} mt-2`} disabled={busy} onClick={() => void run(() => setTrialStarted(lead, true))}>They started the trial</button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Next call + demo summary */}
           <div className="grid gap-3 sm:grid-cols-2">

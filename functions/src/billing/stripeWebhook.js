@@ -6,7 +6,7 @@ const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer
 const { recordPortalCancellation } = require("./cancellations");
 
 const APP_URL = "https://app.firmicore.com";
-const PLAN_NAMES = { starter: "Basic", workshop: "Workshop", factory: "Factory Pro", enterprise: "Enterprise" };
+const PLAN_NAMES = { starter: "Starter", workshop: "Growth", factory: "Factory", enterprise: "Enterprise" }; // same names as the pricing page / app
 
 /** End of the period an invoice pays for = the next automatic renewal date. */
 function invoicePaidThrough(invoice) {

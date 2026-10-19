@@ -10,6 +10,8 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { useAuthStore } from '../store/authStore';
+import { checkCanCreate } from '../hooks/usePlanLimitCheck';
 import { getNextCategoryPartNumber } from '../lib/inventory/partNumberGenerator';
 import type { SparePartEntry } from '../lib/machineSpareParts';
 
@@ -29,6 +31,13 @@ interface SyncArgs {
  *  - parts that were linked but are no longer listed are unlinked (never deleted).
  */
 export async function syncMachineSpareParts({ companyId, plantId, machineId, entries, user }: SyncArgs): Promise<void> {
+  // New rows become inventory parts, so they count against the plan's inventory limit.
+  const newRows = entries.filter((e) => !e.partId).length;
+  if (newRows > 0) {
+    const limitMessage = await checkCanCreate('inventoryItems', useAuthStore.getState().company, companyId, newRows);
+    if (limitMessage) throw new Error(limitMessage);
+  }
+
   const snap = await getDocs(query(collection(db, 'inventoryParts'), where('companyId', '==', companyId)));
   const linkedNow = new Set<string>();
   snap.forEach((d) => {

@@ -47,7 +47,7 @@ export function PlantTabs() {
   ];
 
   return (
-    <div className="shrink-0 border-b border-[#1E3A5F] bg-[#0B172A] px-4 py-2.5 lg:px-6">
+    <div data-tour="plant-tabs" className="shrink-0 border-b border-[#1E3A5F] bg-[#0B172A] px-4 py-2.5 lg:px-6">
       <div className="flex items-center gap-3">
         <span className="hidden shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#6C87A6] sm:flex">
           <Building2 className="h-3.5 w-3.5" />

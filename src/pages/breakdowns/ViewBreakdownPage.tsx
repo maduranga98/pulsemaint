@@ -15,6 +15,7 @@ import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 import { notifyUsers } from '../../services/notifications.service';
 import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
 import { getBreakdownsHomeRoute } from '../../lib/auth';
+import { fetchBusyTechnicians } from '../../services/technicianAvailability.service';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
@@ -39,6 +40,7 @@ export default function ViewBreakdownPage() {
   const [signOffWO, setSignOffWO] = useState<WorkOrder | null>(null);
 
   const role = userProfile?.role ?? '';
+  const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
   const isSupervisorRole = CAN_ASSIGN_ROLES.includes(role);
   const canAttend = CAN_ATTEND_ROLES.includes(role);
 
@@ -139,6 +141,8 @@ export default function ViewBreakdownPage() {
       await updateDoc(doc(db, 'breakdown_tickets', id), {
         status: 'closed',
         closedAt: Timestamp.now(),
+        closedBy: userProfile.id,
+        closedByName: userProfile.fullName,
         statusHistory: arrayUnion({
           status: 'closed',
           changedBy: userProfile.id,
@@ -200,6 +204,13 @@ export default function ViewBreakdownPage() {
     if (!id || !userProfile) return;
     setAttendBusy(true);
     try {
+      // One job at a time: still on another breakdown or work order means
+      // submitting that first.
+      const busy = (await fetchBusyTechnicians({ siteId: siteId ?? '', selfId: userProfile.id, allowMachineId: breakdown?.machineId })).get(userProfile.id);
+      if (busy) {
+        setError(t('common.breakdowns.selfAttendBusy', { ref: busy.ref, machine: busy.machineName ?? '' }));
+        return;
+      }
       await updateDoc(doc(db, 'breakdown_tickets', id), {
         assignedTechnicianIds: [userProfile.id],
         assignedTechnicianNames: [userProfile.fullName],
@@ -341,7 +352,8 @@ export default function ViewBreakdownPage() {
                 {t('common.breakdowns.viewPage.fillReport')}
               </Link>
             )}
-            {isSupervisorRole && b.status !== 'reported' && !b.linkedWOId && (
+            {isSupervisorRole && b.status !== 'reported' && !b.linkedWOId && !b.completedWithoutWO
+              && !['resolved', 'closed', 'cancelled'].includes(b.status) && (
               <button
                 type="button"
                 onClick={handleCreateWorkOrder}
@@ -358,7 +370,7 @@ export default function ViewBreakdownPage() {
                 className="px-4 py-2 border border-emerald-200 bg-emerald-50 text-emerald-700 font-medium rounded-lg hover:bg-emerald-100 text-sm"
               >
                 <CheckCircle className="w-4 h-4 inline mr-1" />
-                {t('common.breakdowns.viewPage.closeBreakdown')}
+                {b.completedWithoutWO ? t('common.breakdowns.actions.signOffClose') : t('common.breakdowns.viewPage.closeBreakdown')}
               </button>
             )}
           </div>
@@ -384,6 +396,8 @@ export default function ViewBreakdownPage() {
       {showAssignModal && userProfile && (
         <AssignTechnicianModal
           companyId={userProfile.companyId}
+          siteId={siteId}
+          allowMachineId={breakdown?.machineId}
           assigning={assignBusy}
           onClose={() => setShowAssignModal(false)}
           onAssign={handleAssign}

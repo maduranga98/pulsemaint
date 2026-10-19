@@ -1,5 +1,6 @@
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
-const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const {sendNotification} = require("../lib/notify");
+const {getFirestore} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
 const db = getFirestore("default");
@@ -16,14 +17,15 @@ exports.onOffboardTrainingAssigned = onDocumentCreated(
     if (!companyId) return;
 
     try {
-      await db.collection("companies").doc(companyId).collection("notificationLogs").add({
-        type: "offboard_training_assigned",
-        title: "Offboard training assigned",
-        body: `${assignment.traineeName || "An employee"} has been assigned "${assignment.moduleName || "an offboard training"}".`,
-        assignmentId: event.params.assignmentId,
-        targetUserIds: [assignment.traineeId].filter(Boolean),
-        targetRoles: ["hr_officer"],
-        createdAt: FieldValue.serverTimestamp(),
+      await sendNotification(db, {
+        companyId,
+        type: "training",
+        message: `You have been assigned "${assignment.moduleName || "an offboard training"}"`,
+        oversightMessage: `${assignment.traineeName || "An employee"} has been assigned "${assignment.moduleName || "an offboard training"}"`,
+        linkTo: "/app/training",
+        roles: ["hr_officer"],
+        userIds: [assignment.traineeId],
+        dedupeKey: `offboard-assigned:${event.params.assignmentId}`,
       });
     } catch (err) {
       logger.error("onOffboardTrainingAssigned failed", {error: err.message, assignmentId: event.params.assignmentId});

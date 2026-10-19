@@ -4,7 +4,7 @@ const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { Anthropic } = require("@anthropic-ai/sdk");
 const { consumeAiQuota } = require("./aiUsageLimit");
-const { companyHasFeature } = require("../lib/planFeatures");
+const { companyHasFeature, companyAiCredits } = require("../lib/planFeatures");
 
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
@@ -94,14 +94,15 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
   if (!userSnap.exists) throw new HttpsError("permission-denied", "No app profile for this user");
   if (userSnap.get("status") === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated");
 
-  // AI suggestions and translation are part of Workshop and above (a running
-  // trial unlocks them).
+  // AI suggestions and translation are on every plan, capped by the plan's
+  // monthly AI credits (a running trial follows Starter's credits).
   if (!(await companyHasFeature(userSnap.get("companyId"), "aiAssist"))) {
     throw new HttpsError("permission-denied", "AI suggestions are not included in your plan. Upgrade to use them.");
   }
 
   // Per-user (hourly) and per-company (daily) caps — see aiUsageLimit.js.
-  await consumeAiQuota(db, {uid: request.auth.uid, companyId: userSnap.get("companyId")});
+  const companyId = userSnap.get("companyId");
+  await consumeAiQuota(db, {uid: request.auth.uid, companyId}, new Date(), await companyAiCredits(companyId));
 
   let fullPrompt = prompt;
   if (machineId) {

@@ -29,7 +29,7 @@ function Heading({ title, note }: { title: string; note?: string }) {
 export function PlanLimitsTable() {
   return (
     <section>
-      <Heading title="Plan limits" note="Counts apply to the whole company. File storage is not limited on any plan." />
+      <Heading title="Plan limits" note="Counts apply to the whole company. Light users are floor operators and trainees. File storage is not limited on any plan." />
       <div className={BOX}>
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
@@ -60,7 +60,7 @@ export function PlanLimitsTable() {
                 <td className={`${TD} text-slate-400`}>{row.label}</td>
                 {PLAN_ORDER.map((p) => (
                   <td key={p} className={TD}>
-                    {p === 'enterprise' ? 'Custom' : formatLimit(PLAN_LIMITS[p][row.key], row.perMonth)}
+                    {p === 'enterprise' ? 'Custom' : formatLimit(PLAN_LIMITS[p][row.key], row.perMonth, row.months)}
                   </td>
                 ))}
               </tr>
@@ -155,7 +155,7 @@ export function EnterprisePlansTable() {
               <tr key={row.key} className="border-b border-[#1E3A5F]/60 last:border-0">
                 <td className={`${TD} text-slate-400`}>{row.label}</td>
                 {ENTERPRISE_PLANS.map((e) => (
-                  <td key={e.id} className={TD}>{formatLimit(ENTERPRISE_TIER_LIMITS[e.id][row.key], row.perMonth)}</td>
+                  <td key={e.id} className={TD}>{formatLimit(ENTERPRISE_TIER_LIMITS[e.id][row.key], row.perMonth, row.months)}</td>
                 ))}
               </tr>
             ))}

@@ -43,7 +43,7 @@ const locationFieldSchema = z
   .optional()
   .or(z.literal(''));
 
-const statusSchema = z.enum(['active', 'under_maintenance', 'decommissioned'] as const);
+const statusSchema = z.enum(['active', 'under_maintenance', 'decommissioned', 'scrapped'] as const);
 
 const criticalitySchema = z
   .number()
@@ -143,6 +143,8 @@ export const createMachineSchema = z.object({
   installationDate: z.date().nullable().optional(),
   nextPmDue: z.date().nullable().optional(),
   expectedLifespanYears: lifespanSchema,
+  purchasePrice: z.number().min(0).nullable().optional(),
+  scrapValue: z.number().min(0).nullable().optional(),
   department: departmentSchema,
   plantId: z.string().nullable().optional(),
   floor: locationFieldSchema,
@@ -181,6 +183,8 @@ export const updateMachineSchema = z.object({
   installationDate: z.date().nullable().optional(),
   nextPmDue: z.date().nullable().optional(),
   expectedLifespanYears: lifespanSchema,
+  purchasePrice: z.number().min(0).nullable().optional(),
+  scrapValue: z.number().min(0).nullable().optional(),
   department: departmentSchema.optional(),
   plantId: z.string().nullable().optional(),
   floor: locationFieldSchema,
@@ -212,7 +216,7 @@ export type UpdateMachineFormData = z.infer<typeof updateMachineSchema>;
 export const machineFiltersSchema = z.object({
   search: z.string().optional().default(''),
   departments: z.array(z.string()).optional().default([]),
-  statuses: z.array(z.enum(['active', 'under_maintenance', 'decommissioned'])).optional().default([]),
+  statuses: z.array(z.enum(['active', 'under_maintenance', 'decommissioned', 'scrapped'])).optional().default([]),
   criticalities: z.array(z.number().min(1).max(5)).optional().default([]),
   healthScoreMin: z.number().min(0).max(100).optional().default(0),
   healthScoreMax: z.number().min(0).max(100).optional().default(100),

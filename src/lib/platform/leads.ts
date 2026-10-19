@@ -12,7 +12,7 @@ import { countryLabel, resolveCountry } from '@/lib/countries';
  */
 
 export const LEAD_STATUSES = [
-  'new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'negotiation', 'closed_won', 'closed_lost',
+  'new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'trial_requested', 'negotiation', 'closed_won', 'closed_lost',
 ] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
@@ -23,10 +23,14 @@ export const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
   follow_up: 'Follow-up',
   demo_booked: 'Demo booked',
   demo_done: 'Demo done',
+  trial_requested: 'Trial requested',
   negotiation: 'Negotiation',
   closed_won: 'Closed won',
   closed_lost: 'Closed lost',
 };
+
+/** Kanban columns. Closed lost has no column: those leads stay in the data (list view, stats) but are off the board. */
+export const BOARD_STATUSES = LEAD_STATUSES.filter((s) => s !== 'closed_lost');
 
 export const LEAD_TAGS = ['Feature', 'Bug', 'Complaint', 'Hot', 'Price', 'Other'] as const;
 export const LEAD_SOURCES = ['Facebook ad', 'Google ad', 'Website', 'Referral', 'WhatsApp', 'Event', 'Cold call', 'Partner', 'Other'] as const;
@@ -50,6 +54,8 @@ export interface Lead {
   businessName: string;
   contactPerson: string;
   phone: string;
+  /** WhatsApp number when it differs from the phone; empty means the phone is used. */
+  whatsapp: string;
   email: string;
   /** Their website, stored as typed; use `websiteUrl` for a clickable href. */
   website: string;
@@ -68,6 +74,8 @@ export interface Lead {
   followUpNote: string;
   demoAt: number | null;
   demoRequested: boolean;
+  /** When they actually began using the trial (ms). A lead can request a trial and start it much later, or never. */
+  trialStartedAt: number | null;
   priceQuoted: string;
   closedAmount: number;
   currency: LeadCurrency;
@@ -115,8 +123,8 @@ export interface LeadActivity {
 
 export function emptyLead(now = Date.now()): LeadInput {
   return {
-    businessName: '', contactPerson: '', phone: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
-    leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false,
+    businessName: '', contactPerson: '', phone: '', whatsapp: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
+    leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false, trialStartedAt: null,
     priceQuoted: '', closedAmount: 0, currency: 'LKR', mainProblem: '', tags: [], notes: '', assignedTo: null, marketerId: null, companyId: null,
   };
 }
@@ -161,6 +169,10 @@ export interface LeadStats {
   open: number;
   demos: number;
   demosToday: number;
+  /** Open leads that asked for a trial but haven't started using it. */
+  trialRequested: number;
+  /** Open leads actually using a trial now. */
+  usingTrial: number;
   followUpsDue: number;
   won: number;
   revenue: Record<string, number>;
@@ -169,12 +181,16 @@ export interface LeadStats {
 export function leadStats(leads: Lead[], now = Date.now()): LeadStats {
   const end = endOfDay(now);
   const start = startOfDay(now);
-  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, followUpsDue: 0, won: 0, revenue: {} };
+  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, trialRequested: 0, usingTrial: 0, followUpsDue: 0, won: 0, revenue: {} };
   for (const l of leads) {
     if (l.archived) continue;
     if (isOpen(l)) s.open++;
     if (l.status === 'demo_booked' || l.status === 'demo_done') s.demos++;
     if (l.demoAt && l.demoAt >= start && l.demoAt <= end) s.demosToday++;
+    if (isOpen(l)) {
+      if (l.trialStartedAt) s.usingTrial++;
+      else if (l.status === 'trial_requested') s.trialRequested++;
+    }
     if (isOpen(l) && l.nextCallAt && l.nextCallAt <= end) s.followUpsDue++;
     if (l.status === 'closed_won') {
       s.won++;
@@ -182,6 +198,14 @@ export function leadStats(leads: Lead[], now = Date.now()): LeadStats {
     }
   }
   return s;
+}
+
+export const TRIAL_DAYS = 7;
+
+/** Day of the free trial a lead is on (1 = the day it started), or null when they haven't started one. */
+export function trialDay(lead: Pick<Lead, 'trialStartedAt'>, now = Date.now()): number | null {
+  if (!lead.trialStartedAt) return null;
+  return Math.max(1, Math.floor((startOfDay(now) - startOfDay(lead.trialStartedAt)) / 86_400_000) + 1);
 }
 
 export function fmtAmount(amount: number, currency: string): string {
@@ -212,7 +236,7 @@ export function matchesSearch(lead: Lead, q: string): boolean {
   const digits = needle.replace(/\D/g, '');
   return [lead.businessName, lead.contactPerson, lead.location, lead.district, lead.email, lead.source, lead.campaign]
     .some((v) => v?.toLowerCase().includes(needle))
-    || (digits.length >= 3 && lead.phone.replace(/\D/g, '').includes(digits));
+    || (digits.length >= 3 && `${lead.phone}${lead.whatsapp}`.replace(/\D/g, '').includes(digits));
 }
 
 /** Sri Lankan numbers → wa.me digits (07x… → 947x…). Other numbers are kept as typed. */
@@ -288,13 +312,13 @@ function isoDateTime(ms: number | null): string {
 
 /** Same fields as the Add lead form (no campaign / assignment columns). */
 export const LEAD_EXPORT_HEADER = [
-  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
+  'Business name', 'Contact person', 'Phone', 'WhatsApp', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
   'Calls made', 'Next call', 'Follow-up note', 'Demo', 'Price told', 'Closed amount', 'Currency', 'Main problem', 'Tags', 'Notes',
 ];
 
 export function leadsToCsv(leads: Lead[]): string {
   return toCsv(LEAD_EXPORT_HEADER, leads.map((l) => [
-    l.businessName, l.contactPerson, l.phone, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
+    l.businessName, l.contactPerson, l.phone, l.whatsapp, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
     LEAD_STATUS_LABEL[l.status], l.callsMade, isoDateTime(l.nextCallAt), l.followUpNote, isoDateTime(l.demoAt), l.priceQuoted,
     l.closedAmount || '', l.currency, l.mainProblem, l.tags.join('; '), l.notes,
   ]));
@@ -343,10 +367,11 @@ export function activityOutcomeLabel(a: Pick<LeadActivity, 'type' | 'outcome' | 
 // ---------------------------------------------------------------------------
 
 const HEADER_ALIASES: Record<keyof Pick<LeadInput,
-  'businessName' | 'contactPerson' | 'phone' | 'email' | 'location' | 'district' | 'source' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
+  'businessName' | 'contactPerson' | 'phone' | 'whatsapp' | 'email' | 'location' | 'district' | 'source' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
   businessName: ['business name', 'business', 'company', 'company name', 'garage', 'organisation', 'organization', 'factory', 'name of business'],
   contactPerson: ['contact person', 'contact', 'full name', 'name', 'owner', 'contact name', 'first name'],
-  phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel', 'whatsapp'],
+  phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel'],
+  whatsapp: ['whatsapp', 'whatsapp number', 'whatsapp no', 'whats app'],
   email: ['email', 'e-mail', 'email address'],
   location: ['location', 'city', 'town', 'address', 'area'],
   // Country (stored in `district`); older sheets with a district column still land here.
@@ -423,6 +448,8 @@ export function parseImportRows(table: unknown[][], defaults: { source?: string;
       else lead[field] = String(raw).trim().replace(/^p:\+?/, (m) => (field === 'phone' ? (m.includes('+') ? '+' : '') : m));
     }
     if (!lead.businessName) lead.businessName = lead.contactPerson;
+    if (!lead.phone) lead.phone = lead.whatsapp;
+    if (lead.whatsapp === lead.phone) lead.whatsapp = '';
     // Country names or codes → ISO code; anything unknown is kept as typed. Default: Sri Lanka.
     lead.district = lead.district ? resolveCountry(lead.district) : 'LK';
     if (!lead.businessName || (!lead.phone && !lead.email)) {
@@ -449,29 +476,83 @@ export function websiteUrl(site: string): string {
   return /^https?:\/\/[^/\s]+\.[^/\s]{2,}/i.test(url) ? url : '';
 }
 
-export interface ParsedLeadText { name: string; phone: string; email: string; website: string }
+export interface ParsedLeadText {
+  /** Contact person. */
+  name: string;
+  /** Company / business name, when the text labels one. */
+  company: string;
+  phone: string;
+  /** WhatsApp number when the text gives one. */
+  whatsapp: string;
+  email: string;
+  website: string;
+  location: string;
+}
+
+const PHONE_RE = /(?:\+|00)?\d[\d\s().-]{7,}\d/;
+const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+const WEBSITE_RE = /(?:https?:\/\/|www\.)[^\s,;]+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|lk|net|org|io|co|biz|info)\b[^\s,;]*/i;
+
+/** Field labels recognised in pasted "Label: value" lines (form submissions, WhatsApp lead messages). */
+const LABELS: [keyof ParsedLeadText, RegExp][] = [
+  ['whatsapp', /^(?:whats\s?app|wa)(?:\s*(?:number|no\.?|num))?$/i],
+  ['phone', /^(?:phone|tel|telephone|mobile|mob|contact|cell)(?:\s*(?:number|no\.?|num))?$/i],
+  ['company', /^(?:company|business|organi[sz]ation|firm|factory)(?:\s*name)?$/i],
+  ['name', /^(?:full\s*name|name|contact\s*(?:person|name)|owner|your\s*name)$/i],
+  ['email', /^(?:e-?mail)(?:\s*(?:address|id))?$/i],
+  ['website', /^(?:web\s*site|web|url|site)$/i],
+  ['location', /^(?:city|town|location|address|district)$/i],
+];
+
+const cleanPhone = (v: string) => (v.match(PHONE_RE)?.[0] ?? '').replace(/[^\d+]/g, '');
 
 /**
- * Pulls the name, phone, email and website out of free pasted text (a WhatsApp message, a signature, a
- * copied row). The name is the first remaining line, or the text before the phone number.
+ * Pulls the contact name, company, phone, WhatsApp number, email, website and location out of pasted text.
+ * "Label: value" lines (e.g. "Full name: …", "Company name: …", "WhatsApp number: …") each fill their own field.
+ * Anything not labelled falls back to guessing: phone/email/website by pattern, the name as the first leftover line.
  */
 export function parseLeadText(text: string): ParsedLeadText {
-  let rest = text.replace(/\r/g, '');
+  const out: ParsedLeadText = { name: '', company: '', phone: '', whatsapp: '', email: '', website: '', location: '' };
+  const unlabelled: string[] = [];
+  let labelled = false;
+  for (const raw of text.replace(/\r/g, '').split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^([^:：\n]{1,30}?)\s*[:：]\s*(.*)$/);
+    const field = m ? LABELS.find(([, re]) => re.test(m[1].trim()))?.[0] : undefined;
+    if (!m || !field) {
+      unlabelled.push(line);
+      continue;
+    }
+    labelled = true;
+    const value = m[2].trim();
+    if (!value) continue;
+    if (field === 'phone' || field === 'whatsapp') out[field] ||= cleanPhone(value);
+    else if (field === 'email') out.email ||= value.match(EMAIL_RE)?.[0] ?? '';
+    else if (field === 'website') out.website ||= (value.match(WEBSITE_RE)?.[0] ?? value).replace(/[.,;)]+$/, '');
+    else out[field] ||= value.replace(/\s+/g, ' ').slice(0, 120);
+  }
+
+  // Unlabelled lines: pick up what is recognisable by shape.
+  let rest = unlabelled.join('\n');
   const take = (re: RegExp): string => {
     const m = rest.match(re);
     if (!m) return '';
     rest = rest.replace(m[0], ' ');
     return m[0].trim();
   };
-  const email = take(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  const website = take(/(?:https?:\/\/|www\.)[^\s,;]+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|lk|net|org|io|co|biz|info|lk\/[^\s]*)\b[^\s,;]*/i).replace(/[.,;)]+$/, '');
-  const phone = take(/(?:\+|00)?\d[\d\s().-]{7,}\d/).replace(/[^\d+]/g, '');
-  const cleaned = rest
-    .split('\n')
-    .map((l) => l.replace(/^\s*(?:name|business|company|contact|phone|tel|mobile|mob|email|e-mail|web|website)\s*[:\-–]\s*/i, '').replace(/[,;|–-]+\s*$/, '').trim())
-    .filter((l) => /[\p{L}]/u.test(l));
-  const name = (cleaned[0] ?? '').replace(/\s+/g, ' ').slice(0, 120);
-  return { name, phone, email, website };
+  if (!out.email) out.email = take(EMAIL_RE);
+  if (!out.website) out.website = take(WEBSITE_RE).replace(/[.,;)]+$/, '');
+  if (!out.phone) out.phone = cleanPhone(take(PHONE_RE));
+  if (!out.phone && out.whatsapp) out.phone = out.whatsapp;
+  // With labelled fields present, leftover prose (a greeting, a sentence) is not a name.
+  if (!out.name && !labelled) {
+    const first = rest.split('\n')
+      .map((l) => l.replace(/[,;|–-]+\s*$/, '').trim())
+      .find((l) => /[\p{L}]/u.test(l));
+    out.name = (first ?? '').replace(/\s+/g, ' ').slice(0, 120);
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------

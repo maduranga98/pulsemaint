@@ -17,6 +17,7 @@ import { MachineSparePartsEditor } from './MachineSparePartsEditor';
 import type { SparePartEntry } from '../../lib/machineSpareParts';
 
 import { useTranslation } from 'react-i18next';
+import { getCompanyCurrency } from '@/lib/currency';
 import i18n from '../../lib/i18n';
 const CUSTOM_TYPE_OPTION = '__custom__';
 
@@ -82,6 +83,7 @@ export function MachineForm({
   // machine) picks the plant in the form — its departments follow it.
   const { plantId: scopedPlantId } = useDepartmentScope();
   const isAdmin = useAuthStore((s) => s.userProfile?.role) === 'admin';
+
   const basePlantId: string | null =
     mode === 'create' ? scopedPlantId : ((initialData as any)?.plantId ?? scopedPlantId);
   const showPlantPicker = isAdmin && !basePlantId;
@@ -112,6 +114,8 @@ export function MachineForm({
             ? new Date(initialData.nextPmDue.seconds * 1000)
             : null,
           expectedLifespanYears: initialData?.expectedLifespanYears,
+          purchasePrice: (initialData as any)?.purchasePrice ?? undefined,
+          scrapValue: (initialData as any)?.scrapValue ?? undefined,
           department: initialData?.department,
           floor: initialData?.floor,
           bay: initialData?.bay,
@@ -540,6 +544,34 @@ function renderFormSection(
               />
             </div>
           </div>
+
+          {/* Purchase price and scrap value are money details: admins and plant managers only. */}
+          {['admin', 'plant_manager'].includes(useAuthStore.getState().userProfile?.role ?? '') && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(['purchasePrice', 'scrapValue'] as const).map((name) => (
+                <div key={name}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t(`common.machines.asset.${name}`)} ({getCompanyCurrency()})
+                  </label>
+                  <Controller
+                    name={name}
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        placeholder="0"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
 

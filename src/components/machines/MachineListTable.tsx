@@ -58,7 +58,7 @@ export function MachineListTable({ machines, isLoading = false, onEdit, lowSpare
             const isOverduepm = nextPmDate ? isOverdue(nextPmDate) : false;
 
             return (
-              <tr key={machine.id} className={`border-b border-gray-100 hover:bg-gray-50 ${lowSpareByMachine?.has(machine.id) ? 'bg-amber-50/60' : ''}`}>
+              <tr key={machine.id} className={`border-b border-gray-100 hover:bg-gray-50 ${lowSpareByMachine?.has(machine.id) ? 'bg-amber-50/60' : ''} ${machine.status === 'scrapped' ? 'bg-rose-50 text-gray-500' : ''}`}>
                 <td className="px-4 py-3">
                   <div>
                     <p className="font-medium text-gray-900">{machine.name}</p>

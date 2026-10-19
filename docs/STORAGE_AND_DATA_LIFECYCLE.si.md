@@ -66,7 +66,7 @@
 | `report_history` | **දින 30** | `cleanupOldReports` — දිනපතා 03:00 (වතාවකට 200ක්) |
 | `record_access_grants` | grant හි `expiresAt` | `purgeExpiredRecordGrants` — සෑම විනාඩි 15කට |
 | Invitations | **දින 7** | කල් ඉකුත් වූ ඒවා පිළිගත නොහැක; ලේඛනය මැකෙන්නේ නැත |
-| Free trial | **දින 14** (අනුමත කළ දා සිට) | `expireTrials` දිනපතා 01:30 — suspend, දත්ත රැඳේ |
+| Free trial | **දින 7** (අනුමත කළ දා සිට) | `expireTrials` දිනපතා 01:30 — suspend, දත්ත රැඳේ |
 | PM overdue පරීක්ෂාව | සෑම පැය 2කට | ඇඟවීම් |
 | SLA | සෑම විනාඩි 5කට | breach පරීක්ෂාව |
 | Shift handover පිළිගැනීම | සෑම විනාඩි 30කට | මතක් කිරීම |

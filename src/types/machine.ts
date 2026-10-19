@@ -5,7 +5,7 @@ import type { UserRole } from './breakdown';
 // Machine Status & Criticality
 // ---------------------------------------------------------------------------
 
-export type MachineStatus = 'active' | 'under_maintenance' | 'decommissioned';
+export type MachineStatus = 'active' | 'under_maintenance' | 'decommissioned' | 'scrapped';
 
 export type MachineCriticality = 1 | 2 | 3 | 4 | 5;
 
@@ -67,6 +67,17 @@ export interface IsolationPoint {
 // Core Machine Interface
 // ---------------------------------------------------------------------------
 
+export interface ScrapRecord {
+  scrappedAt: Timestamp;
+  reason: 'broken' | 'old' | 'uneconomical' | 'replaced' | 'other';
+  note: string;
+  /** What the scrap / sale brought in. */
+  proceeds: number;
+  currency: string;
+  approvedBy: string;
+  recordedBy: string;
+}
+
 export interface Machine {
   // Identity
   id: string;
@@ -109,6 +120,13 @@ export interface Machine {
   warrantyItems: WarrantyItem[];
   isolationPoints: IsolationPoint[];
 
+  // Asset value (admin / plant manager only in the UI)
+  purchasePrice?: number | null;
+  /** Expected scrap / salvage value at end of life. */
+  scrapValue?: number | null;
+  /** Filled in when the machine is scrapped; the machine and its history stay on record. */
+  scrapRecord?: ScrapRecord | null;
+
   // Downtime Cost
   costPerHourDown: number | null;
   unitsPerHour: number | null;
@@ -147,6 +165,8 @@ export interface CreateMachinePayload {
   installationDate: Date | null;
   nextPmDue: Date | null;
   expectedLifespanYears: number | null;
+  purchasePrice?: number | null;
+  scrapValue?: number | null;
   department: string;
   floor: string | null;
   bay: string | null;
@@ -176,6 +196,8 @@ export interface UpdateMachinePayload {
   installationDate?: Date | null;
   nextPmDue?: Date | null;
   expectedLifespanYears?: number | null;
+  purchasePrice?: number | null;
+  scrapValue?: number | null;
   department?: string;
   floor?: string | null;
   bay?: string | null;

@@ -4,14 +4,29 @@ export type Plan = CompanyProfile['plan'];
 
 /** The count limits a plan carries. null = unlimited. */
 export interface PlanCountLimits {
-  /** Total users of the company, every role together. */
-  users: number | null;
+  /** Full users: every role except the light (view/report-only) roles. */
+  fullUsers: number | null;
+  /** Light users: floor operators and trainees (see LIGHT_USER_ROLES). */
+  lightUsers: number | null;
   /** Plants registered in the company. */
   plants: number | null;
   machines: number | null;
   inventoryItems: number | null;
   pmSchedules: number | null;
   workOrdersPerMonth: number | null;
+  /** AI suggestions/translations the whole company may use per calendar month (1 request = 1 credit). */
+  aiCreditsPerMonth: number | null;
+  /** How many months back Analytics and reports can look. */
+  analyticsHistoryMonths: number | null;
+}
+
+/** Roles that take a light seat; every other role takes a full seat. */
+export const LIGHT_USER_ROLES = ['floor_operator', 'trainee'] as const;
+
+export type SeatType = 'full' | 'light';
+
+export function seatTypeForRole(role: string | null | undefined): SeatType {
+  return (LIGHT_USER_ROLES as readonly string[]).includes(role ?? '') ? 'light' : 'full';
 }
 
 export type CountLimitKey = keyof PlanCountLimits;
@@ -28,6 +43,8 @@ export interface PlanLimitConfig extends PlanCountLimits {
     shiftHandover: boolean;
     training: boolean;
     safety: boolean;
+    kaizen: boolean;
+    evaluations: boolean;
     /** Analytics page, reports hub, report exports and Google Sheets export. */
     analyticsReports: boolean;
     /** AI root-cause suggestions and translation. */
@@ -46,34 +63,42 @@ export interface PlanLimitConfig extends PlanCountLimits {
 // call site, so the two never drift apart again. Storage is not limited.
 export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
   starter: {
-    users: 5,
+    fullUsers: 3,
+    lightUsers: 10,
     plants: 1,
-    machines: 10,
-    inventoryItems: 10,
-    pmSchedules: 10,
-    workOrdersPerMonth: 10,
+    machines: 15,
+    inventoryItems: 100,
+    pmSchedules: 30,
+    workOrdersPerMonth: null,
+    aiCreditsPerMonth: 20,
+    analyticsHistoryMonths: 12,
     features: {
       autoPOEmail: false,
       qrLowStockAlerts: false,
-      purchaseOrders: false,
+      purchaseOrders: true,
       contractors: false,
-      shiftHandover: true,
-      training: true,
-      safety: true,
-      analyticsReports: false,
-      aiAssist: false,
+      shiftHandover: false,
+      training: false,
+      safety: false,
+      kaizen: false,
+      evaluations: false,
+      analyticsReports: true,
+      aiAssist: true,
       moeAnalytics: false,
       advancedAnalytics: false,
       audits: false,
     },
   },
   workshop: {
-    users: 10,
+    fullUsers: 10,
+    lightUsers: 50,
     plants: 1,
-    machines: 25,
-    inventoryItems: 40,
-    pmSchedules: 30,
-    workOrdersPerMonth: 50,
+    machines: 75,
+    inventoryItems: 2000,
+    pmSchedules: 400,
+    workOrdersPerMonth: null,
+    aiCreditsPerMonth: 150,
+    analyticsHistoryMonths: 36,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
@@ -82,6 +107,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
       shiftHandover: true,
       training: true,
       safety: true,
+      kaizen: false,
+      evaluations: false,
       analyticsReports: true,
       aiAssist: true,
       moeAnalytics: false,
@@ -90,12 +117,15 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
     },
   },
   factory: {
-    users: 30,
-    plants: 3,
-    machines: 70,
-    inventoryItems: 100,
-    pmSchedules: 50,
-    workOrdersPerMonth: 100,
+    fullUsers: 40,
+    lightUsers: 250,
+    plants: 1,
+    machines: 400,
+    inventoryItems: 10000,
+    pmSchedules: 3000,
+    workOrdersPerMonth: null,
+    aiCreditsPerMonth: 800,
+    analyticsHistoryMonths: null,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
@@ -104,6 +134,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
       shiftHandover: true,
       training: true,
       safety: true,
+      kaizen: true,
+      evaluations: true,
       analyticsReports: true,
       aiAssist: true,
       moeAnalytics: true,
@@ -115,12 +147,15 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
   // unlimited (the original behaviour); a tier or per-company overrides
   // narrow it — see limitsForCompany().
   enterprise: {
-    users: null,
+    fullUsers: null,
+    lightUsers: null,
     plants: null,
     machines: null,
     inventoryItems: null,
     pmSchedules: null,
     workOrdersPerMonth: null,
+    aiCreditsPerMonth: null,
+    analyticsHistoryMonths: null,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
@@ -129,6 +164,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
       shiftHandover: true,
       training: true,
       safety: true,
+      kaizen: true,
+      evaluations: true,
       analyticsReports: true,
       aiAssist: true,
       moeAnalytics: true,
@@ -142,10 +179,10 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
 export type EnterpriseTier = 'enterprise1' | 'enterprise2' | 'enterprise3' | 'unlimited';
 
 export const ENTERPRISE_TIER_LIMITS: Record<EnterpriseTier, PlanCountLimits> = {
-  enterprise1: { users: 100, plants: 5, machines: 300, inventoryItems: 1000, pmSchedules: 300, workOrdersPerMonth: 500 },
-  enterprise2: { users: 250, plants: 10, machines: 1000, inventoryItems: 5000, pmSchedules: 1000, workOrdersPerMonth: 2000 },
-  enterprise3: { users: 500, plants: 25, machines: 3000, inventoryItems: 20000, pmSchedules: 3000, workOrdersPerMonth: 6000 },
-  unlimited: { users: null, plants: null, machines: null, inventoryItems: null, pmSchedules: null, workOrdersPerMonth: null },
+  enterprise1: { fullUsers: 100, lightUsers: 500, plants: 5, machines: 300, inventoryItems: 1000, pmSchedules: 300, workOrdersPerMonth: null, aiCreditsPerMonth: 2000, analyticsHistoryMonths: null },
+  enterprise2: { fullUsers: 250, lightUsers: 1250, plants: 10, machines: 1000, inventoryItems: 5000, pmSchedules: 1000, workOrdersPerMonth: null, aiCreditsPerMonth: 5000, analyticsHistoryMonths: null },
+  enterprise3: { fullUsers: 500, lightUsers: 2500, plants: 25, machines: 3000, inventoryItems: 20000, pmSchedules: 3000, workOrdersPerMonth: null, aiCreditsPerMonth: 15000, analyticsHistoryMonths: null },
+  unlimited: { fullUsers: null, lightUsers: null, plants: null, machines: null, inventoryItems: null, pmSchedules: null, workOrdersPerMonth: null, aiCreditsPerMonth: null, analyticsHistoryMonths: null },
 };
 
 export function planLimitsFor(plan: Plan | undefined | null): PlanLimitConfig {
@@ -167,7 +204,7 @@ export interface PlanLimitCompany {
    * limits). A number sets that limit, null makes it unlimited, a missing key
    * keeps the plan's value.
    */
-  limitOverrides?: Partial<Record<CountLimitKey, number | null>> | null;
+  limitOverrides?: (Partial<Record<CountLimitKey, number | null>> & { users?: number | null }) | null;
 }
 
 /**
@@ -180,8 +217,11 @@ export function limitsForCompany(company: PlanLimitCompany | undefined | null): 
   const merged: PlanLimitConfig = { ...base, ...(tier ?? {}), features: base.features };
   const overrides = company?.limitOverrides;
   if (overrides) {
-    for (const key of Object.keys(overrides) as CountLimitKey[]) {
-      const v = overrides[key];
+    for (const rawKey of Object.keys(overrides)) {
+      // Overrides saved before full/light seats were split used a single `users` cap.
+      const key = (rawKey === 'users' ? 'fullUsers' : rawKey) as CountLimitKey;
+      if (!(key in merged)) continue;
+      const v = overrides[rawKey as keyof typeof overrides];
       if (v === null || (typeof v === 'number' && Number.isFinite(v) && v >= 0)) merged[key] = v;
     }
   }
@@ -302,6 +342,8 @@ const FEATURE_PATH_PREFIXES: Array<[string, FeatureKey]> = [
   ['/app/analytics', 'analyticsReports'],
   ['/app/reports', 'analyticsReports'],
   ['/app/audit', 'audits'],
+  ['/app/kaizen', 'kaizen'],
+  ['/app/evaluations', 'evaluations'],
 ];
 
 /** The plan feature a path belongs to, or null when it isn't plan-gated. */
@@ -310,4 +352,23 @@ export function featureForPath(pathname: string): FeatureKey | null {
     if (pathname === prefix || pathname.startsWith(`${prefix}/`)) return feature;
   }
   return null;
+}
+
+export interface SeatTally {
+  /** Counts of user profile documents. */
+  members: { all: number; inactive: number; light: number; lightInactive: number };
+  /** Invitations still marked pending, with the time they stop being valid (ms, null = no expiry). */
+  invites: Array<{ role: string | null | undefined; expiresAtMs: number | null }>;
+}
+
+/**
+ * Seats in use. A deactivated account and an invitation past its expiry take no seat; everyone else,
+ * plus invitations still waiting to be accepted, does. Light seats are the floor-operator and trainee roles.
+ */
+export function seatCountsFrom(t: SeatTally, now: number = Date.now()): { full: number; light: number } {
+  const liveInvites = t.invites.filter((i) => i.expiresAtMs === null || i.expiresAtMs > now);
+  const invLight = liveInvites.filter((i) => seatTypeForRole(i.role) === 'light').length;
+  const memberLight = t.members.light - t.members.lightInactive;
+  const memberAll = t.members.all - t.members.inactive;
+  return { light: memberLight + invLight, full: memberAll - memberLight + (liveInvites.length - invLight) };
 }

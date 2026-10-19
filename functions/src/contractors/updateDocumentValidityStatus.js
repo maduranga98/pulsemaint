@@ -1,4 +1,5 @@
 const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {sendNotification} = require("../lib/notify");
 const {
   db,
   logger,
@@ -39,14 +40,15 @@ exports.updateDocumentValidityStatus = onSchedule("0 7 * * *", async () => {
 
     if (key && data.lastExpiryNotificationKey !== key) {
       updates.lastExpiryNotificationKey = key;
-      await db.collection("companies").doc(data.companyId).collection("notificationLogs").add({
-        type: "contractor_document_expiry",
-        contractorId: data.contractorId,
-        documentId: doc.id,
-        documentName: data.documentName,
-        status: validityStatus,
-        daysUntilExpiry,
-        createdAt: FieldValue.serverTimestamp(),
+      await sendNotification(db, {
+        companyId: data.companyId,
+        type: "document",
+        message: `Contractor document "${data.documentName || "document"}" is ${String(validityStatus).replace(/_/g, " ")}` +
+          (typeof daysUntilExpiry === "number" ? ` (${daysUntilExpiry} day(s) to expiry)` : ""),
+        severity: validityStatus === "expired" ? "high" : "medium",
+        linkTo: "/app/contractors/compliance",
+        roles: ["hr_officer", "supervisor"],
+        dedupeKey: `contractor-doc:${doc.id}:${key}`,
       });
     }
 

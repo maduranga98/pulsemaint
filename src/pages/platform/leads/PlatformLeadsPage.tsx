@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState, type DragEvent } from 'react';
+import { HelpCircle } from 'lucide-react';
+import { useTour } from '@/features/tour/TourProvider';
 import { countryLabel } from '@/lib/countries';
 import { useSearchParams } from 'react-router-dom';
 import {
-  BarChart3, CalendarCheck, CalendarDays, Download, FileText, KanbanSquare, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
+  BarChart3, CalendarCheck, CalendarDays, Download, FileText, FlaskConical, KanbanSquare, Rocket, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
 } from 'lucide-react';
 import {
-  LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, leadsToCsv, matchesSearch, revenueText,
+  BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, trialDay, TRIAL_DAYS, leadsToCsv, matchesSearch, revenueText,
   type Lead, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
-import { assignLeads, setLeadStatus, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
+import { assignLeads, setLeadStatus, setTrialStarted, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
 import { ErrorNote, Loading, PageHeader, btn, fmtDateTime, input } from '../platformUi';
 import LeadFormDialog from './LeadFormDialog';
 import LeadDetailPanel from './LeadDetailPanel';
@@ -46,8 +48,9 @@ export default function PlatformLeadsPage() {
   const [showArchived, setShowArchived] = useState(false);
   const [dialog, setDialog] = useState<'add' | 'edit' | 'day' | 'import' | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [dragOver, setDragOver] = useState<LeadStatus | null>(null);
+  const [dragOver, setDragOver] = useState<BoardColumn | null>(null);
   const [params, setParams] = useSearchParams();
+  const { start: startTour } = useTour();
   const openId = params.get('lead');
 
   useEffect(() => subscribeLeads(setLeads, (e) => setError(e.message)), []);
@@ -78,20 +81,31 @@ export default function PlatformLeadsPage() {
   const current = openId ? all.find((l) => l.id === openId) ?? null : null;
 
   const byStatus = useMemo(() => {
-    const m = Object.fromEntries(LEAD_STATUSES.map((s) => [s, [] as Lead[]])) as Record<LeadStatus, Lead[]>;
-    for (const l of filtered) m[l.status].push(l);
+    const m = Object.fromEntries([...LEAD_STATUSES, USING_TRIAL].map((s) => [s, [] as Lead[]])) as Record<BoardColumn, Lead[]>;
+    for (const l of filtered) m[columnOf(l)].push(l);
     // Most urgent first: an overdue/soonest next call, then most recently touched.
-    for (const s of LEAD_STATUSES) {
+    for (const s of [...LEAD_STATUSES, USING_TRIAL] as BoardColumn[]) {
       m[s].sort((a, b) => (a.nextCallAt ?? Infinity) - (b.nextCallAt ?? Infinity) || (b.lastActivityAt ?? b.createdAt ?? 0) - (a.lastActivityAt ?? a.createdAt ?? 0));
     }
     return m;
   }, [filtered]);
 
-  function onDrop(e: DragEvent, status: LeadStatus) {
+  function onDrop(e: DragEvent, column: BoardColumn) {
     e.preventDefault();
     setDragOver(null);
     const lead = all.find((l) => l.id === e.dataTransfer.getData('text/plain'));
-    if (lead && lead.status !== status) setLeadStatus(lead, status).catch((err) => setError(err.message));
+    if (!lead || columnOf(lead) === column) return;
+    // "Using trial" is a stage of Trial requested: dropping there starts the trial, dropping back clears it.
+    const move = async () => {
+      if (column === USING_TRIAL) {
+        if (lead.status !== 'trial_requested') await setLeadStatus(lead, 'trial_requested');
+        if (!lead.trialStartedAt) await setTrialStarted(lead, true);
+      } else {
+        if (lead.status !== column) await setLeadStatus(lead, column);
+        if (column === 'trial_requested' && lead.trialStartedAt) await setTrialStarted(lead, false);
+      }
+    };
+    move().catch((err) => setError(err.message));
   }
 
   async function bulkAssign(to: string) {
@@ -111,11 +125,12 @@ export default function PlatformLeadsPage() {
         subtitle="Prospects from outside marketing — calls, demos and follow-ups until they sign."
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <button className={`${btn.ghost} inline-flex items-center gap-1.5`} title="A short walkthrough of this page" onClick={() => startTour('leads')}><HelpCircle className="h-4 w-4" /> Page tour</button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('day')}><FileText className="h-4 w-4" /> Day report</button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} title="Export the filtered leads as CSV"
               onClick={() => downloadText(`leads-${new Date().toISOString().slice(0, 10)}.csv`, leadsToCsv(filtered))}><Download className="h-4 w-4" /></button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('import')}><Upload className="h-4 w-4" /> Import</button>
-            <button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setDialog('add')}><Plus className="h-4 w-4" /> Add lead</button>
+            <button data-tour="leads-add" className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setDialog('add')}><Plus className="h-4 w-4" /> Add lead</button>
           </div>
         }
       />
@@ -123,10 +138,12 @@ export default function PlatformLeadsPage() {
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       {notice && <div className="mb-4 rounded-lg border border-emerald-700/50 bg-emerald-900/20 p-3 text-sm text-emerald-300">{notice}</div>}
 
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div data-tour="leads-stats" className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4 2xl:grid-cols-8">
         <StatTile icon={Users} tone="text-sky-300 bg-sky-900/40" value={stats.open} label="Open leads" />
         <StatTile icon={CalendarCheck} tone="text-violet-300 bg-violet-900/40" value={stats.demos} label="Demo booked or done" />
         <StatTile icon={CalendarDays} tone="text-fuchsia-300 bg-fuchsia-900/40" value={stats.demosToday} label="Demos today" />
+        <StatTile icon={FlaskConical} tone="text-orange-300 bg-orange-900/40" value={stats.trialRequested} label="Trial requested" />
+        <StatTile icon={Rocket} tone="text-lime-300 bg-lime-900/40" value={stats.usingTrial} label="Using trial now" />
         <StatTile icon={PhoneCall} tone="text-amber-300 bg-amber-900/40" value={stats.followUpsDue} label="Follow-ups due" />
         <StatTile icon={Trophy} tone="text-emerald-300 bg-emerald-900/40" value={stats.won} label="Closed won" />
         <StatTile icon={Wallet} tone="text-teal-300 bg-teal-900/40" value={revenueText(stats.revenue)} label="Revenue" />
@@ -158,9 +175,9 @@ export default function PlatformLeadsPage() {
       {!leads && !error ? <Loading /> : view === 'insights' ? (
         <LeadInsights leads={all} team={team} onOpenLead={openLead} />
       ) : view === 'board' ? (
-        <div className="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8">
+        <div data-tour="leads-board" className="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8">
           <div className="flex gap-3">
-            {LEAD_STATUSES.map((s) => (
+            {BOARD_COLUMNS.map((s) => (
               <div
                 key={s}
                 className={`flex w-72 shrink-0 flex-col rounded-xl ${dragOver === s ? 'ring-2 ring-blue-500' : ''}`}
@@ -168,8 +185,8 @@ export default function PlatformLeadsPage() {
                 onDragLeave={() => setDragOver((d) => (d === s ? null : d))}
                 onDrop={(e) => onDrop(e, s)}
               >
-                <div className={`flex items-center justify-between rounded-t-xl px-3 py-2 ${STATUS_STYLE[s].header}`}>
-                  <span className="text-sm font-semibold text-white">{LEAD_STATUS_LABEL[s]}</span>
+                <div className={`flex items-center justify-between rounded-t-xl px-3 py-2 ${s === USING_TRIAL ? 'bg-lime-700' : STATUS_STYLE[s].header}`}>
+                  <span className="text-sm font-semibold text-white">{s === USING_TRIAL ? 'Using trial' : LEAD_STATUS_LABEL[s]}</span>
                   <span className="rounded-full bg-black/30 px-2 text-xs font-semibold text-white">{byStatus[s].length}</span>
                 </div>
                 <div className="max-h-[calc(100vh-380px)] min-h-[120px] space-y-2 overflow-y-auto rounded-b-xl border border-t-0 border-[#1E3A5F] bg-[#0B1A2E] p-2">
@@ -242,6 +259,13 @@ export default function PlatformLeadsPage() {
   );
 }
 
+type BoardColumn = LeadStatus | typeof USING_TRIAL;
+
+/** Lives right after "Trial requested": leads that asked for a trial and have since started using it. */
+const USING_TRIAL = 'using_trial' as const;
+const BOARD_COLUMNS: BoardColumn[] = BOARD_STATUSES.flatMap((s) => (s === 'trial_requested' ? [s, USING_TRIAL] : [s])) as BoardColumn[];
+const columnOf = (l: Lead): BoardColumn => (l.status === 'trial_requested' && l.trialStartedAt ? USING_TRIAL : l.status);
+
 function LeadCard({ lead, owner, onOpen }: { lead: Lead; owner: string; onOpen: () => void }) {
   const overdue = lead.nextCallAt && lead.nextCallAt < Date.now() && isOpen(lead);
   return (
@@ -257,9 +281,12 @@ function LeadCard({ lead, owner, onOpen }: { lead: Lead; owner: string; onOpen: 
         <span className="truncate text-slate-500">{lead.location || countryLabel(lead.district)}</span>
       </div>
       {lead.phone && <p className="mt-0.5 font-mono text-[11px] text-slate-500">{lead.phone}</p>}
-      {(lead.tags.length > 0 || lead.demoAt) && (
+      {(lead.tags.length > 0 || lead.demoAt || lead.trialStartedAt) && (
         <div className="mt-2 flex flex-wrap gap-1">
           {lead.tags.map((t) => <TagChip key={t} tag={t} />)}
+          {lead.trialStartedAt && isOpen(lead) && (
+            <span className="rounded-full bg-lime-900/60 px-2 py-px text-[10px] font-semibold text-lime-200">Using trial · day {trialDay(lead)}/{TRIAL_DAYS}</span>
+          )}
           {lead.demoAt && lead.status !== 'closed_won' && lead.status !== 'closed_lost' && (
             <span className="rounded-full bg-violet-900/60 px-2 py-px text-[10px] font-semibold text-violet-200">
               Demo {new Date(lead.demoAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
