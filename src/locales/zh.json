@@ -2019,6 +2019,9 @@
           "restoreFailed": "无法恢复设备。"
         },
         "outsourced": {
+          "fromWorkOrder": "创建承包商工单时添加（工单 → 创建，类型选承包商）。",
+          "woSectionTitle": "外包工作详情（可选）",
+          "woSectionHint": "如果承包商已完成工作，请填写：更换的备件、价格和账单。将保存到该设备的维护历史中。",
           "title": "外包维护",
           "subtitle": "外部公司完成的工作——含更换的备件、费用和发票。",
           "total": "目前合计：{{amount}}。",

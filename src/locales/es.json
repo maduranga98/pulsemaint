@@ -2019,6 +2019,9 @@
           "restoreFailed": "No se pudo restaurar la máquina."
         },
         "outsourced": {
+          "fromWorkOrder": "Agréguelos al crear una orden de trabajo de contratista (Órdenes de trabajo → Crear, tipo Contratista).",
+          "woSectionTitle": "Detalles del trabajo subcontratado (opcional)",
+          "woSectionHint": "Complételo si el contratista ya hizo el trabajo: repuestos instalados, precios y factura. Se guarda en el historial de mantenimiento de la máquina.",
           "title": "Mantenimiento subcontratado",
           "subtitle": "Trabajos de empresas externas, con repuestos instalados, costo y facturas.",
           "total": "Total hasta ahora: {{amount}}.",

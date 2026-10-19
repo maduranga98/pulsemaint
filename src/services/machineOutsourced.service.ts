@@ -19,6 +19,7 @@ function fromDoc(id: string, d: Record<string, any>): OutsourcedMaintenance {
     machineId: str(d.machineId),
     contractorId: typeof d.contractorId === 'string' ? d.contractorId : null,
     contractorName: str(d.contractorName),
+    workOrderId: typeof d.workOrderId === 'string' ? d.workOrderId : null,
     jobType: d.jobType ?? 'repair',
     description: str(d.description),
     startedAt: n(d.startedAt),
