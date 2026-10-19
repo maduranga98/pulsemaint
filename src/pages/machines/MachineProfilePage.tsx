@@ -17,7 +17,6 @@ import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/use
 import { OutsourcedMaintenanceSection } from '../../components/machines/OutsourcedMaintenanceSection';
 import { MachineAssetCard } from '../../components/machines/MachineAssetCard';
 import { ScrapMachineDialog } from '../../components/machines/ScrapMachineDialog';
-import { SCRAP_REASON_LABEL } from '../../lib/machineAsset';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { toast } from 'sonner';
@@ -91,12 +90,12 @@ export function MachineProfilePage() {
   const scrap = machine.scrapRecord;
 
   async function undoScrap() {
-    if (!window.confirm(`Bring ${machine!.name} back into service? The scrap record will be removed.`)) return;
+    if (!window.confirm(t('common.machines.asset.scrap.undoConfirm', { name: machine!.name }))) return;
     try {
       await updateDoc(doc(db, 'machines', machine!.id), { status: 'active', scrapRecord: null, updatedAt: serverTimestamp() });
-      toast.success('Machine restored.');
+      toast.success(t('common.machines.asset.scrap.restored'));
     } catch (e) {
-      toast.error((e as Error).message || 'Could not restore the machine.');
+      toast.error((e as Error).message || t('common.machines.asset.scrap.restoreFailed'));
     }
   }
 
@@ -139,17 +138,17 @@ export function MachineProfilePage() {
 
       {isScrapped && (
         <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
-          <p className="font-semibold">This machine was scrapped{scrap?.scrappedAt ? ` on ${formatDate(scrap.scrappedAt.toDate())}` : ''}.</p>
+          <p className="font-semibold">{scrap?.scrappedAt ? t('common.machines.asset.scrap.bannerOn', { date: formatDate(scrap.scrappedAt.toDate()) }) : t('common.machines.asset.scrap.banner')}</p>
           {scrap && (
             <p className="mt-1 text-rose-800">
-              {SCRAP_REASON_LABEL[scrap.reason] ?? scrap.reason}
-              {scrap.proceeds > 0 && ` · brought in ${scrap.currency} ${scrap.proceeds.toLocaleString()}`}
-              {scrap.approvedBy && ` · approved by ${scrap.approvedBy}`}
+              {t(`common.machines.asset.scrap.reasons.${scrap.reason}`)}
+              {scrap.proceeds > 0 && ` · ${t('common.machines.asset.scrap.broughtIn', { amount: `${scrap.currency} ${scrap.proceeds.toLocaleString()}` })}`}
+              {scrap.approvedBy && ` · ${t('common.machines.asset.scrap.approvedByLine', { name: scrap.approvedBy })}`}
               {scrap.note && ` — ${scrap.note}`}
             </p>
           )}
-          <p className="mt-1 text-xs text-rose-700">Its breakdown, maintenance and cost history stay on record.</p>
-          {canManageAsset && <button type="button" onClick={() => void undoScrap()} className="mt-2 text-xs font-medium text-rose-700 underline">Undo scrap</button>}
+          <p className="mt-1 text-xs text-rose-700">{t('common.machines.asset.scrap.bannerKept')}</p>
+          {canManageAsset && <button type="button" onClick={() => void undoScrap()} className="mt-2 text-xs font-medium text-rose-700 underline">{t('common.machines.asset.scrap.undo')}</button>}
         </div>
       )}
 
@@ -240,7 +239,7 @@ export function MachineProfilePage() {
                         onClick={() => { setShowScrap(true); setShowMoreMenu(false); }}
                         className="w-full text-left px-4 py-2 text-sm text-rose-700 hover:bg-rose-50"
                       >
-                        {t('common.machines.profile.scrapMachine', 'Scrap machine…')}
+                        {t('common.machines.asset.scrap.menu')}
                       </button>
                     )}
                     <button
