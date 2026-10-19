@@ -1960,7 +1960,8 @@
       "statusLabels": {
         "active": "Activa",
         "under_maintenance": "En Mantenimiento",
-        "decommissioned": "Fuera de Servicio"
+        "decommissioned": "Fuera de Servicio",
+        "scrapped": "Desechada"
       },
       "criticalityLabels": {
         "1": "Baja",
@@ -2025,7 +2026,8 @@
         "statusOptions": {
           "active": "Activa",
           "under_maintenance": "En Mantenimiento",
-          "decommissioned": "Fuera de Servicio"
+          "decommissioned": "Fuera de Servicio",
+          "scrapped": "Desechada"
         },
         "criticalityOptions": {
           "5": "5 - Crítica para la Misión",

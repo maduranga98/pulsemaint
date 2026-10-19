@@ -33,10 +33,16 @@ function planDisplayName(plan: string | undefined): string {
  * number the single-create forms use.
  */
 export async function fetchResourceCount(resource: CountedResource, companyId: string): Promise<number> {
+  // Scrapped machines stay on record but no longer count against the plan.
+  if (resource === 'machines') {
+    const [all, scrapped] = await Promise.all([
+      getCountFromServer(query(collection(db, 'machines'), where('siteId', '==', companyId))),
+      getCountFromServer(query(collection(db, 'machines'), where('siteId', '==', companyId), where('status', '==', 'scrapped'))),
+    ]);
+    return Math.max(0, all.data().count - scrapped.data().count);
+  }
   const q =
-    resource === 'machines'
-      ? query(collection(db, 'machines'), where('siteId', '==', companyId))
-      : resource === 'inventoryItems'
+    resource === 'inventoryItems'
       ? query(collection(db, 'inventoryParts'), where('companyId', '==', companyId))
       : resource === 'pmSchedules'
       ? query(

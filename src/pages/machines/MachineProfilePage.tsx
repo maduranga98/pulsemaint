@@ -14,6 +14,11 @@ import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields
 import type { WOType } from '../../types/workOrder';
 import { MachineSparePartsPanel } from '../../components/machines/MachineSparePartsPanel';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
+import { ScrapMachineDialog } from '../../components/machines/ScrapMachineDialog';
+import { SCRAP_REASON_LABEL } from '../../lib/machineAsset';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { toast } from 'sonner';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
@@ -24,6 +29,7 @@ export function MachineProfilePage() {
   const userProfile = useAuthStore((state) => state.userProfile);
   const [activeTab, setActiveTab] = useState<TabName>('overview');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showScrap, setShowScrap] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,6 +83,21 @@ export function MachineProfilePage() {
   const canEditMachine =
     userProfile.role === 'supervisor' || userProfile.role === 'plant_manager' || userProfile.role === 'admin';
 
+  // Money decisions (scrapping, asset value) stay with managers and admins.
+  const canManageAsset = userProfile.role === 'plant_manager' || userProfile.role === 'admin';
+  const isScrapped = machine.status === 'scrapped';
+  const scrap = machine.scrapRecord;
+
+  async function undoScrap() {
+    if (!window.confirm(`Bring ${machine!.name} back into service? The scrap record will be removed.`)) return;
+    try {
+      await updateDoc(doc(db, 'machines', machine!.id), { status: 'active', scrapRecord: null, updatedAt: serverTimestamp() });
+      toast.success('Machine restored.');
+    } catch (e) {
+      toast.error((e as Error).message || 'Could not restore the machine.');
+    }
+  }
+
   const tabs: { name: TabName; label: string }[] = [
     { name: 'overview', label: t('common.machines.profile.tabs.overview') },
     { name: 'documents', label: t('common.machines.profile.tabs.documents') },
@@ -113,6 +134,22 @@ export function MachineProfilePage() {
           </div>
         </div>
       </div>
+
+      {isScrapped && (
+        <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+          <p className="font-semibold">This machine was scrapped{scrap?.scrappedAt ? ` on ${formatDate(scrap.scrappedAt.toDate())}` : ''}.</p>
+          {scrap && (
+            <p className="mt-1 text-rose-800">
+              {SCRAP_REASON_LABEL[scrap.reason] ?? scrap.reason}
+              {scrap.proceeds > 0 && ` · brought in ${scrap.currency} ${scrap.proceeds.toLocaleString()}`}
+              {scrap.approvedBy && ` · approved by ${scrap.approvedBy}`}
+              {scrap.note && ` — ${scrap.note}`}
+            </p>
+          )}
+          <p className="mt-1 text-xs text-rose-700">Its breakdown, maintenance and cost history stay on record.</p>
+          {canManageAsset && <button type="button" onClick={() => void undoScrap()} className="mt-2 text-xs font-medium text-rose-700 underline">Undo scrap</button>}
+        </div>
+      )}
 
       {/* Spare parts — low-stock ones listed first */}
       <MachineSparePartsPanel companyId={userProfile.companyId} machineId={machine.id} />
@@ -177,18 +214,18 @@ export function MachineProfilePage() {
                 </button>
                 {showMoreMenu && (
                   <div className="absolute right-0 mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-200 z-10 py-1">
-                    <button
+                    {!isScrapped && <button
                       onClick={() => { navigate(`/app/work-orders?create=1&machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       {t('common.machines.profile.createWorkOrder')}
-                    </button>
-                    <button
+                    </button>}
+                    {!isScrapped && <button
                       onClick={() => { navigate(`/app/breakdowns/report?machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       {t('common.machines.profile.reportIssue')}
-                    </button>
+                    </button>}
                     <button
                       onClick={() => { exportMachineDetailsPdf(machine); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -196,6 +233,14 @@ export function MachineProfilePage() {
                       {t('common.machines.profile.exportDetailsPdf')}
                     </button>
                     <hr className="my-1 border-gray-100" />
+                    {canManageAsset && !isScrapped && (
+                      <button
+                        onClick={() => { setShowScrap(true); setShowMoreMenu(false); }}
+                        className="w-full text-left px-4 py-2 text-sm text-rose-700 hover:bg-rose-50"
+                      >
+                        {t('common.machines.profile.scrapMachine', 'Scrap machine…')}
+                      </button>
+                    )}
                     <button
                       onClick={() => { navigate(`/app/machines/${machine.id}/edit?action=decommission`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
@@ -209,6 +254,10 @@ export function MachineProfilePage() {
           )}
         </div>
       </div>
+
+      {showScrap && (
+        <ScrapMachineDialog machine={machine} userName={userProfile.fullName ?? ''} userId={userProfile.id} onClose={() => setShowScrap(false)} />
+      )}
 
       {/* Tabs */}
       <div className="mb-5">

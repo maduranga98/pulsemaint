@@ -3386,7 +3386,8 @@
       "statusLabels": {
         "active": "Active",
         "under_maintenance": "Under Maintenance",
-        "decommissioned": "Decommissioned"
+        "decommissioned": "Decommissioned",
+      "scrapped": "Scrapped"
       },
       "criticalityLabels": {
         "1": "Low",
@@ -3451,7 +3452,8 @@
         "statusOptions": {
           "active": "Active",
           "under_maintenance": "Under Maintenance",
-          "decommissioned": "Decommissioned"
+          "decommissioned": "Decommissioned",
+        "scrapped": "Scrapped"
         },
         "criticalityOptions": {
           "5": "5 - Mission Critical",

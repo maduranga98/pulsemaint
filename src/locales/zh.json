@@ -1960,7 +1960,8 @@
       "statusLabels": {
         "active": "运行中",
         "under_maintenance": "维护中",
-        "decommissioned": "已报废"
+        "decommissioned": "已报废",
+        "scrapped": "已报废"
       },
       "criticalityLabels": {
         "1": "低",
@@ -2025,7 +2026,8 @@
         "statusOptions": {
           "active": "运行中",
           "under_maintenance": "维护中",
-          "decommissioned": "已报废"
+          "decommissioned": "已报废",
+          "scrapped": "已报废"
         },
         "criticalityOptions": {
           "5": "5 - 关键任务",

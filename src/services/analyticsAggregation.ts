@@ -778,6 +778,7 @@ function mapMachineStatus(status: unknown): MachineHealthDoc['currentStatus'] {
     case 'under_maintenance':
       return 'maintenance';
     case 'decommissioned':
+    case 'scrapped':
       return 'decommissioned';
     default:
       return 'operational';
