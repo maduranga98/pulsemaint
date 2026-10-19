@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   commissionFor, funnel, groupStats, staleLeads,
   dayReport, emptyLead, leadStats, leadsToCsv, mapImportHeaders, matchesSearch, parseImportRows, phoneKey, scheduledCalls,
-  startOfDay, statusAfterCall, statusSideEffects, whatsappNumber, type Lead, type LeadActivity,
+  startOfDay, statusAfterCall, statusSideEffects, whatsappNumber, parseLeadText, type Lead, type LeadActivity,
 } from '../platform/leads';
 
 const NOW = new Date(2026, 9, 9, 12, 0).getTime();
@@ -181,5 +181,21 @@ describe('team & insights', () => {
   it('builds a monotone funnel', () => {
     const f = funnel([lead(), lead({ status: 'called', callsMade: 1 }), lead({ status: 'demo_done' }), lead({ status: 'closed_won' })]);
     expect(f.map((s) => s.count)).toEqual([4, 3, 3, 2, 2, 1]);
+  });
+});
+
+describe('parseLeadText', () => {
+  it('reads labelled lines from a WhatsApp lead message', () => {
+    const p = parseLeadText(`Hello! I filled in your form and would like to know more about your business.
+
+Full name: Nilanka Hettiarachchi
+Company name: CIC Holdings PLC
+Phone number: +94752373073
+WhatsApp number: +94752373073`);
+    expect(p).toMatchObject({ name: 'Nilanka Hettiarachchi', company: 'CIC Holdings PLC', phone: '+94752373073', whatsapp: '+94752373073' });
+  });
+  it('still guesses from unlabelled text', () => {
+    const p = parseLeadText('Nimal Silva\n077 123 4567\nnimal@silva.lk');
+    expect(p).toMatchObject({ name: 'Nimal Silva', company: '', phone: '0771234567', email: 'nimal@silva.lk' });
   });
 });

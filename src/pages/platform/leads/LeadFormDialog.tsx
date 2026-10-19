@@ -24,16 +24,22 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
   const [error, setError] = useState('');
   const set = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) => setF((p) => ({ ...p, [k]: v }));
 
-  /** Fill name (as business and contact), phone, email and website from pasted text; never overwrites with blanks. */
+  /**
+   * Fill the form from pasted text: company → business name, person → contact person, plus phone, email, website
+   * and location. A lone name (no company given) is used for both. Never overwrites with blanks.
+   */
   function applyPaste(text: string) {
     const p = parseLeadText(text);
+    const extra = p.whatsapp && p.whatsapp !== p.phone ? `WhatsApp: ${p.whatsapp}` : '';
     setF((prev) => ({
       ...prev,
-      businessName: p.name || prev.businessName,
+      businessName: p.company || p.name || prev.businessName,
       contactPerson: p.name || prev.contactPerson,
       phone: p.phone || prev.phone,
       email: p.email || prev.email,
       website: p.website || prev.website,
+      location: p.location || prev.location,
+      notes: extra && !prev.notes.includes(extra) ? [prev.notes, extra].filter(Boolean).join('\n') : prev.notes,
     }));
   }
 
@@ -76,8 +82,8 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
       {error && <div className="mb-3"><ErrorNote message={error} /></div>}
       {!lead && (
         <div className="mb-3">
-          <Field label="Paste details" hint="Paste a message or contact — the name, phone, email and website fill in below.">
-            <textarea className={input} rows={3} placeholder={'Nimal Silva\n077 123 4567\nsilva.lk'} onChange={(e) => applyPaste(e.target.value)} />
+          <Field label="Paste details" hint="Paste a message or contact — the company, contact person, phone, WhatsApp, email and website fill in below.">
+            <textarea className={input} rows={3} placeholder={'Full name: Nimal Silva\nCompany name: Silva Engineering\nPhone number: 077 123 4567'} onChange={(e) => applyPaste(e.target.value)} />
           </Field>
         </div>
       )}
