@@ -12,6 +12,7 @@ const { getFirestore, Timestamp } = req('firebase-admin/firestore');
 initializeApp({ projectId: 'demo-firmicore' });
 const db = getFirestore('default');
 const enf = req('./src/billing/planLimitEnforcement.js')._test;
+const ai = req('./src/ai/aiUsageLimit.js');
 
 const T0 = Date.now() - 100000;
 const ts = (i) => Timestamp.fromMillis(T0 + i * 1000);
@@ -126,5 +127,22 @@ describe('server-side plan limits', () => {
   for (const id of ['i1', 'i2', 'i3']) out.push((await enf.enforceSeatLimit('M', await db.collection('companies/M/invitations').doc(id).get())).action);
   ok(out.join() === 'ok,removed,ok', `seats: ${out.join()} (inactive user and expired invite take no seat)`);
   ok(!(await db.collection('inviteTokens').doc('tok_i2').get()).exists && (await db.collection('inviteTokens').doc('tok_i1').get()).exists, 'a removed invitation also loses its link token');
+  });
+});
+
+describe('AI credits', () => {
+  it('charges a web-research request 6 credits, refuses past the monthly allowance and refunds on failure', async () => {
+    const snap = await db.collection('aiUsage').get(); await Promise.all(snap.docs.map((d) => d.ref.delete()));
+    const now = new Date('2026-10-19T10:00:00Z');
+    const who = { uid: 'u1', companyId: 'AI1' };
+    await ai.consumeAiQuota(db, who, now, 10, 1);      // normal suggestion: 1
+    await ai.consumeAiQuota(db, who, now, 10, 6);      // with web research: 6 -> 7 of 10
+    await assert.rejects(ai.consumeAiQuota(db, who, now, 10, 6), /AI credits/); // 7 + 6 > 10
+    await ai.consumeAiQuota(db, who, now, 10, 3);      // exactly 10 of 10
+    await assert.rejects(ai.consumeAiQuota(db, who, now, 10, 1), /AI credits/);
+    await ai.refundAiCredits(db, who, now, 6);         // provider failed: 6 come back
+    await ai.consumeAiQuota(db, who, now, 10, 1);
+    const month = await db.collection('aiUsage').doc('company_AI1_m_2026-10').get();
+    assert.equal(month.get('count'), 5);
   });
 });

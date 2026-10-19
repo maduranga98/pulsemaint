@@ -8,16 +8,20 @@ describe('PLAN_LIMITS', () => {
       const { features: _f, ...counts } = PLAN_LIMITS[p];
       return counts;
     };
-    const base = { workOrdersPerMonth: null };
-    expect(pick('starter')).toEqual({ ...base, fullUsers: 3, lightUsers: 10, plants: 1, machines: 15, inventoryItems: 100, pmSchedules: 30, aiCreditsPerMonth: 20, analyticsHistoryMonths: 12 });
-    expect(pick('workshop')).toEqual({ ...base, fullUsers: 10, lightUsers: 50, plants: 1, machines: 75, inventoryItems: 2000, pmSchedules: 400, aiCreditsPerMonth: 150, analyticsHistoryMonths: 36 });
-    expect(pick('factory')).toEqual({ ...base, fullUsers: 40, lightUsers: 250, plants: 1, machines: 400, inventoryItems: 10000, pmSchedules: 3000, aiCreditsPerMonth: 800, analyticsHistoryMonths: null });
+    expect(pick('starter')).toEqual({ fullUsers: 3, lightUsers: 10, plants: 1, machines: 15, inventoryItems: 100, pmSchedules: 30, workOrdersPerMonth: 60, breakdownsPerMonth: 40, contractors: 0, trainingModules: 0, aiCreditsPerMonth: 20, analyticsHistoryMonths: 12 });
+    expect(pick('workshop')).toEqual({ fullUsers: 10, lightUsers: 50, plants: 3, machines: 75, inventoryItems: 2000, pmSchedules: 400, workOrdersPerMonth: 400, breakdownsPerMonth: 300, contractors: 25, trainingModules: 25, aiCreditsPerMonth: 150, analyticsHistoryMonths: 36 });
+    expect(pick('factory')).toEqual({ fullUsers: 40, lightUsers: 250, plants: 5, machines: 400, inventoryItems: 10000, pmSchedules: 3000, workOrdersPerMonth: 2500, breakdownsPerMonth: 2000, contractors: 250, trainingModules: 250, aiCreditsPerMonth: 800, analyticsHistoryMonths: null });
   });
   it('grows with every plan', () => {
-    for (const key of ['fullUsers', 'lightUsers', 'machines', 'inventoryItems', 'pmSchedules', 'aiCreditsPerMonth'] as const) {
+    for (const key of ['fullUsers', 'lightUsers', 'plants', 'machines', 'inventoryItems', 'pmSchedules', 'workOrdersPerMonth', 'breakdownsPerMonth', 'contractors', 'trainingModules', 'aiCreditsPerMonth'] as const) {
       expect(PLAN_LIMITS.starter[key]!).toBeLessThan(PLAN_LIMITS.workshop[key]!);
       expect(PLAN_LIMITS.workshop[key]!).toBeLessThan(PLAN_LIMITS.factory[key]!);
     }
+  });
+  it('lets Growth and Factory run several plants, and Starter one', () => {
+    expect(PLAN_LIMITS.starter.plants).toBe(1);
+    expect(PLAN_LIMITS.workshop.plants).toBeGreaterThan(1);
+    expect(PLAN_LIMITS.factory.plants!).toBeGreaterThan(PLAN_LIMITS.workshop.plants!);
   });
   it('prices every self-serve plan and leaves Enterprise custom', () => {
     expect(PLAN_PRICES.starter).toEqual({ monthly: 25, yearly: 250 });
@@ -44,7 +48,7 @@ describe('limitsForCompany', () => {
     const l = limitsForCompany({ plan: 'workshop', limitOverrides: { machines: 100, fullUsers: null, plants: -3 } });
     expect(l.machines).toBe(100);
     expect(l.fullUsers).toBeNull();
-    expect(l.plants).toBe(1); // invalid override ignored
+    expect(l.plants).toBe(3); // invalid override ignored
     expect(l.inventoryItems).toBe(2000);
   });
   it('reads an override saved before seats were split as the full-user cap', () => {

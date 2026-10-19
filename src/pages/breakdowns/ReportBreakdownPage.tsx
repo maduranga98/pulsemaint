@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore';
 import { getBreakdownsHomeRoute } from '../../lib/auth';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
+import { useMonthlyBreakdownLimitCheck } from '../../hooks/usePlanLimitCheck';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
 import { suggestBreakdownRootCause, type BreakdownRCASuggestion } from '../../lib/breakdownRCA';
@@ -29,6 +30,7 @@ export default function ReportBreakdownPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
+  const breakdownLimit = useMonthlyBreakdownLimitCheck();
   const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
 
   const [searchParams] = useSearchParams();
@@ -160,6 +162,10 @@ export default function ReportBreakdownPage() {
 
     if (!userProfile || !siteId) {
       setError(t('common.breakdowns.reportPage.errors.profileNotLoaded'));
+      return;
+    }
+    if (breakdownLimit.atLimit) {
+      setError(breakdownLimit.message ?? 'Monthly breakdown report limit reached on your plan.');
       return;
     }
     if (!machineId) {
@@ -373,6 +379,12 @@ export default function ReportBreakdownPage() {
         </div>
       ) : (
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+        {breakdownLimit.atLimit && !error && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-3 flex gap-2 text-sm">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <span>{breakdownLimit.message}</span>
+          </div>
+        )}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />

@@ -10,6 +10,7 @@ import type { TrainingModule } from '@/lib/training/trainingTypes';
 import { SAFETY_TRAINING_TYPE } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
 import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
+import { checkPlanLimit } from '@/hooks/usePlanLimitCheck';
 
 /**
  * Template for creating a Safety Training module only — the general
@@ -22,6 +23,7 @@ export default function CreateSafetyTrainingModulePage() {
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
+  const company = useAuthStore((s) => s.company);
   const [isSaving, setIsSaving] = useState(false);
   // A lesson can be added/reordered/deleted (see ModuleEditorLayout) before
   // the Settings form is ever submitted — the first onSave of any kind
@@ -39,6 +41,11 @@ export default function CreateSafetyTrainingModulePage() {
           updatedAt: serverTimestamp(),
         });
       } else {
+        const blocked = await checkPlanLimit('trainingModules', companyId, company);
+        if (blocked) {
+          toast.error(blocked);
+          return;
+        }
         const status = updates.status ?? 'active';
         const ref = await addDoc(collection(db, 'trainingModules'), {
           ...updates,

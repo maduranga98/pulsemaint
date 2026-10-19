@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
 import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
+import { checkPlanLimit } from '@/hooks/usePlanLimitCheck';
 
 /** Authors a module into the Training tab's library (libraryScope 'training'). */
 export default function CreateModulePage() {
@@ -16,6 +17,7 @@ export default function CreateModulePage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
+  const company = useAuthStore((s) => s.company);
   const [isSaving, setIsSaving] = useState(false);
 
   // The very first save creates the module document, then we hand off to the
@@ -27,6 +29,12 @@ export default function CreateModulePage() {
     if (!companyId || !userId) return;
     setIsSaving(true);
     try {
+      const blocked = await checkPlanLimit('trainingModules', companyId, company);
+      if (blocked) {
+        toast.error(blocked);
+        setIsSaving(false);
+        return;
+      }
       const status = updates.status ?? 'active';
       const ref = await addDoc(collection(db, 'trainingModules'), {
         ...updates,

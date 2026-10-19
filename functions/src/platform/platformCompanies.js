@@ -12,7 +12,7 @@ const DAY = 86_400_000;
 const COMPANY_ROLES = ["admin", "plant_manager", "supervisor", "technician", "store_keeper", "hr_officer", "trainee", "floor_operator", "safety_officer"];
 
 const ENTERPRISE_TIERS = ["enterprise1", "enterprise2", "enterprise3", "unlimited"];
-const LIMIT_KEYS = ["fullUsers", "lightUsers", "plants", "machines", "inventoryItems", "pmSchedules", "workOrdersPerMonth", "aiCreditsPerMonth", "analyticsHistoryMonths"];
+const LIMIT_KEYS = ["fullUsers", "lightUsers", "plants", "machines", "inventoryItems", "pmSchedules", "workOrdersPerMonth", "breakdownsPerMonth", "contractors", "trainingModules", "aiCreditsPerMonth", "analyticsHistoryMonths"];
 
 async function adminContact(company) {
   if (!company.adminUserId) return { name: null, email: null };

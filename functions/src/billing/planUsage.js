@@ -13,7 +13,7 @@ const {getFirestore, Timestamp} = require("firebase-admin/firestore");
 const {requireMember} = require("../lib/access");
 const {safeZone, localDateKey, localDayWindow} = require("../lib/zonedTime");
 
-const RESOURCES = new Set(["machines", "inventoryItems", "pmSchedules", "users", "workOrdersThisMonth"]);
+const RESOURCES = new Set(["machines", "inventoryItems", "pmSchedules", "users", "workOrdersThisMonth", "breakdownsThisMonth"]);
 
 exports.getPlanUsage = onCall({maxInstances: 20}, async (request) => {
   const {companyId, resource} = request.data || {};
@@ -31,6 +31,11 @@ exports.getPlanUsage = onCall({maxInstances: 20}, async (request) => {
     q = db.collection("pm_schedules").where("companyId", "==", companyId).where("status", "in", ["active", "paused"]);
   } else if (resource === "users") {
     q = db.collection(`companies/${companyId}/users`);
+  } else if (resource === "breakdownsThisMonth") {
+    const company = await db.collection("companies").doc(companyId).get();
+    const timeZone = safeZone(company.exists ? company.data().timezone : null);
+    const monthStart = localDayWindow(`${localDateKey(new Date(), timeZone).slice(0, 7)}-01`, timeZone).start;
+    q = db.collection("breakdown_tickets").where("siteId", "==", companyId).where("reportedAt", ">=", Timestamp.fromDate(monthStart));
   } else {
     // Since the start of this month on the company's own calendar.
     const company = await db.collection("companies").doc(companyId).get();

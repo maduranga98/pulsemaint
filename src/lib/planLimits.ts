@@ -14,7 +14,13 @@ export interface PlanCountLimits {
   inventoryItems: number | null;
   pmSchedules: number | null;
   workOrdersPerMonth: number | null;
-  /** AI suggestions/translations the whole company may use per calendar month (1 request = 1 credit). */
+  /** Breakdown reports raised per calendar month. */
+  breakdownsPerMonth: number | null;
+  /** Registered contractors (contractors and training modules each have their own cap). */
+  contractors: number | null;
+  /** Training modules authored (both libraries together). */
+  trainingModules: number | null;
+  /** AI credits per month: 1 = a normal suggestion, 6 = one with web research. */
   aiCreditsPerMonth: number | null;
   /** How many months back Analytics and reports can look. */
   analyticsHistoryMonths: number | null;
@@ -22,6 +28,9 @@ export interface PlanCountLimits {
 
 /** Roles that take a light seat; every other role takes a full seat. */
 export const LIGHT_USER_ROLES = ['floor_operator', 'trainee'] as const;
+
+/** AI credit cost of one request: a normal suggestion is 1, one with web research is 6. */
+export const AI_CREDIT_COST = { standard: 1, webResearch: 6 } as const;
 
 export type SeatType = 'full' | 'light';
 
@@ -69,7 +78,10 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
     machines: 15,
     inventoryItems: 100,
     pmSchedules: 30,
-    workOrdersPerMonth: null,
+    workOrdersPerMonth: 60,
+    breakdownsPerMonth: 40,
+    contractors: 0,
+    trainingModules: 0,
     aiCreditsPerMonth: 20,
     analyticsHistoryMonths: 12,
     features: {
@@ -92,11 +104,14 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
   workshop: {
     fullUsers: 10,
     lightUsers: 50,
-    plants: 1,
+    plants: 3,
     machines: 75,
     inventoryItems: 2000,
     pmSchedules: 400,
-    workOrdersPerMonth: null,
+    workOrdersPerMonth: 400,
+    breakdownsPerMonth: 300,
+    contractors: 25,
+    trainingModules: 25,
     aiCreditsPerMonth: 150,
     analyticsHistoryMonths: 36,
     features: {
@@ -119,11 +134,14 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
   factory: {
     fullUsers: 40,
     lightUsers: 250,
-    plants: 1,
+    plants: 5,
     machines: 400,
     inventoryItems: 10000,
     pmSchedules: 3000,
-    workOrdersPerMonth: null,
+    workOrdersPerMonth: 2500,
+    breakdownsPerMonth: 2000,
+    contractors: 250,
+    trainingModules: 250,
     aiCreditsPerMonth: 800,
     analyticsHistoryMonths: null,
     features: {
@@ -154,6 +172,9 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
     inventoryItems: null,
     pmSchedules: null,
     workOrdersPerMonth: null,
+    breakdownsPerMonth: null,
+    contractors: null,
+    trainingModules: null,
     aiCreditsPerMonth: null,
     analyticsHistoryMonths: null,
     features: {
@@ -179,10 +200,10 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
 export type EnterpriseTier = 'enterprise1' | 'enterprise2' | 'enterprise3' | 'unlimited';
 
 export const ENTERPRISE_TIER_LIMITS: Record<EnterpriseTier, PlanCountLimits> = {
-  enterprise1: { fullUsers: 100, lightUsers: 500, plants: 5, machines: 300, inventoryItems: 1000, pmSchedules: 300, workOrdersPerMonth: null, aiCreditsPerMonth: 2000, analyticsHistoryMonths: null },
-  enterprise2: { fullUsers: 250, lightUsers: 1250, plants: 10, machines: 1000, inventoryItems: 5000, pmSchedules: 1000, workOrdersPerMonth: null, aiCreditsPerMonth: 5000, analyticsHistoryMonths: null },
-  enterprise3: { fullUsers: 500, lightUsers: 2500, plants: 25, machines: 3000, inventoryItems: 20000, pmSchedules: 3000, workOrdersPerMonth: null, aiCreditsPerMonth: 15000, analyticsHistoryMonths: null },
-  unlimited: { fullUsers: null, lightUsers: null, plants: null, machines: null, inventoryItems: null, pmSchedules: null, workOrdersPerMonth: null, aiCreditsPerMonth: null, analyticsHistoryMonths: null },
+  enterprise1: { fullUsers: 100, lightUsers: 500, plants: 5, machines: 300, inventoryItems: 1000, pmSchedules: 300, workOrdersPerMonth: 1000, breakdownsPerMonth: 600, contractors: 100, trainingModules: 100, aiCreditsPerMonth: 2000, analyticsHistoryMonths: null },
+  enterprise2: { fullUsers: 250, lightUsers: 1250, plants: 10, machines: 1000, inventoryItems: 5000, pmSchedules: 1000, workOrdersPerMonth: 4000, breakdownsPerMonth: 2000, contractors: 300, trainingModules: 300, aiCreditsPerMonth: 5000, analyticsHistoryMonths: null },
+  enterprise3: { fullUsers: 500, lightUsers: 2500, plants: 25, machines: 3000, inventoryItems: 20000, pmSchedules: 3000, workOrdersPerMonth: 12000, breakdownsPerMonth: 6000, contractors: 800, trainingModules: 800, aiCreditsPerMonth: 15000, analyticsHistoryMonths: null },
+  unlimited: { fullUsers: null, lightUsers: null, plants: null, machines: null, inventoryItems: null, pmSchedules: null, workOrdersPerMonth: null, breakdownsPerMonth: null, contractors: null, trainingModules: null, aiCreditsPerMonth: null, analyticsHistoryMonths: null },
 };
 
 export function planLimitsFor(plan: Plan | undefined | null): PlanLimitConfig {

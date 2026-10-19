@@ -25,9 +25,10 @@ const monthKey = (now) => now.toISOString().slice(0, 7); // 2026-10
 /**
  * Counts this call against the user's and company's windows, or throws
  * resource-exhausted. `monthlyCredits` is the plan's AI credits per UTC month
- * for the company (1 request = 1 credit; null/undefined = no plan cap).
+ * for the company; `cost` is the credits this request uses (1 = a normal suggestion,
+ * 6 = one with web research; null/undefined limit = no plan cap).
  */
-async function consumeAiQuota(db, {uid, companyId}, now = new Date(), monthlyCredits = null) {
+async function consumeAiQuota(db, {uid, companyId}, now = new Date(), monthlyCredits = null, cost = 1) {
   const monthRef = db.collection("aiUsage").doc(`company_${companyId || "none"}_m_${monthKey(now)}`);
   const userRef = db.collection("aiUsage").doc(`user_${uid}_${hourKey(now)}`);
   const companyRef = db.collection("aiUsage").doc(`company_${companyId || "none"}_${dayKey(now)}`);
@@ -35,7 +36,7 @@ async function consumeAiQuota(db, {uid, companyId}, now = new Date(), monthlyCre
   await db.runTransaction(async (tx) => {
     const [userSnap, companySnap, monthSnap] = await Promise.all([tx.get(userRef), tx.get(companyRef), tx.get(monthRef)]);
     const monthCount = monthSnap.exists ? monthSnap.get("count") || 0 : 0;
-    if (monthlyCredits !== null && monthCount >= monthlyCredits) {
+    if (monthlyCredits !== null && monthCount + cost > monthlyCredits) {
       throw new HttpsError("resource-exhausted", `Your plan's ${monthlyCredits} AI credits for this month are used up. They reset next month — or upgrade your plan for more.`);
     }
     const userCount = userSnap.exists ? userSnap.get("count") || 0 : 0;
@@ -47,9 +48,15 @@ async function consumeAiQuota(db, {uid, companyId}, now = new Date(), monthlyCre
       throw new HttpsError("resource-exhausted", "Your company has reached today's AI request limit.");
     }
     tx.set(userRef, {count: userCount + 1, uid, updatedAt: FieldValue.serverTimestamp()}, {merge: true});
-    tx.set(monthRef, {count: monthCount + 1, companyId: companyId || null, updatedAt: FieldValue.serverTimestamp()}, {merge: true});
+    tx.set(monthRef, {count: monthCount + cost, companyId: companyId || null, updatedAt: FieldValue.serverTimestamp()}, {merge: true});
     tx.set(companyRef, {count: companyCount + 1, companyId: companyId || null, updatedAt: FieldValue.serverTimestamp()}, {merge: true});
   });
 }
 
-module.exports = {consumeAiQuota, PER_USER_PER_HOUR, PER_COMPANY_PER_DAY, hourKey, dayKey, monthKey};
+/** Gives credits back when the AI provider failed after they were charged. */
+async function refundAiCredits(db, {companyId}, now = new Date(), cost = 1) {
+  const monthRef = db.collection("aiUsage").doc(`company_${companyId || "none"}_m_${monthKey(now)}`);
+  await monthRef.set({count: FieldValue.increment(-cost), updatedAt: FieldValue.serverTimestamp()}, {merge: true}).catch(() => {});
+}
+
+module.exports = {consumeAiQuota, refundAiCredits, PER_USER_PER_HOUR, PER_COMPANY_PER_DAY, hourKey, dayKey, monthKey};
