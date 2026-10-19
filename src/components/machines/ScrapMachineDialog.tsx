@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { collection, doc, getDocs, query, serverTimestamp, Timestamp, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { doc, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore';
+import { archiveSchedulesForScrap } from '../../services/machineScrap.service';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
@@ -38,17 +39,12 @@ export function ScrapMachineDialog({ machine, userName, userId, companyId, onClo
         },
         updatedAt: serverTimestamp(),
       });
-      // A scrapped machine has nothing left to service: pause its active PM schedules (best effort).
-      let paused = 0;
+      // Its PM schedules are archived (best effort — the machine is scrapped either way).
+      let archived = 0;
       try {
-        const snap = await getDocs(query(collection(db, 'pm_schedules'),
-          where('companyId', '==', companyId), where('machineId', '==', machine.id), where('status', '==', 'active')));
-        const batch = writeBatch(db);
-        snap.docs.forEach((d) => batch.update(d.ref, { status: 'paused', updatedAt: serverTimestamp() }));
-        if (!snap.empty) await batch.commit();
-        paused = snap.size;
-      } catch { /* the machine is scrapped either way; schedules can be paused by hand */ }
-      toast.success(`${t('common.machines.asset.scrap.done', { name: machine.name })}${paused ? t('common.machines.asset.scrap.pmPaused', { count: paused }) : ''}`);
+        archived = await archiveSchedulesForScrap(companyId, machine.id);
+      } catch { /* schedules can be archived by hand */ }
+      toast.success(`${t('common.machines.asset.scrap.done', { name: machine.name })}${archived ? t('common.machines.asset.scrap.pmArchived', { count: archived }) : ''}`);
       onClose();
     } catch (e) {
       toast.error((e as Error).message || t('common.machines.asset.scrap.failed'));

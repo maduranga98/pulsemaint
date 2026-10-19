@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { collection, query, where, getCountFromServer, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getCountFromServer, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { limitsForCompany, isAtOrOverLimit, seatTypeForRole, LIGHT_USER_ROLES, type SeatType } from '../lib/planLimits';
+import { limitsForCompany, isAtOrOverLimit, seatTypeForRole, seatCountsFrom, LIGHT_USER_ROLES, type SeatType } from '../lib/planLimits';
 import { PLAN_DISPLAY_NAME } from '../lib/planCatalog';
 
 export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'plants';
@@ -41,16 +41,21 @@ export async function fetchResourceCount(resource: CountedResource, companyId: s
     ]);
     return Math.max(0, all.data().count - scrapped.data().count);
   }
+  if (resource === 'plants') {
+    const [all, off] = await Promise.all([
+      getCountFromServer(query(collection(db, 'plants'), where('companyId', '==', companyId))),
+      getCountFromServer(query(collection(db, 'plants'), where('companyId', '==', companyId), where('status', '==', 'inactive'))),
+    ]);
+    return Math.max(0, all.data().count - off.data().count);
+  }
   const q =
     resource === 'inventoryItems'
       ? query(collection(db, 'inventoryParts'), where('companyId', '==', companyId))
-      : resource === 'pmSchedules'
-      ? query(
+      : query(
           collection(db, 'pm_schedules'),
           where('companyId', '==', companyId),
           where('status', 'in', ['active', 'paused']),
-        )
-      : query(collection(db, 'plants'), where('companyId', '==', companyId));
+        );
   const snap = await getCountFromServer(q);
   return snap.data().count;
 }
@@ -70,14 +75,21 @@ export async function fetchSeatCounts(companyId: string): Promise<SeatCounts> {
   const members = collection(db, `companies/${companyId}/users`);
   const invites = query(collection(db, `companies/${companyId}/invitations`), where('status', '==', 'pending'));
   const light = [...LIGHT_USER_ROLES];
-  const [mAll, mLight, iAll, iLight] = await Promise.all([
+  const inactive = where('status', '==', 'inactive');
+  const [all, off, lightAll, lightOff, inviteSnap] = await Promise.all([
     getCountFromServer(query(members)),
+    getCountFromServer(query(members, inactive)),
     getCountFromServer(query(members, where('role', 'in', light))),
-    getCountFromServer(invites),
-    getCountFromServer(query(invites, where('role', 'in', light))),
+    getCountFromServer(query(members, where('role', 'in', light), inactive)),
+    getDocs(invites),
   ]);
-  const lightCount = mLight.data().count + iLight.data().count;
-  return { full: mAll.data().count + iAll.data().count - lightCount, light: lightCount };
+  return seatCountsFrom({
+    members: { all: all.data().count, inactive: off.data().count, light: lightAll.data().count, lightInactive: lightOff.data().count },
+    invites: inviteSnap.docs.map((d) => ({
+      role: d.get('role') as string | undefined,
+      expiresAtMs: typeof d.get('expiresAt')?.toMillis === 'function' ? (d.get('expiresAt').toMillis() as number) : null,
+    })),
+  });
 }
 
 export interface SeatUsage {
@@ -279,4 +291,63 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
       ? `You've reached the ${limit}/month work order limit on your ${planDisplayName(plan)} plan. Upgrade to create more this month.`
       : null,
   };
+}
+
+/** Ready-to-show text for a count limit that has been reached. */
+function limitReachedMessage(limit: number, label: string, plan: string | undefined): string {
+  return `You've reached the ${limit} ${label} limit on your ${planDisplayName(plan)} plan. Upgrade to add more.`;
+}
+
+/**
+ * Last-moment check, used at submit time by flows that don't render the limit hook
+ * (PM schedule form, spare parts created from a machine…): would adding `adding` more
+ * of this resource go past the company's limit? Returns the message to show, or null
+ * when it is fine. A failed count blocks the action, same as the hook.
+ */
+export async function checkCanCreate(
+  resource: CountedResource,
+  company: Parameters<typeof limitsForCompany>[0],
+  companyId: string,
+  adding = 1,
+): Promise<string | null> {
+  const limit = limitsForCompany(company)[resource];
+  if (limit === null) return null;
+  try {
+    const n = await fetchResourceCount(resource, companyId);
+    if (n + adding > limit) return limitReachedMessage(limit, RESOURCE_LABEL[resource], company?.plan ?? undefined);
+    return null;
+  } catch {
+    return `We couldn't verify your ${RESOURCE_LABEL[resource]} limit right now. Check your connection and try again.`;
+  }
+}
+
+/**
+ * Seat check for a person being added or changed: a new invitation, a role switch that
+ * moves someone between full and light seats, or reactivating a deactivated account.
+ * `from` is the user's current role/status (omit for a brand-new person).
+ */
+export async function checkSeatChange(opts: {
+  company: Parameters<typeof limitsForCompany>[0];
+  companyId: string;
+  toRole: string | null | undefined;
+  toStatus?: string | null;
+  from?: { role: string | null | undefined; status?: string | null };
+}): Promise<string | null> {
+  const { company, companyId, toRole, from } = opts;
+  if ((opts.toStatus ?? 'active') === 'inactive') return null; // a deactivated account takes no seat
+  const seat = seatTypeForRole(toRole);
+  const wasCounted = !!from && (from.status ?? 'active') !== 'inactive';
+  if (wasCounted && seatTypeForRole(from?.role) === seat) return null; // same seat as before
+  const limits = limitsForCompany(company);
+  const limit = seat === 'light' ? limits.lightUsers : limits.fullUsers;
+  if (limit === null) return null;
+  try {
+    const counts = await fetchSeatCounts(companyId);
+    if (counts[seat] >= limit) {
+      return `You've reached the ${limit} ${seat} user limit on your ${planDisplayName(company?.plan ?? undefined)} plan. Upgrade to add more.`;
+    }
+    return null;
+  } catch {
+    return "We couldn't verify your user limit right now. Check your connection and try again.";
+  }
 }

@@ -3412,7 +3412,7 @@
         "errScrapOverPrice": "Scrap value can’t be more than the purchase price.",
         "scrap": {
           "title": "Scrap {{name}}",
-          "intro": "The machine moves to the bottom of the list marked Scrapped. Its history is kept and its active PM schedules are paused.",
+          "intro": "The machine moves to the bottom of the list marked Scrapped. Its history is kept and its active PM schedules are archived (they come back if you undo the scrap).",
           "date": "Scrap date",
           "reason": "Reason",
           "reasons": {
@@ -3431,7 +3431,9 @@
           "errApprover": "Enter who approved scrapping this machine.",
           "errAmount": "Scrap / sale amount must be 0 or more.",
           "done": "{{name}} marked as scrapped.",
-          "pmPaused": " {{count}} PM schedule(s) paused.",
+          "pmArchived": " {{count}} PM schedule(s) archived.",
+          "pmRestored": "{{count}} PM schedule(s) re-activated.",
+          "pmNotRestored": "{{count}} could not be re-activated — your plan's PM schedule limit is reached.",
           "failed": "Could not scrap the machine.",
           "menu": "Scrap machine…",
           "bannerOn": "This machine was scrapped on {{date}}.",
@@ -4058,6 +4060,7 @@
       }
     },
     "workOrders": {
+      "typeLockedByPlan": "Not included in your plan — upgrade to use contractor work orders.",
       "pageTitle": "Work Orders",
       "count": "{{count}} work orders",
       "createButton": "+ Create Work Order",

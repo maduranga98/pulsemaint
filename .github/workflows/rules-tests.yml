@@ -9,6 +9,8 @@ on:
       - firestore.rules
       - storage.rules
       - rules-tests/**
+      - functions/src/billing/planLimitEnforcement.js
+      - functions/src/lib/planFeatures.js
       - .github/workflows/rules-tests.yml
   workflow_dispatch: {}
 
@@ -30,4 +32,7 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm ci --legacy-peer-deps
+      # The server-side plan-limit tests load the Cloud Functions code.
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: functions
       - run: npm test

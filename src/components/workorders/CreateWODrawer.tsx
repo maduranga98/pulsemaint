@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { isFeatureAvailable } from '../../lib/planLimits';
 import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder';
 import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } from '../../constants/woConfig';
 import { PM_TYPES_ORDERED, PM_TYPE_CONFIG } from '../../constants/pmConfig';
@@ -128,6 +129,7 @@ export function CreateWODrawer({
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
   const userProfile = useAuthStore((s) => s.userProfile);
+  const company = useAuthStore((s) => s.company);
   // A supervisor (or any other department-scoped role that can reach this
   // drawer) can only raise a work order against a machine in their own
   // registered department.
@@ -630,19 +632,23 @@ export function CreateWODrawer({
                     {WO_TYPES_ORDERED.map((type) => {
                       const cfg = WO_TYPE_CONFIG[type];
                       const isSelected = woType === type;
+                      // Contractor work orders belong to the Contractors module, which some plans don't include.
+                      const lockedByPlan = type === 'CONTRACTOR' && !isFeatureAvailable(company, 'contractors');
                       return (
                         <button
                           key={type}
                           type="button"
+                          disabled={lockedByPlan}
+                          title={lockedByPlan ? t('common.workOrders.typeLockedByPlan') : undefined}
                           onClick={() => form.setValue('woType', type as WOType)}
                           className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                             isSelected
                               ? `border-[${cfg.color}] ${cfg.bgClass} ${cfg.textClass}`
                               : 'border-gray-100 hover:border-gray-300 text-gray-600'
-                          }`}
+                          } ${lockedByPlan ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
                           <span className="text-2xl">{cfg.icon}</span>
-                          <span className="text-center leading-tight text-xs">{t(`common.workOrders.types.${type}`)}</span>
+                          <span className="text-center leading-tight text-xs">{lockedByPlan ? '🔒 ' : ''}{t(`common.workOrders.types.${type}`)}</span>
                         </button>
                       );
                     })}

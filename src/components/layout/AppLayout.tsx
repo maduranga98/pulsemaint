@@ -345,7 +345,8 @@ function TrialExpiryBanner() {
     : null;
 
   const expired = daysLeft !== null && daysLeft <= 0;
-  const urgent = daysLeft !== null && daysLeft <= 7;
+  // A trial is 7 days long, so "urgent" means the last 3 days (otherwise the banner would show all trial long).
+  const urgent = daysLeft !== null && daysLeft <= 3;
 
   if (!expired && !urgent) return null;
 
