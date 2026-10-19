@@ -85,8 +85,8 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
       <aside className="flex h-full w-full max-w-xl flex-col border-l border-[#1E3A5F] bg-[#0F1E35]">
         <div className="flex items-start gap-3 border-b border-[#1E3A5F] px-5 py-4">
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-xs text-slate-500">{formatLeadNumber(lead.leadNumber)} · Created {fmtDateTime(lead.createdAt ?? lead.leadDate)}</p>
-            <h2 className="truncate text-lg font-bold text-white!">{lead.businessName}</h2>
+            <h2 className="truncate text-lg font-bold text-white!">{lead.leadNumber ? `${formatLeadNumber(lead.leadNumber)}. ` : ''}{lead.businessName}</h2>
+            <p className="font-mono text-xs text-slate-500">Created {fmtDateTime(lead.createdAt ?? lead.leadDate)}</p>
             {lead.contactPerson && <p className="text-sm text-slate-400">{lead.contactPerson}</p>}
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               <StatusPill status={lead.status} />
