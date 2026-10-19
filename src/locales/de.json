@@ -10644,6 +10644,34 @@
               "Nutzen Sie die Download- oder Druckoption, um ihn als Bild oder PDF zu speichern, oder drucken Sie ihn direkt aus, um ihn an der Maschine anzubringen.",
               "Das spätere Scannen dieses QR-Codes öffnet direkt dieses Profil."
             ]
+          },
+          {
+            "title": "Kaufpreis einer Maschine erfassen und ihren Wert sehen",
+            "steps": [
+              "Öffnen Sie Maschinen und nutzen Sie Maschine hinzufügen (oder Bearbeiten bei einer vorhandenen). Admins und Werksleiter sehen Kaufpreis und Erwarteter Schrottwert neben Kaufdatum und erwarteter Lebensdauer.",
+              "Geben Sie den Kaufpreis und den erwarteten Wert bei der Verschrottung ein. Beträge sind in Ihrer Firmenwährung.",
+              "Öffnen Sie die Maschine und sehen Sie Übersicht: Die Karte Anlagenwert zeigt jährliche Abschreibung, bisherige Abschreibung und den aktuellen Wert, linear über die erwartete Lebensdauer berechnet.",
+              "Viele Maschinen auf einmal? Laden Sie unter Import die CSV-Vorlage herunter – sie enthält die Spalten expected_lifespan_years, purchase_price und scrap_value.",
+              "Die Karte addiert auch die Instandhaltungskosten und warnt, wenn die Reparatur mehr kostet, als die Maschine wert ist."
+            ]
+          },
+          {
+            "title": "Eine Maschine verschrotten",
+            "steps": [
+              "Öffnen Sie die Maschine und wählen Sie Mehr → Maschine verschrotten… (Admins und Werksleiter).",
+              "Wählen Sie Datum und Grund, tragen Sie ein, was Schrott oder Verkauf eingebracht haben und wer es genehmigt hat, und bestätigen Sie.",
+              "Die Maschine wird als Verschrottet (rosa) markiert und rutscht ans Ende der Maschinenliste. Ihr Verlauf bleibt erhalten, ihre PM-Pläne werden archiviert.",
+              "Sie erscheint nicht mehr bei Arbeitsaufträgen, Störungsmeldungen oder PM-Plänen und zählt nicht mehr zum Maschinenlimit Ihres Tarifs.",
+              "Versehentlich verschrottet? Öffnen Sie die Maschine und wählen Sie Verschrottung rückgängig – die Maschine und ihre archivierten PM-Pläne kommen zurück."
+            ]
+          },
+          {
+            "title": "Die geführte Tour einer Maschinenseite starten",
+            "steps": [
+              "Öffnen Sie eine Maschine und drücken Sie neben dem Status auf Seitentour.",
+              "Eine Karte zeigt auf Status, Zustand und Wartung, den Tab Instandhaltung, das Menü Mehr und (für Admins und Werksleiter) die Karte Anlagenwert.",
+              "Mit Weiter und Zurück gehen Sie voran, mit Tour überspringen beenden Sie sie. Sie können sie jederzeit neu starten."
+            ]
           }
         ]
       },
@@ -10695,6 +10723,17 @@
               "Er erfasst dabei verwendete Teile, Notizen und etwaige Medien (Fotos).",
               "Nach Abschluss reicht er ihn zur Abzeichnung ein.",
               "Ein Vorgesetzter oder höher prüft die abgeschlossene Checkliste und die Abzeichnungsdetails und schließt den Arbeitsauftrag."
+            ]
+          },
+          {
+            "title": "Von einem externen Auftragnehmer ausgeführte Arbeit erfassen",
+            "steps": [
+              "Erstellen Sie einen Arbeitsauftrag und wählen Sie den Typ Auftragnehmer (das Modul Auftragnehmer muss in Ihrem Tarif enthalten sein).",
+              "Wählen Sie im Schritt Team die Auftragnehmer-Firma.",
+              "Unter Details zur Fremdvergabe (optional) tragen Sie Art der Arbeit, Daten und das Ausgeführte ein.",
+              "Fügen Sie jedes ersetzte oder hinzugefügte Teil mit Menge und Stückpreis hinzu, danach Arbeits- oder Servicekosten. Die Summe wird berechnet.",
+              "Tragen Sie die Rechnungsnummer ein und hängen Sie die Rechnung an (PDF oder Foto).",
+              "Erstellen Sie den Arbeitsauftrag. Die Angaben werden im Tab Instandhaltung der Maschine gespeichert, wo Kosten, Teile und Rechnungslinks erhalten bleiben."
             ]
           }
         ]
@@ -11109,6 +11148,107 @@
             ]
           }
         ]
+      }
+    },
+    "tour": {
+      "bannerTitle": "Geführte Tour starten",
+      "bannerBody": "Ein kurzer Rundgang durch Menü, Benachrichtigungen und Ihre Schicht – Schritt für Schritt.",
+      "bannerButton": "Tour starten"
+    }
+  },
+  "tour": {
+    "ui": {
+      "next": "Weiter",
+      "back": "Zurück",
+      "done": "Fertig",
+      "skip": "Tour überspringen",
+      "close": "Schließen",
+      "stepOf": "{{current}} von {{total}}",
+      "nothingToShow": "Auf diesem Bildschirm gibt es noch nichts zu zeigen.",
+      "pageTour": "Seitentour"
+    },
+    "main": {
+      "welcome": {
+        "title": "Willkommen bei FirmiCore",
+        "body": "Machen wir einen kurzen Rundgang durch die wichtigsten Bereiche der App. Das dauert nur eine Minute – mit Weiter geht es voran, mit Überspringen beenden Sie jederzeit. Unter Hilfe & Support können Sie ihn wiederholen."
+      },
+      "dashboard": {
+        "title": "Ihr Dashboard",
+        "body": "Ihre Startseite. Sie zeigt, was heute Aufmerksamkeit braucht: offene Störungen, Arbeitsaufträge, fällige PM und Hinweise für Ihre Rolle."
+      },
+      "plants": {
+        "title": "Werks-Tabs",
+        "body": "Wechseln Sie hier zwischen Ihren Werken. Alles darunter – Maschinen, Arbeitsaufträge, Personen – richtet sich nach dem gewählten Werk."
+      },
+      "group_maintenance": {
+        "title": "Instandhaltung",
+        "body": "Hier finden Sie Maschinen, Störungen, Arbeitsaufträge und PM-Pläne. Beginnen Sie hier, um eine Störung zu melden oder eine Maschine zu prüfen."
+      },
+      "group_safety": {
+        "title": "Sicherheit",
+        "body": "Arbeitsfreigaben, Sicherheitsfälle, Sicherheitsschulungen und die Auftragnehmer-Sperrliste."
+      },
+      "group_inventory": {
+        "title": "Lager",
+        "body": "Ersatzteilkatalog, Bestandsanfragen und Bestellungen. Teile mit niedrigem Bestand werden markiert."
+      },
+      "group_triage_training": {
+        "title": "Triage & Schulung",
+        "body": "Geführte Störungsdiagnose sowie Schulungsmodule, Zuweisungen und Zertifikate."
+      },
+      "group_workforce": {
+        "title": "Mitarbeiter",
+        "body": "Auftragnehmer, Ihre Schicht, Schichtübergaben und Anfragen an Vorgesetzte."
+      },
+      "group_insights": {
+        "title": "Auswertungen",
+        "body": "Analysen, Berichte, MOE, Audits und Bewertungen – Zahlen und Berichte aus Ihren eigenen Daten."
+      },
+      "group_admin": {
+        "title": "Verwaltung",
+        "body": "Einstellungen, Benutzer, Werke, Abrechnung und Supportanfragen Ihres Unternehmens."
+      },
+      "language": {
+        "title": "Sprache",
+        "body": "Wechseln Sie die Sprache der App jederzeit. Ihre Auswahl wird gespeichert."
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "body": "Die Glocke zeigt neue Störungen, Zuweisungen, Freigaben und Hinweise. Eine rote Zahl bedeutet: Es wartet etwas."
+      },
+      "shift": {
+        "title": "Ihre Schicht",
+        "body": "Starten Sie hier Ihre Schicht und beenden Sie sie mit einer Übergabe, damit die nächste Schicht Bescheid weiß."
+      },
+      "profile": {
+        "title": "Ihr Konto",
+        "body": "Ihr Name und Ihre Rolle. Melden Sie sich daneben mit Abmelden ab, wenn Sie fertig sind."
+      },
+      "help": {
+        "title": "Hilfe & Support",
+        "body": "Schritt-für-Schritt-Anleitungen für jedes Modul. Diese Tour können Sie von hier aus jederzeit wiederholen."
+      }
+    },
+    "machine": {
+      "status": {
+        "title": "Status & Kritikalität",
+        "body": "Zeigt, ob die Maschine aktiv, in Wartung oder verschrottet ist (rosa, am Listenende) und wie kritisch sie ist."
+      },
+      "health": {
+        "title": "Zustand & Wartung",
+        "body": "Gesundheitswert, letzte Wartung und nächste fällige PM auf einen Blick."
+      },
+      "tabs": {
+        "title": "Tab Instandhaltung",
+        "body": "Öffnen Sie Instandhaltung, um den Arbeitsverlauf und die gespeicherten Fremdaufträge mit verbauten Teilen, Kosten und Rechnungen zu sehen."
+      },
+      "more": {
+        "title": "Weitere Aktionen",
+        "body": "Arbeitsauftrag erstellen, Problem melden, Details exportieren – und (Admins und Werksleiter) Maschine verschrotten. Verschrotten behält den Verlauf und archiviert die PM-Pläne."
+      },
+      "asset": {
+        "title": "Anlagenwert & Kosten",
+        "body": "Kaufpreis, Schrottwert, jährliche Abschreibung und aktueller Wert sowie alle Instandhaltungskosten – als Grundlage für die Entscheidung Reparatur oder Ersatz."
       }
     }
   }

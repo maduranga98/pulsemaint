@@ -112,7 +112,7 @@ export default function NotificationBell() {
   }
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={ref} data-tour="notifications">
       <button
         ref={buttonRef}
         type="button"

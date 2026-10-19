@@ -9,6 +9,7 @@ export default function LanguageSwitcher() {
 
   return (
     <select
+      data-tour="language"
       value={i18n.language}
       onChange={(e) => setAppLanguage(e.target.value as AppLanguage)}
       aria-label={t('common.language')}

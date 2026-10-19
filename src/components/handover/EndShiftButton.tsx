@@ -84,6 +84,7 @@ export function EndShiftButton() {
           type="button"
           onClick={() => void handleStart()}
           disabled={starting}
+          data-tour="shift"
           className="hidden min-h-10 items-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-sm sm:inline-flex disabled:opacity-60"
         >
           <Play className="h-4 w-4" />
@@ -109,6 +110,7 @@ export function EndShiftButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
+        data-tour="shift"
         className="hidden min-h-10 items-center gap-2 rounded-md bg-amber-500 px-3 py-2 text-xs font-bold text-white shadow-sm sm:inline-flex"
       >
         <Clock className="h-4 w-4" />

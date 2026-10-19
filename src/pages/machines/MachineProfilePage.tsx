@@ -21,6 +21,8 @@ import { restoreSchedulesAfterUnscrap } from '../../services/machineScrap.servic
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { toast } from 'sonner';
+import { HelpCircle } from 'lucide-react';
+import { useTour } from '../../features/tour/TourProvider';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
@@ -30,6 +32,7 @@ export function MachineProfilePage() {
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
   const company = useAuthStore((state) => state.company);
+  const { start: startTour } = useTour();
   const [activeTab, setActiveTab] = useState<TabName>('overview');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showScrap, setShowScrap] = useState(false);
@@ -136,9 +139,18 @@ export function MachineProfilePage() {
               </p>
             </div>
 
-            <div className="flex gap-2">
-              <MachineStatusBadge status={effectiveMachineStatus(machine, openWork) as typeof machine.status} size="lg" />
-              <MachineCriticalityBadge criticality={machine.criticality} size="lg" />
+            <div className="flex flex-wrap items-center gap-2">
+              <div data-tour="machine-status" className="flex gap-2">
+                <MachineStatusBadge status={effectiveMachineStatus(machine, openWork) as typeof machine.status} size="lg" />
+                <MachineCriticalityBadge criticality={machine.criticality} size="lg" />
+              </div>
+              <button
+                type="button"
+                onClick={() => startTour('machine')}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              >
+                <HelpCircle className="h-4 w-4" /> {t('tour.ui.pageTour')}
+              </button>
             </div>
           </div>
         </div>
@@ -164,7 +176,7 @@ export function MachineProfilePage() {
       <MachineSparePartsPanel companyId={userProfile.companyId} machineId={machine.id} />
 
       {/* Health Score Banner */}
-      <div className="bg-white border border-gray-200 rounded-xl mb-5">
+      <div data-tour="machine-health" className="bg-white border border-gray-200 rounded-xl mb-5">
         <div className="p-4 sm:p-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
@@ -216,6 +228,7 @@ export function MachineProfilePage() {
               </button>
               <div className="relative" ref={moreMenuRef}>
                 <button
+                  data-tour="machine-more"
                   onClick={() => setShowMoreMenu((v) => !v)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
                 >
@@ -274,6 +287,7 @@ export function MachineProfilePage() {
           {tabs.map((tab) => (
             <button
               key={tab.name}
+              data-tour={`machine-tab-${tab.name}`}
               onClick={() => {
                 if (tab.name !== 'analytics' || !analyticsTabDisabled) {
                   setActiveTab(tab.name);
