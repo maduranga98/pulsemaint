@@ -135,15 +135,39 @@ describe('company registration and invitations', () => {
   it('a new company admin can register: company, profile, mapping', async () => {
     const db = as('newAdmin', email('new@admin.test'));
     await assertSucceeds(setDoc(doc(db, 'companies/C'), {
-      id: 'C', adminUserId: 'newAdmin', approvalStatus: 'pending', status: 'trial', plan: 'starter',
+      id: 'C', adminUserId: 'newAdmin', approvalStatus: 'pending', status: 'trial', plan: 'starter', trialEndsAt: new Date(Date.now() + 7 * 86_400_000),
     }));
     await assertSucceeds(setDoc(doc(db, 'companies/C/users/newAdmin'), { id: 'newAdmin', companyId: 'C', role: 'admin', siteIds: [], status: 'active' }));
     await assertSucceeds(setDoc(doc(db, 'users/newAdmin'), { uid: 'newAdmin', companyId: 'C', role: 'admin', siteId: 'C' }));
   });
+  it('the free trial is capped at about 7 days and the company starts unapproved on Starter', async () => {
+    const day = 86_400_000;
+    const base = (extra = {}) => ({ id: 'T', adminUserId: 'trialAdmin', approvalStatus: 'pending', status: 'trial', plan: 'starter', trialEndsAt: new Date(Date.now() + 7 * day), ...extra });
+    const db = as('trialAdmin', email('t@admin.test'));
+    await assertFails(setDoc(doc(db, 'companies/T'), base({ trialEndsAt: new Date(Date.now() + 30 * day) })));
+    await assertFails(setDoc(doc(db, 'companies/T'), base({ trialEndsAt: new Date(Date.now() + 365 * day) })));
+    const { trialEndsAt: _omit, ...noTrial } = base();
+    await assertFails(setDoc(doc(db, 'companies/T'), noTrial));
+    await assertFails(setDoc(doc(db, 'companies/T'), base({ plan: 'factory' })));
+    await assertFails(setDoc(doc(db, 'companies/T'), base({ status: 'active' })));
+    await assertFails(setDoc(doc(db, 'companies/T'), base({ approvalStatus: 'approved' })));
+    await assertFails(setDoc(doc(db, 'companies/T'), base({ enterpriseTier: 'unlimited' })));
+    await assertSucceeds(setDoc(doc(db, 'companies/T'), base()));
+  });
+  it('a company admin cannot edit plan, status, trial, approval or limit fields', async () => {
+    const admin = as('adminA');
+    for (const [k, v] of [['plan', 'factory'], ['status', 'suspended'], ['trialEndsAt', new Date(Date.now() + 999 * 86_400_000)], ['approvalStatus', 'rejected'],
+      ['limitOverrides', { machines: 99999 }], ['enterpriseTier', 'unlimited'], ['stripeSubscriptionId', 'sub_x'], ['planSetBy', 'platform']]) {
+      await assertFails(updateDoc(doc(admin, 'companies/A'), { [k]: v }));
+    }
+    await assertSucceeds(updateDoc(doc(admin, 'companies/A'), { name: 'Renamed' }));
+    await assertFails(updateDoc(doc(as('supA'), 'companies/A'), { name: 'x' }));
+    await assertFails(updateDoc(doc(as('adminB'), 'companies/A'), { name: 'x' }));
+  });
   it('limit fields can neither be registered with nor edited by a company admin', async () => {
     const db = as('newAdmin2', email('new2@admin.test'));
     await assertFails(setDoc(doc(db, 'companies/D'), {
-      id: 'D', adminUserId: 'newAdmin2', approvalStatus: 'pending', status: 'trial', plan: 'starter', limitOverrides: { machines: 99999 },
+      id: 'D', adminUserId: 'newAdmin2', approvalStatus: 'pending', status: 'trial', plan: 'starter', trialEndsAt: new Date(Date.now() + 7 * 86_400_000), limitOverrides: { machines: 99999 },
     }));
     const admin = as('adminA');
     await assertFails(updateDoc(doc(admin, 'companies/A'), { limitOverrides: { machines: 99999 } }));
@@ -199,6 +223,31 @@ describe('cross-company isolation', () => {
     await assertSucceeds(getDoc(doc(as('adminA'), 'workOrders/woA/partsRequests/pr1')));
     await assertFails(getDoc(doc(as('adminB'), 'workOrders/woA/partsRequests/pr1')));
     await assertFails(deleteDoc(doc(as('adminB'), 'workOrders/woA/partsRequests/pr1')));
+  });
+  it('machine status: technicians only flip active / under_maintenance, never scrap or revive a machine', async () => {
+    await assertSucceeds(updateDoc(doc(as('techA'), 'machines/mA'), { status: 'under_maintenance' }));
+    await assertSucceeds(updateDoc(doc(as('techA'), 'machines/mA'), { status: 'active' }));
+    await assertFails(updateDoc(doc(as('techA'), 'machines/mA'), { status: 'scrapped' }));
+    await assertFails(updateDoc(doc(as('techA'), 'machines/mA'), { status: 'decommissioned' }));
+    await env.withSecurityRulesDisabled(async (ctx) => { await updateDoc(doc(ctx.firestore(), 'machines/mA'), { status: 'scrapped' }); });
+    await assertFails(updateDoc(doc(as('techA'), 'machines/mA'), { status: 'active' }));
+    await assertFails(updateDoc(doc(as('techA'), 'machines/mA'), { purchasePrice: 1 }));
+    await assertSucceeds(updateDoc(doc(as('adminA'), 'machines/mA'), { status: 'active', scrapRecord: null }));
+    await assertSucceeds(updateDoc(doc(as('adminA'), 'machines/mA'), { status: 'scrapped', scrapRecord: { reason: 'broken' } }));
+    await assertFails(updateDoc(doc(as('adminB'), 'machines/mA'), { status: 'scrapped' }));
+  });
+  it('outsourced maintenance records: managers write their own company only, nobody edits', async () => {
+    const job = (by, c = 'A') => ({ siteId: c, machineId: `m${c}`, contractorName: 'X', totalCost: 100, createdBy: by });
+    await assertSucceeds(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j1'), job('adminA')));
+    await assertSucceeds(setDoc(doc(as('supA'), 'machineOutsourcedMaintenance/j2'), job('supA')));
+    await assertFails(setDoc(doc(as('techA'), 'machineOutsourcedMaintenance/j3'), job('techA')));
+    await assertFails(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j4'), job('adminA', 'B')));
+    await assertFails(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j5'), job('somebodyElse')));
+    await assertFails(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j6'), { ...job('adminA'), totalCost: -1 }));
+    await assertFails(updateDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j1'), { totalCost: 5 }));
+    await assertFails(getDoc(doc(as('techA'), 'machineOutsourcedMaintenance/j1')));
+    await assertFails(getDoc(doc(as('adminB'), 'machineOutsourcedMaintenance/j1')));
+    await assertSucceeds(deleteDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j1')));
   });
   it('machines: scoped reads/writes; QR visitors can still look up one machine', async () => {
     await assertSucceeds(getDocs(query(collection(as('techA'), 'machines'), where('siteId', '==', 'A'))));

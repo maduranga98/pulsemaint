@@ -498,11 +498,17 @@ service cloud.firestore {
       // plus `status` — self-attending a breakdown or moving an assigned WO
       // flips the machine to/from 'under_maintenance' (see
       // markMachineUnderMaintenance / markMachineActiveIfNoOpenWork).
+      // The status they may set is only active / under_maintenance, and only
+      // on a machine that is in one of those — never scrap, decommission or
+      // bring back a retired machine.
       allow update: if isTechnician()
         && tenantMatches(resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'lastServiceDate', 'lastServiceType', 'nextPmDue', 'updatedAt', 'status'
-        ]);
+        ])
+        && (request.resource.data.get('status', null) == resource.data.get('status', null)
+          || (request.resource.data.get('status', null) in ['active', 'under_maintenance']
+            && resource.data.get('status', 'active') in ['active', 'under_maintenance']));
     }
 
     // ---------------------------------------------------------------------------
