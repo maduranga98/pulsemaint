@@ -1958,6 +1958,7 @@
       "addFirstMachine": "添加第一台设备",
       "clearFilters": "清除筛选",
       "asset": {
+        "importNote": "价格和报废价值按 {{currency}}（贵公司货币）读取，仅为管理员和工厂经理保存。",
         "cancel": "取消",
         "close": "关闭",
         "edit": "编辑",
