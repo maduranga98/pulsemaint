@@ -14,6 +14,7 @@ import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields
 import type { WOType } from '../../types/workOrder';
 import { MachineSparePartsPanel } from '../../components/machines/MachineSparePartsPanel';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
+import { MachineAssetCard } from '../../components/machines/MachineAssetCard';
 import { ScrapMachineDialog } from '../../components/machines/ScrapMachineDialog';
 import { SCRAP_REASON_LABEL } from '../../lib/machineAsset';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
@@ -285,7 +286,7 @@ export function MachineProfilePage() {
 
       {/* Tab Content */}
       <div>
-        {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} />}
+        {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} showAsset={canManageAsset} siteId={machine.siteId} />}
         {activeTab === 'documents' && <DocumentsTab machine={machine} />}
         {activeTab === 'history' && <HistoryTab machine={machine} />}
         {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
@@ -296,7 +297,7 @@ export function MachineProfilePage() {
 }
 
 // Tab Components
-function OverviewTab({ machine, canEdit }: any) {
+function OverviewTab({ machine, canEdit, showAsset, siteId }: any) {
   const { t } = useTranslation();
   const na = t('common.machines.profile.na');
   return (
@@ -405,6 +406,8 @@ function OverviewTab({ machine, canEdit }: any) {
 
       {/* Downtime Cost */}
       <DowntimeCostFields machine={machine} canEdit={canEdit} />
+
+      {showAsset && <MachineAssetCard machine={machine} siteId={siteId} />}
     </div>
   );
 }
