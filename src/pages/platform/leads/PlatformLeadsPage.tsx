@@ -298,8 +298,8 @@ function LeadCard({ lead, owner, onOpen }: { lead: Lead; owner: string; onOpen: 
       onClick={onOpen}
       className="cursor-pointer rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3 hover:border-blue-700"
     >
-      <p className="font-mono text-[10px] text-slate-500">{formatLeadNumber(lead.leadNumber)} · {fmtDate(lead.createdAt ?? lead.leadDate)}</p>
-      <p className="truncate text-sm font-semibold text-white" title={lead.businessName}>{lead.businessName}</p>
+      <p className="font-mono text-[10px] text-slate-500">{fmtDate(lead.createdAt ?? lead.leadDate)}</p>
+      <p className="truncate text-sm font-semibold text-white" title={lead.businessName}>{lead.leadNumber ? `${formatLeadNumber(lead.leadNumber)}. ` : ''}{lead.businessName}</p>
       <div className="mt-0.5 flex justify-between gap-2 text-xs text-slate-400">
         <span className="truncate">{lead.contactPerson}</span>
         <span className="truncate text-slate-500">{lead.location || countryLabel(lead.district)}</span>
