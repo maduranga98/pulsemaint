@@ -1958,6 +1958,7 @@
       "addFirstMachine": "Erste Maschine Hinzufügen",
       "clearFilters": "Filter Zurücksetzen",
       "asset": {
+        "importNote": "Preise und Schrottwerte werden in {{currency}} (Ihrer Firmenwährung) gelesen und nur für Admins und Werksleiter gespeichert.",
         "cancel": "Abbrechen",
         "close": "Schließen",
         "edit": "Bearbeiten",

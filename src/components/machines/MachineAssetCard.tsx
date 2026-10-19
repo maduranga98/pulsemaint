@@ -4,7 +4,7 @@ import { Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
-import { formatMoney } from '@/lib/currency';
+import { formatMoney, getCompanyCurrency } from '@/lib/currency';
 import { bookValue, replaceAdvice, workOrderCost } from '../../lib/machineAsset';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { subscribeOutsourcedMaintenance } from '../../services/machineOutsourced.service';
@@ -81,9 +81,9 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
       {editing ? (
         <div className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-sm"><span className="mb-1 block font-medium text-gray-700">{t('common.machines.asset.purchasePrice')}</span>
+            <label className="text-sm"><span className="mb-1 block font-medium text-gray-700">{t('common.machines.asset.purchasePrice')} ({getCompanyCurrency()})</span>
               <input type="number" min={0} className={input} value={price} onChange={(e) => setPrice(e.target.value)} /></label>
-            <label className="text-sm"><span className="mb-1 block font-medium text-gray-700">{t('common.machines.asset.scrapValue')}</span>
+            <label className="text-sm"><span className="mb-1 block font-medium text-gray-700">{t('common.machines.asset.scrapValue')} ({getCompanyCurrency()})</span>
               <input type="number" min={0} className={input} value={scrapValue} onChange={(e) => setScrapValue(e.target.value)} /></label>
           </div>
           <p className="text-xs text-gray-500">{t('common.machines.asset.depreciationHint')}</p>

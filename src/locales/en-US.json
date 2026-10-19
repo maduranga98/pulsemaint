@@ -3384,6 +3384,7 @@
       "addFirstMachine": "Add First Machine",
       "clearFilters": "Clear Filters",
       "asset": {
+        "importNote": "Prices and scrap values are read in {{currency}} (your company currency) and saved for admins and plant managers only.",
         "cancel": "Cancel",
         "close": "Close",
         "edit": "Edit",
