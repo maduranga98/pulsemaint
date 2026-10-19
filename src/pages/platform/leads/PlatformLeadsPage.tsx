@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type DragEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { HelpCircle } from 'lucide-react';
 import { useTour } from '@/features/tour/TourProvider';
 import { countryLabel } from '@/lib/countries';
@@ -10,7 +10,7 @@ import {
   BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, formatLeadNumber, isOpen, leadStats, trialDay, TRIAL_DAYS, leadsToCsv, matchesSearch, revenueText,
   type Lead, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
-import { assignLeads, setLeadStatus, setTrialStarted, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
+import { assignLeads, numberUnnumberedLeads, setLeadStatus, setTrialStarted, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
 import { platformService, errorText, type PlatformCompany } from '@/services/platformService';
 import { ErrorNote, Loading, PageHeader, btn, fmtDate, fmtDateTime, input } from '../platformUi';
 import LeadFormDialog from './LeadFormDialog';
@@ -66,6 +66,13 @@ export default function PlatformLeadsPage() {
   const pendingTrials = (trialRequests ?? []).filter((c) => c.approvalStatus === 'pending').length;
 
   useEffect(() => subscribeLeads(setLeads, (e) => setError(e.message)), []);
+  // Leads that predate numbering get their number (oldest first) the first time the page sees them.
+  const numbering = useRef(false);
+  useEffect(() => {
+    if (!leads || numbering.current || !leads.some((l) => l.leadNumber === null)) return;
+    numbering.current = true;
+    numberUnnumberedLeads().catch((e) => setError((e as Error).message)).finally(() => { numbering.current = false; });
+  }, [leads]);
   useEffect(() => subscribeTeam(setTeam, () => {}), []);
 
   function setView(v: View) {
