@@ -90,13 +90,15 @@ export interface Lead {
   /** FirmiCore company this lead became, once it signed up. */
   companyId: string | null;
   archived: boolean;
+  /** Running lead number (1, 2, 3…), given automatically when the lead is added; null only for a lead not yet numbered. */
+  leadNumber: number | null;
   createdAt: number | null;
   updatedAt: number | null;
   lastActivityAt: number | null;
   createdByEmail: string | null;
 }
 
-export type LeadInput = Omit<Lead, 'id' | 'createdAt' | 'updatedAt' | 'lastActivityAt' | 'createdByEmail' | 'archived' | 'closedAt'>;
+export type LeadInput = Omit<Lead, 'id' | 'leadNumber' | 'createdAt' | 'updatedAt' | 'lastActivityAt' | 'createdByEmail' | 'archived' | 'closedAt'>;
 
 export interface LeadActivity {
   id: string;
@@ -119,6 +121,11 @@ export interface LeadActivity {
   transcript?: string | null;
   /** Language that was spoken, e.g. "Sinhala". */
   spokenLanguage?: string | null;
+}
+
+/** Display form of a lead number: just the running number, e.g. 7 → "7". */
+export function formatLeadNumber(n: number | null | undefined): string {
+  return typeof n === 'number' && n > 0 ? String(n) : '';
 }
 
 export function emptyLead(now = Date.now()): LeadInput {
