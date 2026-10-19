@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { checkCanCreate } from '../../../hooks/usePlanLimitCheck';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
@@ -195,6 +196,11 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
         toast.success(t('common.pmSchedules.createForm.toasts.updated'));
         navigate(`/app/pm-schedules/${editSchedule.id}`);
       } else {
+        const limitMessage = await checkCanCreate('pmSchedules', company, company.id);
+        if (limitMessage) {
+          toast.error(limitMessage);
+          return;
+        }
         const id = await createSchedule({ ...data, documents: documentFiles } as CreatePMPayload, userProfile.id);
         toast.success(t('common.pmSchedules.createForm.toasts.created'));
         navigate(`/app/pm-schedules/${id}`);

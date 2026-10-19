@@ -32,7 +32,7 @@ import { useToast } from '../../hooks/useToast';
 import { useShiftConfig } from '../../hooks/useShiftConfig';
 import { useDepartments } from '../../hooks/useDepartments';
 import { usePlants } from '../../hooks/usePlants';
-import { useSeatUsage } from '../../hooks/usePlanLimitCheck';
+import { checkSeatChange, useSeatUsage } from '../../hooks/usePlanLimitCheck';
 import { seatTypeForRole } from '../../lib/planLimits';
 import {
   createInvitation,
@@ -385,6 +385,13 @@ export default function UsersPage() {
 
   const handleEdit = async (userId: string, values: UserFormValues) => {
     if (!company?.id) throw new Error('No company in session');
+    // Switching a user between full and light seats, or reactivating one, needs a free seat.
+    const before = users.find((u) => u.id === userId);
+    const seatProblem = await checkSeatChange({
+      company, companyId: company.id, toRole: values.role, toStatus: values.status,
+      from: before ? { role: before.role, status: before.status } : undefined,
+    });
+    if (seatProblem) throw new Error(seatProblem);
     const ref = doc(db, `companies/${company.id}/users/${userId}`);
     await updateDoc(ref, {
       fullName: values.fullName.trim(),

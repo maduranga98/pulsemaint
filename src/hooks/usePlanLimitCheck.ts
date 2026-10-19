@@ -280,3 +280,62 @@ export function useMonthlyWorkOrderLimitCheck(): UsePlanLimitCheckResult {
       : null,
   };
 }
+
+/** Ready-to-show text for a count limit that has been reached. */
+function limitReachedMessage(limit: number, label: string, plan: string | undefined): string {
+  return `You've reached the ${limit} ${label} limit on your ${planDisplayName(plan)} plan. Upgrade to add more.`;
+}
+
+/**
+ * Last-moment check, used at submit time by flows that don't render the limit hook
+ * (PM schedule form, spare parts created from a machine…): would adding `adding` more
+ * of this resource go past the company's limit? Returns the message to show, or null
+ * when it is fine. A failed count blocks the action, same as the hook.
+ */
+export async function checkCanCreate(
+  resource: CountedResource,
+  company: Parameters<typeof limitsForCompany>[0],
+  companyId: string,
+  adding = 1,
+): Promise<string | null> {
+  const limit = limitsForCompany(company)[resource];
+  if (limit === null) return null;
+  try {
+    const n = await fetchResourceCount(resource, companyId);
+    if (n + adding > limit) return limitReachedMessage(limit, RESOURCE_LABEL[resource], company?.plan ?? undefined);
+    return null;
+  } catch {
+    return `We couldn't verify your ${RESOURCE_LABEL[resource]} limit right now. Check your connection and try again.`;
+  }
+}
+
+/**
+ * Seat check for a person being added or changed: a new invitation, a role switch that
+ * moves someone between full and light seats, or reactivating a deactivated account.
+ * `from` is the user's current role/status (omit for a brand-new person).
+ */
+export async function checkSeatChange(opts: {
+  company: Parameters<typeof limitsForCompany>[0];
+  companyId: string;
+  toRole: string | null | undefined;
+  toStatus?: string | null;
+  from?: { role: string | null | undefined; status?: string | null };
+}): Promise<string | null> {
+  const { company, companyId, toRole, from } = opts;
+  if ((opts.toStatus ?? 'active') === 'inactive') return null; // a deactivated account takes no seat
+  const seat = seatTypeForRole(toRole);
+  const wasCounted = !!from && (from.status ?? 'active') !== 'inactive';
+  if (wasCounted && seatTypeForRole(from?.role) === seat) return null; // same seat as before
+  const limits = limitsForCompany(company);
+  const limit = seat === 'light' ? limits.lightUsers : limits.fullUsers;
+  if (limit === null) return null;
+  try {
+    const counts = await fetchSeatCounts(companyId);
+    if (counts[seat] >= limit) {
+      return `You've reached the ${limit} ${seat} user limit on your ${planDisplayName(company?.plan ?? undefined)} plan. Upgrade to add more.`;
+    }
+    return null;
+  } catch {
+    return "We couldn't verify your user limit right now. Check your connection and try again.";
+  }
+}
