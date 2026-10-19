@@ -1960,7 +1960,8 @@
       "statusLabels": {
         "active": "稼働中",
         "under_maintenance": "メンテナンス中",
-        "decommissioned": "廃止済み"
+        "decommissioned": "廃止済み",
+        "scrapped": "廃棄済み"
       },
       "criticalityLabels": {
         "1": "低",
@@ -2025,7 +2026,8 @@
         "statusOptions": {
           "active": "稼働中",
           "under_maintenance": "メンテナンス中",
-          "decommissioned": "廃止済み"
+          "decommissioned": "廃止済み",
+          "scrapped": "廃棄済み"
         },
         "criticalityOptions": {
           "5": "5 - ミッションクリティカル",

@@ -72,13 +72,13 @@ export function useMachinesWithOpenWork(companyId: string | undefined): Machines
 /**
  * A machine's status as it should read now: under maintenance while it has
  * open work, active again once all of it is closed/signed off. Decommissioned
- * machines are never changed.
+ * and scrapped machines are never changed.
  */
 export function effectiveMachineStatus<S extends string>(
   machine: { id: string; status: S },
   open: MachinesWithOpenWork,
 ): S | 'active' | 'under_maintenance' {
-  if (machine.status === 'decommissioned') return machine.status;
+  if (machine.status === 'decommissioned' || machine.status === ('scrapped' as S)) return machine.status;
   if (open.openMachineIds.has(machine.id)) return 'under_maintenance';
   if (machine.status === 'under_maintenance' && open.complete) return 'active';
   return machine.status;

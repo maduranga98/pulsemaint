@@ -23,7 +23,7 @@ export function MachineCard({ machine, lowSpare }: MachineCardProps) {
 
   return (
     <Link to={`/app/machines/${machine.id}`}>
-      <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div className={`rounded-lg border p-4 hover:shadow-md transition-shadow ${machine.status === 'scrapped' ? 'bg-rose-50 border-rose-200 opacity-80' : 'bg-white border-gray-200'}`}>
         {/* Header: Machine name + Status */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">

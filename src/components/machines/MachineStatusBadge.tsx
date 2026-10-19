@@ -19,6 +19,10 @@ const statusConfig: Record<MachineStatus, { color: string; bg: string }> = {
     color: 'text-gray-600',
     bg: 'bg-gray-100',
   },
+  scrapped: {
+    color: 'text-rose-700',
+    bg: 'bg-rose-100',
+  },
 };
 
 const sizeClasses = {

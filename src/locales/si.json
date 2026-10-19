@@ -2138,7 +2138,8 @@
         "statusOptions": {
           "active": "ක්‍රියාත්මක",
           "under_maintenance": "නඩත්තුවේ",
-          "decommissioned": "පිටතට ගත් "
+          "decommissioned": "පිටතට ගත් ",
+        "scrapped": "ඉවත දැමූ (Scrap)"
         },
         "criticalityOptions": {
           "5": "5 - අතිශය වැදගත්",
@@ -2283,7 +2284,8 @@
       "statusLabels": {
         "active": "සක්‍රිය",
         "under_maintenance": "නඩත්තුව යටතේ",
-        "decommissioned": "භාවිතයෙන් ඉවත් කළ"
+        "decommissioned": "භාවිතයෙන් ඉවත් කළ",
+      "scrapped": "ඉවත දැමූ (Scrap)"
       },
       "criticalityLabels": {
         "1": "අඩු",

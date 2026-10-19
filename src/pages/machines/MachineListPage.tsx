@@ -573,7 +573,9 @@ export function MachineListPage() {
       return sortOrder === 'asc' ? cmp : -cmp;
     });
 
-    return sortLowSpareFirst(sorted, lowSpareByMachine);
+    // Scrapped machines stay on record but sit at the bottom of the list.
+    const live = sortLowSpareFirst(sorted, lowSpareByMachine);
+    return [...live.filter((m) => m.status !== 'scrapped'), ...live.filter((m) => m.status === 'scrapped')];
   }, [machines, filters, sortOrder, scopedPlantId, scopedDepartment, lowSpareByMachine]);
 
   // Back to the first page whenever the plant tab, filters or sort change.
