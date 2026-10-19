@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bookValue, outsourcedJobTotals, partLineTotal, replaceAdvice, workOrderCost } from '../machineAsset';
+import { annualDepreciation, depreciationSoFar, bookValue, outsourcedJobTotals, partLineTotal, replaceAdvice, workOrderCost } from '../machineAsset';
 
 const YEAR = 365.25 * 24 * 3600 * 1000;
 const t0 = Date.UTC(2020, 0, 1);
@@ -46,5 +46,15 @@ describe('workOrderCost', () => {
     expect(workOrderCost({ status: 'SIGNED_OFF', partsUsed: parts, projectCost: 300 })).toBe(550);
     expect(workOrderCost({ status: 'IN_PROGRESS', partsUsed: parts, projectCost: 300 })).toBe(0);
     expect(workOrderCost({ status: 'CLOSED' })).toBe(0);
+  });
+});
+
+describe('depreciation', () => {
+  it('works out the yearly amount and what has been written off', () => {
+    expect(annualDepreciation({ purchasePrice: 1_000_000, scrapValue: 100_000, lifespanYears: 10 })).toBe(90_000);
+    expect(annualDepreciation({ purchasePrice: 1_000_000, lifespanYears: 5 })).toBe(200_000);
+    expect(annualDepreciation({ purchasePrice: 1_000_000, lifespanYears: null })).toBeNull();
+    expect(depreciationSoFar(1_000_000, 550_000)).toEqual({ amount: 450_000, percent: 45 });
+    expect(depreciationSoFar(1_000_000, null)).toBeNull();
   });
 });

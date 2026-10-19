@@ -1958,6 +1958,9 @@
       "addFirstMachine": "Añadir Primera Máquina",
       "clearFilters": "Borrar Filtros",
       "asset": {
+        "annualDepreciation": "Depreciación anual",
+        "accumulatedDepreciation": "Depreciación acumulada",
+        "perYear": "{{amount}} / año",
         "importNote": "Los precios y valores de desecho se leen en {{currency}} (la moneda de su empresa) y solo se guardan para administradores y gerentes de planta.",
         "cancel": "Cancelar",
         "close": "Cerrar",

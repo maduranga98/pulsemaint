@@ -1958,6 +1958,9 @@
       "addFirstMachine": "最初の設備を追加",
       "clearFilters": "フィルタをクリア",
       "asset": {
+        "annualDepreciation": "年間減価償却",
+        "accumulatedDepreciation": "これまでの減価償却",
+        "perYear": "{{amount}} / 年",
         "importNote": "価格とスクラップ価値は {{currency}}（会社の通貨）として読み込まれ、管理者とプラントマネージャーの場合のみ保存されます。",
         "cancel": "キャンセル",
         "close": "閉じる",

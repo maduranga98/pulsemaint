@@ -53,6 +53,26 @@ export function bookValue(opts: {
   return Math.round(price - (price - salvage) * fraction);
 }
 
+/** Straight-line depreciation per year: (price - scrap value) / lifespan. Null without price or lifespan. */
+export function annualDepreciation(opts: {
+  purchasePrice: number | null | undefined;
+  scrapValue?: number | null;
+  lifespanYears: number | null | undefined;
+}): number | null {
+  const price = num(opts.purchasePrice);
+  if (!price || !num(opts.lifespanYears)) return null;
+  const salvage = Math.min(num(opts.scrapValue), price);
+  return Math.round((price - salvage) / (opts.lifespanYears as number));
+}
+
+/** Depreciation written off so far (price minus current book value) and its share of the price, 0-100. */
+export function depreciationSoFar(purchasePrice: number | null | undefined, book: number | null): { amount: number; percent: number } | null {
+  const price = num(purchasePrice);
+  if (!price || book == null) return null;
+  const amount = Math.max(0, price - book);
+  return { amount, percent: Math.round((amount / price) * 100) };
+}
+
 export type ReplaceAdvice = 'ok' | 'watch' | 'replace';
 
 /**
