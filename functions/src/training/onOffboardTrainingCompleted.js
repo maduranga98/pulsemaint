@@ -40,7 +40,8 @@ function buildKnowledgeReportHtml(assignment, completion) {
 // validates the submission, renders a "Knowledge Transfer Report" PDF,
 // uploads it, marks the assignment completed, and notifies HR/supervisor.
 exports.onOffboardTrainingCompleted = onDocumentUpdated(
-  {database: "default", document: "trainingAssignments/{assignmentId}"},
+  // Chromium (the report PDF) needs far more than the 256 MiB default.
+  {database: "default", document: "trainingAssignments/{assignmentId}", memory: "1GiB", timeoutSeconds: 120, maxInstances: 10},
   async (event) => {
     const before = event.data.before.data();
     const after = event.data.after.data();

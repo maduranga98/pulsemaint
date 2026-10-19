@@ -12,7 +12,7 @@ const MACHINE_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
  * every other field — for any machine id; firestore.rules no longer allow
  * that, and this returns only what the report form needs.
  */
-exports.getPublicMachine = onCall({maxInstances: 10}, async (request) => {
+exports.getPublicMachine = onCall({maxInstances: 30}, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Open the page from the machine's QR code.");
   const machineId = request.data && request.data.machineId;
   if (typeof machineId !== "string" || !MACHINE_ID_PATTERN.test(machineId)) {

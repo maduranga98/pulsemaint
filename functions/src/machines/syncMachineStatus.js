@@ -11,7 +11,15 @@ const db = getFirestore("default");
 // closed. These triggers run with admin rights and fire on every write, so
 // the machine registry stays in sync whoever made the change.
 const CLOSED_BREAKDOWN_STATUSES = new Set(["resolved", "closed", "cancelled"]);
-const TERMINAL_WO_STATUSES = new Set(["SIGNED_OFF", "CLOSED", "CANCELLED"]);
+const OPEN_BREAKDOWN_STATUSES = [
+  "reported", "acknowledged", "triage_in_progress", "assigned", "en_route",
+  "repair_in_progress", "on_hold_parts", "on_hold_approval",
+];
+// A machine is under maintenance while it has an open breakdown, or a work
+// order whose work has actually started (until sign-off — the same window
+// downtime is measured over). A PM raised ahead of its due date, or a work
+// order that is only assigned, doesn't take the machine out of service.
+const WORK_STARTED_STATUSES = ["IN_PROGRESS", "ON_HOLD_PARTS", "ON_HOLD_APPROVAL", "COMPLETED"];
 
 async function markUnderMaintenance(machineId) {
   if (!machineId) return;
@@ -32,17 +40,14 @@ async function markActiveIfNoOpenWork(machineId) {
   const status = snap.data().status;
   if (status === "decommissioned" || status === "active") return;
 
+  // Only the open ones (indexed), instead of the machine's whole history.
   const [breakdownSnap, woSnap] = await Promise.all([
-    db.collection("breakdown_tickets").where("machineId", "==", machineId).get(),
-    db.collection("workOrders").where("machineId", "==", machineId).get(),
+    db.collection("breakdown_tickets").where("machineId", "==", machineId)
+        .where("status", "in", OPEN_BREAKDOWN_STATUSES).limit(1).get(),
+    db.collection("workOrders").where("machineId", "==", machineId)
+        .where("status", "in", WORK_STARTED_STATUSES).limit(1).get(),
   ]);
-  const hasOpenBreakdown = breakdownSnap.docs.some(
-      (d) => !CLOSED_BREAKDOWN_STATUSES.has(d.data().status || ""),
-  );
-  const hasOpenWO = woSnap.docs.some(
-      (d) => !TERMINAL_WO_STATUSES.has(d.data().status || ""),
-  );
-  if (hasOpenBreakdown || hasOpenWO) return;
+  if (!breakdownSnap.empty || !woSnap.empty) return;
 
   await ref.update({status: "active", updatedAt: FieldValue.serverTimestamp()});
   logger.info("Machine reactivated — no open breakdowns or work orders", {machineId});
@@ -76,15 +81,20 @@ exports.reactivateMachineOnBreakdownClose = onDocumentUpdated(
     },
 );
 
+// Work starting puts the machine under maintenance; work leaving the
+// "started" states (signed off, closed, cancelled, sent back to assigned)
+// reactivates it when nothing else is open on it.
 exports.reactivateMachineOnWOSignOff = onDocumentUpdated(
     {database: "default", document: "workOrders/{woId}"},
     async (event) => {
       const before = event.data.before.data();
       const after = event.data.after.data();
       if (before.status === after.status) return;
-      if (!TERMINAL_WO_STATUSES.has(after.status || "")) return;
+      const startedNow = WORK_STARTED_STATUSES.includes(after.status || "");
+      const startedBefore = WORK_STARTED_STATUSES.includes(before.status || "");
       try {
-        await markActiveIfNoOpenWork(after.machineId);
+        if (startedNow && !startedBefore) await markUnderMaintenance(after.machineId);
+        else if (!startedNow) await markActiveIfNoOpenWork(after.machineId);
       } catch (err) {
         logger.error("reactivateMachineOnWOSignOff failed", {woId: event.params.woId, err});
       }

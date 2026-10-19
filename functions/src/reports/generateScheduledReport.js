@@ -5,6 +5,7 @@ const {randomUUID} = require("crypto");
 const logger = require("firebase-functions/logger");
 const {companyHasFeature} = require("../lib/planFeatures");
 const {sendEmail, brandedEmail, platformSmtpPassword} = require("../lib/mailer");
+const {escapeHtml} = require("../lib/access");
 
 const db = getFirestore("default");
 
@@ -59,24 +60,86 @@ function computeNextRunAt(frequency, dayOfWeek, dayOfMonth, from) {
   return next;
 }
 
+/** Sources that describe current state rather than events in a period. */
+const SNAPSHOT_SOURCES = new Set(["machines", "machine_health", "inventoryParts", "analytics_monthly"]);
+/** Reads per source per run — enough for a month of a large plant. */
+const MAX_ROWS_PER_SOURCE = 20000;
+
 /**
- * Fetch raw rows for a schedule's report type, scoped to its company.
- * @param {string} reportType report type key
- * @param {string} companyId company id
+ * The period a run reports on: yesterday / the last 7 days / last month.
+ * @param {string} frequency daily|weekly|monthly
+ * @param {Date} now run time
+ * @return {{from: Date, to: Date}} period
+ */
+function reportPeriod(frequency, now) {
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  if (frequency === "monthly") {
+    return {
+      from: new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 1)),
+      to: new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1) - 1),
+    };
+  }
+  const days = frequency === "weekly" ? 7 : 1;
+  return {from: new Date(today.getTime() - days * 86400000), to: new Date(today.getTime() - 1)};
+}
+
+/** The event date of a row (same fields the in-app report builder reads). */
+function rowDate(row) {
+  const raw = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt ?? row.raisedAt ?? row.performedAt;
+  if (raw && typeof raw.toDate === "function") return raw.toDate();
+  const d = raw ? new Date(raw) : null;
+  return d && !Number.isNaN(d.getTime()) ? d : null;
+}
+
+/**
+ * Fetch the rows of a schedule's report for its period (and plant), scoped
+ * to its company. Event rows without a date are left out, like rows outside
+ * the period; snapshot sources (machines, parts…) are taken as they are now.
+ * @param {object} schedule report schedule
+ * @param {{from: Date, to: Date}} period report period
  * @return {Promise<Array<Record<string, unknown>>>} flattened rows
  */
-async function fetchRows(reportType, companyId) {
-  const sources = SOURCE_MAP[reportType] || [];
+async function fetchRows(schedule, period) {
+  const sources = SOURCE_MAP[schedule.reportType] || [];
+  const plantId = schedule.plantId || null;
   const rows = [];
   for (const source of sources) {
     try {
-      const snap = await db.collection(source).where("companyId", "==", companyId).limit(1000).get();
-      snap.forEach((doc) => rows.push({id: doc.id, ...doc.data()}));
+      const snap = await db.collection(source).where("companyId", "==", schedule.companyId).limit(MAX_ROWS_PER_SOURCE).get();
+      if (snap.size >= MAX_ROWS_PER_SOURCE) logger.warn(`generateScheduledReport: ${source} capped at ${MAX_ROWS_PER_SOURCE} rows`);
+      snap.forEach((doc) => {
+        const row = {id: doc.id, ...doc.data()};
+        if (!SNAPSHOT_SOURCES.has(source)) {
+          const at = rowDate(row);
+          if (!at || at < period.from || at > period.to) return;
+        }
+        if (plantId) {
+          const rowPlant = row.machinePlantId ?? row.plantId ?? null;
+          if (rowPlant !== plantId) return;
+        }
+        rows.push(row);
+      });
     } catch (err) {
       logger.warn(`generateScheduledReport: failed reading ${source}`, err);
     }
   }
   return rows;
+}
+
+/**
+ * Recipients limited to the company's own active members — a schedule
+ * can't mail company data to outside addresses.
+ * @param {string} companyId company id
+ * @param {string[]} recipients requested addresses
+ * @return {Promise<string[]>} allowed addresses
+ */
+async function allowedRecipients(companyId, recipients) {
+  const snap = await db.collection(`companies/${companyId}/users`).get();
+  const members = new Set(snap.docs
+      .map((d) => d.data())
+      .filter((u) => u.status !== "inactive" && u.email)
+      .map((u) => String(u.email).trim().toLowerCase()));
+  return [...new Set(recipients.map((r) => String(r || "").trim().toLowerCase()))].filter((r) => members.has(r));
 }
 
 /**
@@ -133,6 +196,12 @@ exports.generateScheduledReport = onSchedule({schedule: "every 1 hours", secrets
 
   for (const scheduleDoc of dueSnap.docs) {
     const schedule = scheduleDoc.data();
+    // Advance first: a failure further down (one bad address, storage) must
+    // not leave the schedule due, or every recipient is mailed again hourly.
+    await scheduleDoc.ref.update({
+      lastRunAt: FieldValue.serverTimestamp(),
+      nextRunAt: computeNextRunAt(schedule.frequency, schedule.dayOfWeek, schedule.dayOfMonth, now),
+    });
     try {
       // Scheduled reports are part of advanced analytics. A company that no
       // longer has it keeps its schedules but nothing runs; look again in a day
@@ -141,7 +210,8 @@ exports.generateScheduledReport = onSchedule({schedule: "every 1 hours", secrets
         await scheduleDoc.ref.update({nextRunAt: new Date(now.getTime() + 24 * 60 * 60 * 1000)});
         continue;
       }
-      const rows = await fetchRows(schedule.reportType, schedule.companyId);
+      const period = reportPeriod(schedule.frequency, now);
+      const rows = await fetchRows(schedule, period);
       const csv = toCsv(rows);
 
       const reportId = randomUUID();
@@ -150,10 +220,10 @@ exports.generateScheduledReport = onSchedule({schedule: "every 1 hours", secrets
       await file.save(Buffer.from(csv, "utf8"), {contentType: "text/csv", resumable: false});
       const [downloadUrl] = await file.getSignedUrl({
         action: "read",
-        expires: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
       });
 
-      const expiresAt = Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+      const expiresAt = Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
       await db.collection("report_history").doc(reportId).set({
         id: reportId,
         companyId: schedule.companyId,
@@ -163,8 +233,8 @@ exports.generateScheduledReport = onSchedule({schedule: "every 1 hours", secrets
         generatedByName: "Scheduled Export",
         generatedAt: FieldValue.serverTimestamp(),
         format: "csv",
-        dateRangeFrom: "",
-        dateRangeTo: "",
+        dateRangeFrom: period.from.toISOString().slice(0, 10),
+        dateRangeTo: period.to.toISOString().slice(0, 10),
         filters: schedule.filters || {},
         storageUrl: storagePath,
         downloadUrl,
@@ -178,24 +248,23 @@ exports.generateScheduledReport = onSchedule({schedule: "every 1 hours", secrets
         expiresAt,
       });
 
-      const recipients = Array.isArray(schedule.recipients) ? schedule.recipients : [];
+      const requested = Array.isArray(schedule.recipients) ? schedule.recipients : [];
+      const recipients = await allowedRecipients(schedule.companyId, requested);
+      if (recipients.length < requested.length) {
+        logger.warn(`generateScheduledReport: ${requested.length - recipients.length} non-member recipient(s) skipped`, {scheduleId: scheduleDoc.id});
+      }
       for (const to of recipients) {
         await sendEmail({
           to,
           subject: `FirmiCore — ${schedule.reportName} (scheduled export)`,
           html: brandedEmail(`
             <p style="margin:0 0 12px;color:#333;font-size:14px;">Your scheduled report is ready.</p>
-            <p style="margin:0 0 12px;color:#333;font-size:14px;"><strong>${schedule.reportName}</strong> — ${rows.length} record(s).</p>
+            <p style="margin:0 0 12px;color:#333;font-size:14px;"><strong>${escapeHtml(schedule.reportName)}</strong> — ${rows.length} record(s), ${period.from.toISOString().slice(0, 10)} to ${period.to.toISOString().slice(0, 10)}.</p>
             <p style="margin:0;"><a href="${downloadUrl}" style="color:#1A56DB;">Download CSV</a></p>
           `),
-          attachments: [{filename: `${schedule.reportName.replace(/\s+/g, "_")}.csv`, content: csv, contentType: "text/csv"}],
-        });
+          attachments: [{filename: `${String(schedule.reportName).replace(/[^\w.-]+/g, "_")}.csv`, content: csv, contentType: "text/csv"}],
+        }).catch((err) => logger.error("generateScheduledReport: email failed", {scheduleId: scheduleDoc.id, err}));
       }
-
-      await scheduleDoc.ref.update({
-        lastRunAt: FieldValue.serverTimestamp(),
-        nextRunAt: computeNextRunAt(schedule.frequency, schedule.dayOfWeek, schedule.dayOfMonth, now),
-      });
     } catch (err) {
       logger.error(`generateScheduledReport: schedule ${scheduleDoc.id} failed`, err);
     }
