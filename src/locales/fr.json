@@ -11110,6 +11110,107 @@
           }
         ]
       }
+    },
+    "tour": {
+      "bannerTitle": "Faites la visite guidée",
+      "bannerBody": "Un court parcours qui présente le menu, les notifications et votre équipe, étape par étape.",
+      "bannerButton": "Démarrer la visite"
+    }
+  },
+  "tour": {
+    "ui": {
+      "next": "Suivant",
+      "back": "Précédent",
+      "done": "Terminer",
+      "skip": "Passer la visite",
+      "close": "Fermer",
+      "stepOf": "{{current}} sur {{total}}",
+      "nothingToShow": "Il n'y a encore rien à montrer sur cet écran.",
+      "pageTour": "Visite de la page"
+    },
+    "main": {
+      "welcome": {
+        "title": "Bienvenue sur FirmiCore",
+        "body": "Faisons un tour rapide des principales parties de l'application. Cela ne prend qu'une minute : utilisez Suivant pour avancer ou Passer à tout moment. Vous pouvez le revoir depuis Aide et support."
+      },
+      "dashboard": {
+        "title": "Votre tableau de bord",
+        "body": "Votre page d'accueil. Elle montre ce qui demande de l'attention aujourd'hui : pannes ouvertes, ordres de travail, MP à faire et alertes de votre rôle."
+      },
+      "plants": {
+        "title": "Onglets des sites",
+        "body": "Changez de site ici. Tout ce qui suit (machines, ordres de travail, personnes) dépend du site choisi."
+      },
+      "group_maintenance": {
+        "title": "Maintenance",
+        "body": "Machines, pannes, ordres de travail et plannings de MP sont ici. Commencez ici pour signaler une panne ou consulter une machine."
+      },
+      "group_safety": {
+        "title": "Sécurité",
+        "body": "Permis de travail, dossiers de sécurité, formations sécurité et liste noire des sous-traitants."
+      },
+      "group_inventory": {
+        "title": "Stock",
+        "body": "Catalogue de pièces, demandes de stock et bons de commande. Les pièces en stock bas sont signalées."
+      },
+      "group_triage_training": {
+        "title": "Triage et formation",
+        "body": "Parcours guidés de dépannage et modules de formation, affectations et certificats."
+      },
+      "group_workforce": {
+        "title": "Équipes",
+        "body": "Sous-traitants, votre équipe, relèves d'équipe et demandes aux responsables."
+      },
+      "group_insights": {
+        "title": "Analyses",
+        "body": "Analyses, rapports, MOE, audits et évaluations : chiffres et rapports issus de vos propres données."
+      },
+      "group_admin": {
+        "title": "Administration",
+        "body": "Paramètres, utilisateurs, sites, facturation et demandes de support de votre entreprise."
+      },
+      "language": {
+        "title": "Langue",
+        "body": "Changez la langue de l'application à tout moment. Votre choix est mémorisé."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "body": "La cloche affiche les nouvelles pannes, affectations, validations et alertes. Un chiffre rouge signifie qu'un élément attend."
+      },
+      "shift": {
+        "title": "Votre équipe",
+        "body": "Démarrez votre équipe ici et terminez-la par une relève, pour que l'équipe suivante sache ce qui s'est passé."
+      },
+      "profile": {
+        "title": "Votre compte",
+        "body": "Votre nom et votre rôle. Utilisez Déconnexion à côté quand vous avez terminé."
+      },
+      "help": {
+        "title": "Aide et support",
+        "body": "Guides pas à pas pour chaque module. Vous pouvez refaire cette visite d'ici quand vous le souhaitez."
+      }
+    },
+    "machine": {
+      "status": {
+        "title": "Statut et criticité",
+        "body": "Indique si la machine est active, en maintenance ou mise au rebut (rose, en bas de la liste) et sa criticité."
+      },
+      "health": {
+        "title": "Santé et entretien",
+        "body": "Score de santé, dernier entretien et prochaine MP en un coup d'œil."
+      },
+      "tabs": {
+        "title": "Onglet Maintenance",
+        "body": "Ouvrez Maintenance pour voir l'historique des travaux et les travaux sous-traités enregistrés, avec pièces posées, coûts et factures."
+      },
+      "more": {
+        "title": "Autres actions",
+        "body": "Créez un ordre de travail, signalez un problème, exportez les détails et (admins et responsables d'usine) Mettre au rebut. La mise au rebut garde l'historique et archive ses plannings de MP."
+      },
+      "asset": {
+        "title": "Valeur de l'actif et coût",
+        "body": "Prix d'achat, valeur de rebut, amortissement annuel et valeur actuelle, plus tout ce qui a été dépensé en maintenance, pour décider quand réparer ou remplacer."
+      }
     }
   }
 }

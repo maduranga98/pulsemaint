@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState, type DragEvent } from 'react';
+import { HelpCircle } from 'lucide-react';
+import { useTour } from '@/features/tour/TourProvider';
 import { countryLabel } from '@/lib/countries';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -48,6 +50,7 @@ export default function PlatformLeadsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dragOver, setDragOver] = useState<LeadStatus | null>(null);
   const [params, setParams] = useSearchParams();
+  const { start: startTour } = useTour();
   const openId = params.get('lead');
 
   useEffect(() => subscribeLeads(setLeads, (e) => setError(e.message)), []);
@@ -111,11 +114,12 @@ export default function PlatformLeadsPage() {
         subtitle="Prospects from outside marketing — calls, demos and follow-ups until they sign."
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <button className={`${btn.ghost} inline-flex items-center gap-1.5`} title="A short walkthrough of this page" onClick={() => startTour('leads')}><HelpCircle className="h-4 w-4" /> Page tour</button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('day')}><FileText className="h-4 w-4" /> Day report</button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} title="Export the filtered leads as CSV"
               onClick={() => downloadText(`leads-${new Date().toISOString().slice(0, 10)}.csv`, leadsToCsv(filtered))}><Download className="h-4 w-4" /></button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('import')}><Upload className="h-4 w-4" /> Import</button>
-            <button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setDialog('add')}><Plus className="h-4 w-4" /> Add lead</button>
+            <button data-tour="leads-add" className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setDialog('add')}><Plus className="h-4 w-4" /> Add lead</button>
           </div>
         }
       />
@@ -123,7 +127,7 @@ export default function PlatformLeadsPage() {
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       {notice && <div className="mb-4 rounded-lg border border-emerald-700/50 bg-emerald-900/20 p-3 text-sm text-emerald-300">{notice}</div>}
 
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4 2xl:grid-cols-8">
+      <div data-tour="leads-stats" className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4 2xl:grid-cols-8">
         <StatTile icon={Users} tone="text-sky-300 bg-sky-900/40" value={stats.open} label="Open leads" />
         <StatTile icon={CalendarCheck} tone="text-violet-300 bg-violet-900/40" value={stats.demos} label="Demo booked or done" />
         <StatTile icon={CalendarDays} tone="text-fuchsia-300 bg-fuchsia-900/40" value={stats.demosToday} label="Demos today" />
@@ -160,7 +164,7 @@ export default function PlatformLeadsPage() {
       {!leads && !error ? <Loading /> : view === 'insights' ? (
         <LeadInsights leads={all} team={team} onOpenLead={openLead} />
       ) : view === 'board' ? (
-        <div className="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8">
+        <div data-tour="leads-board" className="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8">
           <div className="flex gap-3">
             {BOARD_STATUSES.map((s) => (
               <div

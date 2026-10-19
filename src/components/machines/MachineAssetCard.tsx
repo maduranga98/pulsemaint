@@ -71,7 +71,7 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
   const money = (v: number | null | undefined) => (v == null ? '—' : formatMoney(v));
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 lg:col-span-2">
+    <div data-tour="asset-card" className="bg-white rounded-lg border border-gray-200 p-6 lg:col-span-2">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-gray-900">{t('common.machines.asset.title')}</h3>
         {!editing && machine.status !== 'scrapped' && (

@@ -11110,6 +11110,107 @@
           }
         ]
       }
+    },
+    "tour": {
+      "bannerTitle": "Haga el recorrido guiado",
+      "bannerBody": "Un breve recorrido que le muestra el menú, las notificaciones y su turno, paso a paso.",
+      "bannerButton": "Iniciar recorrido"
+    }
+  },
+  "tour": {
+    "ui": {
+      "next": "Siguiente",
+      "back": "Anterior",
+      "done": "Listo",
+      "skip": "Omitir recorrido",
+      "close": "Cerrar",
+      "stepOf": "{{current}} de {{total}}",
+      "nothingToShow": "Aún no hay nada que mostrar en esta pantalla.",
+      "pageTour": "Recorrido de la página"
+    },
+    "main": {
+      "welcome": {
+        "title": "Bienvenido a FirmiCore",
+        "body": "Hagamos un recorrido rápido por las partes principales de la aplicación. Solo toma un minuto: use Siguiente para avanzar u Omitir cuando quiera. Puede repetirlo desde Ayuda y soporte."
+      },
+      "dashboard": {
+        "title": "Su panel",
+        "body": "Su página de inicio. Muestra lo que necesita atención hoy: averías abiertas, órdenes de trabajo, MP pendientes y alertas de su rol."
+      },
+      "plants": {
+        "title": "Pestañas de plantas",
+        "body": "Cambie entre sus plantas aquí. Todo lo de abajo (máquinas, órdenes de trabajo, personas) sigue la planta que elija."
+      },
+      "group_maintenance": {
+        "title": "Mantenimiento",
+        "body": "Aquí están las máquinas, averías, órdenes de trabajo y programas de MP. Empiece aquí para reportar una avería o revisar una máquina."
+      },
+      "group_safety": {
+        "title": "Seguridad",
+        "body": "Permisos de trabajo, casos de seguridad, formaciones de seguridad y la lista negra de contratistas."
+      },
+      "group_inventory": {
+        "title": "Inventario",
+        "body": "Catálogo de repuestos, solicitudes de stock y órdenes de compra. Los repuestos con poco stock se marcan para usted."
+      },
+      "group_triage_training": {
+        "title": "Triaje y formación",
+        "body": "Flujos guiados para diagnosticar fallos, y módulos de formación, asignaciones y certificados."
+      },
+      "group_workforce": {
+        "title": "Personal",
+        "body": "Contratistas, su turno, relevos de turno y solicitudes a los gerentes."
+      },
+      "group_insights": {
+        "title": "Análisis",
+        "body": "Analítica, informes, MOE, auditorías y evaluaciones: cifras e informes creados con sus propios datos."
+      },
+      "group_admin": {
+        "title": "Administración",
+        "body": "Ajustes, usuarios, plantas, facturación y solicitudes de soporte de su empresa."
+      },
+      "language": {
+        "title": "Idioma",
+        "body": "Cambie el idioma de la aplicación cuando quiera. Se recuerda su elección."
+      },
+      "notifications": {
+        "title": "Notificaciones",
+        "body": "La campana muestra nuevas averías, asignaciones, aprobaciones y alertas. Un número rojo indica que hay algo pendiente."
+      },
+      "shift": {
+        "title": "Su turno",
+        "body": "Inicie su turno aquí y ciérrelo con un relevo al terminar, para que el siguiente equipo sepa qué pasó."
+      },
+      "profile": {
+        "title": "Su cuenta",
+        "body": "Su nombre y rol. Use Cerrar sesión junto a él cuando termine."
+      },
+      "help": {
+        "title": "Ayuda y soporte",
+        "body": "Guías paso a paso de cada módulo. Puede repetir este recorrido desde aquí cuando quiera."
+      }
+    },
+    "machine": {
+      "status": {
+        "title": "Estado y criticidad",
+        "body": "Muestra si la máquina está activa, en mantenimiento o desechada (rosa, al final de la lista) y qué tan crítica es."
+      },
+      "health": {
+        "title": "Salud y servicio",
+        "body": "Puntuación de salud, último servicio y próximo MP de un vistazo."
+      },
+      "tabs": {
+        "title": "Pestaña Mantenimiento",
+        "body": "Abra Mantenimiento para ver el historial de trabajos y los trabajos subcontratados guardados, con repuestos instalados, costos y facturas."
+      },
+      "more": {
+        "title": "Más acciones",
+        "body": "Cree una orden de trabajo, reporte un problema, exporte detalles y (administradores y gerentes de planta) Desechar máquina. Desechar conserva el historial y archiva sus programas de MP."
+      },
+      "asset": {
+        "title": "Valor del activo y costo",
+        "body": "Precio de compra, valor de desecho, depreciación anual y valor actual, más todo lo gastado en mantenimiento, para decidir cuándo reparar o reemplazar."
+      }
     }
   }
 }

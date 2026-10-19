@@ -1,4 +1,100 @@
 {
+  "tour": {
+    "ui": {
+      "next": "Next",
+      "back": "Previous",
+      "done": "Done",
+      "skip": "Skip tour",
+      "close": "Close",
+      "stepOf": "{{current}} of {{total}}",
+      "nothingToShow": "There's nothing to show on this screen yet.",
+      "pageTour": "Page tour"
+    },
+    "main": {
+      "welcome": {
+        "title": "Welcome to FirmiCore",
+        "body": "Let's take a quick tour of the main parts of the app. It only takes a minute — use Next to move along, or Skip any time. You can replay it from Help & Support."
+      },
+      "dashboard": {
+        "title": "Your dashboard",
+        "body": "Your home page. It shows what needs attention today: open breakdowns, work orders, PM due and alerts for your role."
+      },
+      "plants": {
+        "title": "Plant tabs",
+        "body": "Switch between your plants here. Everything below — machines, work orders, people — follows the plant you pick."
+      },
+      "group_maintenance": {
+        "title": "Maintenance",
+        "body": "Machines, breakdowns, work orders and PM schedules live here. Start here to report a breakdown or check a machine."
+      },
+      "group_safety": {
+        "title": "Safety",
+        "body": "Work permits, safety cases, safety trainings and the contractor blacklist."
+      },
+      "group_inventory": {
+        "title": "Inventory",
+        "body": "Spare parts catalog, stock requests and purchase orders. Low-stock parts are flagged for you."
+      },
+      "group_triage_training": {
+        "title": "Triage & training",
+        "body": "Guided troubleshooting flows for faults, and training modules, assignments and certificates."
+      },
+      "group_workforce": {
+        "title": "Workforce",
+        "body": "Contractors, your shift, shift handovers and requests to managers."
+      },
+      "group_insights": {
+        "title": "Insights",
+        "body": "Analytics, reports, MOE, audits and evaluations — numbers and reports built from your own data."
+      },
+      "group_admin": {
+        "title": "Admin",
+        "body": "Settings, users, plants, billing and support requests for your company."
+      },
+      "language": {
+        "title": "Language",
+        "body": "Switch the app language at any time. Your choice is remembered."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "body": "The bell shows new breakdowns, assignments, approvals and alerts. A red number means something is waiting."
+      },
+      "shift": {
+        "title": "Your shift",
+        "body": "Start your shift here and end it with a handover when you finish, so the next team knows what happened."
+      },
+      "profile": {
+        "title": "Your account",
+        "body": "Your name and role. Use Sign out next to it when you are done."
+      },
+      "help": {
+        "title": "Help & Support",
+        "body": "Step-by-step guides for every module. You can take this tour again from here whenever you like."
+      }
+    },
+    "machine": {
+      "status": {
+        "title": "Status & criticality",
+        "body": "Shows if the machine is active, under maintenance or scrapped (rose, at the bottom of the list), and how critical it is."
+      },
+      "health": {
+        "title": "Health & service",
+        "body": "Health score, last service and next PM due at a glance."
+      },
+      "tabs": {
+        "title": "Maintenance tab",
+        "body": "Open Maintenance to see the machine's work history and the saved outsourced jobs, with the parts fitted, costs and invoices."
+      },
+      "more": {
+        "title": "More actions",
+        "body": "Create a work order, report an issue, export details — and (admins and plant managers) Scrap machine. Scrapping keeps the history and archives its PM schedules."
+      },
+      "asset": {
+        "title": "Asset value & cost",
+        "body": "Purchase price, scrap value, annual depreciation and current value, plus everything spent on maintenance, so you can decide when to repair or replace."
+      }
+    }
+  },
   "triage": {
     "next_step": "Next Step",
     "confirm": "Confirmed — Next Step",
@@ -10610,6 +10706,11 @@
     }
   },
   "help": {
+    "tour": {
+      "bannerTitle": "Take the guided tour",
+      "bannerBody": "A short walkthrough that points out the menu, notifications and your shift — one stop at a time.",
+      "bannerButton": "Start tour"
+    },
     "pageTitle": "Help & Support",
     "pageSubtitle": "Step-by-step guides for the tools your role uses.",
     "searchPlaceholder": "Search help topics...",
