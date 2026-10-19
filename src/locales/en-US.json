@@ -3445,6 +3445,9 @@
           "restoreFailed": "Could not restore the machine."
         },
         "outsourced": {
+          "fromWorkOrder": "Add these when you create a contractor work order (Work Orders → Create, type Contractor).",
+          "woSectionTitle": "Outsourced work details (optional)",
+          "woSectionHint": "Fill this in if the contractor has already done the work — parts fitted, prices and the bill. It is saved to the machine's maintenance history.",
           "title": "Outsourced maintenance",
           "subtitle": "Work done by outside companies — with parts fitted, cost and invoices.",
           "total": "Total so far: {{amount}}.",

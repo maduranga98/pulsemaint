@@ -2019,6 +2019,9 @@
           "restoreFailed": "Maschine konnte nicht wiederhergestellt werden."
         },
         "outsourced": {
+          "fromWorkOrder": "Diese werden beim Erstellen eines Auftragnehmer-Arbeitsauftrags erfasst (Arbeitsaufträge → Erstellen, Typ Auftragnehmer).",
+          "woSectionTitle": "Details zur Fremdvergabe (optional)",
+          "woSectionHint": "Ausfüllen, wenn der Auftragnehmer die Arbeit bereits erledigt hat – verbaute Teile, Preise und Rechnung. Wird im Wartungsverlauf der Maschine gespeichert.",
           "title": "Fremdvergebene Instandhaltung",
           "subtitle": "Von externen Firmen ausgeführte Arbeiten – mit verbauten Teilen, Kosten und Rechnungen.",
           "total": "Bisher insgesamt: {{amount}}.",

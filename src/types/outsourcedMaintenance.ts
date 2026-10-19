@@ -25,6 +25,8 @@ export interface OutsourcedMaintenance {
   /** Contractors-registry id when picked from the registry. */
   contractorId: string | null;
   contractorName: string;
+  /** Work order this job was recorded from, when created through the Create Work Order form. */
+  workOrderId?: string | null;
   jobType: OutsourcedJobType;
   description: string;
   /** Job start / finish, ms. */

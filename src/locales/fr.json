@@ -2019,6 +2019,9 @@
           "restoreFailed": "Impossible de restaurer la machine."
         },
         "outsourced": {
+          "fromWorkOrder": "Ajoutez-les lors de la création d'un ordre de travail sous-traitant (Ordres de travail → Créer, type Sous-traitant).",
+          "woSectionTitle": "Détails du travail sous-traité (facultatif)",
+          "woSectionHint": "À remplir si le sous-traitant a déjà fait le travail : pièces posées, prix et facture. Enregistré dans l'historique de maintenance de la machine.",
           "title": "Maintenance sous-traitée",
           "subtitle": "Travaux d'entreprises extérieures, avec pièces posées, coût et factures.",
           "total": "Total à ce jour : {{amount}}.",
