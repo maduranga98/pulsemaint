@@ -1986,7 +1986,7 @@
         "errScrapOverPrice": "报废价值不能高于购买价格。",
         "scrap": {
           "title": "报废 {{name}}",
-          "intro": "该设备将移至列表底部并标记为“已报废”。历史记录保留，其有效的 PM 计划将被暂停。",
+          "intro": "该设备将移至列表底部并标记为“已报废”。历史记录保留，其有效的 PM 计划将被归档（撤销报废后会恢复）。",
           "date": "报废日期",
           "reason": "原因",
           "reasons": {
@@ -2005,7 +2005,9 @@
           "errApprover": "请填写批准报废的人员。",
           "errAmount": "报废/出售金额必须大于或等于 0。",
           "done": "{{name}} 已标记为报废。",
-          "pmPaused": " 已暂停 {{count}} 个 PM 计划。",
+          "pmArchived": " 已归档 {{count}} 个 PM 计划。",
+          "pmRestored": "已重新启用 {{count}} 个 PM 计划。",
+          "pmNotRestored": "有 {{count}} 个无法重新启用——已达到您套餐的 PM 计划上限。",
           "failed": "无法报废该设备。",
           "menu": "报废设备…",
           "bannerOn": "该设备已于 {{date}} 报废。",

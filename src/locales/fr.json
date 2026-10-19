@@ -1986,7 +1986,7 @@
         "errScrapOverPrice": "La valeur de rebut ne peut pas dépasser le prix d'achat.",
         "scrap": {
           "title": "Mettre {{name}} au rebut",
-          "intro": "La machine passe en bas de la liste, marquée Mise au rebut. Son historique est conservé et ses plannings de MP actifs sont suspendus.",
+          "intro": "La machine passe en bas de la liste, marquée Mise au rebut. Son historique est conservé et ses plannings de MP actifs sont archivés (ils reviennent si vous annulez la mise au rebut).",
           "date": "Date de mise au rebut",
           "reason": "Motif",
           "reasons": {
@@ -2005,7 +2005,9 @@
           "errApprover": "Indiquez qui a approuvé la mise au rebut.",
           "errAmount": "Le montant doit être supérieur ou égal à 0.",
           "done": "{{name}} marquée comme mise au rebut.",
-          "pmPaused": " {{count}} planning(s) de MP suspendu(s).",
+          "pmArchived": " {{count}} planning(s) de MP archivé(s).",
+          "pmRestored": "{{count}} planning(s) de MP réactivé(s).",
+          "pmNotRestored": "{{count}} n'ont pas pu être réactivés : la limite de plannings de MP de votre forfait est atteinte.",
           "failed": "Impossible de mettre la machine au rebut.",
           "menu": "Mettre au rebut…",
           "bannerOn": "Cette machine a été mise au rebut le {{date}}.",

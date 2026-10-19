@@ -1986,7 +1986,7 @@
         "errScrapOverPrice": "Der Schrottwert darf den Kaufpreis nicht übersteigen.",
         "scrap": {
           "title": "{{name}} verschrotten",
-          "intro": "Die Maschine rutscht ans Listenende und wird als Verschrottet markiert. Der Verlauf bleibt erhalten, aktive PM-Pläne werden pausiert.",
+          "intro": "Die Maschine rutscht ans Listenende und wird als Verschrottet markiert. Der Verlauf bleibt erhalten, aktive PM-Pläne werden archiviert (sie kommen zurück, wenn Sie die Verschrottung rückgängig machen).",
           "date": "Verschrottungsdatum",
           "reason": "Grund",
           "reasons": {
@@ -2005,7 +2005,9 @@
           "errApprover": "Angeben, wer die Verschrottung genehmigt hat.",
           "errAmount": "Schrott-/Verkaufserlös muss 0 oder mehr sein.",
           "done": "{{name}} als verschrottet markiert.",
-          "pmPaused": " {{count}} PM-Plan/Pläne pausiert.",
+          "pmArchived": " {{count}} PM-Plan/Pläne archiviert.",
+          "pmRestored": "{{count}} PM-Plan/Pläne reaktiviert.",
+          "pmNotRestored": "{{count}} konnten nicht reaktiviert werden – das PM-Plan-Limit Ihres Tarifs ist erreicht.",
           "failed": "Maschine konnte nicht verschrottet werden.",
           "menu": "Maschine verschrotten…",
           "bannerOn": "Diese Maschine wurde am {{date}} verschrottet.",

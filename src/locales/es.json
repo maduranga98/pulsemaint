@@ -1986,7 +1986,7 @@
         "errScrapOverPrice": "El valor de desecho no puede superar el precio de compra.",
         "scrap": {
           "title": "Desechar {{name}}",
-          "intro": "La máquina pasa al final de la lista marcada como Desechada. Se conserva su historial y se pausan sus programas de MP activos.",
+          "intro": "La máquina pasa al final de la lista marcada como Desechada. Se conserva su historial y sus programas de MP activos se archivan (vuelven si deshace el desecho).",
           "date": "Fecha de desecho",
           "reason": "Motivo",
           "reasons": {
@@ -2005,7 +2005,9 @@
           "errApprover": "Indique quién aprobó desechar esta máquina.",
           "errAmount": "El importe de desecho / venta debe ser 0 o más.",
           "done": "{{name}} marcada como desechada.",
-          "pmPaused": " {{count}} programa(s) de MP en pausa.",
+          "pmArchived": " {{count}} programa(s) de MP archivado(s).",
+          "pmRestored": "{{count}} programa(s) de MP reactivado(s).",
+          "pmNotRestored": "{{count}} no se pudieron reactivar: se alcanzó el límite de programas de MP de su plan.",
           "failed": "No se pudo desechar la máquina.",
           "menu": "Desechar máquina…",
           "bannerOn": "Esta máquina se desechó el {{date}}.",

@@ -17,6 +17,7 @@ import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/use
 import { OutsourcedMaintenanceSection } from '../../components/machines/OutsourcedMaintenanceSection';
 import { MachineAssetCard } from '../../components/machines/MachineAssetCard';
 import { ScrapMachineDialog } from '../../components/machines/ScrapMachineDialog';
+import { restoreSchedulesAfterUnscrap } from '../../services/machineScrap.service';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { toast } from 'sonner';
@@ -28,6 +29,7 @@ export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
+  const company = useAuthStore((state) => state.company);
   const [activeTab, setActiveTab] = useState<TabName>('overview');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showScrap, setShowScrap] = useState(false);
@@ -93,7 +95,13 @@ export function MachineProfilePage() {
     if (!window.confirm(t('common.machines.asset.scrap.undoConfirm', { name: machine!.name }))) return;
     try {
       await updateDoc(doc(db, 'machines', machine!.id), { status: 'active', scrapRecord: null, updatedAt: serverTimestamp() });
-      toast.success(t('common.machines.asset.scrap.restored'));
+      let note = '';
+      try {
+        const r = await restoreSchedulesAfterUnscrap(company, userProfile!.companyId, machine!.id);
+        if (r.restored) note += ` ${t('common.machines.asset.scrap.pmRestored', { count: r.restored })}`;
+        if (r.left) note += ` ${t('common.machines.asset.scrap.pmNotRestored', { count: r.left })}`;
+      } catch { /* the machine is back; schedules can be re-activated by hand */ }
+      toast.success(`${t('common.machines.asset.scrap.restored')}${note}`);
     } catch (e) {
       toast.error((e as Error).message || t('common.machines.asset.scrap.restoreFailed'));
     }
