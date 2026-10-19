@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bookValue, outsourcedJobTotals, partLineTotal, replaceAdvice } from '../machineAsset';
+import { bookValue, outsourcedJobTotals, partLineTotal, replaceAdvice, workOrderCost } from '../machineAsset';
 
 const YEAR = 365.25 * 24 * 3600 * 1000;
 const t0 = Date.UTC(2020, 0, 1);
@@ -37,5 +37,14 @@ describe('replaceAdvice', () => {
     expect(replaceAdvice({ purchasePrice: 100, maintenanceCost: 65, bookValue: 80 })).toBe('replace');
     expect(replaceAdvice({ purchasePrice: 100, maintenanceCost: 30, bookValue: 20 })).toBe('replace');
     expect(replaceAdvice({ purchasePrice: null, maintenanceCost: 30, bookValue: null })).toBe('ok');
+  });
+});
+
+describe('workOrderCost', () => {
+  it('counts parts and contractor charge on finished work orders only', () => {
+    const parts = [{ quantity: 2, unitCost: 100, totalCost: 200 }, { quantity: 1, unitCost: 50 }];
+    expect(workOrderCost({ status: 'SIGNED_OFF', partsUsed: parts, projectCost: 300 })).toBe(550);
+    expect(workOrderCost({ status: 'IN_PROGRESS', partsUsed: parts, projectCost: 300 })).toBe(0);
+    expect(workOrderCost({ status: 'CLOSED' })).toBe(0);
   });
 });

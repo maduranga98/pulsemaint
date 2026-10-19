@@ -54,6 +54,8 @@ export interface Lead {
   businessName: string;
   contactPerson: string;
   phone: string;
+  /** WhatsApp number when it differs from the phone; empty means the phone is used. */
+  whatsapp: string;
   email: string;
   /** Their website, stored as typed; use `websiteUrl` for a clickable href. */
   website: string;
@@ -72,6 +74,8 @@ export interface Lead {
   followUpNote: string;
   demoAt: number | null;
   demoRequested: boolean;
+  /** When they actually began using the trial (ms). A lead can request a trial and start it much later, or never. */
+  trialStartedAt: number | null;
   priceQuoted: string;
   closedAmount: number;
   currency: LeadCurrency;
@@ -119,8 +123,8 @@ export interface LeadActivity {
 
 export function emptyLead(now = Date.now()): LeadInput {
   return {
-    businessName: '', contactPerson: '', phone: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
-    leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false,
+    businessName: '', contactPerson: '', phone: '', whatsapp: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
+    leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false, trialStartedAt: null,
     priceQuoted: '', closedAmount: 0, currency: 'LKR', mainProblem: '', tags: [], notes: '', assignedTo: null, marketerId: null, companyId: null,
   };
 }
@@ -165,8 +169,10 @@ export interface LeadStats {
   open: number;
   demos: number;
   demosToday: number;
-  /** Open leads currently on a trial (status "trial requested"). */
-  trials: number;
+  /** Open leads that asked for a trial but haven't started using it. */
+  trialRequested: number;
+  /** Open leads actually using a trial now. */
+  usingTrial: number;
   followUpsDue: number;
   won: number;
   revenue: Record<string, number>;
@@ -175,13 +181,16 @@ export interface LeadStats {
 export function leadStats(leads: Lead[], now = Date.now()): LeadStats {
   const end = endOfDay(now);
   const start = startOfDay(now);
-  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, trials: 0, followUpsDue: 0, won: 0, revenue: {} };
+  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, trialRequested: 0, usingTrial: 0, followUpsDue: 0, won: 0, revenue: {} };
   for (const l of leads) {
     if (l.archived) continue;
     if (isOpen(l)) s.open++;
     if (l.status === 'demo_booked' || l.status === 'demo_done') s.demos++;
     if (l.demoAt && l.demoAt >= start && l.demoAt <= end) s.demosToday++;
-    if (l.status === 'trial_requested') s.trials++;
+    if (isOpen(l)) {
+      if (l.trialStartedAt) s.usingTrial++;
+      else if (l.status === 'trial_requested') s.trialRequested++;
+    }
     if (isOpen(l) && l.nextCallAt && l.nextCallAt <= end) s.followUpsDue++;
     if (l.status === 'closed_won') {
       s.won++;
@@ -189,6 +198,14 @@ export function leadStats(leads: Lead[], now = Date.now()): LeadStats {
     }
   }
   return s;
+}
+
+export const TRIAL_DAYS = 7;
+
+/** Day of the free trial a lead is on (1 = the day it started), or null when they haven't started one. */
+export function trialDay(lead: Pick<Lead, 'trialStartedAt'>, now = Date.now()): number | null {
+  if (!lead.trialStartedAt) return null;
+  return Math.max(1, Math.floor((startOfDay(now) - startOfDay(lead.trialStartedAt)) / 86_400_000) + 1);
 }
 
 export function fmtAmount(amount: number, currency: string): string {
@@ -219,7 +236,7 @@ export function matchesSearch(lead: Lead, q: string): boolean {
   const digits = needle.replace(/\D/g, '');
   return [lead.businessName, lead.contactPerson, lead.location, lead.district, lead.email, lead.source, lead.campaign]
     .some((v) => v?.toLowerCase().includes(needle))
-    || (digits.length >= 3 && lead.phone.replace(/\D/g, '').includes(digits));
+    || (digits.length >= 3 && `${lead.phone}${lead.whatsapp}`.replace(/\D/g, '').includes(digits));
 }
 
 /** Sri Lankan numbers → wa.me digits (07x… → 947x…). Other numbers are kept as typed. */
@@ -295,13 +312,13 @@ function isoDateTime(ms: number | null): string {
 
 /** Same fields as the Add lead form (no campaign / assignment columns). */
 export const LEAD_EXPORT_HEADER = [
-  'Business name', 'Contact person', 'Phone', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
+  'Business name', 'Contact person', 'Phone', 'WhatsApp', 'Email', 'Location', 'Country', 'Source', 'Industry', 'Lead date', 'Status',
   'Calls made', 'Next call', 'Follow-up note', 'Demo', 'Price told', 'Closed amount', 'Currency', 'Main problem', 'Tags', 'Notes',
 ];
 
 export function leadsToCsv(leads: Lead[]): string {
   return toCsv(LEAD_EXPORT_HEADER, leads.map((l) => [
-    l.businessName, l.contactPerson, l.phone, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
+    l.businessName, l.contactPerson, l.phone, l.whatsapp, l.email, l.location, countryLabel(l.district), l.source, l.industry, isoDate(l.leadDate),
     LEAD_STATUS_LABEL[l.status], l.callsMade, isoDateTime(l.nextCallAt), l.followUpNote, isoDateTime(l.demoAt), l.priceQuoted,
     l.closedAmount || '', l.currency, l.mainProblem, l.tags.join('; '), l.notes,
   ]));
@@ -350,10 +367,11 @@ export function activityOutcomeLabel(a: Pick<LeadActivity, 'type' | 'outcome' | 
 // ---------------------------------------------------------------------------
 
 const HEADER_ALIASES: Record<keyof Pick<LeadInput,
-  'businessName' | 'contactPerson' | 'phone' | 'email' | 'location' | 'district' | 'source' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
+  'businessName' | 'contactPerson' | 'phone' | 'whatsapp' | 'email' | 'location' | 'district' | 'source' | 'industry' | 'leadDate' | 'notes' | 'mainProblem' | 'status'>, string[]> = {
   businessName: ['business name', 'business', 'company', 'company name', 'garage', 'organisation', 'organization', 'factory', 'name of business'],
   contactPerson: ['contact person', 'contact', 'full name', 'name', 'owner', 'contact name', 'first name'],
-  phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel', 'whatsapp'],
+  phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'telephone', 'tel'],
+  whatsapp: ['whatsapp', 'whatsapp number', 'whatsapp no', 'whats app'],
   email: ['email', 'e-mail', 'email address'],
   location: ['location', 'city', 'town', 'address', 'area'],
   // Country (stored in `district`); older sheets with a district column still land here.
@@ -430,6 +448,8 @@ export function parseImportRows(table: unknown[][], defaults: { source?: string;
       else lead[field] = String(raw).trim().replace(/^p:\+?/, (m) => (field === 'phone' ? (m.includes('+') ? '+' : '') : m));
     }
     if (!lead.businessName) lead.businessName = lead.contactPerson;
+    if (!lead.phone) lead.phone = lead.whatsapp;
+    if (lead.whatsapp === lead.phone) lead.whatsapp = '';
     // Country names or codes → ISO code; anything unknown is kept as typed. Default: Sri Lanka.
     lead.district = lead.district ? resolveCountry(lead.district) : 'LK';
     if (!lead.businessName || (!lead.phone && !lead.email)) {

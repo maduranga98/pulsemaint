@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   commissionFor, funnel, groupStats, staleLeads,
   dayReport, emptyLead, leadStats, leadsToCsv, mapImportHeaders, matchesSearch, parseImportRows, phoneKey, scheduledCalls,
-  startOfDay, statusAfterCall, statusSideEffects, whatsappNumber, parseLeadText, type Lead, type LeadActivity,
+  startOfDay, statusAfterCall, statusSideEffects, whatsappNumber, parseLeadText, trialDay, type Lead, type LeadActivity,
 } from '../platform/leads';
 
 const NOW = new Date(2026, 9, 9, 12, 0).getTime();
@@ -54,7 +54,7 @@ describe('leadStats', () => {
       lead({ status: 'closed_won', closedAmount: 50, currency: 'USD' }),
       lead({ status: 'new', archived: true, nextCallAt: NOW }),
     ], NOW);
-    expect(s).toEqual({ open: 3, demos: 1, demosToday: 1, trials: 0, followUpsDue: 1, won: 2, revenue: { LKR: 8000, USD: 50 } });
+    expect(s).toEqual({ open: 3, demos: 1, demosToday: 1, trialRequested: 0, usingTrial: 0, followUpsDue: 1, won: 2, revenue: { LKR: 8000, USD: 50 } });
   });
 });
 
@@ -84,6 +84,9 @@ describe('search and phone helpers', () => {
     expect(whatsappNumber('077 123 4567')).toBe('94771234567');
     expect(whatsappNumber('+94 77 123 4567')).toBe('94771234567');
     expect(phoneKey('0771234567')).toBe(phoneKey('+94771234567'));
+  });
+  it('finds a lead by its separate WhatsApp number', () => {
+    expect(matchesSearch(lead({ whatsapp: '+94 75 237 3073' }), '752373')).toBe(true);
   });
 });
 
@@ -197,5 +200,31 @@ WhatsApp number: +94752373073`);
   it('still guesses from unlabelled text', () => {
     const p = parseLeadText('Nimal Silva\n077 123 4567\nnimal@silva.lk');
     expect(p).toMatchObject({ name: 'Nimal Silva', company: '', phone: '0771234567', email: 'nimal@silva.lk' });
+  });
+});
+
+describe('import whatsapp column', () => {
+  it('maps a WhatsApp column to its own field and falls back to it for the phone', () => {
+    const rows = [['Company', 'Full name', 'WhatsApp number'], ['CIC Holdings', 'Nilanka', '+94752373073']];
+    const r = parseImportRows(rows, { now: NOW });
+    expect(r.leads[0]).toMatchObject({ businessName: 'CIC Holdings', phone: '+94752373073', whatsapp: '' });
+  });
+});
+
+describe('trial tracking', () => {
+  it('separates trial requests from leads actually using the trial', () => {
+    const s = leadStats([
+      lead({ status: 'trial_requested' }),
+      lead({ status: 'trial_requested', trialStartedAt: NOW - 86_400_000 * 2 }),
+      lead({ status: 'negotiation', trialStartedAt: NOW }),
+      lead({ status: 'closed_won', trialStartedAt: NOW - 86_400_000 * 9 }),
+    ], NOW);
+    expect(s.trialRequested).toBe(1);
+    expect(s.usingTrial).toBe(2);
+  });
+  it('counts trial days from the start date', () => {
+    expect(trialDay({ trialStartedAt: null }, NOW)).toBeNull();
+    expect(trialDay({ trialStartedAt: NOW }, NOW)).toBe(1);
+    expect(trialDay({ trialStartedAt: NOW - 86_400_000 * 2 }, NOW)).toBe(3);
   });
 });
