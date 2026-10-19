@@ -13,6 +13,7 @@ import type { WorkOrder, WOFilters } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
 import { useDepartmentScope } from './useDepartmentScope';
 import { useRecordPlantMatcher } from './useRecordPlantMatcher';
+import { plantConstraints } from '../lib/plantQuery';
 
 interface UseWorkOrdersResult {
   workOrders: WorkOrder[];
@@ -53,6 +54,7 @@ export function useWorkOrders(filters?: WOFilters): UseWorkOrdersResult {
     let q: Query<DocumentData> = query(
       collection(db, 'workOrders'),
       where('siteId', '==', siteId),
+      ...plantConstraints('workOrders'),
       orderBy('createdAt', 'desc'),
     );
 

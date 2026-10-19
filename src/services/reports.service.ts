@@ -17,6 +17,7 @@ import {
   type QuerySnapshot,
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
+import { plantConstraints } from '../lib/plantQuery';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useActivePlantStore } from '../store/activePlantStore';
@@ -350,7 +351,7 @@ export async function fetchReportRows(
   // get their own row.
   if (reportType === 'maintenance_cost') {
     const [woSnap, contractorSnap] = await Promise.all([
-      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId))),
+      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), ...plantConstraints('workOrders'))),
       scopedGetDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId))),
     ]);
 
@@ -627,8 +628,8 @@ export async function fetchReportRows(
   // planned work from when it was raised.)
   if (reportType === 'downtime_analysis') {
     const [woSnap, bdSnap] = await Promise.all([
-      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId))),
-      scopedGetDocs(query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId))),
+      scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), ...plantConstraints('workOrders'))),
+      scopedGetDocs(query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId), ...plantConstraints('breakdown_tickets'))),
     ]);
     const workOrders = woSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>);
     const breakdowns = bdSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>);
@@ -666,7 +667,7 @@ export async function fetchReportRows(
   // report showed no deadline and nothing breached. One row per work order
   // whose deadline falls in the range, met / breached as the dashboards count it.
   if (reportType === 'sla_compliance') {
-    const woSnap = await scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId)));
+    const woSnap = await scopedGetDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), ...plantConstraints('workOrders')));
     const now = new Date();
     const translate = t ?? i18n.t.bind(i18n);
     const statusLabel = (key: 'within' | 'atRisk' | 'breached') =>
@@ -921,7 +922,7 @@ export async function fetchReportRows(
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
         try {
-          const snap = await scopedGetDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
+          const snap = await scopedGetDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk), ...plantConstraints('machines')));
           snap.docs.forEach((item) => {
             const data = item.data();
             const row: Record<string, unknown> = { id: item.id, ...data };
@@ -943,13 +944,13 @@ export async function fetchReportRows(
       const out: { id: string; data: () => Record<string, unknown> }[] = [];
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
-        const snap = await scopedGetDocs(query(collection(db, source), where('siteId', 'in', chunk)));
+        const snap = await scopedGetDocs(query(collection(db, source), where('siteId', 'in', chunk), ...plantConstraints(source)));
         snap.docs.forEach((d) => out.push(d));
       }
       return out;
     };
     try {
-      const snap = await scopedGetDocs(query(collection(db, source), where('companyId', '==', companyId)));
+      const snap = await scopedGetDocs(query(collection(db, source), where('companyId', '==', companyId), ...plantConstraints(source)));
       docs = snap.docs;
       // Some collections (e.g. workOrders / breakdown_tickets) are scoped by
       // siteId, and older documents may lack a companyId field — so a

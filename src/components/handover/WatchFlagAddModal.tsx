@@ -5,6 +5,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { DraftWatchFlag, WatchLevel } from '@/types/handover.types';
+import { plantConstraints } from '../../lib/plantQuery';
 
 interface WatchFlagAddModalProps {
   open: boolean;
@@ -56,7 +57,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
     setMachinesLoading(true);
     const siteIdList = siteIds && siteIds.length > 0 ? siteIds : [companyId];
     const unsub = onSnapshot(
-      query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
+      query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10)), ...plantConstraints('machines')),
       (snap) => {
         setMachines(
           snap.docs.filter((d) => d.get('status') !== 'scrapped').map((d) => {
@@ -96,7 +97,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
     // `where` clauses) to match the same pattern CreateWODrawer's linked-
     // breakdown picker uses, avoiding a composite index requirement.
     const unsub = onSnapshot(
-      query(collection(db, 'breakdown_tickets'), where('siteId', '==', companyId)),
+      query(collection(db, 'breakdown_tickets'), where('siteId', '==', companyId), ...plantConstraints('breakdown_tickets')),
       (snap) => {
         setBreakdowns(
           snap.docs
