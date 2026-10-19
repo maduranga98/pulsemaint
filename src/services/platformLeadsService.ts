@@ -34,7 +34,7 @@ function toLead(id: string, d: DocumentData): Lead {
     leadDate: num(d.leadDate),
     status: (LEAD_STATUSES as readonly string[]).includes(d.status) ? d.status : 'new',
     callsMade: num(d.callsMade) ?? 0,
-    nextCallAt: num(d.nextCallAt), followUpNote: str(d.followUpNote), demoAt: num(d.demoAt), demoRequested: d.demoRequested === true,
+    nextCallAt: num(d.nextCallAt), followUpNote: str(d.followUpNote), demoAt: num(d.demoAt), demoRequested: d.demoRequested === true, trialStartedAt: num(d.trialStartedAt),
     priceQuoted: str(d.priceQuoted), closedAmount: num(d.closedAmount) ?? 0, currency: d.currency === 'USD' ? 'USD' : 'LKR',
     closedAt: num(d.closedAt), mainProblem: str(d.mainProblem), tags: Array.isArray(d.tags) ? d.tags.filter((t: unknown) => typeof t === 'string') : [],
     notes: str(d.notes), assignedTo: d.assignedTo ?? null, marketerId: d.marketerId ?? null, companyId: d.companyId ?? null, archived: d.archived === true,
@@ -161,6 +161,13 @@ export async function logCall(lead: Lead, input: {
     statusFrom: lead.status, statusTo: status, at: now,
     ...(input.recording ? { recording: input.recording, transcript: (input.transcript ?? '').slice(0, 20000), spokenLanguage: input.spokenLanguage ?? null } : {}),
   });
+}
+
+/** Marks that the lead has begun using the trial (or clears it again), and notes it in their history. */
+export async function setTrialStarted(lead: Lead, started: boolean): Promise<void> {
+  const now = Date.now();
+  await updateDoc(doc(leadsCol, lead.id), { trialStartedAt: started ? now : null, lastActivityAt: now, updatedAt: serverTimestamp() });
+  await logActivity(lead, { type: 'note', body: started ? 'Started using the trial.' : 'Trial start cleared — not using the trial.', at: now });
 }
 
 export async function addLeadNote(lead: Lead, body: string): Promise<void> {

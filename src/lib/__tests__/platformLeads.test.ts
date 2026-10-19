@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   commissionFor, funnel, groupStats, staleLeads,
   dayReport, emptyLead, leadStats, leadsToCsv, mapImportHeaders, matchesSearch, parseImportRows, phoneKey, scheduledCalls,
-  startOfDay, statusAfterCall, statusSideEffects, whatsappNumber, parseLeadText, type Lead, type LeadActivity,
+  startOfDay, statusAfterCall, statusSideEffects, whatsappNumber, parseLeadText, trialDay, type Lead, type LeadActivity,
 } from '../platform/leads';
 
 const NOW = new Date(2026, 9, 9, 12, 0).getTime();
@@ -54,7 +54,7 @@ describe('leadStats', () => {
       lead({ status: 'closed_won', closedAmount: 50, currency: 'USD' }),
       lead({ status: 'new', archived: true, nextCallAt: NOW }),
     ], NOW);
-    expect(s).toEqual({ open: 3, demos: 1, demosToday: 1, trials: 0, followUpsDue: 1, won: 2, revenue: { LKR: 8000, USD: 50 } });
+    expect(s).toEqual({ open: 3, demos: 1, demosToday: 1, trialRequested: 0, usingTrial: 0, followUpsDue: 1, won: 2, revenue: { LKR: 8000, USD: 50 } });
   });
 });
 
@@ -208,5 +208,23 @@ describe('import whatsapp column', () => {
     const rows = [['Company', 'Full name', 'WhatsApp number'], ['CIC Holdings', 'Nilanka', '+94752373073']];
     const r = parseImportRows(rows, { now: NOW });
     expect(r.leads[0]).toMatchObject({ businessName: 'CIC Holdings', phone: '+94752373073', whatsapp: '' });
+  });
+});
+
+describe('trial tracking', () => {
+  it('separates trial requests from leads actually using the trial', () => {
+    const s = leadStats([
+      lead({ status: 'trial_requested' }),
+      lead({ status: 'trial_requested', trialStartedAt: NOW - 86_400_000 * 2 }),
+      lead({ status: 'negotiation', trialStartedAt: NOW }),
+      lead({ status: 'closed_won', trialStartedAt: NOW - 86_400_000 * 9 }),
+    ], NOW);
+    expect(s.trialRequested).toBe(1);
+    expect(s.usingTrial).toBe(2);
+  });
+  it('counts trial days from the start date', () => {
+    expect(trialDay({ trialStartedAt: null }, NOW)).toBeNull();
+    expect(trialDay({ trialStartedAt: NOW }, NOW)).toBe(1);
+    expect(trialDay({ trialStartedAt: NOW - 86_400_000 * 2 }, NOW)).toBe(3);
   });
 });

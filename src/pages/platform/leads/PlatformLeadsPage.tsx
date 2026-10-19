@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState, type DragEvent } from 'react';
 import { countryLabel } from '@/lib/countries';
 import { useSearchParams } from 'react-router-dom';
 import {
-  BarChart3, CalendarCheck, CalendarDays, Download, FileText, FlaskConical, KanbanSquare, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
+  BarChart3, CalendarCheck, CalendarDays, Download, FileText, FlaskConical, KanbanSquare, Rocket, List, Phone, PhoneCall, Plus, Search, Trophy, Upload, Users, Wallet,
 } from 'lucide-react';
 import {
-  BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, leadsToCsv, matchesSearch, revenueText,
+  BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, isOpen, leadStats, trialDay, TRIAL_DAYS, leadsToCsv, matchesSearch, revenueText,
   type Lead, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
 import { assignLeads, setLeadStatus, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
@@ -123,11 +123,12 @@ export default function PlatformLeadsPage() {
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       {notice && <div className="mb-4 rounded-lg border border-emerald-700/50 bg-emerald-900/20 p-3 text-sm text-emerald-300">{notice}</div>}
 
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
+      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4 2xl:grid-cols-8">
         <StatTile icon={Users} tone="text-sky-300 bg-sky-900/40" value={stats.open} label="Open leads" />
         <StatTile icon={CalendarCheck} tone="text-violet-300 bg-violet-900/40" value={stats.demos} label="Demo booked or done" />
         <StatTile icon={CalendarDays} tone="text-fuchsia-300 bg-fuchsia-900/40" value={stats.demosToday} label="Demos today" />
-        <StatTile icon={FlaskConical} tone="text-orange-300 bg-orange-900/40" value={stats.trials} label="On trial" />
+        <StatTile icon={FlaskConical} tone="text-orange-300 bg-orange-900/40" value={stats.trialRequested} label="Trial requested" />
+        <StatTile icon={Rocket} tone="text-lime-300 bg-lime-900/40" value={stats.usingTrial} label="Using trial now" />
         <StatTile icon={PhoneCall} tone="text-amber-300 bg-amber-900/40" value={stats.followUpsDue} label="Follow-ups due" />
         <StatTile icon={Trophy} tone="text-emerald-300 bg-emerald-900/40" value={stats.won} label="Closed won" />
         <StatTile icon={Wallet} tone="text-teal-300 bg-teal-900/40" value={revenueText(stats.revenue)} label="Revenue" />
@@ -258,9 +259,12 @@ function LeadCard({ lead, owner, onOpen }: { lead: Lead; owner: string; onOpen: 
         <span className="truncate text-slate-500">{lead.location || countryLabel(lead.district)}</span>
       </div>
       {lead.phone && <p className="mt-0.5 font-mono text-[11px] text-slate-500">{lead.phone}</p>}
-      {(lead.tags.length > 0 || lead.demoAt) && (
+      {(lead.tags.length > 0 || lead.demoAt || lead.trialStartedAt) && (
         <div className="mt-2 flex flex-wrap gap-1">
           {lead.tags.map((t) => <TagChip key={t} tag={t} />)}
+          {lead.trialStartedAt && isOpen(lead) && (
+            <span className="rounded-full bg-lime-900/60 px-2 py-px text-[10px] font-semibold text-lime-200">Using trial · day {trialDay(lead)}/{TRIAL_DAYS}</span>
+          )}
           {lead.demoAt && lead.status !== 'closed_won' && lead.status !== 'closed_lost' && (
             <span className="rounded-full bg-violet-900/60 px-2 py-px text-[10px] font-semibold text-violet-200">
               Demo {new Date(lead.demoAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}

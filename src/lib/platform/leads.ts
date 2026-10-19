@@ -74,6 +74,8 @@ export interface Lead {
   followUpNote: string;
   demoAt: number | null;
   demoRequested: boolean;
+  /** When they actually began using the trial (ms). A lead can request a trial and start it much later, or never. */
+  trialStartedAt: number | null;
   priceQuoted: string;
   closedAmount: number;
   currency: LeadCurrency;
@@ -122,7 +124,7 @@ export interface LeadActivity {
 export function emptyLead(now = Date.now()): LeadInput {
   return {
     businessName: '', contactPerson: '', phone: '', whatsapp: '', email: '', website: '', location: '', district: '', source: '', campaign: '', industry: '',
-    leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false,
+    leadDate: startOfDay(now), status: 'new', callsMade: 0, nextCallAt: null, followUpNote: '', demoAt: null, demoRequested: false, trialStartedAt: null,
     priceQuoted: '', closedAmount: 0, currency: 'LKR', mainProblem: '', tags: [], notes: '', assignedTo: null, marketerId: null, companyId: null,
   };
 }
@@ -167,8 +169,10 @@ export interface LeadStats {
   open: number;
   demos: number;
   demosToday: number;
-  /** Open leads currently on a trial (status "trial requested"). */
-  trials: number;
+  /** Open leads that asked for a trial but haven't started using it. */
+  trialRequested: number;
+  /** Open leads actually using a trial now. */
+  usingTrial: number;
   followUpsDue: number;
   won: number;
   revenue: Record<string, number>;
@@ -177,13 +181,16 @@ export interface LeadStats {
 export function leadStats(leads: Lead[], now = Date.now()): LeadStats {
   const end = endOfDay(now);
   const start = startOfDay(now);
-  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, trials: 0, followUpsDue: 0, won: 0, revenue: {} };
+  const s: LeadStats = { open: 0, demos: 0, demosToday: 0, trialRequested: 0, usingTrial: 0, followUpsDue: 0, won: 0, revenue: {} };
   for (const l of leads) {
     if (l.archived) continue;
     if (isOpen(l)) s.open++;
     if (l.status === 'demo_booked' || l.status === 'demo_done') s.demos++;
     if (l.demoAt && l.demoAt >= start && l.demoAt <= end) s.demosToday++;
-    if (l.status === 'trial_requested') s.trials++;
+    if (isOpen(l)) {
+      if (l.trialStartedAt) s.usingTrial++;
+      else if (l.status === 'trial_requested') s.trialRequested++;
+    }
     if (isOpen(l) && l.nextCallAt && l.nextCallAt <= end) s.followUpsDue++;
     if (l.status === 'closed_won') {
       s.won++;
@@ -191,6 +198,14 @@ export function leadStats(leads: Lead[], now = Date.now()): LeadStats {
     }
   }
   return s;
+}
+
+export const TRIAL_DAYS = 7;
+
+/** Day of the free trial a lead is on (1 = the day it started), or null when they haven't started one. */
+export function trialDay(lead: Pick<Lead, 'trialStartedAt'>, now = Date.now()): number | null {
+  if (!lead.trialStartedAt) return null;
+  return Math.max(1, Math.floor((startOfDay(now) - startOfDay(lead.trialStartedAt)) / 86_400_000) + 1);
 }
 
 export function fmtAmount(amount: number, currency: string): string {
