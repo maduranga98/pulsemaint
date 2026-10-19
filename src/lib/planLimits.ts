@@ -353,3 +353,22 @@ export function featureForPath(pathname: string): FeatureKey | null {
   }
   return null;
 }
+
+export interface SeatTally {
+  /** Counts of user profile documents. */
+  members: { all: number; inactive: number; light: number; lightInactive: number };
+  /** Invitations still marked pending, with the time they stop being valid (ms, null = no expiry). */
+  invites: Array<{ role: string | null | undefined; expiresAtMs: number | null }>;
+}
+
+/**
+ * Seats in use. A deactivated account and an invitation past its expiry take no seat; everyone else,
+ * plus invitations still waiting to be accepted, does. Light seats are the floor-operator and trainee roles.
+ */
+export function seatCountsFrom(t: SeatTally, now: number = Date.now()): { full: number; light: number } {
+  const liveInvites = t.invites.filter((i) => i.expiresAtMs === null || i.expiresAtMs > now);
+  const invLight = liveInvites.filter((i) => seatTypeForRole(i.role) === 'light').length;
+  const memberLight = t.members.light - t.members.lightInactive;
+  const memberAll = t.members.all - t.members.inactive;
+  return { light: memberLight + invLight, full: memberAll - memberLight + (liveInvites.length - invLight) };
+}

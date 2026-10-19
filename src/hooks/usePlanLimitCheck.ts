@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { collection, query, where, getCountFromServer, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getCountFromServer, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { limitsForCompany, isAtOrOverLimit, seatTypeForRole, LIGHT_USER_ROLES, type SeatType } from '../lib/planLimits';
+import { limitsForCompany, isAtOrOverLimit, seatTypeForRole, seatCountsFrom, LIGHT_USER_ROLES, type SeatType } from '../lib/planLimits';
 import { PLAN_DISPLAY_NAME } from '../lib/planCatalog';
 
 export type CountedResource = 'machines' | 'inventoryItems' | 'pmSchedules' | 'plants';
@@ -41,16 +41,21 @@ export async function fetchResourceCount(resource: CountedResource, companyId: s
     ]);
     return Math.max(0, all.data().count - scrapped.data().count);
   }
+  if (resource === 'plants') {
+    const [all, off] = await Promise.all([
+      getCountFromServer(query(collection(db, 'plants'), where('companyId', '==', companyId))),
+      getCountFromServer(query(collection(db, 'plants'), where('companyId', '==', companyId), where('status', '==', 'inactive'))),
+    ]);
+    return Math.max(0, all.data().count - off.data().count);
+  }
   const q =
     resource === 'inventoryItems'
       ? query(collection(db, 'inventoryParts'), where('companyId', '==', companyId))
-      : resource === 'pmSchedules'
-      ? query(
+      : query(
           collection(db, 'pm_schedules'),
           where('companyId', '==', companyId),
           where('status', 'in', ['active', 'paused']),
-        )
-      : query(collection(db, 'plants'), where('companyId', '==', companyId));
+        );
   const snap = await getCountFromServer(q);
   return snap.data().count;
 }
@@ -70,14 +75,21 @@ export async function fetchSeatCounts(companyId: string): Promise<SeatCounts> {
   const members = collection(db, `companies/${companyId}/users`);
   const invites = query(collection(db, `companies/${companyId}/invitations`), where('status', '==', 'pending'));
   const light = [...LIGHT_USER_ROLES];
-  const [mAll, mLight, iAll, iLight] = await Promise.all([
+  const inactive = where('status', '==', 'inactive');
+  const [all, off, lightAll, lightOff, inviteSnap] = await Promise.all([
     getCountFromServer(query(members)),
+    getCountFromServer(query(members, inactive)),
     getCountFromServer(query(members, where('role', 'in', light))),
-    getCountFromServer(invites),
-    getCountFromServer(query(invites, where('role', 'in', light))),
+    getCountFromServer(query(members, where('role', 'in', light), inactive)),
+    getDocs(invites),
   ]);
-  const lightCount = mLight.data().count + iLight.data().count;
-  return { full: mAll.data().count + iAll.data().count - lightCount, light: lightCount };
+  return seatCountsFrom({
+    members: { all: all.data().count, inactive: off.data().count, light: lightAll.data().count, lightInactive: lightOff.data().count },
+    invites: inviteSnap.docs.map((d) => ({
+      role: d.get('role') as string | undefined,
+      expiresAtMs: typeof d.get('expiresAt')?.toMillis === 'function' ? (d.get('expiresAt').toMillis() as number) : null,
+    })),
+  });
 }
 
 export interface SeatUsage {

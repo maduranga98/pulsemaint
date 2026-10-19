@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isTrialExpired, isFeatureAvailable, featureForPath, type PlanCompanyState } from '../planLimits';
+import { isTrialExpired, isFeatureAvailable, featureForPath, seatCountsFrom, type PlanCompanyState } from '../planLimits';
 
 const DAY = 86_400_000;
 const ts = (ms: number) => ({ toMillis: () => ms });
@@ -64,5 +64,24 @@ describe('featureForPath', () => {
     expect(featureForPath('/app/shift/my')).toBeNull();
     expect(featureForPath('/app/machines')).toBeNull();
     expect(featureForPath('/app/contractorsX')).toBeNull();
+  });
+});
+
+describe('seatCountsFrom', () => {
+  const NOW = 1_000_000;
+  it('counts members and live invitations by seat type', () => {
+    const r = seatCountsFrom({
+      members: { all: 6, inactive: 0, light: 2, lightInactive: 0 },
+      invites: [{ role: 'technician', expiresAtMs: NOW + 1 }, { role: 'trainee', expiresAtMs: null }],
+    }, NOW);
+    expect(r).toEqual({ full: 5, light: 3 });
+  });
+  it('deactivated users and expired invitations take no seat', () => {
+    const r = seatCountsFrom({
+      members: { all: 6, inactive: 2, light: 2, lightInactive: 1 },
+      invites: [{ role: 'technician', expiresAtMs: NOW - 1 }, { role: 'floor_operator', expiresAtMs: NOW }, { role: 'supervisor', expiresAtMs: NOW + 5 }],
+    }, NOW);
+    // members: 4 active (1 light, 3 full); invitations: only the supervisor one is still valid
+    expect(r).toEqual({ full: 4, light: 1 });
   });
 });
