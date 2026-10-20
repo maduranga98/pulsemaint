@@ -10,7 +10,7 @@ import {
   BOARD_STATUSES, LEAD_STATUSES, LEAD_STATUS_LABEL, LEAD_TAGS, fmtAmount, formatLeadNumber, isOpen, leadStats, trialDay, TRIAL_DAYS, leadsToCsv, matchesSearch, revenueText,
   type Lead, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
-import { assignLeads, numberUnnumberedLeads, setLeadStatus, setTrialStarted, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
+import { assignLeads, numberUnnumberedLeads, renumberLeads, setLeadStatus, setTrialStarted, subscribeLeads, subscribeTeam } from '@/services/platformLeadsService';
 import { platformService, errorText, type PlatformCompany } from '@/services/platformService';
 import { ErrorNote, Loading, PageHeader, btn, fmtDate, fmtDateTime, input } from '../platformUi';
 import LeadFormDialog from './LeadFormDialog';
@@ -72,6 +72,17 @@ export default function PlatformLeadsPage() {
     if (!leads || numbering.current || !leads.some((l) => l.leadNumber === null)) return;
     numbering.current = true;
     numberUnnumberedLeads().catch((e) => setError((e as Error).message)).finally(() => { numbering.current = false; });
+  }, [leads]);
+  // Gaps left by deleted leads (or duplicates) are closed so the numbers always run 1…n.
+  const renumbered = useRef('');
+  useEffect(() => {
+    if (!leads || !leads.length || leads.some((l) => l.leadNumber === null)) return;
+    const numbers = leads.map((l) => l.leadNumber as number).sort((a, b) => a - b);
+    if (numbers.every((n, i) => n === i + 1)) return;
+    const signature = numbers.join(',');
+    if (renumbered.current === signature) return;
+    renumbered.current = signature;
+    renumberLeads().catch((e) => setError((e as Error).message));
   }, [leads]);
   useEffect(() => subscribeTeam(setTeam, () => {}), []);
 
