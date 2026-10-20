@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, runTransaction, serverTimestamp, updateDoc, where, writeBatch,
+  addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, runTransaction, serverTimestamp, setDoc, updateDoc, where, writeBatch,
   type DocumentData, type Unsubscribe,
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -246,6 +246,25 @@ export async function deleteLead(leadId: string): Promise<void> {
     await batch.commit();
   }
   await deleteDoc(doc(leadsCol, leadId));
+  await renumberLeads();
+}
+
+/**
+ * Closes the gaps left by deleted leads: every lead is renumbered 1, 2, 3… in its existing order
+ * (oldest first) and the counter is reset so the next new lead continues after the last one.
+ */
+export async function renumberLeads(): Promise<void> {
+  const snap = await getDocs(leadsCol);
+  const ordered = snap.docs.sort((a, b) =>
+    (num(a.get('leadNumber')) ?? Infinity) - (num(b.get('leadNumber')) ?? Infinity)
+    || (tsMs(a.get('createdAt')) ?? 0) - (tsMs(b.get('createdAt')) ?? 0));
+  const changed = ordered.map((d, i) => ({ d, n: i + 1 })).filter(({ d, n }) => num(d.get('leadNumber')) !== n);
+  for (let i = 0; i < changed.length; i += 400) {
+    const batch = writeBatch(db);
+    for (const { d, n } of changed.slice(i, i + 400)) batch.update(d.ref, { leadNumber: n });
+    await batch.commit();
+  }
+  await setDoc(counterRef, { next: ordered.length + 1 });
 }
 
 // ---------------------------------------------------------------------------
