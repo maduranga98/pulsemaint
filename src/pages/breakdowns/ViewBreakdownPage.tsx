@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDoc, getDocs, documentId } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, getDoc, getDocs, documentId } from 'firebase/firestore';
 import { AlertCircle, ArrowLeft, CheckCircle, UserPlus, HardHat, Pencil, ClipboardPlus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown } from '../../types/breakdown';
-import { RCAModal } from '../../components/breakdowns/RCAModal';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import { BreakdownDetailCard } from '../../components/breakdowns/BreakdownDetailCard';
 import { WODetailPanel } from '../../components/workorders/WODetailPanel';
 import type { WorkOrder } from '../../types/workOrder';
-import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 import { notifyUsers } from '../../services/notifications.service';
 import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
 import { getBreakdownsHomeRoute } from '../../lib/auth';
@@ -29,9 +28,9 @@ export default function ViewBreakdownPage() {
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showRCAModal, setShowRCAModal] = useState(false);
-  const [pendingClose, setPendingClose] = useState(false);
-  const [rcaDoc, setRcaDoc] = useState<{ status: string; rootCause: string } | null>(null);
+  const [showCancel, setShowCancel] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelBusy, setCancelBusy] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignBusy, setAssignBusy] = useState(false);
   const [attendBusy, setAttendBusy] = useState(false);
@@ -96,22 +95,6 @@ export default function ViewBreakdownPage() {
   }, [breakdown?.id, breakdown?.attendedBy, breakdown?.assignedTechnicianIds, breakdown?.statusHistory]);
 
   // Load RCA doc for this breakdown
-  useEffect(() => {
-    if (!id) return;
-    const q = query(
-      collection(db, 'rca'),
-      where('breakdownId', '==', id),
-      orderBy('createdAt', 'desc'),
-      limit(1),
-    );
-    getDocs(q).then((snap) => {
-      if (!snap.empty) {
-        const data = snap.docs[0].data();
-        setRcaDoc({ status: data.status, rootCause: data.rootCause ?? '' });
-      }
-    }).catch(() => {}); // silently ignore permission errors
-  }, [id]);
-
   // A breakdown repaired under a work order is closed by signing off that
   // WO — useSignOff closes the WO and every ticket it covers together, so
   // the WO never stays "Completed" with no sign-off. Only a ticket with no
@@ -246,34 +229,65 @@ export default function ViewBreakdownPage() {
     );
   }
 
+  // Only a low-severity quick fix (done by the technician, no work order) is
+  // signed off and closed on its own. Every other severity is closed through
+  // its work order's sign-off — a ticket with no work order can only be
+  // cancelled (with a reason) or get a work order raised.
   function handleInitiateClose() {
     if (!breakdown) return;
-    // Repaired under a work order: that WO's sign-off form collects the
-    // signer's root cause, so don't ask for a second RCA here.
-    if (breakdown.linkedWOId) {
+    if (breakdown.linkedWOId || (breakdown.completedWithoutWO && breakdown.severity === 'low')) {
       handleClose();
       return;
     }
-    if (
-      isRCARequired(breakdown.severity) &&
-      !canCloseBreakdown(breakdown.severity, rcaDoc)
-    ) {
-      setPendingClose(true);
-      setShowRCAModal(true);
-    } else {
-      handleClose();
-    }
+    toast.error(t('common.breakdowns.viewPage.errors.needsWorkOrder', {
+      defaultValue: 'Only low-severity quick fixes can be signed off without a work order. Create a work order for this breakdown, or cancel it with a reason.',
+    }));
   }
 
-  function handleRCASaved(_rcaId: string, completed: boolean) {
-    setShowRCAModal(false);
-    if (pendingClose && completed) {
-      handleClose();
+  async function handleCancel() {
+    if (!id || !userProfile || !breakdown) return;
+    const reason = cancelReason.trim();
+    if (reason.length < 5) {
+      toast.error(t('common.breakdowns.viewPage.errors.cancelReasonRequired', { defaultValue: 'Enter the reason for cancelling this breakdown (at least 5 characters).' }));
+      return;
     }
-    setPendingClose(false);
-    // Update local rcaDoc to prevent re-blocking
-    if (completed) {
-      setRcaDoc({ status: 'completed', rootCause: 'see rca record' });
+    setCancelBusy(true);
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', id), {
+        status: 'cancelled',
+        cancelReason: reason,
+        cancelReasonCategory: null,
+        cancelledBy: userProfile.id,
+        cancelledByName: userProfile.fullName,
+        cancelledAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        statusHistory: arrayUnion({
+          status: 'cancelled',
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: Timestamp.now(),
+          note: `Cancelled by ${userProfile.fullName}: ${reason}`,
+        }),
+      });
+      void markMachineActiveIfNoOpenWork(breakdown.machineId);
+      const attending = (breakdown.assignedTechnicianIds ?? []).filter((uid) => uid !== userProfile.id);
+      if (attending.length > 0) {
+        void notifyUsers(userProfile.companyId, attending, {
+          type: 'breakdown',
+          message: `Breakdown ${breakdown.ticketNumber} on ${breakdown.machineName} was cancelled: ${reason}`,
+          oversightMessage: `cancelled breakdown ${breakdown.ticketNumber}: ${reason}`,
+          actorName: userProfile.fullName ?? '',
+          actorRole: userProfile.role,
+          actorUserId: userProfile.id,
+          linkTo: `/app/breakdowns/${id}`,
+        });
+      }
+      setShowCancel(false);
+      navigate(getBreakdownsHomeRoute(role), { replace: true });
+    } catch (err: any) {
+      toast.error(err?.message || t('common.breakdowns.viewPage.errors.cancelFailed', { defaultValue: 'Failed to cancel the breakdown.' }));
+    } finally {
+      setCancelBusy(false);
     }
   }
 
@@ -369,7 +383,17 @@ export default function ViewBreakdownPage() {
                 {t('common.breakdowns.viewPage.createWorkOrder')}
               </button>
             )}
-            {b.status === 'resolved' && isSupervisorRole && (
+            {isSupervisorRole && !b.linkedWOId
+              && !['closed', 'cancelled'].includes(b.status) && (
+              <button
+                type="button"
+                onClick={() => setShowCancel(true)}
+                className="px-4 py-2 border border-red-200 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 text-sm"
+              >
+                {t('common.breakdowns.viewPage.cancelBreakdown', { defaultValue: 'Cancel breakdown' })}
+              </button>
+            )}
+            {b.status === 'resolved' && isSupervisorRole && (b.linkedWOId || (b.completedWithoutWO && b.severity === 'low')) && (
               <button
                 type="button"
                 onClick={handleInitiateClose}
@@ -387,12 +411,43 @@ export default function ViewBreakdownPage() {
         <BreakdownDetailCard breakdown={b} actorRoles={actorRoles} />
       </div>
 
-      {showRCAModal && breakdown && (
-        <RCAModal
-          breakdown={breakdown}
-          onClose={() => { setShowRCAModal(false); setPendingClose(false); }}
-          onSaved={handleRCASaved}
-        />
+      {showCancel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
+            <h2 className="text-lg font-semibold text-slate-900">
+              {t('common.breakdowns.viewPage.cancelTitle', { defaultValue: 'Cancel this breakdown' })}
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              {t('common.breakdowns.viewPage.cancelHint', { defaultValue: 'A reason is required. The reporter and the assigned technicians are told.' })}
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              rows={3}
+              disabled={cancelBusy}
+              placeholder={t('common.breakdowns.viewPage.cancelPlaceholder', { defaultValue: 'Why is this breakdown being cancelled?' })}
+              className="mt-3 w-full rounded-lg border border-slate-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => { setShowCancel(false); setCancelReason(''); }}
+                disabled={cancelBusy}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              >
+                {t('common.breakdowns.viewPage.cancelKeep', { defaultValue: 'Keep it' })}
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleCancel()}
+                disabled={cancelBusy || cancelReason.trim().length < 5}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {cancelBusy ? '…' : t('common.breakdowns.viewPage.cancelConfirm', { defaultValue: 'Cancel breakdown' })}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {signOffWO && (

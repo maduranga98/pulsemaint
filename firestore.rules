@@ -471,6 +471,20 @@ service cloud.firestore {
             && uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.get('assignedTechnicianIds', []));
       }
 
+      // A ticket is signed off and closed only through its work order, or — for
+      // a low-severity quick fix the technician completed without one — by the
+      // supervisor. Any other severity without a work order can only be
+      // cancelled, and a cancellation always carries a reason.
+      function ticketStatusChangeOk() {
+        let d = request.resource.data;
+        let was = resource.data.get('status', '');
+        return (d.get('status', '') != 'closed' || was == 'closed'
+            || resource.data.get('linkedWOId', null) != null
+            || (resource.data.get('completedWithoutWO', false) == true && resource.data.get('severity', null) == 'low'))
+          && (d.get('status', '') != 'cancelled' || was == 'cancelled'
+            || (d.get('cancelReason', null) is string && d.get('cancelReason', '').size() >= 5));
+      }
+
       // Plant isolation — except for tickets the caller is assigned to or attending.
       function ticketPlantOk() {
         return plantVisible(resource.data.get('machinePlantId', null))
@@ -498,7 +512,8 @@ service cloud.firestore {
       allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data) && isAnyRole([
         'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
       ]) && plantVisible(resource.data.get('machinePlantId', null))
-        && plantVisible(request.resource.data.get('machinePlantId', null));
+        && plantVisible(request.resource.data.get('machinePlantId', null))
+        && ticketStatusChangeOk();
       // Technicians and trainees update only tickets they work on — assigned
       // to or attending it, putting themselves on it (self-attend / joining
       // the assessment), or assigned to its linked work order (starting or
@@ -509,6 +524,8 @@ service cloud.firestore {
         && isAnyRole(['technician', 'trainee'])
         && ticketWorkedOnByMe()
         && ticketPlantOk()
+        && ticketStatusChangeOk()
+        && request.resource.data.get('status', '') != 'cancelled'
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'companyId', 'siteId', 'machineId', 'machinePlantId', 'machineDepartment', 'ticketNumber',
           'reportedAt', 'reportedBy', 'reporterName', 'reporterRole', 'source', 'createdAt'
