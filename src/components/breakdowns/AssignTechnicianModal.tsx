@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { X, UserPlus, Clock } from 'lucide-react';
 import { db } from '../../lib/firebase';
-import { useBusyTechnicians } from '../../hooks/useBusyTechnicians';
+import { useSlotJobs } from '../../hooks/useSlotJobs';
+import { describeConflict, findConflicts, newBreakdownSlot } from '../../lib/assignmentSlots';
 
 interface Candidate {
   id: string;
@@ -17,6 +18,8 @@ interface AssignTechnicianModalProps {
   siteId?: string;
   /** Work on this machine doesn't make a technician unavailable for more work on it. */
   allowMachineId?: string | null;
+  /** The breakdown(s) being assigned — their own current assignees aren't "already assigned" to them. */
+  ignoreBreakdownIds?: string[];
   onClose: () => void;
   onAssign: (candidate: Candidate) => void | Promise<void>;
   assigning?: boolean;
@@ -24,9 +27,16 @@ interface AssignTechnicianModalProps {
 
 const ASSIGNABLE_ROLES = ['technician', 'trainee'];
 
-export function AssignTechnicianModal({ companyId, siteId, allowMachineId, onClose, onAssign, assigning }: AssignTechnicianModalProps) {
+export function AssignTechnicianModal({ companyId, siteId, allowMachineId: _allowMachineId, ignoreBreakdownIds, onClose, onAssign, assigning }: AssignTechnicianModalProps) {
   const { t } = useTranslation();
-  const { busy } = useBusyTechnicians(siteId, { allowMachineId });
+  // Someone may take several jobs; only those whose existing work order or
+  // breakdown overlaps this call's time slot (from now) are shown as already assigned.
+  const slotJobs = useSlotJobs(siteId);
+  const ignoreKey = (ignoreBreakdownIds ?? []).join(',');
+  const busy = useMemo(
+    () => findConflicts(newBreakdownSlot(Date.now()), slotJobs, new Set(ignoreKey ? ignoreKey.split(',') : [])),
+    [slotJobs, ignoreKey],
+  );
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -101,7 +111,7 @@ export function AssignTechnicianModal({ companyId, siteId, allowMachineId, onClo
                   <span className="ml-2 text-xs text-slate-500 capitalize">{c.role}</span>
                   {job ? (
                     <span className="ml-2 inline-flex items-center gap-1 text-xs text-amber-700">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> {t('common.breakdowns.assignModal.busy', { ref: job.ref })}
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> {t('common.breakdowns.assignModal.alreadyAssigned', { ref: describeConflict(job), defaultValue: 'Already assigned — {{ref}}' })}
                     </span>
                   ) : (
                     <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-600">

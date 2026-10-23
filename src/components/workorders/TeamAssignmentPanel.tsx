@@ -9,7 +9,7 @@ interface TechnicianOption {
   name: string;
   department: string;
   activeWOCount: number;
-  /** Set when the technician is mid-job (WO or breakdown) and so can't be assigned another. */
+  /** Set when the technician already holds a WO / breakdown that overlaps this work order's time slot ("WO-12 · 23 Oct 10:00–12:00"). */
   busyRef?: string | null;
 }
 
@@ -49,8 +49,8 @@ function supervisorOptionLabel(s: SupervisorOption): string {
   return parts.join(' — ');
 }
 
-/** One selectable technician. Someone mid-job can't be newly picked (but a
- *  technician already picked can still be unticked). */
+/** One selectable technician. Someone whose existing job overlaps this work
+ *  order's time slot can't be newly picked (but one already picked can still be unticked). */
 function TechnicianRow({ tech, selected, onToggle }: { tech: TechnicianOption; selected: boolean; onToggle: () => void }) {
   const { t } = useTranslation();
   const unavailable = !!tech.busyRef && !selected;
@@ -71,7 +71,7 @@ function TechnicianRow({ tech, selected, onToggle }: { tech: TechnicianOption; s
         <span className="text-gray-400">{tech.department}</span>
       </span>
       {tech.busyRef ? (
-        <span className="text-xs text-amber-700">{t('common.workOrders.teamAssignment.busyInline', { ref: tech.busyRef })}</span>
+        <span className="text-xs text-amber-700">{t('common.workOrders.teamAssignment.alreadyAssignedInline', { ref: tech.busyRef, defaultValue: 'Already assigned — {{ref}}' })}</span>
       ) : (
         <span className="text-xs text-gray-500">{t('common.workOrders.teamAssignment.activeWOsInline', { count: tech.activeWOCount })}</span>
       )}

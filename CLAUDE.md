@@ -72,6 +72,8 @@ Local Firebase emulators (auth/firestore/storage) are configured in `firebase.js
 
 - **Companies without plants**: plant pickers, filters and names (Users invite/edit/filter, machine form + import, shift config) are hidden until the first active plant exists (`usePlantsInUse`). Departments and shifts are still plant-scoped, so they need a plant before they can be set up.
 
+- **Assigning people by time slot**: one person may hold several work orders / breakdowns as long as their time slots don't overlap (`src/lib/assignmentSlots.ts`, tested). A new work order occupies its scheduled start (or now) for its estimated duration; a breakdown call occupies the person from now for about 2 h; a started job still occupies them while it runs. `CreateWODrawer` and `AssignTechnicianModal` show anyone whose existing job overlaps as "Already assigned — WO-12 · 23 Oct 10:00–12:00" (disabled) and allow everyone else. Client-side only; unscheduled open work orders claim no time.
+
 ### Frontend structure
 - `src/pages/` — route-level page components, one subfolder per module (machines, workorders, breakdowns, pm, inventory, contractors, shift, training, triage, triage-builder, analytics, reports, billing, settings, auth).
 - `src/modules/` — self-contained feature modules with their own pages/services/hooks (audit, evaluation, kaizen, oee, tpm, fives). **`tpm` and `fives` are built but not wired into the router/nav** — likely superseded by the unified `audit` module; don't assume they're reachable in the live app.
