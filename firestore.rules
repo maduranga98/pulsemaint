@@ -453,55 +453,10 @@ service cloud.firestore {
     // Breakdowns (Module 1 — existing)
     // ---------------------------------------------------------------------------
 
-    // A visitor who scanned a machine's QR code and reported a breakdown
-    // without signing in — Firebase Anonymous Auth (see
-    // signInAnonymouslyForReport / PublicBreakdownReportPage). Tightly
-    // scoped: only a fresh, unassigned "reported" ticket sourced from a QR
-    // scan, with no reporter identity attached, for a machine that exists —
-    // filed under that machine's own company, plant and department (so an
-    // anonymous visitor can't drop tickets into another company's queue or
-    // route them to the wrong plant), with only the form's fields.
-    function isAnonymousBreakdownReport() {
-      let d = request.resource.data;
-      let machinePath = /databases/$(database)/documents/machines/$(d.get('machineId', '_'));
-      return request.auth != null
-        && request.auth.token.firebase.sign_in_provider == 'anonymous'
-        && d.keys().hasOnly([
-          'ticketNumber', 'siteId', 'companyId', 'machineId', 'machineName', 'machineDepartment',
-          'machinePlantId', 'machineLocation', 'machineCriticality', 'severity', 'type', 'description',
-          'productionImpact', 'currentProductionCount', 'attemptedFixes', 'machineStillRunning',
-          'photos', 'video', 'source', 'reportedBy', 'reporterName', 'reporterRole', 'reportedAt',
-          'status', 'statusHistory', 'assignedTechnicianIds', 'assignedTechnicianNames',
-          'assignedContractorId', 'assignedBy', 'assignedByName', 'attendedBy', 'attendedByName',
-          'attendedAt', 'acknowledgedAt', 'acknowledgedBy', 'assignedAt', 'enRouteAt',
-          'repairStartedAt', 'resolvedAt', 'closedAt', 'slaDeadline'
-        ])
-        && d.get('machineId', null) is string
-        && exists(machinePath)
-        && d.siteId == get(machinePath).data.siteId
-        && d.companyId == get(machinePath).data.siteId
-        && d.get('machinePlantId', null) == get(machinePath).data.get('plantId', null)
-        && (d.get('machineDepartment', '') == get(machinePath).data.get('department', '')
-          || (d.get('machineDepartment', '') == '' && get(machinePath).data.get('department', null) == null))
-        && d.source == 'qr_scan'
-        && d.status == 'reported'
-        && d.description is string && d.description.size() >= 10 && d.description.size() <= 5000
-        && d.get('reportedBy', null) == null
-        && d.get('reporterName', null) == null
-        && d.get('reporterRole', null) == null
-        && d.get('reportedAt', null) == request.time
-        && d.get('statusHistory', []).size() == 0
-        && d.get('photos', []).size() == 0
-        && d.get('video', null) == null
-        && d.assignedTechnicianIds.size() == 0
-        && d.get('assignedTechnicianNames', []).size() == 0
-        && d.get('assignedContractorId', null) == null
-        && d.get('assignedBy', null) == null
-        && d.get('attendedBy', null) == null
-        && d.get('acknowledgedBy', null) == null
-        && d.get('resolvedAt', null) == null
-        && d.get('closedAt', null) == null;
-    }
+    // QR-scan breakdown reports no longer write here from the browser: the
+    // public page calls the submitPublicBreakdown Cloud Function (no sign-in,
+    // no anonymous Auth user), which validates the input, takes company /
+    // plant / department from the machine and writes the ticket itself.
 
     // breakdown_tickets — used by dashboard widgets and Module 1 list/report pages
     match /breakdown_tickets/{ticketId} {
@@ -536,10 +491,10 @@ service cloud.firestore {
         'plant_manager', 'trainee', 'admin', 'hr_officer', 'store_keeper'
       ])
         && ticketPlantOk();
-      allow create: if isAnonymousBreakdownReport() || (isAuthenticated() && tenantMatches(request.resource.data) && isAnyRole([
+      allow create: if isAuthenticated() && tenantMatches(request.resource.data) && isAnyRole([
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin'
-      ]) && plantVisible(request.resource.data.get('machinePlantId', null)));
+      ]) && plantVisible(request.resource.data.get('machinePlantId', null));
       allow update: if isAuthenticated() && tenantMatches(resource.data) && tenantMatches(request.resource.data) && isAnyRole([
         'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
       ]) && plantVisible(resource.data.get('machinePlantId', null))
