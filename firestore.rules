@@ -235,12 +235,15 @@ service cloud.firestore {
       // Only admins and HR officers change who someone is (Users page →
       // Edit, which writes the profile and this mapping together). HR can
       // never touch an admin's mapping, grant the admin role, or edit their
-      // own mapping — nobody can promote themselves. The mapping is normally
-      // kept in sync server-side by onCompanyUserWritten as well.
+      // own mapping — nobody can promote themselves. The ROLE of an existing
+      // mapping never changes from the client at all: only the platform
+      // superadmin (platformManageUser, Admin SDK) changes a role. The mapping
+      // is normally kept in sync server-side by onCompanyUserWritten as well.
       function managerMayWrite() {
         return exists(/databases/$(database)/documents/users/$(request.auth.uid))
           && request.resource.data.get('companyId', null) == myCompanyId()
           && (resource == null || resource.data.get('companyId', null) == myCompanyId())
+          && (resource == null || request.resource.data.get('role', null) == resource.data.get('role', null))
           && (isAdmin()
             || (isHrOfficer()
               && userId != request.auth.uid
@@ -1218,12 +1221,15 @@ service cloud.firestore {
               ['role', 'companyId', 'plantId', 'siteIds', 'department', 'invitedBy', 'invitationId', 'hourlyRate'])
             && (request.resource.data.get('status', null) == resource.data.get('status', null)
               || (resource.data.get('status', null) == 'pending' && request.resource.data.get('status', null) == 'active')))
-          || (managerBase() && getUserData().role == 'admin')
+          // Admin / HR edit a member's profile but never their ROLE — only the
+          // platform superadmin (platformManageUser, Admin SDK) changes roles.
+          || (managerBase() && getUserData().role == 'admin'
+              && request.resource.data.get('role', null) == resource.data.get('role', null))
           || (managerBase()
               && getUserData().role == 'hr_officer'
               && userId != request.auth.uid
               && resource.data.role != 'admin'
-              && request.resource.data.role != 'admin')
+              && request.resource.data.role == resource.data.role)
           || (managerBase()
               && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager']
               && userId != request.auth.uid

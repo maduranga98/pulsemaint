@@ -7,6 +7,7 @@ const { stripeErrorMessage, isMissingResource } = require("../billing/billingAcc
 const { db, requireSuperadmin, audit, monthlyValue, toMillis } = require("./platformAccess");
 const { platformSmtpPassword } = require("../lib/mailer");
 const { approvalStatusOf, emailApprovalDecision, clearRegistrationAlert } = require("./companyApprovals");
+const { departmentForRole } = require("../lib/roleDepartment");
 
 const DAY = 86_400_000;
 const COMPANY_ROLES = ["admin", "plant_manager", "supervisor", "technician", "store_keeper", "hr_officer", "trainee", "floor_operator", "safety_officer"];
@@ -415,9 +416,11 @@ exports.platformManageUser = onCall(async (request) => {
         if (company.get("adminUserId") === uid && role !== "admin") {
           throw new HttpsError("failed-precondition", "The company owner must stay an admin");
         }
-        await profileRef.update({ role, updatedAt: FieldValue.serverTimestamp() });
+        // A plant-wide role carries no department.
+        const department = departmentForRole(role, profile.get("department"));
+        await profileRef.update({ role, department, updatedAt: FieldValue.serverTimestamp() });
         // The users/{uid} mapping is what firestore.rules read the role from.
-        await db.collection("users").doc(uid).set({ role }, { merge: true });
+        await db.collection("users").doc(uid).set({ role, department }, { merge: true });
         // Sign the user out everywhere so the new role applies right away.
         await auth.revokeRefreshTokens(uid).catch(() => {});
         break;

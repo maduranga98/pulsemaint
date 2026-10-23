@@ -115,17 +115,27 @@ describe('users mapping + profile cannot be self-escalated', () => {
     await assertFails(updateDoc(doc(as('adminB'), 'users/techA'), { role: 'supervisor' }));
     await assertFails(updateDoc(doc(as('adminB'), 'companies/A/users/techA'), { role: 'supervisor' }));
     await assertFails(deleteDoc(doc(as('adminB'), 'users/techA')));
-    await assertSucceeds(updateDoc(doc(as('adminA'), 'users/techA'), { role: 'supervisor', plantId: null }));
-    await assertSucceeds(updateDoc(doc(as('adminA'), 'companies/A/users/techA'), { role: 'supervisor' }));
+    await assertSucceeds(updateDoc(doc(as('adminA'), 'users/techA'), { plantId: null }));
+    await assertSucceeds(updateDoc(doc(as('adminA'), 'companies/A/users/techA'), { jobTitle: 'Senior technician' }));
   });
-  it('only admin / HR change someone\'s role mapping; HR never grants admin or edits their own', async () => {
+  it('nobody in the company changes a role — not even the admin or HR (only the platform superadmin, via the Admin SDK)', async () => {
+    await env.withSecurityRulesDisabled((c) => seedUser(c.firestore(), 'hrA', 'A', 'hr_officer'));
+    await assertFails(updateDoc(doc(as('adminA'), 'users/techA'), { role: 'supervisor' }));
+    await assertFails(updateDoc(doc(as('adminA'), 'companies/A/users/techA'), { role: 'supervisor' }));
+    await assertFails(setDoc(doc(as('hrA'), 'users/techA'), { role: 'supervisor', plantId: null }, { merge: true }));
+    await assertFails(updateDoc(doc(as('hrA'), 'companies/A/users/techA'), { role: 'supervisor' }));
+    // The same documents stay editable when the role is left alone.
+    await assertSucceeds(setDoc(doc(as('hrA'), 'users/techA'), { plantId: null }, { merge: true }));
+    await assertSucceeds(updateDoc(doc(as('hrA'), 'companies/A/users/techA'), { jobTitle: 'Lead' }));
+  });
+  it('HR never edits an admin\'s mapping or their own', async () => {
     await env.withSecurityRulesDisabled((c) => seedUser(c.firestore(), 'hrA', 'A', 'hr_officer'));
     await assertFails(setDoc(doc(as('supA'), 'users/techA'), { role: 'plant_manager', plantId: null }, { merge: true }));
     await assertFails(setDoc(doc(as('supA'), 'users/supA'), { role: 'plant_manager' }, { merge: true }));
-    await assertSucceeds(setDoc(doc(as('hrA'), 'users/techA'), { role: 'supervisor', plantId: null }, { merge: true }));
     await assertFails(setDoc(doc(as('hrA'), 'users/techA'), { role: 'admin' }, { merge: true }));
     await assertFails(setDoc(doc(as('hrA'), 'users/adminA'), { role: 'technician' }, { merge: true }));
     await assertFails(setDoc(doc(as('hrA'), 'users/hrA'), { role: 'plant_manager' }, { merge: true }));
+    await assertFails(setDoc(doc(as('hrA'), 'users/adminA'), { plantId: null }, { merge: true }));
   });
   it('supervisors / plant managers edit colleagues\' non-access profile fields only', async () => {
     await assertSucceeds(updateDoc(doc(as('supA'), 'companies/A/users/techA'), { jobTitle: 'Senior technician' }));

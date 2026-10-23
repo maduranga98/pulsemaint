@@ -405,7 +405,6 @@ export default function UsersPage() {
       fullName: values.fullName.trim(),
       email: values.email.trim() || null,
       phone: values.phone.trim() || null,
-      role: values.role,
       jobTitle: values.jobTitle.trim() || null,
       department: departmentForRole(values.role, values.department),
       employeeId: values.employeeId.trim() || null,
@@ -420,7 +419,6 @@ export default function UsersPage() {
     // Cloud Function also mirrors the profile, and disables the login of a
     // deactivated user on every device).
     await setDoc(doc(db, `users/${userId}`), {
-      role: values.role,
       plantId: values.role === 'admin' ? null : (values.plantId || currentUser?.plantId || null),
       department: departmentForRole(values.role, values.department),
       status: values.status === 'inactive' ? 'inactive' : 'active',
@@ -1505,7 +1503,6 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
   // granting admin) — firestore.rules enforce the same.
   const me = useAuthStore((s) => s.userProfile);
   const accessLocked = isView || (me?.role !== 'admin' && me?.id === state.user.id);
-  const roleOptions = me?.role === 'admin' ? ROLE_OPTIONS : ROLE_OPTIONS.filter((r) => r !== 'admin' || r === state.user.role);
 
   const [values, setValues] = useState<UserFormValues>(initial);
   const [saving, setSaving] = useState(false);
@@ -1611,19 +1608,20 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* A role is chosen when the person is invited and afterwards changed only by
+                the Lumora platform team (firestore.rules refuse any other change). */}
             <Field label={t('common.settings.users.modal.fields.role', 'Role')}>
-              <select
-                value={values.role}
-                onChange={(e) => set('role', e.target.value as UserRole)}
-                disabled={accessLocked}
+              <input
+                type="text"
+                value={getRoleLabel(values.role, t)}
+                readOnly
+                disabled
+                title={t('common.settings.users.modal.roleLocked', 'Only the Lumora platform team can change a role — contact support.')}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
-              >
-                {roleOptions.map((r) => (
-                  <option key={r} value={r}>
-                    {getRoleLabel(r, t)}
-                  </option>
-                ))}
-              </select>
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                {t('common.settings.users.modal.roleLocked', 'Only the Lumora platform team can change a role — contact support.')}
+              </p>
             </Field>
             <Field label={t('common.settings.users.modal.fields.status', 'Status')}>
               <select
