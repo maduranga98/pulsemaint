@@ -26,7 +26,7 @@ export const MODULE_SWITCHES: ModuleSwitch[] = [
   { key: 'safety', label: 'Safety', prefixes: ['/app/safety'] },
   { key: 'analytics', label: 'Analytics', prefixes: ['/app/analytics', '/app/moe'] },
   { key: 'reports', label: 'Reports', prefixes: ['/app/reports'] },
-  { key: 'audit', label: 'Audits', prefixes: ['/app/audit'] },
+  { key: 'audit', label: 'Audit', prefixes: ['/app/audit'] },
   { key: 'kaizen', label: 'Kaizen', prefixes: ['/app/kaizen'] },
   { key: 'evaluations', label: 'Evaluations', prefixes: ['/app/evaluations'] },
   { key: 'triage', label: 'Troubleshooting (triage)', prefixes: ['/app/triage'] },

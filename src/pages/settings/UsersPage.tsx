@@ -36,6 +36,7 @@ import { useToast } from '../../hooks/useToast';
 import { useShiftConfig } from '../../hooks/useShiftConfig';
 import { useDepartments } from '../../hooks/useDepartments';
 import { usePlants } from '../../hooks/usePlants';
+import { usePlantsInUse } from '../../hooks/usePlantsInUse';
 import { checkSeatChange, useSeatUsage } from '../../hooks/usePlanLimitCheck';
 import { seatTypeForRole } from '../../lib/planLimits';
 import {
@@ -307,6 +308,7 @@ export default function UsersPage() {
   const departmentsPlantId = plantFilter || adminTabPlantId || currentUser?.plantId || null;
   const { departments } = useDepartments(company?.id ?? '', departmentsPlantId);
   const { activePlants } = usePlants(company?.id ?? '');
+  const plantsInUse = usePlantsInUse();
   // Filter controls (role/department/plant) are only useful once there's more
   // than one plant/department to slice by, and are reserved for the roles
   // that manage the whole roster rather than a single plant's members.
@@ -718,7 +720,7 @@ export default function UsersPage() {
                 </option>
               ))}
             </select>
-            {currentUser?.role === 'admin' && (
+            {currentUser?.role === 'admin' && plantsInUse && (
               <select
                 value={plantFilter}
                 onChange={(e) => setPlantFilter(e.target.value)}
@@ -1216,6 +1218,7 @@ function InviteModal({
   onInvite: (values: InviteFormValues) => Promise<Invitation>;
 }) {
   const { t } = useTranslation();
+  const plantsInUse = usePlantsInUse();
   const [values, setValues] = useState<InviteFormValues>(emptyInviteForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -1387,7 +1390,7 @@ function InviteModal({
             </select>
           </Field>
 
-          {values.role !== 'admin' && (
+          {values.role !== 'admin' && plantsInUse && (
             <Field label={t('common.settings.users.invite.fields.plant', 'Plant')}>
               <PlantSelect
                 value={values.plantId}
@@ -1533,6 +1536,7 @@ interface UserModalProps {
 
 function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
   const { t } = useTranslation();
+  const plantsInUse = usePlantsInUse();
   const isView = state.mode === 'view';
   const initial: UserFormValues = toForm(state.user);
   // Role, status, department and plant decide what someone can reach. Only an
@@ -1699,7 +1703,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
             )}
           </div>
 
-          {values.role !== 'admin' && (
+          {values.role !== 'admin' && plantsInUse && (
             <Field label={t('common.settings.users.modal.fields.plant', 'Plant')}>
               <PlantSelect
                 value={values.plantId}

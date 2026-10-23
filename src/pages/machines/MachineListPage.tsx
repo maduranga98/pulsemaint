@@ -24,6 +24,7 @@ import { exportMachinesToCsv } from '../../lib/machineExport';
 import { auth } from '../../lib/firebase';
 import { ensureDepartments } from '../../services/departments.service';
 import { usePlants } from '../../hooks/usePlants';
+import { usePlantsInUse } from '../../hooks/usePlantsInUse';
 import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
 
@@ -240,6 +241,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   // Admin on "All Plants" picks which plant the imported machines belong to.
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { activePlants } = usePlants(companyId);
+  const plantsInUse = usePlantsInUse();
   const [pickedPlantId, setPickedPlantId] = useState('');
   const importPlantId = plantId ?? (pickedPlantId || null);
 
@@ -466,7 +468,7 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
           )}
         </div>
 
-        {!done && !plantId && (
+        {!done && !plantId && plantsInUse && (
           <div className="px-6 pt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.ui2.machines.machineListPage.plant')}</label>
             <select
