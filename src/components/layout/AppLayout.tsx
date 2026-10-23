@@ -339,10 +339,24 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-/** Opens the main guided tour once, the first time a user lands on their dashboard on a desktop screen. */
+/**
+ * Opens the main guided tour once, the first time a user lands on their dashboard on a desktop screen,
+ * and again whenever Help → "Take the guided tour" sends the user here (`state.startTour`).
+ */
 function TourAutoStart() {
-  const { startOnce, running } = useTour();
-  const { pathname } = useLocation();
+  const { startOnce, start, running } = useTour();
+  const { pathname, state } = useLocation();
+  const navigate = useNavigate();
+  const requested = (state as { startTour?: string } | null)?.startTour === 'main';
+  useEffect(() => {
+    if (!requested || !pathname.startsWith('/app/dashboard')) return;
+    // Wait for the dashboard, plant switcher and menu to render so every stop is on screen.
+    const timer = window.setTimeout(() => {
+      navigate(pathname, { replace: true, state: null });
+      start('main');
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [requested, pathname, start, navigate]);
   const ready = useAuthStore((s) => {
     const c = s.company;
     if (!s.userProfile || !c) return false;

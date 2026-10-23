@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { Fragment, useState, useRef } from 'react';
 import { useForm, Controller, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthStore } from '../../store/authStore';
@@ -240,7 +240,7 @@ export function MachineForm({
 
             <div className="lg:col-span-3">
               <form onSubmit={handleSubmit(handleFormSubmit, handleValidationError)} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
-                {renderFormSection(
+                <Fragment key={currentStep}>{renderFormSection(
                   currentStep,
                   control,
                   errors,
@@ -256,7 +256,7 @@ export function MachineForm({
                   formPlantId,
                   showPlantPicker,
                   { companyId, machineId: mode === 'edit' ? initialData?.id : undefined, value: spareParts, onChange: setSpareParts }
-                )}
+                )}</Fragment>
 
                 {/* Form Footer */}
                 <div className="flex gap-3 pt-6 border-t border-gray-200">
@@ -284,7 +284,7 @@ export function MachineForm({
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-              {renderFormSection(
+              <Fragment key={currentStep}>{renderFormSection(
                 currentStep,
                 control,
                 errors,
@@ -300,7 +300,7 @@ export function MachineForm({
                 formPlantId,
                 showPlantPicker,
                 { companyId, machineId: mode === 'edit' ? initialData?.id : undefined, value: spareParts, onChange: setSpareParts }
-              )}
+              )}</Fragment>
 
               {/* Mobile Navigation */}
               <div className="flex gap-3 pt-6 border-t border-gray-200">
@@ -429,6 +429,7 @@ function renderFormSection(
               render={({ field }) => (
                 <input
                   {...field}
+                  value={field.value ?? ''}
                   type="text"
                   placeholder={t('common.ui2.machines.machineForm.eGCncLatheMachine')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -449,6 +450,7 @@ function renderFormSection(
                 render={({ field }) => (
                   <input
                     {...field}
+                    value={field.value ?? ''}
                     type="text"
                     placeholder={t('common.ui2.machines.machineForm.eGMazakCorporation')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -468,6 +470,7 @@ function renderFormSection(
                 render={({ field }) => (
                   <input
                     {...field}
+                    value={field.value ?? ''}
                     type="text"
                     placeholder={t('common.ui2.machines.machineForm.eGQuickTurn200')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -486,6 +489,7 @@ function renderFormSection(
                 render={({ field }) => (
                   <input
                     {...field}
+                    value={field.value ?? ''}
                     type="text"
                     placeholder={t('common.ui2.machines.machineForm.uniqueSerialNumber')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -624,6 +628,7 @@ function renderFormSection(
                 render={({ field }) => (
                   <input
                     {...field}
+                    value={field.value ?? ''}
                     type="text"
                     placeholder={t('common.ui2.machines.machineForm.eGGround1st2nd')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -640,6 +645,7 @@ function renderFormSection(
                 render={({ field }) => (
                   <input
                     {...field}
+                    value={field.value ?? ''}
                     type="text"
                     placeholder="e.g. A1, B2"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -656,6 +662,7 @@ function renderFormSection(
                 render={({ field }) => (
                   <input
                     {...field}
+                    value={field.value ?? ''}
                     type="text"
                     placeholder="e.g. 01, 02"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
