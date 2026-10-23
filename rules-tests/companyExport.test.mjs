@@ -94,7 +94,7 @@ describe('runCompanyExport', () => {
     assert.match(job.downloadUrl, /^https:\/\//);
     assert.ok(job.sizeBytes > 0);
 
-    const [buf] = await bucket.file('companyExports/A/exA.zip').download();
+    const [buf] = await bucket.file('companyExports/A/exA/part-1.zip').download();
     const zip = readZip(buf);
     const text = (name) => zip.get(name)?.toString('utf8');
 
@@ -120,6 +120,44 @@ describe('runCompanyExport', () => {
     assert.ok(notes.includes('breakdowns/A/bdA/media/missing.png'), 'unreadable file should be listed');
     assert.equal(job.counts.missing, 1);
     assert.equal(job.counts.refused, 1);
+  });
+
+  it('a big export is split into parts and carried on across runs', async () => {
+    await db.collection('companies').doc('M').set({ id: 'M', name: 'Many Files' });
+    const names = ['a.pdf', 'b.pdf', 'c.pdf'];
+    await db.collection('workOrders').doc('woM').set({
+      siteId: 'M', companyId: 'M', woNumber: 'WO-M-1', createdAt: Timestamp.now(),
+      documents: names.map((n) => ({ name: n, url: url(`workorders/M/woM/documents/${n}`) })),
+    });
+    for (const n of names) await bucket.file(`workorders/M/woM/documents/${n}`).save(`M-${n}`);
+    // One file per part and no time budget: every run packs one part, then hands over.
+    await db.collection('exports').doc('exM').set({
+      companyId: 'M', status: 'queued', createdAt: Timestamp.now(), partMaxFiles: 1, runBudgetMs: 0,
+    });
+    let snap = await db.collection('exports').doc('exM').get();
+    await exp.runCompanyExport.run({ data: snap, params: { exportId: 'exM' } });
+    let job = (await db.collection('exports').doc('exM').get()).data();
+    assert.equal(job.status, 'continue', JSON.stringify(job));
+    assert.equal(job.nextPart, 1);
+    for (let i = 0; i < 6 && job.status === 'continue'; i++) {
+      const before = { ...job, status: 'running' };
+      snap = await db.collection('exports').doc('exM').get();
+      await exp.continueCompanyExport.run({ data: { before: { data: () => before }, after: { data: () => snap.data(), ref: snap.ref } }, params: { exportId: 'exM' } });
+      job = (await db.collection('exports').doc('exM').get()).data();
+    }
+    assert.equal(job.status, 'ready', JSON.stringify(job));
+    assert.equal(job.partCount, 3);
+    assert.equal(job.downloads.length, 3);
+    const all = new Map();
+    for (let n = 1; n <= 3; n++) {
+      const [buf] = await bucket.file(`companyExports/M/exM/part-${n}.zip`).download();
+      for (const [name, content] of readZip(buf)) {
+        if (n > 1) assert.ok(name !== 'index.html', 'the viewer belongs to part 1 only');
+        all.set(name, content.toString('utf8'));
+      }
+    }
+    assert.ok(all.has('index.html'));
+    for (const n of names) assert.equal(all.get(`Work orders/WO-M-1/${n}`), `M-${n}`);
   });
 
   it('a company with no data still exports', async () => {

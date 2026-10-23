@@ -159,3 +159,27 @@ describe('folders and names', () => {
     ]);
   });
 });
+
+describe('planParts (big exports are split into ZIP parts)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { planParts } = require('../../../functions/src/exports/exportPlan.js');
+  const e = (size: number, copies = 1) => ({ size, names: Array.from({ length: copies }, (_, i) => `f${i}`) });
+
+  it('always returns at least one part, even with no files', () => {
+    expect(planParts([], 100, 10)).toEqual([{ start: 0, end: 0, bytes: 0 }]);
+  });
+  it('keeps everything in one part when it fits', () => {
+    expect(planParts([e(10), e(20)], 100, 10)).toEqual([{ start: 0, end: 2, bytes: 30 }]);
+  });
+  it('starts a new part when the size limit would be passed, covering every file once', () => {
+    const parts = planParts([e(60), e(60), e(30), e(30)], 100, 10);
+    expect(parts).toEqual([{ start: 0, end: 1, bytes: 60 }, { start: 1, end: 3, bytes: 90 }, { start: 3, end: 4, bytes: 30 }]);
+  });
+  it('gives a file bigger than the limit a part of its own', () => {
+    const parts = planParts([e(10), e(500), e(10)], 100, 10);
+    expect(parts.map((p: { start: number; end: number }) => [p.start, p.end])).toEqual([[0, 1], [1, 2], [2, 3]]);
+  });
+  it('splits on the file-count limit too, counting a shared file once per copy', () => {
+    expect(planParts([e(1, 2), e(1, 2), e(1, 2)], 1000, 4).map((p: { end: number }) => p.end)).toEqual([2, 3]);
+  });
+});
