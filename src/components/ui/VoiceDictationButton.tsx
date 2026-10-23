@@ -59,6 +59,8 @@ interface VoiceDictationButtonProps {
   onTranscript: (text: string) => void;
   disabled?: boolean;
   className?: string;
+  /** 'dark' for dark surfaces (light text on dark controls). */
+  tone?: 'light' | 'dark';
 }
 
 /**
@@ -74,7 +76,7 @@ interface VoiceDictationButtonProps {
  * double-translation (spoken language → reporter's language → viewer's
  * language) when the reporter and viewer use different languages.
  */
-export function VoiceDictationButton({ onTranscript, disabled, className = '' }: VoiceDictationButtonProps) {
+export function VoiceDictationButton({ onTranscript, disabled, className = '', tone = 'light' }: VoiceDictationButtonProps) {
   const { t } = useTranslation();
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
@@ -151,7 +153,9 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
         disabled={disabled || listening}
         title={t('common.ui.voiceLanguage')}
         aria-label={t('common.ui.voiceLanguage')}
-        className="text-xs px-1.5 py-1 border border-slate-200 rounded-lg bg-white text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        className={`text-xs px-1.5 py-1 border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+          tone === 'dark' ? 'border-[#1E3A5F] bg-[#0A1628] text-[#D5DEEA]' : 'border-slate-200 bg-white text-slate-600'
+        }`}
       >
         {VOICE_INPUT_LANGUAGES.map((l) => (
           <option key={l.code} value={l.code}>
@@ -168,7 +172,9 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
         className={`inline-flex items-center justify-center rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
           listening
             ? 'bg-red-600 border-red-600 text-white hover:bg-red-700 animate-pulse'
-            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+            : tone === 'dark'
+              ? 'bg-[#0A1628] border-[#1E3A5F] text-[#D5DEEA] hover:bg-[#13294A]'
+              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
         } ${className}`}
       >
         {listening ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}

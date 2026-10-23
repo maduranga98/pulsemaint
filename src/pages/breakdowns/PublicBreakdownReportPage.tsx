@@ -194,13 +194,13 @@ export default function PublicBreakdownReportPage() {
           <p className="text-slate-300 text-sm">{t('common.ui2.breakdowns.publicBreakdownReportPage.reportABreakdownNoSign')}</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-lg shadow-lg p-6">
           {ticketNumber ? (
             <div className="text-center py-4 flex flex-col items-center gap-1.5">
               <CheckCircle2 className="w-12 h-12 text-emerald-500 mb-1" />
-              <p className="text-lg font-semibold text-slate-900">{t('common.ui2.breakdowns.publicBreakdownReportPage.breakdownReported')}</p>
-              <p className="text-sm text-slate-500">{t('common.ui2.breakdowns.publicBreakdownReportPage.ticket')} <span className="font-mono font-medium">{ticketNumber}</span> {t('common.ui2.breakdowns.publicBreakdownReportPage.hasBeenSentToThe')}</p>
-              <p className="text-xs text-slate-400 mt-2">{t('common.ui2.breakdowns.publicBreakdownReportPage.youCanCloseThisPage')}</p>
+              <p className="text-lg font-semibold text-[#F0F4F8]">{t('common.ui2.breakdowns.publicBreakdownReportPage.breakdownReported')}</p>
+              <p className="text-sm text-[#8BA3BF]">{t('common.ui2.breakdowns.publicBreakdownReportPage.ticket')} <span className="font-mono font-medium">{ticketNumber}</span> {t('common.ui2.breakdowns.publicBreakdownReportPage.hasBeenSentToThe')}</p>
+              <p className="text-xs text-[#6B7F9A] mt-2">{t('common.ui2.breakdowns.publicBreakdownReportPage.youCanCloseThisPage')}</p>
               <button
                 type="button"
                 onClick={() => {
@@ -210,7 +210,7 @@ export default function PublicBreakdownReportPage() {
                   setMachineStillRunning(false);
                   setError(null);
                 }}
-                className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                className="mt-3 text-sm text-[#60A5FA] hover:text-[#93C5FD] font-medium hover:underline"
               >
                 Report another breakdown on this machine
               </button>
@@ -218,7 +218,7 @@ export default function PublicBreakdownReportPage() {
           ) : loadingMachine && loadTimedOut ? (
             <div className="text-center py-4">
               <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-              <p className="text-slate-700 text-sm mb-4">
+              <p className="text-[#D5DEEA] text-sm mb-4">
                 {t('common.ui2.breakdowns.publicBreakdownReportPage.thisIsTakingLongerThan')}
               </p>
               <button
@@ -230,15 +230,15 @@ export default function PublicBreakdownReportPage() {
               </button>
             </div>
           ) : loadingMachine ? (
-            <p className="text-sm text-slate-500 text-center py-6">{t('common.ui2.breakdowns.publicBreakdownReportPage.loadingMachine')}</p>
+            <p className="text-sm text-[#8BA3BF] text-center py-6">{t('common.ui2.breakdowns.publicBreakdownReportPage.loadingMachine')}</p>
           ) : machineError ? (
             <div className="text-center py-4">
               <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-              <p className="text-slate-700 text-sm">{machineError}</p>
+              <p className="text-[#D5DEEA] text-sm">{machineError}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 text-xs text-[#93C5FD] bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2">
                 <QrCode className="w-4 h-4 flex-shrink-0" />
                 <span>
                   {t('common.ui2.breakdowns.publicBreakdownReportPage.reportingOn')} <strong>{machine?.name}</strong>
@@ -248,7 +248,7 @@ export default function PublicBreakdownReportPage() {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
+                <div className="bg-[#2A1215] border border-[#7F1D1D] text-[#FCA5A5] rounded-lg p-3 flex gap-2 text-sm">
                   <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
@@ -256,10 +256,11 @@ export default function PublicBreakdownReportPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">{t('common.ui2.breakdowns.publicBreakdownReportPage.whatHappened')}</label>
+                  <label className="block text-sm font-medium text-[#D5DEEA]">{t('common.ui2.breakdowns.publicBreakdownReportPage.whatHappened')}</label>
                   <VoiceDictationButton
                     disabled={submitting}
                     className="w-8 h-8"
+                    tone="dark"
                     onTranscript={(text) =>
                       setDescription((prev) => (prev ? `${prev} ${text}` : text))
                     }
@@ -271,11 +272,11 @@ export default function PublicBreakdownReportPage() {
                   rows={4}
                   disabled={submitting}
                   placeholder={t('common.ui2.breakdowns.publicBreakdownReportPage.describeTheSymptomsErrorCodes')}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                  className="w-full px-4 py-2 bg-[#0A1628] text-[#F0F4F8] placeholder:text-[#6B7F9A] border border-[#1E3A5F] rounded-lg focus:border-[#60A5FA] focus:ring-2 focus:ring-[#60A5FA]/30 outline-none transition-all"
                 />
               </div>
 
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+              <label className="flex items-center gap-2 text-sm text-[#D5DEEA]">
                 <input
                   type="checkbox"
                   checked={machineStillRunning}
