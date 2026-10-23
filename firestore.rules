@@ -2132,7 +2132,11 @@ service cloud.firestore {
           || request.auth.uid in resource.data.get('recipientUserIds', []));
       // Raised (unread) by createNotification().
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && request.resource.data.get('readBy', []).size() == 0;
+        && request.resource.data.get('readBy', []).size() == 0
+        // A notification may only point inside the app — never at a javascript: or
+        // external URL that another user would follow when they click it.
+        && (request.resource.data.get('linkTo', null) == null
+          || (request.resource.data.linkTo is string && request.resource.data.linkTo.matches('^/([^/\\\\].*)?$')));
       // Members only mark a notification read for themselves (readBy gains
       // their own uid) — they can't rewrite its text, recipients or plant,
       // or clear it for anyone else.

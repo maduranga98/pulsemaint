@@ -598,6 +598,14 @@ describe('notifications', () => {
     await assertFails(addDoc(collection(as('techA'), 'notifications'), { companyId: 'B', message: 'x', readBy: [] }));
     await assertFails(addDoc(collection(as('techA'), 'notifications'), { companyId: 'A', message: 'x', readBy: ['adminA'] }));
   });
+  it('a notification can only link inside the app — never to javascript: or an outside URL', async () => {
+    const add = (linkTo) => addDoc(collection(as('techA'), 'notifications'), { companyId: 'A', message: 'x', readBy: [], linkTo });
+    await assertSucceeds(add('/app/work-orders?woId=1'));
+    await assertSucceeds(add(null));
+    for (const bad of ['javascript:alert(1)', 'https://evil.example/', '//evil.example', '/\\evil.example', 'app/x', 5]) {
+      await assertFails(add(bad));
+    }
+  });
 });
 
 describe('machine health score is computed by the server', () => {
