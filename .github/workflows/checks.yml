@@ -18,12 +18,14 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --legacy-peer-deps
+      # Some unit tests (the *Parity tests) load the Cloud Functions sources.
+      - name: Install functions dependencies
+        working-directory: functions
+        run: npm ci
       - name: Type-check
         run: npx tsc --noEmit -p .
       - name: Unit tests
         run: npx vitest run
       - name: Functions lint
         working-directory: functions
-        run: |
-          npm ci
-          npx eslint .
+        run: npx eslint .
