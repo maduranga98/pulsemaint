@@ -306,7 +306,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                 </div>
               )}
               {isSignedOff && (
-                <WOSignOffSummary workOrder={workOrder} permits={workPermits} canRegenerateRca={isSupervisor} />
+                <WOSignOffSummary workOrder={workOrder} permits={workPermits} />
               )}
               {isSupervisor && !isSignedOff && <WOApprovalRequests workOrder={workOrder} />}
 

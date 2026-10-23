@@ -46,13 +46,11 @@ async function machineHistoryContext(machineId, companyId) {
       .slice(0, 8);
   if (!closed.length) return "";
   const lines = closed.map((w) => {
-    const rca = w.aiRca && w.aiRca.source === "ai" ? w.aiRca : null;
-    const cause = rca ? rca.rootCause : [w.rootCause, w.rootCauseDescription].filter(Boolean).join(" — ");
+    const cause = [w.rootCause, w.rootCauseDescription].filter(Boolean).join(" — ");
     const date = w.closedAt && w.closedAt.toDate ? w.closedAt.toDate().toISOString().slice(0, 10) : "?";
     return `- ${w.woNumber || "WO"} (${date}, ${w.woType}): problem: ${String(w.description || "").slice(0, 300)}` +
       `; root cause: ${String(cause || "not recorded").slice(0, 300)}` +
-      `; work done: ${String(w.workDoneDescription || "").slice(0, 300)}` +
-      (rca && rca.preventiveActions && rca.preventiveActions.length ? `; preventive: ${rca.preventiveActions.slice(0, 3).join(" / ")}` : "");
+      `; work done: ${String(w.workDoneDescription || "").slice(0, 300)}`;
   });
   return `Past signed-off repairs and root-cause analyses on this same machine (most recent first):\n${lines.join("\n")}`;
 }

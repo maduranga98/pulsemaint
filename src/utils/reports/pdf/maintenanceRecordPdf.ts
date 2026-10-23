@@ -597,19 +597,6 @@ export async function exportWorkOrderPdf(wo: WorkOrder): Promise<void> {
     ['Closed', wo.closedAt ? joinFilled([fmtDateTime(wo.closedAt), wo.closedByName ? `by ${wo.closedByName}` : null], ' ') : '-'],
   ]);
 
-  if (wo.aiRca && wo.aiRca.source === 'ai') {
-    d.kvSection('Root-cause analysis - by AI', [
-      ['RCA performed by', joinFilled(['AI (FirmiCore AI assistant)', fmtDateTime(wo.aiRca.generatedAt)])],
-      ['Summary', txt(wo.aiRca.summary)],
-      ['Root cause', txt(wo.aiRca.rootCause)],
-      ['Category', label(ROOT_CAUSE_LABELS, wo.aiRca.rootCauseCategory)],
-      ['Contributing factors', txt(wo.aiRca.contributingFactors)],
-      ['Evidence', txt(wo.aiRca.evidence)],
-      ['Preventive actions', txt(wo.aiRca.preventiveActions)],
-      ['Confidence', txt(wo.aiRca.confidence)],
-    ]);
-  }
-
   d.tableSection(
     'Status history',
     ['When', 'Status', 'By', 'Note'],

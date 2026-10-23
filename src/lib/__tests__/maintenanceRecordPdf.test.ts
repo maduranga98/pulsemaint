@@ -52,7 +52,6 @@ describe('maintenance record PDFs', () => {
       technicianWorkLogs: [{ technicianId: 'a', technicianName: 'Ann', hoursWorked: 2, tasksDescription: 'Fitted bearing' }],
       postRepairChecklist: [], statusHistory: [{ status: 'SIGNED_OFF', changedBy: 'x', changedByName: 'Sam', changedAt: ts('2026-09-01T12:00:00Z'), note: null }],
       supervisorSignOffByName: 'Sam', supervisorSignOffAt: ts('2026-09-01T12:00:00Z'), signOffOutcome: 'complete',
-      aiRca: { source: 'ai', summary: 'Worn bearing', rootCause: 'Wear', rootCauseCategory: 'wear_and_tear', contributingFactors: ['Age'], evidence: [], preventiveActions: ['Lubricate'], confidence: 'high' },
       createdAt: ts('2026-08-30T08:00:00Z'), finalPhotos: [], documents: [],
     } as never);
     expect(saved.pop()).toBe('WO-2026-0001.pdf');
@@ -92,7 +91,6 @@ describe('maintenance record PDFs', () => {
       workPermitId: 'p1', rootCause: 'wear_and_tear', rootCauseDescription: 'Seal worn',
       contractorCompanyName: null, contractorTechnicianNames: [], followUpOfWoNumber: null,
       statusHistory: [{ status: 'COMPLETED', changedBy: 'a', changedByName: 'Asitha', changedAt: ts('2026-09-25T09:00:00Z'), note: null }],
-      aiRca: { source: 'ai', summary: 'Seal wear', rootCause: 'Wear', rootCauseCategory: 'wear_and_tear', contributingFactors: [], evidence: [], preventiveActions: [], confidence: 'medium', generatedAt: ts('2026-09-26T09:30:00Z') },
       createdAt: ts('2026-09-24T15:23:00Z'), checklist: [], partsUsed: [], technicianWorkLogs: [], postRepairChecklist: [], finalPhotos: [], documents: [],
     } as never);
     expect(saved.pop()).toBe('WO-2026-0003.pdf');
@@ -105,10 +103,9 @@ describe('maintenance record PDFs', () => {
     expect(pdf).toContain('Work Permits tab');
     expect(pdf).toContain('Originally due');
     expect(pdf).toContain('Extensions');
-    // RCA author — person (5-Whys) and AI, each labelled.
+    // RCA author is the person who did it.
     expect(pdf).toContain('Human - Asitha');
-    expect(pdf).toContain('Root-cause analysis - by AI');
-    expect(pdf).toContain('AI \\(FirmiCore AI assistant\\)');
+    expect(pdf).not.toContain('by AI');
     // Empty fields and empty sections are left out.
     expect(pdf).not.toContain('Contractor technicians');
     expect(pdf).not.toContain('Follow-up of');
