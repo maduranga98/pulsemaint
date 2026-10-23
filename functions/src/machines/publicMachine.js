@@ -26,15 +26,14 @@ exports.getPublicMachine = onCall({maxInstances: 30}, async (request) => {
   if (!snap.exists) throw new HttpsError("not-found", "Machine not found.");
   const m = snap.data();
   if (!m.siteId) throw new HttpsError("not-found", "Machine not found.");
+  // Only what the form shows — never the company / plant ids (the ticket is
+  // filed server-side by submitPublicBreakdown from the machine itself).
   return {
     id: snap.id,
     name: m.name || "Unnamed machine",
     department: typeof m.department === "string" ? m.department : "",
-    plantId: m.plantId || null,
     floor: m.floor ?? null,
     bay: m.bay ?? null,
     station: m.station ?? null,
-    criticality: Number.isInteger(m.criticality) ? m.criticality : null,
-    siteId: m.siteId,
   };
 });

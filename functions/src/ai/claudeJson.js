@@ -20,6 +20,8 @@ const MAX_SCHEMA_CHARS = 4000;
 const CREDIT_COST = 1;
 
 const HISTORY_FETCH_LIMIT = 500;
+const DEPARTMENT_SCOPED_ROLES = new Set(["technician", "trainee", "supervisor", "floor_operator"]);
+const normDept = (v) => String(v || "").trim().replace(/\s+/g, " ").toLowerCase();
 const HISTORY_PROMPT_ITEMS = 14;
 const STOPWORDS = new Set(["the", "and", "was", "were", "has", "have", "had", "that", "this", "with", "from", "when",
   "then", "there", "their", "about", "into", "just", "been", "machine", "what", "happened", "again", "still", "also"]);
@@ -53,19 +55,28 @@ const clip = (v, n = 300) => String(v || "").slice(0, n);
  * then similar symptoms on other machines). Read with admin rights because
  * technicians can't query other people's records.
  *
- * Strictly company-scoped: every query filters on the caller's own companyId,
- * the machine must belong to it, and a plant-restricted caller only gets their
- * own plant's records, so nothing from another company ever reaches a prompt.
+ * Strictly scoped like the rest of the app: every query filters on the
+ * caller's own companyId, the machine must belong to it, a plant-restricted
+ * caller only gets their own plant's records, and the department-scoped roles
+ * (technician, trainee, supervisor, floor operator) only their own
+ * department's — so nothing from another company, plant or department ever
+ * reaches a prompt. 5-Why RCAs carry no plant of their own, so theirs comes
+ * from their machine.
  */
 async function rcaHistoryContext(machineId, queryText, profile) {
   const companyId = profile.companyId;
   if (!companyId) return "";
   const plantId = profile.plantId || null;
+  const myDept = DEPARTMENT_SCOPED_ROLES.has(profile.role) ? normDept(profile.department) : "";
+  const inScope = (plant, dept) =>
+    (!plantId || !plant || plant === plantId) && (!myDept || !normDept(dept) || normDept(dept) === myDept);
+
+  const machinesSnap = await db.collection("machines").where("siteId", "==", companyId).get();
+  const machines = new Map(machinesSnap.docs.map((d) => [d.id, d.data()]));
   let machineName = "";
   if (machineId) {
-    const machine = await db.collection("machines").doc(machineId).get();
-    const m = machine.exists ? machine.data() : null;
-    if (!m || (m.siteId || m.companyId) !== companyId) machineId = null;
+    const m = machines.get(machineId);
+    if (!m || !inScope(m.plantId, m.department)) machineId = null;
     else machineName = m.name || "";
   }
   const q = tokens(queryText);
@@ -79,7 +90,10 @@ async function rcaHistoryContext(machineId, queryText, profile) {
         .where("status", "==", "completed").limit(HISTORY_FETCH_LIMIT).get(),
   ]);
 
-  const visible = (d) => !plantId || !d.machinePlantId || d.machinePlantId === plantId;
+  const visible = (d) => {
+    const m = machines.get(d.machineId) || {};
+    return inScope(d.machinePlantId || m.plantId, d.machineDepartment || m.department);
+  };
   const items = [];
   const add = (kind, d, when, machine, problem, cause, extra) => {
     if (!cause) return; // only records that carry a recorded root cause teach anything
@@ -118,6 +132,7 @@ async function rcaHistoryContext(machineId, queryText, profile) {
   });
   rcaSnap.docs.forEach((doc) => {
     const r = doc.data();
+    if (!visible(r)) return;
     add("5-Why RCA", r, r.updatedAt || r.createdAt, "", r.problem, r.rootCause,
         r.correctiveAction ? `corrective: ${clip(r.correctiveAction)}` : "");
   });
