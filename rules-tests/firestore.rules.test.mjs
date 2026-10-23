@@ -396,6 +396,23 @@ describe('department isolation (company flag departmentIsolation)', () => {
   });
 });
 
+describe('export jobs (exports collection)', () => {
+  beforeEach(() => env.withSecurityRulesDisabled(async (ctx) => {
+    await setDoc(doc(ctx.firestore(), 'exports/ex1'), { companyId: 'A', status: 'ready', downloadUrl: 'https://example.test/zip', createdAt: new Date() });
+  }));
+  it('only the company admin reads its own export jobs; nobody writes from a client', async () => {
+    await assertSucceeds(getDoc(doc(as('adminA'), 'exports/ex1')));
+    await assertSucceeds(getDocs(query(collection(as('adminA'), 'exports'), where('companyId', '==', 'A'))));
+    await assertFails(getDoc(doc(as('adminB'), 'exports/ex1')));
+    await assertFails(getDoc(doc(as('supA'), 'exports/ex1')));
+    await assertFails(getDoc(doc(as('techA'), 'exports/ex1')));
+    await assertFails(getDoc(doc(anon(), 'exports/ex1')));
+    await assertFails(setDoc(doc(as('adminA'), 'exports/ex2'), { companyId: 'A', status: 'ready' }));
+    await assertFails(updateDoc(doc(as('adminA'), 'exports/ex1'), { downloadUrl: 'https://evil.test' }));
+    await assertFails(deleteDoc(doc(as('adminA'), 'exports/ex1')));
+  });
+});
+
 describe('breakdown tickets close only through a work order or a low-severity quick fix', () => {
   beforeEach(async () => {
     await env.withSecurityRulesDisabled(async (ctx) => {
