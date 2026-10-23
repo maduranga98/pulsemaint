@@ -11,6 +11,8 @@ on:
       - rules-tests/**
       - functions/src/billing/planLimitEnforcement.js
       - functions/src/lib/planFeatures.js
+      - functions/src/exports/**
+      - functions/package.json
       - .github/workflows/rules-tests.yml
   workflow_dispatch: {}
 

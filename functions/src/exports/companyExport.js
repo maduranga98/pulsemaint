@@ -4,6 +4,7 @@ const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
+const crypto = require("crypto");
 const logger = require("firebase-functions/logger");
 const {requireOwnCompany} = require("../lib/access");
 const {gatherCompanyData, buildTextEntries} = require("./gather");
@@ -18,6 +19,24 @@ const MAX_PER_DAY = 3;
 const LINK_VALID_MS = DAY;
 /** Already-compressed types are stored as they are — no point spending CPU on them. */
 const STORE_ONLY = /\.(jpe?g|png|gif|webp|mp4|mov|webm|zip|pdf|docx?|xlsx?)$/i;
+
+/**
+ * A link the admin can download the ZIP with. A V4 signed URL needs the
+ * runtime service account to be allowed to sign (iam.serviceAccounts.signBlob);
+ * when that is missing, fall back to a Firebase download-token link, which
+ * needs no signing and stops working when the file is deleted (two days).
+ */
+async function downloadLinkFor(bucket, file, expires) {
+  try {
+    const [url] = await file.getSignedUrl({action: "read", expires, version: "v4"});
+    return url;
+  } catch (err) {
+    logger.warn("Signed URL failed, using a download token link instead", {message: String(err && err.message)});
+    const token = crypto.randomUUID();
+    await file.setMetadata({metadata: {firebaseStorageDownloadTokens: token}});
+    return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(file.name)}?alt=media&token=${token}`;
+  }
+}
 
 const millis = (ts) => (ts && ts.toMillis ? ts.toMillis() : 0);
 const zipPath = (companyId, exportId) => `companyExports/${companyId}/${exportId}.zip`;
@@ -86,8 +105,10 @@ exports.runCompanyExport = onDocumentCreated(
       if (!companyId || job.status !== "queued") return;
       const ref = snap.ref;
       const progress = (p) => ref.update({status: "running", progress: p}).catch(() => {});
+      let step = "start";
 
       try {
+        step = "collecting";
         await progress({step: "collecting"});
         const companySnap = await db.collection("companies").doc(companyId).get();
         const company = (companySnap.exists && companySnap.get("name")) || companyId;
@@ -100,6 +121,7 @@ exports.runCompanyExport = onDocumentCreated(
           onProgress: (p) => progress(p),
         });
 
+        step = "packing";
         const outFile = bucket.file(zipPath(companyId, exportId));
         const archive = archiver("zip", {zlib: {level: 6}});
         const finished = new Promise((resolve, reject) => {
@@ -135,9 +157,10 @@ exports.runCompanyExport = onDocumentCreated(
         await archive.finalize();
         await finished;
 
+        step = "link";
         const [meta] = await outFile.getMetadata();
         const expires = Date.now() + LINK_VALID_MS;
-        const [downloadUrl] = await outFile.getSignedUrl({action: "read", expires, version: "v4"});
+        const downloadUrl = await downloadLinkFor(bucket, outFile, expires);
         await ref.update({
           status: "ready",
           progress: {step: "done"},
@@ -149,8 +172,16 @@ exports.runCompanyExport = onDocumentCreated(
         });
         logger.info(`Export ${exportId} for ${companyId} ready`, {records: gathered.counts.records, files: gathered.counts.files});
       } catch (err) {
-        logger.error(`Export ${exportId} for ${companyId} failed`, err);
-        await ref.update({status: "failed", error: "The export could not be completed. Try again, or contact support.", finishedAt: FieldValue.serverTimestamp()}).catch(() => {});
+        logger.error(`Export ${exportId} for ${companyId} failed at "${step}"`, err);
+        // The admin sees where it failed and a short reason (no stack, no data).
+        const reason = String((err && err.message) || err).replace(/\s+/g, " ").slice(0, 200);
+        await ref.update({
+          status: "failed",
+          error: "The export could not be completed. Try again, or contact support.",
+          failedStep: step,
+          errorDetail: reason,
+          finishedAt: FieldValue.serverTimestamp(),
+        }).catch(() => {});
       }
     },
 );
