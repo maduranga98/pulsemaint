@@ -45,14 +45,11 @@ export function useAuthInit() {
         unsubscribeProfile();
 
         if (user && user.isAnonymous) {
-          // Anonymous sessions exist only to satisfy Firestore's write rule
-          // on the public, no-login QR breakdown report page (see
-          // PublicBreakdownReportPage / signInAnonymouslyForReport) and must
-          // never surface as a "signed in" user in the global auth store.
-          // Firebase persists the anonymous session across reloads, so
-          // without this guard a visitor who scanned a QR code — even after
-          // navigating away — would be treated as authenticated everywhere
-          // else in the app (e.g. ScanRedirectPage would then send a fresh
+          // The public QR breakdown page no longer creates anonymous
+          // sessions, but browsers that scanned a code before that change
+          // may still hold one. Firebase persists it across reloads, so
+          // without this guard such a visitor would be treated as
+          // authenticated everywhere else in the app (e.g. ScanRedirectPage would then send a fresh
           // scan to the protected /app/breakdowns/report route instead of
           // the public form, where ProtectedRoute renders it with no
           // userProfile at all).

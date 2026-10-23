@@ -4,13 +4,11 @@ import {
   signInWithPhoneNumber,
   signInWithPopup,
   signInWithCustomToken,
-  signInAnonymously,
   sendPasswordResetEmail,
   signOut,
   GoogleAuthProvider,
   RecaptchaVerifier,
   type ConfirmationResult,
-  type User,
 } from 'firebase/auth';
 import {
   collection,
@@ -493,17 +491,6 @@ export async function logout(): Promise<void> {
   } catch (error) {
     throw error;
   }
-}
-
-/**
- * Anonymous sign-in used only by the public, no-login QR breakdown report
- * flow (see PublicBreakdownReportPage). It never touches the app profile
- * store — it exists purely so Firestore security rules can distinguish "a
- * real anonymous scan" from an unauthenticated request.
- */
-export async function signInAnonymouslyForReport(): Promise<User> {
-  const credential = await signInAnonymously(auth);
-  return credential.user;
 }
 
 export async function fetchUserProfile(uid: string, companyId: string): Promise<UserProfile | null> {

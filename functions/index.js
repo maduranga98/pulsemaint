@@ -130,6 +130,9 @@ const {getPublicMachine} = require("./src/machines/publicMachine");
 
 exports.getPublicMachine = getPublicMachine;
 
+// Public QR breakdown report — no sign-in, no anonymous Auth user.
+exports.submitPublicBreakdown = require("./src/breakdowns/publicReport").submitPublicBreakdown;
+
 // Company-wide plan-limit counts (plant-scoped roles can't count other plants' records).
 const {getPlanUsage} = require("./src/billing/planUsage");
 

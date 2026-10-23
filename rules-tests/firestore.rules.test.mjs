@@ -290,7 +290,7 @@ describe('cross-company isolation', () => {
     await assertFails(getDoc(doc(anon(), 'machines/mA')));
     await assertFails(getDocs(query(collection(anon(), 'machines'), where('siteId', '==', 'A'))));
   });
-  it('breakdown tickets: scoped by site/company or by machine; QR visitors can still report', async () => {
+  it('breakdown tickets: scoped by site/company or by machine; anonymous QR visitors cannot write directly', async () => {
     await assertSucceeds(getDocs(query(collection(as('techA'), 'breakdown_tickets'), where('siteId', '==', 'A'))));
     await assertSucceeds(getDocs(query(collection(as('techA'), 'breakdown_tickets'), where('companyId', '==', 'A'))));
     await assertSucceeds(getDocs(query(collection(as('techA'), 'breakdown_tickets'), where('machineId', '==', 'mA'))));
@@ -299,7 +299,7 @@ describe('cross-company isolation', () => {
     await assertFails(getDoc(doc(as('adminB'), 'breakdown_tickets/bdA')));
     await assertFails(updateDoc(doc(as('adminB'), 'breakdown_tickets/bdA'), { status: 'closed' }));
     await assertFails(deleteDoc(doc(as('adminB'), 'breakdown_tickets/bdA')));
-    await assertSucceeds(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket()));
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket()));
     await assertSucceeds(addDoc(collection(as('floorA'), 'breakdown_tickets'), { siteId: 'A', companyId: 'A', machineId: 'mA', status: 'reported' }));
     await assertFails(addDoc(collection(as('floorB'), 'breakdown_tickets'), { siteId: 'A', companyId: 'A', machineId: 'mA', status: 'reported' }));
   });
@@ -332,19 +332,9 @@ describe('cross-company isolation', () => {
   });
 });
 
-describe('anonymous QR breakdown reports are tied to the real machine', () => {
-  it('the form\'s own payload works; other companies, unknown machines and extra fields do not', async () => {
-    await assertSucceeds(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket()));
-    // Filed against company A's machine but into company B's queue.
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ siteId: 'B', companyId: 'B' })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ machineId: 'nope' })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ machinePlantId: 'other-plant' })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ status: 'closed' })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ reportedBy: 'adminA' })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ reportedAt: new Date(2020, 0, 1) })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ description: 'short' })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ estimatedDowntimeMinutes: 9999 })));
-    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket({ assignedTechnicianIds: ['techA'] })));
+describe('QR breakdown reports go through the submitPublicBreakdown function only', () => {
+  it('anonymous visitors can no longer write tickets directly', async () => {
+    await assertFails(addDoc(collection(anon(), 'breakdown_tickets'), qrTicket()));
   });
 });
 
