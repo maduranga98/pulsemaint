@@ -338,6 +338,37 @@ describe('QR breakdown reports go through the submitPublicBreakdown function onl
   });
 });
 
+describe('breakdown tickets close only through a work order or a low-severity quick fix', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      const base = { siteId: 'A', companyId: 'A', machineId: 'mA', machinePlantId: null, assignedTechnicianIds: [] };
+      await setDoc(doc(db, 'breakdown_tickets/bdMedNoWo'), { ...base, status: 'assigned', severity: 'medium' });
+      await setDoc(doc(db, 'breakdown_tickets/bdMedWo'), { ...base, status: 'resolved', severity: 'medium', linkedWOId: 'woA' });
+      await setDoc(doc(db, 'breakdown_tickets/bdLowQuick'), { ...base, status: 'resolved', severity: 'low', completedWithoutWO: true });
+      await setDoc(doc(db, 'breakdown_tickets/bdHighQuick'), { ...base, status: 'resolved', severity: 'high', completedWithoutWO: true });
+    });
+  });
+  it('a supervisor cannot close a medium/high ticket without a work order', async () => {
+    await assertFails(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMedNoWo'), { status: 'closed' }));
+    await assertFails(updateDoc(doc(as('supA'), 'breakdown_tickets/bdHighQuick'), { status: 'closed' }));
+  });
+  it('a ticket with a work order, or a low-severity quick fix, can be closed', async () => {
+    await assertSucceeds(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMedWo'), { status: 'closed' }));
+    await assertSucceeds(updateDoc(doc(as('supA'), 'breakdown_tickets/bdLowQuick'), { status: 'closed' }));
+  });
+  it('cancelling needs a reason and a supervisor-level role of the same company', async () => {
+    await assertFails(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMedNoWo'), { status: 'cancelled' }));
+    await assertFails(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMedNoWo'), { status: 'cancelled', cancelReason: 'x' }));
+    await assertSucceeds(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMedNoWo'), {
+      status: 'cancelled', cancelReason: 'Duplicate of another report', cancelledBy: 'supA',
+    }));
+    await assertFails(updateDoc(doc(as('supB'), 'breakdown_tickets/bdHighQuick'), {
+      status: 'cancelled', cancelReason: 'Not our machine',
+    }));
+  });
+});
+
 describe('deactivated users lose access at once', () => {
   const deactivate = (uid, c) => env.withSecurityRulesDisabled(async (ctx) => {
     const db = ctx.firestore();
@@ -484,7 +515,7 @@ describe('technicians update only the breakdown tickets they work on', () => {
     await assertFails(updateDoc(doc(as('techA'), 'breakdown_tickets/bdMine'), { machineId: 'mB' }));
     await assertFails(updateDoc(doc(as('techB'), 'breakdown_tickets/bdMine'), { assignedTechnicianIds: ['techB'] }));
     // Supervisors still manage any ticket in their company.
-    await assertSucceeds(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMine'), { status: 'closed' }));
+    await assertSucceeds(updateDoc(doc(as('supA'), 'breakdown_tickets/bdMine'), { attemptedFixes: 'supervisor edit' }));
   });
 });
 
