@@ -98,6 +98,30 @@ service cloud.firestore {
       return !isDepartmentScopedRole() || getUserData().department == department;
     }
 
+    // Department isolation on work orders and breakdown tickets. OFF until a
+    // company admin switches on Settings -> "Restrict by department"
+    // (companies/{id}.departmentIsolation), because it matches the department
+    // strings on users and records exactly. When on, technician / trainee /
+    // supervisor / floor_operator (with a registered department) read only
+    // records of their own department, plus work they are assigned to /
+    // supervise / attend / reported. Records with no department are hidden
+    // from them (stamp a department first). Costs one
+    // company-document read per rule evaluation for those roles only.
+    function departmentIsolationOn() {
+      return isDepartmentScopedRole()
+        && getUserData().get('department', null) != null
+        && getUserData().get('department', '') != ''
+        && get(/databases/$(database)/documents/companies/$(myCompanyId())).data.get('departmentIsolation', false) == true;
+    }
+
+    // Strict equality on purpose: a query that does not pin machineDepartment
+    // must be rejected, and a "missing / empty department is fine" shortcut
+    // would let exactly such a query through.
+    function departmentVisible(d) {
+      return !departmentIsolationOn()
+        || d == getUserData().get('department', null);
+    }
+
     // ---- Plant isolation -----------------------------------------------------
     // Every role but admin is confined to its own registered plant (a user
     // without a plant is company-wide). Machines, work orders, breakdown
@@ -258,7 +282,8 @@ service cloud.firestore {
       // Plant isolation — except for work the caller is assigned to or
       // supervises (personal queues query by assignee, not by plant).
       function woPlantOk() {
-        return plantVisible(resource.data.get('machinePlantId', null))
+        return (plantVisible(resource.data.get('machinePlantId', null))
+            && departmentVisible(resource.data.get('machineDepartment', null)))
           || request.auth.uid in resource.data.get('assignedTechnicianIds', [])
           || resource.data.get('supervisorInChargeId', null) == request.auth.uid;
       }
@@ -487,9 +512,11 @@ service cloud.firestore {
 
       // Plant isolation — except for tickets the caller is assigned to or attending.
       function ticketPlantOk() {
-        return plantVisible(resource.data.get('machinePlantId', null))
+        return (plantVisible(resource.data.get('machinePlantId', null))
+            && departmentVisible(resource.data.get('machineDepartment', null)))
           || request.auth.uid in resource.data.get('assignedTechnicianIds', [])
-          || resource.data.get('attendedBy', null) == request.auth.uid;
+          || resource.data.get('attendedBy', null) == request.auth.uid
+          || resource.data.get('reportedBy', null) == request.auth.uid;
       }
 
       // hr_officer/store_keeper reach /analytics too and need this for the
