@@ -248,9 +248,15 @@ export default function ViewBreakdownPage() {
 
   function handleInitiateClose() {
     if (!breakdown) return;
+    // Repaired under a work order: that WO's sign-off form collects the
+    // signer's root cause, so don't ask for a second RCA here.
+    if (breakdown.linkedWOId) {
+      handleClose();
+      return;
+    }
     if (
       isRCARequired(breakdown.severity) &&
-      !canCloseBreakdown(breakdown.severity, rcaDoc, isSupervisorRole)
+      !canCloseBreakdown(breakdown.severity, rcaDoc)
     ) {
       setPendingClose(true);
       setShowRCAModal(true);
@@ -261,7 +267,7 @@ export default function ViewBreakdownPage() {
 
   function handleRCASaved(_rcaId: string, completed: boolean) {
     setShowRCAModal(false);
-    if (pendingClose && (completed || isSupervisorRole)) {
+    if (pendingClose && completed) {
       handleClose();
     }
     setPendingClose(false);

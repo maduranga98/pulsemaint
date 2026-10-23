@@ -101,9 +101,19 @@ async function rcaHistoryContext(machineId, queryText, profile) {
   ticketSnap.docs.forEach((doc) => {
     const b = doc.data();
     if (!visible(b)) return;
-    add(`breakdown ${b.ticketNumber || ""}`.trim(), b, b.closedAt || b.resolvedAt, b.machineName, b.description,
-        [b.rootCause && b.rootCause !== "unknown" ? b.rootCause : "", b.rootCauseDescription].filter(Boolean).join(" — "),
-        [b.correctiveActions && `corrective: ${clip(b.correctiveActions)}`,
+    // Low-severity quick fixes are completed by the technician with no work
+    // order and no signer RCA — the technician's findings and completion notes
+    // are the record the AI learns from.
+    const quickFix = b.completedWithoutWO === true && b.completionNotes;
+    const recorded = [b.rootCause && b.rootCause !== "unknown" ? b.rootCause : "", b.rootCauseDescription]
+        .filter(Boolean).join(" — ");
+    const cause = recorded || (quickFix ?
+      [b.technicianFindings, b.attemptedFixes].filter(Boolean).map((v) => clip(v, 200)).join(" — ") ||
+        "quick fix by technician" : "");
+    add(`breakdown ${b.ticketNumber || ""}${quickFix ? " (low severity, fixed by technician)" : ""}`.trim(), b,
+        b.closedAt || b.resolvedAt, b.machineName, b.description, cause,
+        [quickFix && `fix done: ${clip(b.completionNotes)}`,
+          !quickFix && b.correctiveActions && `corrective: ${clip(b.correctiveActions)}`,
           b.preventiveRecommendations && `preventive: ${clip(b.preventiveRecommendations)}`].filter(Boolean).join("; "));
   });
   rcaSnap.docs.forEach((doc) => {
