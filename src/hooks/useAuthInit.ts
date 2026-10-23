@@ -86,6 +86,17 @@ export function useAuthInit() {
               doc(db, `companies/${companyId}/users/${user.uid}`),
               (userSnap) => {
                 if (!userSnap.exists()) {
+                  // An admin deleting this account removes the profile while
+                  // the person is signed in: end the session at once.
+                  if (!isFirstSnapshot && useAuthStore.getState().userProfile) {
+                    unsubscribeProfile();
+                    sessionStorage.setItem(
+                      'pulsemaint:deactivation-notice',
+                      'Your account has been removed. Contact your administrator.',
+                    );
+                    signOut(auth).catch(() => {});
+                    return;
+                  }
                   if (isFirstSnapshot && !useAuthStore.getState().userProfile) {
                     console.warn('User profile not found');
                   }
