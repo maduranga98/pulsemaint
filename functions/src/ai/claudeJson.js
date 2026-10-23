@@ -16,51 +16,108 @@ const MAX_TOKENS = 4096;
 const MAX_PROMPT_CHARS = 20000;
 const MAX_SYSTEM_CHARS = 4000;
 const MAX_SCHEMA_CHARS = 4000;
-const WEB_SEARCH_MAX_TOKENS = 8192;
-const MAX_WEB_SEARCHES = 3;
-// AI credits: a normal suggestion costs 1, one with web research 6 — mirrors AI_CREDIT_COST in src/lib/planLimits.ts.
-const CREDIT_COST = { standard: 1, webResearch: 6 };
-const CLOSED_WO_STATUSES = new Set(["SIGNED_OFF", "CLOSED"]);
+// A suggestion costs 1 AI credit — mirrors AI_CREDIT_COST.standard in src/lib/planLimits.ts.
+const CREDIT_COST = 1;
 
-/**
- * Past signed-off repairs on this machine and their root causes — read with
- * admin rights here because technicians can't query other people's WOs.
- * Strictly company-scoped: the machine must belong to the caller's own
- * company and only that company's work orders are read, so nothing from
- * another company can ever reach a prompt.
- */
-async function machineHistoryContext(machineId, companyId) {
-  if (!companyId) return "";
-  const machine = await db.collection("machines").doc(machineId).get();
-  if (!machine.exists) return "";
-  const m = machine.data();
-  if ((m.siteId || m.companyId) !== companyId) return "";
-  const snap = await db.collection("workOrders")
-      .where("machineId", "==", machineId)
-      .where("siteId", "==", companyId)
-      .get();
-  const closed = snap.docs
-      .map((d) => d.data())
-      .filter((w) => CLOSED_WO_STATUSES.has(w.status))
-      .sort((a, b) => ((b.closedAt && b.closedAt.toMillis()) || 0) - ((a.closedAt && a.closedAt.toMillis()) || 0))
-      .slice(0, 8);
-  if (!closed.length) return "";
-  const lines = closed.map((w) => {
-    const cause = [w.rootCause, w.rootCauseDescription].filter(Boolean).join(" — ");
-    const date = w.closedAt && w.closedAt.toDate ? w.closedAt.toDate().toISOString().slice(0, 10) : "?";
-    return `- ${w.woNumber || "WO"} (${date}, ${w.woType}): problem: ${String(w.description || "").slice(0, 300)}` +
-      `; root cause: ${String(cause || "not recorded").slice(0, 300)}` +
-      `; work done: ${String(w.workDoneDescription || "").slice(0, 300)}`;
-  });
-  return `Past signed-off repairs and root-cause analyses on this same machine (most recent first):\n${lines.join("\n")}`;
+const HISTORY_FETCH_LIMIT = 500;
+const HISTORY_PROMPT_ITEMS = 14;
+const STOPWORDS = new Set(["the", "and", "was", "were", "has", "have", "had", "that", "this", "with", "from", "when",
+  "then", "there", "their", "about", "into", "just", "been", "machine", "what", "happened", "again", "still", "also"]);
+
+function tokens(text) {
+  return new Set(String(text || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
+      .filter((w) => w.length > 3 && !STOPWORDS.has(w)));
 }
 
-/** First {...} JSON object in a free-text reply (web-search replies can't use structured outputs). */
-function extractJson(text) {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start < 0 || end <= start) throw new Error("no JSON object in reply");
-  return JSON.parse(text.slice(start, end + 1));
+function overlap(queryTokens, text) {
+  if (!queryTokens.size) return 0;
+  let n = 0;
+  for (const w of tokens(text)) if (queryTokens.has(w)) n++;
+  return n;
+}
+
+function millis(ts) {
+  return (ts && ts.toMillis && ts.toMillis()) || 0;
+}
+
+function day(ts) {
+  return ts && ts.toDate ? ts.toDate().toISOString().slice(0, 10) : "?";
+}
+
+const clip = (v, n = 300) => String(v || "").slice(0, n);
+
+/**
+ * The company's own past root-cause records — closed work orders (breakdown
+ * and every other type), resolved/closed breakdown tickets and completed 5-Why
+ * RCAs — ranked by how well they match the new fault (same machine first,
+ * then similar symptoms on other machines). Read with admin rights because
+ * technicians can't query other people's records.
+ *
+ * Strictly company-scoped: every query filters on the caller's own companyId,
+ * the machine must belong to it, and a plant-restricted caller only gets their
+ * own plant's records, so nothing from another company ever reaches a prompt.
+ */
+async function rcaHistoryContext(machineId, queryText, profile) {
+  const companyId = profile.companyId;
+  if (!companyId) return "";
+  const plantId = profile.plantId || null;
+  let machineName = "";
+  if (machineId) {
+    const machine = await db.collection("machines").doc(machineId).get();
+    const m = machine.exists ? machine.data() : null;
+    if (!m || (m.siteId || m.companyId) !== companyId) machineId = null;
+    else machineName = m.name || "";
+  }
+  const q = tokens(queryText);
+
+  const [woSnap, ticketSnap, rcaSnap] = await Promise.all([
+    db.collection("workOrders").where("siteId", "==", companyId)
+        .where("status", "in", ["SIGNED_OFF", "CLOSED"]).limit(HISTORY_FETCH_LIMIT).get(),
+    db.collection("breakdown_tickets").where("siteId", "==", companyId)
+        .where("status", "in", ["resolved", "closed"]).limit(HISTORY_FETCH_LIMIT).get(),
+    db.collection("rca").where("siteId", "==", companyId)
+        .where("status", "==", "completed").limit(HISTORY_FETCH_LIMIT).get(),
+  ]);
+
+  const visible = (d) => !plantId || !d.machinePlantId || d.machinePlantId === plantId;
+  const items = [];
+  const add = (kind, d, when, machine, problem, cause, extra) => {
+    if (!cause) return; // only records that carry a recorded root cause teach anything
+    const same = machineId && d.machineId === machineId;
+    const score = overlap(q, `${problem} ${cause}`) + (same ? 3 : 0);
+    if (!score) return;
+    items.push({ score, when, same,
+      line: `- [${kind}, ${same ? "this machine" : clip(machine, 60)}, ${day(when)}] problem: ${clip(problem)}` +
+        `; root cause: ${clip(cause)}${extra ? `; ${extra}` : ""}` });
+  };
+
+  woSnap.docs.forEach((doc) => {
+    const w = doc.data();
+    if (!visible(w)) return;
+    add(`WO ${w.woNumber || ""} ${w.woType || ""}`.trim(), w, w.closedAt, w.machineName, w.description,
+        [w.rootCause && w.rootCause !== "unknown" ? w.rootCause : "", w.rootCauseDescription].filter(Boolean).join(" — "),
+        w.workDoneDescription ? `work done: ${clip(w.workDoneDescription)}` : "");
+  });
+  ticketSnap.docs.forEach((doc) => {
+    const b = doc.data();
+    if (!visible(b)) return;
+    add(`breakdown ${b.ticketNumber || ""}`.trim(), b, b.closedAt || b.resolvedAt, b.machineName, b.description,
+        [b.rootCause && b.rootCause !== "unknown" ? b.rootCause : "", b.rootCauseDescription].filter(Boolean).join(" — "),
+        [b.correctiveActions && `corrective: ${clip(b.correctiveActions)}`,
+          b.preventiveRecommendations && `preventive: ${clip(b.preventiveRecommendations)}`].filter(Boolean).join("; "));
+  });
+  rcaSnap.docs.forEach((doc) => {
+    const r = doc.data();
+    add("5-Why RCA", r, r.updatedAt || r.createdAt, "", r.problem, r.rootCause,
+        r.correctiveAction ? `corrective: ${clip(r.correctiveAction)}` : "");
+  });
+
+  items.sort((a, b) => b.score - a.score || millis(b.when) - millis(a.when));
+  const top = items.slice(0, HISTORY_PROMPT_ITEMS);
+  if (!top.length) {
+    return "No past root-cause records in this company match this fault yet.";
+  }
+  return `This company's own past root-cause records${machineName ? ` (machine: ${machineName})` : ""}, best match first:\n${top.map((i) => i.line).join("\n")}`;
 }
 
 /**
@@ -70,15 +127,16 @@ function extractJson(text) {
  *
  * Only signed-in users with an app profile may call it, and prompt/schema
  * sizes plus max_tokens are capped so the key can't be used as a general
- * purpose LLM endpoint. Returns `{ result, sources }` — the parsed JSON object
- * (when a responseSchema is given) or the plain text reply, plus the web
- * pages searched when `webSearch` is on. `machineId` appends that machine's
- * past signed-off repairs and root causes to the prompt.
+ * purpose LLM endpoint. Returns `{ result }` — the parsed JSON object (when a
+ * responseSchema is given) or the plain text reply. `machineId` (+ optional
+ * `historyQuery`, the fault description) appends the caller's own company's
+ * past root-cause records to the prompt; there is no web research — the AI
+ * only learns from that company data.
  */
 exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
 
-  const { prompt, systemInstruction, responseSchema, webSearch, machineId } = request.data ?? {};
+  const { prompt, systemInstruction, responseSchema, machineId, historyQuery } = request.data ?? {};
   if (typeof prompt !== "string" || !prompt.trim() || prompt.length > MAX_PROMPT_CHARS) {
     throw new HttpsError("invalid-argument", "prompt must be a non-empty string under the size limit");
   }
@@ -89,8 +147,8 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
     throw new HttpsError("invalid-argument", "responseSchema is invalid");
   }
 
-  if (webSearch !== undefined && typeof webSearch !== "boolean") {
-    throw new HttpsError("invalid-argument", "webSearch must be a boolean");
+  if (historyQuery !== undefined && (typeof historyQuery !== "string" || historyQuery.length > 2000)) {
+    throw new HttpsError("invalid-argument", "historyQuery is invalid");
   }
   if (machineId !== undefined && (typeof machineId !== "string" || !machineId || machineId.length > 200)) {
     throw new HttpsError("invalid-argument", "machineId is invalid");
@@ -109,13 +167,13 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
   // Per-user (hourly) and per-company (daily) caps — see aiUsageLimit.js.
   const companyId = profile.companyId;
   // Charged up front; refunded below if the provider call fails.
-  const creditCost = webSearch ? CREDIT_COST.webResearch : CREDIT_COST.standard;
+  const creditCost = CREDIT_COST;
   await consumeAiQuota(db, {uid: request.auth.uid, companyId}, new Date(), await companyAiCredits(companyId), creditCost);
 
   let fullPrompt = prompt;
   if (machineId) {
-    const history = await machineHistoryContext(machineId, companyId).catch((err) => {
-      logger.warn("machineHistoryContext failed", { machineId, err: String(err) });
+    const history = await rcaHistoryContext(machineId, historyQuery || prompt, profile).catch((err) => {
+      logger.warn("rcaHistoryContext failed", { machineId, err: String(err) });
       return "";
     });
     if (history) fullPrompt = `${prompt}\n\n${history}`;
@@ -127,33 +185,20 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
   if (!apiKey) throw new HttpsError("failed-precondition", "ANTHROPIC_API_KEY secret is empty");
   const client = new Anthropic({ apiKey });
 
-  // With web search the reply is free text (structured outputs can't be
-  // combined with it), so the schema goes into the system prompt instead and
-  // the JSON is pulled out of the final text.
-  const system = webSearch && responseSchema ?
-    `${systemInstruction || ""}\n\nAfter researching, reply with ONLY one JSON object matching this JSON schema — no prose before or after it:\n${JSON.stringify(responseSchema)}` :
-    systemInstruction;
   const params = {
     model: CLAUDE_MODEL,
-    max_tokens: webSearch ? WEB_SEARCH_MAX_TOKENS : MAX_TOKENS,
+    max_tokens: MAX_TOKENS,
     messages: [{ role: "user", content: fullPrompt }],
     output_config: {
       effort: "low",
-      ...(responseSchema && !webSearch ? { format: { type: "json_schema", schema: responseSchema } } : {}),
+      ...(responseSchema ? { format: { type: "json_schema", schema: responseSchema } } : {}),
     },
-    ...(webSearch ? { tools: [{ type: "web_search_20260209", name: "web_search", max_uses: MAX_WEB_SEARCHES }] } : {}),
-    ...(system ? { system } : {}),
+    ...(systemInstruction ? { system: systemInstruction } : {}),
   };
 
   let response;
   try {
     response = await client.messages.create(params);
-    // A long server-side search loop can pause; resume it by sending the
-    // paused assistant turn back (no extra user message).
-    for (let i = 0; i < 3 && response.stop_reason === "pause_turn"; i++) {
-      params.messages = [params.messages[0], { role: "assistant", content: response.content }];
-      response = await client.messages.create(params);
-    }
   } catch (err) {
     await refundAiCredits(db, {companyId}, new Date(), creditCost);
     if (err instanceof Anthropic.RateLimitError) {
@@ -179,33 +224,9 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
       .join("");
   if (!text) throw new HttpsError("unavailable", "AI returned no content");
 
-  // Web pages / videos the model actually searched, for the app to link.
-  const sources = [];
-  const seen = new Set();
-  for (const block of response.content) {
-    if (block.type !== "web_search_tool_result" || !Array.isArray(block.content)) continue;
-    for (const r of block.content) {
-      if (r && r.url && !seen.has(r.url) && sources.length < 8) {
-        seen.add(r.url);
-        sources.push({ url: r.url, title: r.title || r.url });
-      }
-    }
-  }
-
-  if (!responseSchema) return { result: text, sources };
+  if (!responseSchema) return { result: text };
   try {
-    if (!webSearch) return { result: JSON.parse(text), sources };
-    // The answer is the text written after the last search — earlier text
-    // blocks are the model narrating its research.
-    let lastTool = -1;
-    response.content.forEach((block, i) => {
-      if (block.type !== "text") lastTool = i;
-    });
-    const finalText = response.content.slice(lastTool + 1)
-        .filter((block) => block.type === "text")
-        .map((block) => block.text)
-        .join("");
-    return { result: extractJson(finalText || text), sources };
+    return { result: JSON.parse(text) };
   } catch {
     throw new HttpsError("unavailable", "AI returned invalid JSON");
   }
