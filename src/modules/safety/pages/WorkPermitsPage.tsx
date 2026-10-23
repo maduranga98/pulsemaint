@@ -23,6 +23,7 @@ import {
   type WorkPermitStatus,
 } from '@/types/safety';
 import NewWorkPermitModal from '../components/NewWorkPermitModal';
+import { isBeyondViewWindow } from '@/lib/viewWindow';
 
 const STATUS_STYLE: Record<WorkPermitStatus, string> = {
   draft: 'bg-slate-500/15 text-slate-300',
@@ -46,8 +47,10 @@ export default function WorkPermitsPage() {
   // Plant-scoped roles only see permits for their own plant (admin:
   // whichever plant is selected in the plant-tab switcher, or all if none).
   const permits = useMemo(
-    () => (scopedPlantId ? fetchedPermits.filter((p) => p.plantId === scopedPlantId) : fetchedPermits),
-    [fetchedPermits, scopedPlantId],
+    () => (scopedPlantId ? fetchedPermits.filter((p) => p.plantId === scopedPlantId) : fetchedPermits)
+      // Store keeper / safety officer / HR / supervisor see a closed permit for 90 days only.
+      .filter((p) => !isBeyondViewWindow(profile?.role, p.status === 'closed', p.closedAt)),
+    [fetchedPermits, scopedPlantId, profile?.role],
   );
   const { categories } = useWorkPermitCategories(companyId);
   const catLabel = useMemo(
