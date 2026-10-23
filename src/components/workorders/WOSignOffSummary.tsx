@@ -2,14 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { FileText, Paperclip } from 'lucide-react';
 import type { WorkOrder } from '../../types/workOrder';
 import type { WorkPermit } from '../../types/safety';
-import { WOAiRcaCard } from './WOAiRcaCard';
 import { getCompanyCurrency } from '@/lib/currency';
 
 interface Props {
   workOrder: WorkOrder;
   permits: WorkPermit[];
   /** Supervisors/managers/admins can (re)run the AI root-cause analysis. */
-  canRegenerateRca: boolean;
 }
 
 type Ts = { toDate?: () => Date } | null | undefined;
@@ -35,7 +33,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
  * completion times), tasks with measurements, parts, work permits, approval
  * requests, root cause (technician's and AI's) and every attached document.
  */
-export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: Props) {
+export function WOSignOffSummary({ workOrder: wo, permits }: Props) {
   const { t } = useTranslation();
   const d = (key: string, defaultValue: string, opts?: Record<string, unknown>) =>
     t(`common.workOrders.summary.${key}`, { defaultValue, ...opts });
@@ -194,12 +192,10 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
       )}
 
       {(wo.rootCause || wo.rootCauseDescription) && (
-        <Section title={d('techRca', 'Root cause (recorded by technician)')}>
+        <Section title={d('techRca', 'Root cause (entered by supervisor)')}>
           <p className="text-sm text-[#F0F4F8]">{wo.rootCause?.replace(/_/g, ' ')}{wo.rootCauseDescription ? ` — ${wo.rootCauseDescription}` : ''}</p>
         </Section>
       )}
-
-      <WOAiRcaCard woId={wo.id} rca={wo.aiRca} canRegenerate={canRegenerateRca} />
 
       {docs.length > 0 && (
         <Section title={d('documents', 'Attached documents')}>

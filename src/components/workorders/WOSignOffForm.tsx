@@ -1,12 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, AlertTriangle, XCircle, Lock, Star } from 'lucide-react';
-import type { WorkOrder, WOSignOffOutcome } from '../../types/workOrder';
+import type { WorkOrder, WOSignOffOutcome, WORootCause } from '../../types/workOrder';
 import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
 import { formatLkr } from '../../lib/contractors/invoiceCalculator';
 import { toast } from 'sonner';
-import { WOAiRcaCard } from './WOAiRcaCard';
 
 const RATING_DIMENSIONS = [
   { key: 'speedScore', labelKey: 'speedLabel' },
@@ -14,6 +13,8 @@ const RATING_DIMENSIONS = [
   { key: 'professionalismScore', labelKey: 'professionalismLabel' },
   { key: 'communicationScore', labelKey: 'communicationLabel' },
 ] as const;
+
+const ROOT_CAUSES: WORootCause[] = ['wear_and_tear', 'operator_error', 'manufacturing_defect', 'lack_of_maintenance', 'external_damage', 'unknown'];
 
 type RatingKey = (typeof RATING_DIMENSIONS)[number]['key'];
 
@@ -54,6 +55,9 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
   const [outcome, setOutcome] = useState<WOSignOffOutcome>('complete');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
+  // Root cause is typed in by the supervisor signing off — no AI.
+  const [rootCause, setRootCause] = useState<WORootCause>(workOrder.rootCause ?? 'unknown');
+  const [rootCauseText, setRootCauseText] = useState(workOrder.rootCauseDescription ?? '');
 
   const OUTCOMES: {
     value: WOSignOffOutcome;
@@ -125,6 +129,10 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
       );
       return;
     }
+    if (!rootCauseText.trim()) {
+      toast.error(t('common.workOrders.signOffForm.rootCauseRequired', { defaultValue: 'Enter the root cause before signing off.' }));
+      return;
+    }
     if (isContractorWO) {
       if (projectCost.trim() && !Number.isFinite(Number(projectCost.replace(/,/g, '')))) {
         toast.error(t('common.workOrders.signOffForm.enterValidProjectCost'));
@@ -140,6 +148,8 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
       outcome,
       outcomeReason: needsReason ? reason.trim() : null,
       notes,
+      rootCause,
+      rootCauseDescription: rootCauseText.trim(),
       projectCost: isContractorWO ? parsedProjectCost : null,
       contractorRating: isContractorWO
         ? {
@@ -156,15 +166,29 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* AI root-cause analysis over the whole job — generated as soon as the
-          form opens so the supervisor reviews it before signing off. */}
-      <WOAiRcaCard
-        woId={workOrder.id}
-        rca={workOrder.aiRca}
-        canRegenerate
-        autoGenerate
-        pendingText={t('common.workOrders.summary.rcaNotYet', { defaultValue: 'No AI analysis yet.' })}
-      />
+      {/* Root-cause analysis, written by the supervisor — required to close.
+          Future AI suggestions on new breakdowns learn from what is entered here. */}
+      <div className="rounded-lg border border-gray-200 p-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          {t('common.workOrders.signOffForm.rootCauseTitle', { defaultValue: 'Root cause (required)' })}
+        </p>
+        <select
+          value={rootCause}
+          onChange={(e) => setRootCause(e.target.value as WORootCause)}
+          className="mt-2 h-10 w-full rounded-md border border-gray-300 px-3 text-sm"
+        >
+          {ROOT_CAUSES.map((val) => (
+            <option key={val} value={val}>{t(`common.workOrders.rootCauses.${val}`)}</option>
+          ))}
+        </select>
+        <textarea
+          value={rootCauseText}
+          onChange={(e) => setRootCauseText(e.target.value)}
+          rows={3}
+          placeholder={t('common.workOrders.signOffForm.rootCausePlaceholder', { defaultValue: 'What caused this fault, and what was done to fix it?' })}
+          className="mt-2 w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
+        />
+      </div>
 
       {/* Contractor jobs: total cost and a rating, both required to close. */}
       {isContractorWO && (

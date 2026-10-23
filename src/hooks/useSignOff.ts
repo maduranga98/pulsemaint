@@ -15,7 +15,6 @@ import { useAuthStore } from '../store/authStore';
 import { logAuditEvent } from '../utils/reports/auditLogger';
 import { notifyRoles } from '../services/notifications.service';
 import { markMachineActiveIfNoOpenWork } from '../lib/machineOperationalStatus';
-import { generateWoAiRca } from '../lib/woAiRca';
 import { toast } from 'sonner';
 
 interface UseSignOffResult {
@@ -43,6 +42,14 @@ export function useSignOff(): UseSignOffResult {
           payload.outcome === 'failed'
             ? 'A reason is required when the work order is marked as failed.'
             : 'A reason is required when the work order is not complete.';
+        setError(msg);
+        toast.error(msg);
+        return false;
+      }
+
+      // The root cause is written by hand by the supervisor — never AI.
+      if (!payload.rootCauseDescription?.trim()) {
+        const msg = 'Enter the root cause before signing off and closing this work order.';
         setError(msg);
         toast.error(msg);
         return false;
@@ -124,6 +131,8 @@ export function useSignOff(): UseSignOffResult {
           supervisorSignOffNotes: notes,
           signOffOutcome: payload.outcome,
           signOffOutcomeReason: reason,
+          rootCause: payload.rootCause,
+          rootCauseDescription: payload.rootCauseDescription.trim(),
           closedBy: user.uid,
           closedByName: actorName,
           closedAt: serverTimestamp(),
@@ -259,10 +268,6 @@ export function useSignOff(): UseSignOffResult {
         toast.success(workDone
           ? 'Work order signed off and closed.'
           : 'Work order closed. Its breakdown is open again — raise a new work order to fix it.');
-        // AI root-cause analysis over the whole job — usually already produced
-        // on the sign-off form; only runs here if it wasn't (saved on the WO,
-        // shown on the signed-off summary).
-        void generateWoAiRca(woId, { onlyIfMissing: true });
         return true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Sign-off failed';
