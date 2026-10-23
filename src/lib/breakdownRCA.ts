@@ -1,8 +1,5 @@
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db } from './firebase';
-import type { Breakdown, BreakdownType } from '../types/breakdown';
-import { generateClaudeJsonWithSources, isClaudeEnabled, type ClaudeSource } from './claude';
-import { plantConstraints } from './plantQuery';
+import type { BreakdownType } from '../types/breakdown';
+import { generateClaudeJson, isClaudeEnabled } from './claude';
 
 // Kept in sync with SUPPORTED_LANGUAGES in lib/i18n.ts so the AI response
 // language always matches the app's currently selected UI language rather
@@ -22,8 +19,8 @@ export interface BreakdownRCASuggestion {
   source: 'ai' | 'heuristic';
   /** Why the AI call failed, when it was attempted and fell back to the heuristic. */
   aiError?: string;
-  /** Web pages / videos the AI researched (web research mode only). */
-  sources?: ClaudeSource[];
+  /** True when the company has no past root-cause record matching this fault. */
+  noHistory?: boolean;
 }
 
 interface RCAInput {
@@ -176,26 +173,6 @@ function heuristicSuggestion(input: RCAInput): BreakdownRCASuggestion {
   };
 }
 
-/** Recent resolved/attended tickets for the same machine, used as extra context for the AI prompt. */
-async function fetchRecentHistory(machineId: string, excludeIds: string[]): Promise<Breakdown[]> {
-  try {
-    const q = query(
-      collection(db, 'breakdown_tickets'),
-      where('machineId', '==', machineId),
-      ...plantConstraints('breakdown_tickets'),
-      orderBy('reportedAt', 'desc'),
-      limit(8),
-    );
-    const snap = await getDocs(q);
-    return snap.docs
-      .map((d) => ({ ...d.data(), id: d.id }) as Breakdown)
-      .filter((b) => !excludeIds.includes(b.id));
-  } catch {
-    // Missing composite index or offline — history is a nice-to-have, not required.
-    return [];
-  }
-}
-
 const CLAUDE_RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
@@ -206,83 +183,61 @@ const CLAUDE_RESPONSE_SCHEMA = {
   additionalProperties: false,
 };
 
-function buildPrompt(input: RCAInput, history: Breakdown[], languageName: string): string {
-  const historyBlock = history.length
-    ? history
-        .map(
-          (h, i) =>
-            `${i + 1}. [${h.type}/${h.severity}] ${h.description}${h.technicianFindings ? ` — findings: ${h.technicianFindings}` : ''}${h.attemptedFixes ? ` — fix tried: ${h.attemptedFixes}` : ''}`,
-        )
-        .join('\n')
-    : 'No prior breakdown history available for this machine.';
-
+function buildPrompt(input: RCAInput, languageName: string): string {
   const machineLine = [input.machineName, input.machineManufacturer, input.machineModel]
     .filter(Boolean)
     .join(' — ');
 
   const audienceInstruction =
     input.audience === 'reporter'
-      ? `The "recommended next actions" are for the PERSON WHO JUST REPORTED THIS FAULT — usually an operator, not a maintenance specialist, and no technician has attended yet. Give safe, non-invasive checks they can do themselves right now: what to look/listen/smell for, whether it's safe to leave the machine running, simple checks like power/breaker/emergency-stop state — never a repair step (no "replace", "open the panel", "disassemble", etc.), and always end with a reminder not to attempt an internal repair and to wait for a technician.`
-      : `The "recommended next actions" are for the TECHNICIAN who will attend this ticket — concrete diagnostic/repair steps are appropriate.`;
+      ? `The "recommended next actions" are for the PERSON WHO JUST REPORTED THIS FAULT — usually an operator, not a maintenance specialist, and no technician has attended yet. Give only safe, non-invasive checks they can do themselves right now (what to look/listen/smell for, power/breaker/emergency-stop state) — never a repair step — and always end with a reminder not to attempt an internal repair and to wait for a technician.`
+      : `The "recommended next actions" are for the TECHNICIAN who will attend this ticket — what to check first, and the fixes that worked before.`;
 
-  return `You are an industrial maintenance root-cause analysis assistant for a CMMS.
+  return `A new fault has just been reported in a CMMS.
 Machine: ${machineLine}
-Failure type: ${input.breakdownType ?? 'not yet classified — this is the operator\'s initial report, before a technician has assessed it'}
+Failure type: ${input.breakdownType ?? 'not yet classified'}
 Severity: ${input.severity ?? 'not yet assessed'}
 Reported description ("what happened"): ${input.description || '(not provided)'}
 Attempted fixes so far: ${input.attemptedFixes || '(none recorded)'}
 Technician findings so far: ${input.technicianFindings || '(none recorded)'}
 
-Recent breakdown history and completed root-cause analysis for this same machine (most recent first):
-${historyBlock}
-
-Based on this — the reported description, the machine's model/manufacturer, and the recurring patterns in its breakdown history — return the most probable root causes (ranked, most likely first) and concrete recommended next actions. ${audienceInstruction} Be specific and reuse patterns visible in the history when they recur. Keep each item to one concise sentence. Return 2-4 items per list. Respond in ${languageName}, in the exact JSON shape requested — nothing else.`;
+Below this prompt are this company's own past root-cause records (breakdown work orders, all other work orders, breakdown tickets and 5-Why analyses). Using ONLY those records, say what probably happened this time (most likely first) and what should be checked or done, reusing the causes and fixes that were recorded for similar faults. Do not use outside knowledge and do not invent causes that no record supports. If no record is relevant, return two empty lists. ${audienceInstruction} One concise sentence per item, 2-4 items per list. Respond in ${languageName}, in the exact JSON shape requested — nothing else.`;
 }
 
 /**
- * Suggests probable root causes and next actions for a breakdown, using the
- * machine's own history of past breakdowns/root-cause findings plus its
- * model/manufacturer as research context. Uses Claude when
- * AI is enabled, falling back to a deterministic
- * keyword engine (mirrors the Audit module's approach) when AI is
- * disabled or the API call fails. `language` is the app language the caller
- * currently has selected (e.g. from i18n.language) — the AI response is
- * written in that language; the heuristic fallback is English-only.
+ * Suggests probable causes and next actions for a new breakdown. The AI is
+ * used only to read and summarise the company's own past root-cause records
+ * (gathered server-side by `claudeJson`, strictly scoped to the caller's
+ * company) — no web research and no generic guesses. Falls back to the
+ * deterministic keyword engine only when the AI call itself fails or is
+ * disabled. `language` is the app language the AI response is written in.
  */
 export async function suggestBreakdownRootCause(
   input: RCAInput,
-  excludeTicketIds: string[] = [],
   language = 'en-US',
-  opts: { webResearch?: boolean } = {},
 ): Promise<BreakdownRCASuggestion> {
-  const history = await fetchRecentHistory(input.machineId, excludeTicketIds);
-
   if (!isClaudeEnabled()) {
     return heuristicSuggestion(input);
   }
 
   try {
     const languageName = RESPONSE_LANGUAGE_NAMES[language] ?? 'English';
-    const research = opts.webResearch
-      ? `\n\nBefore answering, research this fault on the web: the machine's manufacturer manuals and service bulletins, maintenance forums, and troubleshooting videos (e.g. YouTube) for this machine type and symptom. Use what you find together with the machine's own past repairs to rank the causes and suggest actions.`
-      : '';
-    const { result, sources } = await generateClaudeJsonWithSources<{ probableCauses: string[]; recommendedActions: string[] }>(
-      buildPrompt(input, history, languageName) + research,
+    const result = await generateClaudeJson<{ probableCauses: string[]; recommendedActions: string[] }>(
+      buildPrompt(input, languageName),
       {
-        systemInstruction: 'You are a concise, practical industrial maintenance root-cause analysis assistant. Always respond with the requested JSON shape only.',
+        systemInstruction: 'You summarise a company\'s own past maintenance root-cause records to help with a new fault. You only use the records provided. Always respond with the requested JSON shape only.',
         responseSchema: CLAUDE_RESPONSE_SCHEMA,
         machineId: input.machineId || undefined,
-        webSearch: opts.webResearch || undefined,
+        historyQuery: [input.description, input.technicianFindings].filter(Boolean).join(' ').slice(0, 1500) || undefined,
       },
     );
-    if (!result.probableCauses?.length && !result.recommendedActions?.length) {
-      return heuristicSuggestion(input);
-    }
+    const probableCauses = result.probableCauses ?? [];
+    const recommendedActions = result.recommendedActions ?? [];
     return {
-      probableCauses: result.probableCauses ?? [],
-      recommendedActions: result.recommendedActions ?? [],
+      probableCauses,
+      recommendedActions,
       source: 'ai',
-      sources,
+      noHistory: !probableCauses.length && !recommendedActions.length,
     };
   } catch (err) {
     console.warn('AI root-cause suggestion failed, using heuristic fallback', err);

@@ -414,7 +414,6 @@ export default function AttendBreakdownsPage() {
             description={list.map((tk) => tk.description).filter(Boolean).join(' | ')}
             attemptedFixes={attemptedFixes}
             technicianFindings={technicianFindings}
-            excludeTicketIds={list.map((tk) => tk.id)}
             disabled={saving || !list.length}
           />
 
