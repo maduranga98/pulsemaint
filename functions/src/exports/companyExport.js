@@ -144,8 +144,10 @@ exports.runCompanyExport = onDocumentCreated(
           if (!exists) {
             missing.push(path);
           } else {
-            const name = gathered.files.get(path);
-            await appendAndWait(archive, file.createReadStream(), name, {store: STORE_ONLY.test(name)});
+            // The same file can belong to several records: one copy in each record's folder.
+            for (const name of gathered.files.get(path)) {
+              await appendAndWait(archive, file.createReadStream(), name, {store: STORE_ONLY.test(name)});
+            }
           }
           done++;
           if (done % 25 === 0) await progress({step: "packing", done, total: paths.length});

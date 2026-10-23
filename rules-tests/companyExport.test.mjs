@@ -98,13 +98,15 @@ describe('runCompanyExport', () => {
     const zip = readZip(buf);
     const text = (name) => zip.get(name)?.toString('utf8');
 
-    for (const name of ['index.html', 'viewer.js', 'data/manifest.js', 'data/workOrders.json', 'data/workOrders.csv', '_export-notes.txt']) {
+    for (const name of ['index.html', 'data/workOrders.json', 'data/workOrders.csv', '_export-notes.txt',
+      'Work orders/WO-A-1/details.txt', 'Work orders/WO-A-1/details.json', 'Breakdowns/Breakdown tickets/BD-1/details.txt']) {
       assert.ok(zip.has(name), `missing ${name}`);
     }
-    assert.equal(text('files/workorders/A/woA/documents/1700000000000_report.pdf'), 'A-REPORT-CONTENT');
+    assert.equal(text('Work orders/WO-A-1/report.pdf'), 'A-REPORT-CONTENT');
     const wo = JSON.parse(text('data/workOrders.json'));
     assert.deepEqual(wo.map((r) => r.id), ['woA']);
-    assert.ok(text('data/workOrders.js').includes('Bearing'), 'subcollection missing');
+    assert.ok(text('index.html').includes('Bearing'), 'subcollection missing');
+    assert.ok(text('Work orders/WO-A-1/details.txt').includes('Bearing'), 'subcollection missing in details.txt');
     assert.match(text('index.html'), /Acme &lt;Ltd&gt;/);
 
     // Nothing of company B anywhere in the archive.

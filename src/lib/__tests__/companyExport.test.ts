@@ -95,7 +95,8 @@ describe('gatherCompanyData', () => {
     expect(rec.sub.partsRequests[0].partName).toBe('Bearing');
     const report = rec.attachments.find((a: any) => a.file.endsWith('report.pdf'));
     expect(report.name).toBe('report.pdf'); // timestamp prefix stripped
-    expect(report.file).toBe('files/workorders/A/woA1/documents/1700000000000_report.pdf');
+    expect(report.file).toBe('Work orders/WO-A-1/report.pdf'); // inside the work order's own folder
+    expect(rec.folder).toBe('Work orders/WO-A-1');
   });
 });
 
@@ -104,11 +105,16 @@ describe('buildTextEntries', () => {
     const g = await gatherCompanyData({ db: fakeDb(store), companyId: 'A', plantIds: ['P1'], bucketName: BUCKET });
     const entries = buildTextEntries({ company: 'Acme <Ltd>', exportedAt: '2026-10-23T00:00:00Z', datasets: g.datasets, missing: ['workorders/A/woA1/completion/photos/p1.jpg'], refused: g.refused });
     const byName = Object.fromEntries(entries.map((e: any) => [e.name, e.content as string]));
-    for (const name of ['index.html', 'viewer.js', 'data/manifest.js', 'data/workOrders.js', 'data/workOrders.json', 'data/workOrders.csv', 'data/machines.csv', '_export-notes.txt']) {
+    for (const name of ['index.html', 'data/workOrders.json', 'data/workOrders.csv', 'data/machines.csv', '_export-notes.txt',
+      'Work orders/WO-A-1/details.txt', 'Work orders/WO-A-1/details.json', 'Breakdowns/Breakdown tickets/BD-1/details.txt']) {
       expect(byName[name], name).toBeTruthy();
     }
     // </script> inside a record can never close the data <script>.
-    expect(byName['data/workOrders.js']).not.toContain('</script>');
+    expect(byName['index.html'].match(/<\/script>/g)).toHaveLength(2);
+    expect(byName['index.html']).toContain('FC_DATA');
+    // The readable summary uses labels, not field names, and formats dates.
+    expect(byName['Work orders/WO-A-1/details.txt']).toContain('Wo number: WO-A-1');
+    expect(byName['Work orders/WO-A-1/details.txt']).toContain('Created at: 2026-01-02 03:04 UTC');
     expect(byName['index.html']).toContain('Acme &lt;Ltd&gt;');
     expect(byName['index.html']).not.toContain('Acme <Ltd>');
     // Spreadsheet formulas are neutralised in CSV.
@@ -118,12 +124,38 @@ describe('buildTextEntries', () => {
     // Unreadable / foreign files are listed in the notes, foreign ones never linked from a record.
     expect(byName['_export-notes.txt']).toContain('workorders/A/woA1/completion/photos/p1.jpg');
     expect(byName['_export-notes.txt']).toContain('workorders/B/woB1/documents/secret.pdf');
-    expect(byName['data/workOrders.js']).not.toContain('files/workorders/B/');
+    expect(byName['index.html']).not.toContain('workorders/B/');
   });
 
   it('handles a company with no data', async () => {
     const g = await gatherCompanyData({ db: fakeDb({}), companyId: 'Z', plantIds: [], bucketName: BUCKET });
     expect(g.counts).toEqual({ records: 0, files: 0 });
     expect(buildTextEntries({ company: 'Empty', exportedAt: 'now', datasets: g.datasets, missing: [], refused: [] }).length).toBeGreaterThan(5);
+  });
+});
+
+describe('folders and names', () => {
+  it('safeName keeps readable letters and removes unsafe characters and reserved names', () => {
+    expect(plan.safeName('BD-2026/0012')).toBe('BD-2026_0012');
+    expect(plan.safeName('  ..weird:name?.  ')).toBe('weird_name_');
+    expect(plan.safeName('CON')).toBe('_CON');
+    expect(plan.safeName('', 'x')).toBe('x');
+    expect(plan.safeName('යන්ත්‍රය 1')).toContain('යන්ත්');
+  });
+
+  it('gives every record its own folder, with a suffix when two share a number, and de-duplicates file names', () => {
+    const section = { label: 'Breakdowns', collections: [{ name: 'breakdown_tickets', label: 'Breakdown tickets' }, { name: 'rca', label: 'Root cause analyses' }] };
+    const list: Array<{ id: string; title: string; folder?: string; attachments: Array<{ name: string; file: string }> }> = [
+      { id: 'abc123456', title: 'BD-1', attachments: [{ name: 'photo.jpg', file: '' }, { name: 'photo.jpg', file: '' }, { name: 'details.txt', file: '' }] },
+      { id: 'zzz987654', title: 'BD-1', attachments: [] },
+    ];
+    plan.assignFolders(section, section.collections[0], list);
+    expect(list[0].folder).toBe('Breakdowns/Breakdown tickets/BD-1');
+    expect(list[1].folder).toBe('Breakdowns/Breakdown tickets/BD-1 (zzz98765)');
+    expect(list[0].attachments.map((a: any) => a.file)).toEqual([
+      'Breakdowns/Breakdown tickets/BD-1/photo.jpg',
+      'Breakdowns/Breakdown tickets/BD-1/photo (2).jpg',
+      'Breakdowns/Breakdown tickets/BD-1/details (2).txt',
+    ]);
   });
 });
