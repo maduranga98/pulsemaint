@@ -42,51 +42,27 @@ describe('isRCAComplete', () => {
 });
 
 describe('canCloseBreakdown', () => {
-  it('returns true for low severity without RCA', () => {
-    expect(canCloseBreakdown('low', null, false)).toBe(true);
+  it('low severity quick fixes need no RCA from the signer', () => {
+    expect(canCloseBreakdown('low', null)).toBe(true);
+    expect(canCloseBreakdown('low', { status: 'open', rootCause: '' })).toBe(true);
   });
 
-  it('returns true for low severity even with incomplete RCA', () => {
-    expect(canCloseBreakdown('low', { status: 'open', rootCause: '' }, false)).toBe(true);
+  it('unclassified severity does not require an RCA', () => {
+    expect(canCloseBreakdown(null, null)).toBe(true);
   });
 
-  it('returns false for critical severity with no RCA and not supervisor', () => {
-    expect(canCloseBreakdown('critical', null, false)).toBe(false);
+  it('medium / high / critical need a completed RCA', () => {
+    expect(canCloseBreakdown('critical', null)).toBe(false);
+    expect(canCloseBreakdown('medium', null)).toBe(false);
+    expect(canCloseBreakdown('high', { status: 'completed', rootCause: 'Bearing failure' })).toBe(true);
   });
 
-  it('returns false for high severity with open RCA and not supervisor', () => {
-    expect(canCloseBreakdown('high', { status: 'open', rootCause: '' }, false)).toBe(false);
+  it('a half-finished RCA does not count, even for a supervisor', () => {
+    expect(canCloseBreakdown('critical', { status: 'open', rootCause: '' })).toBe(false);
+    expect(canCloseBreakdown('high', { status: 'open', rootCause: 'draft' })).toBe(false);
   });
 
-  it('returns true for supervisor with any RCA (even open)', () => {
-    expect(canCloseBreakdown('critical', { status: 'open', rootCause: '' }, true)).toBe(true);
-  });
-
-  it('returns false for supervisor with null RCA on required severity', () => {
-    expect(canCloseBreakdown('critical', null, true)).toBe(false);
-  });
-
-  it('returns true for non-supervisor with completed RCA and non-empty rootCause', () => {
-    expect(canCloseBreakdown('medium', { status: 'completed', rootCause: 'Root cause identified' }, false)).toBe(true);
-  });
-
-  it('returns false for non-supervisor with completed RCA but empty rootCause', () => {
-    expect(canCloseBreakdown('medium', { status: 'completed', rootCause: '' }, false)).toBe(false);
-  });
-
-  it('returns true for supervisor with completed RCA', () => {
-    expect(canCloseBreakdown('high', { status: 'completed', rootCause: 'Bearing failure' }, true)).toBe(true);
-  });
-
-  it('returns false for medium severity with null RCA and not supervisor', () => {
-    expect(canCloseBreakdown('medium', null, false)).toBe(false);
-  });
-
-  it('returns true for low severity even when supervisor is false', () => {
-    expect(canCloseBreakdown('low', null, false)).toBe(true);
-  });
-
-  it('returns true for low severity even when supervisor is true', () => {
-    expect(canCloseBreakdown('low', null, true)).toBe(true);
+  it('a completed RCA with an empty root cause does not count', () => {
+    expect(canCloseBreakdown('medium', { status: 'completed', rootCause: '' })).toBe(false);
   });
 });
