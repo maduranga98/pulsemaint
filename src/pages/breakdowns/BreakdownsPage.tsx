@@ -88,6 +88,10 @@ type SeverityFilter = 'all' | 'high' | 'medium' | 'normal';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
+// Closed / cancelled breakdowns stay visible to these roles only — the admin
+// (every plant) and the plant manager (their own plant, which the plant filter
+// below and firestore.rules enforce).
+const CAN_SEE_CLOSED_ROLES = ['admin', 'plant_manager'];
 
 interface MachineGroup {
   machineId: string;
@@ -157,10 +161,10 @@ export default function BreakdownsPage() {
   const filtered = useMemo(() => {
     const closedSet = new Set<BreakdownStatus>(['closed', 'cancelled']);
     let list = breakdowns;
-    // Closed/cancelled breakdowns are only ever visible to admins — every
-    // other role stops seeing a ticket the moment it's closed, including on
-    // the "Closed" tab itself.
-    if (role !== 'admin') list = list.filter((b) => !closedSet.has(b.status));
+    // Closed/cancelled breakdowns are visible to the admin and the plant
+    // manager (within their plant) — every other role stops seeing a ticket
+    // the moment it's closed.
+    if (!CAN_SEE_CLOSED_ROLES.includes(role)) list = list.filter((b) => !closedSet.has(b.status));
     // A ticket another technician/trainee is attending is theirs alone —
     // nobody else in that role sees it. Supervisors and above keep it, in
     // the Open tab, with the attender named.
@@ -459,7 +463,7 @@ export default function BreakdownsPage() {
       <div className="space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
-            {(['reported', 'assigned', 'open', ...(role === 'admin' ? (['closed'] as Filter[]) : [])] as Filter[]).map((f) => (
+            {(['reported', 'assigned', 'open', ...(CAN_SEE_CLOSED_ROLES.includes(role) ? (['closed'] as Filter[]) : [])] as Filter[]).map((f) => (
               <button
                 key={f}
                 type="button"

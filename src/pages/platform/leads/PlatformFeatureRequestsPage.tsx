@@ -26,7 +26,8 @@ export default function PlatformFeatureRequestsPage() {
   const [rows, setRows] = useState<FeatureRequest[] | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [error, setError] = useState('');
-  const [type, setType] = useState<'' | FeatureRequestType>('');
+  // Features and bugs live in their own tabs.
+  const [type, setType] = useState<FeatureRequestType>('feature');
   const [status, setStatus] = useState<'' | FeatureRequestStatus>('');
   const [creating, setCreating] = useState(false);
   const [testing, setTesting] = useState<FeatureRequest | null>(null);
@@ -41,7 +42,13 @@ export default function PlatformFeatureRequestsPage() {
   }, []);
   useEffect(() => subscribeLeads(setLeads, () => {}), []);
 
-  const filtered = useMemo(() => (rows ?? []).filter((r) => (!type || r.type === type) && (!status || r.status === status)), [rows, type, status]);
+  const filtered = useMemo(() => (rows ?? []).filter((r) => r.type === type && (!status || r.status === status)), [rows, type, status]);
+  // Still-open requests per tab, shown as a count on the tab.
+  const openCount = useMemo(() => {
+    const n: Record<FeatureRequestType, number> = { feature: 0, bug: 0 };
+    for (const r of rows ?? []) if (r.status !== 'closed') n[r.type] += 1;
+    return n;
+  }, [rows]);
 
   async function start(r: FeatureRequest) {
     setBusyId(r.id);
@@ -52,14 +59,26 @@ export default function PlatformFeatureRequestsPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader
-        title="Feature requests"
-        subtitle="Feature requests and bugs — from here, from a customer's call, or from testing. Closing hands it to Testing in the To-Do list; ticking that to-do closes the request."
+        title="Feature requests & bugs"
+        subtitle="Features and bugs have their own tabs — raised from here, from a customer's call, or from testing. Closing hands it to Testing in the To-Do list; ticking that to-do closes the request."
         actions={<button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setCreating(true)}><Plus className="h-4 w-4" /> New request</button>}
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
+      <div role="tablist" className="mb-4 flex gap-1 border-b border-[#1E3A5F]">
+        {([['feature', 'Feature requests', Lightbulb], ['bug', 'Bugs', Bug]] as const).map(([v, l, Icon]) => (
+          <button
+            key={v}
+            role="tab"
+            aria-selected={type === v}
+            onClick={() => setType(v)}
+            className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-semibold ${type === v ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+          >
+            <Icon className="h-4 w-4" /> {l}
+            <span className={`rounded-full px-1.5 py-px text-[10px] ${openCount[v] ? (v === 'bug' ? 'bg-red-500/20 text-red-300' : 'bg-sky-500/20 text-sky-300') : 'bg-slate-700/60 text-slate-400'}`}>{openCount[v]}</span>
+          </button>
+        ))}
+      </div>
       <div className="mb-4 flex flex-wrap gap-1.5">
-        {([['', 'All types'], ['feature', 'Feature'], ['bug', 'Bug']] as const).map(([v, l]) => <Chip key={l} on={type === v} onClick={() => setType(v)}>{l}</Chip>)}
-        <span className="mx-1" />
         {([['', 'All statuses'], ...FEATURE_REQUEST_STATUSES.map((s) => [s, FEATURE_STATUS_LABEL[s]])] as [typeof status, string][]).map(([v, l]) => (
           <Chip key={l} on={status === v} onClick={() => setStatus(v)}>{l}</Chip>
         ))}
@@ -107,18 +126,18 @@ export default function PlatformFeatureRequestsPage() {
               </div>
             </div>
           ))}
-          {filtered.length === 0 && <p className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-8 text-center text-sm text-slate-400">Nothing here.</p>}
+          {filtered.length === 0 && <p className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-8 text-center text-sm text-slate-400">{type === 'bug' ? 'No bugs here.' : 'No feature requests here.'}</p>}
         </div>
       )}
 
-      {creating && <NewRequestDialog leads={leads} companies={companies} onClose={() => setCreating(false)} onError={setError} />}
+      {creating && <NewRequestDialog initialType={type} leads={leads} companies={companies} onClose={() => setCreating(false)} onError={setError} />}
       {testing && <TestingDialog request={testing} onClose={() => setTesting(null)} onError={setError} />}
     </div>
   );
 }
 
-function NewRequestDialog({ leads, companies, onClose, onError }: { leads: Lead[]; companies: CompanyOption[]; onClose: () => void; onError: (m: string) => void }) {
-  const [type, setType] = useState<FeatureRequestType>('feature');
+function NewRequestDialog({ initialType, leads, companies, onClose, onError }: { initialType: FeatureRequestType; leads: Lead[]; companies: CompanyOption[]; onClose: () => void; onError: (m: string) => void }) {
+  const [type, setType] = useState<FeatureRequestType>(initialType);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [leadId, setLeadId] = useState('');
