@@ -65,6 +65,13 @@ export interface CompanyProfile {
    * approvals — treat that as approved (see companyApproval()).
    */
   approvalStatus?: 'pending' | 'approved' | 'rejected';
+  /**
+   * When true, technician / trainee / supervisor / floor_operator can read only
+   * work orders and breakdown tickets of their own department — enforced by
+   * firestore.rules (see departmentIsolationOn) and mirrored by
+   * plantConstraints(). Off by default; an admin switches it on in Settings.
+   */
+  departmentIsolation?: boolean;
   /** 'platform' when Lumora assigned the plan manually (e.g. Enterprise billed outside Stripe). */
   planSetBy?: string | null;
   /** Set when an admin asked to leave FirmiCore (requestCancellation). */

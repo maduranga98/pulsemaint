@@ -338,6 +338,64 @@ describe('QR breakdown reports go through the submitPublicBreakdown function onl
   });
 });
 
+describe('department isolation (company flag departmentIsolation)', () => {
+  const dept = (uid, role, department) => env.withSecurityRulesDisabled(async (ctx) => {
+    const db = ctx.firestore();
+    await setDoc(doc(db, 'users', uid), { uid, companyId: 'A', role, siteId: 'A', plantId: null, department });
+    await setDoc(doc(db, `companies/A/users/${uid}`), { id: uid, companyId: 'A', role, siteIds: [], status: 'active', plantId: null, department });
+  });
+  const flag = (on) => env.withSecurityRulesDisabled((ctx) =>
+    setDoc(doc(ctx.firestore(), 'companies/A'), { id: 'A', adminUserId: 'adminA', status: 'active', plan: 'enterprise', departmentIsolation: on }));
+  beforeEach(async () => {
+    await dept('supStamp', 'supervisor', 'Stamping');
+    await dept('floorWeld', 'floor_operator', 'Welding');
+    await dept('plantMgr', 'plant_manager', 'Stamping');
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      const base = { siteId: 'A', companyId: 'A', machinePlantId: null, assignedTechnicianIds: [] };
+      await setDoc(doc(db, 'workOrders/woStamp'), { ...base, status: 'OPEN', machineDepartment: 'Stamping' });
+      await setDoc(doc(db, 'workOrders/woWeld'), { ...base, status: 'OPEN', machineDepartment: 'Welding' });
+      await setDoc(doc(db, 'workOrders/woNoDept'), { ...base, status: 'OPEN', machineDepartment: '' });
+      await setDoc(doc(db, 'workOrders/woWeldMine'), { ...base, status: 'OPEN', machineDepartment: 'Welding', supervisorInChargeId: 'supStamp' });
+      await setDoc(doc(db, 'breakdown_tickets/bdStamp'), { ...base, machineId: 'mA', status: 'reported', machineDepartment: 'Stamping' });
+      await setDoc(doc(db, 'breakdown_tickets/bdWeld'), { ...base, machineId: 'mA', status: 'reported', machineDepartment: 'Welding' });
+      await setDoc(doc(db, 'breakdown_tickets/bdWeldMine'), { ...base, machineId: 'mA', status: 'reported', machineDepartment: 'Welding', reportedBy: 'floorStamp2' });
+    });
+  });
+  const woQuery = (db, d) => getDocs(query(collection(db, 'workOrders'), where('siteId', '==', 'A'), ...(d ? [where('machineDepartment', '==', d)] : [])));
+  const bdQuery = (db, d) => getDocs(query(collection(db, 'breakdown_tickets'), where('siteId', '==', 'A'), ...(d ? [where('machineDepartment', '==', d)] : [])));
+
+  it('flag off: nothing changes — a supervisor lists every department of the company', async () => {
+    await flag(false);
+    await assertSucceeds(woQuery(as('supStamp')));
+    await assertSucceeds(bdQuery(as('floorWeld')));
+  });
+  it('flag on: a supervisor / floor operator may list only their own department', async () => {
+    await flag(true);
+    await assertFails(woQuery(as('supStamp')));
+    await assertSucceeds(woQuery(as('supStamp'), 'Stamping'));
+    await assertFails(woQuery(as('supStamp'), 'Welding'));
+    await assertFails(bdQuery(as('floorWeld')));
+    await assertSucceeds(bdQuery(as('floorWeld'), 'Welding'));
+    await assertFails(bdQuery(as('floorWeld'), 'Stamping'));
+  });
+  it('flag on: single documents follow the same rule; own work stays visible, department-less records are hidden', async () => {
+    await flag(true);
+    await assertSucceeds(getDoc(doc(as('supStamp'), 'workOrders/woStamp')));
+    await assertFails(getDoc(doc(as('supStamp'), 'workOrders/woWeld')));
+    await assertFails(getDoc(doc(as('supStamp'), 'workOrders/woNoDept')));
+    await assertSucceeds(getDoc(doc(as('supStamp'), 'workOrders/woWeldMine')));
+    await assertFails(getDoc(doc(as('floorWeld'), 'breakdown_tickets/bdStamp')));
+    await assertSucceeds(getDoc(doc(as('floorWeld'), 'breakdown_tickets/bdWeld')));
+  });
+  it('flag on: other roles are not narrowed, and other companies stay closed', async () => {
+    await flag(true);
+    await assertSucceeds(woQuery(as('plantMgr')));
+    await assertSucceeds(woQuery(as('adminA')));
+    await assertFails(woQuery(as('techB')));
+  });
+});
+
 describe('breakdown tickets close only through a work order or a low-severity quick fix', () => {
   beforeEach(async () => {
     await env.withSecurityRulesDisabled(async (ctx) => {
