@@ -407,7 +407,7 @@ export default function UsersPage() {
       phone: values.phone.trim() || null,
       role: values.role,
       jobTitle: values.jobTitle.trim() || null,
-      department: values.department.trim() || null,
+      department: departmentForRole(values.role, values.department),
       employeeId: values.employeeId.trim() || null,
       shiftId: values.shiftId || null,
       address: values.address.trim() || null,
@@ -422,7 +422,7 @@ export default function UsersPage() {
     await setDoc(doc(db, `users/${userId}`), {
       role: values.role,
       plantId: values.role === 'admin' ? null : (values.plantId || currentUser?.plantId || null),
-      department: values.department.trim() || null,
+      department: departmentForRole(values.role, values.department),
       status: values.status === 'inactive' ? 'inactive' : 'active',
     }, { merge: true });
     // Labour rate: its own management-only document (pay data stays off the
@@ -450,6 +450,9 @@ export default function UsersPage() {
     if (!company?.id || !currentUser) throw new Error('No company in session');
     if (!seats.canAdd(values.role)) {
       throw new Error(seats.messageFor(values.role) ?? 'User limit reached on your current plan.');
+    }
+    if (roleHasDepartment(values.role) && !values.department.trim()) {
+      throw new Error(t('common.settings.users.invite.departmentRequired', 'Choose a department for this role.'));
     }
     const isTrainee = values.role === 'trainee';
     const trainingStart = isTrainee && values.trainingStartDate ? new Date(values.trainingStartDate) : null;
@@ -1361,7 +1364,7 @@ function InviteModal({
 
           <div className={`grid grid-cols-1 gap-4 ${roleHasDepartment(values.role) ? 'sm:grid-cols-2' : ''}`}>
             {roleHasDepartment(values.role) && (
-              <Field label={t('common.settings.users.invite.fields.department', 'Department')}>
+              <Field label={t('common.settings.users.invite.fields.department', 'Department')} required>
                 <DepartmentSelect
                   value={values.department}
                   onChange={(v) => set('department', v)}
@@ -1649,14 +1652,16 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
-            <Field label={t('common.settings.users.modal.fields.department', 'Department')}>
-              <DepartmentSelect
-                value={values.department}
-                onChange={(v) => set('department', v)}
-                plantId={values.role === 'admin' ? null : (values.plantId || null)}
-                disabled={accessLocked}
-              />
-            </Field>
+            {roleHasDepartment(values.role) && (
+              <Field label={t('common.settings.users.modal.fields.department', 'Department')}>
+                <DepartmentSelect
+                  value={values.department}
+                  onChange={(v) => set('department', v)}
+                  plantId={values.plantId || null}
+                  disabled={accessLocked}
+                />
+              </Field>
+            )}
           </div>
 
           {values.role !== 'admin' && (

@@ -27,6 +27,7 @@ const {getAuth} = require("firebase-admin/auth");
 const {FieldValue} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const {db} = require("../lib/access");
+const {departmentForRole} = require("../lib/roleDepartment");
 
 /**
  * Applies a profile's status (and role fields) to the login and mapping.
@@ -52,11 +53,17 @@ async function applyProfileAccess(companyId, uid, profile) {
   }
 
   const inactive = profile.status === "inactive";
+  // Plant-wide roles (admin, plant manager, store keeper, HR, safety officer)
+  // have no department: drop one that is still on the profile.
+  const department = departmentForRole(profile.role, profile.department);
+  if ((profile.department ?? null) !== department && profile.department) {
+    await db.doc(`companies/${companyId}/users/${uid}`).set({department: null}, {merge: true});
+  }
   const wanted = {
     status: inactive ? "inactive" : "active",
     role: profile.role ?? null,
     plantId: profile.plantId ?? null,
-    department: profile.department ?? null,
+    department,
   };
   if (mapping) {
     const changed = Object.keys(wanted).some((k) => (mapping[k] ?? null) !== wanted[k]);

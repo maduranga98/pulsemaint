@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { describe, it, expect } from 'vitest';
 import { departmentForRole, roleHasDepartment } from '../roleDepartment';
 import type { UserRole } from '@/types/auth';
@@ -24,5 +25,16 @@ describe('departmentForRole', () => {
     expect(departmentForRole('technician', '  Packing ')).toBe('Packing');
     expect(departmentForRole('supervisor', '   ')).toBeNull();
     expect(departmentForRole('trainee', undefined)).toBeNull();
+  });
+});
+
+describe('server copy (functions/src/lib/roleDepartment.js) stays equal to the client', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const server = createRequire(import.meta.url)('../../../functions/src/lib/roleDepartment.js');
+  const roles = ['admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer'] as const;
+  it.each(roles)('%s', (role) => {
+    expect(server.roleHasDepartment(role)).toBe(roleHasDepartment(role));
+    expect(server.departmentForRole(role, ' Packing ')).toBe(departmentForRole(role, ' Packing '));
+    expect(server.departmentForRole(role, '  ')).toBe(departmentForRole(role, '  '));
   });
 });
