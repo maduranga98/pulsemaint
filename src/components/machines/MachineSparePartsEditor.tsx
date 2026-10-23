@@ -160,17 +160,17 @@ export function MachineSparePartsEditor({ companyId, machineId, value, onChange 
 
       {/* New part */}
       {showNew ? (
-        <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4">
-          <p className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-            <PackagePlus className="h-4 w-4 text-blue-600" /> New inventory part
+        <div className="space-y-3 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-[#F0F4F8]">
+            <PackagePlus className="h-4 w-4 text-blue-400" /> New inventory part
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-gray-600">Part name *</label>
+              <label className="mb-1 block text-xs font-medium text-[#8BA3BF]">Part name *</label>
               <input className={input} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Bearing 6204" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Category</label>
+              <label className="mb-1 block text-xs font-medium text-[#8BA3BF]">Category</label>
               <select className={input} value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })}>
                 {VALID_CATEGORIES.map((c) => (
                   <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
@@ -178,7 +178,7 @@ export function MachineSparePartsEditor({ companyId, machineId, value, onChange 
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Unit</label>
+              <label className="mb-1 block text-xs font-medium text-[#8BA3BF]">Unit</label>
               <select className={input} value={draft.unit} onChange={(e) => setDraft({ ...draft, unit: e.target.value })}>
                 {VALID_UNITS.map((u) => (
                   <option key={u} value={u}>{u}</option>
@@ -186,15 +186,15 @@ export function MachineSparePartsEditor({ companyId, machineId, value, onChange 
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Current stock</label>
+              <label className="mb-1 block text-xs font-medium text-[#8BA3BF]">Current stock</label>
               <input type="number" min={0} className={input} value={draft.currentStock} onChange={(e) => setDraft({ ...draft, currentStock: Number(e.target.value) })} />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Minimum stock (alert level)</label>
+              <label className="mb-1 block text-xs font-medium text-[#8BA3BF]">Minimum stock (alert level)</label>
               <input type="number" min={0} className={input} value={draft.minStockLevel} onChange={(e) => setDraft({ ...draft, minStockLevel: Number(e.target.value) })} />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Unit cost</label>
+              <label className="mb-1 block text-xs font-medium text-[#8BA3BF]">Unit cost</label>
               <input type="number" min={0} className={input} value={draft.unitCost} onChange={(e) => setDraft({ ...draft, unitCost: Number(e.target.value) })} />
             </div>
           </div>

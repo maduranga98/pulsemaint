@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-do
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import CancellationReasonDialog from '../billing/CancellationReasonDialog';
+import RetentionExportBanner from './RetentionExportBanner';
 import { useAuthActions } from '../../hooks/useAuthActions';
 import type { UserRole } from '../../types/auth';
 import EndShiftButton from '../handover/EndShiftButton';
@@ -642,6 +643,7 @@ export default function AppLayout() {
         <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto scrollbar-hide">
           <TourAutoStart />
           <TrialExpiryBanner />
+          <RetentionExportBanner />
           {/* A subscription cancelled in the Stripe portal without a reason: admins must give one (can't be skipped). */}
           {role === 'admin' && company?.cancellationReasonPendingId && location.pathname !== '/app/billing' && (
             <CancellationReasonDialog kind="reason" onDone={() => {}} />

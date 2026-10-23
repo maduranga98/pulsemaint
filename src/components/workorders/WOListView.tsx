@@ -13,6 +13,7 @@ import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
+import { isBeyondViewWindow } from '../../lib/viewWindow';
 
 // The "All" pill was removed — the list simply starts unfiltered (`all`,
 // every active type combined). "Need Sign-Off" and "Approval Requests" used
@@ -40,8 +41,6 @@ const SIGNED_OFF_STATUSES: WorkOrder['status'][] = [...NEED_SIGN_OFF_STATUSES, .
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
 // everything else, organized into a column per WO type.
 const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
-// How long a signed-off WO stays on a supervisor's Signed Off tab.
-const SUPERVISOR_SIGNED_OFF_DAYS = 30;
 const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.includes(t));
 
 export function WOListView() {
@@ -130,12 +129,10 @@ export function WOListView() {
   // (Breakdowns, PM Schedules) — never shown here.
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
-  const signedOffWindowStart = Date.now() - SUPERVISOR_SIGNED_OFF_DAYS * 24 * 60 * 60 * 1000;
+  // A supervisor sees a signed-off WO for 90 days (the view window); admin and plant manager see all.
   const signedOffWOs = workOrders.filter((wo) => {
     if (!SIGNED_OFF_ONLY_STATUSES.includes(wo.status)) return false;
-    if (role !== 'supervisor') return true;
-    const at = (wo.supervisorSignOffAt ?? wo.closedAt)?.toMillis?.() ?? 0;
-    return at >= signedOffWindowStart;
+    return !isBeyondViewWindow(role, true, wo.supervisorSignOffAt ?? wo.closedAt);
   });
 
   const displayedWOs =

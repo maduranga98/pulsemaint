@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ShieldAlert, Plus, ChevronDown, ChevronRight, Send, QrCode, HardHat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { isBeyondViewWindow } from '@/lib/viewWindow';
 import type { TFunction } from 'i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
@@ -87,7 +88,12 @@ export default function SafetyCasesPage() {
   const companyId = profile?.companyId ?? '';
   const role = profile?.role ?? '';
   const isSafetyOfficer = role === 'safety_officer';
-  const { cases, loading } = useSafetyCases(companyId);
+  const { cases: allCases, loading } = useSafetyCases(companyId);
+  // Store keeper / safety officer / HR / supervisor see a closed case for 90 days only.
+  const cases = useMemo(
+    () => allCases.filter((c) => !isBeyondViewWindow(role, c.status === 'closed', c.closedAt)),
+    [allCases, role],
+  );
   const { plantId: scopedPlantId } = useDepartmentScope();
   const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();

@@ -738,3 +738,19 @@ describe('plant isolation', () => {
     await assertSucceeds(getDoc(doc(db, 'notifications/nToMe')));
   });
 });
+
+describe('retentionStatus (export-before-delete banner)', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'retentionStatus/A'), { companyId: 'A', noticeActive: true, pendingCount: 3 });
+    });
+  });
+  it('the company admin can read it, nobody can write it', async () => {
+    await assertSucceeds(getDoc(doc(as('adminA'), 'retentionStatus/A')));
+    await assertFails(setDoc(doc(as('adminA'), 'retentionStatus/A'), { noticeActive: false }));
+  });
+  it('other roles and other companies cannot read it', async () => {
+    await assertFails(getDoc(doc(as('supA'), 'retentionStatus/A')));
+    await assertFails(getDoc(doc(as('adminB'), 'retentionStatus/A')));
+  });
+});

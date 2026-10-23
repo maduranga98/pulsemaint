@@ -2410,6 +2410,13 @@ service cloud.firestore {
     // "Export all data": job documents written by the requestCompanyExport /
     // runCompanyExport functions (Admin SDK). Only the company's own admin may
     // read them (status, progress, the 24-hour download link); nobody writes.
+    // State of the one-year clean-up (written by the retention job and by a
+    // finished export): the admin's "export your data" banner reads it.
+    match /retentionStatus/{companyId} {
+      allow read: if isAdmin() && companyId == myCompanyId();
+      allow write: if false;
+    }
+
     match /exports/{exportId} {
       allow read: if isAdmin() && resource.data.companyId == myCompanyId();
       allow write: if false;
