@@ -6,6 +6,20 @@ import { startCurrencySync } from './lib/currency';
 
 startCurrencySync(i18n);
 
+// Links in stored data (attachments, notifications …) are written by other
+// users: never follow a `javascript:` / `vbscript:` one, wherever it is rendered.
+document.addEventListener(
+  'click',
+  (e) => {
+    const a = (e.target as Element | null)?.closest?.('a');
+    if (a && /^\s*(javascript|vbscript):/i.test(a.getAttribute('href') ?? '')) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  },
+  true,
+);
+
 // Register service worker for PWA offline support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

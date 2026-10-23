@@ -1,0 +1,29 @@
+# Type-check, unit tests and Cloud Functions lint on every pull request and push to main.
+# (The hosting workflows only run `vite build`, which does not type-check, and the
+# rules-tests workflow only runs the Firestore/Storage rules tests.)
+name: checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Type-check
+        run: npx tsc --noEmit -p .
+      - name: Unit tests
+        run: npx vitest run
+      - name: Functions lint
+        working-directory: functions
+        run: |
+          npm ci
+          npx eslint .

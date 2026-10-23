@@ -1,3 +1,4 @@
+import { safeInternalPath } from '@/lib/safeUrl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { collection, doc, onSnapshot, orderBy, query, updateDoc, where, arrayUnion, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -141,7 +142,7 @@ export function useMyNotifications() {
         body: `${where ? `[${where}] ` : ''}${notificationDisplayMessage(n, userProfile.role, userProfile.id)}`,
         tag: n.id,
         onClick: () => {
-          if (n.linkTo) window.location.assign(n.linkTo);
+          { const to = safeInternalPath(n.linkTo); if (to) window.location.assign(to); }
         },
       });
     }

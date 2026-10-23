@@ -1,3 +1,4 @@
+import { safeInternalPath } from '@/lib/safeUrl';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { UserRole } from '@/types/auth';
@@ -82,7 +83,7 @@ export async function createNotification(input: CreateNotificationInput): Promis
       type,
       message,
       severity,
-      linkTo,
+      linkTo: safeInternalPath(linkTo),
       timestamp: serverTimestamp(),
       read: false,
       readBy: [],

@@ -1,3 +1,4 @@
+import { safeInternalPath } from '@/lib/safeUrl';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -108,7 +109,7 @@ export default function NotificationBell() {
   function handleItemClick(n: DashboardNotification) {
     void markAsRead(n.id);
     setOpen(false);
-    if (n.linkTo) navigate(n.linkTo);
+    { const to = safeInternalPath(n.linkTo); if (to) navigate(to); }
   }
 
   return (
@@ -235,7 +236,7 @@ export default function NotificationBell() {
                         <button
                           onClick={() => {
                             setOpen(false);
-                            if (a.linkTo) navigate(a.linkTo);
+                            { const to = safeInternalPath(a.linkTo); if (to) navigate(to); }
                           }}
                           className="flex-1 min-w-0 text-left"
                         >
