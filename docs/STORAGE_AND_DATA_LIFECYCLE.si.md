@@ -53,7 +53,6 @@
 |---|---|---|
 | `reports/{companyId}/{reportId}.pdf` | `generateReport` function | **දින 30**; පසු `cleanupOldReports` (දිනපතා 03:00) ලේඛනයත් ෆයිලයත් මකයි |
 | `report_schedules/{scheduleId}/{reportId}.csv` | `generateScheduledReport` (පැයකට වරක්) | `report_history` ලේඛනය **දින 30**ට මැකෙනවා (එම CSV ෆයිල් මකන්නේ `storageUrl` ඇති විට) |
-| `triageReports/{sessionId}/report.html` | `generateTriageReportPdf` | කල් ඉකුත් වීමක් නැත (යෝජිත: දින 90) |
 | `safetyTrainingSubmissions/{company}/{invite}/attempt-N/…` | `submitContractorSafetyTraining` | නැවත submit කළ විට පරණ ෆයිල් ස්වයංක්‍රීයව මැකේ; ස්ථිර එකම අවසන් submission |
 | `companies/{c}/training/offboard-reports/…/knowledge-transfer…` | `onOffboardTrainingCompleted` | ස්ථිර |
 
