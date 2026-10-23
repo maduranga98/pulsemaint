@@ -9,9 +9,10 @@ import type { CompanyProfile } from '@/types/auth';
 
 interface ExportJob {
   id: string;
-  status: 'queued' | 'running' | 'ready' | 'failed';
-  progress?: { step?: string; collection?: string; records?: number; done?: number; total?: number };
+  status: 'queued' | 'running' | 'continue' | 'ready' | 'failed';
+  progress?: { step?: string; collection?: string; records?: number; done?: number; total?: number; part?: number; parts?: number };
   downloadUrl?: string;
+  downloads?: { name: string; url: string; sizeBytes: number }[];
   expiresAt?: Timestamp;
   sizeBytes?: number;
   counts?: { records: number; files: number; missing: number; refused: number };
@@ -48,7 +49,7 @@ export function ExportDataCard({ company }: { company: CompanyProfile }) {
     }, () => setJob(null));
   }, [company.id]);
 
-  const busy = job?.status === 'queued' || job?.status === 'running';
+  const busy = job?.status === 'queued' || job?.status === 'running' || job?.status === 'continue';
   const expired = job?.status === 'ready' && job.expiresAt ? job.expiresAt.toMillis() < Date.now() : false;
 
   async function start() {
@@ -67,7 +68,10 @@ export function ExportDataCard({ company }: { company: CompanyProfile }) {
   if (busy) {
     const p = job?.progress;
     status = p?.step === 'packing' && p.total
-      ? t('common.settings.export.packing', 'Packing files… {{done}} of {{total}}', { done: p.done ?? 0, total: p.total })
+      ? t('common.settings.export.packing', 'Packing files… {{done}} of {{total}}', { done: p.done ?? 0, total: p.total }) +
+        (p.parts && p.parts > 1 ? ` · ${t('common.settings.export.partOf', 'part {{part}} of {{parts}}', { part: p.part ?? 1, parts: p.parts })}` : '')
+      : p?.step === 'checking' && p.total
+      ? t('common.settings.export.checking', 'Checking files… {{done}} of {{total}}', { done: p.done ?? 0, total: p.total })
       : t('common.settings.export.collecting', 'Collecting records… {{count}} so far', { count: p?.records ?? 0 });
   } else if (job?.status === 'failed') {
     status = `${job.error ?? t('common.settings.export.failed', 'The last export failed.')}${job.failedStep ? ` (${job.failedStep}${job.errorDetail ? `: ${job.errorDetail}` : ''})` : ''}`;
@@ -81,7 +85,7 @@ export function ExportDataCard({ company }: { company: CompanyProfile }) {
           <div>
             <h2 className="font-semibold text-slate-900">{t('common.settings.export.title', 'Export all data')}</h2>
             <p className="text-sm text-slate-500 mt-0.5 max-w-xl">
-              {t('common.settings.export.description', 'Download one ZIP with every work order, breakdown, contractor, machine, PM schedule, safety case, inventory item, purchase order, audit and evaluation, together with their attachments. Unzip it and open index.html to browse everything offline. The download link lasts 24 hours.')}
+              {t('common.settings.export.description', 'Download a ZIP (several ZIP files when your data is large) with every work order, breakdown, contractor, machine, PM schedule, safety case, inventory item, purchase order, audit and evaluation, together with their attachments. Unzip it and open index.html to browse everything offline. The download link lasts 24 hours.')}
             </p>
             {status && <p className={`text-sm mt-2 ${job?.status === 'failed' ? 'text-red-600' : 'text-slate-600'}`}>{status}</p>}
             {job?.status === 'ready' && !expired && job.downloadUrl && (
@@ -92,11 +96,28 @@ export function ExportDataCard({ company }: { company: CompanyProfile }) {
                 {job.counts?.missing ? ` · ${job.counts.missing} unreadable (see _export-notes.txt)` : ''}
               </p>
             )}
+            {job?.status === 'ready' && !expired && (job.downloads?.length ?? 0) > 1 && (
+              <div className="mt-2 text-sm text-slate-600">
+                <p>
+                  {t('common.settings.export.manyParts', 'Large export: it is split into {{count}} ZIP files. Download all of them and unzip them into the same folder, then open index.html (it is in part 1).', { count: job.downloads!.length })}
+                </p>
+                <ul className="mt-1 space-y-1">
+                  {job.downloads!.map((d, i) => (
+                    <li key={d.name}>
+                      <a href={d.url} className="text-blue-600 hover:underline">
+                        {t('common.settings.export.part', 'Part {{n}}', { n: i + 1 })}
+                      </a>
+                      {d.sizeBytes ? ` · ${formatSize(d.sizeBytes)}` : ''}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {expired && <p className="text-sm mt-2 text-slate-500">{t('common.settings.export.expired', 'The last download link has expired — start a new export.')}</p>}
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
-          {job?.status === 'ready' && !expired && job.downloadUrl && (
+          {job?.status === 'ready' && !expired && job.downloadUrl && (job.downloads?.length ?? 0) <= 1 && (
             <a href={job.downloadUrl} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
               <Download className="w-4 h-4" /> {t('common.settings.export.download', 'Download ZIP')}
             </a>

@@ -338,7 +338,46 @@ function buildViewerEntries({company, exportedAt, sections, datasets}) {
   }];
 }
 
+/** A ZIP part stops growing at this many bytes (sum of the files in it, shared files counted per copy). */
+const PART_MAX_BYTES = 1024 * 1024 * 1024;
+/** ...or at this many files, so a part of tiny files still finishes well inside one run. */
+const PART_MAX_FILES = 2000;
+
+/**
+ * Splits the files of an export into consecutive ZIP parts so no single ZIP
+ * (or single run of the export function) has to carry everything. A file is
+ * never split; a file bigger than the limit gets a part of its own.
+ *
+ * @param {{size: number, names: string[]}[]} entries files in packing order
+ * @param {number} maxBytes size limit of one part
+ * @param {number} maxFiles file-count limit of one part
+ * @return {{start: number, end: number, bytes: number}[]} index ranges [start, end) — always at least one part
+ */
+function planParts(entries, maxBytes = PART_MAX_BYTES, maxFiles = PART_MAX_FILES) {
+  const parts = [];
+  let start = 0;
+  let bytes = 0;
+  let files = 0;
+  entries.forEach((e, i) => {
+    const weight = (e.size || 0) * Math.max(1, (e.names || []).length);
+    const count = Math.max(1, (e.names || []).length);
+    if (i > start && (bytes + weight > maxBytes || files + count > maxFiles)) {
+      parts.push({start, end: i, bytes});
+      start = i;
+      bytes = 0;
+      files = 0;
+    }
+    bytes += weight;
+    files += count;
+  });
+  parts.push({start, end: entries.length, bytes});
+  return parts;
+}
+
 module.exports = {
+  PART_MAX_BYTES,
+  PART_MAX_FILES,
+  planParts,
   SECTIONS,
   TENANT_FIELDS,
   STORAGE_COMPANY_ROOTS,
