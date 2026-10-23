@@ -9,6 +9,7 @@ import {
 import { Badge, Card, ErrorNote, Loading, PageHeader, PLAN_NAMES, btn, fmtDate, fmtDateTime, fmtMoney, input, relDays, statusTone } from './platformUi';
 import RejectCompanyDialog from './RejectCompanyDialog';
 import { ENTERPRISE_TIER_LABEL, COUNT_LIMIT_ROWS, formatLimit } from '@/lib/planCatalog';
+import { MODULE_SWITCHES } from '@/lib/companyModules';
 import { limitsForCompany, planLimitsFor, type CountLimitKey, type EnterpriseTier } from '@/lib/planLimits';
 
 const COMPANY_ROLES = ['admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer'];
@@ -200,6 +201,31 @@ export default function PlatformCompanyDetailPage() {
             </tbody>
           </table>
           <div className="mt-4"><button className={btn.ghost} disabled={busy} onClick={() => openPrompt({ kind: 'limits' })}>Edit limits</button></div>
+        </Card>
+
+        <Card title="Modules">
+          <p className="mb-3 text-xs text-slate-400">Turn off what this company doesn't need: the tab disappears from their menu and the pages stop opening. Their data is kept and comes back if you turn the module on again.</p>
+          <div className="grid grid-cols-2 gap-2">
+            {MODULE_SWITCHES.map((m) => {
+              const off = (c.disabledModules ?? []).includes(m.key);
+              return (
+                <label key={m.key} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={!off}
+                    disabled={busy}
+                    onChange={() => {
+                      const next = off
+                        ? (c.disabledModules ?? []).filter((k) => k !== m.key)
+                        : [...(c.disabledModules ?? []), m.key];
+                      void company({ action: 'setModules', disabledModules: next }, `${m.label} turned ${off ? 'on' : 'off'}`);
+                    }}
+                  />
+                  <span className={off ? 'text-slate-500 line-through' : ''}>{m.label}</span>
+                </label>
+              );
+            })}
+          </div>
         </Card>
 
         <Card title="Billing emails">

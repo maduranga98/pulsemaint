@@ -46,6 +46,8 @@ export interface UserProfile {
 
 export interface CompanyProfile {
   id: string;
+  /** Modules Lumora turned off for this company (see lib/companyModules.ts). */
+  disabledModules?: string[] | null;
   name: string;
   tradeName: string | null;
   industry: string;

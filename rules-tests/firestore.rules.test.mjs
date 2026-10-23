@@ -185,7 +185,7 @@ describe('company registration and invitations', () => {
   it('a company admin cannot edit plan, status, trial, approval or limit fields', async () => {
     const admin = as('adminA');
     for (const [k, v] of [['plan', 'factory'], ['status', 'suspended'], ['trialEndsAt', new Date(Date.now() + 999 * 86_400_000)], ['approvalStatus', 'rejected'],
-      ['limitOverrides', { machines: 99999 }], ['enterpriseTier', 'unlimited'], ['stripeSubscriptionId', 'sub_x'], ['planSetBy', 'platform']]) {
+      ['limitOverrides', { machines: 99999 }], ['disabledModules', ['training']], ['enterpriseTier', 'unlimited'], ['stripeSubscriptionId', 'sub_x'], ['planSetBy', 'platform']]) {
       await assertFails(updateDoc(doc(admin, 'companies/A'), { [k]: v }));
     }
     await assertSucceeds(updateDoc(doc(admin, 'companies/A'), { name: 'Renamed' }));

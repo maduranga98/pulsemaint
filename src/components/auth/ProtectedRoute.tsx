@@ -7,6 +7,8 @@ import { consumePostLoginRedirect, peekPostLoginRedirect } from '../../lib/scanT
 import type { UserRole } from '../../types/auth';
 import { companyApproval } from '../../lib/companyApproval';
 import { featureForPath, isTrialExpired } from '../../lib/planLimits';
+import { disabledModuleForPath } from '../../lib/companyModules';
+import { ModuleOff } from './ModuleOff';
 import { PlanFeatureGate } from '../settings/PlanFeatureGate';
 
 export const SUBSCRIPTION_ENDED_PATH = '/app/subscription-ended';
@@ -30,6 +32,7 @@ export default function ProtectedRoute({
   const userRole = useAuthStore((state) => state.userProfile?.role);
   // Suspended, or a free trial that has run out (the scheduled expireTrials
   // function suspends it server-side; checking here locks it immediately).
+  const company = useAuthStore((state) => state.company);
   const companySuspended = useAuthStore(
     (state) => state.company?.status === 'suspended' || isTrialExpired(state.company),
   );
@@ -109,6 +112,10 @@ export default function ProtectedRoute({
       return <Navigate to="/app/unauthorized" replace />;
     }
   }
+
+  // A module Lumora switched off for this company: the page doesn't open.
+  const offModule = disabledModuleForPath(company, location.pathname);
+  if (offModule) return <ModuleOff label={offModule.label} />;
 
   // Plan-gated modules (contractors, shift handover, training, safety, MOE):
   // show the upgrade prompt when the company's plan doesn't include them.

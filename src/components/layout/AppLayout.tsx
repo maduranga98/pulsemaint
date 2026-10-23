@@ -14,6 +14,7 @@ import { useSupportUnreadCount } from '../../hooks/useSupportUnreadCount';
 import { useTour } from '../../features/tour/TourProvider';
 import { companyApproval } from '../../lib/companyApproval';
 import { isTrialExpired } from '../../lib/planLimits';
+import { disabledModuleForPath } from '../../lib/companyModules';
 
 interface NavItem {
   labelKey: string;
@@ -437,9 +438,9 @@ export default function AppLayout() {
   const visibleGroups = useMemo(() => {
     if (!role) return [];
     return NAV_GROUPS
-      .map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(role)) }))
+      .map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(role) && !disabledModuleForPath(company, i.to)) }))
       .filter((g) => g.items.length > 0);
-  }, [role]);
+  }, [role, company]);
 
   // Only the category containing the current page starts expanded — every
   // other one stays collapsed so the sidebar doesn't dump every category on

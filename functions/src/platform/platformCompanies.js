@@ -13,6 +13,7 @@ const DAY = 86_400_000;
 const COMPANY_ROLES = ["admin", "plant_manager", "supervisor", "technician", "store_keeper", "hr_officer", "trainee", "floor_operator", "safety_officer"];
 
 const ENTERPRISE_TIERS = ["enterprise1", "enterprise2", "enterprise3", "unlimited"];
+const MODULE_KEYS = ["purchaseOrders", "inventory", "pm", "contractors", "shift", "training", "safety", "analytics", "reports", "audit", "kaizen", "evaluations", "triage"];
 const LIMIT_KEYS = ["fullUsers", "lightUsers", "plants", "machines", "inventoryItems", "pmSchedules", "workOrdersPerMonth", "breakdownsPerMonth", "contractors", "trainingModules", "aiCreditsPerMonth", "analyticsHistoryMonths"];
 
 async function adminContact(company) {
@@ -43,6 +44,7 @@ function companySummary(id, c) {
     planSetBy: c.planSetBy ?? null,
     enterpriseTier: c.enterpriseTier ?? null,
     limitOverrides: c.limitOverrides ?? null,
+    disabledModules: Array.isArray(c.disabledModules) ? c.disabledModules : [],
     approvalStatus: approvalStatusOf(c),
     rejectionReason: c.rejectionReason ?? null,
     approvedAt: toMillis(c.approvedAt),
@@ -345,6 +347,18 @@ exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtp
           else throw new HttpsError("invalid-argument", `${key} must be a whole number or unlimited`);
         }
         await ref.update({ limitOverrides: Object.keys(clean).length ? clean : FieldValue.delete(), ...stamp });
+        break;
+      }
+      case "setModules": {
+        // Modules Lumora turned off for this company: their tabs disappear and
+        // their pages refuse to open. Core modules can't be switched off.
+        const raw = request.data.disabledModules;
+        if (!Array.isArray(raw)) throw new HttpsError("invalid-argument", "disabledModules must be a list");
+        const clean = Array.from(new Set(raw));
+        for (const key of clean) {
+          if (!MODULE_KEYS.includes(key)) throw new HttpsError("invalid-argument", `Unknown module: ${key}`);
+        }
+        await ref.update({disabledModules: clean.length ? clean : FieldValue.delete(), ...stamp});
         break;
       }
       case "cancelSubscription":
