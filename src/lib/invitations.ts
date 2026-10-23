@@ -23,7 +23,7 @@ import { auth, db, functions } from './firebase';
 import { useAuthStore } from '../store/authStore';
 import type { Invitation, UserProfile, UserRole } from '../types/auth';
 
-const INVITE_EXPIRY_DAYS = 7;
+const INVITE_EXPIRY_DAYS = 3;
 
 export async function createInvitation(data: {
   companyId: string;

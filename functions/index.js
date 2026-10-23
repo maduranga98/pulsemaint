@@ -279,9 +279,11 @@ exports.backfillMoeSnapshots = backfillMoeSnapshots;
 // ---------------------------------------------------------------------------
 
 const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail");
-const { expireInvitations } = require("./src/invitations/expireInvitations");
+const { expireInvitations, deleteOldInvitations } = require("./src/invitations/expireInvitations");
 
 exports.expireInvitations = expireInvitations;
+exports.deleteOldInvitations = deleteOldInvitations;
+exports.clearExpiredRecords = require("./src/retention/retentionCleanup").clearExpiredRecords;
 exports.sendInvitationEmail = sendInvitationEmail;
 
 // ---------------------------------------------------------------------------
