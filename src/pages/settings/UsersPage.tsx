@@ -27,8 +27,10 @@ import {
   XCircle,
   RefreshCw,
   Link2,
+  Trash2,
 } from 'lucide-react';
-import { db } from '../../lib/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../hooks/useToast';
 import { useShiftConfig } from '../../hooks/useShiftConfig';
@@ -269,6 +271,22 @@ export default function UsersPage() {
     canEditUsers && !(currentUser?.role === 'hr_officer' && target.role === 'admin');
   // Supervisor gets a read-only roster: details only, no add/invite/import
   // and no per-row actions (SUP-016).
+  // Only the company admin removes a login and its data (never themselves).
+  const canDeleteRow = (target: UserProfile) => currentUser?.role === 'admin' && target.id !== currentUser.id;
+  const handleDeleteUser = async (target: UserProfile) => {
+    const ok = window.confirm(t(
+      'common.settings.users.deleteConfirm',
+      'Delete {{name}}? Their login and profile are removed permanently and they can no longer sign in. Work records keep their name for history.',
+      { name: target.fullName },
+    ));
+    if (!ok) return;
+    try {
+      await httpsCallable(functions, 'deleteCompanyUser')({ uid: target.id });
+      toast.success(t('common.settings.users.deletedToast', 'User deleted'));
+    } catch (err) {
+      toast.error((err as Error).message || t('common.settings.users.deleteFailedToast', 'Failed to delete user'));
+    }
+  };
   const canManageUsers = currentUser?.role === 'admin' || currentUser?.role === 'plant_manager' || currentUser?.role === 'hr_officer';
   const toast = useToast();
   const seats = useSeatUsage();
@@ -823,6 +841,16 @@ export default function UsersPage() {
                                     <Pencil className="w-4 h-4" />
                                   </button>
                                 )}
+                                {canDeleteRow(u) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteUser(u)}
+                                    title={t('common.settings.users.table.delete', 'Delete')}
+                                    className="p-1.5 rounded-md text-slate-500 hover:bg-red-50 hover:text-red-600"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           )}
@@ -897,6 +925,15 @@ export default function UsersPage() {
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"
                             >
                               <Pencil className="w-3.5 h-3.5" /> {t('common.settings.users.table.edit', 'Edit')}
+                            </button>
+                          )}
+                          {canDeleteRow(u) && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteUser(u)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" /> {t('common.settings.users.table.delete', 'Delete')}
                             </button>
                           )}
                         </div>

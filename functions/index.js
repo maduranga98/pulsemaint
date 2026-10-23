@@ -141,6 +141,7 @@ exports.submitPublicBreakdown = require("./src/breakdowns/publicReport").submitP
 
 // Admin "Export all data" — ZIP of the company's records + attachments with an offline viewer.
 Object.assign(exports, require("./src/exports/companyExport"));
+Object.assign(exports, require("./src/auth/deleteUser"));
 
 // Company-wide plan-limit counts (plant-scoped roles can't count other plants' records).
 const {getPlanUsage} = require("./src/billing/planUsage");
