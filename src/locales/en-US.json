@@ -9399,7 +9399,7 @@
           "success": {
             "title": "Invitation Created!",
             "message": "An invitation has been created for <strong>{{email}}</strong> as <strong>{{role}}</strong>.",
-            "shareHint": "Share the link below with the team member. The invitation expires in 7 days.",
+            "shareHint": "Share the link below with the team member. The invitation expires in 3 days.",
             "inviteAnother": "Invite Another",
             "done": "Done",
             "copy": "Copy",

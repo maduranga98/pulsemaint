@@ -102,7 +102,7 @@ ${plant?.contactPerson?.name ? `
 
 <p style="margin:24px 0 0;color:#888;font-size:12px;text-align:center;line-height:1.5;">
   You can sign up with <strong>email &amp; password</strong> or <strong>Google</strong>.
-  <br>This invitation expires in 7 days.
+  <br>This invitation expires in 3 days.
 </p>`;
 
     const sent = await sendEmail({

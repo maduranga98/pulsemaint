@@ -40,3 +40,38 @@ exports.expireInvitations = onSchedule({schedule: "0 3 * * *", timeZone: "Asia/C
     logger.error("expireInvitations failed", err);
   }
 });
+
+/**
+ * Team-member invitations are deleted for good once their 3 days are up —
+ * whatever happened to them (accepted, revoked, expired or never opened) —
+ * together with their secret link. Older invitations (7-day) go when theirs
+ * runs out. Uses the existing status + expiresAt collection-group index.
+ */
+exports.deleteOldInvitations = onSchedule({schedule: "30 3 * * *", timeZone: "Asia/Colombo"}, async () => {
+  const now = Timestamp.now();
+  let deleted = 0;
+  try {
+    for (const status of ["pending", "expired", "accepted", "revoked"]) {
+      for (let i = 0; i < MAX_BATCHES; i++) {
+        const snap = await db.collectionGroup("invitations")
+            .where("status", "==", status)
+            .where("expiresAt", "<", now)
+            .limit(BATCH_SIZE)
+            .get();
+        const docs = snap.docs.filter((d) => d.ref.path.startsWith("companies/"));
+        if (docs.length === 0) break;
+        const batch = db.batch();
+        docs.forEach((d) => {
+          batch.delete(d.ref);
+          const token = d.get("token");
+          if (token) batch.delete(db.collection("inviteTokens").doc(String(token)));
+        });
+        await batch.commit();
+        deleted += docs.length;
+      }
+    }
+    logger.info(`deleteOldInvitations: ${deleted} invitation(s) deleted`);
+  } catch (err) {
+    logger.error("deleteOldInvitations failed", err);
+  }
+});

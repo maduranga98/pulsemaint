@@ -1295,7 +1295,7 @@ function InviteModal({
               />
             </p>
             <p className="text-xs text-slate-500">
-              {t('common.settings.users.invite.success.shareHint', 'Share the link below with the team member. The invitation expires in 7 days.')}
+              {t('common.settings.users.invite.success.shareHint', 'Share the link below with the team member. The invitation expires in 3 days.')}
             </p>
             <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-3">
               <input
