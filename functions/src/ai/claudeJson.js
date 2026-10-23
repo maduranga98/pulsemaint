@@ -5,6 +5,7 @@ const logger = require("firebase-functions/logger");
 const { Anthropic } = require("@anthropic-ai/sdk");
 const { consumeAiQuota, refundAiCredits } = require("./aiUsageLimit");
 const { companyHasFeature, companyAiCredits } = require("../lib/planFeatures");
+const { requireOwnCompany } = require("../lib/access");
 
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
@@ -24,15 +25,20 @@ const CLOSED_WO_STATUSES = new Set(["SIGNED_OFF", "CLOSED"]);
 /**
  * Past signed-off repairs on this machine and their root causes — read with
  * admin rights here because technicians can't query other people's WOs.
- * Only for a machine in the caller's own company.
+ * Strictly company-scoped: the machine must belong to the caller's own
+ * company and only that company's work orders are read, so nothing from
+ * another company can ever reach a prompt.
  */
-async function machineHistoryContext(machineId, profile) {
+async function machineHistoryContext(machineId, companyId) {
+  if (!companyId) return "";
   const machine = await db.collection("machines").doc(machineId).get();
   if (!machine.exists) return "";
-  const siteId = machine.data().siteId;
-  const allowed = [profile.companyId, profile.siteId, ...(profile.siteIds || [])].filter(Boolean);
-  if (!allowed.includes(siteId)) return "";
-  const snap = await db.collection("workOrders").where("machineId", "==", machineId).get();
+  const m = machine.data();
+  if ((m.siteId || m.companyId) !== companyId) return "";
+  const snap = await db.collection("workOrders")
+      .where("machineId", "==", machineId)
+      .where("siteId", "==", companyId)
+      .get();
   const closed = snap.docs
       .map((d) => d.data())
       .filter((w) => CLOSED_WO_STATUSES.has(w.status))
@@ -92,25 +98,25 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 300 },
     throw new HttpsError("invalid-argument", "machineId is invalid");
   }
 
-  const userSnap = await db.collection("users").doc(request.auth.uid).get();
-  if (!userSnap.exists) throw new HttpsError("permission-denied", "No app profile for this user");
-  if (userSnap.get("status") === "inactive") throw new HttpsError("permission-denied", "Your account has been deactivated");
+  // Signed-in, non-anonymous, active member of a company (rejects the
+  // anonymous QR-page sessions and anyone without an app profile).
+  const profile = await requireOwnCompany(request);
 
   // AI suggestions and translation are on every plan, capped by the plan's
   // monthly AI credits (a running trial follows Starter's credits).
-  if (!(await companyHasFeature(userSnap.get("companyId"), "aiAssist"))) {
+  if (!(await companyHasFeature(profile.companyId, "aiAssist"))) {
     throw new HttpsError("permission-denied", "AI suggestions are not included in your plan. Upgrade to use them.");
   }
 
   // Per-user (hourly) and per-company (daily) caps — see aiUsageLimit.js.
-  const companyId = userSnap.get("companyId");
+  const companyId = profile.companyId;
   // Charged up front; refunded below if the provider call fails.
   const creditCost = webSearch ? CREDIT_COST.webResearch : CREDIT_COST.standard;
   await consumeAiQuota(db, {uid: request.auth.uid, companyId}, new Date(), await companyAiCredits(companyId), creditCost);
 
   let fullPrompt = prompt;
   if (machineId) {
-    const history = await machineHistoryContext(machineId, userSnap.data()).catch((err) => {
+    const history = await machineHistoryContext(machineId, companyId).catch((err) => {
       logger.warn("machineHistoryContext failed", { machineId, err: String(err) });
       return "";
     });
