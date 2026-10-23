@@ -51,13 +51,8 @@ async function sendNotification(db, input) {
   if (!input.companyId || !input.message) return false;
   const doc = {...buildNotificationDoc(input), timestamp: FieldValue.serverTimestamp()};
   try {
-    const col = db.collection("notifications");
-    if (input.dedupeKey) {
-      const id = crypto.createHash("sha1").update(`${input.companyId}|${input.dedupeKey}`).digest("hex");
-      await col.doc(id).create(doc);
-    } else {
-      await col.add(doc);
-    }
+    if (input.dedupeKey) return await writeOnce(db, input.companyId, input.dedupeKey, doc);
+    await db.collection("notifications").add(doc);
     return true;
   } catch (err) {
     // ALREADY_EXISTS (6) means the dedupe key was already used — expected.
@@ -66,4 +61,33 @@ async function sendNotification(db, input) {
   }
 }
 
-module.exports = {buildNotificationDoc, sendNotification};
+/**
+ * Writes a notification document exactly once per key, for good. A marker in
+ * `notificationDedupe` outlives the notification itself (read notifications are
+ * deleted), so a schedule that runs again later never re-posts an alert that
+ * was already sent and read. Markers are swept after DEDUPE_RETENTION_DAYS.
+ *
+ * @param {FirebaseFirestore.Firestore} db the "default" database
+ * @param {string} companyId owning company
+ * @param {string} key what this alert is about (e.g. "training:<id>:overdue")
+ * @param {object} doc the full notification document (with timestamp)
+ * @return {Promise<boolean>} true when written now, false when already sent
+ */
+async function writeOnce(db, companyId, key, doc) {
+  const id = crypto.createHash("sha1").update(`${companyId}|${key}`).digest("hex");
+  const batch = db.batch();
+  batch.create(db.collection("notificationDedupe").doc(id), {companyId, key, createdAt: FieldValue.serverTimestamp()});
+  batch.create(db.collection("notifications").doc(id), doc);
+  try {
+    await batch.commit();
+    return true;
+  } catch (err) {
+    if (err && err.code === 6) return false;
+    throw err;
+  }
+}
+
+/** How long a "sent once" marker is kept (longer than any alert can repeat). */
+const DEDUPE_RETENTION_DAYS = 120;
+
+module.exports = {buildNotificationDoc, sendNotification, writeOnce, DEDUPE_RETENTION_DAYS};
