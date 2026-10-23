@@ -205,24 +205,34 @@ export default function PlatformCompanyDetailPage() {
 
         <Card title="Modules">
           <p className="mb-3 text-xs text-slate-400">Turn off what this company doesn't need: the tab disappears from their menu and the pages stop opening. Their data is kept and comes back if you turn the module on again.</p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="divide-y divide-[#1E3A5F]/60">
             {MODULE_SWITCHES.map((m) => {
               const off = (c.disabledModules ?? []).includes(m.key);
               return (
-                <label key={m.key} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={!off}
+                <div key={m.key} className="flex items-center justify-between gap-3 py-2">
+                  <span className={`text-sm ${off ? 'text-slate-500' : 'text-slate-200'}`}>{m.label}</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={!off}
+                    aria-label={`${m.label} ${off ? 'off' : 'on'}`}
                     disabled={busy}
-                    onChange={() => {
+                    onClick={() => {
                       const next = off
                         ? (c.disabledModules ?? []).filter((k) => k !== m.key)
                         : [...(c.disabledModules ?? []), m.key];
                       void company({ action: 'setModules', disabledModules: next }, `${m.label} turned ${off ? 'on' : 'off'}`);
                     }}
-                  />
-                  <span className={off ? 'text-slate-500 line-through' : ''}>{m.label}</span>
-                </label>
+                    className={`inline-flex w-[72px] shrink-0 items-center justify-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50 ${
+                      off
+                        ? 'bg-slate-700/60 text-slate-300 hover:bg-slate-700'
+                        : 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/40 hover:bg-emerald-500/30'
+                    }`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${off ? 'bg-slate-400' : 'bg-emerald-400'}`} />
+                    {off ? 'OFF' : 'ON'}
+                  </button>
+                </div>
               );
             })}
           </div>

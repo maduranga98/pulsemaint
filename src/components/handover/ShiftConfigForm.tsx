@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { usePlants } from '@/hooks/usePlants';
+import { usePlantsInUse } from '@/hooks/usePlantsInUse';
 import { ensureDepartments } from '@/services/departments.service';
 import { useCompanyUsers, type CompanyUserOption } from '@/hooks/useCompanyUsers';
 import { resolveShiftAssignBy } from '@/utils/handover.utils';
@@ -86,7 +87,8 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const { activePlants } = usePlants(companyId ?? '');
   const [pickedPlantId, setPickedPlantId] = useState('');
   useEffect(() => setPickedPlantId(''), [initial?.id]);
-  const showPlantPicker = !initial?.plantId && !scopedPlantId;
+  const plantsInUse = usePlantsInUse();
+  const showPlantPicker = !initial?.plantId && !scopedPlantId && plantsInUse;
   const shiftPlantId: string | null = initial?.plantId ?? scopedPlantId ?? (pickedPlantId || null);
   const { users: companyUsers, loading: usersLoading } = useCompanyUsers(companyId);
   const users = useMemo(

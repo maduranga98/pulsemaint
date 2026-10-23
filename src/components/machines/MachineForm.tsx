@@ -14,6 +14,7 @@ import { MachineHealthScore } from './MachineHealthScore';
 import { useDepartments } from '../../hooks/useDepartments';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { usePlants } from '../../hooks/usePlants';
+import { usePlantsInUse } from '../../hooks/usePlantsInUse';
 import { MachineSparePartsEditor } from './MachineSparePartsEditor';
 import type { SparePartEntry } from '../../lib/machineSpareParts';
 
@@ -87,7 +88,8 @@ export function MachineForm({
 
   const basePlantId: string | null =
     mode === 'create' ? scopedPlantId : ((initialData as any)?.plantId ?? scopedPlantId);
-  const showPlantPicker = isAdmin && !basePlantId;
+  const plantsInUse = usePlantsInUse();
+  const showPlantPicker = isAdmin && !basePlantId && plantsInUse;
 
   const schema = mode === 'create' ? createMachineSchema : updateMachineSchema;
   const defaultValues =
