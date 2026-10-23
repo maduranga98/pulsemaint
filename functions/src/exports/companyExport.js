@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const logger = require("firebase-functions/logger");
 const {requireOwnCompany} = require("../lib/access");
 const {gatherCompanyData, buildTextEntries} = require("./gather");
+const {markCompanyExported} = require("../retention/retentionStatus");
 
 const db = getFirestore("default");
 
@@ -172,6 +173,9 @@ exports.runCompanyExport = onDocumentCreated(
           counts: {records: gathered.counts.records, files: gathered.counts.files - missing.length, missing: missing.length, refused: gathered.refused.length},
           finishedAt: FieldValue.serverTimestamp(),
         });
+        // A finished export covers everything that was finished when it started:
+        // the one-year clean-up may now clear those records and the banner goes away.
+        await markCompanyExported(db, companyId, exportId, millis(job.createdAt) || Date.now());
         logger.info(`Export ${exportId} for ${companyId} ready`, {records: gathered.counts.records, files: gathered.counts.files});
       } catch (err) {
         logger.error(`Export ${exportId} for ${companyId} failed at "${step}"`, err);

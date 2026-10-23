@@ -40,7 +40,7 @@ const TENANT_COLLECTIONS = [
   "trainingContentLibrary", "trainingModules", "trainingPrograms", "training_records", "triageFlows", "triageSessions",
   "triageTemplates", "triage_assessment_results", "triage_assessments", "triage_categories", "triage_contacts",
   "triage_content_items", "triage_sessions", "weekendSummaries", "workOrders", "work_permit_categories", "work_permits",
-  "users", "woCounters", "exports",
+  "users", "woCounters", "exports", "retentionStatus",
 ];
 // Collections whose documents live under a company- (or plant-) keyed path
 // — `<collection>/<companyId>/<sub>/…` — with no company field on the parent

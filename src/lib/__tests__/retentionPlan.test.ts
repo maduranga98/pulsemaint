@@ -34,3 +34,35 @@ describe('retention plan', () => {
     }
   });
 });
+
+describe('retention is gated on an export', () => {
+  const { classify, ownedFilePaths } = require('../../../functions/src/retention/retentionPlan.js');
+  const wo = rule('workOrders', 'closedAt');
+  const closed = (daysAgo: number) => ({ status: 'CLOSED', closedAt: ts(daysAgo), companyId: 'A' });
+
+  it('keeps expired records until an export has completed', () => {
+    expect(classify(wo, closed(400), NOW, null)).toBe('blocked');
+  });
+  it('clears them once an export that started after they finished exists', () => {
+    expect(classify(wo, closed(400), NOW, NOW - 10 * DAY)).toBe('delete');
+  });
+  it('still waits for records that finished after the last export', () => {
+    // closed 366 days ago: an export from 380 days ago predates it, one from 360 days ago covers it
+    expect(classify(wo, closed(366), NOW, NOW - 380 * DAY)).toBe('blocked');
+    expect(classify(wo, closed(366), NOW, NOW - 360 * DAY)).toBe('delete');
+  });
+  it('never touches records inside the year or open work', () => {
+    expect(classify(wo, closed(100), NOW, null)).toBe('keep');
+    expect(classify(wo, { status: 'IN_PROGRESS', closedAt: ts(900), companyId: 'A' }, NOW, null)).toBe('keep');
+  });
+  it('clears import-session clutter without waiting (it is not exported)', () => {
+    const r = rule('inventoryImportSessions', 'createdAt');
+    expect(classify(r, { createdAt: ts(500), companyId: 'A' }, NOW, null)).toBe('delete');
+  });
+  it('deletes only the files that sit in the record\'s own folder', () => {
+    const own = 'breakdowns/A/bd1/media/a.png';
+    const shared = 'breakdowns/A/other/media/b.png';
+    const data = { companyId: 'A', photos: [`https://firebasestorage.googleapis.com/v0/b/bk/o/${encodeURIComponent(own)}?alt=media`, `gs://bk/${shared}`] };
+    expect(ownedFilePaths('bd1', data, 'bk')).toEqual([own]);
+  });
+});
