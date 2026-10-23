@@ -6,7 +6,6 @@ import { Building2, Users, Factory, ChevronRight, Pencil } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import type { UserRole } from '../../types/auth';
 import { CompanyProfileEditModal } from '../../components/settings/CompanyProfileEditModal';
-import { DepartmentIsolationCard } from '../../components/settings/DepartmentIsolationCard';
 import { ExportDataCard } from '../../components/settings/ExportDataCard';
 
 interface Tile {
@@ -141,7 +140,6 @@ export default function SettingsPage() {
           <CompanyProfileEditModal company={company} onClose={() => setEditOpen(false)} />
         )}
 
-        {role === 'admin' && company && <DepartmentIsolationCard company={company} />}
         {role === 'admin' && company && <ExportDataCard company={company} />}
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

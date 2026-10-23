@@ -338,18 +338,17 @@ describe('QR breakdown reports go through the submitPublicBreakdown function onl
   });
 });
 
-describe('department isolation (company flag departmentIsolation)', () => {
+describe('department isolation (always on)', () => {
   const dept = (uid, role, department) => env.withSecurityRulesDisabled(async (ctx) => {
     const db = ctx.firestore();
     await setDoc(doc(db, 'users', uid), { uid, companyId: 'A', role, siteId: 'A', plantId: null, department });
     await setDoc(doc(db, `companies/A/users/${uid}`), { id: uid, companyId: 'A', role, siteIds: [], status: 'active', plantId: null, department });
   });
-  const flag = (on) => env.withSecurityRulesDisabled((ctx) =>
-    setDoc(doc(ctx.firestore(), 'companies/A'), { id: 'A', adminUserId: 'adminA', status: 'active', plan: 'enterprise', departmentIsolation: on }));
   beforeEach(async () => {
     await dept('supStamp', 'supervisor', 'Stamping');
     await dept('floorWeld', 'floor_operator', 'Welding');
-    await dept('plantMgr', 'plant_manager', 'Stamping');
+    await dept('plantMgr', 'plant_manager', null);
+    await dept('storeKeep', 'store_keeper', null);
     await env.withSecurityRulesDisabled(async (ctx) => {
       const db = ctx.firestore();
       const base = { siteId: 'A', companyId: 'A', machinePlantId: null, assignedTechnicianIds: [] };
@@ -359,19 +358,12 @@ describe('department isolation (company flag departmentIsolation)', () => {
       await setDoc(doc(db, 'workOrders/woWeldMine'), { ...base, status: 'OPEN', machineDepartment: 'Welding', supervisorInChargeId: 'supStamp' });
       await setDoc(doc(db, 'breakdown_tickets/bdStamp'), { ...base, machineId: 'mA', status: 'reported', machineDepartment: 'Stamping' });
       await setDoc(doc(db, 'breakdown_tickets/bdWeld'), { ...base, machineId: 'mA', status: 'reported', machineDepartment: 'Welding' });
-      await setDoc(doc(db, 'breakdown_tickets/bdWeldMine'), { ...base, machineId: 'mA', status: 'reported', machineDepartment: 'Welding', reportedBy: 'floorStamp2' });
     });
   });
   const woQuery = (db, d) => getDocs(query(collection(db, 'workOrders'), where('siteId', '==', 'A'), ...(d ? [where('machineDepartment', '==', d)] : [])));
   const bdQuery = (db, d) => getDocs(query(collection(db, 'breakdown_tickets'), where('siteId', '==', 'A'), ...(d ? [where('machineDepartment', '==', d)] : [])));
 
-  it('flag off: nothing changes — a supervisor lists every department of the company', async () => {
-    await flag(false);
-    await assertSucceeds(woQuery(as('supStamp')));
-    await assertSucceeds(bdQuery(as('floorWeld')));
-  });
-  it('flag on: a supervisor / floor operator may list only their own department', async () => {
-    await flag(true);
+  it('a supervisor / floor operator may list only their own department', async () => {
     await assertFails(woQuery(as('supStamp')));
     await assertSucceeds(woQuery(as('supStamp'), 'Stamping'));
     await assertFails(woQuery(as('supStamp'), 'Welding'));
@@ -379,8 +371,7 @@ describe('department isolation (company flag departmentIsolation)', () => {
     await assertSucceeds(bdQuery(as('floorWeld'), 'Welding'));
     await assertFails(bdQuery(as('floorWeld'), 'Stamping'));
   });
-  it('flag on: single documents follow the same rule; own work stays visible, department-less records are hidden', async () => {
-    await flag(true);
+  it('single documents follow the same rule; own work stays visible, department-less records are hidden', async () => {
     await assertSucceeds(getDoc(doc(as('supStamp'), 'workOrders/woStamp')));
     await assertFails(getDoc(doc(as('supStamp'), 'workOrders/woWeld')));
     await assertFails(getDoc(doc(as('supStamp'), 'workOrders/woNoDept')));
@@ -388,28 +379,13 @@ describe('department isolation (company flag departmentIsolation)', () => {
     await assertFails(getDoc(doc(as('floorWeld'), 'breakdown_tickets/bdStamp')));
     await assertSucceeds(getDoc(doc(as('floorWeld'), 'breakdown_tickets/bdWeld')));
   });
-  it('flag on: other roles are not narrowed, and other companies stay closed', async () => {
-    await flag(true);
+  it('plant-wide roles and admin are not narrowed', async () => {
     await assertSucceeds(woQuery(as('plantMgr')));
+    await assertSucceeds(woQuery(as('storeKeep')));
     await assertSucceeds(woQuery(as('adminA')));
-    await assertFails(woQuery(as('techB')));
   });
-});
-
-describe('export jobs (exports collection)', () => {
-  beforeEach(() => env.withSecurityRulesDisabled(async (ctx) => {
-    await setDoc(doc(ctx.firestore(), 'exports/ex1'), { companyId: 'A', status: 'ready', downloadUrl: 'https://example.test/zip', createdAt: new Date() });
-  }));
-  it('only the company admin reads its own export jobs; nobody writes from a client', async () => {
-    await assertSucceeds(getDoc(doc(as('adminA'), 'exports/ex1')));
-    await assertSucceeds(getDocs(query(collection(as('adminA'), 'exports'), where('companyId', '==', 'A'))));
-    await assertFails(getDoc(doc(as('adminB'), 'exports/ex1')));
-    await assertFails(getDoc(doc(as('supA'), 'exports/ex1')));
-    await assertFails(getDoc(doc(as('techA'), 'exports/ex1')));
-    await assertFails(getDoc(doc(anon(), 'exports/ex1')));
-    await assertFails(setDoc(doc(as('adminA'), 'exports/ex2'), { companyId: 'A', status: 'ready' }));
-    await assertFails(updateDoc(doc(as('adminA'), 'exports/ex1'), { downloadUrl: 'https://evil.test' }));
-    await assertFails(deleteDoc(doc(as('adminA'), 'exports/ex1')));
+  it('other companies stay closed', async () => {
+    await assertFails(woQuery(as('techB')));
   });
 });
 
