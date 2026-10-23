@@ -395,13 +395,14 @@ export function CreateWODrawer({
   const priority = form.watch('priority');
   const isContractorWO = woType === 'CONTRACTOR';
 
-  // People and contractors offered for this work order belong to its plant
-  // and department: the selected machine's (falling back to the creator's
-  // own scope before a machine is picked). A department-scoped supervisor is
-  // always held to their own department.
+  // People and contractors offered for this work order belong to its plant:
+  // the selected machine's (falling back to the creator's own scope before a
+  // machine is picked). A plant manager / admin is offered EVERY user of that
+  // plant — whatever their department — while a department-scoped creator
+  // (supervisor …) is held to their own department.
   const watchField = form.watch as unknown as (name: string) => unknown;
   const woPlantId = ((watchField('machinePlantId') as string | null | undefined) || scopedPlantId) ?? null;
-  const woDepartment = (scopedDepartment || (watchField('machineDepartment') as string | undefined)) ?? null;
+  const woDepartment = scopedDepartment ?? null;
   const inWoScope = (u: UserOption) =>
     (!woPlantId || u.plantId === woPlantId) && (!woDepartment || sameDepartment(u.department, woDepartment));
   const supervisors = supervisorPool.filter(inWoScope);

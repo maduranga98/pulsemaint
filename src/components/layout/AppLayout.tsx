@@ -648,7 +648,8 @@ export default function AppLayout() {
           )}
           <div className="px-4 sm:px-6 lg:px-8 py-5 pb-24 sm:pb-5 max-w-[1400px] mx-auto w-full">
             <ErrorBoundary key={location.pathname}>
-              <Outlet />
+              {/* Pages build their Firestore queries from the signed-in profile's plant and department (plantConstraints); remount them when those arrive or change so a new user's profile completing late never leaves a page on a stale, rejected query. */}
+              <Outlet key={`${userProfile?.role ?? ''}|${userProfile?.plantId ?? ''}|${userProfile?.department ?? ''}`} />
             </ErrorBoundary>
           </div>
         </main>
