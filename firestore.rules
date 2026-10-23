@@ -2398,6 +2398,14 @@ service cloud.firestore {
         && request.resource.data.date is number
         && request.resource.data.description is string && request.resource.data.description.size() <= 300;
     }
+    // "Export all data": job documents written by the requestCompanyExport /
+    // runCompanyExport functions (Admin SDK). Only the company's own admin may
+    // read them (status, progress, the 24-hour download link); nobody writes.
+    match /exports/{exportId} {
+      allow read: if isAdmin() && resource.data.companyId == myCompanyId();
+      allow write: if false;
+    }
+
     // Payment-received (and other) alerts for superadmins, written by the
     // Stripe webhook; superadmins only mark them read.
     match /platformNotifications/{id} {
