@@ -1088,7 +1088,7 @@ service cloud.firestore {
         && request.resource.data.plan == 'starter'
         // The free trial is 7 days; a client can't register itself a longer one.
         && request.resource.data.trialEndsAt <= request.time + duration.value(8, 'd')
-        && !request.resource.data.keys().hasAny(['enterpriseTier', 'limitOverrides']);
+        && !request.resource.data.keys().hasAny(['enterpriseTier', 'limitOverrides', 'disabledModules']);
 
       // Plan/subscription fields are Stripe-controlled — only the
       // stripeWebhook Cloud Function (via the Admin SDK, which bypasses
@@ -1101,7 +1101,7 @@ service cloud.firestore {
           'cancelAtPeriodEnd', 'billingTermsVersion', 'billingTermsAcceptedAt', 'billingTermsAcceptedBy',
           'termsVersion', 'termsAcceptedAt', 'termsAcceptedBy',
           'approvalStatus', 'approvedAt', 'approvedBy', 'rejectionReason',
-          'planSetBy', 'planSetAt', 'enterpriseTier', 'limitOverrides', 'leaveRequestedAt', 'cancellationReasonPendingId',
+          'planSetBy', 'planSetAt', 'enterpriseTier', 'limitOverrides', 'disabledModules', 'leaveRequestedAt', 'cancellationReasonPendingId',
           'suspendedReason', 'suspendedBy', 'suspendedAt', 'paymentFailed', 'paymentFailedAt', 'paymentFailureMessage'];
         return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
       }

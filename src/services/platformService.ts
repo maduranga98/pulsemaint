@@ -39,6 +39,8 @@ export interface PlatformCompany {
   enterpriseTier: EnterpriseTier | null;
   /** Per-company count overrides set by Lumora (null value = unlimited). */
   limitOverrides: Partial<Record<CountLimitKey, number | null>> | null;
+  /** Modules Lumora turned off for this company. */
+  disabledModules: string[];
   /** New self-registered companies are 'pending' until a superadmin approves them. */
   approvalStatus: ApprovalStatus;
   rejectionReason: string | null;
@@ -152,6 +154,7 @@ export type CompanyAction =
   | { action: 'extendTrial'; days: number }
   | { action: 'setPlan'; plan: PlanId; billingCycle: Cycle; enterpriseTier?: EnterpriseTier | null }
   | { action: 'setLimits'; limitOverrides: Partial<Record<CountLimitKey, number | null>> }
+  | { action: 'setModules'; disabledModules: string[] }
   | { action: 'cancelSubscription' }
   | { action: 'resumeSubscription' }
   | { action: 'note'; text: string };
