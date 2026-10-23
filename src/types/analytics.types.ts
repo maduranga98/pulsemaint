@@ -281,6 +281,8 @@ export interface DashboardNotification {
   /** Plant / department the notification is scoped to (see createNotification). */
   plantId?: string | null;
   department?: string | null;
+  /** Department of the user who raised it (display only). */
+  actorDepartment?: string | null;
   type: DashboardNotificationType;
   message: string;
   timestamp: Timestamp;

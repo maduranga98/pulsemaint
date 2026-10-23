@@ -4,10 +4,6 @@ const logger = require("firebase-functions/logger");
 
 const db = getFirestore("default");
 
-// Mirrors src/lib/notifications/recipients.ts (OVERSIGHT_ROLES) — kept in
-// sync by hand since Cloud Functions doesn't share code with the client.
-const OVERSIGHT_ROLES = ["admin", "plant_manager"];
-
 function toReminderAssignment(doc) {
   const data = doc.data();
   if (!data.companyId || !data.traineeId) return null;
@@ -79,7 +75,7 @@ exports.sendTrainingReminders = onSchedule({schedule: "0 6 * * *", timeZone: "UT
       timestamp: FieldValue.serverTimestamp(),
       read: false,
       readBy: [],
-      recipientRoles: OVERSIGHT_ROLES,
+      recipientRoles: [],
       recipientUserIds: [a.traineeId],
       targetRoles: [],
       targetUserIds: [a.traineeId],

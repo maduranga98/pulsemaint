@@ -9,23 +9,18 @@ export const OVERSIGHT_ROLES: UserRole[] = ['admin', 'plant_manager'];
 /**
  * Recipient roles actually written to a notification.
  *
- * A targeted notification (one that names roles and/or specific users) is
- * copied to the oversight roles: admins and plant managers are accountable
- * for everything happening in the plant, and previously only saw the subset
- * of notifications that happened to name their role.
- *
- * A broadcast (neither roles nor users named) is left as a broadcast — every
- * role already sees it, and adding roles would narrow it to just those two.
+ * A notification reaches exactly the roles and people it names. Admins and
+ * plant managers are no longer copied on everything: each only sees what was
+ * raised for their role or for them personally (and a plant manager only
+ * within their own plant — see isNotificationInReaderScope).
  *
  * Kept free of Firebase imports so it stays unit-testable on its own.
  */
 export function resolveRecipientRoles(
   recipientRoles: UserRole[],
-  recipientUserIds: string[],
+  _recipientUserIds: string[],
 ): UserRole[] {
-  const isBroadcast = recipientRoles.length === 0 && recipientUserIds.length === 0;
-  if (isBroadcast) return [];
-  return Array.from(new Set<UserRole>([...recipientRoles, ...OVERSIGHT_ROLES]));
+  return Array.from(new Set<UserRole>(recipientRoles));
 }
 
 /** The targeting fields on a stored notification. Roles are plain strings
@@ -33,6 +28,9 @@ export function resolveRecipientRoles(
 export interface NotificationTargeting {
   recipientRoles?: string[] | null;
   recipientUserIds?: string[] | null;
+  /** Who it was raised for. Older documents also carried an oversight copy in recipientRoles; these ignore it. */
+  targetRoles?: string[] | null;
+  targetUserIds?: string[] | null;
   /** The plant the notification belongs to (null/absent: company-wide or legacy). */
   plantId?: string | null;
   /** The department it concerns, for machine-related events (null: whole plant). */
@@ -73,10 +71,11 @@ export function isNotificationInReaderScope(
 /**
  * Whether a notification belongs in this user's notification bar.
  *
- * Targeting is strict: a notification raised for one role never shows up in
- * another role's bar. The only cross-role visibility is the oversight roles
- * (admin, plant_manager), which `resolveRecipientRoles` writes onto every
- * targeted notification so plant leadership sees everything.
+ * Targeting is strict: a notification reaches only the roles and people it was
+ * raised for — admins and plant managers included. Documents written before
+ * this rule also carry an oversight copy in `recipientRoles`; the original
+ * `targetRoles`/`targetUserIds` are used when present so those copies stay
+ * hidden.
  *
  * A notification with no targeting at all — only legacy documents written
  * before targeting existed — goes to the oversight roles rather than to
@@ -87,8 +86,8 @@ export function isNotificationForUser(
   role: UserRole | undefined,
   userId: string | undefined,
 ): boolean {
-  const roles = notification.recipientRoles ?? [];
-  const userIds = notification.recipientUserIds ?? [];
+  const roles = notification.targetRoles ?? notification.recipientRoles ?? [];
+  const userIds = notification.targetUserIds ?? notification.recipientUserIds ?? [];
 
   if (roles.length === 0 && userIds.length === 0) {
     return !!role && OVERSIGHT_ROLES.includes(role);
@@ -174,66 +173,17 @@ export function isAddressedToUser(
 }
 
 /**
- * An admin action a plant manager has no part in.
- *
- * Plant managers are copied on everything so nothing in the plant goes
- * unseen, but admin work is company administration (users, billing, company
- * settings, other sites) rather than plant operations — it filled the plant
- * manager's bell with entries they can't act on. Admin actions raised *for*
- * the plant manager (their role named, or them named by id) still come
- * through, as does anything they did themselves.
- *
- * Admins keep seeing everything, including other admins' actions.
- */
-export function isHiddenAdminAction(
-  notification: NotificationActor,
-  role: UserRole | undefined,
-  userId: string | undefined,
-): boolean {
-  if (role !== 'plant_manager') return false;
-  if (notification.actorRole !== 'admin') return false;
-  if (isOwnAction(notification, userId)) return false;
-  return !isAddressedToUser(notification, role, userId);
-}
-
-/**
- * An oversight copy of something raised for other people that isn't serious.
- *
- * Admins and plant managers are copied on everything, which buried them in
- * routine items for others (a trainee's overdue module, a technician's
- * assignment). They keep what was raised for them, what they did themselves,
- * and anything high/critical — the rest is not theirs to act on.
- */
-export function isRoutineOversightCopy(
-  notification: NotificationActor & { severity?: string | null },
-  role: UserRole | undefined,
-  userId: string | undefined,
-): boolean {
-  if (!role || !OVERSIGHT_ROLES.includes(role)) return false;
-  if (isOwnAction(notification, userId)) return false;
-  if (isAddressedToUser(notification, role, userId)) return false;
-  const targetRoles = notification.targetRoles ?? [];
-  const targetUserIds = notification.targetUserIds ?? [];
-  // No recorded target (legacy): can't tell who it was for, so keep it.
-  if (targetRoles.length === 0 && targetUserIds.length === 0) return false;
-  return notification.severity !== 'critical' && notification.severity !== 'high';
-}
-
-/**
- * Whether a notification belongs in this user's bell at all: targeted at
- * them, inside their plant/department, not an admin action a plant manager
- * has no part in, and not a routine oversight copy of someone else's item.
+ * Whether a notification belongs in this user's bell at all: raised for their
+ * role or for them, and inside their plant/department.
  */
 export function isNotificationVisibleTo(
-  notification: NotificationTargeting & NotificationActor & { severity?: string | null },
+  notification: NotificationTargeting & NotificationActor,
   role: UserRole | undefined,
   userId: string | undefined,
   scope?: NotificationReaderScope | null,
 ): boolean {
   if (!isNotificationForUser(notification, role, userId)) return false;
-  if (!isNotificationInReaderScope(notification, scope, userId)) return false;
-  if (isHiddenAdminAction(notification, role, userId)) return false;
-  return !isRoutineOversightCopy(notification, role, userId);
+  return isNotificationInReaderScope(notification, scope, userId);
 }
 
 /**
@@ -320,4 +270,27 @@ export function notificationDisplayMessage(
   const body = oversightBody || notification.message;
   if (!actor) return body;
   return label ? `${actor} (${label}) — ${body}` : `${actor} — ${body}`;
+}
+
+/** Where a notification happened, for display: the plant and, when known, the department. */
+export interface NotificationLocation {
+  plantId?: string | null;
+  /** Department of the machine/record the event concerns. */
+  department?: string | null;
+  /** Department of the user who raised it (display only — never narrows who sees it). */
+  actorDepartment?: string | null;
+}
+
+/**
+ * "Plant 1 · Packing" — the plant and department a notification belongs to.
+ * The department is the event's own, else the department of the user who
+ * raised it. Empty when neither is known.
+ */
+export function notificationLocationLabel(
+  notification: NotificationLocation,
+  plantNames?: Map<string, string> | null,
+): string {
+  const plant = notification.plantId ? plantNames?.get(notification.plantId) ?? '' : '';
+  const department = (notification.department || notification.actorDepartment || '').trim();
+  return [plant, department].filter(Boolean).join(' · ');
 }
