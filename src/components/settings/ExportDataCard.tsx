@@ -16,6 +16,8 @@ interface ExportJob {
   sizeBytes?: number;
   counts?: { records: number; files: number; missing: number; refused: number };
   error?: string;
+  failedStep?: string;
+  errorDetail?: string;
   createdAt?: Timestamp;
 }
 
@@ -68,7 +70,7 @@ export function ExportDataCard({ company }: { company: CompanyProfile }) {
       ? t('common.settings.export.packing', 'Packing files… {{done}} of {{total}}', { done: p.done ?? 0, total: p.total })
       : t('common.settings.export.collecting', 'Collecting records… {{count}} so far', { count: p?.records ?? 0 });
   } else if (job?.status === 'failed') {
-    status = job.error ?? t('common.settings.export.failed', 'The last export failed.');
+    status = `${job.error ?? t('common.settings.export.failed', 'The last export failed.')}${job.failedStep ? ` (${job.failedStep}${job.errorDetail ? `: ${job.errorDetail}` : ''})` : ''}`;
   }
 
   return (
