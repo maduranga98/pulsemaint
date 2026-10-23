@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { OutsourcedJobFields, draftDayMs, emptyJobDraft, isJobDraftFilled, jobDraftError, type OutsourcedJobDraft } from '../machines/OutsourcedJobFields';
@@ -25,7 +25,8 @@ import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '../../types/saf
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { useSafetyBlacklist } from '../../hooks/safety/useSafety';
 import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
-import { useBusyTechnicians } from '../../hooks/useBusyTechnicians';
+import { useSlotJobs } from '../../hooks/useSlotJobs';
+import { describeConflict, findConflicts, newWorkOrderSlot } from '../../lib/assignmentSlots';
 import { plantConstraints } from '../../lib/plantQuery';
 
 type MachineOption = {
@@ -408,20 +409,28 @@ export function CreateWODrawer({
   const supervisors = supervisorPool.filter(inWoScope);
   const technicians = technicianPool.filter(inWoScope);
 
-  // Technicians mid-job (a started WO, or a breakdown they're attending and
-  // haven't submitted) can't be given another. The breakdown(s) this WO is
-  // being raised for don't count against their own attender, and neither
-  // does other work on the same machine.
-  const busyIgnoreIds = [
-    linkedBreakdownId,
-    ...(linkedBreakdownIds ?? []),
-    linkedBreakdown?.id,
-    ...linkedBreakdownGroup.map((b) => b.id),
-  ].filter((id): id is string => !!id);
-  const { busy: busyTechnicians } = useBusyTechnicians(open ? (siteIds?.[0] || companyId) : undefined, {
-    ignoreBreakdownIds: busyIgnoreIds,
-    allowMachineId: (watchField('machineId') as string | undefined) || null,
-  });
+  // One person may hold several jobs as long as their time slots don't
+  // overlap: anyone whose existing work order / breakdown crosses THIS work
+  // order's slot (scheduled start + estimated duration) is shown as already
+  // assigned, with that job. The breakdown(s) this WO is being raised for
+  // don't count against their own assignees.
+  const busyIgnoreIds = new Set(
+    [
+      linkedBreakdownId,
+      ...(linkedBreakdownIds ?? []),
+      linkedBreakdown?.id,
+      ...linkedBreakdownGroup.map((b) => b.id),
+    ].filter((id): id is string => !!id),
+  );
+  const slotJobs = useSlotJobs(open ? (siteIds?.[0] || companyId) : undefined);
+  const scheduledStartValue = watchField('scheduledStart') as Date | null | undefined;
+  const estDuration = watchField('estimatedDuration') as number | undefined;
+  const estUnit = watchField('estimatedDurationUnit') as string | undefined;
+  const busyTechnicians = useMemo(
+    () => findConflicts(newWorkOrderSlot(scheduledStartValue ?? null, estDuration, estUnit, Date.now()), slotJobs, busyIgnoreIds),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slotJobs, scheduledStartValue?.valueOf?.(), estDuration, estUnit, [...busyIgnoreIds].join(',')],
+  );
 
   // Auto-suggest due date from priority
   useEffect(() => {
@@ -932,7 +941,7 @@ export function CreateWODrawer({
                   name: t.name,
                   department: t.department ?? '',
                   activeWOCount: 0,
-                  busyRef: busyTechnicians.get(t.id)?.ref ?? null,
+                  busyRef: busyTechnicians.has(t.id) ? describeConflict(busyTechnicians.get(t.id)!) : null,
                 }))}
               supervisors={supervisors.map((s) => ({ id: s.id, name: s.name, role: s.role, department: s.department ?? '' }))}
               contractors={registeredContractors

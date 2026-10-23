@@ -1,5 +1,7 @@
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { plantConstraints } from '../lib/plantQuery';
+import { breakdownJob, workOrderJob, type SlotBreakdown, type SlotJob, type SlotWorkOrder } from '../lib/assignmentSlots';
 import {
   computeBusyTechnicians,
   type BusyInfo,
@@ -58,4 +60,32 @@ export async function fetchBusyTechnicians({
   const tickets = (ticketSnap?.docs ?? []).map((d) => ({ ...(d.data() as Omit<BusyTicket, 'id'>), id: d.id }));
   const busy = computeBusyTechnicians(workOrders, tickets, { ignoreBreakdownIds, allowMachineId });
   return selfId ? new Map([...busy].filter(([id]) => id === selfId)) : busy;
+}
+
+const SLOT_WO_STATUSES = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
+const SLOT_BREAKDOWN_STATUSES = ['acknowledged', 'triage_in_progress', 'assigned', 'en_route', 'repair_in_progress', 'on_hold_parts', 'on_hold_approval'];
+
+/**
+ * Every open work order and breakdown that holds people, as time slots — to
+ * tell who is free for a NEW job's time slot (see lib/assignmentSlots).
+ * Read once when a picker opens. Best effort: a refused read leaves those
+ * jobs out rather than blocking the assignment.
+ */
+export async function fetchSlotJobs(siteId: string): Promise<SlotJob[]> {
+  if (!siteId) return [];
+  const [woSnap, bdSnap] = await Promise.all([
+    getDocs(query(collection(db, 'workOrders'), where('siteId', '==', siteId), where('status', 'in', SLOT_WO_STATUSES), ...plantConstraints('workOrders'))).catch(() => null),
+    getDocs(query(collection(db, 'breakdown_tickets'), where('siteId', '==', siteId), where('status', 'in', SLOT_BREAKDOWN_STATUSES), ...plantConstraints('breakdown_tickets'))).catch(() => null),
+  ]);
+  const now = Date.now();
+  const jobs: SlotJob[] = [];
+  for (const d of woSnap?.docs ?? []) {
+    const job = workOrderJob({ ...(d.data() as Omit<SlotWorkOrder, 'id'>), id: d.id }, now);
+    if (job && job.technicianIds.length) jobs.push(job);
+  }
+  for (const d of bdSnap?.docs ?? []) {
+    const job = breakdownJob({ ...(d.data() as Omit<SlotBreakdown, 'id'>), id: d.id }, now);
+    if (job) jobs.push(job);
+  }
+  return jobs;
 }

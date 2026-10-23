@@ -876,6 +876,7 @@ export default function BreakdownsPage() {
           companyId={userProfile.companyId}
           siteId={siteId}
           allowMachineId={assigningGroup.machineId}
+          ignoreBreakdownIds={assigningGroup.tickets.map((tk) => tk.id)}
           assigning={assignBusy}
           onClose={() => setAssigningGroup(null)}
           onAssign={handleAssign}

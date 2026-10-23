@@ -459,6 +459,7 @@ export default function ViewBreakdownPage() {
           companyId={userProfile.companyId}
           siteId={siteId}
           allowMachineId={breakdown?.machineId}
+          ignoreBreakdownIds={breakdown ? [breakdown.id] : []}
           assigning={assignBusy}
           onClose={() => setShowAssignModal(false)}
           onAssign={handleAssign}
