@@ -108,21 +108,30 @@ export function useMyNotifications() {
   // Everything still listed is unread — reading removes it from the list.
   const unreadCount = notifications.length;
 
-  // Fire a device notification + sound for anything that shows up in this
-  // user's bar after the first load — covers every role/module that goes
-  // through createNotification(), generically, without a per-feature hook.
+  // Fire a device notification + sound for anything NEW in this user's bar —
+  // covers every role/module that goes through createNotification(), generically,
+  // without a per-feature hook. "New" means it was raised after this session
+  // started: a notification that merely (re)appears because the list reloaded,
+  // the plant/department scope changed or the user moved between pages
+  // (e.g. clicking through inventory tabs) never makes a sound.
   const seenIdsRef = useRef<Set<string> | null>(null);
+  const sessionStartRef = useRef(Date.now());
   useEffect(() => {
-    if (!userProfile) return;
+    if (!userProfile || loading) return;
     const ids = new Set(notifications.map((n) => n.id));
     if (seenIdsRef.current === null) {
-      // First render for this session/user — don't replay the existing backlog.
+      // First loaded list for this session/user — don't replay the existing backlog.
       seenIdsRef.current = ids;
       return;
     }
     const previouslySeen = seenIdsRef.current;
-    const freshOnes = notifications.filter((n) => !previouslySeen.has(n.id));
-    seenIdsRef.current = ids;
+    seenIdsRef.current = new Set([...previouslySeen, ...ids]);
+    const freshOnes = notifications.filter((n) => {
+      if (previouslySeen.has(n.id)) return false;
+      const raisedAt = timestampMs(n.timestamp);
+      // A pending server timestamp (0) is this client's own just-written one.
+      return raisedAt === 0 || raisedAt >= sessionStartRef.current - 60_000;
+    });
     if (freshOnes.length === 0) return;
     playNotificationSound();
     for (const n of freshOnes.slice(0, 5)) {
@@ -136,7 +145,7 @@ export function useMyNotifications() {
         },
       });
     }
-  }, [notifications, userProfile, plantNames]);
+  }, [notifications, userProfile, plantNames, loading]);
 
   async function markAsRead(notificationId: string) {
     if (!userProfile) return;
