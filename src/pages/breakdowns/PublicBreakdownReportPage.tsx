@@ -12,22 +12,16 @@ interface MachineInfo {
   id: string;
   name: string;
   department?: string;
-  plantId?: string | null;
   location?: string;
-  criticality?: 1 | 2 | 3 | 4 | 5;
-  siteId: string;
 }
 
 interface PublicMachine {
   id: string;
   name: string;
   department: string;
-  plantId: string | null;
   floor: string | null;
   bay: string | null;
   station: string | null;
-  criticality: 1 | 2 | 3 | 4 | 5 | null;
-  siteId: string;
 }
 
 // Guards against the same blank report form reappearing (and inviting a
@@ -127,10 +121,7 @@ export default function PublicBreakdownReportPage() {
           id: data.id,
           name: data.name || 'Unnamed machine',
           department: data.department,
-          plantId: data.plantId ?? null,
           location: formatMachineLocation(data.floor, data.bay, data.station),
-          criticality: data.criticality ?? undefined,
-          siteId: data.siteId,
         });
       } catch (err: any) {
         if (cancelled) return;

@@ -106,3 +106,4 @@ The bell reads only the `notifications` collection. A notification reaches **onl
 2. `src/modules/tpm` and `src/modules/fives` are fully built but orphaned (not routed/navigable).
 3. Nav vs. route access can drift for a given role/page (e.g. Evaluations is reachable by supervisors via URL but not shown in their nav).
 4. `UserRole` type is declared independently in both `src/types/auth.ts` and `src/types/breakdown.ts`.
+5. **Department isolation is client-side only**: `firestore.rules` defines `isSameDepartment()` / `isDepartmentScopedRole()` but no rule uses them, so technician / trainee / supervisor / floor_operator are confined to their department by the app's queries, not by the rules (company and plant isolation *are* rule-enforced). Server code that reads tenant data with admin rights on a user's behalf (e.g. the AI history in `claudeJson`) must apply plant **and** department scope itself. Storage files are company-scoped only.
