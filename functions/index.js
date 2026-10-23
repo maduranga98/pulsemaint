@@ -113,6 +113,12 @@ const {
   backfillPlantStamps,
 } = require("./src/machines/plantStamps");
 
+// Machine department on every work order / breakdown ticket (department isolation in firestore.rules).
+Object.assign(exports, (({
+  stampDepartmentOnWorkOrder, stampDepartmentOnBreakdown, propagateMachineDepartment, backfillDepartmentStamps,
+}) => ({stampDepartmentOnWorkOrder, stampDepartmentOnBreakdown, propagateMachineDepartment, backfillDepartmentStamps}))(
+    require("./src/machines/departmentStamps")));
+
 exports.stampPlantOnWorkOrder = stampPlantOnWorkOrder;
 exports.stampPlantOnBreakdown = stampPlantOnBreakdown;
 exports.stampPlantOnPmSchedule = stampPlantOnPmSchedule;

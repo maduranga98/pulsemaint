@@ -31,14 +31,13 @@ const DEPARTMENT_FIELDS = {
 const DEPARTMENT_SCOPED_ROLES = new Set(['technician', 'trainee', 'supervisor', 'floor_operator']);
 
 /**
- * The department the rules confine the signed-in user to, or null when
- * department isolation is off for their company, their role isn't
- * department-scoped, or they have no registered department. Mirrors
+ * The department the rules confine the signed-in user to, or null when their
+ * role isn't department-scoped or they have no registered department. Mirrors
  * departmentIsolationOn() in firestore.rules.
  */
 export function rulesDepartment(): string | null {
-  const { userProfile, company } = useAuthStore.getState();
-  if (!userProfile || !company?.departmentIsolation) return null;
+  const userProfile = useAuthStore.getState().userProfile;
+  if (!userProfile) return null;
   if (!DEPARTMENT_SCOPED_ROLES.has(userProfile.role)) return null;
   return userProfile.department?.trim() ? userProfile.department : null;
 }
@@ -59,8 +58,8 @@ export function rulesPlantId(): string | null {
  * `where(<plant field> == <my plant>)` for a plant-scoped user, nothing for an
  * unrestricted one — spread it into every list query on these collections.
  * Work orders and breakdown tickets also get `where(machineDepartment == <my
- * department>)` when the company has department isolation on and the user's
- * role is department-scoped. Collections without a plant field
+ * department>)` for a department-scoped role with a registered department.
+ * Collections without a plant field
  * (contractorJobs …) get nothing.
  */
 export function plantConstraints(collectionName: string): QueryConstraint[] {

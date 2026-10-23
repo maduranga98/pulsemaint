@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Read-only readiness check before switching on "Restrict by department"
- * (companies/{id}.departmentIsolation, see firestore.rules departmentIsolationOn).
+ * Read-only readiness report for department isolation (always on — see
+ * firestore.rules departmentIsolationOn).
  *
  * The rules compare the department strings on users and on work orders /
  * breakdown tickets EXACTLY, so a technician whose department is "stamping"
@@ -10,7 +10,7 @@
  *      with no department, or whose department matches no machine exactly;
  *   2. departments that differ only by case / spacing (the typical cause);
  *   3. work orders and breakdown tickets with no machineDepartment (hidden
- *      from scoped roles once the switch is on).
+ *      from scoped roles).
  *
  * Usage:
  *   node seed/checkDepartmentIsolation.mjs --company <companyId>
@@ -61,7 +61,7 @@ async function main() {
     if (!SCOPED_ROLES.has(u.role) || u.status === 'inactive') continue;
     const label = `${u.fullName || doc.id} (${u.role})`;
     if (!String(u.department ?? '').trim()) {
-      console.log(`- ${label}: NO department — will not be restricted (sees everything in their plant)`);
+      console.log(`- ${label}: NO department — is not restricted (sees everything in their plant) — give them a department`);
       problems++;
     } else if (!machineDepts.has(u.department)) {
       const near = machineDeptByNorm.get(norm(u.department));
@@ -80,7 +80,7 @@ async function main() {
     if (missing || off) problems++;
   }
 
-  console.log(problems ? '\nFix the items above before switching the setting on.' : '\nLooks consistent — safe to switch on.');
+  console.log(problems ? '\nFix the items above: people whose department string does not match exactly cannot see their records.' : '\nLooks consistent.');
 }
 
 main().catch((err) => {

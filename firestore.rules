@@ -98,20 +98,19 @@ service cloud.firestore {
       return !isDepartmentScopedRole() || getUserData().department == department;
     }
 
-    // Department isolation on work orders and breakdown tickets. OFF until a
-    // company admin switches on Settings -> "Restrict by department"
-    // (companies/{id}.departmentIsolation), because it matches the department
-    // strings on users and records exactly. When on, technician / trainee /
-    // supervisor / floor_operator (with a registered department) read only
-    // records of their own department, plus work they are assigned to /
-    // supervise / attend / reported. Records with no department are hidden
-    // from them (stamp a department first). Costs one
-    // company-document read per rule evaluation for those roles only.
+    // Department isolation on work orders and breakdown tickets — always on.
+    // technician / trainee / supervisor / floor_operator with a registered
+    // department read only records of their own department, plus work they are
+    // assigned to / supervise / attend / reported. Records carry their machine's
+    // department in machineDepartment (functions/src/machines/departmentStamps.js
+    // stamps it); one with none is hidden from them. Plant-wide roles
+    // (plant_manager, store_keeper, hr_officer, safety_officer) and admin have
+    // no department and are not narrowed. A scoped user with no department
+    // stays unrestricted so nobody is locked out.
     function departmentIsolationOn() {
       return isDepartmentScopedRole()
         && getUserData().get('department', null) != null
-        && getUserData().get('department', '') != ''
-        && get(/databases/$(database)/documents/companies/$(myCompanyId())).data.get('departmentIsolation', false) == true;
+        && getUserData().get('department', '') != '';
     }
 
     // Strict equality on purpose: a query that does not pin machineDepartment
