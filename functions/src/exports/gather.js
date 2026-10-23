@@ -3,7 +3,8 @@ const {
   TENANT_FIELDS,
   serialize,
   collectAttachments,
-  attachmentEntryName,
+  assignFolders,
+  recordToText,
   recordTitle,
   toCsv,
   buildViewerEntries,
@@ -54,7 +55,7 @@ async function pathKeyedDocs(db, collection, sub, keys) {
 async function gatherCompanyData({db, companyId, plantIds, bucketName, onProgress}) {
   const ctx = {bucketName, companyId, plantIds};
   const datasets = {};
-  const files = new Map(); // storage path -> zip entry name
+  const files = new Map(); // storage path -> [zip entry names] (one per record that uses it)
   const refused = new Set();
   let records = 0;
 
@@ -75,20 +76,24 @@ async function gatherCompanyData({db, companyId, plantIds, bucketName, onProgres
         }
         const found = collectAttachments({data, sub}, ctx);
         found.refused.forEach((p) => refused.add(p));
-        const attachments = found.allowed.map((path) => {
-          const entry = attachmentEntryName(path);
-          files.set(path, entry);
-          return {name: path.split("/").pop().replace(/^\d{10,}_/, ""), file: entry, path};
-        });
         const record = {
           id: d.id,
           title: recordTitle(data, col.titleKeys, d.id),
           data,
-          attachments,
+          attachments: found.allowed.map((path) => ({name: path.split("/").pop().replace(/^\d{10,}_/, ""), file: "", path})),
         };
         if (Object.keys(sub).length) record.sub = sub;
         list.push(record);
         records++;
+      }
+      // Every record gets its own folder (named by its number) holding its files.
+      assignFolders(section, col, list);
+      for (const r of list) {
+        for (const a of r.attachments) {
+          const entries = files.get(a.path) || [];
+          entries.push(a.file);
+          files.set(a.path, entries);
+        }
       }
       dataset.collections[col.name] = list;
       if (onProgress) await onProgress({step: "collecting", collection: col.name, records});
@@ -107,7 +112,23 @@ function buildTextEntries({company, exportedAt, datasets, missing, refused}) {
       entries.push({name: `data/${col.name}.csv`, content: toCsv(list)});
     }
   }
-  // The viewer needs the attachment `path` only for the ZIP; drop it from the page data.
+  // Each record's folder holds a readable summary and the raw data beside its files.
+  // Ids of exported records read as their names ("Machine: Press 01").
+  const lookup = new Map();
+  for (const section of SECTIONS) {
+    for (const col of section.collections) {
+      for (const r of datasets[section.id].collections[col.name] || []) if (r.id.length >= 12) lookup.set(r.id, r.title);
+    }
+  }
+  for (const section of SECTIONS) {
+    for (const col of section.collections) {
+      for (const r of datasets[section.id].collections[col.name] || []) {
+        entries.push({name: `${r.folder}/details.txt`, content: recordToText(r, col.label || col.name, lookup)});
+        entries.push({name: `${r.folder}/details.json`, content: JSON.stringify({id: r.id, ...r.data, ...(r.sub ? {_subcollections: r.sub} : {})}, null, 2)});
+      }
+    }
+  }
+  // The viewer maps each storage link to the copy saved in the record's folder (by path).
   const viewerSets = {};
   for (const section of SECTIONS) {
     viewerSets[section.id] = {
@@ -116,7 +137,7 @@ function buildTextEntries({company, exportedAt, datasets, missing, refused}) {
         name,
         list.map((r) => ({
           ...r,
-          attachments: r.attachments.map(({name: n, file}) => ({name: n, file})),
+          attachments: r.attachments.map(({name: n, file, path}) => ({name: n, file, path})),
           missing: r.attachments.filter((a) => missing.includes(a.path)).map((a) => a.name),
         })),
       ])),
@@ -127,8 +148,9 @@ function buildTextEntries({company, exportedAt, datasets, missing, refused}) {
     `FirmiCore data export — ${company}`,
     `Exported ${exportedAt}`,
     "",
-    "Open index.html in a browser to browse everything offline (no internet or login needed).",
-    "data/*.json and data/*.csv hold the same records for Excel or other systems; files/ holds the attachments.",
+    "Unzip the whole folder, then open index.html in a browser to browse everything offline (no internet or login needed).",
+    "Every record has its own folder named by its number (for example Breakdowns/Breakdown tickets/BD-0012) holding its files,",
+    "a readable details.txt and the raw details.json. data/*.json and data/*.csv hold whole lists for Excel or other systems.",
     "",
   ];
   if (missing.length) notes.push(`Attachments that could not be read (${missing.length}):`, ...missing.map((p) => `  - ${p}`), "");

@@ -12,45 +12,45 @@
 /** What goes into the ZIP, grouped like the app's modules. */
 const SECTIONS = [
   {id: "workOrders", label: "Work orders", collections: [
-    {name: "workOrders", subcollections: ["partsRequests"], titleKeys: ["woNumber"]},
+    {name: "workOrders", label: "Work orders", subcollections: ["partsRequests"], titleKeys: ["woNumber"]},
   ]},
   {id: "breakdowns", label: "Breakdowns", collections: [
-    {name: "breakdown_tickets", titleKeys: ["ticketNumber"]},
-    {name: "rca", titleKeys: ["problem"]},
+    {name: "breakdown_tickets", label: "Breakdown tickets", titleKeys: ["ticketNumber"]},
+    {name: "rca", label: "Root cause analyses", titleKeys: ["problem"]},
   ]},
   {id: "contractors", label: "Contractors", collections: [
-    {name: "contractors", subcollections: ["technicians", "documents"], titleKeys: ["companyName", "name"]},
-    {name: "contractorJobs", titleKeys: ["jobNumber", "title"]},
+    {name: "contractors", label: "Contractors", subcollections: ["technicians", "documents"], titleKeys: ["companyName", "name"]},
+    {name: "contractorJobs", label: "Contractor jobs", titleKeys: ["jobNumber", "title"]},
   ]},
   {id: "machines", label: "Machines", collections: [
-    {name: "machines", titleKeys: ["name"]},
-    {name: "machineOutsourcedMaintenance", titleKeys: ["title", "description"]},
+    {name: "machines", label: "Machine register", titleKeys: ["name"]},
+    {name: "machineOutsourcedMaintenance", label: "Outsourced maintenance", titleKeys: ["title", "description"]},
   ]},
   {id: "pmSchedules", label: "PM schedules", collections: [
-    {name: "pm_schedules", titleKeys: ["title", "name"]},
-    {name: "pm_history", titleKeys: ["title", "scheduleName"]},
+    {name: "pm_schedules", label: "PM schedules", titleKeys: ["title", "name"]},
+    {name: "pm_history", label: "PM history", titleKeys: ["title", "scheduleName"]},
   ]},
   {id: "safety", label: "Safety cases", collections: [
-    {name: "safety_cases", titleKeys: ["caseNumber", "title"]},
-    {name: "work_permits", titleKeys: ["permitNumber", "title"]},
-    {name: "safetyCertificates", titleKeys: ["certificateNumber", "holderName"]},
+    {name: "safety_cases", label: "Safety cases", titleKeys: ["caseNumber", "title"]},
+    {name: "work_permits", label: "Work permits", titleKeys: ["permitNumber", "title"]},
+    {name: "safetyCertificates", label: "Safety certificates", titleKeys: ["certificateNumber", "holderName"]},
   ]},
   {id: "inventory", label: "Inventory", collections: [
-    {name: "inventoryParts", titleKeys: ["partNumber", "name"]},
-    {name: "suppliers", titleKeys: ["name"]},
-    {name: "stockMovements", titleKeys: ["partName", "type"]},
+    {name: "inventoryParts", label: "Parts", titleKeys: ["partNumber", "name"]},
+    {name: "suppliers", label: "Suppliers", titleKeys: ["name"]},
+    {name: "stockMovements", label: "Stock movements", titleKeys: ["partName", "type"]},
   ]},
   {id: "purchaseOrders", label: "Purchase orders", collections: [
-    {name: "purchaseOrders", titleKeys: ["poNumber"]},
+    {name: "purchaseOrders", label: "Purchase orders", titleKeys: ["poNumber"]},
   ]},
   {id: "audits", label: "Audits", collections: [
-    {name: "audit_sessions", pathKeyed: "sessions", titleKeys: ["title", "templateName", "category"]},
-    {name: "audit_templates", pathKeyed: "templates", titleKeys: ["name", "title"]},
+    {name: "audit_sessions", label: "Audits", pathKeyed: "sessions", titleKeys: ["title", "templateName", "category"]},
+    {name: "audit_templates", label: "Audit templates", pathKeyed: "templates", titleKeys: ["name", "title"]},
   ]},
   {id: "evaluations", label: "Evaluations", collections: [
-    {name: "evaluations", titleKeys: ["title", "name"]},
-    {name: "evaluation_templates", titleKeys: ["name", "title"]},
-    {name: "evaluation_sessions", titleKeys: ["title", "name"]},
+    {name: "evaluations", label: "Evaluations", titleKeys: ["title", "name"]},
+    {name: "evaluation_templates", label: "Evaluation templates", titleKeys: ["name", "title"]},
+    {name: "evaluation_sessions", label: "Evaluation sessions", titleKeys: ["title", "name"]},
   ]},
 ];
 
@@ -139,9 +139,117 @@ function collectAttachments(value, {bucketName, companyId, plantIds}) {
   return {allowed: [...allowed], refused: [...refused]};
 }
 
-/** The ZIP entry a Storage path is saved as (keeps the folder layout, always relative and safe). */
-function attachmentEntryName(path) {
-  return `files/${path.split("/").map((p) => p.replace(/[^\p{L}\p{N}._ ()+@-]/gu, "_")).join("/")}`;
+const RESERVED = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
+
+/** A file / folder name that is safe on every OS (Windows included) and keeps readable letters. */
+function safeName(value, fallback = "item", max = 80) {
+  // Letters, combining marks (Sinhala / Tamil vowel signs) and the joiners that
+  // sit between them are kept; everything else becomes "_".
+  let n = Array.from(String(value ?? ""))
+      .map((ch) => (/[\p{L}\p{M}\p{N}._ ()+@-]/u.test(ch) || ch === "\u200C" || ch === "\u200D" ? ch : "_"))
+      .join("").replace(/\s+/g, " ").trim();
+  n = n.replace(/^[. ]+|[. ]+$/g, "").slice(0, max).replace(/[. ]+$/g, "");
+  if (!n) n = fallback;
+  return RESERVED.test(n.split(".")[0]) ? `_${n}` : n;
+}
+
+/**
+ * Gives each record of a collection its own folder named after its number /
+ * title — "Breakdowns/Breakdown tickets/BD-0012" — and each of its attachments
+ * an entry inside it. Two records with the same title get a short id suffix.
+ * Mutates the records: `folder`, and `attachments[].file`.
+ */
+function assignFolders(section, col, list) {
+  const base = [safeName(section.label)];
+  if (section.collections.length > 1) base.push(safeName(col.label || col.name));
+  const used = new Set();
+  for (const r of list) {
+    let name = safeName(r.title, r.id);
+    if (used.has(name.toLowerCase())) name = `${name} (${safeName(r.id, "x", 8)})`;
+    used.add(name.toLowerCase());
+    r.folder = [...base, name].join("/");
+    const taken = new Set(["details.txt", "details.json"]);
+    for (const a of r.attachments) {
+      let file = safeName(a.name, "file", 120);
+      if (taken.has(file.toLowerCase())) {
+        const dot = file.lastIndexOf(".");
+        const stem = dot > 0 ? file.slice(0, dot) : file;
+        const ext = dot > 0 ? file.slice(dot) : "";
+        let i = 2;
+        while (taken.has(`${stem} (${i})${ext}`.toLowerCase())) i++;
+        file = `${stem} (${i})${ext}`;
+      }
+      taken.add(file.toLowerCase());
+      a.file = `${r.folder}/${file}`;
+    }
+  }
+}
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+const TECH_KEYS = /^(companyId|siteId|tenantId|plantId|machinePlantId|createdBy|updatedBy|closedBy|uid|userId|id)$/;
+
+function humanizeKey(key) {
+  const k = String(key).replace(/(Ids|Id|Uid)$/, "").replace(/_/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2").trim().toLowerCase();
+  return k ? k.charAt(0).toUpperCase() + k.slice(1) : String(key);
+}
+
+const STORAGE_URL = /^https:\/\/(firebasestorage\.googleapis\.com\/v0\/b\/[^/]+\/o\/|storage\.googleapis\.com\/[^/]+\/)([^?#]+)/;
+
+/** A storage download link as just its file name (the file itself is in the record's folder). */
+function fileNameFromUrl(v) {
+  const m = STORAGE_URL.exec(v);
+  if (!m) return null;
+  try {
+    return decodeURIComponent(m[2]).split("/").pop().replace(/^\d{10,}_/, "");
+  } catch {
+    return null;
+  }
+}
+
+function textValue(v, indent, lookup) {
+  const pad = "  ".repeat(indent);
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "boolean") return v ? "Yes" : "No";
+  if (typeof v === "string") {
+    if (ISO_DATE.test(v)) return v.replace("T", " ").replace(/:\d{2}(\.\d+)?Z$/, " UTC");
+    const file = fileNameFromUrl(v);
+    if (file) return `${file} (file saved in this folder)`;
+    if (lookup && lookup.has(v)) return lookup.get(v);
+    return v;
+  }
+  if (typeof v !== "object") return String(v);
+  if (Array.isArray(v)) {
+    if (v.length === 0) return null;
+    if (v.every((x) => x === null || typeof x !== "object")) return v.map((x) => textValue(x, 0, lookup)).filter(Boolean).join(", ");
+    return "\n" + v.map((x, i) => `${pad}  ${i + 1}.${textBlock(x, indent + 2, lookup).replace(/^\s+/, " ")}`).join("\n");
+  }
+  const body = textBlock(v, indent + 1, lookup);
+  return body ? "\n" + body : null;
+}
+
+function textBlock(obj, indent, lookup) {
+  if (obj === null || typeof obj !== "object") return String(obj ?? "");
+  const pad = "  ".repeat(indent);
+  return Object.keys(obj).sort().map((k) => {
+    const t = textValue(obj[k], indent, lookup);
+    if (t === null) return null;
+    return t.startsWith("\n") ? `${pad}${humanizeKey(k)}:${t}` : `${pad}${humanizeKey(k)}: ${t}`;
+  }).filter(Boolean).join("\n");
+}
+
+/** details.txt of one record: readable labels, dates and Yes/No, ids shown as names, technical ids last. */
+function recordToText(record, collectionLabel, lookup) {
+  const main = {};
+  const tech = {};
+  for (const [k, v] of Object.entries(record.data)) (TECH_KEYS.test(k) ? tech : main)[k] = v;
+  const lines = [`${collectionLabel} — ${record.title}`, `Record id: ${record.id}`, "", textBlock(main, 0, lookup)];
+  for (const [name, list] of Object.entries(record.sub || {})) {
+    lines.push("", `${humanizeKey(name)} (${list.length})`);
+    list.forEach((item, i) => lines.push(`  ${i + 1}.${textBlock(item, 2, lookup).replace(/^\s+/, " ")}`));
+  }
+  const t = textBlock(tech, 0, lookup);
+  if (t) lines.push("", "Technical details", t);
+  return lines.join("\n") + "\n";
 }
 
 function recordTitle(data, titleKeys, fallback) {
@@ -180,109 +288,32 @@ function scriptJson(value) {
       .replace(new RegExp("\\u2029", "g"), "\\u2029");
 }
 
-const VIEWER_JS = `
-(function () {
-  var data = window.FC_DATA || {};
-  var manifest = window.FC_MANIFEST || { company: "", exportedAt: "", sections: [] };
-  var $ = function (id) { return document.getElementById(id); };
-  var el = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-  var state = { section: null, collection: null, query: "", selected: null };
-  var IMAGE = /\\.(png|jpe?g|gif|webp|bmp)$/i;
-
-  $("title").textContent = manifest.company + " — data export";
-  $("sub").textContent = "Exported " + manifest.exportedAt + ". Works offline: unzip the folder and open this file.";
-
-  function sectionData(id) { return data[id] || { collections: {} }; }
-  function currentRecords() {
-    var s = sectionData(state.section); var list = (s.collections && s.collections[state.collection]) || [];
-    var q = state.query.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter(function (r) { return (r.title + " " + r.id + " " + JSON.stringify(r.data)).toLowerCase().indexOf(q) !== -1; });
-  }
-  function renderNav() {
-    var nav = $("nav"); nav.textContent = "";
-    manifest.sections.forEach(function (s) {
-      var h = el("div", "sec", s.label); nav.appendChild(h);
-      s.collections.forEach(function (c) {
-        var b = el("button", "col" + (state.section === s.id && state.collection === c.name ? " on" : ""), c.name + " (" + c.count + ")");
-        b.onclick = function () { state.section = s.id; state.collection = c.name; state.selected = null; render(); };
-        nav.appendChild(b);
-      });
-    });
-  }
-  function renderList() {
-    var box = $("list"); box.textContent = "";
-    if (!state.collection) { box.appendChild(el("p", "muted", "Choose a collection on the left.")); return; }
-    var rows = currentRecords();
-    box.appendChild(el("p", "muted", rows.length + " record(s)"));
-    rows.slice(0, 500).forEach(function (r) {
-      var b = el("button", "row" + (state.selected === r ? " on" : ""));
-      b.appendChild(el("strong", null, r.title));
-      b.appendChild(el("span", "muted", " " + r.id));
-      b.onclick = function () { state.selected = r; render(); };
-      box.appendChild(b);
-    });
-    if (rows.length > 500) box.appendChild(el("p", "muted", "Showing the first 500 — use search to narrow down."));
-  }
-  function value(v) {
-    if (v === null || v === undefined || v === "") return el("span", "muted", "—");
-    if (typeof v === "object") { var pre = el("pre", null, JSON.stringify(v, null, 2)); return pre; }
-    return el("span", null, String(v));
-  }
-  function renderDetail() {
-    var box = $("detail"); box.textContent = "";
-    var r = state.selected;
-    if (!r) { box.appendChild(el("p", "muted", "Select a record to see everything saved on it, with its attachments.")); return; }
-    box.appendChild(el("h2", null, r.title));
-    box.appendChild(el("p", "muted", state.collection + " / " + r.id));
-    if (r.attachments && r.attachments.length) {
-      box.appendChild(el("h3", null, "Attachments (" + r.attachments.length + ")"));
-      var wrap = el("div", "atts");
-      r.attachments.forEach(function (a) {
-        var item = el("div", "att");
-        if (IMAGE.test(a.file)) { var img = el("img"); img.src = a.file; img.alt = a.name; img.loading = "lazy"; item.appendChild(img); }
-        var link = el("a", null, a.name); link.href = a.file; link.target = "_blank"; link.rel = "noopener";
-        item.appendChild(link); wrap.appendChild(item);
-      });
-      box.appendChild(wrap);
-    }
-    if (r.missing && r.missing.length) box.appendChild(el("p", "warn", r.missing.length + " attachment(s) could not be included — see _export-notes.txt"));
-    box.appendChild(el("h3", null, "Details"));
-    var table = el("table");
-    Object.keys(r.data).sort().forEach(function (k) {
-      var tr = el("tr"); tr.appendChild(el("th", null, k)); var td = el("td"); td.appendChild(value(r.data[k])); tr.appendChild(td); table.appendChild(tr);
-    });
-    box.appendChild(table);
-    if (r.sub) Object.keys(r.sub).forEach(function (name) {
-      box.appendChild(el("h3", null, name + " (" + r.sub[name].length + ")"));
-      r.sub[name].forEach(function (s) { box.appendChild(el("pre", null, JSON.stringify(s, null, 2))); });
-    });
-  }
-  function render() { renderNav(); renderList(); renderDetail(); }
-  $("search").oninput = function (e) { state.query = e.target.value; renderList(); };
-  var first = manifest.sections.filter(function (s) { return s.collections.some(function (c) { return c.count > 0; }); })[0];
-  if (first) { state.section = first.id; state.collection = first.collections.filter(function (c) { return c.count > 0; })[0].name; }
-  render();
-})();
-`;
+const fs = require("fs");
+const path = require("path");
+const VIEWER_JS = fs.readFileSync(path.join(__dirname, "viewerClient.js"), "utf8");
 
 const VIEWER_CSS = `
-:root{color-scheme:light dark;--bg:#fff;--fg:#0f172a;--mut:#64748b;--bd:#e2e8f0;--acc:#2563eb;--sel:#eff6ff}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1e35;--fg:#f0f4f8;--mut:#8ba3bf;--bd:#1e3a5f;--acc:#60a5fa;--sel:#13294a}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif}
-header{padding:12px 16px;border-bottom:1px solid var(--bd)}h1{margin:0;font-size:18px}.muted{color:var(--mut)}.warn{color:#b45309}
-main{display:grid;grid-template-columns:240px 320px 1fr;min-height:calc(100vh - 70px)}
+:root{color-scheme:light dark;--bg:#fff;--fg:#0f172a;--mut:#64748b;--bd:#e2e8f0;--acc:#2563eb;--sel:#eff6ff;--card:#f8fafc}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1e35;--fg:#f0f4f8;--mut:#8ba3bf;--bd:#1e3a5f;--acc:#60a5fa;--sel:#13294a;--card:#112543}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,"Segoe UI",sans-serif}
+header{padding:14px 18px;border-bottom:1px solid var(--bd)}h1{margin:0;font-size:20px}h2{margin:0 0 4px;font-size:20px}h3{margin:18px 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+.muted{color:var(--mut)}.warn{color:#b45309}.text{white-space:pre-wrap;word-break:break-word}
+main{display:grid;grid-template-columns:230px 330px 1fr;min-height:calc(100vh - 78px)}
 @media (max-width:900px){main{grid-template-columns:1fr}}
-#nav,#list,#detail{padding:12px;border-right:1px solid var(--bd);overflow:auto;max-height:calc(100vh - 70px)}
-.sec{margin:12px 0 4px;font-weight:600}.col,.row{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;padding:6px 8px;border-radius:6px;cursor:pointer;font:inherit}
+#nav,#listwrap,#detail{padding:12px;border-right:1px solid var(--bd);overflow:auto;max-height:calc(100vh - 78px)}
+.sec{margin:14px 0 4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.col,.row{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;padding:7px 9px;border-radius:7px;cursor:pointer;font:inherit}
 .col.on,.row.on{background:var(--sel);color:var(--acc)}.col:hover,.row:hover{background:var(--sel)}
-#search{width:100%;padding:8px;margin:0 0 8px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:inherit}
-table{border-collapse:collapse;width:100%}th,td{border-top:1px solid var(--bd);padding:6px 8px;vertical-align:top;text-align:left}th{width:30%;color:var(--mut);font-weight:500}
-pre{white-space:pre-wrap;word-break:break-word;margin:0;font-size:12px}
-.atts{display:flex;flex-wrap:wrap;gap:12px}.att{max-width:180px}.att img{display:block;max-width:180px;max-height:130px;border:1px solid var(--bd);border-radius:6px}.att a{color:var(--acc);word-break:break-all}
+#search{width:100%;padding:9px;margin:0 0 8px;border:1px solid var(--bd);border-radius:7px;background:transparent;color:inherit;font:inherit}
+table{border-collapse:collapse;width:100%}th,td{border-top:1px solid var(--bd);padding:7px 9px;vertical-align:top;text-align:left}
+table.kv>tbody>tr>th,table.kv>tr>th{width:32%;color:var(--mut);font-weight:500}
+table.kv table{margin:0}table.grid{border:1px solid var(--bd);margin:2px 0}table.grid th{background:var(--card);color:var(--mut);font-weight:600;font-size:13px}
+pre{white-space:pre-wrap;word-break:break-word;margin:0;font-size:12px}details{margin-top:18px}summary{cursor:pointer}
+.atts{display:flex;flex-wrap:wrap;gap:12px}.att{width:190px;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--card)}.att img{display:block;width:100%;max-height:140px;object-fit:cover;border-radius:6px;margin-bottom:6px}.att a{color:var(--acc);word-break:break-all}
+a{color:var(--acc)}
 `;
 
-/** index.html + data scripts for the offline viewer. `datasets` = {sectionId: {label, collections:{name:[record]}}}. */
+/** index.html: the viewer, its styles and ALL the data in one file (works from a double-click, even from inside an unzipped folder). */
 function buildViewerEntries({company, exportedAt, sections, datasets}) {
   const manifest = {
     company,
@@ -290,32 +321,21 @@ function buildViewerEntries({company, exportedAt, sections, datasets}) {
     sections: sections.map((s) => ({
       id: s.id,
       label: s.label,
-      collections: s.collections.map((c) => ({name: c.name, count: (datasets[s.id].collections[c.name] || []).length})),
+      collections: s.collections.map((c) => ({name: c.name, label: c.label || c.name, count: (datasets[s.id].collections[c.name] || []).length})),
     })),
   };
-  const entries = [{name: "data/manifest.js", content: `window.FC_MANIFEST = ${scriptJson(manifest)};\n`}];
-  for (const s of sections) {
-    entries.push({
-      name: `data/${s.id}.js`,
-      content: `window.FC_DATA = window.FC_DATA || {};\nwindow.FC_DATA[${JSON.stringify(s.id)}] = ${scriptJson(datasets[s.id])};\n`,
-    });
-  }
-  const scripts = ["data/manifest.js", ...sections.map((s) => `data/${s.id}.js`)]
-      .map((f) => `<script src="${f}"></script>`).join("\n");
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;"}[c]));
-  entries.push({
+  return [{
     name: "index.html",
     content: `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(company)} — data export</title><style>${VIEWER_CSS}</style></head>
 <body><header><h1 id="title"></h1><div id="sub" class="muted"></div></header>
 <main><nav id="nav"></nav><section id="listwrap"><input id="search" placeholder="Search records…" /><div id="list"></div></section><article id="detail"></article></main>
-${scripts}
-<script src="viewer.js"></script></body></html>
+<script>window.FC_MANIFEST=${scriptJson(manifest)};window.FC_DATA=${scriptJson(datasets)};</script>
+<script>${VIEWER_JS.replace(/<\/script/gi, "<\\/script")}</script></body></html>
 `,
-  });
-  entries.push({name: "viewer.js", content: VIEWER_JS});
-  return entries;
+  }];
 }
 
 module.exports = {
@@ -327,7 +347,10 @@ module.exports = {
   storagePathFromString,
   isAllowedStoragePath,
   collectAttachments,
-  attachmentEntryName,
+  safeName,
+  assignFolders,
+  recordToText,
+  humanizeKey,
   recordTitle,
   toCsv,
   scriptJson,
