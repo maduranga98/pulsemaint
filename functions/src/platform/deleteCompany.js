@@ -30,7 +30,7 @@ const TENANT_COLLECTIONS = [
   "breakdown_tickets", "breakdowns", "conditionReadings", "contractorInvitations", "contractorJobs", "contractors",
   "departments", "evaluation_sessions", "evaluation_templates", "evaluations", "fives_audits", "fives_corrective_actions",
   "fives_zones", "inventoryImportSessions", "inventoryParts", "inviteTokens", "kaizen_cards", "machineHistory", "machineOutsourcedMaintenance",
-  "machine_health", "machines", "maintenanceBacklog", "moeRecalcQueue", "moeSnapshots", "notifications", "parts",
+  "machine_health", "machines", "maintenanceBacklog", "moeRecalcQueue", "moeSnapshots", "notifications", "notificationDedupe", "parts",
   "partReturns", "partsRequests", "planLimitViolations", "permits", "plants", "pm_history", "pm_schedules", "po_notifications",
   "programAssignments", "purchaseOrders", "rca", "record_access_grants", "report_history", "report_schedules",
   "reviewHistory", "safetyCertificates", "safetyTrainingInvites", "safety_blacklist_resets", "safety_cases",

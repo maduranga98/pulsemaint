@@ -1,6 +1,7 @@
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
+const {writeOnce} = require("../lib/notify");
 
 const db = getFirestore("default");
 
@@ -39,18 +40,15 @@ exports.sendTrainingReminders = onSchedule({schedule: "0 6 * * *", timeZone: "UT
 
   logger.info(`Training reminders: ${upcomingSnap.size} upcoming, ${overdueSnap.size} overdue`);
 
-  // In-app bell notification per trainee. Batched — a batch tops out at 500
-  // writes, and this job can run over that many assignments.
-  let batch = db.batch();
-  let opsInBatch = 0;
-  const commits = [];
-  function queueWrite(data) {
-    batch.set(db.collection("notifications").doc(), data);
-    opsInBatch++;
-    if (opsInBatch >= 450) {
-      commits.push(batch.commit());
-      batch = db.batch();
-      opsInBatch = 0;
+  // In-app bell notification per trainee, sent once per assignment and kind
+  // ("due soon" / "overdue"): the job runs daily, but the alert must not
+  // repeat — it is posted when the time arrives and not again.
+  let sent = 0;
+  async function sendOnce(kind, assignment, data) {
+    try {
+      if (await writeOnce(db, assignment.companyId, `training-${kind}:${assignment.id}`, data)) sent++;
+    } catch (err) {
+      logger.error(`Training reminder failed for ${assignment.id}`, err);
     }
   }
 
@@ -85,15 +83,14 @@ exports.sendTrainingReminders = onSchedule({schedule: "0 6 * * *", timeZone: "UT
   for (const doc of upcomingSnap.docs) {
     const a = toReminderAssignment(doc);
     if (!a) continue;
-    queueWrite(notificationFor(a, "medium", "due soon"));
+    await sendOnce("due", a, notificationFor(a, "medium", "due soon"));
   }
 
   for (const doc of overdueSnap.docs) {
     const a = toReminderAssignment(doc);
     if (!a) continue;
-    queueWrite(notificationFor(a, "high", "overdue"));
+    await sendOnce("overdue", a, notificationFor(a, "high", "overdue"));
   }
 
-  if (opsInBatch > 0) commits.push(batch.commit());
-  await Promise.all(commits);
+  logger.info(`Training reminders: ${sent} new alert(s) posted`);
 });

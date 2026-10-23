@@ -1,7 +1,8 @@
 const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {getFirestore, Timestamp} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const {sendNotification} = require("../lib/notify");
+const {sendNotification, DEDUPE_RETENTION_DAYS} = require("../lib/notify");
 
 const db = getFirestore("default");
 
@@ -85,5 +86,57 @@ exports.cleanupOldNotifications = onSchedule("every day 03:30", async () => {
   if (total) logger.info(`cleanupOldNotifications: deleted ${total} notification(s)`);
 });
 
+/** Roles that are narrowed to their own department (matches firestore.rules). */
+const DEPARTMENT_ROLES = ["technician", "trainee", "supervisor", "floor_operator"];
+
+/**
+ * Whether a person is one the notification was raised for: named directly, or
+ * holding a named role in the notification's plant (and department, for the
+ * department-scoped roles).
+ * @param {object} n the notification
+ * @param {string} uid the person's id
+ * @param {object} profile their company profile
+ * @return {boolean} true when they are part of its audience
+ */
+function isAudience(n, uid, profile) {
+  if ((n.recipientUserIds || []).includes(uid)) return true;
+  if (!(n.recipientRoles || []).includes(profile.role)) return false;
+  if (n.plantId && profile.plantId && n.plantId !== profile.plantId) return false;
+  if (n.department && profile.department && DEPARTMENT_ROLES.includes(profile.role) && n.department !== profile.department) return false;
+  return true;
+}
+
+/**
+ * A notification is deleted once everyone it was raised for has read it (or
+ * cleared it with "read all"); until then it stays for those who haven't.
+ * The "sent once" marker in notificationDedupe keeps schedules from re-posting.
+ */
+exports.deleteReadNotification = onDocumentUpdated({database: "default", document: "notifications/{id}"}, async (event) => {
+  const after = event.data?.after?.data();
+  if (!after || !after.companyId) return;
+  const readBy = new Set(after.readBy || []);
+  if (readBy.size === 0) return;
+  const people = await db.collection(`companies/${after.companyId}/users`).get();
+  const audience = people.docs.filter((d) => d.get("status") !== "inactive" && isAudience(after, d.id, d.data()));
+  if (audience.every((d) => readBy.has(d.id))) await event.data.after.ref.delete();
+});
+
+/** Daily: drops "sent once" markers old enough that the alert can never repeat. */
+exports.cleanupNotificationDedupe = onSchedule("every day 04:00", async () => {
+  const cutoff = Timestamp.fromMillis(Date.now() - DEDUPE_RETENTION_DAYS * DAY);
+  let total = 0;
+  for (;;) {
+    const snap = await db.collection("notificationDedupe").where("createdAt", "<", cutoff).limit(400).get();
+    if (snap.empty) break;
+    const batch = db.batch();
+    snap.docs.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+    total += snap.size;
+    if (snap.size < 400) break;
+  }
+  if (total) logger.info(`cleanupNotificationDedupe: removed ${total} marker(s)`);
+});
+
+exports.isAudience = isAudience;
 exports.dueEscalations = dueEscalations;
 exports.RETENTION_MS = RETENTION_MS;
