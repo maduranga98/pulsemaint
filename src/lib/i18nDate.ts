@@ -11,6 +11,7 @@ const DATE_LOCALES: Record<string, string> = {
   de: 'de-DE',
   zh: 'zh-CN',
   ja: 'ja-JP',
+  ta: 'ta-LK',
 };
 
 function currentLocale(): string {

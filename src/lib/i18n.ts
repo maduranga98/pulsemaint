@@ -22,13 +22,14 @@ import { SUPPORTED_LANGUAGES, type AppLanguage } from './supportedLanguages';
 // script) per product decision — easier to scan in a dropdown for users who
 // may not read every script listed.
 //
-// The switcher is deliberately limited to these 7 by product decision —
-// other locale files (en-GB, ta, bn, ar, hi, ur) still exist and stay
+// The switcher is deliberately limited to these 8 by product decision —
+// other locale files (en-GB, bn, ar, hi, ur) still exist and stay
 // registered as i18next resources below (so a user previously on one of
 // them doesn't lose their translations if re-selected via localStorage/an
-// old link), they're just not offered as a pick here. Sinhala is offered
-// despite being a partial translation (not every string is covered yet)
-// because it's an actively-used language for this company.
+// old link), they're just not offered as a pick here. Tamil is offered
+// despite being a partial translation (not every string is covered yet; the
+// rest falls back to English) because it's an actively-used language for this
+// company.
 // The list itself lives in supportedLanguages.ts (no side effects, so it can be
 // imported from anywhere — including tests); re-exported here for existing imports.
 export { SUPPORTED_LANGUAGES, type AppLanguage };

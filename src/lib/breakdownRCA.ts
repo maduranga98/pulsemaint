@@ -11,6 +11,7 @@ const RESPONSE_LANGUAGE_NAMES: Record<string, string> = {
   de: 'German',
   zh: 'Chinese',
   ja: 'Japanese',
+  ta: 'Tamil',
 };
 
 export interface BreakdownRCASuggestion {
