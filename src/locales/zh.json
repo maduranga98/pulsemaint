@@ -5166,7 +5166,7 @@
           "emergencyButton": "紧急情况？立即致电",
           "pickTopic": "选择主题",
           "guidesCount": "指南：{{count}}",
-          "emergencyHeading": "紧急情况——请先拨打",
+          "emergencyHeading": "紧急情况：请先拨打",
           "otherPeople": "其他人员",
           "callPerson": "致电 {{name}}"
         },

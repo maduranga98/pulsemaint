@@ -18,10 +18,10 @@ const TAB_DEFS: { id: Tab; icon: typeof BookOpen }[] = [
 export const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer'] as const;
 
 interface Props {
-  /** Provided when rendered inline inside the Triage page's "Create" overlay
-   *  — shows a "Back to Triage" button that closes the overlay instead of
-   *  navigating. Omitted when reached directly via the /app/triage-builder
-   *  route, which falls back to navigating to /app/triage. */
+  /** Provided when rendered inline by the Triage page's "Create" button
+   *  (inside the app shell, sidebar visible) — "Back to Triage" returns to the
+   *  page instead of navigating. Omitted when reached directly via the
+   *  /app/triage-builder route, which falls back to navigating to /app/triage. */
   onBack?: () => void;
 }
 

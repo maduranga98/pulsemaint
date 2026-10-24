@@ -7132,7 +7132,7 @@
           "emergencyButton": "Emergency? Call now",
           "pickTopic": "Pick a topic",
           "guidesCount": "Guides: {{count}}",
-          "emergencyHeading": "Emergency — call first",
+          "emergencyHeading": "Emergency: call first",
           "otherPeople": "Other people",
           "callPerson": "Call {{name}}"
         },

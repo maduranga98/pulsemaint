@@ -17,10 +17,10 @@ export function CategoryRail({ cats, counts, selected, onSelect }: Props) {
   return (
     <nav
       aria-label={t('common.triage.knowledge.categoryRail.categoriesHeading')}
-      className="w-[250px] shrink-0 flex flex-col gap-1.5"
+      className="w-[230px] shrink-0 flex flex-col gap-1"
     >
       <div
-        className="text-xs font-bold uppercase tracking-wider px-2 pb-1"
+        className="text-[10px] font-bold uppercase tracking-wider px-2 pb-1"
         style={{ color: '#a7b6d3' }}
       >
         {t('common.triage.knowledge.page.pickTopic')}
@@ -33,7 +33,7 @@ export function CategoryRail({ cats, counts, selected, onSelect }: Props) {
             type="button"
             aria-pressed={active}
             onClick={() => onSelect(cat.id)}
-            className="w-full text-left flex items-center gap-3 px-3 min-h-[52px] rounded-xl text-base transition-colors"
+            className="w-full text-left flex items-center gap-2.5 px-3 min-h-[40px] rounded-lg text-[13px] transition-colors"
             style={{
               background: active ? '#12203d' : 'transparent',
               border: `2px solid ${active ? cat.color : 'transparent'}`,
@@ -42,11 +42,11 @@ export function CategoryRail({ cats, counts, selected, onSelect }: Props) {
             }}
           >
             <span style={{ color: cat.color }} className="shrink-0">
-              <TriageCategoryIcon icon={cat.icon} className="w-5 h-5" />
+              <TriageCategoryIcon icon={cat.icon} className="w-4 h-4" />
             </span>
             <span className="flex-1 min-w-0 truncate">{cat.title}</span>
             {cat.pinned && <Pin className="w-3.5 h-3.5 shrink-0" style={{ color: '#6b7fa3' }} />}
-            <span className="text-sm shrink-0" style={{ color: '#a7b6d3' }}>
+            <span className="text-xs shrink-0" style={{ color: '#8BA3BF' }}>
               {counts[cat.id] ?? 0}
             </span>
           </button>

@@ -81,14 +81,14 @@ export function ContentList({ category, showDelete = false }: Props) {
     <div>
       <div className="flex items-center gap-3 mb-5">
         <span style={{ color: category.color }}>
-          <TriageCategoryIcon icon={category.icon} className="w-7 h-7" />
+          <TriageCategoryIcon icon={category.icon} className="w-6 h-6" />
         </span>
         <div>
-          <h2 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
+          <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
             {category.title}
           </h2>
           {category.desc && (
-            <p className="text-[15px] mt-0.5" style={{ color: '#a7b6d3' }}>
+            <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
               {category.desc}
             </p>
           )}
@@ -127,7 +127,7 @@ export function ContentList({ category, showDelete = false }: Props) {
             >
               <div className="flex items-center">
                 <button
-                  className="flex-1 flex items-center gap-3 px-4 py-4 min-h-[64px] text-left transition-colors"
+                  className="flex-1 flex items-center gap-3 px-4 py-3 min-h-[52px] text-left transition-colors"
                   style={{ background: 'transparent' }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLElement).style.background = '#1a284033')
@@ -149,10 +149,10 @@ export function ContentList({ category, showDelete = false }: Props) {
                 >
                   <TriageContentTypeIcon type={item.type} className="w-5 h-5 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-[17px] font-semibold leading-snug" style={{ color: '#e2e8f0' }}>
+                    <div className="text-sm font-medium" style={{ color: '#e2e8f0' }}>
                       {item.title}
                     </div>
-                    <div className="text-sm mt-0.5" style={{ color: '#a7b6d3' }}>
+                    <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
                       {item.meta}
                     </div>
                   </div>
@@ -209,7 +209,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                       )}
                       {item.note && (
                         <div
-                          className="flex items-start gap-2 p-3.5 rounded-xl text-base"
+                          className="flex items-start gap-2 p-3 rounded-lg text-sm"
                           style={{
                             background: '#1f1b0c',
                             border: '1px solid #5a4a1c',
@@ -221,18 +221,18 @@ export function ContentList({ category, showDelete = false }: Props) {
                         </div>
                       )}
                       {(item.steps ?? []).map((step, i) => (
-                        <div key={i} className="flex gap-4">
+                        <div key={i} className="flex gap-3">
                           <div
-                            className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-lg font-bold"
+                            className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-sm font-bold"
                             style={{ background: '#1d3a78', color: '#ffffff' }}
                           >
                             {i + 1}
                           </div>
                           <div className="flex-1 pt-0.5">
-                            <div className="text-lg font-semibold leading-snug" style={{ color: '#e2e8f0' }}>
+                            <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
                               {step.t}
                             </div>
-                            <div className="text-base mt-0.5 leading-relaxed" style={{ color: '#b9c6df' }}>
+                            <div className="text-sm mt-0.5" style={{ color: '#8BA3BF' }}>
                               {step.d}
                             </div>
                           </div>

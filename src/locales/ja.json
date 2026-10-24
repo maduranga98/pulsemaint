@@ -5166,7 +5166,7 @@
           "emergencyButton": "緊急ですか？今すぐ電話",
           "pickTopic": "トピックを選択",
           "guidesCount": "ガイド: {{count}}",
-          "emergencyHeading": "緊急 — 最初に電話",
+          "emergencyHeading": "緊急：最初に電話",
           "otherPeople": "その他の担当者",
           "callPerson": "{{name}} に電話"
         },
