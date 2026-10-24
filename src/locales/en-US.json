@@ -1623,7 +1623,7 @@
       "floorMap": {
         "title": "Factory Floor Map",
         "needAttention": "{{count}} need attention",
-        "empty": "No machines in breakdown or with open work orders",
+        "empty": "No machines in breakdown or with work in progress",
         "statusBreakdown": "Breakdown",
         "statusMaintenance": "Open Work Order",
         "noLocation": "No location set",
@@ -1633,7 +1633,7 @@
         "noOpenWo": "No open work orders."
       },
       "liveBreakdowns": {
-        "title": "Live Breakdowns",
+        "title": "Breakdowns",
         "active": "{{count}} active",
         "empty": "No active breakdowns",
         "count_one": "{{count}} breakdown",
@@ -1641,7 +1641,7 @@
         "pending": "pending"
       },
       "livePOs": {
-        "title": "Live PO Requests",
+        "title": "PO Requests",
         "pending": "{{count}} pending",
         "empty": "No purchase orders awaiting approval"
       },
@@ -2974,7 +2974,7 @@
           "newlyReported": "NEWLY REPORTED",
           "signOff": "SIGN OFF & CLOSE"
         },
-        "title": "Live Breakdown Board"
+        "title": "Breakdown Board"
       },
       "breakdownKanbanLane": {
         "noItems": "No items"
@@ -3060,7 +3060,7 @@
         "footer_other": "{{shifts}} shifts live · {{people}} people working",
         "sinceDayTime": "since {{day}} {{time}}",
         "sinceTime": "since {{time}}",
-        "title": "Live Shift Status",
+        "title": "Shift Status",
         "workingNow": "{{count}} working now",
         "yesterday": "yesterday",
         "noDepartment": "No department",
@@ -7669,7 +7669,7 @@
         "notWorking": "Not Working",
         "workingCount": "Working ({{count}})",
         "noOneScheduled": "No one scheduled on this shift yet.",
-        "liveShiftStatus": "Live Shift Status",
+        "liveShiftStatus": "Shift Status",
         "summaryLine": "{{people}} currently working, across {{shifts}}",
         "personCount_one": "{{count}} person",
         "personCount_other": "{{count}} people",

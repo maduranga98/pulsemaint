@@ -6,7 +6,6 @@ import { usePlants } from '../../../hooks/usePlants';
 import { useActiveBreakdowns } from '../../../hooks/dashboard/useActiveBreakdowns';
 import { useOpenWorkOrders } from '../../../hooks/dashboard/useOpenWorkOrders';
 import { useSafetyCases } from '../../../hooks/safety/useSafety';
-import { useActivePlantStore } from '../../../store/activePlantStore';
 import DashboardWidget from '../shared/DashboardWidget';
 
 interface PlantStats {
@@ -26,7 +25,6 @@ interface PlantStats {
 export default function PlantOverviewWidget({ siteId, companyId }: { siteId: string; companyId: string }) {
   const { plantId } = useDepartmentScope();
   const role = useAuthStore((s) => s.userProfile?.role);
-  const setActivePlant = useActivePlantStore((s) => s.setActivePlant);
   const { activePlants, loading: plantsLoading } = usePlants(companyId);
   const { breakdowns, loading: bdLoading } = useActiveBreakdowns(siteId);
   const { workOrders, loading: woLoading } = useOpenWorkOrders(siteId);
@@ -59,19 +57,15 @@ export default function PlantOverviewWidget({ siteId, companyId }: { siteId: str
       title="Plants overview"
       live
       loading={plantsLoading || bdLoading || woLoading || scLoading}
-      action={<span className="text-xs text-[#8BA3BF]">{activePlants.length} plants · open items right now</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{activePlants.length} plants · open items</span>}
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {stats.map((s) => {
           const hot = s.breakdowns > 0;
-          const Wrapper = s.id ? 'button' : 'div';
           return (
-            <Wrapper
+            <div
               key={s.id ?? 'unassigned'}
-              {...(s.id ? { type: 'button' as const, onClick: () => setActivePlant(s.id) } : {})}
-              className={`group rounded-xl border bg-[#0A1628] p-4 text-left transition-all ${
-                s.id ? 'hover:-translate-y-0.5 hover:border-[#1A56DB] hover:shadow-lg hover:shadow-[#1A56DB]/10' : ''
-              } ${hot ? 'border-[#EF4444]/40' : 'border-[#1E3A5F]'}`}
+              className={`rounded-xl border bg-[#0A1628] p-4 text-left ${hot ? 'border-[#EF4444]/40' : 'border-[#1E3A5F]'}`}
             >
               <div className="flex items-center gap-2.5">
                 <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${hot ? 'bg-[#EF4444]/15 text-[#EF4444]' : 'bg-[#1A56DB]/15 text-[#5B8DEF]'}`}>
@@ -87,7 +81,7 @@ export default function PlantOverviewWidget({ siteId, companyId }: { siteId: str
                 <Stat icon={<Wrench className="h-3 w-3" />} label="Work orders" value={s.workOrders} color={s.workOrders ? '#5B8DEF' : '#6C87A6'} />
                 <Stat icon={<ShieldAlert className="h-3 w-3" />} label="Safety" value={s.safety} color={s.safety ? '#F59E0B' : '#6C87A6'} />
               </div>
-            </Wrapper>
+            </div>
           );
         })}
       </div>

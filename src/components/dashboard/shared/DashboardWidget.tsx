@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
-import LiveIndicator from './LiveIndicator';
 import LoadingSkeleton from './LoadingSkeleton';
 
 interface DashboardWidgetProps {
@@ -9,6 +8,7 @@ interface DashboardWidgetProps {
   children: ReactNode;
   loading?: boolean;
   error?: string | null;
+  /** Kept so callers still compile — no "LIVE" label is shown any more. */
   live?: boolean;
   action?: ReactNode;
   onRetry?: () => void;
@@ -20,7 +20,6 @@ export default function DashboardWidget({
   children,
   loading = false,
   error = null,
-  live = false,
   action,
   onRetry,
   className = '',
@@ -34,12 +33,6 @@ export default function DashboardWidget({
       <div className="flex items-center justify-between px-5 py-3 border-b border-[#1E3A5F]">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-[#F0F4F8]">{title}</h3>
-          {live && (
-            <span className="inline-flex items-center gap-1 text-[10px] text-[#10B981] font-medium uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-              {t('common.ui.live')}
-            </span>
-          )}
         </div>
         {action && <div className="flex items-center gap-2">{action}</div>}
       </div>
@@ -65,8 +58,6 @@ export default function DashboardWidget({
         )}
         {!loading && !error && children}
       </div>
-
-      {live && <LiveIndicator />}
     </div>
   );
 }
