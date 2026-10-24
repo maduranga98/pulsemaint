@@ -46,13 +46,13 @@ export function ContactList({ showDelete = false, compact = false }: Props) {
   function PhoneButton({ contact, urgent }: { contact: TriageContact; urgent: boolean }) {
     const href = telHref(contact.phone);
     const className =
-      'flex items-center justify-center gap-2 rounded-lg px-4 min-h-[44px] text-sm font-semibold whitespace-nowrap no-underline';
+      'flex items-center justify-center gap-2 rounded-lg px-4 min-h-[38px] sm:min-h-[44px] text-[13px] sm:text-sm font-semibold whitespace-nowrap no-underline';
     const style = urgent
       ? { background: '#dc2626', color: '#ffffff' }
       : { background: '#12203d', color: '#bfdbfe', border: '1px solid #2b4170' };
     const content = (
       <>
-        <Phone className="w-4 h-4 shrink-0" /> {contact.phone}
+        <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> {contact.phone}
       </>
     );
     return href ? (
@@ -74,7 +74,7 @@ export function ContactList({ showDelete = false, compact = false }: Props) {
   function Card({ contact, urgent }: { contact: TriageContact; urgent: boolean }) {
     return (
       <div
-        className="rounded-xl p-4 flex flex-col gap-3"
+        className="rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col gap-2.5 sm:gap-3"
         style={{
           background: urgent ? '#2a1618' : '#0e1628',
           border: urgent ? '2px solid #dc2626' : '1px solid #1f2f4a',
@@ -82,7 +82,7 @@ export function ContactList({ showDelete = false, compact = false }: Props) {
       >
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
+            <div className="text-[13px] sm:text-sm font-semibold" style={{ color: '#e2e8f0' }}>
               {contact.name}
             </div>
             <div className="text-xs mt-0.5" style={{ color: urgent ? '#e5b4b4' : '#6b7fa3' }}>
@@ -120,7 +120,7 @@ export function ContactList({ showDelete = false, compact = false }: Props) {
 
       {emergency.length > 0 && (
         <section aria-label={t('common.triage.knowledge.page.emergencyHeading')} className="space-y-3">
-          <h2 className="text-sm font-semibold" style={{ color: '#fecaca' }}>
+          <h2 className="text-[13px] sm:text-sm font-semibold" style={{ color: '#fecaca' }}>
             {t('common.triage.knowledge.page.emergencyHeading')}
           </h2>
           <div className={gridClass}>
@@ -133,7 +133,7 @@ export function ContactList({ showDelete = false, compact = false }: Props) {
 
       {normal.length > 0 && (
         <section aria-label={t('common.triage.knowledge.page.otherPeople')} className="space-y-3">
-          <h2 className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
+          <h2 className="text-[13px] sm:text-sm font-semibold" style={{ color: '#e2e8f0' }}>
             {t('common.triage.knowledge.page.otherPeople')}
           </h2>
           <div className={gridClass}>

@@ -283,7 +283,7 @@ export default function AppLayout() {
           <div className="flex items-center gap-3 min-w-0">
             <Link to={LAUNCHER_PATH} className="lg:hidden flex items-center gap-2 min-h-[44px]">
               <img src="/logo.svg" alt={t('common.ui2.layout.appLayout.firmicore')} className="w-7 h-7 rounded-md object-contain" />
-              <span className="hidden sm:inline text-sm font-semibold tracking-tight text-[#F0F4F8]">
+              <span className="text-sm font-semibold tracking-tight text-[#F0F4F8]">
                 {t('common.ui2.layout.appLayout.firmicore')}
               </span>
             </Link>

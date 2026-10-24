@@ -17,13 +17,13 @@ export function CategoryGrid({ cats, counts, onSelect }: Props) {
       <h2 className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#8BA3BF' }}>
         {t('common.triage.knowledge.page.pickTopic')}
       </h2>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2.5">
         {cats.map((cat) => (
           <button
             key={cat.id}
             type="button"
             onClick={() => onSelect(cat.id)}
-            className="flex flex-col items-start gap-1.5 p-3.5 min-h-[104px] rounded-xl text-left"
+            className="flex flex-col items-start gap-1 p-3 min-h-[88px] rounded-lg text-left"
             style={{
               background: '#0e1628',
               border: '1px solid #1f2f4a',
@@ -31,9 +31,9 @@ export function CategoryGrid({ cats, counts, onSelect }: Props) {
             }}
           >
             <span style={{ color: cat.color }}>
-              <TriageCategoryIcon icon={cat.icon} className="w-6 h-6" />
+              <TriageCategoryIcon icon={cat.icon} className="w-5 h-5" />
             </span>
-            <span className="text-sm font-semibold leading-snug" style={{ color: '#e2e8f0' }}>
+            <span className="text-[13px] font-semibold leading-snug" style={{ color: '#e2e8f0' }}>
               {cat.title}
             </span>
             <span className="text-xs" style={{ color: '#8BA3BF' }}>
