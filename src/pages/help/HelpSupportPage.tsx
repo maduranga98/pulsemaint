@@ -60,11 +60,11 @@ export default function HelpSupportPage() {
       </div>
 
       {/* Guided tour: a floating card that walks through the menu, one stop at a time. */}
-      <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-blue-200 bg-blue-50/60 p-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-[#1A56DB]"><Compass className="h-5 w-5" /></span>
+      <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1A56DB]/20 text-[#60A5FA]"><Compass className="h-5 w-5" /></span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-slate-900">{t('help.tour.bannerTitle')}</p>
-          <p className="mt-0.5 text-sm text-slate-600">{t('help.tour.bannerBody')}</p>
+          <p className="text-sm font-semibold text-white">{t('help.tour.bannerTitle')}</p>
+          <p className="mt-0.5 text-sm text-white/80">{t('help.tour.bannerBody')}</p>
         </div>
         <button
           type="button"

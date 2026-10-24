@@ -133,7 +133,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
         tooltipComponent={TourTooltip}
         floaterProps={{ disableAnimation: false, styles: { floater: { filter: 'none' } } }}
         styles={{
-          options: { zIndex: 10000, overlayColor: 'rgba(8, 15, 30, 0.62)', arrowColor: '#ffffff' },
+          options: { zIndex: 10000, overlayColor: 'rgba(8, 15, 30, 0.62)', arrowColor: '#0F1E35' },
           spotlight: { borderRadius: 10 },
         }}
       />
