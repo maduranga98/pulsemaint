@@ -11268,6 +11268,14 @@
       "help": {
         "title": "Hilfe & Support",
         "body": "Schritt-für-Schritt-Anleitungen für jedes Modul. Diese Tour können Sie von hier aus jederzeit wiederholen."
+      },
+      "launcher_search": {
+        "title": "Apps suchen",
+        "body": "Geben Sie einen Namen ein, um eine App schnell zu finden."
+      },
+      "launcher_apps": {
+        "title": "Ihre Apps",
+        "body": "Tippen Sie auf eine App, um sie zu öffnen. Darin erscheint unten eine Symbolleiste: Wischen Sie seitlich, um die App zu wechseln, oder tippen Sie auf das Haus, um hierher zurückzukehren."
       }
     },
     "machine": {

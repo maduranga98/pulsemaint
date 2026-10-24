@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import CancellationReasonDialog from '../billing/CancellationReasonDialog';
 import RetentionExportBanner from './RetentionExportBanner';
@@ -32,7 +33,7 @@ function TourAutoStart() {
   const navigate = useNavigate();
   const requested = (state as { startTour?: string } | null)?.startTour === 'main';
   useEffect(() => {
-    if (!requested || !pathname.startsWith('/app/dashboard')) return;
+    if (!requested || !(pathname.startsWith('/app/dashboard') || pathname === LAUNCHER_PATH)) return;
     // Wait for the dashboard, plant switcher and menu to render so every stop is on screen.
     const timer = window.setTimeout(() => {
       navigate(pathname, { replace: true, state: null });
@@ -178,7 +179,8 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="h-screen bg-[#0A1628] text-[#F0F4F8] flex overflow-hidden">
+    // dvh, not vh: on phones 100vh includes the browser's address bar, which pushed the dock off-screen.
+    <div className="h-dvh bg-[#0A1628] text-[#F0F4F8] flex overflow-hidden">
       {/* Sidebar */}
       <aside className="hidden lg:flex w-60 shrink-0 bg-[#0F1E35] border-r border-[#1E3A5F] flex-col">
         <div className="h-14 flex items-center px-5 border-b border-[#1E3A5F] shrink-0">
@@ -276,12 +278,12 @@ export default function AppLayout() {
       </aside>
 
       {/* Main column */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen">
+      <div className="flex-1 flex flex-col min-w-0 h-dvh">
         <header className="h-14 shrink-0 bg-[#0F1E35] border-b border-[#1E3A5F] flex items-center justify-between px-4 lg:px-6 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <Link to={LAUNCHER_PATH} className="lg:hidden flex items-center gap-2 min-h-[44px]">
               <img src="/logo.svg" alt={t('common.ui2.layout.appLayout.firmicore')} className="w-7 h-7 rounded-md object-contain" />
-              <span className="text-sm font-semibold tracking-tight text-[#F0F4F8]">
+              <span className="hidden sm:inline text-sm font-semibold tracking-tight text-[#F0F4F8]">
                 {t('common.ui2.layout.appLayout.firmicore')}
               </span>
             </Link>
@@ -295,7 +297,7 @@ export default function AppLayout() {
               row instead of the whole page — an unscoped page-level scroll was
               shifting NotificationBell's anchor and rendering its dropdown
               panel off-screen. */}
-          <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide shrink-0">
             <LanguageSwitcher />
             <NotificationBell />
             <EndShiftButton />
@@ -311,9 +313,12 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={handleLogout}
-              className="px-3 py-1.5 text-[12px] font-medium text-[#D5DEEA] bg-[#142849] border border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-[#F0F4F8] rounded-md transition-colors"
+              aria-label={t('common.signOut')}
+              title={t('common.signOut')}
+              className="flex h-9 w-9 items-center justify-center sm:h-auto sm:w-auto sm:px-3 sm:py-1.5 text-[12px] font-medium text-[#D5DEEA] bg-[#142849] border border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-[#F0F4F8] rounded-md transition-colors"
             >
-              {t('common.signOut')}
+              <LogOut className="h-4 w-4 sm:hidden" aria-hidden="true" />
+              <span className="hidden sm:inline">{t('common.signOut')}</span>
             </button>
           </div>
         </header>

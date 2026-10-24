@@ -4,6 +4,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useActivePlantStore } from '../../store/activePlantStore';
 import { usePlants } from '../../hooks/usePlants';
 import { useTranslation } from 'react-i18next';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { LAUNCHER_PATH } from './navConfig';
 
 // Admin group (Settings, Billing, Feedback & Requests) and Help are about the
 // company/account, not a plant, so the plant switcher is hidden there.
@@ -22,6 +24,7 @@ const PLANT_FREE_PREFIXES = ['/app/settings', '/app/billing', '/app/support-requ
 export function PlantTabs() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const isPhone = useMediaQuery('(max-width: 1023px)');
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const { activePlants, loading } = usePlants(companyId);
@@ -38,6 +41,8 @@ export function PlantTabs() {
   }, [needsPlant, activePlants, setActivePlant]);
 
   if (!isAdmin || loading || activePlants.length === 0) return null;
+  // On phones the plant switcher lives on the launcher only; the choice carries into every module.
+  if (isPhone && pathname !== LAUNCHER_PATH) return null;
   if (PLANT_FREE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
 
   const options = activePlants.map((p) => ({ id: p.id, label: p.name }));
