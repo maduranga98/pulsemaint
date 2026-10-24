@@ -10,6 +10,7 @@ const APP_LANGUAGE_NAMES: Record<AppLanguage, string> = {
   zh: 'Chinese',
   ja: 'Japanese',
   si: 'Sinhala',
+  ta: 'Tamil',
 };
 
 interface TranslationResult {
@@ -28,6 +29,7 @@ const GOOGLE_TRANSLATE_TARGET: Record<AppLanguage, string> = {
   zh: 'zh-CN',
   ja: 'ja',
   si: 'si',
+  ta: 'ta',
 };
 
 /**

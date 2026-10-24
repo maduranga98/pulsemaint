@@ -15,11 +15,11 @@ describe('voice dictation languages', () => {
   it('has one distinct speech locale per language', () => {
     const codes = VOICE_INPUT_LANGUAGES.map((l) => l.code);
     expect(new Set(codes).size).toBe(SUPPORTED_LANGUAGES.length);
-    expect(codes).toEqual(['en-US', 'si-LK', 'es-ES', 'fr-FR', 'de-DE', 'zh-CN', 'ja-JP']);
+    expect(codes).toEqual(['en-US', 'si-LK', 'ta-LK', 'es-ES', 'fr-FR', 'de-DE', 'zh-CN', 'ja-JP']);
   });
 
   it('no longer offers languages outside the i18n setup', () => {
-    for (const other of ['ta-LK', 'hi-IN', 'ur-PK', 'bn-BD', 'ar-SA', 'pt-BR', 'ru-RU']) {
+    for (const other of ['hi-IN', 'ur-PK', 'bn-BD', 'ar-SA', 'pt-BR', 'ru-RU']) {
       expect(isVoiceInputLanguage(other)).toBe(false);
       expect(VOICE_INPUT_LANGUAGES.some((l) => l.code === other)).toBe(false);
     }
@@ -27,7 +27,8 @@ describe('voice dictation languages', () => {
 
   it('accepts only supported speech locales as a saved preference', () => {
     expect(isVoiceInputLanguage('si-LK')).toBe(true);
-    expect(isVoiceInputLanguage('ta-LK')).toBe(false);
+    expect(isVoiceInputLanguage('ta-LK')).toBe(true);
+    expect(isVoiceInputLanguage('hi-IN')).toBe(false);
     expect(isVoiceInputLanguage('si')).toBe(false); // an i18n code, not a speech locale
     expect(isVoiceInputLanguage(null)).toBe(false);
     expect(isVoiceInputLanguage(undefined)).toBe(false);
@@ -40,7 +41,8 @@ describe('voice dictation languages', () => {
   it('names a supported locale in English for translation prompts, and nothing else', () => {
     expect(voiceLanguageName('si-LK')).toBe('Sinhala');
     expect(voiceLanguageName('zh-CN')).toBe('Chinese');
-    expect(voiceLanguageName('ta-LK')).toBeUndefined();
+    expect(voiceLanguageName('ta-LK')).toBe('Tamil');
+    expect(voiceLanguageName('hi-IN')).toBeUndefined();
     expect(voiceLanguageName(undefined)).toBeUndefined();
   });
 });

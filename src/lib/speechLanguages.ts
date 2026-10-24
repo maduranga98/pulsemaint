@@ -8,12 +8,13 @@ import { SUPPORTED_LANGUAGES, type AppLanguage } from './supportedLanguages';
 // setup fails to compile until it is given a speech locale here, and nothing
 // can be offered for dictation that the app doesn't support. (Previously the
 // picker kept its own hand-written list, which had also drifted to include
-// Tamil, Hindi, Urdu, Bengali and Arabic.)
+// Hindi, Urdu, Bengali and Arabic.)
 
 /** BCP-47 locale the Web Speech API needs to recognise each language. */
 const SPEECH_LOCALE: Record<AppLanguage, string> = {
   'en-US': 'en-US',
   si: 'si-LK',
+  ta: 'ta-LK',
   es: 'es-ES',
   fr: 'fr-FR',
   de: 'de-DE',
@@ -25,6 +26,7 @@ const SPEECH_LOCALE: Record<AppLanguage, string> = {
 const PICKER_LABEL: Record<AppLanguage, string> = {
   'en-US': 'English',
   si: 'Sinhala (සිංහල)',
+  ta: 'Tamil (தமிழ்)',
   es: 'Spanish',
   fr: 'French',
   de: 'German',
