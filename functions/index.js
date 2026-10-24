@@ -146,6 +146,7 @@ exports.submitPublicBreakdown = require("./src/breakdowns/publicReport").submitP
 // Admin "Export all data" — ZIP of the company's records + attachments with an offline viewer.
 Object.assign(exports, require("./src/exports/companyExport"));
 Object.assign(exports, require("./src/auth/deleteUser"));
+Object.assign(exports, require("./src/auth/linkGoogleLogin"));
 Object.assign(exports, (({escalateUnackedBreakdowns, cleanupOldNotifications, deleteReadNotification, cleanupNotificationDedupe}) =>
   ({escalateUnackedBreakdowns, cleanupOldNotifications, deleteReadNotification, cleanupNotificationDedupe}))(
     require("./src/notifications/notificationAutomation")));
