@@ -3,18 +3,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 import { plantConstraints } from '../../lib/plantQuery';
-
-/** WO statuses that still need attention on the floor — everything up to and
- *  including completion (a completed WO still awaits the supervisor's sign-off).
- *  Once signed off / closed / cancelled a WO drops off the map. */
-const WO_ATTENTION_STATUSES = new Set([
-  'OPEN',
-  'ASSIGNED',
-  'IN_PROGRESS',
-  'ON_HOLD_PARTS',
-  'ON_HOLD_APPROVAL',
-  'COMPLETED',
-]);
+import { FLOOR_WO_STARTED } from '../../lib/factoryFloor';
 
 /** Breakdown statuses that are still "reported" — a machine stays flagged until
  *  its breakdown is resolved / closed / cancelled. */
@@ -39,12 +28,12 @@ export interface FloorMachine {
 }
 
 /**
- * The machines a supervisor is actively driving, computed live from work orders
- * and breakdown tickets: any machine with a work order that isn't yet signed
- * off, or a breakdown that isn't yet resolved. Both sources are live
- * (`onSnapshot`), so a machine appears the moment a WO/breakdown is raised and
- * disappears automatically once every one of its WOs is signed off and its
- * breakdowns are resolved.
+ * The machines with work in progress, computed from work orders and breakdown
+ * tickets: any machine with a breakdown that isn't yet resolved, or a work order
+ * that has started and isn't yet signed off. Both sources are subscribed
+ * (`onSnapshot`), so a machine appears when its work starts (a WO that is only
+ * created doesn't count) and disappears once every one of its WOs is signed off
+ * and its breakdowns are resolved.
  */
 export function useFactoryFloorAttention(companyId: string) {
   const [wos, setWos] = useState<Record<string, unknown>[]>([]);
@@ -120,7 +109,8 @@ export function useFactoryFloorAttention(companyId: string) {
 
     for (const raw of wos) {
       const status = String(raw.status ?? '');
-      if (!WO_ATTENTION_STATUSES.has(status)) continue;
+      // Only work that has started, until it is signed off and closed.
+      if (!FLOOR_WO_STARTED(status)) continue;
       if (!inScopedPlant(raw as { machinePlantId?: string; machineId?: string })) continue;
       const machineId = String(raw.machineId ?? '');
       if (!machineId) continue;

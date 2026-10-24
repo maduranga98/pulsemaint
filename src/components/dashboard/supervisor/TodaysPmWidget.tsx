@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CalendarClock } from 'lucide-react';
 import { useOpenWorkOrders } from '../../../hooks/dashboard/useOpenWorkOrders';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
@@ -20,7 +19,6 @@ const toDate = (v: unknown): Date | null => {
  * technicians and the bell are alerted about at the start of the day.
  */
 export default function TodaysPmWidget({ siteId }: { siteId: string }) {
-  const navigate = useNavigate();
   const { workOrders, loading, error } = useOpenWorkOrders(siteId);
   const inScope = useRecordPlantMatcher();
   const plantName = usePlantNameLookup();
@@ -51,11 +49,9 @@ export default function TodaysPmWidget({ siteId }: { siteId: string }) {
       ) : (
         <div className="space-y-1.5 max-h-[320px] overflow-y-auto">
           {rows.map(({ wo, due, overdue }) => (
-            <button
+            <div
               key={wo.id}
-              type="button"
-              onClick={() => navigate(`/app/work-orders?woId=${wo.id}`)}
-              className="flex w-full items-center justify-between gap-2 rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-left transition-colors hover:border-[#1A56DB]"
+              className="flex w-full items-center justify-between gap-2 rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-left"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-[#F0F4F8]">{wo.machineName}</p>
@@ -75,7 +71,7 @@ export default function TodaysPmWidget({ siteId }: { siteId: string }) {
                 </span>
                 <PlantBadge name={plantName(wo.machinePlantId)} />
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}
