@@ -131,16 +131,6 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
     return c;
   }, [invites, cardsById]);
 
-  const counts = useMemo(() => {
-    const now = Date.now();
-    const c: Record<string, number> = { all: invites.length };
-    for (const inv of invites) {
-      const s = getInviteDisplayStatus({ ...inv, dueAtMs: inviteDueMillis(inv) }, now);
-      c[s] = (c[s] ?? 0) + 1;
-    }
-    return c;
-  }, [invites]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -151,12 +141,6 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
 
   return (
     <div>
-      <div className="mb-4 grid grid-cols-3 gap-3">
-        <Stat value={counts.submitted ?? 0} label={t('common.safetyTrainings.contractor.stats.awaitingReview')} />
-        <Stat value={counts.signed_off ?? 0} label={t('common.safetyTrainings.contractor.stats.signedOff')} />
-        <Stat value={cards.filter((c) => isSafetyCardValid(c)).length} label={t('common.safetyTrainings.contractor.stats.cardsActive')} />
-      </div>
-
       <div className="mb-4 flex flex-wrap items-center gap-2">
         {SUBMISSION_QUEUES.map((f) => (
           <button
@@ -212,15 +196,6 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
       {reassigning && <ReassignDialog invite={reassigning} onClose={() => setReassigning(null)} />}
       {signingOff && <SignOffDialog invite={signingOff} onClose={() => setSigningOff(null)} />}
       {issuing && <IssueCardDialog invite={issuing} onClose={() => setIssuing(null)} />}
-    </div>
-  );
-}
-
-function Stat({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
-      <div className="text-2xl font-bold text-slate-900">{value}</div>
-      <div className="text-xs text-slate-500">{label}</div>
     </div>
   );
 }
