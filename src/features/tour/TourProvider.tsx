@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import Joyride, { ACTIONS, EVENTS, STATUS, type CallBackProps, type Step } from 'react-joyride';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { TOUR_DEFS, type TourStepDef } from './tourDefs';
@@ -34,6 +35,9 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const [steps, setSteps] = useState<Step[]>([]);
   const [stepIndex, setStepIndex] = useState(0);
   const current = useRef<TourId | null>(null);
+  const { pathname } = useLocation();
+  /** Page the tour was started on — leaving it ends the tour (its targets no longer exist). */
+  const startPath = useRef<string | null>(null);
 
   const text = useCallback((literal: string | undefined, key: string | undefined) => literal ?? (key ? (t(key as never) as unknown as string) : ''), [t]);
 
@@ -50,6 +54,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
     const defs = visibleSteps(TOUR_DEFS[tour]);
     if (defs.length < minSteps) return false;
     current.current = tour;
+    startPath.current = window.location.pathname;
     setSteps(toSteps(defs));
     setStepIndex(0);
     setRun(true);
@@ -86,15 +91,34 @@ export function TourProvider({ children }: { children: ReactNode }) {
   }, [finish]);
 
   // A route change or sign-out while a tour is open ends it quietly (without marking it as seen).
+  // Without this the overlay stayed on top of the next page with no card to dismiss it, which
+  // froze the whole app on phones.
   useEffect(() => {
-    if (!userId && run) { setRun(false); current.current = null; }
-  }, [userId, run]);
+    if (!run) return;
+    if (!userId || (startPath.current !== null && pathname !== startPath.current)) {
+      setRun(false);
+      setStepIndex(0);
+      current.current = null;
+      startPath.current = null;
+    }
+  }, [userId, run, pathname]);
 
   const api = useMemo<TourApi>(() => ({ start, startOnce, running: run }), [start, startOnce, run]);
 
   return (
     <TourContext.Provider value={api}>
       {children}
+      {run && (
+        // Always-reachable exit, above the overlay: if a card ever fails to appear the user is never trapped.
+        <button
+          type="button"
+          onClick={() => finish('dismissed')}
+          className="fixed left-1/2 z-[10001] -translate-x-1/2 rounded-full bg-white px-5 py-2 text-xs font-semibold text-slate-800 shadow-lg"
+          style={{ bottom: 'max(16px, env(safe-area-inset-bottom))' }}
+        >
+          {t('tour.ui.skip')}
+        </button>
+      )}
       <Joyride
         run={run}
         steps={steps}
