@@ -12,6 +12,7 @@ import NotificationBell from './NotificationBell';
 import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
 import PlantSwitcher from './PlantSwitcher';
+import PlantTabs from './PlantTabs';
 import { useSupportUnreadCount } from '../../hooks/useSupportUnreadCount';
 import { useTour } from '../../features/tour/TourProvider';
 import { companyApproval } from '../../lib/companyApproval';
@@ -323,6 +324,8 @@ export default function AppLayout() {
             </button>
           </div>
         </header>
+
+        <PlantTabs />
 
         <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto scrollbar-hide">
           <TourAutoStart />

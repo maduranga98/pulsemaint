@@ -6,14 +6,13 @@ import { useActivePlantStore } from '../../store/activePlantStore';
 import { usePlants } from '../../hooks/usePlants';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
-import { LAUNCHER_PATH } from './navConfig';
 
 // Admin group (Settings, Billing, Feedback & Requests) and Help are about the
 // company/account, not a plant, so the plant switcher is hidden there.
 const PLANT_FREE_PREFIXES = ['/app/settings', '/app/billing', '/app/support-requests', '/app/help'];
 
 /**
- * Admin-only plant switcher, a dropdown chip in the header (next to the
+ * Admin-only plant switcher for wide screens, a dropdown chip in the header (next to the
  * company name). Plant is the main scoping category across the app; every
  * other role is locked to their own registered plant, but admin manages all of
  * them, so they pick which one they're "viewing as" here — one plant is always
@@ -61,8 +60,8 @@ export function PlantSwitcher() {
   }, [open]);
 
   if (!isAdmin || loading || activePlants.length === 0) return null;
-  // On phones the plant switcher lives on the launcher only; the choice carries into every module.
-  if (isPhone && pathname !== LAUNCHER_PATH) return null;
+  // Phones use the plant tabs strip on the launcher (PlantTabs) instead of this dropdown.
+  if (isPhone) return null;
   if (PLANT_FREE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
 
   const current = activePlants.find((p) => p.id === activePlantId) ?? activePlants[0];
