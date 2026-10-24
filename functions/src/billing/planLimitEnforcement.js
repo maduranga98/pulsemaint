@@ -4,15 +4,18 @@
  * The app checks count limits (machines, inventory parts, PM schedules, plants, users)
  * in the browser, which anyone calling Firestore directly could skip. These triggers run
  * when such a record is created and look at where it ranks among the company's records
- * (oldest first): when it is beyond the plan's limit it is removed again. Nothing is lost
+ * (oldest first): when it is beyond the plan's limit it is logged (and, with
+ * PLAN_LIMIT_ENFORCEMENT=on, removed again). Nothing is lost
  * for good — a full copy goes to `planLimitViolations`, which only Lumora staff can read.
  *
  * Imports and creates that pass the browser checks never rank beyond the limit, so they
  * are untouched. A company that is already over its limit simply cannot add more (the
  * same thing the browser does).
  *
- * Set PLAN_LIMIT_ENFORCEMENT=log to only record violations without removing anything, or
- * =off to switch the whole thing off (see functions/.env.example).
+ * By default (PLAN_LIMIT_ENFORCEMENT=log) nothing is removed: the app blocks the add up
+ * front with an "Upgrade your plan" message, and a record that still slips past (a direct
+ * API write, a race) is only logged in planLimitViolations. Set =on to also remove such
+ * records again, or =off to switch the whole thing off (see functions/.env.example).
  */
 
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
@@ -33,8 +36,8 @@ const RESOURCES = {
 };
 
 function mode() {
-  const m = String(process.env.PLAN_LIMIT_ENFORCEMENT || "on").toLowerCase();
-  return m === "off" || m === "log" ? m : "on";
+  const m = String(process.env.PLAN_LIMIT_ENFORCEMENT || "log").toLowerCase();
+  return m === "off" || m === "on" ? m : "log";
 }
 
 /** Does this record use up a slot of the limit? */

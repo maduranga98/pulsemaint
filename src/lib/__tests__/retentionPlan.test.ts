@@ -28,6 +28,12 @@ describe('retention plan', () => {
   it('ages inventory clutter by creation date', () => {
     expect(isExpired(rule('stockMovements', 'createdAt'), { createdAt: ts(500) }, NOW)).toBe(true);
   });
+  it('keeps machines, users, contractors, inventory, suppliers, triage, audits, evaluations, plants and company data forever', () => {
+    for (const keep of ['machines', 'users', 'contractors', 'inventoryParts', 'suppliers', 'triageFlows', 'audit_sessions', 'evaluations', 'plants', 'companies', 'safetyTrainingInvites']) {
+      expect(NEVER_CLEARED).toContain(keep);
+      expect(RETENTION_RULES.some((r: { collection: string }) => r.collection === keep)).toBe(false);
+    }
+  });
   it('never targets permanent data', () => {
     for (const keep of NEVER_CLEARED) {
       expect(RETENTION_RULES.some((r: { collection: string }) => r.collection === keep)).toBe(false);

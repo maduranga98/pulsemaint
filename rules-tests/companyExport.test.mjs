@@ -98,16 +98,13 @@ describe('runCompanyExport', () => {
     const zip = readZip(buf);
     const text = (name) => zip.get(name)?.toString('utf8');
 
-    for (const name of ['index.html', 'data/workOrders.json', 'data/workOrders.csv', '_export-notes.txt',
-      'Work orders/WO-A-1/details.txt', 'Work orders/WO-A-1/details.json', 'Breakdowns/Breakdown tickets/BD-1/details.txt']) {
+    for (const name of ['_export-notes.txt', 'Work orders/Other/WO-A-1/details.txt', 'Breakdowns/Without work order/BD-1/details.txt']) {
       assert.ok(zip.has(name), `missing ${name}`);
     }
-    assert.equal(text('Work orders/WO-A-1/report.pdf'), 'A-REPORT-CONTENT');
-    const wo = JSON.parse(text('data/workOrders.json'));
-    assert.deepEqual(wo.map((r) => r.id), ['woA']);
-    assert.ok(text('index.html').includes('Bearing'), 'subcollection missing');
-    assert.ok(text('Work orders/WO-A-1/details.txt').includes('Bearing'), 'subcollection missing in details.txt');
-    assert.match(text('index.html'), /Acme &lt;Ltd&gt;/);
+    for (const name of zip.keys()) assert.ok(!/index\.html|^data\/|\.json$/.test(name), `unexpected ${name}`);
+    assert.equal(text('Work orders/Other/WO-A-1/report.pdf'), 'A-REPORT-CONTENT');
+    assert.ok(text('Work orders/Other/WO-A-1/details.txt').includes('Bearing'), 'subcollection missing in details.txt');
+    assert.ok(!text('Work orders/Other/WO-A-1/details.txt').includes('Press'), 'machines are not exported');
 
     // Nothing of company B anywhere in the archive.
     for (const [name, content] of zip) {
@@ -152,12 +149,12 @@ describe('runCompanyExport', () => {
     for (let n = 1; n <= 3; n++) {
       const [buf] = await bucket.file(`companyExports/M/exM/part-${n}.zip`).download();
       for (const [name, content] of readZip(buf)) {
-        if (n > 1) assert.ok(name !== 'index.html', 'the viewer belongs to part 1 only');
+        if (n > 1) assert.ok(name !== '_export-notes.txt', 'the notes belong to part 1 only');
         all.set(name, content.toString('utf8'));
       }
     }
-    assert.ok(all.has('index.html'));
-    for (const n of names) assert.equal(all.get(`Work orders/WO-M-1/${n}`), `M-${n}`);
+    assert.ok(all.has('_export-notes.txt'));
+    for (const n of names) assert.equal(all.get(`Work orders/Other/WO-M-1/${n}`), `M-${n}`);
   });
 
   it('a company with no data still exports', async () => {

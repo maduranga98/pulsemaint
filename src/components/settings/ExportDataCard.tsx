@@ -85,7 +85,7 @@ export function ExportDataCard({ company }: { company: CompanyProfile }) {
           <div>
             <h2 className="font-semibold text-slate-900">{t('common.settings.export.title', 'Export all data')}</h2>
             <p className="text-sm text-slate-500 mt-0.5 max-w-xl">
-              {t('common.settings.export.description', 'Download a ZIP (several ZIP files when your data is large) with every work order, breakdown, contractor, machine, PM schedule, safety case, inventory item, purchase order, audit and evaluation, together with their attachments. Unzip it and open index.html to browse everything offline. The download link lasts 24 hours.')}
+              {t('common.settings.export.description', 'Download a ZIP (several ZIP files when your data is large) with your work orders (in folders by work order type), breakdowns, safety cases, work permits and shift handovers. Work orders and breakdowns include their attachments; safety cases and work permits are text only; shift handovers are a spreadsheet. Machines, users, inventory, contractors, analytics, audits, evaluations, reports, MOE and plants are not included. The download link lasts 24 hours.')}
             </p>
             {status && <p className={`text-sm mt-2 ${job?.status === 'failed' ? 'text-red-600' : 'text-slate-600'}`}>{status}</p>}
             {job?.status === 'ready' && !expired && job.downloadUrl && (
@@ -99,7 +99,7 @@ export function ExportDataCard({ company }: { company: CompanyProfile }) {
             {job?.status === 'ready' && !expired && (job.downloads?.length ?? 0) > 1 && (
               <div className="mt-2 text-sm text-slate-600">
                 <p>
-                  {t('common.settings.export.manyParts', 'Large export: it is split into {{count}} ZIP files. Download all of them and unzip them into the same folder, then open index.html (it is in part 1).', { count: job.downloads!.length })}
+                  {t('common.settings.export.manyParts', 'Large export: it is split into {{count}} ZIP files. Download all of them and unzip them into the same folder (the notes file is in part 1).', { count: job.downloads!.length })}
                 </p>
                 <ul className="mt-1 space-y-1">
                   {job.downloads!.map((d, i) => (

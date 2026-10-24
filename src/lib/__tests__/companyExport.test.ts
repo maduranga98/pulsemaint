@@ -16,6 +16,7 @@ function fakeDb(store: Record<string, Record<string, Doc>>) {
   const mkDoc = (colPath: string, id: string, data: Doc) => ({
     id,
     data: () => data,
+    get: (f: string) => data[f],
     ref: { path: `${colPath}/${id}`, collection: (sub: string) => mkCol(`${colPath}/${id}/${sub}`) },
   });
   const mkCol = (path: string): any => {
@@ -27,7 +28,10 @@ function fakeDb(store: Record<string, Record<string, Doc>>) {
       orderBy: () => q,
       limit: (n: number) => { max = n; return q; },
       startAfter: (d: { id: string }) => { after = d.id; return q; },
-      doc: (id: string) => ({ collection: (sub: string) => mkCol(`${path}/${id}/${sub}`) }),
+      doc: (id: string) => ({
+        collection: (sub: string) => mkCol(`${path}/${id}/${sub}`),
+        get: async () => ({ exists: !!store[path]?.[id], get: (f: string) => store[path]?.[id]?.[f] }),
+      }),
       get: async () => {
         let rows = Object.entries(store[path] ?? {}).sort(([a], [b]) => a.localeCompare(b));
         rows = rows.filter(([, d]) => filters.every(([f, v]) => d[f] === v));
@@ -44,15 +48,31 @@ function fakeDb(store: Record<string, Record<string, Doc>>) {
 
 const store = {
   workOrders: {
-    woA1: { siteId: 'A', companyId: 'A', woNumber: 'WO-A-1', createdAt: ts('2026-01-02T03:04:05Z'), documents: [{ name: 'report.pdf', url: url('workorders/A/woA1/documents/1700000000000_report.pdf') }], finalPhotos: [url('workorders/A/woA1/completion/photos/p1.jpg')] },
-    woA2: { siteId: 'A', woNumber: 'WO-A-2</script><script>alert(1)</script>', description: '=HYPERLINK("http://evil")', stolen: url('workorders/B/woB1/documents/secret.pdf'), traversal: 'companies/A/../B/x/secret.pdf' },
+    woA1: { siteId: 'A', companyId: 'A', woNumber: 'WO-A-1', woType: 'CONTRACTOR', status: 'IN_PROGRESS', createdBy: 'uidTechA0123456789abcdefgh', plantId: 'plantMain0123456789abcd', createdAt: ts('2026-01-02T03:04:05Z'), documents: [{ name: 'report.pdf', url: url('workorders/A/woA1/documents/1700000000000_report.pdf') }], finalPhotos: [url('workorders/A/woA1/completion/photos/p1.jpg')] },
+    woA2: { siteId: 'A', woNumber: 'WO-A-2</script><script>alert(1)</script>', woType: 'PREVENTIVE', linkedBreakdownId: 'bdHigh1', description: '=HYPERLINK("http://evil")', stolen: url('workorders/B/woB1/documents/secret.pdf'), traversal: 'companies/A/../B/x/secret.pdf' },
     woB1: { siteId: 'B', companyId: 'B', woNumber: 'WO-B-1', documents: [url('workorders/B/woB1/documents/secret.pdf')] },
   },
   'workOrders/woA1/partsRequests': { pr1: { partName: 'Bearing' } },
-  breakdown_tickets: { bdA: { siteId: 'A', ticketNumber: 'BD-1', photos: [url('breakdowns/A/bdA/media/x.png')] }, bdB: { siteId: 'B', ticketNumber: 'BD-B' } },
+  breakdown_tickets: {
+    bdLow1: { siteId: 'A', ticketNumber: 'BD-LOW', severity: 'low', source: 'qr_scan', assignedTechnician: 'uidTechA0123456789abcdefgh', photos: [url('breakdowns/A/bdLow1/media/x.png')] },
+    bdHigh1: { siteId: 'A', ticketNumber: 'BD-HIGH-1', severity: 'high', reportedAt: ts('2026-01-01T00:00:00Z'), photos: [url('breakdowns/A/bdHigh1/media/a.png')] },
+    bdHigh2: { siteId: 'A', ticketNumber: 'BD-HIGH-2', severity: 'critical', reportedAt: ts('2026-01-02T00:00:00Z'), linkedWOId: 'woA2', photos: [url('breakdowns/A/bdHigh2/media/a.png')] },
+    bdLone: { siteId: 'A', ticketNumber: 'BD-LONE', severity: 'medium' },
+    bdB: { siteId: 'B', ticketNumber: 'BD-B' },
+  },
+  safety_cases: { sc1: { companyId: 'A', caseNumber: 'SC-1', photos: [url('companies/A/safety/p.jpg')], status: 'closed' } },
+  work_permits: {
+    wp1: { companyId: 'A', permitNumber: 'WP-1', workOrderNumber: 'WO-A-1', status: 'active', attachments: [url('companies/A/permits/a.pdf')] },
+    wp2: { companyId: 'A', permitNumber: 'WP-2', workOrderNumber: 'WO-A-1', status: 'closed' },
+    wp3: { companyId: 'A', permitNumber: 'WP-3' },
+  },
+  shift_handovers: { h1: { companyId: 'A', shiftName: 'Day', shiftDate: '2026-10-22', outgoingSupervisorId: 'uidTechA0123456789abcdefgh', generalNotes: 'a,b "c"', status: 'accepted' } },
+  pm_history: { pm1: { companyId: 'A', machineName: 'Press', status: 'completed_on_time', month: '2026-10', photos: [url('companies/A/pm/p.jpg')] } },
+  stockMovements: { sm1: { companyId: 'A', partName: 'Bearing', type: 'stock_in', quantity: 5, note: '=SUM(1)' } },
   machines: { mA: { companyId: 'A', name: 'Press' }, mB: { companyId: 'B', name: 'Lathe B' } },
-  'audit_sessions/P1/sessions': { s1: { title: 'Plant audit', evidence: [url('audit_attachments/P1/s1/e.jpg')] } },
-  'audit_sessions/OTHER/sessions': { s2: { title: 'Other company audit' } },
+  'companies/A/users': { uidTechA0123456789abcdefgh: { fullName: 'Sanju' } },
+  companies: { A: { name: 'Acme <Ltd>' } },
+  plants: { plantMain0123456789abcd: { companyId: 'A', name: 'Main plant' } },
 };
 
 describe('isAllowedStoragePath', () => {
@@ -67,74 +87,134 @@ describe('isAllowedStoragePath', () => {
   });
 });
 
-describe('gatherCompanyData', () => {
-  it("exports only the company's own records and files", async () => {
-    const g = await gatherCompanyData({ db: fakeDb(store), companyId: 'A', plantIds: ['P1'], bucketName: BUCKET });
-    const wo = g.datasets.workOrders.collections.workOrders.map((r: any) => r.id).sort();
-    expect(wo).toEqual(['woA1', 'woA2']); // not woB1
-    expect(g.datasets.breakdowns.collections.breakdown_tickets.map((r: any) => r.id)).toEqual(['bdA']);
-    expect(g.datasets.machines.collections.machines.map((r: any) => r.id)).toEqual(['mA']);
-    expect(g.datasets.audits.collections.audit_sessions.map((r: any) => r.id)).toEqual(['s1']); // plant P1, not OTHER
+const gather = (companyId = 'A') => gatherCompanyData({ db: fakeDb(store), companyId, plantIds: ['P1'], bucketName: BUCKET });
+const build = (g: any, missing: string[] = []) => {
+  const entries = buildTextEntries({ company: 'Acme <Ltd>', exportedAt: '2026-10-23T00:00:00Z', datasets: g.datasets, missing, refused: g.refused });
+  return { entries, byName: Object.fromEntries(entries.map((e: any) => [e.name, e.content as string])) as Record<string, string> };
+};
 
+describe('gatherCompanyData', () => {
+  it("exports only the five requested sections, only the company's own records and files", async () => {
+    const g = await gather();
+    expect(Object.keys(g.datasets).filter((k) => k !== '_names').sort()).toEqual(['breakdowns', 'handovers', 'pmHistory', 'safety', 'stockMovements', 'workOrders', 'workPermits']);
+    expect(g.datasets.workOrders.collections.workOrders.map((r: any) => r.id).sort()).toEqual(['woA1', 'woA2']); // not woB1
+    expect(g.datasets.breakdowns.collections.breakdown_tickets.map((r: any) => r.id).sort()).toEqual(['bdHigh1', 'bdHigh2', 'bdLone', 'bdLow1']);
     const paths = [...g.files.keys()].sort();
     expect(paths).toEqual([
-      'audit_attachments/P1/s1/e.jpg',
-      'breakdowns/A/bdA/media/x.png',
+      'breakdowns/A/bdHigh1/media/a.png',
+      'breakdowns/A/bdHigh2/media/a.png',
+      'breakdowns/A/bdLow1/media/x.png',
+      'companies/A/pm/p.jpg',
       'workorders/A/woA1/completion/photos/p1.jpg',
       'workorders/A/woA1/documents/1700000000000_report.pdf',
-    ]);
-    expect(g.refused).toContain('workorders/B/woB1/documents/secret.pdf'); // A's record pointing at B's file
+    ]); // safety case / permit files are never collected
+    expect(g.refused).toContain('workorders/B/woB1/documents/secret.pdf');
     expect(paths.some((p) => p.includes('/B/'))).toBe(false);
   });
 
-  it('keeps subcollections, serialises timestamps and names attachments readably', async () => {
-    const g = await gatherCompanyData({ db: fakeDb(store), companyId: 'A', plantIds: [], bucketName: BUCKET });
+  it('puts work orders in <type>/<WO number> folders with readable file names', async () => {
+    const g = await gather();
     const rec = g.datasets.workOrders.collections.workOrders.find((r: any) => r.id === 'woA1');
-    expect(rec.title).toBe('WO-A-1');
+    expect(rec.folder).toBe('Work orders/Contractor/WO-A-1');
+    expect(rec.textPath).toBe('Work orders/Contractor/WO-A-1/details.txt');
     expect(rec.data.createdAt).toBe('2026-01-02T03:04:05.000Z');
     expect(rec.sub.partsRequests[0].partName).toBe('Bearing');
     const report = rec.attachments.find((a: any) => a.file.endsWith('report.pdf'));
     expect(report.name).toBe('report.pdf'); // timestamp prefix stripped
-    expect(report.file).toBe('Work orders/WO-A-1/report.pdf'); // inside the work order's own folder
-    expect(rec.folder).toBe('Work orders/WO-A-1');
+    expect(report.file).toBe('Work orders/Contractor/WO-A-1/report.pdf');
+  });
+
+  it('lays breakdowns out: low severity per ticket, others grouped under their WO number', async () => {
+    const g = await gather();
+    const byId = Object.fromEntries(g.datasets.breakdowns.collections.breakdown_tickets.map((r: any) => [r.id, r]));
+    expect(byId.bdLow1.folder).toBe('Breakdowns/Low severity/BD-LOW');
+    expect(byId.bdLow1.textPath).toBe('Breakdowns/Low severity/BD-LOW/details.txt');
+    // bdHigh1 is linked from the work order (linkedBreakdownId), bdHigh2 links to it (linkedWOId): same WO, same folder + file.
+    const woFolder = 'Breakdowns/' + plan.safeName('WO-A-2</script><script>alert(1)</script>');
+    expect(byId.bdHigh1.folder).toBe(woFolder);
+    expect(byId.bdHigh2.folder).toBe(woFolder);
+    expect(byId.bdHigh1.textPath).toBe(`${woFolder}/breakdown tickets.txt`);
+    expect(byId.bdHigh2.textPath).toBe(byId.bdHigh1.textPath);
+    expect(byId.bdHigh1.attachments[0].file).toBe(`${woFolder}/a.png`);
+    expect(byId.bdHigh2.attachments[0].file).toBe(`${woFolder}/a (2).png`);
+    expect(byId.bdLone.folder).toBe('Breakdowns/Without work order/BD-LONE');
   });
 });
 
 describe('buildTextEntries', () => {
-  it('writes the viewer, per-collection JSON/CSV and notes — safe against injected markup and formulas', async () => {
-    const g = await gatherCompanyData({ db: fakeDb(store), companyId: 'A', plantIds: ['P1'], bucketName: BUCKET });
-    const entries = buildTextEntries({ company: 'Acme <Ltd>', exportedAt: '2026-10-23T00:00:00Z', datasets: g.datasets, missing: ['workorders/A/woA1/completion/photos/p1.jpg'], refused: g.refused });
-    const byName = Object.fromEntries(entries.map((e: any) => [e.name, e.content as string]));
-    for (const name of ['index.html', 'data/workOrders.json', 'data/workOrders.csv', 'data/machines.csv', '_export-notes.txt',
-      'Work orders/WO-A-1/details.txt', 'Work orders/WO-A-1/details.json', 'Breakdowns/Breakdown tickets/BD-1/details.txt']) {
-      expect(byName[name], name).toBeTruthy();
-    }
-    // </script> inside a record can never close the data <script>.
-    expect(byName['index.html'].match(/<\/script>/g)).toHaveLength(2);
-    expect(byName['index.html']).toContain('FC_DATA');
-    // The readable summary uses labels, not field names, and formats dates.
-    expect(byName['Work orders/WO-A-1/details.txt']).toContain('Wo number: WO-A-1');
-    expect(byName['Work orders/WO-A-1/details.txt']).toContain('Created at: 2026-01-02 03:04 UTC');
-    expect(byName['index.html']).toContain('Acme &lt;Ltd&gt;');
-    expect(byName['index.html']).not.toContain('Acme <Ltd>');
-    // Spreadsheet formulas are neutralised in CSV.
-    expect(byName['data/workOrders.csv']).toContain("'=HYPERLINK");
+  it('writes text files only — no viewer, no data lists — safe against injected formulas', async () => {
+    const g = await gather();
+    const { entries, byName } = build(g, ['workorders/A/woA1/completion/photos/p1.jpg']);
+    const names = entries.map((e: any) => e.name);
+    expect(names.sort()).toEqual([
+      '_export-notes.txt',
+      'Breakdowns/Low severity/BD-LOW/details.txt',
+      'Breakdowns/Without work order/BD-LONE/details.txt',
+      'Breakdowns/' + plan.safeName('WO-A-2</script><script>alert(1)</script>') + '/breakdown tickets.txt',
+      'PM history/Press/details.txt',
+      'Safety cases/SC-1.txt',
+      'Shift handovers/Shift handovers.csv',
+      'Stock movements/Stock movements.csv',
+      'Work orders/Contractor/WO-A-1/details.txt',
+      'Work orders/Preventive/' + plan.safeName('WO-A-2</script><script>alert(1)</script>') + '/details.txt',
+      'Work permits/WO-A-1.txt',
+      'Work permits/WP-3.txt',
+    ].sort());
+    expect(byName['Work orders/Contractor/WO-A-1/details.txt']).toContain('WO number: WO-A-1');
+    expect(byName['Work orders/Contractor/WO-A-1/details.txt']).toContain('Created at: 2026-01-02 03:04 UTC');
+    // The two breakdowns of one work order share a file; both permits of WO-A-1 too.
+    const bd = byName['Breakdowns/' + plan.safeName('WO-A-2</script><script>alert(1)</script>') + '/breakdown tickets.txt'];
+    expect(bd).toContain('BD-HIGH-1');
+    expect(bd).toContain('BD-HIGH-2');
+    expect(byName['PM history/Press/details.txt']).toContain('Status: Completed on time');
+    expect(byName['Stock movements/Stock movements.csv']).toContain("'=SUM(1)");
+    expect(byName['Work permits/WO-A-1.txt']).toContain('WP-1');
+    expect(byName['Work permits/WO-A-1.txt']).toContain('WP-2');
+    // Spreadsheet: BOM, readable headers, names instead of ids, formulas neutralised.
+    const csv = byName['Shift handovers/Shift handovers.csv'];
+    expect(csv.charCodeAt(0)).toBe(0xFEFF);
+    expect(csv).toContain('Outgoing supervisor');
+    expect(csv).toContain('Sanju');
+    expect(csv).toContain('"a,b ""c"""');
+    expect(byName['Work orders/Preventive/' + plan.safeName('WO-A-2</script><script>alert(1)</script>') + '/details.txt']).toContain('=HYPERLINK');
     // The other company's names never appear anywhere.
     expect(entries.some((e: any) => String(e.content).includes('WO-B-1') || String(e.content).includes('Lathe B'))).toBe(false);
-    // Unreadable / foreign files are listed in the notes, foreign ones never linked from a record.
     expect(byName['_export-notes.txt']).toContain('workorders/A/woA1/completion/photos/p1.jpg');
     expect(byName['_export-notes.txt']).toContain('workorders/B/woB1/documents/secret.pdf');
-    expect(byName['index.html']).not.toContain('workorders/B/');
+  });
+
+  it('shows names and readable words instead of codes', async () => {
+    const g = await gather();
+    const { byName } = build(g);
+    const wo = byName['Work orders/Contractor/WO-A-1/details.txt'];
+    expect(wo).toContain('Status: In progress');
+    expect(wo).toContain('WO type: Contractor');
+    expect(wo).toContain('Created by: Sanju');
+    expect(wo).toContain('Plant: Main plant');
+    expect(wo).not.toContain('uidTechA0123456789abcdefgh');
+    expect(wo).not.toContain('Record id');
+    const low = byName['Breakdowns/Low severity/BD-LOW/details.txt'];
+    expect(low).toContain('Source: QR scan');
+    expect(low).toContain('Severity: Low');
+    expect(low).toContain('Assigned technician: Sanju');
+  });
+
+  it('humanizeValue only touches code-like values of enum-like fields', () => {
+    expect(plan.humanizeValue('role', 'safety_officer')).toBe('Safety officer');
+    expect(plan.humanizeValue('answerType', 'yes_no')).toBe('Yes no');
+    expect(plan.humanizeValue('description', 'motor')).toBe('motor');
+    expect(plan.humanizeValue('status', 'camelCaseId')).toBe('camelCaseId');
+    expect(plan.humanizeKey('woNumber')).toBe('WO number');
   });
 
   it('handles a company with no data', async () => {
     const g = await gatherCompanyData({ db: fakeDb({}), companyId: 'Z', plantIds: [], bucketName: BUCKET });
     expect(g.counts).toEqual({ records: 0, files: 0 });
-    expect(buildTextEntries({ company: 'Empty', exportedAt: 'now', datasets: g.datasets, missing: [], refused: [] }).length).toBeGreaterThan(5);
+    expect(buildTextEntries({ company: 'Empty', exportedAt: 'now', datasets: g.datasets, missing: [], refused: [] }).map((e: any) => e.name)).toEqual(['_export-notes.txt']);
   });
 });
 
-describe('folders and names', () => {
+describe('folder and file names', () => {
   it('safeName keeps readable letters and removes unsafe characters and reserved names', () => {
     expect(plan.safeName('BD-2026/0012')).toBe('BD-2026_0012');
     expect(plan.safeName('  ..weird:name?.  ')).toBe('weird_name_');
@@ -143,20 +223,15 @@ describe('folders and names', () => {
     expect(plan.safeName('යන්ත්‍රය 1')).toContain('යන්ත්');
   });
 
-  it('gives every record its own folder, with a suffix when two share a number, and de-duplicates file names', () => {
-    const section = { label: 'Breakdowns', collections: [{ name: 'breakdown_tickets', label: 'Breakdown tickets' }, { name: 'rca', label: 'Root cause analyses' }] };
-    const list: Array<{ id: string; title: string; folder?: string; attachments: Array<{ name: string; file: string }> }> = [
-      { id: 'abc123456', title: 'BD-1', attachments: [{ name: 'photo.jpg', file: '' }, { name: 'photo.jpg', file: '' }, { name: 'details.txt', file: '' }] },
-      { id: 'zzz987654', title: 'BD-1', attachments: [] },
+  it('gives two work orders with the same number their own folders', () => {
+    const col = { layout: 'workOrder' };
+    const list = [
+      { id: 'abc123456', title: 'WO-1', data: { woType: 'CORRECTIVE' }, attachments: [{ name: 'photo.jpg', file: '' }, { name: 'photo.jpg', file: '' }] },
+      { id: 'zzz987654', title: 'WO-1', data: { woType: 'CORRECTIVE' }, attachments: [] },
     ];
-    plan.assignFolders(section, section.collections[0], list);
-    expect(list[0].folder).toBe('Breakdowns/Breakdown tickets/BD-1');
-    expect(list[1].folder).toBe('Breakdowns/Breakdown tickets/BD-1 (zzz98765)');
-    expect(list[0].attachments.map((a: any) => a.file)).toEqual([
-      'Breakdowns/Breakdown tickets/BD-1/photo.jpg',
-      'Breakdowns/Breakdown tickets/BD-1/photo (2).jpg',
-      'Breakdowns/Breakdown tickets/BD-1/details (2).txt',
-    ]);
+    plan.layoutSection(col, list, { woNumberById: new Map(), woNumberByTicket: new Map() });
+    expect(list.map((r: any) => r.folder)).toEqual(['Work orders/Corrective/WO-1', 'Work orders/Corrective/WO-1 (zzz98765)']);
+    expect(list[0].attachments.map((a: any) => a.file)).toEqual(['Work orders/Corrective/WO-1/photo.jpg', 'Work orders/Corrective/WO-1/photo (2).jpg']);
   });
 });
 

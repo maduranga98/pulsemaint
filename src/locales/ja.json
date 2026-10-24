@@ -4127,6 +4127,11 @@
             "noContractor": "請負業者の記録が見つかりません。"
           },
           "noQualifications": "確認済みの資格なし"
+        },
+        "queues": {
+          "toSignoff": "To sign off",
+          "reassignable": "Reassignable",
+          "expired": "Expired"
         }
       },
       "publicForm": {
@@ -4217,6 +4222,14 @@
         "submit": "提出",
         "submitting": "送信中…",
         "replacesNote": "再提出すると、前回の提出内容は置き換えられます。"
+      },
+      "staff": {
+        "tab": "Staff submissions",
+        "searchPlaceholder": "Search name, department or training…",
+        "empty": "No staff submissions in this view.",
+        "completedOn": "Completed",
+        "validUntil": "Valid until",
+        "exportCard": "Certificate / export card"
       }
     },
     "trainingShared": {

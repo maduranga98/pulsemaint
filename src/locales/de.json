@@ -4127,6 +4127,11 @@
             "noContractor": "Der Auftragnehmer-Datensatz wurde nicht gefunden."
           },
           "noQualifications": "Keine geprüft"
+        },
+        "queues": {
+          "toSignoff": "To sign off",
+          "reassignable": "Reassignable",
+          "expired": "Expired"
         }
       },
       "publicForm": {
@@ -4217,6 +4222,14 @@
         "submit": "Einreichen",
         "submitting": "Wird eingereicht…",
         "replacesNote": "Eine erneute Einreichung ersetzt Ihre vorherige Einreichung."
+      },
+      "staff": {
+        "tab": "Staff submissions",
+        "searchPlaceholder": "Search name, department or training…",
+        "empty": "No staff submissions in this view.",
+        "completedOn": "Completed",
+        "validUntil": "Valid until",
+        "exportCard": "Certificate / export card"
       }
     },
     "trainingShared": {

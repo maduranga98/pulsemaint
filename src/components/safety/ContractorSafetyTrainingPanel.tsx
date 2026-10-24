@@ -57,10 +57,16 @@ import {
   signOffInvite,
   TECHNICIAN_DESIGNATION_LABELS,
 } from '@/services/contractorSafetyTraining.service';
+import { SUBMISSION_QUEUES, getInviteQueue, type SubmissionQueue } from '@/lib/safety/submissionQueues';
 import type { Contractor, ContractorTechnician } from '@/lib/contractors/contractorTypes';
 
-type Filter = 'all' | InviteDisplayStatus;
-const FILTERS: Filter[] = ['all', 'submitted', 'awaiting', 'overdue', 'signed_off', 'reassigned'];
+// The submissions list has just three views: to sign off (then export the
+// card), reassignable, and people whose safety period has ended.
+const QUEUE_DEFAULTS: Record<SubmissionQueue, string> = {
+  toSignoff: 'To sign off',
+  reassignable: 'Reassignable',
+  expired: 'Expired',
+};
 
 const STATUS_CLASS: Record<InviteDisplayStatus, string> = {
   awaiting: 'bg-slate-100 text-slate-600',
@@ -88,7 +94,7 @@ interface Props {
  */
 export default function ContractorSafetyTrainingPanel({ invites, cards, loading }: Props) {
   const { t } = useTranslation();
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter] = useState<SubmissionQueue>('toSignoff');
   const [search, setSearch] = useState('');
   const [reassigning, setReassigning] = useState<ContractorSafetyTrainingInvite | null>(null);
   const [signingOff, setSigningOff] = useState<ContractorSafetyTrainingInvite | null>(null);
@@ -100,8 +106,12 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
     const term = search.trim().toLowerCase();
     const now = Date.now();
     return invites
-      .map((inv) => ({ inv, status: getInviteDisplayStatus({ ...inv, dueAtMs: inviteDueMillis(inv) }, now) }))
-      .filter(({ status }) => filter === 'all' || status === filter)
+      .map((inv) => ({
+        inv,
+        status: getInviteDisplayStatus({ ...inv, dueAtMs: inviteDueMillis(inv) }, now),
+        queue: getInviteQueue(inv, inv.cardId ? cardsById.get(inv.cardId) ?? null : null, now),
+      }))
+      .filter(({ queue }) => queue === filter)
       .filter(
         ({ inv }) =>
           !term ||
@@ -109,7 +119,17 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
             (v ?? '').toLowerCase().includes(term),
           ),
       );
-  }, [invites, filter, search]);
+  }, [invites, filter, search, cardsById]);
+
+  const queueCounts = useMemo(() => {
+    const now = Date.now();
+    const c: Record<SubmissionQueue, number> = { toSignoff: 0, reassignable: 0, expired: 0 };
+    for (const inv of invites) {
+      const q = getInviteQueue(inv, inv.cardId ? cardsById.get(inv.cardId) ?? null : null, now);
+      if (q) c[q] += 1;
+    }
+    return c;
+  }, [invites, cardsById]);
 
   const counts = useMemo(() => {
     const now = Date.now();
@@ -138,7 +158,7 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        {FILTERS.map((f) => (
+        {SUBMISSION_QUEUES.map((f) => (
           <button
             key={f}
             type="button"
@@ -149,8 +169,8 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
                 : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-            {t(`common.safetyTrainings.contractor.filters.${f}`)}
-            <span className="ml-1 opacity-70">{counts[f] ?? 0}</span>
+            {t(`common.safetyTrainings.contractor.queues.${f}`, { defaultValue: QUEUE_DEFAULTS[f] })}
+            <span className="ml-1 opacity-70">{queueCounts[f]}</span>
           </button>
         ))}
         <div className="relative ml-auto w-full sm:w-64">
@@ -174,11 +194,12 @@ export default function ContractorSafetyTrainingPanel({ invites, cards, loading 
         </div>
       ) : (
         <div className="space-y-3">
-          {rows.map(({ inv, status }) => (
+          {rows.map(({ inv, status, queue }) => (
             <InviteRow
               key={inv.id}
               inv={inv}
               status={status}
+              queue={queue}
               card={inv.cardId ? cardsById.get(inv.cardId) ?? null : null}
               onReassign={() => setReassigning(inv)}
               onSignOff={() => setSigningOff(inv)}
@@ -207,6 +228,7 @@ function Stat({ value, label }: { value: number; label: string }) {
 function InviteRow({
   inv,
   status,
+  queue,
   card,
   onReassign,
   onSignOff,
@@ -214,6 +236,7 @@ function InviteRow({
 }: {
   inv: ContractorSafetyTrainingInvite;
   status: InviteDisplayStatus;
+  queue: SubmissionQueue | null;
   card: ContractorSafetyCard | null;
   onReassign: () => void;
   onSignOff: () => void;
@@ -346,7 +369,7 @@ function InviteRow({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {status !== 'reassigned' && status !== 'signed_off' && (
+        {status !== 'reassigned' && (status !== 'signed_off' || queue === 'expired') && (
           <button type="button" onClick={onReassign} className={`${btn} border-slate-200 bg-white text-slate-700 hover:bg-slate-50`}>
             <RefreshCw className="h-3.5 w-3.5" /> {t('common.safetyTrainings.contractor.actions.reassign')}
           </button>
