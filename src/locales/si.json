@@ -339,7 +339,8 @@
         "helloAnon": "ආයුබෝවන්",
         "prompt": "ඔබට විවෘත කිරීමට අවශ්‍ය මොකක්ද?",
         "search": "සොයන්න…",
-        "apps": "යෙදුම්"
+        "apps": "යෙදුම්",
+        "needsAttention": "අවධානය අවශ්‍ය {{count}}"
       }
     },
     "dashboard": {
