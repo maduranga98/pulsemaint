@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ClipboardList } from 'lucide-react';
 import type { WorkOrder, WOFilters, WOType } from '../../types/workOrder';
-import { WO_STATUS_CONFIG } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
 import { WOCard } from './WOCard';
@@ -14,42 +13,34 @@ import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSh
 import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
 import { isBeyondViewWindow } from '../../lib/viewWindow';
 
-// The "All" pill was removed — the list simply starts unfiltered (`all`,
-// every active type combined). "Need Sign-Off" and "Approval Requests" used
-// to be tabs here too — they're now dashboard widgets instead
-// (NeedSignOffWidget / PendingApprovalsWidget on the supervisor/plant
-// manager/admin dashboards), since those are action queues someone checks
-// repeatedly, not something to go hunting for inside the WO list. Once a WO
-// reaches COMPLETED it's awaiting sign-off (handled via those widgets) and,
-// once actually signed off, moves into the separate terminal "Signed Off"
-// tab — a WO type filter stops being useful at either of those stages.
-type CategoryId = 'all' | 'signedOff' | 'cancelled';
-
-// Still awaiting sign-off — excluded from every tab below (signed off from
-// the Need Sign-Off dashboard widget instead).
-const NEED_SIGN_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED'];
-// A cancelled WO was never actually signed off, so it gets its own tab
-// rather than being lumped into "Signed Off" — admins can still find it
-// (it's historical data, not deleted), just not counted as a sign-off.
-const SIGNED_OFF_ONLY_STATUSES: WorkOrder['status'][] = ['SIGNED_OFF', 'CLOSED'];
-const CANCELLED_STATUSES: WorkOrder['status'][] = ['CANCELLED'];
-const TERMINAL_STATUSES: WorkOrder['status'][] = [...SIGNED_OFF_ONLY_STATUSES, ...CANCELLED_STATUSES];
-const SIGNED_OFF_STATUSES: WorkOrder['status'][] = [...NEED_SIGN_OFF_STATUSES, ...TERMINAL_STATUSES];
-
 // Breakdown Repair and Preventive Maintenance work orders already have their
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
-// everything else, shown as a kanban board with a column per status
-// (not grouped by WO type).
+// everything else, shown as a kanban board (not grouped by WO type).
 const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
-const BOARD_STATUSES: WorkOrder['status'][] = ['DRAFT', 'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
+
+// Board columns, left to right. A WO on hold counts as still in progress, and
+// an assigned WO as open. Signed Off / Closed are only for the roles that may
+// see finished work (`canViewSignedOff`), Cancelled only for admins.
+interface BoardColumn {
+  id: string;
+  label: string;
+  dot: string;
+  statuses: WorkOrder['status'][];
+  /** Needs `canViewSignedOff` (signed-off / closed work) or `canViewCancelled`. */
+  access?: 'finished' | 'cancelled';
+}
+const BOARD_COLUMNS: BoardColumn[] = [
+  { id: 'open', label: 'Open', dot: 'bg-blue-500', statuses: ['DRAFT', 'OPEN', 'ASSIGNED'] },
+  { id: 'in_progress', label: 'In Progress', dot: 'bg-amber-500', statuses: ['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'] },
+  { id: 'completed', label: 'Completed (to sign off)', dot: 'bg-emerald-500', statuses: ['COMPLETED'] },
+  { id: 'signed_off', label: 'Signed Off', dot: 'bg-green-500', statuses: ['SIGNED_OFF'], access: 'finished' },
+  { id: 'closed', label: 'Closed', dot: 'bg-slate-500', statuses: ['CLOSED'], access: 'finished' },
+  { id: 'cancelled', label: 'Cancelled', dot: 'bg-gray-400', statuses: ['CANCELLED'], access: 'cancelled' },
+];
 
 export function WOListView() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const prefilledTab = searchParams.get('tab') as CategoryId | null;
-  const [activeCategory, setActiveCategory] = useState<CategoryId>(
-    prefilledTab === 'signedOff' || prefilledTab === 'cancelled' ? prefilledTab : 'all',
-  );
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,6 +62,7 @@ export function WOListView() {
       setSearchParams(next, { replace: true });
     }
     if (searchParams.get('tab')) {
+      // Legacy deep links (?tab=…): the board shows every stage, so just drop it.
       const next = new URLSearchParams(searchParams);
       next.delete('tab');
       setSearchParams(next, { replace: true });
@@ -131,23 +123,16 @@ export function WOListView() {
   // (Breakdowns, PM Schedules) — never shown here.
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
-  // A supervisor sees a signed-off WO for 90 days (the view window); admin and plant manager see all.
-  const signedOffWOs = workOrders.filter((wo) => {
-    if (!SIGNED_OFF_ONLY_STATUSES.includes(wo.status)) return false;
-    return !isBeyondViewWindow(role, true, wo.supervisorSignOffAt ?? wo.closedAt);
-  });
-
-  const displayedWOs =
-    activeCategory === 'signedOff'
-      ? canViewSignedOff
-        ? signedOffWOs
-        : []
-      : activeCategory === 'cancelled'
-      ? canViewCancelled
-        ? nonExcludedWOs.filter((wo) => CANCELLED_STATUSES.includes(wo.status))
-        : []
-      : nonExcludedWOs
-          .filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status));
+  // A supervisor sees a finished WO for 90 days (the view window); admin and plant manager see all.
+  const visibleColumns = BOARD_COLUMNS.filter((c) =>
+    c.access === 'finished' ? canViewSignedOff : c.access === 'cancelled' ? canViewCancelled : true,
+  );
+  const cardsFor = (c: BoardColumn) =>
+    nonExcludedWOs.filter((wo) => {
+      if (!c.statuses.includes(wo.status)) return false;
+      if (c.access === 'finished') return !isBeyondViewWindow(role, true, wo.supervisorSignOffAt ?? wo.closedAt);
+      return true;
+    });
 
   return (
     <div className="min-h-full">
@@ -176,68 +161,8 @@ export function WOListView() {
         {/* Stats */}
         <WOStatsBar />
 
-        {/* Category tabs + Search — wraps to a second line instead of
-            scrolling horizontally so every tab stays visible at once. */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-wrap gap-1">
-            <button
-              type="button"
-              onClick={() => setActiveCategory('all')}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                activeCategory === 'all' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {t('common.workOrders.tabs.board', { defaultValue: 'Board' })}
-              <span
-                className={`text-xs font-medium rounded-full px-1.5 ${
-                  activeCategory === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400'
-                }`}
-              >
-                {nonExcludedWOs.filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status)).length}
-              </span>
-            </button>
-            {canViewSignedOff && (
-              <button
-                type="button"
-                onClick={() => setActiveCategory('signedOff')}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                  activeCategory === 'signedOff'
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
-                }`}
-              >
-                {t('common.workOrders.tabs.signedOff')}
-                <span
-                  className={`text-xs font-medium rounded-full px-1.5 ${
-                    activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
-                  }`}
-                >
-                  {signedOffWOs.length}
-                </span>
-              </button>
-            )}
-            {canViewCancelled && (
-              <button
-                type="button"
-                onClick={() => setActiveCategory('cancelled')}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                  activeCategory === 'cancelled'
-                    ? 'bg-gray-600 text-white'
-                    : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
-                }`}
-              >
-                {t('common.workOrders.tabs.cancelled')}
-                <span
-                  className={`text-xs font-medium rounded-full px-1.5 ${
-                    activeCategory === 'cancelled' ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
-                  }`}
-                >
-                  {nonExcludedWOs.filter((wo) => CANCELLED_STATUSES.includes(wo.status)).length}
-                </span>
-              </button>
-            )}
-          </div>
-
+        {/* Search */}
+        <div className="flex justify-end">
           <input
             type="text"
             value={searchQuery}
@@ -263,48 +188,33 @@ export function WOListView() {
         )}
 
         {!loading && !error && (
-          activeCategory === 'all' ? (
-            /* Kanban board: one column per status, a card per work order. */
-            <div className="flex gap-4 overflow-x-auto pb-3 items-start">
-              {BOARD_STATUSES.map((status) => {
-                const cards = displayedWOs.filter((wo) => wo.status === status);
-                if (status === 'DRAFT' && cards.length === 0) return null;
-                return (
-                  <section key={status} className="shrink-0 w-[85vw] sm:w-72 rounded-xl bg-gray-50 border border-gray-200">
-                    <header className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-200">
-                      <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                        <span className={`h-2 w-2 rounded-full ${WO_STATUS_CONFIG[status].dotClass}`} />
-                        {t(`common.workOrders.statuses.${status}`)}
-                      </h2>
-                      <span className="text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full px-2 py-0.5">{cards.length}</span>
-                    </header>
-                    <div className="p-3 space-y-3 max-h-[70vh] overflow-y-auto">
-                      {cards.length === 0 ? (
-                        <p className="text-xs text-gray-400 text-center py-6">{t('common.workOrders.empty.noOpenWOs')}</p>
-                      ) : (
-                        cards.map((wo) => <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />)
-                      )}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
-          ) : displayedWOs.length === 0 ? (
-            <div className="text-center py-16">
-              <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p className="text-gray-500">
-                {activeCategory === 'signedOff'
-                  ? t('common.workOrders.empty.signedOff')
-                  : t('common.workOrders.empty.cancelled')}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {displayedWOs.map((wo) => (
-                <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />
-              ))}
-            </div>
-          )
+          /* Kanban board: one column per stage, a card per work order. */
+          <div className="flex gap-4 overflow-x-auto pb-3 items-start">
+            {visibleColumns.map((c) => {
+              const cards = cardsFor(c);
+              return (
+                <section key={c.id} className="shrink-0 w-[85vw] sm:w-72 rounded-xl bg-gray-50 border border-gray-200">
+                  <header className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-200">
+                    <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <span className={`h-2 w-2 rounded-full ${c.dot}`} />
+                      {t(`common.workOrders.board.${c.id}`, { defaultValue: c.label })}
+                    </h2>
+                    <span className="text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full px-2 py-0.5">{cards.length}</span>
+                  </header>
+                  <div className="p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+                    {cards.length === 0 ? (
+                      <div className="py-6 text-center">
+                        <ClipboardList className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                        <p className="text-xs text-gray-400">{t('common.workOrders.board.empty', { defaultValue: 'No work orders' })}</p>
+                      </div>
+                    ) : (
+                      cards.map((wo) => <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />)
+                    )}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
         )}
       </div>
 
