@@ -9,7 +9,8 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { WOSignOffPayload } from '../types/workOrder';
+import type { WOSignOffPayload, WorkOrder } from '../types/workOrder';
+import { buildExtensionRecord, isAwaitingExtension } from '../lib/workOrderExtension';
 import type { BreakdownStatus } from '../types/breakdown';
 import { useAuthStore } from '../store/authStore';
 import { logAuditEvent } from '../utils/reports/auditLogger';
@@ -47,8 +48,26 @@ export function useSignOff(): UseSignOffResult {
         return false;
       }
 
+      // An extension WO is signed off into the WO it extends, which carries the
+      // root cause — so only a standalone / extended WO needs one here. A WO
+      // with an extension still being worked can't be signed off yet.
+      let current: WorkOrder | null = null;
+      try {
+        const preSnap = await getDoc(doc(db, 'workOrders', woId));
+        current = preSnap.exists() ? ({ id: preSnap.id, ...preSnap.data() } as WorkOrder) : null;
+      } catch {
+        current = null;
+      }
+      if (current && isAwaitingExtension(current)) {
+        const msg = 'This work order has an open extension. Finish and sign off the extension first.';
+        setError(msg);
+        toast.error(msg);
+        return false;
+      }
+      const isExtension = !!current?.extensionOfWoId;
+
       // The root cause is written by hand by the supervisor — never AI.
-      if (!payload.rootCauseDescription?.trim()) {
+      if (!isExtension && !payload.rootCauseDescription?.trim()) {
         const msg = 'Enter the root cause before signing off and closing this work order.';
         setError(msg);
         toast.error(msg);
@@ -98,6 +117,44 @@ export function useSignOff(): UseSignOffResult {
           changedAt: now,
           note: null,
         };
+
+        // Extension WO: fold it into the WO it extends instead of closing it
+        // as a work order of its own. The parent then closes as one
+        // "Extended WO" carrying everything the extension added.
+        if (isExtension && current?.extensionOfWoId) {
+          const parentId = current.extensionOfWoId;
+          const record = buildExtensionRecord(current, {
+            outcome: payload.outcome,
+            outcomeReason: reason,
+            signedOffByName: actorName,
+            signedOffAt: now,
+          });
+          await updateDoc(doc(db, 'workOrders', woId), {
+            status: 'CLOSED',
+            statusHistory: arrayUnion(signOffEntry, closedEntry),
+            supervisorSignOffSignature: null,
+            supervisorSignOffBy: user.uid,
+            supervisorSignOffByName: actorName,
+            supervisorSignOffAt: serverTimestamp(),
+            supervisorSignOffNotes: notes,
+            signOffOutcome: payload.outcome,
+            signOffOutcomeReason: reason,
+            mergedIntoWoId: parentId,
+            closedBy: user.uid,
+            closedByName: actorName,
+            closedAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+          await updateDoc(doc(db, 'workOrders', parentId), {
+            extensions: arrayUnion(record),
+            isExtended: true,
+            activeExtensionWoId: null,
+            activeExtensionWoNumber: null,
+            updatedAt: serverTimestamp(),
+          });
+          toast.success('Extension signed off. It is now part of the original work order.');
+          return true;
+        }
 
         // Contractor sign-off figures, when the form supplied them. Parts
         // cost is recomputed from the WO's own partsUsed rather than trusted

@@ -119,6 +119,9 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
   }, [scores]);
 
   const needsReason = outcome === 'not_complete' || outcome === 'failed';
+  // An extension WO is signed off into the WO it extends, which carries the
+  // root cause — so it isn't asked for one here.
+  const isExtension = !!workOrder.extensionOfWoId;
 
   async function handleSignOff() {
     if (needsReason && !reason.trim()) {
@@ -129,7 +132,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
       );
       return;
     }
-    if (!rootCauseText.trim()) {
+    if (!isExtension && !rootCauseText.trim()) {
       toast.error(t('common.workOrders.signOffForm.rootCauseRequired', { defaultValue: 'Enter the root cause before signing off.' }));
       return;
     }
@@ -149,7 +152,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
       outcomeReason: needsReason ? reason.trim() : null,
       notes,
       rootCause,
-      rootCauseDescription: rootCauseText.trim(),
+      rootCauseDescription: isExtension ? '' : rootCauseText.trim(),
       projectCost: isContractorWO ? parsedProjectCost : null,
       contractorRating: isContractorWO
         ? {
@@ -168,6 +171,14 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
     <div className="space-y-4">
       {/* Root-cause analysis, written by the supervisor — required to close.
           Future AI suggestions on new breakdowns learn from what is entered here. */}
+      {isExtension ? (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+          {t('common.workOrders.extension.signOffNotice', {
+            defaultValue: 'This is an extension of {{wo}}. Signing it off adds its tasks, attachments and work done to that work order — the root cause is written when that work order is signed off.',
+            wo: workOrder.extensionOfWoNumber || '',
+          })}
+        </div>
+      ) : (
       <div className="rounded-lg border border-gray-200 p-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           {t('common.workOrders.signOffForm.rootCauseTitle', { defaultValue: 'Root cause (required)' })}
@@ -189,6 +200,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
           className="mt-2 w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
         />
       </div>
+      )}
 
       {/* Contractor jobs: total cost and a rating, both required to close. */}
       {isContractorWO && (

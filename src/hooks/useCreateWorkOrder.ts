@@ -130,6 +130,14 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         followUpOfWoNumber: payload.followUpOfWoNumber ?? null,
         followUpWoId: null,
         followUpWoNumber: null,
+        // Extension WO: points back at the unfinished WO it extends.
+        ...(payload.extensionOfWoId
+          ? {
+              extensionOfWoId: payload.extensionOfWoId,
+              extensionOfWoNumber: payload.extensionOfWoNumber ?? null,
+              extensionReason: payload.extensionReason?.trim() || null,
+            }
+          : {}),
 
         // Machine
         machineId: payload.machineId,
@@ -254,6 +262,22 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
           });
         } catch (linkErr) {
           console.error('Failed to link follow-up work order', linkErr);
+        }
+      }
+
+      // An extension WO: flag the WO it extends, so that WO can't be signed
+      // off (and have its root cause written) while the extension is open.
+      if (payload.extensionOfWoId) {
+        try {
+          const { doc: docFn, updateDoc: updateDocFn } = await import('firebase/firestore');
+          await updateDocFn(docFn(db, 'workOrders', payload.extensionOfWoId), {
+            activeExtensionWoId: woId,
+            activeExtensionWoNumber: null,
+            updatedAt: serverTimestamp(),
+          });
+        } catch (linkErr) {
+          console.error('Failed to link extension work order', linkErr);
+          toast.error('The extension was created but could not be linked to the original work order.');
         }
       }
 
