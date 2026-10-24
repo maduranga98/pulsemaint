@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { plantConstraints } from '../lib/plantQuery';
+import { isOpenBreakdownStatus, isWoWorkStarted } from '../lib/machineWorkState';
 
-// Kept in step with src/lib/machineOperationalStatus.ts.
-const CLOSED_BREAKDOWN_STATUSES = new Set(['resolved', 'closed', 'cancelled']);
-const TERMINAL_WO_STATUSES = new Set(['SIGNED_OFF', 'CLOSED', 'CANCELLED']);
 
 export interface MachinesWithOpenWork {
-  /** Machines with at least one open breakdown or unsigned-off work order. */
+  /** Machines with an open breakdown or a started, not yet signed-off work order. */
   openMachineIds: Set<string>;
   /** True once both sources loaded successfully — only then can "no open
    *  work" be trusted (a role that can't read work orders never gets here). */
@@ -36,7 +34,7 @@ export function useMachinesWithOpenWork(companyId: string | undefined): Machines
         const ids = new Set<string>();
         snap.docs.forEach((d) => {
           const data = d.data();
-          if (data.machineId && !CLOSED_BREAKDOWN_STATUSES.has(String(data.status ?? ''))) ids.add(String(data.machineId));
+          if (data.machineId && isOpenBreakdownStatus(data.status)) ids.add(String(data.machineId));
         });
         setBreakdownIds(ids);
         setBdOk(true);
@@ -49,7 +47,7 @@ export function useMachinesWithOpenWork(companyId: string | undefined): Machines
         const ids = new Set<string>();
         snap.docs.forEach((d) => {
           const data = d.data();
-          if (data.machineId && !TERMINAL_WO_STATUSES.has(String(data.status ?? ''))) ids.add(String(data.machineId));
+          if (data.machineId && isWoWorkStarted(data.status)) ids.add(String(data.machineId));
         });
         setWoIds(ids);
         setWoOk(true);
