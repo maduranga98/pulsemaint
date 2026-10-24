@@ -103,7 +103,7 @@
         "noOpenWo": "未処理の作業指示書はありません。"
       },
       "liveBreakdowns": {
-        "title": "リアルタイム故障",
+        "title": "故障",
         "active": "{{count}}件が進行中",
         "empty": "進行中の故障はありません",
         "count_one": "{{count}}件の故障",
@@ -111,7 +111,7 @@
         "pending": "保留中"
       },
       "livePOs": {
-        "title": "リアルタイム発注申請",
+        "title": "発注申請",
         "pending": "{{count}}件保留中",
         "empty": "承認待ちの発注書はありません"
       },
@@ -1444,7 +1444,7 @@
           "newlyReported": "新規報告",
           "signOff": "承認・完了"
         },
-        "title": "ライブ故障ボード"
+        "title": "故障ボード"
       },
       "breakdownKanbanLane": {
         "noItems": "項目なし"
@@ -1528,7 +1528,7 @@
         "footer": "{{shifts}}シフト稼働中 · {{people}}人が作業中",
         "sinceDayTime": "{{day}} {{time}}から",
         "sinceTime": "{{time}}から",
-        "title": "リアルタイムシフト状況",
+        "title": "シフト状況",
         "workingNow": "{{count}}人が現在作業中",
         "yesterday": "昨日",
         "footer_one": "稼働中のシフト {{shifts}} 件 · 作業中 {{people}} 名",
@@ -7149,7 +7149,7 @@
         "notWorking": "非勤務",
         "workingCount": "勤務中（{{count}}名）",
         "noOneScheduled": "このシフトにはまだ誰も割り当てられていません。",
-        "liveShiftStatus": "リアルタイムシフト状況",
+        "liveShiftStatus": "シフト状況",
         "summaryLine": "現在{{shifts}}にわたり{{people}}名が勤務中",
         "personCount_one": "{{count}}名",
         "personCount_other": "{{count}}名",

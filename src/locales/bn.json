@@ -136,7 +136,7 @@
         "noOpenWo": "কোনো খোলা ওয়ার্ক অর্ডার নেই।"
       },
       "liveBreakdowns": {
-        "title": "লাইভ ব্রেকডাউন",
+        "title": "ব্রেকডাউন",
         "active": "{{count}}টি সক্রিয়",
         "empty": "কোনো সক্রিয় ব্রেকডাউন নেই",
         "count_one": "{{count}}টি ব্রেকডাউন",
@@ -144,7 +144,7 @@
         "pending": "অপেক্ষমাণ"
       },
       "livePOs": {
-        "title": "লাইভ PO অনুরোধ",
+        "title": "PO অনুরোধ",
         "pending": "{{count}}টি অপেক্ষমাণ",
         "empty": "অনুমোদনের অপেক্ষায় কোনো ক্রয় আদেশ নেই"
       },
@@ -262,7 +262,7 @@
           "newlyReported": "নতুন রিপোর্ট করা হয়েছে",
           "signOff": "অনুমোদন ও সমাপ্তি"
         },
-        "title": "লাইভ ব্রেকডাউন বোর্ড"
+        "title": "ব্রেকডাউন বোর্ড"
       },
       "breakdownKanbanLane": {
         "noItems": "কোনো আইটেম নেই"
@@ -346,7 +346,7 @@
         "footer": "{{shifts}}টি শিফট সক্রিয় · {{people}} জন কর্মরত",
         "sinceDayTime": "{{day}} {{time}} থেকে",
         "sinceTime": "{{time}} থেকে",
-        "title": "লাইভ শিফট অবস্থা",
+        "title": "শিফট অবস্থা",
         "workingNow": "{{count}} জন এখন কর্মরত",
         "yesterday": "গতকাল"
       },

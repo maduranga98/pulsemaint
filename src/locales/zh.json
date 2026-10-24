@@ -103,7 +103,7 @@
         "noOpenWo": "没有未结工单。"
       },
       "liveBreakdowns": {
-        "title": "实时故障",
+        "title": "故障",
         "active": "{{count}} 个进行中",
         "empty": "没有进行中的故障",
         "count_one": "{{count}} 个故障",
@@ -111,7 +111,7 @@
         "pending": "待处理"
       },
       "livePOs": {
-        "title": "实时采购申请",
+        "title": "采购申请",
         "pending": "{{count}} 待处理",
         "empty": "没有待批准的采购单"
       },
@@ -1444,7 +1444,7 @@
           "newlyReported": "新报告",
           "signOff": "签核并结案"
         },
-        "title": "实时故障看板"
+        "title": "故障看板"
       },
       "breakdownKanbanLane": {
         "noItems": "暂无项目"
@@ -1528,7 +1528,7 @@
         "footer": "{{shifts}} 个班次在岗 · {{people}} 人正在工作",
         "sinceDayTime": "自 {{day}} {{time}}",
         "sinceTime": "自 {{time}}",
-        "title": "实时班次状态",
+        "title": "班次状态",
         "workingNow": "{{count}} 人正在工作",
         "yesterday": "昨天",
         "footer_one": "{{shifts}} 个班次进行中 · {{people}} 人在岗",
@@ -7149,7 +7149,7 @@
         "notWorking": "未工作",
         "workingCount": "工作中（{{count}}）",
         "noOneScheduled": "此班次尚未安排任何人员。",
-        "liveShiftStatus": "实时班次状态",
+        "liveShiftStatus": "班次状态",
         "summaryLine": "当前 {{people}} 人在岗，分布于 {{shifts}}",
         "personCount_one": "{{count}} 人",
         "personCount_other": "{{count}} 人",

@@ -87,7 +87,7 @@
         "noOpenWo": "لا توجد أوامر عمل مفتوحة."
       },
       "liveBreakdowns": {
-        "title": "الأعطال المباشرة",
+        "title": "الأعطال",
         "active": "{{count}} نشط",
         "empty": "لا توجد أعطال نشطة",
         "count_one": "عطل {{count}}",
@@ -95,7 +95,7 @@
         "pending": "قيد الانتظار"
       },
       "livePOs": {
-        "title": "طلبات الشراء المباشرة",
+        "title": "طلبات الشراء",
         "pending": "{{count}} قيد الانتظار",
         "empty": "لا توجد أوامر شراء بانتظار الموافقة"
       },
@@ -213,7 +213,7 @@
           "newlyReported": "مُبلَّغ عنها حديثًا",
           "signOff": "اعتماد وإغلاق"
         },
-        "title": "لوحة الأعطال المباشرة"
+        "title": "لوحة الأعطال"
       },
       "breakdownKanbanLane": {
         "noItems": "لا توجد عناصر"
@@ -297,7 +297,7 @@
         "footer": "{{shifts}} وردية نشطة · {{people}} أشخاص يعملون",
         "sinceDayTime": "منذ {{day}} {{time}}",
         "sinceTime": "منذ {{time}}",
-        "title": "حالة الوردية المباشرة",
+        "title": "حالة الوردية",
         "workingNow": "{{count}} يعملون الآن",
         "yesterday": "أمس"
       },

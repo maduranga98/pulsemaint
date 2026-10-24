@@ -87,7 +87,7 @@
         "noOpenWo": "کوئی کھلا ورک آرڈر نہیں۔"
       },
       "liveBreakdowns": {
-        "title": "لائیو خرابیاں",
+        "title": "خرابیاں",
         "active": "{{count}} فعال",
         "empty": "کوئی فعال خرابی نہیں",
         "count_one": "{{count}} خرابی",
@@ -95,7 +95,7 @@
         "pending": "زیر التوا"
       },
       "livePOs": {
-        "title": "لائیو PO درخواستیں",
+        "title": "PO درخواستیں",
         "pending": "{{count}} زیر التوا",
         "empty": "منظوری کے منتظر کوئی خریداری آرڈر نہیں"
       },
@@ -213,7 +213,7 @@
           "newlyReported": "نئی رپورٹ شدہ",
           "signOff": "منظوری اور بندش"
         },
-        "title": "لائیو خرابی بورڈ"
+        "title": "خرابی بورڈ"
       },
       "breakdownKanbanLane": {
         "noItems": "کوئی آئٹم نہیں"
@@ -297,7 +297,7 @@
         "footer": "{{shifts}} شفٹ فعال · {{people}} لوگ کام کر رہے ہیں",
         "sinceDayTime": "{{day}} {{time}} سے",
         "sinceTime": "{{time}} سے",
-        "title": "لائیو شفٹ کی حالت",
+        "title": "شفٹ کی حالت",
         "workingNow": "{{count}} ابھی کام کر رہے ہیں",
         "yesterday": "کل"
       },

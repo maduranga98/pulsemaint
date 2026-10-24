@@ -379,7 +379,7 @@
         "noOpenWo": "විවෘත කාර්ය නියෝග නොමැත."
       },
       "liveBreakdowns": {
-        "title": "සජීවී බිඳවැටීම්",
+        "title": "බිඳවැටීම්",
         "active": "{{count}} සක්‍රීය",
         "empty": "සක්‍රීය බිඳවැටීම් නොමැත",
         "count_one": "බිඳවැටීම් {{count}}",
@@ -387,7 +387,7 @@
         "pending": "පොරොත්තුවෙන්"
       },
       "livePOs": {
-        "title": "සජීවී ඇණවුම් ඉල්ලීම්",
+        "title": "ඇණවුම් ඉල්ලීම්",
         "pending": "පොරොත්තුවෙන් {{count}}",
         "empty": "අනුමැතිය අපේක්ෂාවෙන් ඇණවුම් නොමැත"
       },
@@ -1720,7 +1720,7 @@
           "newlyReported": "අලුතින් වාර්තා කළ",
           "signOff": "අනුමත කර වසන්න"
         },
-        "title": "සජීවී හානි පුවරුව"
+        "title": "හානි පුවරුව"
       },
       "breakdownKanbanLane": {
         "noItems": "අයිතම නැත"
@@ -1804,7 +1804,7 @@
         "footer": "සක්‍රීය මුර {{shifts}} · වැඩ කරන පුද්ගලයන් {{people}}",
         "sinceDayTime": "{{day}} {{time}} සිට",
         "sinceTime": "{{time}} සිට",
-        "title": "සජීවී මුර තත්ත්වය",
+        "title": "මුර තත්ත්වය",
         "workingNow": "{{count}} දැන් වැඩ කරයි",
         "yesterday": "ඊයේ",
         "footer_one": "සජීවී මුර {{shifts}} · වැඩ කරන පුද්ගලයින් {{people}}",
@@ -7180,7 +7180,7 @@
         "notWorking": "වැඩ නොකරයි",
         "workingCount": "වැඩ කරමින් ({{count}})",
         "noOneScheduled": "මෙම මුරයට තවම කිසිවෙකු සැලසුම් කර නැත.",
-        "liveShiftStatus": "සජීවී මුර තත්ත්වය",
+        "liveShiftStatus": "මුර තත්ත්වය",
         "summaryLine": "{{shifts}} හරහා දැනට {{people}} වැඩ කරමින්",
         "personCount_one": "පුද්ගලයින් {{count}}",
         "personCount_other": "පුද්ගලයින් {{count}}",

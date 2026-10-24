@@ -87,7 +87,7 @@
         "noOpenWo": "कोई खुला वर्क ऑर्डर नहीं है।"
       },
       "liveBreakdowns": {
-        "title": "लाइव ब्रेकडाउन",
+        "title": "ब्रेकडाउन",
         "active": "{{count}} सक्रिय",
         "empty": "कोई सक्रिय ब्रेकडाउन नहीं",
         "count_one": "{{count}} ब्रेकडाउन",
@@ -95,7 +95,7 @@
         "pending": "लंबित"
       },
       "livePOs": {
-        "title": "लाइव PO अनुरोध",
+        "title": "PO अनुरोध",
         "pending": "{{count}} लंबित",
         "empty": "अनुमोदन की प्रतीक्षा में कोई क्रय आदेश नहीं"
       },
@@ -213,7 +213,7 @@
           "newlyReported": "नई रिपोर्ट की गई",
           "signOff": "साइन-ऑफ़ और बंद करें"
         },
-        "title": "लाइव ब्रेकडाउन बोर्ड"
+        "title": "ब्रेकडाउन बोर्ड"
       },
       "breakdownKanbanLane": {
         "noItems": "कोई आइटम नहीं"
@@ -297,7 +297,7 @@
         "footer": "{{shifts}} शिफ्ट सक्रिय · {{people}} लोग कार्यरत",
         "sinceDayTime": "{{day}} {{time}} से",
         "sinceTime": "{{time}} से",
-        "title": "लाइव शिफ्ट स्थिति",
+        "title": "शिफ्ट स्थिति",
         "workingNow": "{{count}} अभी कार्यरत",
         "yesterday": "कल"
       },

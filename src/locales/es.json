@@ -103,7 +103,7 @@
         "noOpenWo": "No hay órdenes de trabajo abiertas."
       },
       "liveBreakdowns": {
-        "title": "Averías en vivo",
+        "title": "Averías",
         "active": "{{count}} activas",
         "empty": "No hay averías activas",
         "count_one": "{{count}} avería",
@@ -111,7 +111,7 @@
         "pending": "pendiente"
       },
       "livePOs": {
-        "title": "Solicitudes de compra en vivo",
+        "title": "Solicitudes de compra",
         "pending": "{{count}} pendientes",
         "empty": "No hay órdenes de compra pendientes de aprobación"
       },
@@ -1444,7 +1444,7 @@
           "newlyReported": "RECIÉN REPORTADAS",
           "signOff": "APROBACIÓN Y CIERRE"
         },
-        "title": "Tablero de averías en vivo"
+        "title": "Tablero de averías"
       },
       "breakdownKanbanLane": {
         "noItems": "Sin elementos"
@@ -1530,7 +1530,7 @@
         "footer_other": "{{shifts}} turnos activos · {{people}} personas trabajando",
         "sinceDayTime": "desde {{day}} {{time}}",
         "sinceTime": "desde {{time}}",
-        "title": "Estado de turno en vivo",
+        "title": "Estado de turno",
         "workingNow": "{{count}} trabajando ahora",
         "yesterday": "ayer",
         "noDepartment": "Sin departamento",
@@ -7149,7 +7149,7 @@
         "notWorking": "Sin Trabajar",
         "workingCount": "Trabajando ({{count}})",
         "noOneScheduled": "Nadie está programado en este turno todavía.",
-        "liveShiftStatus": "Estado del Turno en Vivo",
+        "liveShiftStatus": "Estado del turno",
         "summaryLine": "{{people}} trabajando actualmente, en {{shifts}}",
         "personCount_one": "{{count}} persona",
         "personCount_other": "{{count}} personas",
