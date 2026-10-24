@@ -132,6 +132,33 @@
         "mttrToday": "本日のMTTR",
         "openWorkOrders": "未完了の作業指示",
         "shiftHoursElapsed": "経過シフト時間"
+      },
+      "kpiScope": {
+        "today": "本日",
+        "mtd": "今月"
+      },
+      "kpiSub": {
+        "maintenances": "今月の故障 + 予防保全",
+        "thisMonth": "今月",
+        "avgRepair": "平均修理時間",
+        "unassigned": "未割り当て {{count}} 件",
+        "startedSplit": "開始済み {{started}} · 未開始 {{notStarted}}",
+        "pmOverdue": "期限超過 {{count}} 件"
+      },
+      "allPlants": "すべての工場",
+      "plantsOverview": {
+        "title": "工場の概要",
+        "hint": "工場ごとのアラート",
+        "breakdowns_one": "故障 {{count}} 件",
+        "breakdowns_other": "故障 {{count}} 件",
+        "workOrders_one": "作業指示書 {{count}} 件",
+        "workOrders_other": "作業指示書 {{count}} 件",
+        "safety_one": "安全案件 {{count}} 件",
+        "safety_other": "安全案件 {{count}} 件",
+        "alerts_one": "アラート {{count}} 件",
+        "alerts_other": "アラート {{count}} 件",
+        "allClear": "異常なし",
+        "nothing": "待機中の項目なし"
       }
     },
     "inventory": {
@@ -3257,6 +3284,38 @@
         "recordVideo": "動画を撮影",
         "attachFile": "ファイルを添付",
         "removeAriaLabel": "削除"
+      },
+      "extension": {
+        "statusExtended": "延長作業指示書",
+        "extendButton": "作業指示書を延長",
+        "signOffBlocked": "先に延長分を完了して承認してください",
+        "isExtensionBanner": "{{wo}} の延長分{{reason}}。承認後はその作業指示書に統合されます。",
+        "openBanner": "延長分 {{wo}} は未完了です。延長分が終わると、この作業指示書を承認できます。",
+        "signOffNotice": "これは {{wo}} の延長分です。承認すると、そのタスク・添付・実施内容がその作業指示書に追加されます。根本原因はその作業指示書の承認時に記入します。",
+        "reasonRequired": "この作業指示書を延長する理由を入力してください。",
+        "contentRequired": "追加のタスクまたは添付を1つ以上追加してください。",
+        "dueRequired": "延長分の期限を選択してください。",
+        "descriptionPrefix": "{{wo}} の延長",
+        "created": "延長作業指示書を作成しました。",
+        "title": "{{wo}} を延長",
+        "hint": "同じチケットに延長作業指示書を作成します。承認されるとこの作業指示書に統合され、1件の「延長作業指示書」として完了します。",
+        "reasonLabel": "延長の理由（必須）",
+        "tasksLabel": "追加タスク",
+        "taskPlaceholder": "タスクの内容",
+        "removeTask": "タスクを削除",
+        "addTask": "タスクを追加",
+        "attachmentsLabel": "添付ファイル",
+        "addFiles": "ファイルを追加",
+        "removeFile": "ファイルを削除",
+        "dueLabel": "新しい期限",
+        "hoursLabel": "見積時間",
+        "cancel": "キャンセル",
+        "creating": "作成中…",
+        "create": "延長作業指示書を作成"
+      },
+      "summary": {
+        "extensionsTitle": "延長分（承認前に追加）",
+        "extensionReason": "延長の理由"
       }
     },
     "pmSchedules": {
@@ -9062,7 +9121,8 @@
     },
     "layout": {
       "plantTabs": {
-        "allPlants": "全工場"
+        "allPlants": "全工場",
+        "viewing": "表示中の工場"
       }
     },
     "billing": {
@@ -11219,8 +11279,8 @@
         "body": "ホーム画面です。今日対応が必要なもの（未対応の故障、作業指示、期限のPM、役割に応じたアラート）が表示されます。"
       },
       "plants": {
-        "title": "工場タブ",
-        "body": "ここで工場を切り替えます。下の設備・作業指示・人員はすべて選んだ工場に合わせて表示されます。"
+        "title": "工場の切り替え",
+        "body": "このメニューで表示する工場を選びます。下のすべて（機械、作業指示書、人）は選んだ工場に合わせて切り替わります。"
       },
       "group_maintenance": {
         "title": "保全",
@@ -11300,6 +11360,41 @@
         "title": "資産価値とコスト",
         "body": "購入価格、スクラップ価値、年間減価償却、現在価値と、保全に使った費用の合計。修理か交換かの判断に役立ちます。"
       }
+    },
+    "launcher": {
+      "dashboard": "ホーム画面：主要な数値、工場フロア、承認待ちの項目、勤務中の人を確認できます。",
+      "machines": "すべての機械の台帳：QRコード、健全性スコア、履歴、書類。",
+      "breakdowns": "故障を報告し、「報告済み」から修理・完了まで追跡します。",
+      "workOrders": "保守作業指示書の作成、割り当て、追跡、承認を行います。",
+      "myWorkOrders": "あなたに割り当てられた作業指示書：ここで作業を開始・完了・記録します。",
+      "pmSchedules": "予防保全スケジュールと、本日期限または期限超過の項目。",
+      "workPermits": "作業許可：危険作業の許可を申請・承認・追跡します。",
+      "safetyCases": "インシデント、ヒヤリハット、危険、不安全行動を報告し、フォローします。",
+      "safetyTrainings": "安全教育の日程を組み、提出内容を確認します。",
+      "safetyBlacklist": "現場作業を禁止されている人と請負業者。",
+      "inventory": "予備品カタログと在庫数量。在庫不足の警告付き。",
+      "po": "発注書：作成、承認、受領、納品の催促を行います。",
+      "requests": "現場から出された、倉庫の対応を待つ部品依頼。",
+      "requestsInbox": "あなた宛ての、回答や承認が必要な依頼。",
+      "myRequests": "自分が出した依頼と、それぞれの進行状況。",
+      "triage": "手順ごとのトラブル対応ガイド、クイズ、連絡先。",
+      "training": "研修ライブラリと、各人に割り当てられたコース。",
+      "traineeManagement": "研修生プログラム、割り当て、承認。",
+      "myTraining": "あなたに割り当てられた研修とクイズ。",
+      "myProgram": "あなたの研修プログラムと進捗状況。",
+      "myCertificates": "取得した修了証。",
+      "contractors": "請負会社、そのチームメンバーと作業。",
+      "myShift": "あなたのシフト：開始・終了と、同じシフトの人を確認します。",
+      "shiftHandovers": "シフト間の引き継ぎメモと過去の引き継ぎ。",
+      "analytics": "グラフと傾向：故障、コスト、MTBF/MTTR、チームの成果。",
+      "moe": "変更管理の記録。",
+      "reports": "作成してダウンロードできる定型レポート。",
+      "audit": "監査：チェックリスト、指摘事項、完了した監査。",
+      "evaluations": "スタッフ評価。",
+      "settings": "会社設定：ユーザー、工場、部門、シフト、データのエクスポート。",
+      "billing": "ご利用プラン、請求書、支払い情報。",
+      "supportRequests": "FirmiCoreチームへのメッセージと、その返信。",
+      "help": "あなたの役割で使うツールの手順ガイド。"
     }
   }
 }

@@ -132,6 +132,33 @@
         "mttrToday": "今日 MTTR",
         "openWorkOrders": "未完成工单",
         "shiftHoursElapsed": "已过班次时长"
+      },
+      "kpiScope": {
+        "today": "今日",
+        "mtd": "本月"
+      },
+      "kpiSub": {
+        "maintenances": "本月故障 + 预防性维护",
+        "thisMonth": "本月",
+        "avgRepair": "平均维修时间",
+        "unassigned": "{{count}} 项未分配",
+        "startedSplit": "已开始 {{started}} · 未开始 {{notStarted}}",
+        "pmOverdue": "{{count}} 项逾期"
+      },
+      "allPlants": "所有工厂",
+      "plantsOverview": {
+        "title": "工厂概览",
+        "hint": "各工厂的提醒",
+        "breakdowns_one": "{{count}} 个故障",
+        "breakdowns_other": "{{count}} 个故障",
+        "workOrders_one": "{{count}} 张工单",
+        "workOrders_other": "{{count}} 张工单",
+        "safety_one": "{{count}} 个安全案例",
+        "safety_other": "{{count}} 个安全案例",
+        "alerts_one": "{{count}} 条提醒",
+        "alerts_other": "{{count}} 条提醒",
+        "allClear": "一切正常",
+        "nothing": "暂无待处理事项"
       }
     },
     "inventory": {
@@ -3257,6 +3284,38 @@
         "recordVideo": "录制视频",
         "attachFile": "附加文件",
         "removeAriaLabel": "移除"
+      },
+      "extension": {
+        "statusExtended": "已延期工单",
+        "extendButton": "延期工单",
+        "signOffBlocked": "请先完成并签字确认延期工单",
+        "isExtensionBanner": "{{wo}} 的延期工单{{reason}}。签字后将并入该工单。",
+        "openBanner": "延期工单 {{wo}} 尚未完成。待其完成后即可对本工单签字。",
+        "signOffNotice": "这是 {{wo}} 的延期工单。签字后，其任务、附件和已完成工作将并入该工单——根本原因在该工单签字时填写。",
+        "reasonRequired": "请说明为何需要延期此工单。",
+        "contentRequired": "请至少添加一项额外任务或附件。",
+        "dueRequired": "请为延期工单选择截止日期。",
+        "descriptionPrefix": "{{wo}} 的延期",
+        "created": "已创建延期工单。",
+        "title": "延期 {{wo}}",
+        "hint": "在同一工单上创建延期工单。签字后它将并入本工单，本工单随后作为一张“已延期工单”关闭。",
+        "reasonLabel": "为何延期？（必填）",
+        "tasksLabel": "额外任务",
+        "taskPlaceholder": "描述任务",
+        "removeTask": "删除任务",
+        "addTask": "添加任务",
+        "attachmentsLabel": "附件",
+        "addFiles": "添加文件",
+        "removeFile": "删除文件",
+        "dueLabel": "新截止日期",
+        "hoursLabel": "预计工时",
+        "cancel": "取消",
+        "creating": "创建中…",
+        "create": "创建延期工单"
+      },
+      "summary": {
+        "extensionsTitle": "延期内容（签字前添加）",
+        "extensionReason": "延期原因"
       }
     },
     "pmSchedules": {
@@ -9062,7 +9121,8 @@
     },
     "layout": {
       "plantTabs": {
-        "allPlants": "所有工厂"
+        "allPlants": "所有工厂",
+        "viewing": "当前查看的工厂"
       }
     },
     "billing": {
@@ -11219,8 +11279,8 @@
         "body": "您的主页。显示今天需要关注的事项：未结故障、工单、到期的 PM 以及与您角色相关的提醒。"
       },
       "plants": {
-        "title": "工厂标签页",
-        "body": "在此切换工厂。下方的所有内容——设备、工单、人员——都会跟随您选择的工厂。"
+        "title": "工厂切换",
+        "body": "在此菜单中选择您要查看的工厂。下方的所有内容——设备、工单、人员——都会跟随您选择的工厂。"
       },
       "group_maintenance": {
         "title": "维护",
@@ -11300,6 +11360,41 @@
         "title": "资产价值与成本",
         "body": "购买价格、报废价值、年折旧和当前价值，以及维护上的全部支出，帮助您决定何时维修或更换。"
       }
+    },
+    "launcher": {
+      "dashboard": "您的主页：关键数据、车间现场、待签字事项以及当班人员。",
+      "machines": "所有设备的台账：二维码、健康评分、历史记录和文档。",
+      "breakdowns": "上报故障，并跟踪其从“已上报”到维修完成和关闭的全过程。",
+      "workOrders": "创建、分配、跟踪并签字确认维护工单。",
+      "myWorkOrders": "分配给您的工单——在此开始、完成并记录您的工作。",
+      "pmSchedules": "预防性维护计划，以及今日到期或已逾期的事项。",
+      "workPermits": "作业许可：为高风险作业申请、批准并跟踪许可证。",
+      "safetyCases": "上报并跟进事故、险兆事件、隐患和不安全行为。",
+      "safetyTrainings": "安排安全培训课程并审阅提交内容。",
+      "safetyBlacklist": "被禁止进入现场作业的人员和承包商。",
+      "inventory": "备件目录和库存水平，并提供低库存提醒。",
+      "po": "采购订单：创建、批准、收货并催办交付。",
+      "requests": "车间提交、等待仓库处理的备件申请。",
+      "requestsInbox": "发给您、需要答复或审批的申请。",
+      "myRequests": "您提交的申请及其各自的处理进度。",
+      "triage": "分步排障指南、测验以及应联系的人员。",
+      "training": "培训资料库以及分配给人员的课程。",
+      "traineeManagement": "学员培养计划、任务分配和签字确认。",
+      "myTraining": "分配给您的培训和测验。",
+      "myProgram": "您的学员培养计划及当前进度。",
+      "myCertificates": "您已获得的证书。",
+      "contractors": "承包商公司、其团队成员及作业。",
+      "myShift": "您的班次：开始和结束班次，并查看同班人员。",
+      "shiftHandovers": "班次之间的交接记录及历史交接。",
+      "analytics": "图表与趋势：故障、成本、MTBF/MTTR 和团队绩效。",
+      "moe": "变更管理记录。",
+      "reports": "可生成并下载的现成报告。",
+      "audit": "审核：检查表、发现项和已完成的审核。",
+      "evaluations": "员工评估。",
+      "settings": "公司设置：用户、工厂、部门、班次和数据导出。",
+      "billing": "您的套餐、发票和付款信息。",
+      "supportRequests": "发给 FirmiCore 团队的消息及其回复。",
+      "help": "您所在角色所用工具的分步指南。"
     }
   }
 }

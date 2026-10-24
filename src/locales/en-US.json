@@ -101,6 +101,41 @@
         "title": "Asset value & cost",
         "body": "Purchase price, scrap value, annual depreciation and current value, plus everything spent on maintenance, so you can decide when to repair or replace."
       }
+    },
+    "launcher": {
+      "dashboard": "Your home screen: the key numbers, factory floor, what needs sign-off and who is on shift.",
+      "machines": "The register of every machine: its QR code, health score, history and documents.",
+      "breakdowns": "Report a breakdown and follow it from \"reported\" to repaired and closed.",
+      "workOrders": "Create, assign, track and sign off maintenance work orders.",
+      "myWorkOrders": "The work orders assigned to you — start, complete and log your work here.",
+      "pmSchedules": "Preventive maintenance schedules and what is due today or overdue.",
+      "workPermits": "Permit-to-work: request, approve and track permits for risky jobs.",
+      "safetyCases": "Report and follow up incidents, near misses, hazards and unsafe acts.",
+      "safetyTrainings": "Schedule safety training sessions and review submissions.",
+      "safetyBlacklist": "People and contractors who are barred from site work.",
+      "inventory": "Spare parts catalogue and stock levels, with low-stock alerts.",
+      "po": "Purchase orders: raise, approve, receive and chase deliveries.",
+      "requests": "Parts requests from the floor waiting for the store.",
+      "requestsInbox": "Requests sent to you that need an answer or approval.",
+      "myRequests": "Requests you have sent and where each one stands.",
+      "triage": "Step-by-step troubleshooting guides, quizzes and who to call.",
+      "training": "The training library and the courses assigned to people.",
+      "traineeManagement": "Trainee programmes, assignments and sign-offs.",
+      "myTraining": "Your assigned trainings and quizzes.",
+      "myProgram": "Your trainee programme and how far along you are.",
+      "myCertificates": "Certificates you have earned.",
+      "contractors": "Contractor companies, their team members and jobs.",
+      "myShift": "Your shift: start and end it and see who is on with you.",
+      "shiftHandovers": "Handover notes between shifts and past handovers.",
+      "analytics": "Charts and trends: breakdowns, costs, MTBF/MTTR and team performance.",
+      "moe": "Management of change records.",
+      "reports": "Ready-made reports you can generate and download.",
+      "audit": "Audits: checklists, findings and completed audits.",
+      "evaluations": "Staff evaluations.",
+      "settings": "Company settings: users, plants, departments, shifts and data export.",
+      "billing": "Your plan, invoices and payment details.",
+      "supportRequests": "Messages to the FirmiCore team and their replies.",
+      "help": "Step-by-step guides for the tools your role uses."
     }
   },
   "triage": {
@@ -1662,6 +1697,33 @@
         "mttrToday": "MTTR Today",
         "openWorkOrders": "Open Work Orders",
         "shiftHoursElapsed": "Shift Hours Elapsed"
+      },
+      "kpiScope": {
+        "today": "TODAY",
+        "mtd": "MTD"
+      },
+      "kpiSub": {
+        "maintenances": "breakdowns + PM this month",
+        "thisMonth": "this month",
+        "avgRepair": "average repair time",
+        "unassigned": "{{count}} unassigned",
+        "startedSplit": "{{started}} started · {{notStarted}} not started",
+        "pmOverdue": "{{count}} overdue"
+      },
+      "allPlants": "All plants",
+      "plantsOverview": {
+        "title": "Plants overview",
+        "hint": "Alerts per plant",
+        "breakdowns_one": "{{count}} breakdown",
+        "breakdowns_other": "{{count}} breakdowns",
+        "workOrders_one": "{{count}} work order",
+        "workOrders_other": "{{count}} work orders",
+        "safety_one": "{{count}} safety case",
+        "safety_other": "{{count}} safety cases",
+        "alerts_one": "{{count}} alert",
+        "alerts_other": "{{count}} alerts",
+        "allClear": "All clear",
+        "nothing": "Nothing waiting"
       }
     },
     "inventory": {
@@ -4787,6 +4849,38 @@
         "recordVideo": "Record Video",
         "attachFile": "Attach File",
         "removeAriaLabel": "Remove"
+      },
+      "extension": {
+        "statusExtended": "Extended WO",
+        "extendButton": "Extend WO",
+        "signOffBlocked": "Finish and sign off the extension first",
+        "isExtensionBanner": "Extension of {{wo}}{{reason}}. Once signed off it joins that work order.",
+        "openBanner": "Extension {{wo}} is open. This work order can be signed off once the extension is done.",
+        "signOffNotice": "This is an extension of {{wo}}. Signing it off adds its tasks, attachments and work done to that work order — the root cause is written when that work order is signed off.",
+        "reasonRequired": "Say why this work order needs to be extended.",
+        "contentRequired": "Add at least one extra task or attachment.",
+        "dueRequired": "Choose a due date for the extension.",
+        "descriptionPrefix": "Extension of {{wo}}",
+        "created": "Extension work order created.",
+        "title": "Extend {{wo}}",
+        "hint": "Creates an extension work order on the same ticket. When it is signed off it joins this work order, which then closes as one \"Extended WO\".",
+        "reasonLabel": "Why is it being extended? (required)",
+        "tasksLabel": "Extra tasks",
+        "taskPlaceholder": "Describe the task",
+        "removeTask": "Remove task",
+        "addTask": "Add task",
+        "attachmentsLabel": "Attachments",
+        "addFiles": "Add files",
+        "removeFile": "Remove file",
+        "dueLabel": "New due date",
+        "hoursLabel": "Estimated hours",
+        "cancel": "Cancel",
+        "creating": "Creating…",
+        "create": "Create extension WO"
+      },
+      "summary": {
+        "extensionsTitle": "Extension (added before sign-off)",
+        "extensionReason": "Why it was extended"
       }
     },
     "pmSchedules": {
@@ -9582,7 +9676,8 @@
     },
     "layout": {
       "plantTabs": {
-        "allPlants": "All Plants"
+        "allPlants": "All Plants",
+        "viewing": "Viewing plant"
       }
     },
     "staffRequests": {

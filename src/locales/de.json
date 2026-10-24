@@ -132,6 +132,33 @@
         "mttrToday": "MTTR heute",
         "openWorkOrders": "Offene Arbeitsaufträge",
         "shiftHoursElapsed": "Verstrichene Schichtstunden"
+      },
+      "kpiScope": {
+        "today": "HEUTE",
+        "mtd": "MTD"
+      },
+      "kpiSub": {
+        "maintenances": "Störungen + PM in diesem Monat",
+        "thisMonth": "diesen Monat",
+        "avgRepair": "durchschnittliche Reparaturzeit",
+        "unassigned": "{{count}} nicht zugewiesen",
+        "startedSplit": "{{started}} gestartet · {{notStarted}} nicht gestartet",
+        "pmOverdue": "{{count}} überfällig"
+      },
+      "allPlants": "Alle Werke",
+      "plantsOverview": {
+        "title": "Werke im Überblick",
+        "hint": "Warnungen pro Werk",
+        "breakdowns_one": "{{count}} Störung",
+        "breakdowns_other": "{{count}} Störungen",
+        "workOrders_one": "{{count}} Arbeitsauftrag",
+        "workOrders_other": "{{count}} Arbeitsaufträge",
+        "safety_one": "{{count}} Sicherheitsfall",
+        "safety_other": "{{count}} Sicherheitsfälle",
+        "alerts_one": "{{count}} Warnung",
+        "alerts_other": "{{count}} Warnungen",
+        "allClear": "Alles in Ordnung",
+        "nothing": "Nichts offen"
       }
     },
     "inventory": {
@@ -3257,6 +3284,38 @@
         "recordVideo": "Video Aufnehmen",
         "attachFile": "Datei Anhängen",
         "removeAriaLabel": "Entfernen"
+      },
+      "extension": {
+        "statusExtended": "Erweiterter AA",
+        "extendButton": "AA erweitern",
+        "signOffBlocked": "Zuerst die Erweiterung abschließen und abzeichnen",
+        "isExtensionBanner": "Erweiterung von {{wo}}{{reason}}. Nach der Abzeichnung wird sie Teil dieses Auftrags.",
+        "openBanner": "Die Erweiterung {{wo}} ist offen. Dieser Auftrag kann abgezeichnet werden, sobald die Erweiterung erledigt ist.",
+        "signOffNotice": "Dies ist eine Erweiterung von {{wo}}. Beim Abzeichnen werden ihre Aufgaben, Anhänge und erledigte Arbeit zu diesem Auftrag hinzugefügt — die Grundursache wird beim Abzeichnen dieses Auftrags erfasst.",
+        "reasonRequired": "Geben Sie an, warum dieser Auftrag erweitert werden muss.",
+        "contentRequired": "Fügen Sie mindestens eine zusätzliche Aufgabe oder einen Anhang hinzu.",
+        "dueRequired": "Wählen Sie ein Fälligkeitsdatum für die Erweiterung.",
+        "descriptionPrefix": "Erweiterung von {{wo}}",
+        "created": "Erweiterungsauftrag erstellt.",
+        "title": "{{wo}} erweitern",
+        "hint": "Erstellt einen Erweiterungsauftrag zum selben Ticket. Nach der Abzeichnung wird er Teil dieses Auftrags, der dann als ein „Erweiterter AA“ abgeschlossen wird.",
+        "reasonLabel": "Warum wird erweitert? (Pflicht)",
+        "tasksLabel": "Zusätzliche Aufgaben",
+        "taskPlaceholder": "Aufgabe beschreiben",
+        "removeTask": "Aufgabe entfernen",
+        "addTask": "Aufgabe hinzufügen",
+        "attachmentsLabel": "Anhänge",
+        "addFiles": "Dateien hinzufügen",
+        "removeFile": "Datei entfernen",
+        "dueLabel": "Neues Fälligkeitsdatum",
+        "hoursLabel": "Geschätzte Stunden",
+        "cancel": "Abbrechen",
+        "creating": "Wird erstellt…",
+        "create": "Erweiterungs-AA erstellen"
+      },
+      "summary": {
+        "extensionsTitle": "Erweiterung (vor der Abzeichnung hinzugefügt)",
+        "extensionReason": "Warum erweitert wurde"
       }
     },
     "pmSchedules": {
@@ -9062,7 +9121,8 @@
     },
     "layout": {
       "plantTabs": {
-        "allPlants": "Alle Werke"
+        "allPlants": "Alle Werke",
+        "viewing": "Angezeigtes Werk"
       }
     },
     "billing": {
@@ -11219,8 +11279,8 @@
         "body": "Ihre Startseite. Sie zeigt, was heute Aufmerksamkeit braucht: offene Störungen, Arbeitsaufträge, fällige PM und Hinweise für Ihre Rolle."
       },
       "plants": {
-        "title": "Werks-Tabs",
-        "body": "Wechseln Sie hier zwischen Ihren Werken. Alles darunter – Maschinen, Arbeitsaufträge, Personen – richtet sich nach dem gewählten Werk."
+        "title": "Werkauswahl",
+        "body": "Wählen Sie in diesem Menü das Werk, das Sie ansehen. Alles darunter — Maschinen, Aufträge, Personen — folgt dem gewählten Werk."
       },
       "group_maintenance": {
         "title": "Instandhaltung",
@@ -11300,6 +11360,41 @@
         "title": "Anlagenwert & Kosten",
         "body": "Kaufpreis, Schrottwert, jährliche Abschreibung und aktueller Wert sowie alle Instandhaltungskosten – als Grundlage für die Entscheidung Reparatur oder Ersatz."
       }
+    },
+    "launcher": {
+      "dashboard": "Ihr Startbildschirm: die wichtigsten Zahlen, die Fertigungsfläche, was abgezeichnet werden muss und wer in Schicht ist.",
+      "machines": "Das Register jeder Maschine: QR-Code, Gesundheitswert, Verlauf und Dokumente.",
+      "breakdowns": "Melden Sie eine Störung und verfolgen Sie sie von „gemeldet“ bis zur Reparatur und zum Abschluss.",
+      "workOrders": "Wartungsaufträge erstellen, zuweisen, verfolgen und abzeichnen.",
+      "myWorkOrders": "Die Ihnen zugewiesenen Aufträge — hier Arbeit starten, abschließen und protokollieren.",
+      "pmSchedules": "Pläne für vorbeugende Wartung und was heute fällig oder überfällig ist.",
+      "workPermits": "Arbeitserlaubnis: Genehmigungen für riskante Arbeiten beantragen, freigeben und verfolgen.",
+      "safetyCases": "Vorfälle, Beinaheunfälle, Gefahren und unsichere Handlungen melden und nachverfolgen.",
+      "safetyTrainings": "Sicherheitsschulungen planen und Einreichungen prüfen.",
+      "safetyBlacklist": "Personen und Auftragnehmer, die von Arbeiten vor Ort ausgeschlossen sind.",
+      "inventory": "Ersatzteilkatalog und Bestände, mit Warnungen bei niedrigem Bestand.",
+      "po": "Bestellungen: erstellen, freigeben, annehmen und Lieferungen nachverfolgen.",
+      "requests": "Teileanforderungen aus der Fertigung, die auf das Lager warten.",
+      "requestsInbox": "An Sie gerichtete Anfragen, die eine Antwort oder Freigabe brauchen.",
+      "myRequests": "Von Ihnen gesendete Anfragen und der Stand jeder einzelnen.",
+      "triage": "Schritt-für-Schritt-Anleitungen zur Fehlersuche, Quizze und wen man anruft.",
+      "training": "Die Schulungsbibliothek und die den Personen zugewiesenen Kurse.",
+      "traineeManagement": "Auszubildendenprogramme, Zuweisungen und Abzeichnungen.",
+      "myTraining": "Ihre zugewiesenen Schulungen und Quizze.",
+      "myProgram": "Ihr Auszubildendenprogramm und Ihr Fortschritt.",
+      "myCertificates": "Die von Ihnen erworbenen Zertifikate.",
+      "contractors": "Auftragnehmerfirmen, ihre Teammitglieder und Aufträge.",
+      "myShift": "Ihre Schicht: starten und beenden Sie sie und sehen Sie, wer mit Ihnen im Dienst ist.",
+      "shiftHandovers": "Übergabenotizen zwischen den Schichten und frühere Übergaben.",
+      "analytics": "Diagramme und Trends: Störungen, Kosten, MTBF/MTTR und Teamleistung.",
+      "moe": "Aufzeichnungen zum Änderungsmanagement.",
+      "reports": "Fertige Berichte, die Sie erstellen und herunterladen können.",
+      "audit": "Audits: Checklisten, Feststellungen und abgeschlossene Audits.",
+      "evaluations": "Mitarbeiterbeurteilungen.",
+      "settings": "Firmeneinstellungen: Benutzer, Werke, Abteilungen, Schichten und Datenexport.",
+      "billing": "Ihr Tarif, Rechnungen und Zahlungsdaten.",
+      "supportRequests": "Nachrichten an das FirmiCore-Team und deren Antworten.",
+      "help": "Schritt-für-Schritt-Anleitungen für die Werkzeuge Ihrer Rolle."
     }
   }
 }
