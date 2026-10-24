@@ -6,7 +6,7 @@ import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
 import { usePartReturns } from '@/hooks/inventory/usePartReturns';
 import { useAuthStore } from '@/store/authStore';
 import type { PartReturn, RequestStatus } from '@/types/inventory';
-import { RequestQueueRow, type ReturnInfo } from './RequestQueueRow';
+import type { ReturnInfo } from './RequestQueueRow';
 import { RequestQueueCard } from './RequestQueueCard';
 
 type TabId = 'all' | 'pending_return' | RequestStatus;
@@ -45,18 +45,6 @@ const OWN_TABS: TabDef[] = [
 
 const PRIORITY_VALUES = ['critical', 'high', 'medium', 'low'];
 
-function SkeletonRow() {
-  return (
-    <tr className="border-b border-gray-100">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <td key={i} className="px-4 py-3">
-          <div className="h-4 bg-gray-200 rounded animate-pulse" />
-        </td>
-      ))}
-    </tr>
-  );
-}
-
 export function RequestsQueue() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -70,14 +58,13 @@ export function RequestsQueue() {
   const baseTabs = ownOnly ? OWN_TABS : role === 'store_keeper' ? STORE_KEEPER_TABS : TABS;
   const tabs = isAdmin ? baseTabs : baseTabs.filter((tab) => tab.id !== 'completed');
 
-  const [activeTab, setActiveTab] = useState<TabId>(ownOnly ? 'all' : 'pending_storekeeper');
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
 
-  // "Pending Return" is derived client-side from item flags, not a real
-  // request status, so it always fetches the full set.
+  // The board shows every stage side by side, so the full set is fetched once
+  // ("Pending Return" is derived client-side from item flags, not a real status).
   const { requests, loading } = usePartsRequests({
-    status: activeTab === 'all' || activeTab === 'pending_return' ? 'all' : activeTab,
+    status: 'all',
     priorityLevel: priorityFilter || undefined,
     ownOnly,
   });
@@ -111,21 +98,11 @@ export function RequestsQueue() {
   const hasPendingReturn = (r: (typeof requests)[number]) =>
     r.items.some((i) => i.isReturnable && !i.isReturned);
 
-  // The 'all' tab fetches every status server-side (see the hook call
-  // above), so a non-admin's "completed" requests must be dropped here too,
-  // not just from the tab list.
+  // Completed requests are only visible to admins, so non-admins never see them here.
   const visibleRequests = isAdmin ? requests : requests.filter((r) => r.status !== 'completed');
-  // Pending Return deliberately bypasses the completed-hiding filter above:
-  // an item is tracked here by whether it's been physically returned
-  // (isReturnable && !isReturned), not by the parent request's own status —
-  // collecting the parts usually completes the request while a returnable
-  // item (e.g. a borrowed tool) is still outstanding. Filtering out
-  // "completed" requests here made every collected item vanish from Pending
-  // Return before the store keeper ever got to mark it returned.
-  const scoped = activeTab === 'pending_return' ? requests.filter(hasPendingReturn) : visibleRequests;
 
   // Client-side search filter
-  const filtered = scoped.filter((r) => {
+  const matches = (r: (typeof requests)[number]) => {
     if (!search) return true;
     const s = search.toLowerCase();
     return (
@@ -134,80 +111,26 @@ export function RequestsQueue() {
       r.requestedByName.toLowerCase().includes(s) ||
       r.items.some((i) => i.partName.toLowerCase().includes(s))
     );
-  });
+  };
 
-  // Count badges per tab
-  function countForTab(tabId: TabId): number {
-    if (tabId === 'all') return visibleRequests.length;
-    if (tabId === 'pending_return') return requests.filter(hasPendingReturn).length;
-    return visibleRequests.filter((r) => r.status === tabId).length;
+  // Pending Return deliberately bypasses the completed-hiding filter: an item
+  // is tracked there by whether it's been physically returned (isReturnable &&
+  // !isReturned), not by the parent request's status — collecting the parts
+  // usually completes the request while a returnable item is still outstanding.
+  const statusColumns = new Set(tabs.map((tab) => tab.id).filter((id) => id !== 'all' && id !== 'pending_return'));
+  function itemsForTab(tabId: TabId) {
+    if (tabId === 'pending_return') return requests.filter(hasPendingReturn).filter(matches);
+    // "My requests" (requesters) holds everything not already in a stage column.
+    if (tabId === 'all') return visibleRequests.filter((r) => !statusColumns.has(r.status)).filter(matches);
+    return visibleRequests.filter((r) => r.status === tabId).filter(matches);
   }
 
   function handleReview(requestId: string) {
     navigate(`/app/inventory/requests/${requestId}`);
   }
 
-  const columnHeaders =
-    // On Pending Return every visible request is already Completed —
-    // the Status column is redundant there, so it's dropped in
-    // favor of the Return column showing the actual action taken.
-    activeTab === 'pending_return'
-      ? [
-          t('common.inventory.requests.queue.columns.requestNumber'),
-          t('common.inventory.requests.queue.columns.woNumberType'),
-          t('common.inventory.requests.queue.columns.requestedBy'),
-          t('common.inventory.requests.queue.columns.parts'),
-          t('common.inventory.requests.queue.columns.totalCost'),
-          t('common.inventory.requests.queue.columns.priority'),
-          t('common.inventory.requests.queue.columns.return'),
-          t('common.inventory.requests.queue.columns.age'),
-          '',
-        ]
-      : [
-          t('common.inventory.requests.queue.columns.requestNumber'),
-          t('common.inventory.requests.queue.columns.woNumberType'),
-          t('common.inventory.requests.queue.columns.requestedBy'),
-          t('common.inventory.requests.queue.columns.parts'),
-          t('common.inventory.requests.queue.columns.totalCost'),
-          t('common.inventory.requests.queue.columns.priority'),
-          t('common.inventory.requests.queue.columns.status'),
-          t('common.inventory.requests.queue.columns.return'),
-          t('common.inventory.requests.queue.columns.age'),
-          '',
-        ];
-
   return (
     <div className="space-y-4">
-      {/* Tab bar */}
-      <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
-        {tabs.map((tab) => {
-          const count = countForTab(tab.id);
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                isActive
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {t(tab.labelKey)}
-              {count > 0 && (
-                <span
-                  className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-bold ${
-                    isActive ? 'bg-white/30 text-white' : 'bg-gray-300 text-gray-700'
-                  }`}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
       {/* Filter bar */}
       <div className="flex flex-col sm:flex-row gap-2">
         <input
@@ -231,76 +154,47 @@ export function RequestsQueue() {
         </select>
       </div>
 
-      {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200">
-        <table className="min-w-full bg-white">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              {columnHeaders.map((h, i) => (
-                <th
-                  key={i}
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <>
-                <SkeletonRow />
-                <SkeletonRow />
-                <SkeletonRow />
-              </>
-            ) : filtered.length === 0 ? (
-              <tr>
-                <td colSpan={10} className="px-4 py-12 text-center">
-                  <InboxIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-500 text-sm">{t('common.inventory.requests.queue.noRequestsFound')}</p>
-                </td>
-              </tr>
-            ) : (
-              filtered.map((r) => (
-                <RequestQueueRow
-                  key={r.id}
-                  request={r}
-                  returnInfo={returnByRequestId.get(r.id) ?? null}
-                  onReview={() => handleReview(r.id)}
-                  canManageReturns={canManageReturns}
-                  showStatus={activeTab !== 'pending_return'}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile cards */}
-      <div className="md:hidden space-y-3">
-        {loading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
-          ))
-        ) : filtered.length === 0 ? (
-          <div className="py-12 text-center">
-            <InboxIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-500 text-sm">{t('common.inventory.requests.queue.noRequestsFound')}</p>
-          </div>
-        ) : (
-          filtered.map((r) => (
-            <RequestQueueCard
-              key={r.id}
-              request={r}
-              returnInfo={returnByRequestId.get(r.id) ?? null}
-              onReview={() => handleReview(r.id)}
-              canManageReturns={canManageReturns}
-              showStatus={activeTab !== 'pending_return'}
-            />
-          ))
-        )}
-      </div>
-
+      {/* Kanban board: one column per stage, a card per request */}
+      {loading ? (
+        <div className="flex gap-4 overflow-x-auto pb-3">
+          {tabs.map((tab) => (
+            <div key={tab.id} className="shrink-0 w-[85vw] sm:w-80 h-48 bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="flex gap-4 overflow-x-auto pb-3 items-start snap-x snap-mandatory sm:snap-none">
+          {tabs.map((tab) => {
+            const cards = itemsForTab(tab.id);
+            return (
+              <section key={tab.id} className="shrink-0 snap-start w-[85vw] sm:w-80 rounded-xl bg-gray-50 border border-gray-200">
+                <header className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-200">
+                  <h2 className="text-sm font-semibold text-gray-700 capitalize">{t(tab.labelKey)}</h2>
+                  <span className="text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full px-2 py-0.5">{cards.length}</span>
+                </header>
+                <div className="p-3 space-y-3 sm:max-h-[70vh] sm:overflow-y-auto">
+                  {cards.length === 0 ? (
+                    <div className="py-8 text-center">
+                      <InboxIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                      <p className="text-gray-500 text-xs">{t('common.inventory.requests.queue.noRequestsFound')}</p>
+                    </div>
+                  ) : (
+                    cards.map((r) => (
+                      <RequestQueueCard
+                        key={r.id}
+                        request={r}
+                        returnInfo={returnByRequestId.get(r.id) ?? null}
+                        onReview={() => handleReview(r.id)}
+                        canManageReturns={canManageReturns}
+                        showStatus={tab.id !== 'pending_return'}
+                      />
+                    ))
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

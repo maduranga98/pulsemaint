@@ -150,7 +150,7 @@ export default function SafetyTrainingsPage() {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-2 border-b border-slate-200" role="tablist">
+      <div className="mb-6 flex gap-2 overflow-x-auto scrollbar-hide border-b border-slate-200" role="tablist">
         {([
           ['modules', t('common.safetyTrainings.contractor.tabModules'), BookOpen, 0],
           ['staff', t('common.safetyTrainings.staff.tab', { defaultValue: 'Staff submissions' }), ClipboardCheck, staffToSignoff],
@@ -162,7 +162,7 @@ export default function SafetyTrainingsPage() {
             role="tab"
             aria-selected={view === key}
             onClick={() => setView(key)}
-            className={`-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+            className={`-mb-px inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
               view === key
                 ? 'border-amber-600 text-amber-700'
                 : 'border-transparent text-slate-500 hover:text-slate-700'

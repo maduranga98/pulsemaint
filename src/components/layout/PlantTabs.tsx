@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Building2, LayoutGrid } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useActivePlantStore } from '../../store/activePlantStore';
 import { usePlants } from '../../hooks/usePlants';
@@ -49,10 +49,6 @@ export function PlantTabs() {
   return (
     <div data-tour="plant-tabs" className="shrink-0 border-b border-[#1E3A5F] bg-[#0B172A] px-4 py-2.5 lg:px-6">
       <div className="flex items-center gap-3">
-        <span className="hidden shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#6C87A6] sm:flex">
-          <Building2 className="h-3.5 w-3.5" />
-          {t('common.layout.plantTabs.viewing', 'Viewing')}
-        </span>
         <div
           role="tablist"
           aria-label={t('common.layout.plantTabs.label', 'Plant')}
