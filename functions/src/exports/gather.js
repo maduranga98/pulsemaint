@@ -152,6 +152,8 @@ function buildTextEntries({company, exportedAt, datasets, missing, refused}) {
     "  Safety cases/                                one text file per case (no attachments)",
     "  Work permits/                                one text file per work order number (no attachments)",
     "  Shift handovers/                             one spreadsheet (CSV, opens in Excel)",
+    "  PM history/<record>/                         details.txt and the record's files",
+    "  Stock movements/                             one spreadsheet (CSV, opens in Excel)",
     "Machines, users, inventory, contractors, analytics, audits, evaluations, reports, MOE and plants are not part of this export.",
     "",
   ];

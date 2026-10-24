@@ -32,6 +32,7 @@ async function addMachines(companyId, n, startIdx = 0, extra = () => ({})) {
 
 describe('server-side plan limits', () => {
   it('works end to end', async () => {
+  process.env.PLAN_LIMIT_ENFORCEMENT = 'on'; // removal is opt-in; the default is log-only
   await reset(); await seedCompany('A');
   // Starter = 15 machines. Create 17 in order, run the trigger for each (in creation order).
   const refs = await addMachines('A', 17);
@@ -90,6 +91,10 @@ describe('server-side plan limits', () => {
   process.env.PLAN_LIMIT_ENFORCEMENT = 'off';
   ok((await enf.enforceCountLimit('machines', await db.collection('machines').doc('m15').get())).action === 'skipped', 'off mode does nothing');
   delete process.env.PLAN_LIMIT_ENFORCEMENT;
+  await reset(); await seedCompany('I2'); await addMachines('I2', 16);
+  const dflt = await enf.enforceCountLimit('machines', await db.collection('machines').doc('m15').get());
+  ok(dflt.action === 'logged' && (await db.collection('machines').get()).size === 16, 'by default nothing is removed, only logged');
+  process.env.PLAN_LIMIT_ENFORCEMENT = 'on';
 
   // PM schedules: only active/paused count (archived do not); inventory parts; plants (inactive free a slot)
   await reset(); await seedCompany('J');

@@ -11,7 +11,7 @@
 
 /**
  * What goes into the ZIP. Deliberately narrow: work orders, breakdowns, safety
- * cases, shift handovers and work permits. Machines, users, inventory,
+ * cases, shift handovers, work permits, PM history and stock movements. Machines, users, inventory,
  * contractors, analytics, audits, evaluations, reports, MOE and plants are NOT
  * exported. `layout` decides how a collection's records are laid out (see
  * layoutSection).
@@ -31,6 +31,12 @@ const SECTIONS = [
   ]},
   {id: "handovers", label: "Shift handovers", collections: [
     {name: "shift_handovers", label: "Shift handovers", layout: "sheet", titleKeys: ["shiftName"]},
+  ]},
+  {id: "pmHistory", label: "PM history", collections: [
+    {name: "pm_history", label: "PM history", layout: "record", titleKeys: ["woNumber", "scheduleName", "machineName"]},
+  ]},
+  {id: "stockMovements", label: "Stock movements", collections: [
+    {name: "stockMovements", label: "Stock movements", layout: "sheet", titleKeys: ["partName", "type"]},
   ]},
 ];
 
@@ -316,6 +322,12 @@ function layoutSection(col, list, ctx) {
       const gk = `wp:${woNumber || r.id}`;
       if (!groups.has(gk)) groups.set(gk, `Work permits/${unique("Work permits", woNumber || r.title, r.id)}.txt`);
       r.textPath = groups.get(gk);
+    } else if (col.layout === "record") {
+      // <Section>/<record>/ — details.txt and the record's files
+      const parent = safeName(col.label);
+      r.folder = `${parent}/${unique(parent, r.title, r.id)}`;
+      r.textPath = `${r.folder}/details.txt`;
+      place(r, r.folder);
     } else if (col.layout === "sheet") {
       r.attachments = [];
     }

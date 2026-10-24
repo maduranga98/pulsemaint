@@ -67,6 +67,8 @@ const store = {
     wp3: { companyId: 'A', permitNumber: 'WP-3' },
   },
   shift_handovers: { h1: { companyId: 'A', shiftName: 'Day', shiftDate: '2026-10-22', outgoingSupervisorId: 'uidTechA0123456789abcdefgh', generalNotes: 'a,b "c"', status: 'accepted' } },
+  pm_history: { pm1: { companyId: 'A', machineName: 'Press', status: 'completed_on_time', month: '2026-10', photos: [url('companies/A/pm/p.jpg')] } },
+  stockMovements: { sm1: { companyId: 'A', partName: 'Bearing', type: 'stock_in', quantity: 5, note: '=SUM(1)' } },
   machines: { mA: { companyId: 'A', name: 'Press' }, mB: { companyId: 'B', name: 'Lathe B' } },
   'companies/A/users': { uidTechA0123456789abcdefgh: { fullName: 'Sanju' } },
   companies: { A: { name: 'Acme <Ltd>' } },
@@ -94,7 +96,7 @@ const build = (g: any, missing: string[] = []) => {
 describe('gatherCompanyData', () => {
   it("exports only the five requested sections, only the company's own records and files", async () => {
     const g = await gather();
-    expect(Object.keys(g.datasets).filter((k) => k !== '_names').sort()).toEqual(['breakdowns', 'handovers', 'safety', 'workOrders', 'workPermits']);
+    expect(Object.keys(g.datasets).filter((k) => k !== '_names').sort()).toEqual(['breakdowns', 'handovers', 'pmHistory', 'safety', 'stockMovements', 'workOrders', 'workPermits']);
     expect(g.datasets.workOrders.collections.workOrders.map((r: any) => r.id).sort()).toEqual(['woA1', 'woA2']); // not woB1
     expect(g.datasets.breakdowns.collections.breakdown_tickets.map((r: any) => r.id).sort()).toEqual(['bdHigh1', 'bdHigh2', 'bdLone', 'bdLow1']);
     const paths = [...g.files.keys()].sort();
@@ -102,6 +104,7 @@ describe('gatherCompanyData', () => {
       'breakdowns/A/bdHigh1/media/a.png',
       'breakdowns/A/bdHigh2/media/a.png',
       'breakdowns/A/bdLow1/media/x.png',
+      'companies/A/pm/p.jpg',
       'workorders/A/woA1/completion/photos/p1.jpg',
       'workorders/A/woA1/documents/1700000000000_report.pdf',
     ]); // safety case / permit files are never collected
@@ -148,8 +151,10 @@ describe('buildTextEntries', () => {
       'Breakdowns/Low severity/BD-LOW/details.txt',
       'Breakdowns/Without work order/BD-LONE/details.txt',
       'Breakdowns/' + plan.safeName('WO-A-2</script><script>alert(1)</script>') + '/breakdown tickets.txt',
+      'PM history/Press/details.txt',
       'Safety cases/SC-1.txt',
       'Shift handovers/Shift handovers.csv',
+      'Stock movements/Stock movements.csv',
       'Work orders/Contractor/WO-A-1/details.txt',
       'Work orders/Preventive/' + plan.safeName('WO-A-2</script><script>alert(1)</script>') + '/details.txt',
       'Work permits/WO-A-1.txt',
@@ -161,6 +166,8 @@ describe('buildTextEntries', () => {
     const bd = byName['Breakdowns/' + plan.safeName('WO-A-2</script><script>alert(1)</script>') + '/breakdown tickets.txt'];
     expect(bd).toContain('BD-HIGH-1');
     expect(bd).toContain('BD-HIGH-2');
+    expect(byName['PM history/Press/details.txt']).toContain('Status: Completed on time');
+    expect(byName['Stock movements/Stock movements.csv']).toContain("'=SUM(1)");
     expect(byName['Work permits/WO-A-1.txt']).toContain('WP-1');
     expect(byName['Work permits/WO-A-1.txt']).toContain('WP-2');
     // Spreadsheet: BOM, readable headers, names instead of ids, formulas neutralised.
