@@ -9,48 +9,28 @@
  * isAllowedStoragePath().
  */
 
-/** What goes into the ZIP, grouped like the app's modules. */
+/**
+ * What goes into the ZIP. Deliberately narrow: work orders, breakdowns, safety
+ * cases, shift handovers and work permits. Machines, users, inventory,
+ * contractors, analytics, audits, evaluations, reports, MOE and plants are NOT
+ * exported. `layout` decides how a collection's records are laid out (see
+ * layoutSection).
+ */
 const SECTIONS = [
   {id: "workOrders", label: "Work orders", collections: [
-    {name: "workOrders", label: "Work orders", subcollections: ["partsRequests"], titleKeys: ["woNumber"]},
+    {name: "workOrders", label: "Work orders", layout: "workOrder", subcollections: ["partsRequests"], titleKeys: ["woNumber"]},
   ]},
   {id: "breakdowns", label: "Breakdowns", collections: [
-    {name: "breakdown_tickets", label: "Breakdown tickets", titleKeys: ["ticketNumber"]},
-    {name: "rca", label: "Root cause analyses", titleKeys: ["problem"]},
-  ]},
-  {id: "contractors", label: "Contractors", collections: [
-    {name: "contractors", label: "Contractors", subcollections: ["technicians", "documents"], titleKeys: ["companyName", "name"]},
-    {name: "contractorJobs", label: "Contractor jobs", titleKeys: ["jobNumber", "title"]},
-  ]},
-  {id: "machines", label: "Machines", collections: [
-    {name: "machines", label: "Machine register", titleKeys: ["name"]},
-    {name: "machineOutsourcedMaintenance", label: "Outsourced maintenance", titleKeys: ["title", "description"]},
-  ]},
-  {id: "pmSchedules", label: "PM schedules", collections: [
-    {name: "pm_schedules", label: "PM schedules", titleKeys: ["title", "name"]},
-    {name: "pm_history", label: "PM history", titleKeys: ["title", "scheduleName"]},
+    {name: "breakdown_tickets", label: "Breakdown tickets", layout: "breakdown", titleKeys: ["ticketNumber"]},
   ]},
   {id: "safety", label: "Safety cases", collections: [
-    {name: "safety_cases", label: "Safety cases", titleKeys: ["caseNumber", "title"]},
-    {name: "work_permits", label: "Work permits", titleKeys: ["permitNumber", "title"]},
-    {name: "safetyCertificates", label: "Safety certificates", titleKeys: ["certificateNumber", "holderName"]},
+    {name: "safety_cases", label: "Safety cases", layout: "textOnly", titleKeys: ["caseNumber", "title"]},
   ]},
-  {id: "inventory", label: "Inventory", collections: [
-    {name: "inventoryParts", label: "Parts", titleKeys: ["partNumber", "name"]},
-    {name: "suppliers", label: "Suppliers", titleKeys: ["name"]},
-    {name: "stockMovements", label: "Stock movements", titleKeys: ["partName", "type"]},
+  {id: "workPermits", label: "Work permits", collections: [
+    {name: "work_permits", label: "Work permits", layout: "permit", titleKeys: ["permitNumber", "title"]},
   ]},
-  {id: "purchaseOrders", label: "Purchase orders", collections: [
-    {name: "purchaseOrders", label: "Purchase orders", titleKeys: ["poNumber"]},
-  ]},
-  {id: "audits", label: "Audits", collections: [
-    {name: "audit_sessions", label: "Audits", pathKeyed: "sessions", titleKeys: ["title", "templateName", "category"]},
-    {name: "audit_templates", label: "Audit templates", pathKeyed: "templates", titleKeys: ["name", "title"]},
-  ]},
-  {id: "evaluations", label: "Evaluations", collections: [
-    {name: "evaluations", label: "Evaluations", titleKeys: ["title", "name"]},
-    {name: "evaluation_templates", label: "Evaluation templates", titleKeys: ["name", "title"]},
-    {name: "evaluation_sessions", label: "Evaluation sessions", titleKeys: ["title", "name"]},
+  {id: "handovers", label: "Shift handovers", collections: [
+    {name: "shift_handovers", label: "Shift handovers", layout: "sheet", titleKeys: ["shiftName"]},
   ]},
 ];
 
@@ -153,45 +133,40 @@ function safeName(value, fallback = "item", max = 80) {
   return RESERVED.test(n.split(".")[0]) ? `_${n}` : n;
 }
 
-/**
- * Gives each record of a collection its own folder named after its number /
- * title — "Breakdowns/Breakdown tickets/BD-0012" — and each of its attachments
- * an entry inside it. Two records with the same title get a short id suffix.
- * Mutates the records: `folder`, and `attachments[].file`.
- */
-function assignFolders(section, col, list) {
-  const base = [safeName(section.label)];
-  if (section.collections.length > 1) base.push(safeName(col.label || col.name));
-  const used = new Set();
-  for (const r of list) {
-    let name = safeName(r.title, r.id);
-    if (used.has(name.toLowerCase())) name = `${name} (${safeName(r.id, "x", 8)})`;
-    used.add(name.toLowerCase());
-    r.folder = [...base, name].join("/");
-    const taken = new Set(["details.txt", "details.json"]);
-    for (const a of r.attachments) {
-      let file = safeName(a.name, "file", 120);
-      if (taken.has(file.toLowerCase())) {
-        const dot = file.lastIndexOf(".");
-        const stem = dot > 0 ? file.slice(0, dot) : file;
-        const ext = dot > 0 ? file.slice(dot) : "";
-        let i = 2;
-        while (taken.has(`${stem} (${i})${ext}`.toLowerCase())) i++;
-        file = `${stem} (${i})${ext}`;
-      }
-      taken.add(file.toLowerCase());
-      a.file = `${r.folder}/${file}`;
-    }
-  }
+const ACRONYMS = {wo: "WO", wos: "WOs", pm: "PM", moe: "MOE", rca: "RCA", loto: "LOTO", ppe: "PPE", sla: "SLA", qr: "QR", id: "ID", ptw: "PTW", bd: "BD", po: "PO", ehs: "EHS", url: "URL"};
+
+/** "qr_scan" / "woNumber" / "CONTRACTOR" -> "QR scan" / "WO number" / "Contractor". */
+function humanizeWords(text) {
+  const words = String(text).replace(/[_]+/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2").trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return String(text);
+  const out = words.map((w) => ACRONYMS[w] || w);
+  if (!ACRONYMS[words[0]]) out[0] = out[0].charAt(0).toUpperCase() + out[0].slice(1);
+  return out.join(" ");
+}
+
+function humanizeKey(key) {
+  return humanizeWords(String(key).replace(/(Ids|Id|Uid)$/, "")) || String(key);
+}
+
+/** Fields whose value is a code ("low", "qr_scan", "CONTRACTOR", "safety_officer") that reads better as words. */
+const ENUM_KEY = /(status|severity|types?|source|priority|category|roles?|kinds?|scope|state|mode|frequency|outcome|result|method)$/i;
+const ENUM_VALUE = /^[A-Za-z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$/;
+
+function humanizeValue(key, value) {
+  if (!key || !ENUM_KEY.test(String(key)) || !ENUM_VALUE.test(value)) return value;
+  const mixed = /[a-z]/.test(value) && /[A-Z]/.test(value);
+  if (mixed) return value; // camelCase / ids, not an enum code
+  return humanizeWords(value);
+}
+
+/** A Firestore / Auth style id that no name was found for — meaningless to a reader, so it is left out. */
+function isOpaqueId(v) {
+  return /^[A-Za-z0-9_-]{20,}$/.test(v) && (/[0-9]/.test(v) || (/[a-z]/.test(v) && /[A-Z]/.test(v)));
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
-const TECH_KEYS = /^(companyId|siteId|tenantId|plantId|machinePlantId|createdBy|updatedBy|closedBy|uid|userId|id)$/;
-
-function humanizeKey(key) {
-  const k = String(key).replace(/(Ids|Id|Uid)$/, "").replace(/_/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2").trim().toLowerCase();
-  return k ? k.charAt(0).toUpperCase() + k.slice(1) : String(key);
-}
+/** Plain-language ids kept under "Other details" at the bottom of a record (shown as names). */
+const TECH_KEYS = /^(companyId|siteId|tenantId|plantId|machinePlantId|createdBy|updatedBy|closedBy|uid|userId)$/;
 
 const STORAGE_URL = /^https:\/\/(firebasestorage\.googleapis\.com\/v0\/b\/[^/]+\/o\/|storage\.googleapis\.com\/[^/]+\/)([^?#]+)/;
 
@@ -206,7 +181,7 @@ function fileNameFromUrl(v) {
   }
 }
 
-function textValue(v, indent, lookup) {
+function textValue(v, indent, lookup, key) {
   const pad = "  ".repeat(indent);
   if (v === null || v === undefined || v === "") return null;
   if (typeof v === "boolean") return v ? "Yes" : "No";
@@ -215,12 +190,13 @@ function textValue(v, indent, lookup) {
     const file = fileNameFromUrl(v);
     if (file) return `${file} (file saved in this folder)`;
     if (lookup && lookup.has(v)) return lookup.get(v);
-    return v;
+    if (isOpaqueId(v)) return null;
+    return humanizeValue(key, v);
   }
   if (typeof v !== "object") return String(v);
   if (Array.isArray(v)) {
     if (v.length === 0) return null;
-    if (v.every((x) => x === null || typeof x !== "object")) return v.map((x) => textValue(x, 0, lookup)).filter(Boolean).join(", ");
+    if (v.every((x) => x === null || typeof x !== "object")) return v.map((x) => textValue(x, 0, lookup, key)).filter(Boolean).join(", ") || null;
     return "\n" + v.map((x, i) => `${pad}  ${i + 1}.${textBlock(x, indent + 2, lookup).replace(/^\s+/, " ")}`).join("\n");
   }
   const body = textBlock(v, indent + 1, lookup);
@@ -231,24 +207,25 @@ function textBlock(obj, indent, lookup) {
   if (obj === null || typeof obj !== "object") return String(obj ?? "");
   const pad = "  ".repeat(indent);
   return Object.keys(obj).sort().map((k) => {
-    const t = textValue(obj[k], indent, lookup);
+    if (k === "id") return null;
+    const t = textValue(obj[k], indent, lookup, k);
     if (t === null) return null;
     return t.startsWith("\n") ? `${pad}${humanizeKey(k)}:${t}` : `${pad}${humanizeKey(k)}: ${t}`;
   }).filter(Boolean).join("\n");
 }
 
-/** details.txt of one record: readable labels, dates and Yes/No, ids shown as names, technical ids last. */
+/** The readable text of one record: labels, dates, Yes/No, and every id shown as a name. */
 function recordToText(record, collectionLabel, lookup) {
   const main = {};
-  const tech = {};
-  for (const [k, v] of Object.entries(record.data)) (TECH_KEYS.test(k) ? tech : main)[k] = v;
-  const lines = [`${collectionLabel} — ${record.title}`, `Record id: ${record.id}`, "", textBlock(main, 0, lookup)];
+  const other = {};
+  for (const [k, v] of Object.entries(record.data)) (TECH_KEYS.test(k) ? other : main)[k] = v;
+  const lines = [`${collectionLabel} — ${record.title}`, "", textBlock(main, 0, lookup)];
   for (const [name, list] of Object.entries(record.sub || {})) {
     lines.push("", `${humanizeKey(name)} (${list.length})`);
     list.forEach((item, i) => lines.push(`  ${i + 1}.${textBlock(item, 2, lookup).replace(/^\s+/, " ")}`));
   }
-  const t = textBlock(tech, 0, lookup);
-  if (t) lines.push("", "Technical details", t);
+  const t = textBlock(other, 0, lookup);
+  if (t) lines.push("", "Other details", t);
   return lines.join("\n") + "\n";
 }
 
@@ -261,81 +238,124 @@ function recordTitle(data, titleKeys, fallback) {
   return fallback;
 }
 
+/**
+ * Lays out the records of one collection (mutates them): `folder` (where its
+ * files go, or null), `textPath` (the .txt it is written to — records with the
+ * same path share one file) and `attachments[].file`. Text-only layouts drop
+ * the attachments. `ctx.woNumberById` / `ctx.woNumberByTicket` link
+ * breakdowns and permits to their work order number.
+ */
+function layoutSection(col, list, ctx) {
+  const usedNames = ctx.usedNames || (ctx.usedNames = new Map());
+  const takenFiles = ctx.takenFiles || (ctx.takenFiles = new Map());
+  const unique = (parent, wanted, id) => {
+    const used = usedNames.get(parent) || new Set();
+    usedNames.set(parent, used);
+    let name = safeName(wanted, id);
+    if (used.has(name.toLowerCase())) name = `${name} (${safeName(id, "x", 8)})`;
+    used.add(name.toLowerCase());
+    return name;
+  };
+  const place = (r, folder) => {
+    const taken = takenFiles.get(folder) || new Set(["details.txt", "breakdown tickets.txt"]);
+    takenFiles.set(folder, taken);
+    for (const a of r.attachments) {
+      let file = safeName(a.name, "file", 120);
+      if (taken.has(file.toLowerCase())) {
+        const dot = file.lastIndexOf(".");
+        const stem = dot > 0 ? file.slice(0, dot) : file;
+        const ext = dot > 0 ? file.slice(dot) : "";
+        let i = 2;
+        while (taken.has(`${stem} (${i})${ext}`.toLowerCase())) i++;
+        file = `${stem} (${i})${ext}`;
+      }
+      taken.add(file.toLowerCase());
+      a.file = `${folder}/${file}`;
+    }
+  };
+  const when = (r) => String(r.data.reportedAt || r.data.createdAt || "");
+  const sorted = [...list].sort((a, b) => when(a).localeCompare(when(b)));
+
+  for (const r of sorted) {
+    r.folder = null;
+    r.textPath = null;
+    if (col.layout === "workOrder") {
+      // Work orders/<WO type>/<WO number>/
+      const type = r.data.woType ? humanizeValue("woType", String(r.data.woType)) : "Other";
+      const parent = `Work orders/${safeName(type, "Other")}`;
+      r.folder = `${parent}/${unique(parent, r.title, r.id)}`;
+      r.textPath = `${r.folder}/details.txt`;
+      place(r, r.folder);
+    } else if (col.layout === "breakdown") {
+      const low = String(r.data.severity || "").toLowerCase() === "low";
+      const woNumber = ctx.woNumberById.get(r.data.linkedWOId) || ctx.woNumberByTicket.get(r.id) || null;
+      if (low) {
+        // Low severity: one folder per ticket (text + files).
+        const parent = "Breakdowns/Low severity";
+        r.folder = `${parent}/${unique(parent, r.title, r.id)}`;
+        r.textPath = `${r.folder}/details.txt`;
+      } else if (woNumber) {
+        // Other severities: one folder per work order, all its tickets in one text file.
+        const groups = ctx.groupFolders || (ctx.groupFolders = new Map());
+        if (!groups.has(`bd:${woNumber}`)) groups.set(`bd:${woNumber}`, `Breakdowns/${unique("Breakdowns", woNumber, woNumber)}`);
+        r.folder = groups.get(`bd:${woNumber}`);
+        r.textPath = `${r.folder}/breakdown tickets.txt`;
+      } else {
+        const parent = "Breakdowns/Without work order";
+        r.folder = `${parent}/${unique(parent, r.title, r.id)}`;
+        r.textPath = `${r.folder}/details.txt`;
+      }
+      place(r, r.folder);
+    } else if (col.layout === "textOnly") {
+      r.attachments = [];
+      r.textPath = `Safety cases/${unique("Safety cases", r.title, r.id)}.txt`;
+    } else if (col.layout === "permit") {
+      r.attachments = [];
+      const woNumber = r.data.workOrderNumber || ctx.woNumberById.get(r.data.workOrderId) || null;
+      const groups = ctx.groupFolders || (ctx.groupFolders = new Map());
+      const gk = `wp:${woNumber || r.id}`;
+      if (!groups.has(gk)) groups.set(gk, `Work permits/${unique("Work permits", woNumber || r.title, r.id)}.txt`);
+      r.textPath = groups.get(gk);
+    } else if (col.layout === "sheet") {
+      r.attachments = [];
+    }
+  }
+  // Callers keep their own order; `sorted` only fixed the order inside shared files.
+  list.splice(0, list.length, ...sorted);
+}
+
 function csvCell(v) {
   if (v === null || v === undefined) return "";
-  const s = typeof v === "object" ? JSON.stringify(v) : String(v);
+  const s = String(v);
   // Neutralise spreadsheet formulas in exported text.
-  const safe = /^[=+\-@]/.test(s) && typeof v === "string" ? `'${s}` : s;
+  const safe = /^[=+\-@]/.test(s) ? `'${s}` : s;
   return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, "\"\"")}"` : safe;
 }
 
-/** One CSV per collection: id + every top-level field, nested values as JSON. */
-function toCsv(records) {
-  const columns = ["id"];
-  for (const r of records) for (const k of Object.keys(r.data)) if (!columns.includes(k)) columns.push(k);
-  const lines = [columns.map(csvCell).join(",")];
-  for (const r of records) {
-    lines.push(columns.map((c) => csvCell(c === "id" ? r.id : r.data[c])).join(","));
-  }
-  return lines.join("\r\n");
-}
-
-/** JSON that is safe inside a <script> element. */
-function scriptJson(value) {
-  return JSON.stringify(value)
-      .replace(/</g, "\\u003c")
-      .replace(new RegExp("\\u2028", "g"), "\\u2028")
-      .replace(new RegExp("\\u2029", "g"), "\\u2029");
-}
-
-const fs = require("fs");
-const path = require("path");
-const VIEWER_JS = fs.readFileSync(path.join(__dirname, "viewerClient.js"), "utf8");
-
-const VIEWER_CSS = `
-:root{color-scheme:light dark;--bg:#fff;--fg:#0f172a;--mut:#64748b;--bd:#e2e8f0;--acc:#2563eb;--sel:#eff6ff;--card:#f8fafc}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1e35;--fg:#f0f4f8;--mut:#8ba3bf;--bd:#1e3a5f;--acc:#60a5fa;--sel:#13294a;--card:#112543}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,"Segoe UI",sans-serif}
-header{padding:14px 18px;border-bottom:1px solid var(--bd)}h1{margin:0;font-size:20px}h2{margin:0 0 4px;font-size:20px}h3{margin:18px 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
-.muted{color:var(--mut)}.warn{color:#b45309}.text{white-space:pre-wrap;word-break:break-word}
-main{display:grid;grid-template-columns:230px 330px 1fr;min-height:calc(100vh - 78px)}
-@media (max-width:900px){main{grid-template-columns:1fr}}
-#nav,#listwrap,#detail{padding:12px;border-right:1px solid var(--bd);overflow:auto;max-height:calc(100vh - 78px)}
-.sec{margin:14px 0 4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
-.col,.row{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;padding:7px 9px;border-radius:7px;cursor:pointer;font:inherit}
-.col.on,.row.on{background:var(--sel);color:var(--acc)}.col:hover,.row:hover{background:var(--sel)}
-#search{width:100%;padding:9px;margin:0 0 8px;border:1px solid var(--bd);border-radius:7px;background:transparent;color:inherit;font:inherit}
-table{border-collapse:collapse;width:100%}th,td{border-top:1px solid var(--bd);padding:7px 9px;vertical-align:top;text-align:left}
-table.kv>tbody>tr>th,table.kv>tr>th{width:32%;color:var(--mut);font-weight:500}
-table.kv table{margin:0}table.grid{border:1px solid var(--bd);margin:2px 0}table.grid th{background:var(--card);color:var(--mut);font-weight:600;font-size:13px}
-pre{white-space:pre-wrap;word-break:break-word;margin:0;font-size:12px}details{margin-top:18px}summary{cursor:pointer}
-.atts{display:flex;flex-wrap:wrap;gap:12px}.att{width:190px;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--card)}.att img{display:block;width:100%;max-height:140px;object-fit:cover;border-radius:6px;margin-bottom:6px}.att a{color:var(--acc);word-break:break-all}
-a{color:var(--acc)}
-`;
-
-/** index.html: the viewer, its styles and ALL the data in one file (works from a double-click, even from inside an unzipped folder). */
-function buildViewerEntries({company, exportedAt, sections, datasets}) {
-  const manifest = {
-    company,
-    exportedAt,
-    sections: sections.map((s) => ({
-      id: s.id,
-      label: s.label,
-      collections: s.collections.map((c) => ({name: c.name, label: c.label || c.name, count: (datasets[s.id].collections[c.name] || []).length})),
-    })),
-  };
-  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;"}[c]));
-  return [{
-    name: "index.html",
-    content: `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(company)} — data export</title><style>${VIEWER_CSS}</style></head>
-<body><header><h1 id="title"></h1><div id="sub" class="muted"></div></header>
-<main><nav id="nav"></nav><section id="listwrap"><input id="search" placeholder="Search records…" /><div id="list"></div></section><article id="detail"></article></main>
-<script>window.FC_MANIFEST=${scriptJson(manifest)};window.FC_DATA=${scriptJson(datasets)};</script>
-<script>${VIEWER_JS.replace(/<\/script/gi, "<\\/script")}</script></body></html>
-`,
-  }];
+/**
+ * One spreadsheet-ready CSV (UTF-8 with a byte-order mark, so Excel reads
+ * Sinhala / Tamil correctly): readable column titles, ids shown as names,
+ * lists and sub-records written out as text. Columns with no data are left out.
+ */
+function toSheetCsv(records, lookup) {
+  const first = ["shiftDate", "shiftName"];
+  const keys = [];
+  for (const r of records) for (const k of Object.keys(r.data)) if (k !== "id" && !keys.includes(k)) keys.push(k);
+  keys.sort((a, b) => {
+    const ia = first.indexOf(a);
+    const ib = first.indexOf(b);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    return a.localeCompare(b);
+  });
+  const rows = records.map((r) => keys.map((k) => {
+    const t = textValue(r.data[k], 0, lookup, k);
+    return t === null ? "" : t.replace(/^\n/, "");
+  }));
+  const used = keys.map((_, i) => rows.some((row) => row[i] !== ""));
+  const header = keys.filter((_, i) => used[i]).map((k) => csvCell(humanizeKey(k)));
+  const lines = [header.join(",")];
+  for (const row of rows) lines.push(row.filter((_, i) => used[i]).map(csvCell).join(","));
+  return "﻿" + lines.join("\r\n");
 }
 
 /** A ZIP part stops growing at this many bytes (sum of the files in it, shared files counted per copy). */
@@ -387,11 +407,10 @@ module.exports = {
   isAllowedStoragePath,
   collectAttachments,
   safeName,
-  assignFolders,
+  layoutSection,
   recordToText,
   humanizeKey,
+  humanizeValue,
   recordTitle,
-  toCsv,
-  scriptJson,
-  buildViewerEntries,
+  toSheetCsv,
 };

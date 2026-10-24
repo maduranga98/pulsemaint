@@ -3,11 +3,10 @@ const {
   TENANT_FIELDS,
   serialize,
   collectAttachments,
-  assignFolders,
+  layoutSection,
   recordToText,
   recordTitle,
-  toCsv,
-  buildViewerEntries,
+  toSheetCsv,
 } = require("./exportPlan");
 
 const PAGE = 500;
@@ -34,26 +33,34 @@ async function tenantDocs(db, collection, companyId) {
   return [...seen.values()];
 }
 
-/** Documents stored under `<collection>/<key>/<sub>/*` for the company's own keys. */
-async function pathKeyedDocs(db, collection, sub, keys) {
-  const out = [];
-  for (const key of keys) {
-    const snap = await db.collection(collection).doc(key).collection(sub).get();
-    out.push(...snap.docs);
-  }
-  return out;
+/** id -> name for the people, plants, company and machines the exported records point at (so no code is shown). */
+async function nameLookup(db, companyId, plantIds) {
+  const lookup = new Map();
+  const add = (id, name) => {
+    if (id && typeof name === "string" && name.trim() && id.length >= 10) lookup.set(id, name.trim());
+  };
+  const company = await db.collection("companies").doc(companyId).get();
+  if (company.exists) add(companyId, company.get("name"));
+  const users = await db.collection(`companies/${companyId}/users`).get();
+  users.docs.forEach((d) => add(d.id, d.get("fullName") || d.get("name") || d.get("displayName")));
+  const plants = await db.collection("plants").where("companyId", "==", companyId).get();
+  plants.docs.forEach((d) => add(d.id, d.get("name")));
+  plantIds.forEach((id) => lookup.has(id) || add(id, id));
+  for (const d of await tenantDocs(db, "machines", companyId)) add(d.id, d.get("name"));
+  return lookup;
 }
 
 /**
- * Reads every exportable collection of ONE company and works out which Storage
- * files its records reference. Only records matched by this company's id (or
- * stored under this company's / plants' keys) are read, and only Storage paths
- * keyed by this company or its plants are returned for download.
+ * Reads the exportable collections of ONE company (work orders, breakdowns,
+ * safety cases, work permits, shift handovers) and works out which Storage
+ * files its records reference. Only records matched by this company's id are
+ * read, and only Storage paths keyed by this company or its plants are
+ * returned for download.
  *
  * @return {{datasets, files: Map, refused: string[], counts}}
  */
 async function gatherCompanyData({db, companyId, plantIds, bucketName, onProgress}) {
-  const ctx = {bucketName, companyId, plantIds};
+  const ctx = {bucketName, companyId, plantIds, woNumberById: new Map(), woNumberByTicket: new Map()};
   const datasets = {};
   const files = new Map(); // storage path -> [zip entry names] (one per record that uses it)
   const refused = new Set();
@@ -63,9 +70,7 @@ async function gatherCompanyData({db, companyId, plantIds, bucketName, onProgres
     const dataset = {label: section.label, collections: {}};
     datasets[section.id] = dataset;
     for (const col of section.collections) {
-      const docs = col.pathKeyed ?
-        await pathKeyedDocs(db, col.name, col.pathKeyed, [companyId, ...plantIds]) :
-        await tenantDocs(db, col.name, companyId);
+      const docs = await tenantDocs(db, col.name, companyId);
       const list = [];
       for (const d of docs) {
         const data = serialize(d.data());
@@ -74,7 +79,9 @@ async function gatherCompanyData({db, companyId, plantIds, bucketName, onProgres
           const subSnap = await d.ref.collection(subName).get();
           if (!subSnap.empty) sub[subName] = subSnap.docs.map((s) => ({id: s.id, ...serialize(s.data())}));
         }
-        const found = collectAttachments({data, sub}, ctx);
+        const found = col.layout === "textOnly" || col.layout === "permit" || col.layout === "sheet" ?
+          {allowed: [], refused: []} :
+          collectAttachments({data, sub}, ctx);
         found.refused.forEach((p) => refused.add(p));
         const record = {
           id: d.id,
@@ -85,9 +92,13 @@ async function gatherCompanyData({db, companyId, plantIds, bucketName, onProgres
         if (Object.keys(sub).length) record.sub = sub;
         list.push(record);
         records++;
+        if (col.name === "workOrders" && data.woNumber) {
+          ctx.woNumberById.set(d.id, data.woNumber);
+          for (const t of [data.linkedBreakdownId, ...(data.linkedBreakdownIds || [])]) if (t) ctx.woNumberByTicket.set(t, data.woNumber);
+        }
       }
-      // Every record gets its own folder (named by its number) holding its files.
-      assignFolders(section, col, list);
+      // Each record gets its folder / text file (work orders and permits are read first, so breakdowns can name their WO).
+      layoutSection(col, list, ctx);
       for (const r of list) {
         for (const a of r.attachments) {
           const entries = files.get(a.path) || [];
@@ -99,58 +110,49 @@ async function gatherCompanyData({db, companyId, plantIds, bucketName, onProgres
       if (onProgress) await onProgress({step: "collecting", collection: col.name, records});
     }
   }
+  datasets._names = Object.fromEntries(await nameLookup(db, companyId, plantIds));
   return {datasets, files, refused: [...refused], counts: {records, files: files.size}};
 }
 
-/** Text files of the ZIP (JSON + CSV per collection, offline viewer, notes). */
+/** Text files of the ZIP: one .txt per record (or per work order / permit group), the handover spreadsheet and notes. */
 function buildTextEntries({company, exportedAt, datasets, missing, refused}) {
   const entries = [];
+  const lookup = new Map(Object.entries(datasets._names || {}));
+  // Ids of exported records read as their numbers too ("Linked WO: WO-2026-0004").
   for (const section of SECTIONS) {
     for (const col of section.collections) {
-      const list = datasets[section.id].collections[col.name] || [];
-      entries.push({name: `data/${col.name}.json`, content: JSON.stringify(list.map((r) => ({id: r.id, ...r.data})), null, 2)});
-      entries.push({name: `data/${col.name}.csv`, content: toCsv(list)});
-    }
-  }
-  // Each record's folder holds a readable summary and the raw data beside its files.
-  // Ids of exported records read as their names ("Machine: Press 01").
-  const lookup = new Map();
-  for (const section of SECTIONS) {
-    for (const col of section.collections) {
-      for (const r of datasets[section.id].collections[col.name] || []) if (r.id.length >= 12) lookup.set(r.id, r.title);
+      for (const r of (datasets[section.id] && datasets[section.id].collections[col.name]) || []) if (r.id.length >= 10) lookup.set(r.id, r.title);
     }
   }
   for (const section of SECTIONS) {
     for (const col of section.collections) {
-      for (const r of datasets[section.id].collections[col.name] || []) {
-        entries.push({name: `${r.folder}/details.txt`, content: recordToText(r, col.label || col.name, lookup)});
-        entries.push({name: `${r.folder}/details.json`, content: JSON.stringify({id: r.id, ...r.data, ...(r.sub ? {_subcollections: r.sub} : {})}, null, 2)});
+      const list = (datasets[section.id] && datasets[section.id].collections[col.name]) || [];
+      if (col.layout === "sheet") {
+        if (list.length) entries.push({name: `${section.label}/${section.label}.csv`, content: toSheetCsv(list, lookup)});
+        continue;
       }
+      const texts = new Map(); // textPath -> [text of each record]
+      for (const r of list) {
+        if (!r.textPath) continue;
+        const group = texts.get(r.textPath) || [];
+        group.push(recordToText(r, col.label || col.name, lookup));
+        texts.set(r.textPath, group);
+      }
+      for (const [name, parts] of texts) entries.push({name, content: parts.join(`\n${"=".repeat(60)}\n\n`)});
     }
   }
-  // The viewer maps each storage link to the copy saved in the record's folder (by path).
-  const viewerSets = {};
-  for (const section of SECTIONS) {
-    viewerSets[section.id] = {
-      label: datasets[section.id].label,
-      collections: Object.fromEntries(Object.entries(datasets[section.id].collections).map(([name, list]) => [
-        name,
-        list.map((r) => ({
-          ...r,
-          attachments: r.attachments.map(({name: n, file, path}) => ({name: n, file, path})),
-          missing: r.attachments.filter((a) => missing.includes(a.path)).map((a) => a.name),
-        })),
-      ])),
-    };
-  }
-  entries.push(...buildViewerEntries({company, exportedAt, sections: SECTIONS, datasets: viewerSets}));
   const notes = [
     `FirmiCore data export — ${company}`,
     `Exported ${exportedAt}`,
     "",
-    "Unzip the whole folder, then open index.html in a browser to browse everything offline (no internet or login needed).",
-    "Every record has its own folder named by its number (for example Breakdowns/Breakdown tickets/BD-0012) holding its files,",
-    "a readable details.txt and the raw details.json. data/*.json and data/*.csv hold whole lists for Excel or other systems.",
+    "Unzip the whole folder. It holds:",
+    "  Work orders/<work order type>/<WO number>/   details.txt and the work order's files",
+    "  Breakdowns/Low severity/<ticket number>/     details.txt and the ticket's files",
+    "  Breakdowns/<WO number>/                      breakdown tickets.txt (every ticket of that work order) and their files",
+    "  Safety cases/                                one text file per case (no attachments)",
+    "  Work permits/                                one text file per work order number (no attachments)",
+    "  Shift handovers/                             one spreadsheet (CSV, opens in Excel)",
+    "Machines, users, inventory, contractors, analytics, audits, evaluations, reports, MOE and plants are not part of this export.",
     "",
   ];
   if (missing.length) notes.push(`Attachments that could not be read (${missing.length}):`, ...missing.map((p) => `  - ${p}`), "");

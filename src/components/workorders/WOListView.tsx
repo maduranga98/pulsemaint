@@ -3,10 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ClipboardList } from 'lucide-react';
 import type { WorkOrder, WOFilters, WOType } from '../../types/workOrder';
-import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
+import { WO_STATUS_CONFIG } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
-import { WOTable } from './WOTable';
 import { WOCard } from './WOCard';
 import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
@@ -24,7 +23,7 @@ import { isBeyondViewWindow } from '../../lib/viewWindow';
 // reaches COMPLETED it's awaiting sign-off (handled via those widgets) and,
 // once actually signed off, moves into the separate terminal "Signed Off"
 // tab — a WO type filter stops being useful at either of those stages.
-type CategoryId = 'all' | 'signedOff' | 'cancelled' | WOType;
+type CategoryId = 'all' | 'signedOff' | 'cancelled';
 
 // Still awaiting sign-off — excluded from every tab below (signed off from
 // the Need Sign-Off dashboard widget instead).
@@ -39,15 +38,18 @@ const SIGNED_OFF_STATUSES: WorkOrder['status'][] = [...NEED_SIGN_OFF_STATUSES, .
 
 // Breakdown Repair and Preventive Maintenance work orders already have their
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
-// everything else, organized into a column per WO type.
+// everything else, shown as a kanban board with a column per status
+// (not grouped by WO type).
 const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
-const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.includes(t));
+const BOARD_STATUSES: WorkOrder['status'][] = ['DRAFT', 'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
 
 export function WOListView() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const prefilledTab = searchParams.get('tab') as CategoryId | null;
-  const [activeCategory, setActiveCategory] = useState<CategoryId>(prefilledTab ?? 'all');
+  const [activeCategory, setActiveCategory] = useState<CategoryId>(
+    prefilledTab === 'signedOff' || prefilledTab === 'cancelled' ? prefilledTab : 'all',
+  );
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,8 +147,7 @@ export function WOListView() {
         ? nonExcludedWOs.filter((wo) => CANCELLED_STATUSES.includes(wo.status))
         : []
       : nonExcludedWOs
-          .filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status))
-          .filter((wo) => activeCategory === 'all' || wo.woType === activeCategory);
+          .filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status));
 
   return (
     <div className="min-h-full">
@@ -179,37 +180,22 @@ export function WOListView() {
             scrolling horizontally so every tab stays visible at once. */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-wrap gap-1">
-            {COLUMN_TYPES.map((type) => {
-              const config = WO_TYPE_CONFIG[type];
-              const typeLabel = t(`common.workOrders.types.${type}`);
-              const count = nonExcludedWOs.filter(
-                (wo) => wo.woType === type && !SIGNED_OFF_STATUSES.includes(wo.status),
-              ).length;
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setActiveCategory(type)}
-                  className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                    activeCategory === type
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-500 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className={activeCategory === type ? 'text-white' : ''} style={activeCategory === type ? undefined : { color: config.color }}>
-                    {config.icon}
-                  </span>
-                  {typeLabel}
-                  <span
-                    className={`text-xs font-medium rounded-full px-1.5 ${
-                      activeCategory === type ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400'
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
+            <button
+              type="button"
+              onClick={() => setActiveCategory('all')}
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                activeCategory === 'all' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'
+              }`}
+            >
+              {t('common.workOrders.tabs.board', { defaultValue: 'Board' })}
+              <span
+                className={`text-xs font-medium rounded-full px-1.5 ${
+                  activeCategory === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400'
+                }`}
+              >
+                {nonExcludedWOs.filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status)).length}
+              </span>
+            </button>
             {canViewSignedOff && (
               <button
                 type="button"
@@ -277,36 +263,47 @@ export function WOListView() {
         )}
 
         {!loading && !error && (
-          displayedWOs.length === 0 ? (
+          activeCategory === 'all' ? (
+            /* Kanban board: one column per status, a card per work order. */
+            <div className="flex gap-4 overflow-x-auto pb-3 items-start">
+              {BOARD_STATUSES.map((status) => {
+                const cards = displayedWOs.filter((wo) => wo.status === status);
+                if (status === 'DRAFT' && cards.length === 0) return null;
+                return (
+                  <section key={status} className="shrink-0 w-[85vw] sm:w-72 rounded-xl bg-gray-50 border border-gray-200">
+                    <header className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-200">
+                      <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        <span className={`h-2 w-2 rounded-full ${WO_STATUS_CONFIG[status].dotClass}`} />
+                        {t(`common.workOrders.statuses.${status}`)}
+                      </h2>
+                      <span className="text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full px-2 py-0.5">{cards.length}</span>
+                    </header>
+                    <div className="p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+                      {cards.length === 0 ? (
+                        <p className="text-xs text-gray-400 text-center py-6">{t('common.workOrders.empty.noOpenWOs')}</p>
+                      ) : (
+                        cards.map((wo) => <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />)
+                      )}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          ) : displayedWOs.length === 0 ? (
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">
                 {activeCategory === 'signedOff'
                   ? t('common.workOrders.empty.signedOff')
-                  : activeCategory === 'cancelled'
-                  ? t('common.workOrders.empty.cancelled')
-                  : t('common.workOrders.empty.noOpenWOs')}
+                  : t('common.workOrders.empty.cancelled')}
               </p>
             </div>
           ) : (
-            /* Single flat table — no per-type grouping. Type column shows
-               when every type is combined ("all" or either terminal tab),
-               hidden when a single category filters it down to one type
-               already named by the active tab. */
-            <>
-              <div className="grid grid-cols-1 gap-3 md:hidden">
-                {displayedWOs.map((wo) => (
-                  <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />
-                ))}
-              </div>
-              <div className="hidden md:block">
-                <WOTable
-                  workOrders={displayedWOs}
-                  onSelect={setSelectedWO}
-                  showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
-                />
-              </div>
-            </>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {displayedWOs.map((wo) => (
+                <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />
+              ))}
+            </div>
           )
         )}
       </div>

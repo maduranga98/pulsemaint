@@ -1,54 +1,30 @@
-import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
-import { usePMWorkOrderLookup } from '../../hooks/pm/usePMWorkOrderLookup';
-import { useMachines } from '../../hooks/useMachines';
 import { useAuthStore } from '../../store/authStore';
 import { usePMStore } from '../../store/pm.store';
-import { PMScheduleList } from '../../components/pm/PMScheduleList';
-import { PMScheduleCard } from '../../components/pm/PMScheduleCard';
-import { PMFilterBar } from '../../components/pm/PMFilterBar';
 import { PMCalendarView } from '../../components/pm/PMCalendarView';
 import { usePMCalendarEvents } from '../../hooks/pm/usePMCalendarEvents';
 import type { CalendarEvent } from '../../types/pm.types';
-import { useToast } from '../../hooks/useToast';
-import {
-  PageHeader,
-  SegmentedControl,
-  Button,
-  SkeletonList,
-  EmptyState,
-} from '../../components/ui';
+import { PageHeader, Button } from '../../components/ui';
 import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
 
 export default function PMSchedulesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const toast = useToast();
   const company = useAuthStore((s) => s.company);
   const userProfile = useAuthStore((s) => s.userProfile);
   const isSupervisor = useAuthStore((s) => s.isSupervisor || s.isAdmin);
-  const isAdmin = useAuthStore((s) => s.isAdmin);
-  const canDeleteSchedules = isAdmin;
 
   const filters = usePMStore((s) => s.filters);
-  const setFilters = usePMStore((s) => s.setFilters);
 
   // Falls back to the machine's plant for records predating plant stamping.
   const inScopedPlant = useRecordPlantMatcher();
-  const { schedules: fetchedSchedules, loading, bulkDelete } =
-    usePMSchedules({ companyId: company?.id || '', filters });
+  const { schedules: fetchedSchedules } = usePMSchedules({ companyId: company?.id || '', filters });
   // Plant-scoped roles only see PM schedules for their own registered plant;
   // supervisor (the only department-scoped role that reaches this page) is
   // further scoped to their own department within that plant.
-  const schedules = fetchedSchedules
-    .filter((s) => inScopedPlant(s));
-  const { machines } = useMachines({ siteId: company?.id || '', pageSize: 500 });
-  const woLookup = usePMWorkOrderLookup(userProfile?.siteIds?.[0] || company?.id || '');
-
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
+  const scheduleCount = fetchedSchedules.filter((s) => inScopedPlant(s)).length;
 
   const { events: calendarEvents, loading: calendarLoading } = usePMCalendarEvents({
     companyId: company?.id || '',
@@ -66,137 +42,28 @@ export default function PMSchedulesPage() {
     }
   };
 
-  const technicianOptions = useMemo(() => {
-    const techMap = new Map<string, string>();
-    schedules.forEach((s) => {
-      s.assignedTechnicianIds.forEach((id, idx) => {
-        techMap.set(id, s.assignedTechnicianNames[idx] || id);
-      });
-    });
-    return Array.from(techMap.entries()).map(([id, name]) => ({ id, name }));
-  }, [schedules]);
-
-  const handleSelect = (id: string, selected: boolean) => {
-    setSelectedIds((prev) => (selected ? [...prev, id] : prev.filter((sid) => sid !== id)));
-  };
-
-  const handleSelectAll = (selected: boolean) => {
-    setSelectedIds(selected ? schedules.map((s) => s.id) : []);
-  };
-
-  const handleBulkAction = async (action: 'delete') => {
-    if (selectedIds.length === 0) return;
-    if (action === 'delete' && !canDeleteSchedules) return;
-    try {
-      if (action === 'delete' && confirm('Are you sure? This cannot be undone.')) {
-        await bulkDelete(selectedIds);
-        toast.success(`${selectedIds.length} schedules deleted`);
-      }
-      setSelectedIds([]);
-    } catch {
-      toast.error('Bulk action failed');
-    }
-  };
-
   return (
     <div>
       <PageHeader
         title={t('common.pmSchedules.pageTitle')}
-        description={t('common.pmSchedules.count', { count: schedules.length })}
+        description={t('common.pmSchedules.count', { count: scheduleCount })}
         actions={
-          <>
-            <SegmentedControl<'table' | 'calendar'>
-              value={viewMode}
-              onChange={setViewMode}
-              ariaLabel={t('common.pmSchedules.viewMode')}
-              options={[
-                { value: 'table', label: t('common.pmSchedules.table') },
-                { value: 'calendar', label: t('common.pmSchedules.calendar') },
-              ]}
-            />
-            {isSupervisor && (
-              <Button
-                variant="primary"
-                onClick={() => navigate('/app/work-orders?create=1&woType=PREVENTIVE')}
-              >
-                {t('common.pmSchedules.newPmWorkOrder')}
-              </Button>
-            )}
-          </>
+          isSupervisor && (
+            <Button
+              variant="primary"
+              onClick={() => navigate('/app/work-orders?create=1&woType=PREVENTIVE')}
+            >
+              {t('common.pmSchedules.newPmWorkOrder')}
+            </Button>
+          )
         }
       />
 
       <div className="space-y-4">
-        {viewMode === 'table' && (
-          <PMFilterBar
-            filters={filters}
-            onChange={setFilters}
-            machines={machines.map((m) => ({ id: m.id, name: m.name }))}
-            technicians={technicianOptions}
-          />
-        )}
-
-        {viewMode === 'table' && selectedIds.length > 0 && (
-          <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-md px-3 py-2">
-            <span className="text-[12px] font-medium text-indigo-800">
-              {t('common.pmSchedules.selectedCount', { count: selectedIds.length })}
-            </span>
-            <div className="flex-1" />
-            {canDeleteSchedules && (
-              <Button size="sm" variant="danger" onClick={() => handleBulkAction('delete')}>
-                {t('common.pmSchedules.delete')}
-              </Button>
-            )}
-          </div>
-        )}
-
-        {viewMode === 'calendar' ? (
-          calendarLoading ? (
-            <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.loadingCalendar')}</div>
-          ) : (
-            <PMCalendarView events={calendarEvents} onEventClick={handleCalendarEventClick} />
-          )
-        ) : loading ? (
-          <SkeletonList rows={6} rowClassName="h-12" />
-        ) : schedules.length === 0 ? (
-          <EmptyState
-            title={t('common.pmSchedules.empty.title')}
-            description={t('common.pmSchedules.empty.description')}
-            action={
-              isSupervisor && (
-                <Button
-                  variant="primary"
-                  onClick={() => navigate('/app/work-orders?create=1&woType=PREVENTIVE')}
-                >
-                  {t('common.pmSchedules.newPmWorkOrder')}
-                </Button>
-              )
-            }
-          />
+        {calendarLoading ? (
+          <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.loadingCalendar')}</div>
         ) : (
-          <>
-            <div className="hidden sm:block">
-              <PMScheduleList
-                schedules={schedules}
-                selectedIds={selectedIds}
-                onSelect={handleSelect}
-                onSelectAll={handleSelectAll}
-                woLookup={woLookup}
-                showSelect={isAdmin}
-              />
-            </div>
-            <div className="sm:hidden grid grid-cols-1 gap-3">
-              {schedules.map((s) => (
-                <PMScheduleCard
-                  key={s.id}
-                  schedule={s}
-                  selected={selectedIds.includes(s.id)}
-                  onSelect={isAdmin ? handleSelect : undefined}
-                  woLookup={woLookup}
-                />
-              ))}
-            </div>
-          </>
+          <PMCalendarView events={calendarEvents} onEventClick={handleCalendarEventClick} />
         )}
       </div>
     </div>
