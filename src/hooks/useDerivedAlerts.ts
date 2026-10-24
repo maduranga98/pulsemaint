@@ -13,6 +13,8 @@ export interface DerivedAlert {
   severity: 'critical' | 'high' | 'medium' | 'low';
   message: string;
   linkTo: string | null;
+  /** PM alerts only: whole days until due (0 = today, negative = overdue). */
+  dueInDays?: number;
 }
 
 // Which roles should see each family of derived (state-based) alerts.
@@ -128,6 +130,7 @@ export function useDerivedAlerts(): DerivedAlert[] {
         severity: days < 0 ? 'high' : 'medium',
         message: days < 0 ? `PM overdue: ${machine}` : `PM due in ${days}d: ${machine}`,
         linkTo: '/app/pm-schedules',
+        dueInDays: days,
       });
     }
 

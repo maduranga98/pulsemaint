@@ -1593,7 +1593,8 @@
         "helloAnon": "Hello",
         "prompt": "What do you want to open?",
         "search": "Search…",
-        "apps": "Apps"
+        "apps": "Apps",
+        "needsAttention": "{{count}} need attention"
       }
     },
     "dashboard": {

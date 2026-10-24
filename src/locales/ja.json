@@ -63,7 +63,8 @@
         "helloAnon": "こんにちは",
         "prompt": "何を開きますか？",
         "search": "検索…",
-        "apps": "アプリ"
+        "apps": "アプリ",
+        "needsAttention": "{{count}} 件対応が必要"
       }
     },
     "dashboard": {

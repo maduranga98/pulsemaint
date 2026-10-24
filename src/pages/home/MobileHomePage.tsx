@@ -6,6 +6,9 @@ import { useAuthStore } from '../../store/authStore';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { getDashboardRoute } from '../../lib/auth';
 import { flatNav, visibleNav } from '../../components/layout/navConfig';
+import { useMyNotifications } from '../../hooks/useMyNotifications';
+import { useDerivedAlerts } from '../../hooks/useDerivedAlerts';
+import { badgeLabel, launcherBadgeCounts } from '../../lib/launcherBadges';
 
 /**
  * Phone / tablet home: a grid of every module the signed-in role can open.
@@ -20,6 +23,18 @@ export default function MobileHomePage() {
 
   const role = userProfile?.role;
   const items = useMemo(() => flatNav(visibleNav(role, company)), [role, company]);
+  // Red tags: unread notifications + "needs attention" alerts (what the bell lists), per module.
+  // PM alerts only count when due today or overdue, not the 7-day look-ahead.
+  const { notifications } = useMyNotifications();
+  const derivedAlerts = useDerivedAlerts();
+  const badges = useMemo(
+    () =>
+      launcherBadgeCounts(
+        [...notifications, ...derivedAlerts.filter((a) => a.type !== 'pm' || (a.dueInDays ?? 0) <= 0)],
+        items.map((i) => i.to),
+      ),
+    [notifications, derivedAlerts, items],
+  );
   const needle = search.trim().toLowerCase();
   const shown = needle ? items.filter((i) => t(i.labelKey).toLowerCase().includes(needle)) : items;
 
@@ -61,8 +76,16 @@ export default function MobileHomePage() {
             className="flex flex-col items-center gap-[7px] text-[#D5E2F5] no-underline"
           >
             {/* Same plain icon style as the bottom dock — no per-app colours. */}
-            <span className="flex h-[52px] w-[52px] items-center justify-center rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] text-[#9FB3D1] [&>svg]:!h-6 [&>svg]:!w-6">
+            <span className="relative flex h-[52px] w-[52px] items-center justify-center rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] text-[#9FB3D1] [&>svg]:!h-6 [&>svg]:!w-6">
               {item.icon}
+              {badges[item.to] > 0 && (
+                <span
+                  className="absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-[#0A1628]"
+                  aria-label={t('common.nav.mobile.needsAttention', { count: badges[item.to] })}
+                >
+                  {badgeLabel(badges[item.to])}
+                </span>
+              )}
             </span>
             <span className="text-center text-xs font-medium leading-tight">{t(item.labelKey)}</span>
           </Link>

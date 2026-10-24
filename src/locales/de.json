@@ -63,7 +63,8 @@
         "helloAnon": "Hallo",
         "prompt": "Was möchten Sie öffnen?",
         "search": "Suchen…",
-        "apps": "Apps"
+        "apps": "Apps",
+        "needsAttention": "{{count}} erfordern Aufmerksamkeit"
       }
     },
     "dashboard": {
