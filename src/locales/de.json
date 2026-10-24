@@ -55,7 +55,16 @@
         "safetyBlacklist": "Sperrliste",
         "supportRequests": "Feedback & Anfragen"
       },
-      "help": "Hilfe & Support"
+      "help": "Hilfe & Support",
+      "mobile": {
+        "label": "App-Navigation",
+        "home": "Start",
+        "hello": "Hallo, {{name}}",
+        "helloAnon": "Hallo",
+        "prompt": "Was möchten Sie öffnen?",
+        "search": "Suchen…",
+        "apps": "Apps"
+      }
     },
     "dashboard": {
       "adminTitle": "Admin-Übersicht",

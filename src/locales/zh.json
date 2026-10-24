@@ -55,7 +55,16 @@
         "safetyBlacklist": "黑名单",
         "supportRequests": "反馈与请求"
       },
-      "help": "帮助与支持"
+      "help": "帮助与支持",
+      "mobile": {
+        "label": "应用导航",
+        "home": "主页",
+        "hello": "你好，{{name}}",
+        "helloAnon": "你好",
+        "prompt": "你想打开什么？",
+        "search": "搜索…",
+        "apps": "应用"
+      }
     },
     "dashboard": {
       "adminTitle": "管理员仪表盘",
