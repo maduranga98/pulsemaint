@@ -62,3 +62,41 @@ describe('tour text', () => {
     for (const k of ['next', 'back', 'done', 'skip', 'close', 'stepOf', 'nothingToShow', 'pageTour']) expect(typeof lookup(`tour.ui.${k}`)).toBe('string');
   });
 });
+
+describe('launcher app tour steps', () => {
+  const icon = (app: string, title: string, body: string) => ({
+    dataset: { tourApp: app, tourTitle: title, tourBody: body },
+    getClientRects: () => [{}],
+    getBoundingClientRect: () => ({ width: 50, height: 50, left: 10, right: 60 }),
+  });
+  const docWith = (icons: ReturnType<typeof icon>[]) => ({ querySelectorAll: () => icons }) as unknown as Document;
+  const base = [
+    { id: 'welcome', target: 'body' },
+    { id: 'plants', target: 'x' },
+    { id: 'launcher_search', target: 's' },
+    { id: 'launcher_apps', target: 'a' },
+  ];
+
+  it('adds one stop per icon right after the search stop, before "your apps"', async () => {
+    const { withLauncherAppSteps } = await import('../../features/tour/tourTargets');
+    const out = withLauncherAppSteps(base, docWith([icon('machines', 'Machines', 'Register'), icon('po', 'PO', 'Orders')]));
+    expect(out.map((s) => s.id)).toEqual(['welcome', 'plants', 'launcher_search', 'launcher_app_machines', 'launcher_app_po', 'launcher_apps']);
+    expect(out[3]).toMatchObject({ title: 'Machines', body: 'Register', target: '[data-tour-app="machines"]' });
+  });
+
+  it('leaves the steps alone where there is no launcher', async () => {
+    const { withLauncherAppSteps } = await import('../../features/tour/tourTargets');
+    expect(withLauncherAppSteps(base, docWith([]))).toBe(base);
+    expect(withLauncherAppSteps([{ id: 'welcome', target: 'body' }], docWith([icon('po', 'PO', 'Orders')])).length).toBe(1);
+  });
+
+  it('has a description for every launcher app', async () => {
+    const { LAUNCHER_DESCRIPTIONS } = await import('../../features/tour/launcherDescriptions');
+    const nav = (await import('node:fs')).readFileSync('src/components/layout/navConfig.tsx', 'utf8');
+    const keys = new Set([...nav.matchAll(/labelKey: 'common\.nav\.(?:items\.)?(\w+)'/g)].map((m) => m[1]));
+    for (const k of keys) {
+      if (['groups'].includes(k)) continue;
+      expect(LAUNCHER_DESCRIPTIONS[k], k).toBeTruthy();
+    }
+  });
+});

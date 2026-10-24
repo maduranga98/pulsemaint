@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { TOUR_DEFS, type TourStepDef } from './tourDefs';
-import { visibleSteps } from './tourTargets';
+import { visibleSteps, withLauncherAppSteps } from './tourTargets';
 import { readTourOutcome, writeTourOutcome, type TourId } from './tourState';
 import TourTooltip from './TourTooltip';
 
@@ -51,7 +51,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
   })), [text]);
 
   const begin = useCallback((tour: TourId, minSteps: number): boolean => {
-    const defs = visibleSteps(TOUR_DEFS[tour]);
+    const defs = tour === 'main' ? withLauncherAppSteps(visibleSteps(TOUR_DEFS[tour])) : visibleSteps(TOUR_DEFS[tour]);
     if (defs.length < minSteps) return false;
     current.current = tour;
     startPath.current = window.location.pathname;

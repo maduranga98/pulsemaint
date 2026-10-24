@@ -9,6 +9,7 @@ import { flatNav, visibleNav } from '../../components/layout/navConfig';
 import { useMyNotifications } from '../../hooks/useMyNotifications';
 import { useDerivedAlerts } from '../../hooks/useDerivedAlerts';
 import { badgeLabel, launcherBadgeCounts } from '../../lib/launcherBadges';
+import { LAUNCHER_DESCRIPTIONS, launcherKeyOf } from '../../features/tour/launcherDescriptions';
 
 /**
  * Phone / tablet home: a grid of every module the signed-in role can open.
@@ -69,10 +70,16 @@ export default function MobileHomePage() {
         data-tour="launcher-apps"
         className="grid grid-cols-4 gap-x-1.5 gap-y-[18px]"
       >
-        {shown.map((item) => (
+        {shown.map((item) => {
+          const appKey = launcherKeyOf(item.labelKey);
+          return (
           <Link
             key={item.to}
             to={item.to}
+            // The guided tour reads these to explain each app in turn.
+            data-tour-app={appKey}
+            data-tour-title={t(item.labelKey)}
+            data-tour-body={t(`tour.launcher.${appKey}`, { defaultValue: LAUNCHER_DESCRIPTIONS[appKey] ?? '' })}
             className="flex flex-col items-center gap-[7px] text-[#D5E2F5] no-underline"
           >
             {/* Same plain icon style as the bottom dock — no per-app colours. */}
@@ -89,7 +96,8 @@ export default function MobileHomePage() {
             </span>
             <span className="text-center text-xs font-medium leading-tight">{t(item.labelKey)}</span>
           </Link>
-        ))}
+          );
+        })}
       </nav>
     </div>
   );
