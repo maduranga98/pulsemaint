@@ -80,13 +80,15 @@ export function ContentList({ category, showDelete = false }: Props) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
-        <TriageCategoryIcon icon={category.icon} className="w-6 h-6" />
+        <span style={{ color: category.color }}>
+          <TriageCategoryIcon icon={category.icon} className="w-7 h-7" />
+        </span>
         <div>
-          <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
+          <h2 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
             {category.title}
           </h2>
           {category.desc && (
-            <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+            <p className="text-[15px] mt-0.5" style={{ color: '#a7b6d3' }}>
               {category.desc}
             </p>
           )}
@@ -125,7 +127,7 @@ export function ContentList({ category, showDelete = false }: Props) {
             >
               <div className="flex items-center">
                 <button
-                  className="flex-1 flex items-center gap-3 px-4 py-3 text-left transition-colors"
+                  className="flex-1 flex items-center gap-3 px-4 py-4 min-h-[64px] text-left transition-colors"
                   style={{ background: 'transparent' }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLElement).style.background = '#1a284033')
@@ -147,10 +149,10 @@ export function ContentList({ category, showDelete = false }: Props) {
                 >
                   <TriageContentTypeIcon type={item.type} className="w-5 h-5 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium" style={{ color: '#e2e8f0' }}>
+                    <div className="text-[17px] font-semibold leading-snug" style={{ color: '#e2e8f0' }}>
                       {item.title}
                     </div>
-                    <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
+                    <div className="text-sm mt-0.5" style={{ color: '#a7b6d3' }}>
                       {item.meta}
                     </div>
                   </div>
@@ -205,37 +207,37 @@ export function ContentList({ category, showDelete = false }: Props) {
                           {item.intro}
                         </p>
                       )}
-                      {(item.steps ?? []).map((step, i) => (
-                        <div key={i} className="flex gap-3">
-                          <div
-                            className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold"
-                            style={{ background: '#1a2840', color: '#3b82f6' }}
-                          >
-                            {i + 1}
-                          </div>
-                          <div className="flex-1 pt-0.5">
-                            <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
-                              {step.t}
-                            </div>
-                            <div className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-                              {step.d}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
                       {item.note && (
                         <div
-                          className="flex items-start gap-2 p-3 rounded-lg text-sm"
+                          className="flex items-start gap-2 p-3.5 rounded-xl text-base"
                           style={{
-                            background: '#f9731614',
-                            border: '1px solid #f9731630',
-                            color: '#fbbf24',
+                            background: '#1f1b0c',
+                            border: '1px solid #5a4a1c',
+                            color: '#fde68a',
                           }}
                         >
                           <span className="shrink-0">⚠️</span>
                           <span>{item.note}</span>
                         </div>
                       )}
+                      {(item.steps ?? []).map((step, i) => (
+                        <div key={i} className="flex gap-4">
+                          <div
+                            className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-lg font-bold"
+                            style={{ background: '#1d3a78', color: '#ffffff' }}
+                          >
+                            {i + 1}
+                          </div>
+                          <div className="flex-1 pt-0.5">
+                            <div className="text-lg font-semibold leading-snug" style={{ color: '#e2e8f0' }}>
+                              {step.t}
+                            </div>
+                            <div className="text-base mt-0.5 leading-relaxed" style={{ color: '#b9c6df' }}>
+                              {step.d}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
 

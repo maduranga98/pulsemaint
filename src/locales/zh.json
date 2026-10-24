@@ -5143,9 +5143,23 @@
       "knowledge": {
         "page": {
           "title": "分诊",
-          "subtitle": "程序、指南、联系人和快速评估",
+          "subtitle": "分步帮助、联系人和你的测验。",
           "create": "创建",
-          "selectCategoryPrompt": "请在左侧面板选择一个类别"
+          "selectCategoryPrompt": "请在左侧面板选择一个类别",
+          "tabs": {
+            "guides": "指南",
+            "guidesHint": "一步一步教你怎么做",
+            "contacts": "该打给谁",
+            "contactsHint": "电话号码",
+            "quizzes": "我的测验",
+            "quizzesHint": "检验你的掌握程度"
+          },
+          "emergencyButton": "紧急情况？立即致电",
+          "pickTopic": "选择主题",
+          "guidesCount": "指南：{{count}}",
+          "emergencyHeading": "紧急情况——请先拨打",
+          "otherPeople": "其他人员",
+          "callPerson": "致电 {{name}}"
         },
         "categoryRail": {
           "categoriesHeading": "类别",

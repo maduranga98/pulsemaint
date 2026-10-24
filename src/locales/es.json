@@ -5143,9 +5143,23 @@
       "knowledge": {
         "page": {
           "title": "Triaje",
-          "subtitle": "Procedimientos, guías, contactos y evaluaciones rápidas",
+          "subtitle": "Ayuda paso a paso, a quién llamar y tus cuestionarios.",
           "create": "Crear",
-          "selectCategoryPrompt": "Seleccione una categoría en el panel izquierdo"
+          "selectCategoryPrompt": "Seleccione una categoría en el panel izquierdo",
+          "tabs": {
+            "guides": "Guías",
+            "guidesHint": "Cómo hacerlo, paso a paso",
+            "contacts": "A quién llamar",
+            "contactsHint": "Números de teléfono",
+            "quizzes": "Mis cuestionarios",
+            "quizzesHint": "Comprueba lo que sabes"
+          },
+          "emergencyButton": "¿Emergencia? Llama ahora",
+          "pickTopic": "Elige un tema",
+          "guidesCount": "Guías: {{count}}",
+          "emergencyHeading": "Emergencia: llama primero",
+          "otherPeople": "Otras personas",
+          "callPerson": "Llamar a {{name}}"
         },
         "categoryRail": {
           "categoriesHeading": "Categorías",
