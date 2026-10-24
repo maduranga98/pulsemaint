@@ -55,7 +55,16 @@
         "safetyBlacklist": "Liste noire",
         "supportRequests": "Avis et demandes"
       },
-      "help": "Aide et assistance"
+      "help": "Aide et assistance",
+      "mobile": {
+        "label": "Navigation de l’application",
+        "home": "Accueil",
+        "hello": "Bonjour {{name}}",
+        "helloAnon": "Bonjour",
+        "prompt": "Que voulez-vous ouvrir ?",
+        "search": "Rechercher…",
+        "apps": "Applications"
+      }
     },
     "dashboard": {
       "adminTitle": "Tableau de bord de l'administrateur",

@@ -55,7 +55,16 @@
         "safetyBlacklist": "ブラックリスト",
         "supportRequests": "フィードバック・ご要望"
       },
-      "help": "ヘルプとサポート"
+      "help": "ヘルプとサポート",
+      "mobile": {
+        "label": "アプリナビゲーション",
+        "home": "ホーム",
+        "hello": "こんにちは、{{name}}さん",
+        "helloAnon": "こんにちは",
+        "prompt": "何を開きますか？",
+        "search": "検索…",
+        "apps": "アプリ"
+      }
     },
     "dashboard": {
       "adminTitle": "管理者ダッシュボード",

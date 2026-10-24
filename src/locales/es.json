@@ -55,7 +55,16 @@
         "safetyBlacklist": "Lista negra",
         "supportRequests": "Sugerencias y solicitudes"
       },
-      "help": "Ayuda y soporte"
+      "help": "Ayuda y soporte",
+      "mobile": {
+        "label": "Navegación de la app",
+        "home": "Inicio",
+        "hello": "Hola, {{name}}",
+        "helloAnon": "Hola",
+        "prompt": "¿Qué quieres abrir?",
+        "search": "Buscar…",
+        "apps": "Aplicaciones"
+      }
     },
     "dashboard": {
       "adminTitle": "Panel de administrador",

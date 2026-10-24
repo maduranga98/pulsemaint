@@ -3,6 +3,7 @@ import { useAuthInit } from '../hooks/useAuthInit';
 import AuthLoading from '../components/auth/AuthLoading';
 import ProtectedRoute, { PublicRoute } from '../components/auth/ProtectedRoute';
 import AppLayout from '../components/layout/AppLayout';
+import MobileHomePage from '../pages/home/MobileHomePage';
 
 // Training pages - Trainee
 import MyModulesPage from '../pages/training/MyModulesPage';
@@ -262,6 +263,9 @@ export default function AppRouter() {
         element={<ProtectedRoute><AppLayout /></ProtectedRoute>}
       >
         <Route index element={<Navigate to="/app/dashboard" replace />} />
+
+        {/* Phone / tablet launcher — first screen of a session on small screens (desktop redirects to the dashboard) */}
+        <Route path="home" element={<MobileHomePage />} />
 
         {/* Dashboard — role-based redirect + sub-dashboards */}
         <Route

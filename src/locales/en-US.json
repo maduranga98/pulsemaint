@@ -1577,7 +1577,16 @@
         "maintenanceHistory": "Maintenance History",
         "supportRequests": "Feedback & Requests"
       },
-      "help": "Help & Support"
+      "help": "Help & Support",
+      "mobile": {
+        "label": "App navigation",
+        "home": "Home",
+        "hello": "Hello, {{name}}",
+        "helloAnon": "Hello",
+        "prompt": "What do you want to open?",
+        "search": "Search…",
+        "apps": "Apps"
+      }
     },
     "dashboard": {
       "adminTitle": "Admin Dashboard",
