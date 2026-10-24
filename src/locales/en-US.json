@@ -20,8 +20,8 @@
         "body": "Your home page. It shows what needs attention today: open breakdowns, work orders, PM due and alerts for your role."
       },
       "plants": {
-        "title": "Plant tabs",
-        "body": "Switch between your plants here. Everything below — machines, work orders, people — follows the plant you pick."
+        "title": "Plant switcher",
+        "body": "Pick the plant you are viewing from this menu. Everything below — machines, work orders, people — follows the plant you pick."
       },
       "group_maintenance": {
         "title": "Maintenance",
