@@ -100,3 +100,36 @@ exports.reactivateMachineOnWOSignOff = onDocumentUpdated(
       }
     },
 );
+
+// A work order created already started (or a breakdown reopened after being
+// closed, e.g. a sign-off "not complete") takes the machine out of service
+// again — the update triggers above only see status changes into / out of the
+// started and closed states.
+exports.markMachineDownOnWOCreatedStarted = onDocumentCreated(
+    {database: "default", document: "workOrders/{woId}"},
+    async (event) => {
+      const wo = event.data && event.data.data();
+      if (!wo || !WORK_STARTED_STATUSES.includes(wo.status || "")) return;
+      try {
+        await markUnderMaintenance(wo.machineId);
+      } catch (err) {
+        logger.error("markMachineDownOnWOCreatedStarted failed", {woId: event.params.woId, err});
+      }
+    },
+);
+
+exports.markMachineDownOnBreakdownReopened = onDocumentUpdated(
+    {database: "default", document: "breakdown_tickets/{ticketId}"},
+    async (event) => {
+      const before = event.data.before.data();
+      const after = event.data.after.data();
+      if (before.status === after.status) return;
+      if (!CLOSED_BREAKDOWN_STATUSES.has(before.status || "")) return;
+      if (CLOSED_BREAKDOWN_STATUSES.has(after.status || "")) return;
+      try {
+        await markUnderMaintenance(after.machineId);
+      } catch (err) {
+        logger.error("markMachineDownOnBreakdownReopened failed", {ticketId: event.params.ticketId, err});
+      }
+    },
+);

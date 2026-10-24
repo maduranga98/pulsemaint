@@ -32,7 +32,7 @@ interface BoardColumn {
 const BOARD_COLUMNS: BoardColumn[] = [
   { id: 'open', label: 'Open', dot: 'bg-blue-500', statuses: ['DRAFT', 'OPEN', 'ASSIGNED'] },
   { id: 'in_progress', label: 'In Progress', dot: 'bg-amber-500', statuses: ['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'] },
-  { id: 'completed', label: 'Completed (to sign off)', dot: 'bg-emerald-500', statuses: ['COMPLETED'] },
+  { id: 'completed', label: 'Completed', dot: 'bg-emerald-500', statuses: ['COMPLETED'] },
   { id: 'signed_off', label: 'Signed Off', dot: 'bg-green-500', statuses: ['SIGNED_OFF'], access: 'finished' },
   { id: 'closed', label: 'Closed', dot: 'bg-slate-500', statuses: ['CLOSED'], access: 'finished' },
   { id: 'cancelled', label: 'Cancelled', dot: 'bg-gray-400', statuses: ['CANCELLED'], access: 'cancelled' },

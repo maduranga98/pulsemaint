@@ -94,11 +94,15 @@ const {
   markMachineDownOnBreakdownReported,
   reactivateMachineOnBreakdownClose,
   reactivateMachineOnWOSignOff,
+  markMachineDownOnWOCreatedStarted,
+  markMachineDownOnBreakdownReopened,
 } = require("./src/machines/syncMachineStatus");
 
 exports.markMachineDownOnBreakdownReported = markMachineDownOnBreakdownReported;
 exports.reactivateMachineOnBreakdownClose = reactivateMachineOnBreakdownClose;
 exports.reactivateMachineOnWOSignOff = reactivateMachineOnWOSignOff;
+exports.markMachineDownOnWOCreatedStarted = markMachineDownOnWOCreatedStarted;
+exports.markMachineDownOnBreakdownReopened = markMachineDownOnBreakdownReopened;
 
 // Plant stamps on every machine-linked record (replacing the create-only
 // stampWorkOrderPlant / stampBreakdownPlant), open work following a machine
