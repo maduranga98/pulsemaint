@@ -3,6 +3,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
   signInWithPopup,
+  signInWithCredential,
   signInWithCustomToken,
   sendPasswordResetEmail,
   signOut,
@@ -19,7 +20,8 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { httpsCallable } from 'firebase/functions';
+import { auth, db, functions } from './firebase';
 import { TERMS_VERSION } from './legal/terms';
 import { useAuthStore } from '../store/authStore';
 import type { CompanyProfile, UserProfile, UserRole } from '../types/auth';
@@ -316,13 +318,33 @@ export async function confirmOTP(
 export async function loginWithGoogle(): Promise<UserProfile> {
   try {
     const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
-    const uid = userCredential.user.uid;
+    let userCredential = await signInWithPopup(auth, provider);
+    const googleCredential = GoogleAuthProvider.credentialFromResult(userCredential);
+    let uid = userCredential.user.uid;
 
     // Get companyId
-    const companyId = await getCompanyIdFromUser(uid);
+    let companyId = await getCompanyIdFromUser(uid);
     if (!companyId) {
-      throw new Error('Company not found for this user.');
+      // Google can hand back a brand-new login for someone who registered
+      // earlier with email + password. Ask the server to fold it into the
+      // registered login (it refuses an email that never registered), then
+      // sign in again with the same Google credential.
+      try {
+        const { data } = await httpsCallable<void, { status: 'ready' | 'linked' }>(functions, 'linkGoogleLogin')();
+        if (data.status === 'linked' && googleCredential) {
+          userCredential = await signInWithCredential(auth, googleCredential);
+          uid = userCredential.user.uid;
+        }
+      } catch (linkError) {
+        await signOut(auth).catch(() => {});
+        const message = (linkError as { message?: string })?.message;
+        throw new Error(message || 'This Google account is not registered with FirmiCore yet.');
+      }
+      companyId = await getCompanyIdFromUser(uid);
+      if (!companyId) {
+        await signOut(auth).catch(() => {});
+        throw new Error('Company not found for this user.');
+      }
     }
 
     // Fetch user profile
