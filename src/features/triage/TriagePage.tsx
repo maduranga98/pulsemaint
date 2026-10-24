@@ -83,20 +83,25 @@ export default function TriagePage() {
   const activeId = selected ?? (isDesktop ? cats[0]?.id ?? null : null);
   const selectedCat = useMemo(() => cats.find((c) => c.id === activeId) ?? null, [cats, activeId]);
 
+  // The builder opens inside the app shell like any other page, so the sidebar stays.
+  if (showBuilder && canBuild) {
+    return <TriageBuilderPage onBack={() => setShowBuilder(false)} />;
+  }
+
   function renderGuides() {
     if (isDesktop) {
       return (
-        <div className="flex gap-5" style={{ minHeight: 480 }}>
+        <div className="flex gap-4" style={{ minHeight: 480 }}>
           <CategoryRail cats={cats} counts={counts} selected={activeId} onSelect={setSelected} />
           <div className="flex-1 min-w-0">
             <div
-              className="rounded-2xl p-5 sm:p-6 h-full"
+              className="rounded-xl p-5 h-full"
               style={{ background: '#0e1628', border: '1px solid #1a2840' }}
             >
               {selectedCat ? (
                 <ContentList category={selectedCat} />
               ) : (
-                <div className="flex items-center justify-center h-full text-base" style={{ color: '#6b7fa3' }}>
+                <div className="flex items-center justify-center h-full text-sm" style={{ color: '#6b7fa3' }}>
                   {t('common.triage.knowledge.page.selectCategoryPrompt')}
                 </div>
               )}
@@ -113,7 +118,7 @@ export default function TriagePage() {
         <button
           type="button"
           onClick={() => setSelected(null)}
-          className="mb-3 inline-flex items-center gap-1 min-h-[44px] text-base font-semibold"
+          className="mb-2 inline-flex items-center gap-1 min-h-[44px] text-sm font-semibold"
           style={{ color: '#bfdbfe' }}
         >
           ← {t('common.triage.knowledge.contentList.back')}
@@ -125,12 +130,12 @@ export default function TriagePage() {
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-[28px] font-bold" style={{ color: '#e2e8f0' }}>
+          <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
             {t('common.triage.knowledge.page.title')}
           </h1>
-          <p className="text-base mt-1" style={{ color: '#a7b6d3' }}>
+          <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
             {t('common.triage.knowledge.page.subtitle')}
           </p>
         </div>
@@ -138,16 +143,16 @@ export default function TriagePage() {
           <button
             type="button"
             onClick={() => setView('contacts')}
-            className="hidden sm:inline-flex items-center gap-2 rounded-xl px-5 min-h-[48px] text-base font-bold text-white"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white"
             style={{ background: '#dc2626' }}
           >
-            <Phone className="w-5 h-5" /> {t('common.triage.knowledge.page.emergencyButton')}
+            <Phone className="w-4 h-4" /> {t('common.triage.knowledge.page.emergencyButton')}
           </button>
           {canBuild && (
             <button
               type="button"
               onClick={() => setShowBuilder(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl px-4 min-h-[48px] text-sm font-semibold text-white transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors"
               style={{ background: '#1d4ed8' }}
             >
               <Plus className="w-4 h-4" /> {t('common.triage.knowledge.page.create')}
@@ -156,7 +161,7 @@ export default function TriagePage() {
         </div>
       </div>
 
-      <div role="tablist" aria-label={t('common.triage.knowledge.page.title')} className="grid grid-cols-3 gap-2 sm:gap-4 mb-5">
+      <div role="tablist" aria-label={t('common.triage.knowledge.page.title')} className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
         {TABS.map(({ id, icon: Icon, color, label, hint }) => {
           const active = view === id;
           return (
@@ -166,7 +171,7 @@ export default function TriagePage() {
               role="tab"
               aria-selected={active}
               onClick={() => setView(id)}
-              className="flex items-center justify-center sm:justify-start gap-3 rounded-2xl px-2 sm:px-5 py-3 min-h-[56px] sm:min-h-[72px] text-left transition-colors"
+              className="flex items-center justify-center sm:justify-start gap-2.5 rounded-xl px-2 sm:px-3.5 py-2 min-h-[44px] sm:min-h-[52px] text-left transition-colors"
               style={{
                 background: active ? '#12203d' : '#0e1628',
                 border: `2px solid ${active ? color : '#1f2f4a'}`,
@@ -174,16 +179,16 @@ export default function TriagePage() {
               }}
             >
               <span
-                className="hidden sm:flex w-12 h-12 shrink-0 items-center justify-center rounded-xl"
+                className="hidden sm:flex w-9 h-9 shrink-0 items-center justify-center rounded-lg"
                 style={{ background: color, color: '#0a0f1c' }}
               >
-                <Icon className="w-6 h-6" />
+                <Icon className="w-[18px] h-[18px]" />
               </span>
               <span className="flex flex-col min-w-0">
-                <span className="text-[15px] sm:text-lg font-bold leading-tight text-center sm:text-left">
+                <span className="text-sm font-semibold leading-tight text-center sm:text-left">
                   {t(`common.triage.knowledge.page.tabs.${label}`)}
                 </span>
-                <span className="hidden sm:block text-sm" style={{ color: '#a7b6d3' }}>
+                <span className="hidden sm:block text-xs" style={{ color: '#8BA3BF' }}>
                   {t(`common.triage.knowledge.page.tabs.${hint}`)}
                 </span>
               </span>
@@ -195,17 +200,6 @@ export default function TriagePage() {
       {view === 'guides' && renderGuides()}
       {view === 'contacts' && <ContactList />}
       {view === 'quizzes' && <AssessmentList />}
-
-      {showBuilder && canBuild && (
-        <div
-          className="fixed inset-0 z-50 overflow-y-auto"
-          style={{ background: '#0a0f1c' }}
-        >
-          <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-            <TriageBuilderPage onBack={() => setShowBuilder(false)} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

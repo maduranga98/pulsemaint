@@ -163,7 +163,7 @@ export function ContactBuilder() {
         <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
           {t('common.triage.knowledge.builder.contactBuilder.currentContactsHeading')}
         </div>
-        <ContactList showDelete={canDelete} />
+        <ContactList showDelete={canDelete} compact />
       </div>
     </div>
   );

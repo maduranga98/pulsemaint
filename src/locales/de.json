@@ -5166,7 +5166,7 @@
           "emergencyButton": "Notfall? Jetzt anrufen",
           "pickTopic": "Thema wählen",
           "guidesCount": "Anleitungen: {{count}}",
-          "emergencyHeading": "Notfall – zuerst anrufen",
+          "emergencyHeading": "Notfall: zuerst anrufen",
           "otherPeople": "Weitere Personen",
           "callPerson": "{{name}} anrufen"
         },

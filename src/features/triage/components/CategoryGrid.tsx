@@ -14,7 +14,7 @@ export function CategoryGrid({ cats, counts, onSelect }: Props) {
 
   return (
     <section aria-label={t('common.triage.knowledge.page.pickTopic')} className="space-y-2.5">
-      <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: '#a7b6d3' }}>
+      <h2 className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#8BA3BF' }}>
         {t('common.triage.knowledge.page.pickTopic')}
       </h2>
       <div className="grid grid-cols-2 gap-3">
@@ -23,7 +23,7 @@ export function CategoryGrid({ cats, counts, onSelect }: Props) {
             key={cat.id}
             type="button"
             onClick={() => onSelect(cat.id)}
-            className="flex flex-col items-start gap-2 p-4 min-h-[132px] rounded-2xl text-left"
+            className="flex flex-col items-start gap-1.5 p-3.5 min-h-[104px] rounded-xl text-left"
             style={{
               background: '#0e1628',
               border: '1px solid #1f2f4a',
@@ -31,12 +31,12 @@ export function CategoryGrid({ cats, counts, onSelect }: Props) {
             }}
           >
             <span style={{ color: cat.color }}>
-              <TriageCategoryIcon icon={cat.icon} className="w-8 h-8" />
+              <TriageCategoryIcon icon={cat.icon} className="w-6 h-6" />
             </span>
-            <span className="text-[17px] font-bold leading-snug" style={{ color: '#e2e8f0' }}>
+            <span className="text-sm font-semibold leading-snug" style={{ color: '#e2e8f0' }}>
               {cat.title}
             </span>
-            <span className="text-sm" style={{ color: '#a7b6d3' }}>
+            <span className="text-xs" style={{ color: '#8BA3BF' }}>
               {t('common.triage.knowledge.page.guidesCount', { count: counts[cat.id] ?? 0 })}
             </span>
           </button>
