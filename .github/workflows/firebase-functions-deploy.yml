@@ -6,6 +6,14 @@ on:
       - main
   workflow_dispatch: {}
 
+# Two merges to main close together used to start two deploys at once; the
+# second collided with the first inside firebase-tools ("An unexpected error
+# has occurred") and failed. Queue them instead — one deploy at a time, never
+# cancelling one that is already running (the newest waiting run wins).
+concurrency:
+  group: firebase-functions-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy_functions:
     runs-on: ubuntu-latest
