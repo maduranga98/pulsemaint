@@ -11,7 +11,7 @@ import EndShiftButton from '../handover/EndShiftButton';
 import NotificationBell from './NotificationBell';
 import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
-import PlantTabs from './PlantTabs';
+import PlantSwitcher from './PlantSwitcher';
 import { useSupportUnreadCount } from '../../hooks/useSupportUnreadCount';
 import { useTour } from '../../features/tour/TourProvider';
 import { companyApproval } from '../../lib/companyApproval';
@@ -290,6 +290,7 @@ export default function AppLayout() {
             <div className="text-[13px] text-[#8BA3BF] hidden sm:block truncate">
               {company?.name ?? ''}
             </div>
+            <PlantSwitcher />
           </div>
 
           {/* overflow-x-auto scoped to this action group (not the whole header)
@@ -322,8 +323,6 @@ export default function AppLayout() {
             </button>
           </div>
         </header>
-
-        <PlantTabs />
 
         <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto scrollbar-hide">
           <TourAutoStart />
