@@ -99,4 +99,16 @@ describe('launcher app tour steps', () => {
       expect(LAUNCHER_DESCRIPTIONS[k], k).toBeTruthy();
     }
   });
+
+  it('is translated into every language in the switcher (Tamil included)', async () => {
+    const { LAUNCHER_DESCRIPTIONS } = await import('../../features/tour/launcherDescriptions');
+    const { SUPPORTED_LANGUAGES } = await import('../supportedLanguages');
+    const fs = await import('node:fs');
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const tree = JSON.parse(fs.readFileSync(`src/locales/${lang.code}.json`, 'utf8'));
+      for (const k of Object.keys(LAUNCHER_DESCRIPTIONS)) {
+        expect(tree.tour?.launcher?.[k], `${lang.code}:${k}`).toBeTruthy();
+      }
+    }
+  });
 });

@@ -132,6 +132,33 @@
         "mttrToday": "MTTR de hoy",
         "openWorkOrders": "Órdenes de trabajo abiertas",
         "shiftHoursElapsed": "Horas de turno transcurridas"
+      },
+      "kpiScope": {
+        "today": "HOY",
+        "mtd": "MES"
+      },
+      "kpiSub": {
+        "maintenances": "averías + PM de este mes",
+        "thisMonth": "este mes",
+        "avgRepair": "tiempo medio de reparación",
+        "unassigned": "{{count}} sin asignar",
+        "startedSplit": "{{started}} iniciadas · {{notStarted}} sin iniciar",
+        "pmOverdue": "{{count}} atrasadas"
+      },
+      "allPlants": "Todas las plantas",
+      "plantsOverview": {
+        "title": "Resumen de plantas",
+        "hint": "Alertas por planta",
+        "breakdowns_one": "{{count}} avería",
+        "breakdowns_other": "{{count}} averías",
+        "workOrders_one": "{{count}} orden de trabajo",
+        "workOrders_other": "{{count}} órdenes de trabajo",
+        "safety_one": "{{count}} caso de seguridad",
+        "safety_other": "{{count}} casos de seguridad",
+        "alerts_one": "{{count}} alerta",
+        "alerts_other": "{{count}} alertas",
+        "allClear": "Todo en orden",
+        "nothing": "Nada pendiente"
       }
     },
     "inventory": {
@@ -3257,6 +3284,38 @@
         "recordVideo": "Grabar Video",
         "attachFile": "Adjuntar Archivo",
         "removeAriaLabel": "Eliminar"
+      },
+      "extension": {
+        "statusExtended": "OT ampliada",
+        "extendButton": "Ampliar OT",
+        "signOffBlocked": "Termina y firma primero la ampliación",
+        "isExtensionBanner": "Ampliación de {{wo}}{{reason}}. Al firmarse se une a esa orden de trabajo.",
+        "openBanner": "La ampliación {{wo}} está abierta. Esta orden de trabajo se podrá firmar cuando termine la ampliación.",
+        "signOffNotice": "Esta es una ampliación de {{wo}}. Al firmarla, sus tareas, adjuntos y trabajo realizado pasan a esa orden de trabajo; la causa raíz se escribe al firmar esa orden.",
+        "reasonRequired": "Indica por qué hay que ampliar esta orden de trabajo.",
+        "contentRequired": "Añade al menos una tarea o adjunto extra.",
+        "dueRequired": "Elige una fecha límite para la ampliación.",
+        "descriptionPrefix": "Ampliación de {{wo}}",
+        "created": "Orden de trabajo de ampliación creada.",
+        "title": "Ampliar {{wo}}",
+        "hint": "Crea una orden de trabajo de ampliación en el mismo ticket. Al firmarla se une a esta orden, que se cierra como una sola «OT ampliada».",
+        "reasonLabel": "¿Por qué se amplía? (obligatorio)",
+        "tasksLabel": "Tareas extra",
+        "taskPlaceholder": "Describe la tarea",
+        "removeTask": "Quitar tarea",
+        "addTask": "Añadir tarea",
+        "attachmentsLabel": "Adjuntos",
+        "addFiles": "Añadir archivos",
+        "removeFile": "Quitar archivo",
+        "dueLabel": "Nueva fecha límite",
+        "hoursLabel": "Horas estimadas",
+        "cancel": "Cancelar",
+        "creating": "Creando…",
+        "create": "Crear OT de ampliación"
+      },
+      "summary": {
+        "extensionsTitle": "Ampliación (añadida antes de la firma)",
+        "extensionReason": "Por qué se amplió"
       }
     },
     "pmSchedules": {
@@ -9062,7 +9121,8 @@
     },
     "layout": {
       "plantTabs": {
-        "allPlants": "Todas las plantas"
+        "allPlants": "Todas las plantas",
+        "viewing": "Planta en vista"
       }
     },
     "billing": {
@@ -11219,8 +11279,8 @@
         "body": "Su página de inicio. Muestra lo que necesita atención hoy: averías abiertas, órdenes de trabajo, MP pendientes y alertas de su rol."
       },
       "plants": {
-        "title": "Pestañas de plantas",
-        "body": "Cambie entre sus plantas aquí. Todo lo de abajo (máquinas, órdenes de trabajo, personas) sigue la planta que elija."
+        "title": "Selector de planta",
+        "body": "Elige en este menú la planta que estás viendo. Todo lo de abajo —máquinas, órdenes de trabajo, personas— sigue la planta elegida."
       },
       "group_maintenance": {
         "title": "Mantenimiento",
@@ -11300,6 +11360,41 @@
         "title": "Valor del activo y costo",
         "body": "Precio de compra, valor de desecho, depreciación anual y valor actual, más todo lo gastado en mantenimiento, para decidir cuándo reparar o reemplazar."
       }
+    },
+    "launcher": {
+      "dashboard": "Tu pantalla de inicio: las cifras clave, la planta, lo que necesita firma y quién está de turno.",
+      "machines": "El registro de cada máquina: su código QR, puntuación de salud, historial y documentos.",
+      "breakdowns": "Informa una avería y síguela desde «reportada» hasta reparada y cerrada.",
+      "workOrders": "Crea, asigna, sigue y firma las órdenes de trabajo de mantenimiento.",
+      "myWorkOrders": "Las órdenes de trabajo que tienes asignadas: inicia, completa y registra tu trabajo aquí.",
+      "pmSchedules": "Calendarios de mantenimiento preventivo y lo que vence hoy o está atrasado.",
+      "workPermits": "Permisos de trabajo: solicita, aprueba y sigue los permisos para trabajos de riesgo.",
+      "safetyCases": "Informa y da seguimiento a incidentes, casi accidentes, peligros y actos inseguros.",
+      "safetyTrainings": "Programa sesiones de formación en seguridad y revisa las entregas.",
+      "safetyBlacklist": "Personas y contratistas que tienen prohibido trabajar en la planta.",
+      "inventory": "Catálogo de repuestos y niveles de existencias, con alertas de stock bajo.",
+      "po": "Órdenes de compra: crea, aprueba, recibe y reclama entregas.",
+      "requests": "Solicitudes de repuestos de la planta que esperan al almacén.",
+      "requestsInbox": "Solicitudes enviadas a ti que necesitan respuesta o aprobación.",
+      "myRequests": "Las solicitudes que has enviado y en qué estado está cada una.",
+      "triage": "Guías de diagnóstico paso a paso, cuestionarios y a quién llamar.",
+      "training": "La biblioteca de formación y los cursos asignados a las personas.",
+      "traineeManagement": "Programas de aprendices, asignaciones y firmas de finalización.",
+      "myTraining": "Tus formaciones y cuestionarios asignados.",
+      "myProgram": "Tu programa de aprendiz y cuánto has avanzado.",
+      "myCertificates": "Los certificados que has obtenido.",
+      "contractors": "Empresas contratistas, sus miembros de equipo y trabajos.",
+      "myShift": "Tu turno: inícialo y termínalo y mira quién está contigo.",
+      "shiftHandovers": "Notas de relevo entre turnos y relevos anteriores.",
+      "analytics": "Gráficos y tendencias: averías, costes, MTBF/MTTR y rendimiento del equipo.",
+      "moe": "Registros de gestión del cambio.",
+      "reports": "Informes listos que puedes generar y descargar.",
+      "audit": "Auditorías: listas de verificación, hallazgos y auditorías completadas.",
+      "evaluations": "Evaluaciones del personal.",
+      "settings": "Ajustes de la empresa: usuarios, plantas, departamentos, turnos y exportación de datos.",
+      "billing": "Tu plan, facturas y datos de pago.",
+      "supportRequests": "Mensajes al equipo de FirmiCore y sus respuestas.",
+      "help": "Guías paso a paso de las herramientas que usa tu rol."
     }
   }
 }

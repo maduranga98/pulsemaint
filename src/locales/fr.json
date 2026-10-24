@@ -132,6 +132,33 @@
         "mttrToday": "MTTR du jour",
         "openWorkOrders": "Ordres de travail ouverts",
         "shiftHoursElapsed": "Heures de poste écoulées"
+      },
+      "kpiScope": {
+        "today": "AUJ.",
+        "mtd": "MOIS"
+      },
+      "kpiSub": {
+        "maintenances": "pannes + PM ce mois-ci",
+        "thisMonth": "ce mois-ci",
+        "avgRepair": "temps moyen de réparation",
+        "unassigned": "{{count}} non affectées",
+        "startedSplit": "{{started}} démarrés · {{notStarted}} non démarrés",
+        "pmOverdue": "{{count}} en retard"
+      },
+      "allPlants": "Tous les sites",
+      "plantsOverview": {
+        "title": "Vue d'ensemble des sites",
+        "hint": "Alertes par site",
+        "breakdowns_one": "{{count}} panne",
+        "breakdowns_other": "{{count}} pannes",
+        "workOrders_one": "{{count}} ordre de travail",
+        "workOrders_other": "{{count}} ordres de travail",
+        "safety_one": "{{count}} dossier sécurité",
+        "safety_other": "{{count}} dossiers sécurité",
+        "alerts_one": "{{count}} alerte",
+        "alerts_other": "{{count}} alertes",
+        "allClear": "Tout est en ordre",
+        "nothing": "Rien en attente"
       }
     },
     "inventory": {
@@ -3257,6 +3284,38 @@
         "recordVideo": "Enregistrer une Vidéo",
         "attachFile": "Joindre un Fichier",
         "removeAriaLabel": "Supprimer"
+      },
+      "extension": {
+        "statusExtended": "OT prolongé",
+        "extendButton": "Prolonger l'OT",
+        "signOffBlocked": "Terminez et validez d'abord la prolongation",
+        "isExtensionBanner": "Prolongation de {{wo}}{{reason}}. Une fois validée, elle rejoint cet ordre de travail.",
+        "openBanner": "La prolongation {{wo}} est ouverte. Cet ordre de travail pourra être validé une fois la prolongation terminée.",
+        "signOffNotice": "Ceci est une prolongation de {{wo}}. La valider ajoute ses tâches, pièces jointes et travaux à cet ordre de travail ; la cause racine est saisie à la validation de celui-ci.",
+        "reasonRequired": "Indiquez pourquoi cet ordre de travail doit être prolongé.",
+        "contentRequired": "Ajoutez au moins une tâche ou une pièce jointe supplémentaire.",
+        "dueRequired": "Choisissez une échéance pour la prolongation.",
+        "descriptionPrefix": "Prolongation de {{wo}}",
+        "created": "Ordre de travail de prolongation créé.",
+        "title": "Prolonger {{wo}}",
+        "hint": "Crée un ordre de travail de prolongation sur le même ticket. Une fois validé, il rejoint cet ordre de travail, qui se clôture alors comme un seul « OT prolongé ».",
+        "reasonLabel": "Pourquoi la prolonger ? (obligatoire)",
+        "tasksLabel": "Tâches supplémentaires",
+        "taskPlaceholder": "Décrivez la tâche",
+        "removeTask": "Retirer la tâche",
+        "addTask": "Ajouter une tâche",
+        "attachmentsLabel": "Pièces jointes",
+        "addFiles": "Ajouter des fichiers",
+        "removeFile": "Retirer le fichier",
+        "dueLabel": "Nouvelle échéance",
+        "hoursLabel": "Heures estimées",
+        "cancel": "Annuler",
+        "creating": "Création…",
+        "create": "Créer l'OT de prolongation"
+      },
+      "summary": {
+        "extensionsTitle": "Prolongation (ajoutée avant la validation)",
+        "extensionReason": "Pourquoi elle a été prolongée"
       }
     },
     "pmSchedules": {
@@ -9062,7 +9121,8 @@
     },
     "layout": {
       "plantTabs": {
-        "allPlants": "Toutes les usines"
+        "allPlants": "Toutes les usines",
+        "viewing": "Site affiché"
       }
     },
     "billing": {
@@ -11219,8 +11279,8 @@
         "body": "Votre page d'accueil. Elle montre ce qui demande de l'attention aujourd'hui : pannes ouvertes, ordres de travail, MP à faire et alertes de votre rôle."
       },
       "plants": {
-        "title": "Onglets des sites",
-        "body": "Changez de site ici. Tout ce qui suit (machines, ordres de travail, personnes) dépend du site choisi."
+        "title": "Sélecteur de site",
+        "body": "Choisissez dans ce menu le site que vous consultez. Tout ce qui suit — machines, ordres de travail, personnes — suit le site choisi."
       },
       "group_maintenance": {
         "title": "Maintenance",
@@ -11300,6 +11360,41 @@
         "title": "Valeur de l'actif et coût",
         "body": "Prix d'achat, valeur de rebut, amortissement annuel et valeur actuelle, plus tout ce qui a été dépensé en maintenance, pour décider quand réparer ou remplacer."
       }
+    },
+    "launcher": {
+      "dashboard": "Votre écran d'accueil : les chiffres clés, l'atelier, ce qui attend une signature et qui est de service.",
+      "machines": "Le registre de chaque machine : son code QR, son score de santé, son historique et ses documents.",
+      "breakdowns": "Signalez une panne et suivez-la de « signalée » jusqu'à la réparation et la clôture.",
+      "workOrders": "Créez, affectez, suivez et validez les ordres de travail de maintenance.",
+      "myWorkOrders": "Les ordres de travail qui vous sont affectés : démarrez, terminez et consignez votre travail ici.",
+      "pmSchedules": "Les plannings de maintenance préventive et ce qui est dû aujourd'hui ou en retard.",
+      "workPermits": "Permis de travail : demandez, approuvez et suivez les permis pour les tâches à risque.",
+      "safetyCases": "Signalez et suivez les incidents, quasi-accidents, dangers et actes dangereux.",
+      "safetyTrainings": "Planifiez les formations à la sécurité et examinez les soumissions.",
+      "safetyBlacklist": "Personnes et sous-traitants interdits de travaux sur site.",
+      "inventory": "Catalogue des pièces de rechange et niveaux de stock, avec alertes de stock bas.",
+      "po": "Bons de commande : créez, approuvez, réceptionnez et relancez les livraisons.",
+      "requests": "Demandes de pièces de l'atelier en attente du magasin.",
+      "requestsInbox": "Demandes qui vous sont adressées et attendent une réponse ou une approbation.",
+      "myRequests": "Les demandes que vous avez envoyées et où en est chacune.",
+      "triage": "Guides de dépannage pas à pas, quiz et qui appeler.",
+      "training": "La bibliothèque de formations et les cours attribués aux personnes.",
+      "traineeManagement": "Programmes des stagiaires, affectations et validations.",
+      "myTraining": "Vos formations et quiz attribués.",
+      "myProgram": "Votre programme de stagiaire et votre avancement.",
+      "myCertificates": "Les certificats que vous avez obtenus.",
+      "contractors": "Entreprises sous-traitantes, leurs équipes et leurs interventions.",
+      "myShift": "Votre poste : démarrez-le, terminez-le et voyez qui est avec vous.",
+      "shiftHandovers": "Notes de passation entre les postes et passations passées.",
+      "analytics": "Graphiques et tendances : pannes, coûts, MTBF/MTTR et performance de l'équipe.",
+      "moe": "Enregistrements de gestion du changement.",
+      "reports": "Rapports prêts à générer et à télécharger.",
+      "audit": "Audits : listes de contrôle, constats et audits terminés.",
+      "evaluations": "Évaluations du personnel.",
+      "settings": "Paramètres de l'entreprise : utilisateurs, sites, services, postes et export des données.",
+      "billing": "Votre formule, vos factures et vos moyens de paiement.",
+      "supportRequests": "Messages à l'équipe FirmiCore et leurs réponses.",
+      "help": "Guides pas à pas des outils utilisés par votre rôle."
     }
   }
 }
