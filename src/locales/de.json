@@ -5143,9 +5143,23 @@
       "knowledge": {
         "page": {
           "title": "Triage",
-          "subtitle": "Verfahren, Anleitungen, Kontakte und Kurzbewertungen",
+          "subtitle": "Hilfe Schritt für Schritt, wen man anruft und Ihre Quizze.",
           "create": "Erstellen",
-          "selectCategoryPrompt": "Wählen Sie eine Kategorie im linken Bereich aus"
+          "selectCategoryPrompt": "Wählen Sie eine Kategorie im linken Bereich aus",
+          "tabs": {
+            "guides": "Anleitungen",
+            "guidesHint": "So geht's, Schritt für Schritt",
+            "contacts": "Wen anrufen",
+            "contactsHint": "Telefonnummern",
+            "quizzes": "Meine Quizze",
+            "quizzesHint": "Prüfen Sie Ihr Wissen"
+          },
+          "emergencyButton": "Notfall? Jetzt anrufen",
+          "pickTopic": "Thema wählen",
+          "guidesCount": "Anleitungen: {{count}}",
+          "emergencyHeading": "Notfall – zuerst anrufen",
+          "otherPeople": "Weitere Personen",
+          "callPerson": "{{name}} anrufen"
         },
         "categoryRail": {
           "categoriesHeading": "Kategorien",

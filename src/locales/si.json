@@ -9722,9 +9722,23 @@
       "knowledge": {
         "page": {
           "title": "ට්‍රයාජ්",
-          "subtitle": "ක්‍රියාපටිපාටි, මාර්ගෝපදේශ, සම්බන්ධතා සහ ඉක්මන් ඇගයීම්",
+          "subtitle": "පියවරෙන් පියවර උදව්, කාටද කතා කරන්නේ සහ ඔබේ ප්‍රශ්නාවලි.",
           "create": "සාදන්න",
-          "selectCategoryPrompt": "වම් පැනලයෙන් කාණ්ඩයක් තෝරන්න"
+          "selectCategoryPrompt": "වම් පැනලයෙන් කාණ්ඩයක් තෝරන්න",
+          "tabs": {
+            "guides": "මාර්ගෝපදේශ",
+            "guidesHint": "පියවරෙන් පියවර කරන හැටි",
+            "contacts": "කාටද කතා කරන්නේ",
+            "contactsHint": "දුරකථන අංක",
+            "quizzes": "මගේ ප්‍රශ්නාවලි",
+            "quizzesHint": "ඔබ දන්නා දේ පරීක්ෂා කරන්න"
+          },
+          "emergencyButton": "හදිසි අවස්ථාවක්ද? දැන්ම අමතන්න",
+          "pickTopic": "මාතෘකාවක් තෝරන්න",
+          "guidesCount": "මාර්ගෝපදේශ: {{count}}",
+          "emergencyHeading": "හදිසි — මුලින්ම අමතන්න",
+          "otherPeople": "වෙනත් පුද්ගලයන්",
+          "callPerson": "{{name}} අමතන්න"
         },
         "categoryRail": {
           "categoriesHeading": "කාණ්ඩ",

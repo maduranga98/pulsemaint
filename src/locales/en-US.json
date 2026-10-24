@@ -7101,9 +7101,23 @@
       "knowledge": {
         "page": {
           "title": "Triage",
-          "subtitle": "Procedures, guides, contacts, and quick assessments",
+          "subtitle": "Step-by-step help, who to call, and your quizzes.",
           "create": "Create",
-          "selectCategoryPrompt": "Select a category from the left panel"
+          "selectCategoryPrompt": "Select a category from the left panel",
+          "tabs": {
+            "guides": "Guides",
+            "guidesHint": "How to do it, step by step",
+            "contacts": "Who to call",
+            "contactsHint": "Phone numbers",
+            "quizzes": "My quizzes",
+            "quizzesHint": "Check what you know"
+          },
+          "emergencyButton": "Emergency? Call now",
+          "pickTopic": "Pick a topic",
+          "guidesCount": "Guides: {{count}}",
+          "emergencyHeading": "Emergency — call first",
+          "otherPeople": "Other people",
+          "callPerson": "Call {{name}}"
         },
         "categoryRail": {
           "categoriesHeading": "Categories",

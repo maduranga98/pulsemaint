@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, ClipboardCheck, FileEdit, RotateCcw } from 'lucide-react';
+import { CheckCircle2, FileEdit, RotateCcw } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
@@ -107,35 +107,18 @@ export function AssessmentList() {
         <QuizModal assessment={activeQuiz} onClose={() => setActiveQuiz(null)} />
       )}
 
-      <div className="flex items-center gap-3 mb-5">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center"
-          style={{ background: '#fbbf241e', color: '#fbbf24' }}
-        >
-          <ClipboardCheck className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
-            {t('common.triage.knowledge.assessmentList.heading')}
-          </h2>
-          <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-            {t('common.triage.knowledge.assessmentList.subtitle')}
-          </p>
-        </div>
-      </div>
-
       {assessments.length === 0 && (
         <div
-          className="rounded-xl p-8 text-center"
-          style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+          className="rounded-2xl p-8 text-center"
+          style={{ background: '#0e1628', border: '1px solid #1f2f4a' }}
         >
-          <div className="text-sm" style={{ color: '#3d5070' }}>
+          <div className="text-base" style={{ color: '#a7b6d3' }}>
             {t('common.triage.knowledge.assessmentList.empty')}
           </div>
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-3 max-w-4xl">
         {assessments.map((a) => {
           const status = getUserStatus(a);
           const meta = STATUS_META[status];
@@ -147,35 +130,40 @@ export function AssessmentList() {
           return (
             <div
               key={a.id}
-              className="rounded-xl p-4 flex items-center gap-4"
-              style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+              className="rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5"
+              style={{ background: '#0e1628', border: '1px solid #1f2f4a' }}
             >
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm" style={{ color: '#e2e8f0' }}>
+                <span
+                  className="inline-flex items-center gap-1.5 text-sm font-bold"
+                  style={{ color: meta.color }}
+                >
+                  <meta.icon className="w-4 h-4" />
+                  {meta.label}
+                </span>
+                <div className="font-bold text-lg mt-1" style={{ color: '#e2e8f0' }}>
                   {a.title}
                 </div>
-                <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
+                <div className="text-[15px] mt-0.5" style={{ color: '#a7b6d3' }}>
                   {a.cat} · {t('common.triage.knowledge.assessmentList.passMark', { value: a.passMark })}
                   {lastPct !== null && ` · ${t('common.triage.knowledge.assessmentList.lastScore', { value: lastPct })}`}
                 </div>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <span className="hidden sm:flex items-center gap-1.5 text-sm font-medium" style={{ color: meta.color }}>
-                  <meta.icon className="w-4 h-4" />
-                  {meta.label}
-                </span>
-                <button
-                  onClick={() => setActiveQuiz(a)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                  style={{
-                    background: meta.color + '1e',
-                    color: meta.color,
-                    border: `1px solid ${meta.color}40`,
-                  }}
-                >
-                  {meta.btn}
-                </button>
-              </div>
+              <button
+                onClick={() => setActiveQuiz(a)}
+                className="shrink-0 px-6 min-h-[52px] rounded-xl text-base font-bold transition-colors"
+                style={
+                  status === 'start'
+                    ? { background: '#2563eb', color: '#ffffff' }
+                    : {
+                        background: meta.color + '1e',
+                        color: meta.color,
+                        border: `1px solid ${meta.color}66`,
+                      }
+                }
+              >
+                {meta.btn}
+              </button>
             </div>
           );
         })}

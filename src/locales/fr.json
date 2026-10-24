@@ -5143,9 +5143,23 @@
       "knowledge": {
         "page": {
           "title": "Triage",
-          "subtitle": "Procédures, guides, contacts et évaluations rapides",
+          "subtitle": "Aide pas à pas, qui appeler et vos quiz.",
           "create": "Créer",
-          "selectCategoryPrompt": "Sélectionnez une catégorie dans le panneau de gauche"
+          "selectCategoryPrompt": "Sélectionnez une catégorie dans le panneau de gauche",
+          "tabs": {
+            "guides": "Guides",
+            "guidesHint": "Comment faire, étape par étape",
+            "contacts": "Qui appeler",
+            "contactsHint": "Numéros de téléphone",
+            "quizzes": "Mes quiz",
+            "quizzesHint": "Vérifiez ce que vous savez"
+          },
+          "emergencyButton": "Urgence ? Appelez maintenant",
+          "pickTopic": "Choisissez un sujet",
+          "guidesCount": "Guides : {{count}}",
+          "emergencyHeading": "Urgence : appelez en premier",
+          "otherPeople": "Autres personnes",
+          "callPerson": "Appeler {{name}}"
         },
         "categoryRail": {
           "categoriesHeading": "Catégories",

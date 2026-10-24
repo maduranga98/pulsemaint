@@ -5143,9 +5143,23 @@
       "knowledge": {
         "page": {
           "title": "トリアージ",
-          "subtitle": "手順、ガイド、連絡先、簡易評価",
+          "subtitle": "ステップごとのヘルプ、連絡先、クイズ。",
           "create": "作成",
-          "selectCategoryPrompt": "左側のパネルからカテゴリを選択してください"
+          "selectCategoryPrompt": "左側のパネルからカテゴリを選択してください",
+          "tabs": {
+            "guides": "ガイド",
+            "guidesHint": "手順をひとつずつ",
+            "contacts": "連絡先",
+            "contactsHint": "電話番号",
+            "quizzes": "自分のクイズ",
+            "quizzesHint": "理解度を確認"
+          },
+          "emergencyButton": "緊急ですか？今すぐ電話",
+          "pickTopic": "トピックを選択",
+          "guidesCount": "ガイド: {{count}}",
+          "emergencyHeading": "緊急 — 最初に電話",
+          "otherPeople": "その他の担当者",
+          "callPerson": "{{name}} に電話"
         },
         "categoryRail": {
           "categoriesHeading": "カテゴリ",
