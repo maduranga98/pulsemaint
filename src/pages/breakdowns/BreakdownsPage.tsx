@@ -84,7 +84,7 @@ const SEVERITY_RANK: Record<BreakdownSeverity, number> = { critical: 4, high: 3,
 // is: reported -> assigned (someone is visiting/filling it) -> open (a work
 // order has actually been started) -> closed (WO signed off).
 type Filter = 'reported' | 'assigned' | 'open' | 'closed';
-type SeverityFilter = 'all' | 'high' | 'medium' | 'normal';
+type SeverityFilter = 'all' | 'critical' | 'high' | 'medium' | 'low';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
@@ -179,8 +179,7 @@ export default function BreakdownsPage() {
     // their own registered department within that plant — everyone else
     // keeps full in-plant visibility.
     if (severityFilter !== 'all') {
-      const sevMatch = severityFilter === 'normal' ? 'low' : severityFilter;
-      list = list.filter((b) => b.severity === sevMatch);
+      list = list.filter((b) => b.severity === severityFilter);
     }
     if (search.trim()) {
       const s = search.toLowerCase();
@@ -612,9 +611,10 @@ export default function BreakdownsPage() {
               className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             >
               <option value="all">{t('common.breakdowns.severityOptions.all')}</option>
-              <option value="normal">{t('common.breakdowns.severityOptions.normal')}</option>
+              <option value="low">{t('common.workOrders.priorities.low')}</option>
               <option value="medium">{t('common.breakdowns.severityOptions.medium')}</option>
               <option value="high">{t('common.breakdowns.severityOptions.high')}</option>
+              <option value="critical">{t('common.workOrders.priorities.critical')}</option>
             </select>
           </div>
           <div className="relative w-full sm:w-72">
@@ -652,7 +652,7 @@ export default function BreakdownsPage() {
             {columns.map((c) => (
               <section key={c.id} className="shrink-0 w-[85vw] sm:w-80 rounded-xl bg-slate-50 border border-slate-200">
                 <header className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200">
-                  <h2 className="text-sm font-semibold text-slate-700">{t(`common.breakdowns.tabs.${c.id}`)}</h2>
+                  <h2 className="text-sm font-semibold text-slate-700 capitalize">{t(`common.breakdowns.tabs.${c.id}`)}</h2>
                   <span className="text-xs font-medium text-slate-500 bg-white border border-slate-200 rounded-full px-2 py-0.5">{c.groups.length}</span>
                 </header>
                 <div className="p-3 space-y-3 max-h-[70vh] overflow-y-auto">
