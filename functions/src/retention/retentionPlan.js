@@ -2,11 +2,14 @@
  * What is cleared after a year — and, just as important, what never is.
  *
  * Only FINISHED long-term records are listed (closed / cancelled work orders
- * and PM work, breakdowns, work permits, safety cases, completed PM history,
- * submitted evaluations) plus inventory clutter (stock movements and import
- * sessions). Open work is never touched. Kept forever: contractors, users,
- * RCA (`rca`), the blacklist, plants, departments, company details, machines,
- * inventory parts and suppliers, training records and certificates.
+ * and PM work, breakdowns, work permits, safety cases, completed PM history)
+ * plus inventory clutter (stock movements and import sessions). Open work is
+ * never touched. Kept forever (see NEVER_CLEARED): machines and their files,
+ * users, contractors, inventory parts, suppliers, triage, audits, evaluations,
+ * plants, departments, company details, RCA, the blacklist, training records
+ * and certificates. Contractor safety-training submissions are not cleared by
+ * age either — they are removed only when the person renews (see
+ * functions/src/safetyTraining/renewal.js).
  *
  * Pure data + helpers (no firebase imports) so it can be unit-tested.
  */
@@ -27,13 +30,18 @@ const RETENTION_RULES = [
   {collection: "safety_cases", dateField: "closedAt", statusField: "status", statuses: ["closed"]},
   {collection: "pm_history", dateField: "completedDate", statusField: "status", statuses: ["completed_on_time", "completed_late"]},
   {collection: "pm_history", dateField: "missedAt", statusField: "status", statuses: ["missed"]},
-  {collection: "evaluations", dateField: "submittedAt", statusField: "status", statuses: null},
   {collection: "stockMovements", dateField: "createdAt", statusField: null, statuses: null},
   {collection: "inventoryImportSessions", dateField: "createdAt", statusField: null, statuses: null},
 ];
 
 /** Collections that must never be cleared by the retention job. */
-const NEVER_CLEARED = ["contractors", "users", "rca", "safety_blacklist_resets", "plants", "departments", "companies", "machines", "inventoryParts", "suppliers"];
+const NEVER_CLEARED = [
+  "contractors", "users", "rca", "safety_blacklist_resets", "plants", "departments", "companies", "machines",
+  "inventoryParts", "suppliers", "evaluations", "evaluation_templates", "evaluation_sessions",
+  "audit_sessions", "audit_templates", "triageFlows", "triageSessions", "triageTemplates", "triage_assessment_results",
+  "triage_assessments", "triage_categories", "triage_contacts", "triage_content_items", "triage_sessions", "safetyTrainingInvites", "safetyCertificates",
+  "trainingModules", "trainingAssignments", "trainingCertificates",
+];
 
 /**
  * Whether a record is finished and old enough to clear.

@@ -4127,6 +4127,11 @@
             "noContractor": "未找到承包商记录。"
           },
           "noQualifications": "无已核实资质"
+        },
+        "queues": {
+          "toSignoff": "To sign off",
+          "reassignable": "Reassignable",
+          "expired": "Expired"
         }
       },
       "publicForm": {
@@ -4217,6 +4222,14 @@
         "submit": "提交",
         "submitting": "提交中…",
         "replacesNote": "再次提交将替换您之前的提交。"
+      },
+      "staff": {
+        "tab": "Staff submissions",
+        "searchPlaceholder": "Search name, department or training…",
+        "empty": "No staff submissions in this view.",
+        "completedOn": "Completed",
+        "validUntil": "Valid until",
+        "exportCard": "Certificate / export card"
       }
     },
     "trainingShared": {

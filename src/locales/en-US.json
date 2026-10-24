@@ -5649,6 +5649,11 @@
             "noContractor": "The contractor record could not be found."
           },
           "noQualifications": "None verified"
+        },
+        "queues": {
+          "toSignoff": "To sign off",
+          "reassignable": "Reassignable",
+          "expired": "Expired"
         }
       },
       "publicForm": {
@@ -5739,6 +5744,14 @@
         "submit": "Submit",
         "submitting": "Submitting…",
         "replacesNote": "Submitting again replaces your previous submission."
+      },
+      "staff": {
+        "tab": "Staff submissions",
+        "searchPlaceholder": "Search name, department or training…",
+        "empty": "No staff submissions in this view.",
+        "completedOn": "Completed",
+        "validUntil": "Valid until",
+        "exportCard": "Certificate / export card"
       }
     },
     "trainingShared": {

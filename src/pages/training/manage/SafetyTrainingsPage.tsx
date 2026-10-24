@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2, HardHat, BookOpen } from 'lucide-react';
+import { Loader2, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2, HardHat, BookOpen, ClipboardCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { doc, deleteDoc } from 'firebase/firestore';
@@ -14,6 +14,8 @@ import {
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import SafetyTrainingAssignDialog from '@/components/safety/SafetyTrainingAssignDialog';
 import ContractorSafetyTrainingPanel from '@/components/safety/ContractorSafetyTrainingPanel';
+import StaffSafetySubmissionsPanel from '@/components/safety/StaffSafetySubmissionsPanel';
+import { getAssignmentQueue } from '@/lib/safety/submissionQueues';
 import { useContractorSafety } from '@/hooks/safety/useContractorSafety';
 import type { Timestamp } from 'firebase/firestore';
 import type { TrainingAssignment, TrainingModule } from '@/lib/training/trainingTypes';
@@ -38,9 +40,11 @@ function formatDate(date: string): string {
 
 /**
  * Admin / Plant Manager / Safety Officer view of every Safety Training in the
- * company. Two tabs:
+ * company. Three tabs:
  *  - Modules & assignments: each safety module, its scheduled sessions, and
  *    which company users it's assigned to (completed in-app).
+ *  - Staff submissions: company users' in-app results, with the same three
+ *    views as contractors (to sign off, reassignable, expired).
  *  - Contractor submissions: contractor team members' link-based trainings —
  *    marks, attachments, and the reassign / sign-off / safety-card actions.
  */
@@ -57,9 +61,13 @@ export default function SafetyTrainingsPage() {
   const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
   const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [view, setView] = useState<'modules' | 'contractors'>('modules');
+  const [view, setView] = useState<'modules' | 'staff' | 'contractors'>('modules');
   const { invites, cards, loading: contractorLoading } = useContractorSafety(companyId);
   const pendingReview = useMemo(() => invites.filter((i) => i.status === 'submitted').length, [invites]);
+  const staffToSignoff = useMemo(
+    () => assignments.filter((a) => getAssignmentQueue(a) === 'toSignoff').length,
+    [assignments],
+  );
 
   async function handleDelete(moduleId: string, title: string) {
     if (!window.confirm(t('common.safetyTrainings.deleteConfirm', { title }))) return;
@@ -145,6 +153,7 @@ export default function SafetyTrainingsPage() {
       <div className="mb-6 flex gap-2 border-b border-slate-200" role="tablist">
         {([
           ['modules', t('common.safetyTrainings.contractor.tabModules'), BookOpen, 0],
+          ['staff', t('common.safetyTrainings.staff.tab', { defaultValue: 'Staff submissions' }), ClipboardCheck, staffToSignoff],
           ['contractors', t('common.safetyTrainings.contractor.tab'), HardHat, pendingReview],
         ] as const).map(([key, label, Icon, badge]) => (
           <button
@@ -169,6 +178,12 @@ export default function SafetyTrainingsPage() {
 
       {view === 'contractors' ? (
         <ContractorSafetyTrainingPanel invites={invites} cards={cards} loading={contractorLoading} />
+      ) : view === 'staff' ? (
+        <StaffSafetySubmissionsPanel
+          assignments={assignments}
+          modulesById={modulesById}
+          onReassign={(m) => setAssigningModule(m)}
+        />
       ) : (
       <>
       <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">

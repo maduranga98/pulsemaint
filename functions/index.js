@@ -300,6 +300,7 @@ const {
 exports.sendContractorSafetyTrainingInvites = sendContractorSafetyTrainingInvites;
 exports.getContractorSafetyTrainingForm = getContractorSafetyTrainingForm;
 exports.submitContractorSafetyTraining = submitContractorSafetyTraining;
+exports.clearRenewedSafetyTrainingData = require("./src/safetyTraining/renewal").clearRenewedSafetyTrainingData;
 
 // ---------------------------------------------------------------------------
 // Staff Requests — recipient directory for roles that can't read the roster
