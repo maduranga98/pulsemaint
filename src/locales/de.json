@@ -103,7 +103,7 @@
         "noOpenWo": "Keine offenen Arbeitsaufträge."
       },
       "liveBreakdowns": {
-        "title": "Live-Störungen",
+        "title": "Störungen",
         "active": "{{count}} aktiv",
         "empty": "Keine aktiven Störungen",
         "count_one": "{{count}} Störung",
@@ -111,7 +111,7 @@
         "pending": "ausstehend"
       },
       "livePOs": {
-        "title": "Live-Bestellanfragen",
+        "title": "Bestellanfragen",
         "pending": "{{count}} ausstehend",
         "empty": "Keine Bestellungen zur Genehmigung ausstehend"
       },
@@ -1444,7 +1444,7 @@
           "newlyReported": "NEU GEMELDET",
           "signOff": "ABNAHME & ABSCHLUSS"
         },
-        "title": "Live-Störungsboard"
+        "title": "Störungsboard"
       },
       "breakdownKanbanLane": {
         "noItems": "Keine Einträge"
@@ -1530,7 +1530,7 @@
         "footer_other": "{{shifts}} Schichten aktiv · {{people}} Personen im Einsatz",
         "sinceDayTime": "seit {{day}} {{time}}",
         "sinceTime": "seit {{time}}",
-        "title": "Live-Schichtstatus",
+        "title": "Schichtstatus",
         "workingNow": "{{count}} jetzt im Einsatz",
         "yesterday": "gestern",
         "noDepartment": "Keine Abteilung",
@@ -7149,7 +7149,7 @@
         "notWorking": "Nicht im Dienst",
         "workingCount": "Im Dienst ({{count}})",
         "noOneScheduled": "Für diese Schicht ist noch niemand eingeteilt.",
-        "liveShiftStatus": "Live-Schichtstatus",
+        "liveShiftStatus": "Schichtstatus",
         "summaryLine": "{{people}} derzeit im Dienst, über {{shifts}}",
         "personCount_one": "{{count}} Person",
         "personCount_other": "{{count}} Personen",

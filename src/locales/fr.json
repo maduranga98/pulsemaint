@@ -103,7 +103,7 @@
         "noOpenWo": "Aucun ordre de travail ouvert."
       },
       "liveBreakdowns": {
-        "title": "Pannes en direct",
+        "title": "Pannes",
         "active": "{{count}} actives",
         "empty": "Aucune panne active",
         "count_one": "{{count}} panne",
@@ -111,7 +111,7 @@
         "pending": "en attente"
       },
       "livePOs": {
-        "title": "Demandes d'achat en direct",
+        "title": "Demandes d'achat",
         "pending": "{{count}} en attente",
         "empty": "Aucun bon de commande en attente d'approbation"
       },
@@ -1444,7 +1444,7 @@
           "newlyReported": "NOUVELLEMENT SIGNALÉES",
           "signOff": "APPROBATION ET CLÔTURE"
         },
-        "title": "Tableau des pannes en direct"
+        "title": "Tableau des pannes"
       },
       "breakdownKanbanLane": {
         "noItems": "Aucun élément"
@@ -1530,7 +1530,7 @@
         "footer_other": "{{shifts}} équipes actives · {{people}} personnes au travail",
         "sinceDayTime": "depuis {{day}} {{time}}",
         "sinceTime": "depuis {{time}}",
-        "title": "Statut d'équipe en direct",
+        "title": "Statut d'équipe",
         "workingNow": "{{count}} au travail maintenant",
         "yesterday": "hier",
         "noDepartment": "Sans service",
@@ -7149,7 +7149,7 @@
         "notWorking": "Hors service",
         "workingCount": "En service ({{count}})",
         "noOneScheduled": "Personne n'est encore planifié sur ce poste.",
-        "liveShiftStatus": "Statut des postes en direct",
+        "liveShiftStatus": "Statut des postes",
         "summaryLine": "{{people}} actuellement en service, répartis sur {{shifts}}",
         "personCount_one": "{{count}} personne",
         "personCount_other": "{{count}} personnes",

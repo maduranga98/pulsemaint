@@ -193,7 +193,7 @@
         "noOpenWo": "No open work orders."
       },
       "liveBreakdowns": {
-        "title": "Live Breakdowns",
+        "title": "Breakdowns",
         "active": "{{count}} active",
         "empty": "No active breakdowns",
         "count_one": "{{count}} breakdown",
@@ -201,7 +201,7 @@
         "pending": "pending"
       },
       "livePOs": {
-        "title": "Live PO Requests",
+        "title": "PO Requests",
         "pending": "{{count}} pending",
         "empty": "No purchase orders awaiting approval"
       },
@@ -321,7 +321,7 @@
           "newlyReported": "NEWLY REPORTED",
           "signOff": "SIGN OFF & CLOSE"
         },
-        "title": "Live Breakdown Board"
+        "title": "Breakdown Board"
       },
       "breakdownKanbanLane": {
         "noItems": "No items"
@@ -407,7 +407,7 @@
         "footer_other": "{{shifts}} shifts live · {{people}} people working",
         "sinceDayTime": "since {{day}} {{time}}",
         "sinceTime": "since {{time}}",
-        "title": "Live Shift Status",
+        "title": "Shift Status",
         "workingNow": "{{count}} working now",
         "yesterday": "yesterday"
       },
@@ -814,7 +814,7 @@
           "active": "Active",
           "under_maintenance": "Under Maintenance",
           "decommissioned": "Decommissioned",
-        "scrapped": "Scrapped"
+          "scrapped": "Scrapped"
         },
         "criticalityOptions": {
           "5": "5 - Mission Critical",
