@@ -118,7 +118,7 @@ export default function TriagePage() {
         <button
           type="button"
           onClick={() => setSelected(null)}
-          className="mb-2 inline-flex items-center gap-1 min-h-[44px] text-sm font-semibold"
+          className="mb-1 inline-flex items-center gap-1 min-h-[40px] text-[13px] font-semibold"
           style={{ color: '#bfdbfe' }}
         >
           ← {t('common.triage.knowledge.contentList.back')}
@@ -132,10 +132,10 @@ export default function TriagePage() {
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
+          <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#e2e8f0' }}>
             {t('common.triage.knowledge.page.title')}
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+          <p className="text-xs sm:text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
             {t('common.triage.knowledge.page.subtitle')}
           </p>
         </div>
@@ -152,7 +152,7 @@ export default function TriagePage() {
             <button
               type="button"
               onClick={() => setShowBuilder(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-[13px] sm:text-sm font-semibold text-white transition-colors"
               style={{ background: '#1d4ed8' }}
             >
               <Plus className="w-4 h-4" /> {t('common.triage.knowledge.page.create')}
@@ -161,7 +161,7 @@ export default function TriagePage() {
         </div>
       </div>
 
-      <div role="tablist" aria-label={t('common.triage.knowledge.page.title')} className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+      <div role="tablist" aria-label={t('common.triage.knowledge.page.title')} className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-4">
         {TABS.map(({ id, icon: Icon, color, label, hint }) => {
           const active = view === id;
           return (
@@ -171,7 +171,7 @@ export default function TriagePage() {
               role="tab"
               aria-selected={active}
               onClick={() => setView(id)}
-              className="flex items-center justify-center sm:justify-start gap-2.5 rounded-xl px-2 sm:px-3.5 py-2 min-h-[44px] sm:min-h-[52px] text-left transition-colors"
+              className="flex items-center justify-center sm:justify-start gap-2.5 rounded-lg sm:rounded-xl px-1.5 sm:px-3.5 py-1.5 sm:py-2 min-h-[36px] sm:min-h-[52px] text-left transition-colors"
               style={{
                 background: active ? '#12203d' : '#0e1628',
                 border: `2px solid ${active ? color : '#1f2f4a'}`,
@@ -185,7 +185,7 @@ export default function TriagePage() {
                 <Icon className="w-[18px] h-[18px]" />
               </span>
               <span className="flex flex-col min-w-0">
-                <span className="text-sm font-semibold leading-tight text-center sm:text-left">
+                <span className="text-[13px] sm:text-sm font-semibold leading-tight text-center sm:text-left">
                   {t(`common.triage.knowledge.page.tabs.${label}`)}
                 </span>
                 <span className="hidden sm:block text-xs" style={{ color: '#8BA3BF' }}>

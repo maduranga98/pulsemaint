@@ -127,7 +127,7 @@ export function ContentList({ category, showDelete = false }: Props) {
             >
               <div className="flex items-center">
                 <button
-                  className="flex-1 flex items-center gap-3 px-4 py-3 min-h-[52px] text-left transition-colors"
+                  className="flex-1 flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 min-h-[46px] sm:min-h-[52px] text-left transition-colors"
                   style={{ background: 'transparent' }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLElement).style.background = '#1a284033')
@@ -149,7 +149,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                 >
                   <TriageContentTypeIcon type={item.type} className="w-5 h-5 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium" style={{ color: '#e2e8f0' }}>
+                    <div className="text-[13px] sm:text-sm font-medium" style={{ color: '#e2e8f0' }}>
                       {item.title}
                     </div>
                     <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
@@ -229,10 +229,10 @@ export function ContentList({ category, showDelete = false }: Props) {
                             {i + 1}
                           </div>
                           <div className="flex-1 pt-0.5">
-                            <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
+                            <div className="text-[13px] sm:text-sm font-semibold" style={{ color: '#e2e8f0' }}>
                               {step.t}
                             </div>
-                            <div className="text-sm mt-0.5" style={{ color: '#8BA3BF' }}>
+                            <div className="text-xs sm:text-sm mt-0.5" style={{ color: '#8BA3BF' }}>
                               {step.d}
                             </div>
                           </div>
