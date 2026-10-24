@@ -33,7 +33,7 @@ function TourAutoStart() {
   const navigate = useNavigate();
   const requested = (state as { startTour?: string } | null)?.startTour === 'main';
   useEffect(() => {
-    if (!requested || !pathname.startsWith('/app/dashboard')) return;
+    if (!requested || !(pathname.startsWith('/app/dashboard') || pathname === LAUNCHER_PATH)) return;
     // Wait for the dashboard, plant switcher and menu to render so every stop is on screen.
     const timer = window.setTimeout(() => {
       navigate(pathname, { replace: true, state: null });

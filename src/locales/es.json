@@ -11268,6 +11268,14 @@
       "help": {
         "title": "Ayuda y soporte",
         "body": "Guías paso a paso de cada módulo. Puede repetir este recorrido desde aquí cuando quiera."
+      },
+      "launcher_search": {
+        "title": "Buscar aplicaciones",
+        "body": "Escribe un nombre para encontrar una aplicación rápido."
+      },
+      "launcher_apps": {
+        "title": "Tus aplicaciones",
+        "body": "Toca una aplicación para abrirla. Dentro verás una fila de iconos abajo: desliza para cambiar de aplicación o toca la casa para volver aquí."
       }
     },
     "machine": {

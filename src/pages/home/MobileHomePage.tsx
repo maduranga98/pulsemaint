@@ -7,20 +7,6 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { getDashboardRoute } from '../../lib/auth';
 import { flatNav, visibleNav } from '../../components/layout/navConfig';
 
-// Tile colours cycle through this palette so neighbouring apps look different.
-const TILE_GRADIENTS = [
-  'from-sky-400 to-blue-600',
-  'from-amber-400 to-orange-600',
-  'from-violet-400 to-purple-600',
-  'from-teal-400 to-teal-700',
-  'from-rose-400 to-red-600',
-  'from-emerald-400 to-emerald-700',
-  'from-indigo-400 to-indigo-700',
-  'from-pink-400 to-pink-700',
-  'from-cyan-400 to-cyan-700',
-  'from-lime-400 to-lime-700',
-];
-
 /**
  * Phone / tablet home: a grid of every module the signed-in role can open.
  * The bottom dock is hidden here — it appears once a module is opened.
@@ -43,7 +29,7 @@ export default function MobileHomePage() {
   const firstName = userProfile?.fullName?.trim().split(/\s+/)[0] ?? '';
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-20">
       <div>
         <h1 className="text-2xl font-bold text-[#F0F4F8]">
           {firstName ? t('common.nav.mobile.hello', { name: firstName }) : t('common.nav.mobile.helloAnon')}
@@ -51,7 +37,7 @@ export default function MobileHomePage() {
         <p className="mt-1 text-base text-[#A7B6D3]">{t('common.nav.mobile.prompt')}</p>
       </div>
 
-      <label className="relative block">
+      <label className="relative block" data-tour="launcher-search">
         <span className="sr-only">{t('common.nav.mobile.search')}</span>
         <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#A7B6D3]" />
         <input
@@ -59,25 +45,26 @@ export default function MobileHomePage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('common.nav.mobile.search')}
-          className="h-[54px] w-full rounded-2xl border border-[#1F2F4A] bg-[#0E1628] pl-12 pr-4 text-base text-[#E2E8F0] placeholder:text-[#7F93B5] focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="h-12 w-full rounded-2xl border border-[#1F2F4A] bg-[#0E1628] pl-12 pr-4 text-base text-[#E2E8F0] placeholder:text-[#7F93B5] focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </label>
 
-      <nav aria-label={t('common.nav.mobile.apps')} className="grid grid-cols-4 gap-x-2 gap-y-5 pb-6">
-        {shown.map((item, i) => (
+      <nav
+        aria-label={t('common.nav.mobile.apps')}
+        data-tour="launcher-apps"
+        className="grid grid-cols-4 gap-x-1.5 gap-y-[18px]"
+      >
+        {shown.map((item) => (
           <Link
             key={item.to}
             to={item.to}
-            className="flex flex-col items-center gap-2 text-[#E2E8F0] no-underline"
+            className="flex flex-col items-center gap-[7px] text-[#D5E2F5] no-underline"
           >
-            <span
-              className={`flex h-[68px] w-[68px] items-center justify-center rounded-[20px] bg-gradient-to-br text-white shadow-[0_8px_18px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.28)] [&>svg]:!h-[30px] [&>svg]:!w-[30px] ${
-                TILE_GRADIENTS[i % TILE_GRADIENTS.length]
-              }`}
-            >
+            {/* Same plain icon style as the bottom dock — no per-app colours. */}
+            <span className="flex h-[52px] w-[52px] items-center justify-center rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] text-[#9FB3D1] [&>svg]:!h-6 [&>svg]:!w-6">
               {item.icon}
             </span>
-            <span className="text-center text-[13px] font-medium leading-tight">{t(item.labelKey)}</span>
+            <span className="text-center text-xs font-medium leading-tight">{t(item.labelKey)}</span>
           </Link>
         ))}
       </nav>

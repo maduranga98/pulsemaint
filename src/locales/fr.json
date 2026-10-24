@@ -11268,6 +11268,14 @@
       "help": {
         "title": "Aide et support",
         "body": "Guides pas à pas pour chaque module. Vous pouvez refaire cette visite d'ici quand vous le souhaitez."
+      },
+      "launcher_search": {
+        "title": "Rechercher une application",
+        "body": "Saisissez un nom pour trouver rapidement une application."
+      },
+      "launcher_apps": {
+        "title": "Vos applications",
+        "body": "Touchez une application pour l’ouvrir. À l’intérieur, une rangée d’icônes apparaît en bas : faites-la défiler pour changer d’application, ou touchez la maison pour revenir ici."
       }
     },
     "machine": {

@@ -70,6 +70,14 @@
       "help": {
         "title": "Help & Support",
         "body": "Step-by-step guides for every module. You can take this tour again from here whenever you like."
+      },
+      "launcher_search": {
+        "title": "Search apps",
+        "body": "Type a name to find an app quickly."
+      },
+      "launcher_apps": {
+        "title": "Your apps",
+        "body": "Tap an app to open it. Once inside, a row of icons appears at the bottom — swipe it sideways to switch apps, or tap the house to come back here."
       }
     },
     "machine": {

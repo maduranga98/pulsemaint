@@ -34,10 +34,15 @@ export const TOUR_DEFS: Record<TourId, TourStepDef[]> = {
     main('welcome', 'body', 'center'),
     main('dashboard', sel('nav-dashboard')),
     main('plants', sel('plant-tabs'), 'bottom'),
+    // Phone launcher stops — these targets only exist on /app/home, so desktop skips them.
+    main('launcher_search', sel('launcher-search'), 'bottom'),
+    main('launcher_apps', sel('launcher-apps'), 'top'),
     ...NAV_GROUP_TOUR_IDS.map((g) => main(groupStepId(g), sel(`nav-group-${g}`))),
     main('language', sel('language'), 'bottom'),
     main('notifications', sel('notifications'), 'bottom'),
     main('shift', sel('shift'), 'bottom'),
+    // The phone's floating start/end-shift button (launcher only) shares the shift text.
+    { id: 'shift_mobile', target: sel('shift-fab'), placement: 'top', titleKey: key('main', 'shift', 'title'), bodyKey: key('main', 'shift', 'body') },
     main('profile', sel('profile'), 'bottom'),
     main('help', sel('nav-help'), 'right'),
   ],
