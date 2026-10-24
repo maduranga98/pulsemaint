@@ -208,8 +208,8 @@ export function AuditPage() {
       <div className="flex gap-1 border-b border-slate-700">
         {(
           [
-            { value: 'inProgress', label: t('common.audit.page.tabs.inProgress', 'In Progress'), count: inProgressDrafts.length },
             { value: 'library', label: t('common.audit.page.tabs.library', 'Audit Library'), count: 0 },
+            { value: 'inProgress', label: t('common.audit.page.tabs.inProgress', 'In Progress'), count: inProgressDrafts.length },
             // Completed audits are only ever visible to admins.
             ...(isAdmin ? [{ value: 'completed' as Tab, label: t('common.audit.page.tabs.completed', 'Completed'), count: 0 }] : []),
           ] as { value: Tab; label: string; count: number }[]
