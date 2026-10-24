@@ -648,14 +648,14 @@ export default function BreakdownsPage() {
             <p className="text-slate-500">{t('common.breakdowns.empty')}</p>
           </div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto pb-3 items-start">
+          <div className="flex gap-4 overflow-x-auto pb-3 items-start snap-x snap-mandatory sm:snap-none">
             {columns.map((c) => (
-              <section key={c.id} className="shrink-0 w-[85vw] sm:w-80 rounded-xl bg-slate-50 border border-slate-200">
+              <section key={c.id} className="shrink-0 snap-start w-[85vw] sm:w-80 rounded-xl bg-slate-50 border border-slate-200">
                 <header className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200">
                   <h2 className="text-sm font-semibold text-slate-700 capitalize">{t(`common.breakdowns.tabs.${c.id}`)}</h2>
                   <span className="text-xs font-medium text-slate-500 bg-white border border-slate-200 rounded-full px-2 py-0.5">{c.groups.length}</span>
                 </header>
-                <div className="p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+                <div className="p-3 space-y-3 sm:max-h-[70vh] sm:overflow-y-auto">
                   {c.groups.length === 0 ? (
                     <p className="text-xs text-slate-400 text-center py-6">{t('common.breakdowns.empty')}</p>
                   ) : (

@@ -205,7 +205,7 @@ export function AuditPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 border-b border-slate-700">
+      <div className="flex gap-1 overflow-x-auto scrollbar-hide border-b border-slate-700">
         {(
           [
             { value: 'library', label: t('common.audit.page.tabs.library', 'Audit Library'), count: 0 },
@@ -217,7 +217,7 @@ export function AuditPage() {
           <button
             key={tabItem.value}
             onClick={() => setTab(tabItem.value)}
-            className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
               tab === tabItem.value
                 ? 'border-blue-500 text-white'
                 : 'border-transparent text-slate-400 hover:text-slate-200'

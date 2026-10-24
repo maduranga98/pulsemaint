@@ -162,16 +162,16 @@ export function RequestsQueue() {
           ))}
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-3 items-start">
+        <div className="flex gap-4 overflow-x-auto pb-3 items-start snap-x snap-mandatory sm:snap-none">
           {tabs.map((tab) => {
             const cards = itemsForTab(tab.id);
             return (
-              <section key={tab.id} className="shrink-0 w-[85vw] sm:w-80 rounded-xl bg-gray-50 border border-gray-200">
+              <section key={tab.id} className="shrink-0 snap-start w-[85vw] sm:w-80 rounded-xl bg-gray-50 border border-gray-200">
                 <header className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-200">
                   <h2 className="text-sm font-semibold text-gray-700 capitalize">{t(tab.labelKey)}</h2>
                   <span className="text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full px-2 py-0.5">{cards.length}</span>
                 </header>
-                <div className="p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+                <div className="p-3 space-y-3 sm:max-h-[70vh] sm:overflow-y-auto">
                   {cards.length === 0 ? (
                     <div className="py-8 text-center">
                       <InboxIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
