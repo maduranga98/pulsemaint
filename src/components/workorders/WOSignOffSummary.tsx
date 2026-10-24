@@ -3,6 +3,7 @@ import { FileText, Paperclip } from 'lucide-react';
 import type { WorkOrder } from '../../types/workOrder';
 import type { WorkPermit } from '../../types/safety';
 import { getCompanyCurrency } from '@/lib/currency';
+import { safeExternalUrl } from '@/lib/safeUrl';
 
 interface Props {
   workOrder: WorkOrder;
@@ -194,6 +195,63 @@ export function WOSignOffSummary({ workOrder: wo, permits }: Props) {
       {(wo.rootCause || wo.rootCauseDescription) && (
         <Section title={d('techRca', 'Root cause (entered by supervisor)')}>
           <p className="text-sm text-[#F0F4F8]">{wo.rootCause?.replace(/_/g, ' ')}{wo.rootCauseDescription ? ` — ${wo.rootCauseDescription}` : ''}</p>
+        </Section>
+      )}
+
+      {(wo.extensions ?? []).length > 0 && (
+        <Section title={d('extensionsTitle', 'Extension (added before sign-off)')}>
+          <div className="space-y-4">
+            {(wo.extensions ?? []).map((ext) => (
+              <div key={ext.woId} className="rounded-lg border border-[#1E3A5F] p-3 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-[#F0F4F8]">{ext.woNumber}</p>
+                  <span className="text-xs text-[#8BA3BF]">
+                    {d('signedOffBy', 'Signed off by')} {ext.signedOffByName || '—'} · {fmt(ext.signedOffAt)}
+                  </span>
+                </div>
+                {ext.reason && <p className="text-sm text-[#F0F4F8]">{d('extensionReason', 'Why it was extended')}: {ext.reason}</p>}
+                {ext.checklist.length > 0 && (
+                  <ul className="text-sm space-y-0.5 text-[#F0F4F8]">
+                    {ext.checklist.map((c, i) => (
+                      <li key={i}>
+                        {c.isCompleted ? '☑' : '☐'} {c.stepDescription}
+                        {c.completedByName ? <span className="text-xs text-[#8BA3BF]"> · {c.completedByName}</span> : null}
+                        {c.completionNote ? <span className="text-xs text-[#8BA3BF]"> — {c.completionNote}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {ext.workDoneDescription && <p className="text-sm text-[#F0F4F8]">{ext.workDoneDescription}</p>}
+                <p className="text-xs text-[#8BA3BF]">
+                  {ext.assignedTechnicianNames.join(', ')}
+                  {ext.totalDurationMinutes != null ? ` · ${mins(ext.totalDurationMinutes)}` : ''}
+                  {ext.outcome ? ` · ${d(`outcome.${ext.outcome}`, ext.outcome.replace('_', ' '))}` : ''}
+                </p>
+                {ext.outcomeReason && <p className="text-xs text-[#8BA3BF]">{ext.outcomeReason}</p>}
+                {ext.partsUsed.length > 0 && (
+                  <p className="text-xs text-[#8BA3BF]">
+                    {d('parts', 'Parts')}: {ext.partsUsed.map((p) => `${p.partName ?? ''} × ${p.quantity ?? ''}`.trim()).join(', ')}
+                  </p>
+                )}
+                {ext.documents.length > 0 && (
+                  <ul className="text-sm space-y-0.5">
+                    {ext.documents.map((doc, i) => {
+                      const href = safeExternalUrl(doc.url);
+                      return (
+                        <li key={i}>
+                          {href ? (
+                            <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#93C5FD] hover:underline">
+                              <Paperclip className="w-3.5 h-3.5" />{doc.name}
+                            </a>
+                          ) : doc.name}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
         </Section>
       )}
 

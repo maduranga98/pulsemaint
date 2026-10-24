@@ -14,6 +14,7 @@ import { useAuthStore } from '../store/authStore';
 import { useDepartmentScope } from './useDepartmentScope';
 import { useRecordPlantMatcher } from './useRecordPlantMatcher';
 import { plantConstraints } from '../lib/plantQuery';
+import { isMergedExtension } from '../lib/workOrderExtension';
 
 interface UseWorkOrdersResult {
   workOrders: WorkOrder[];
@@ -77,7 +78,11 @@ export function useWorkOrders(filters?: WOFilters): UseWorkOrdersResult {
     const unsubscribe = onSnapshot(
       q,
       (snap) => {
-        let results = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as WorkOrder));
+        // A signed-off extension WO is folded into the WO it extends, which
+        // lists as the single "Extended WO" — so the extension itself is hidden.
+        let results = snap.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() } as WorkOrder))
+          .filter((wo) => !isMergedExtension(wo));
 
         // Client-side date filters (Firestore compound index limitation)
         if (filters?.dateFrom) {

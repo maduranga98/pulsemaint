@@ -13,10 +13,13 @@ import { WOCompletionForm } from './WOCompletionForm';
 import { WOSignOffForm } from './WOSignOffForm';
 import { WOSignOffSummary } from './WOSignOffSummary';
 import { WOApprovalRequests } from './WOApprovalRequests';
+import { ExtendWODialog } from './ExtendWODialog';
 import { ChecklistExecutor } from './ChecklistExecutor';
 import { LotoGate } from './LotoGate';
 import { WorkPermitDetails } from './WorkPermitDetails';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
+import { useWorkOrderDetail } from '../../hooks/useWorkOrderDetail';
+import { canExtendWorkOrder, isAwaitingExtension } from '../../lib/workOrderExtension';
 import { useWorkOrderPermit } from '../../hooks/safety/useSafety';
 import { useMyWorkCompletion, allAssigneesCompleted } from '../../hooks/useMyWorkCompletion';
 import { buildTechnicianWorkLogs } from '../../lib/workorders/technicianWorkLogs';
@@ -51,6 +54,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
   const [showSignOff, setShowSignOff] = useState(initialSignOff && workOrder.status === 'COMPLETED');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showExtend, setShowExtend] = useState(false);
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
   const [linkedBreakdowns, setLinkedBreakdowns] = useState<Breakdown[]>([]);
 
@@ -67,6 +71,10 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
     workOrder.id,
     workOrder.workPermitId,
   );
+
+  // The open extension (if any) — gives its WO number and, while it is being
+  // worked, blocks signing this work order off.
+  const { workOrder: extensionWo } = useWorkOrderDetail(workOrder.activeExtensionWoId);
 
   const isSupervisor = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'].includes(role);
   const isTechnician = role === 'technician';
@@ -232,7 +240,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
               <div className="flex items-center gap-2 flex-wrap mb-1">
                 <WOTypeBadge woType={workOrder.woType} size="sm" />
                 <PriorityBadge priority={workOrder.priority} size="sm" />
-                <WOStatusBadge status={workOrder.status} size="sm" />
+                <WOStatusBadge status={workOrder.status} size="sm" extended={!!workOrder.isExtended} />
               </div>
               <h1 className="font-bold text-xl text-gray-900">{workOrder.woNumber || ''}</h1>
               <p className="text-sm text-gray-600 truncate">
@@ -286,6 +294,22 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                   onCompleted={() => setShowCompletionForm(false)}
                   onCancel={() => setShowCompletionForm(false)}
                 />
+              )}
+
+              {/* Extended WO — link to the open extension / the WO this extends */}
+              {(workOrder.activeExtensionWoId || workOrder.extensionOfWoId) && (
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+                  {workOrder.extensionOfWoId
+                    ? t('common.workOrders.extension.isExtensionBanner', {
+                        defaultValue: 'Extension of {{wo}}{{reason}}. Once signed off it joins that work order.',
+                        wo: workOrder.extensionOfWoNumber || '',
+                        reason: workOrder.extensionReason ? ` — ${workOrder.extensionReason}` : '',
+                      })
+                    : t('common.workOrders.extension.openBanner', {
+                        defaultValue: 'Extension {{wo}} is open. This work order can be signed off once the extension is done.',
+                        wo: extensionWo?.woNumber || '',
+                      })}
+                </div>
               )}
 
               {/* Sign-off panel */}
@@ -941,6 +965,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
           )}
 
           {/* Cancel confirm */}
+          {showExtend && (
+            <ExtendWODialog workOrder={workOrder} onClose={() => setShowExtend(false)} />
+          )}
           {showCancelConfirm && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
               <p className="text-sm font-medium text-red-800">{t('common.workOrders.detailPanel.cancelWOConfirm')}</p>
@@ -1004,7 +1031,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                 <button
                   type="button"
                   onClick={() => { setActiveTab('overview'); setShowSignOff(true); }}
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
+                  disabled={isAwaitingExtension(workOrder)}
+                  title={isAwaitingExtension(workOrder)
+                    ? t('common.workOrders.extension.signOffBlocked', { defaultValue: 'Finish and sign off the extension first' })
+                    : undefined}
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('common.workOrders.detailPanel.signOffCloseButton')}
                 </button>
@@ -1020,6 +1051,15 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                   {everyoneDone
                     ? t('common.workOrders.copy.completeButton')
                     : t('common.workOrders.detailPanel.awaitingTeam', { done: completedAssigneeCount, total: totalAssignees })}
+                </button>
+              )}
+              {canExtendWorkOrder(workOrder) && (
+                <button
+                  type="button"
+                  onClick={() => setShowExtend(true)}
+                  className="flex-1 min-w-fit px-3 py-2 text-sm border border-blue-200 text-blue-700 rounded-lg hover:bg-blue-50"
+                >
+                  {t('common.workOrders.extension.extendButton', { defaultValue: 'Extend WO' })}
                 </button>
               )}
               {!['CLOSED', 'CANCELLED', 'SIGNED_OFF'].includes(workOrder.status) && (

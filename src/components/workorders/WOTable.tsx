@@ -85,7 +85,7 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
                     {wo.assignedTechnicianNames.join(', ') || ''}
                   </td>
                   <td className="px-4 py-3">
-                    <WOStatusBadge status={wo.status} size="sm" />
+                    <WOStatusBadge status={wo.status} size="sm" extended={!!wo.isExtended} />
                   </td>
                   {showActionColumn && (
                     <td className="px-4 py-3">

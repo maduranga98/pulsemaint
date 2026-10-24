@@ -238,6 +238,27 @@ export interface WOStatusHistoryEntry {
   note: string | null;
 }
 
+/** What a signed-off extension WO added to the WO it extends. */
+export interface WOExtensionRecord {
+  woId: string;
+  woNumber: string;
+  reason: string;
+  /** The extra tasks, with their completion state. */
+  checklist: ChecklistItem[];
+  /** Extra attachments uploaded on the extension. */
+  documents: WODocument[];
+  workDoneDescription: string | null;
+  partsUsed: PartUsed[];
+  assignedTechnicianNames: string[];
+  actualStartTime: Timestamp | null;
+  actualEndTime: Timestamp | null;
+  totalDurationMinutes: number | null;
+  outcome: WOSignOffOutcome | null;
+  outcomeReason: string | null;
+  signedOffByName: string;
+  signedOffAt: Timestamp | null;
+}
+
 // ---------------------------------------------------------------------------
 // Main WorkOrder Interface
 // ---------------------------------------------------------------------------
@@ -292,6 +313,25 @@ export interface WorkOrder {
   // Set on the origin WO once a follow-up has been raised from it.
   followUpWoId?: string | null;
   followUpWoNumber?: string | null;
+
+  // Extended WO — an unfinished (or overdue) WO that is extended, before it is
+  // signed off, with a second WO on the same ticket carrying extra tasks and
+  // attachments. The extension WO is worked like any other; once it is signed
+  // off it is merged into this WO (see `extensions`) and hidden from the lists,
+  // so the pair closes as a single "Extended WO".
+  /** On the extension WO: the WO it extends. */
+  extensionOfWoId?: string | null;
+  extensionOfWoNumber?: string | null;
+  extensionReason?: string | null;
+  /** On the extension WO once it is signed off and folded into its parent. */
+  mergedIntoWoId?: string | null;
+  /** On the extended WO while its extension is still being worked. */
+  activeExtensionWoId?: string | null;
+  activeExtensionWoNumber?: string | null;
+  /** On the extended WO: true once an extension has been merged into it. */
+  isExtended?: boolean;
+  /** On the extended WO: everything its signed-off extensions added. */
+  extensions?: WOExtensionRecord[];
 
   // Assignment
   supervisorInChargeId: string;
@@ -452,6 +492,11 @@ export interface CreateWOPayload {
   // distinct from `documents` (new File uploads), since these already have a
   // storage URL and don't need re-uploading.
   copyExistingDocuments?: WODocument[];
+  // Set when raising an extension WO from an unfinished WO (see
+  // WorkOrder.extensionOfWoId) — links it to the WO it extends.
+  extensionOfWoId?: string | null;
+  extensionOfWoNumber?: string | null;
+  extensionReason?: string | null;
 
   machineId: string;
   machineName: string;

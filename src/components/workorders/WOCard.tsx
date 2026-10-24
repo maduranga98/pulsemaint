@@ -33,7 +33,7 @@ export function WOCard({ workOrder, onClick }: WOCardProps) {
             </span>
           )}
         </div>
-        <WOStatusBadge status={workOrder.status} size="sm" />
+        <WOStatusBadge status={workOrder.status} size="sm" extended={!!workOrder.isExtended} />
       </div>
 
       {/* WO Number + Machine */}
