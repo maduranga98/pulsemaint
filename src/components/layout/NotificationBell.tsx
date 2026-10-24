@@ -139,17 +139,17 @@ export default function NotificationBell() {
         // `position: fixed` escapes ancestor overflow/scroll clipping
         // entirely, anchoring purely to the viewport.
         <div
-          className="fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto scrollbar-hide bg-white rounded-xl shadow-xl border border-slate-200 z-50"
+          className="fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto scrollbar-hide bg-[#0F1E35] rounded-xl shadow-2xl shadow-black/50 border border-[#1E3A5F] z-50"
           style={isDesktop ? desktopStyle : undefined}
         >
-          <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-900">{t('common.ui.notifications.title')}</p>
+          <div className="px-4 py-3 border-b border-[#1E3A5F] flex items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-[#F0F4F8]">{t('common.ui.notifications.title')}</p>
             <div className="flex items-center gap-2">
               {isDeviceNotificationSupported() && (
                 <button
                   type="button"
                   onClick={toggleSound}
-                  className="p-1 rounded text-slate-400 hover:text-slate-600"
+                  className="p-1 rounded text-[#8BA3BF] hover:text-[#F0F4F8]"
                   aria-label={soundOn ? t('common.ui.notifications.mute') : t('common.ui.notifications.unmute')}
                   title={soundOn ? t('common.ui.notifications.soundOn') : t('common.ui.notifications.soundOff')}
                 >
@@ -160,7 +160,7 @@ export default function NotificationBell() {
                 <button
                   type="button"
                   onClick={handleReadAll}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-[#60A5FA] hover:text-[#93C5FD]"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
                   {t('common.ui.notifications.markAllRead')}
@@ -172,14 +172,14 @@ export default function NotificationBell() {
             <button
               type="button"
               onClick={handleEnableDeviceNotifications}
-              className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border-b border-blue-100 transition-colors"
+              className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-[#93C5FD] bg-[#1A56DB]/15 hover:bg-[#1A56DB]/25 border-b border-[#1E3A5F] transition-colors"
             >
               <BellRing className="w-3.5 h-3.5 shrink-0" />
               {t('common.ui.notifications.enableDevice')}
             </button>
           )}
           {notifications.length === 0 && alerts.length === 0 ? (
-            <p className="text-center py-10 text-sm text-slate-400">{t('common.ui.notifications.allCaughtUp')}</p>
+            <p className="text-center py-10 text-sm text-[#8BA3BF]">{t('common.ui.notifications.allCaughtUp')}</p>
           ) : (
             <>
               {/* Real, timestamped notifications (already newest-first) come
@@ -188,7 +188,7 @@ export default function NotificationBell() {
                   bell, ahead of the state-derived "Needs attention" alerts
                   below, which have no timestamp of their own to sort by. */}
               {notifications.length > 0 && (
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-[#1E3A5F]">
                   {/* Everything listed is unread by definition — opening a
                       notification marks it read, which removes it from the bar. */}
                   {notifications.slice(0, 30).map((n) => {
@@ -197,19 +197,19 @@ export default function NotificationBell() {
                       <button
                         key={n.id}
                         onClick={() => handleItemClick(n)}
-                        className="w-full flex items-start gap-3 px-4 py-3 text-left bg-blue-50/50 hover:bg-slate-50 transition-colors"
+                        className="w-full flex items-start gap-3 px-4 py-3 text-left bg-[#1A56DB]/10 hover:bg-[#142849] transition-colors"
                       >
-                        <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[n.severity] ?? 'text-slate-400'}`} />
+                        <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[n.severity] ?? 'text-[#8BA3BF]'}`} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm leading-snug text-slate-900 font-medium">
+                          <p className="text-sm leading-snug text-[#F0F4F8] font-medium">
                             {notificationDisplayMessage(n, userProfile.role, userProfile.id)}
                           </p>
-                          <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
+                          <p className="text-xs text-[#8BA3BF] mt-0.5 flex items-center gap-1.5">
                             {n.plantId && plantNames.get(n.plantId) && (
-                              <span className="rounded bg-blue-100 px-1.5 py-px text-[10px] font-semibold text-blue-700">{plantNames.get(n.plantId)}</span>
+                              <span className="rounded bg-[#1A56DB]/25 px-1.5 py-px text-[10px] font-semibold text-[#93C5FD]">{plantNames.get(n.plantId)}</span>
                             )}
                             {(n.department || n.actorDepartment) && (
-                              <span className="rounded bg-slate-100 px-1.5 py-px text-[10px] font-semibold text-slate-600">{n.department || n.actorDepartment}</span>
+                              <span className="rounded bg-[#142849] px-1.5 py-px text-[10px] font-semibold text-[#B8C7DB]">{n.department || n.actorDepartment}</span>
                             )}
                             {relativeTime(n.timestamp)}
                           </p>
@@ -224,15 +224,15 @@ export default function NotificationBell() {
                   shown to the roles that own them. They clear automatically once
                   the underlying condition is resolved. */}
               {alerts.length > 0 && (
-                <div className="divide-y divide-amber-100 bg-amber-50/40">
-                  <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                <div className="divide-y divide-[#1E3A5F] bg-[#F59E0B]/10">
+                  <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#FBBF24]">
                     {t('common.ui.notifications.needsAttention')}
                   </p>
                   {alerts.slice(0, 30).map((a) => {
                     const Icon = ICON_MAP[a.type] ?? Bell;
                     return (
-                      <div key={a.id} className="w-full flex items-start gap-3 px-4 py-3 hover:bg-amber-50 transition-colors">
-                        <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[a.severity] ?? 'text-slate-400'}`} />
+                      <div key={a.id} className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[#F59E0B]/15 transition-colors">
+                        <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[a.severity] ?? 'text-[#8BA3BF]'}`} />
                         <button
                           onClick={() => {
                             setOpen(false);
@@ -240,11 +240,11 @@ export default function NotificationBell() {
                           }}
                           className="flex-1 min-w-0 text-left"
                         >
-                          <p className="text-sm leading-snug text-slate-900 font-medium">{a.message}</p>
+                          <p className="text-sm leading-snug text-[#F0F4F8] font-medium">{a.message}</p>
                         </button>
                         <button
                           onClick={() => setDismissed((prev) => new Set(prev).add(a.id))}
-                          className="text-slate-300 hover:text-slate-500 text-xs shrink-0"
+                          className="text-[#8BA3BF] hover:text-[#F0F4F8] text-xs shrink-0"
                           aria-label={t('common.ui.notifications.dismiss')}
                         >
                           ✕
