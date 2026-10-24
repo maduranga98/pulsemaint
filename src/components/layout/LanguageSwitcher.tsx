@@ -13,7 +13,7 @@ export default function LanguageSwitcher() {
       value={i18n.language}
       onChange={(e) => setAppLanguage(e.target.value as AppLanguage)}
       aria-label={t('common.language')}
-      className="bg-[#142849] border border-[#1E3A5F] text-[#D5DEEA] text-[12px] rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1A56DB] hover:bg-[#1E3A5F] transition-colors"
+      className="w-[88px] sm:w-auto min-h-9 truncate bg-[#142849] border border-[#1E3A5F] text-[#D5DEEA] text-[12px] rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1A56DB] hover:bg-[#1E3A5F] transition-colors"
     >
       {SUPPORTED_LANGUAGES.map((l) => (
         <option key={l.code} value={l.code}>
