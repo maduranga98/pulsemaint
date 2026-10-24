@@ -28,6 +28,8 @@ import DashboardSidePanel from '../../components/dashboard/shared/DashboardSideP
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
+import { isWoWorkStarted } from '../../lib/machineWorkState';
+import { usePlants } from '../../hooks/usePlants';
 
 // This dashboard always shows live, current-month figures — the trend
 // charts, heatmaps, and per-machine/contractor breakdowns that used to
@@ -55,8 +57,10 @@ export default function ManagerDashboard() {
   // the plant tab (null = All Plants).
   const { plantId } = useDepartmentScope();
 
-  const { count: todayBreakdowns } = useActiveBreakdowns(siteId);
-  const { count: todayWorkOrders } = useOpenWorkOrders(siteId);
+  const { breakdowns: activeBreakdowns, count: todayBreakdowns } = useActiveBreakdowns(siteId);
+  const { workOrders: openWorkOrders, count: todayWorkOrders } = useOpenWorkOrders(siteId);
+  const unassignedBreakdowns = activeBreakdowns.filter((b) => (b.assignedTechnicianIds ?? []).length === 0).length;
+  const startedWorkOrders = openWorkOrders.filter((w) => isWoWorkStarted(w.status)).length;
 
   const months = useMemo(() => monthsForDashboardRange(RANGE), []);
   const monthsKey = months.join(',');
@@ -82,52 +86,86 @@ export default function ManagerDashboard() {
       label: t('common.dashboard.kpi.totalMaintenances'),
       value: totalMaintenances,
       color: 'cyan' as const,
+      scope: 'mtd' as const,
+      subtitle: t('common.dashboard.kpiSub.maintenances', { defaultValue: 'breakdowns + PM this month' }),
     },
     {
       label: t('common.dashboard.kpi.totalBreakdowns', { range: DASHBOARD_RANGE_LABELS[RANGE] }),
       value: monthly?.totalBreakdowns ?? 0,
       color: 'blue' as const,
+      scope: 'mtd' as const,
+      subtitle: t('common.dashboard.kpiSub.thisMonth', { defaultValue: 'this month' }),
     },
     {
       label: t('common.dashboard.kpi.todayBreakdowns'),
       value: todayBreakdowns,
       color: activeBreakdownColor(todayBreakdowns),
+      scope: 'today' as const,
+      subtitle: unassignedBreakdowns > 0
+        ? t('common.dashboard.kpiSub.unassigned', { count: unassignedBreakdowns, defaultValue: '{{count}} unassigned' })
+        : undefined,
+      subtitleTone: 'red' as const,
     },
     {
       label: t('common.dashboard.kpi.todayWorkOrders'),
       value: todayWorkOrders,
       color: openWoColor(todayWorkOrders),
+      scope: 'today' as const,
+      subtitle: todayWorkOrders > 0
+        ? t('common.dashboard.kpiSub.startedSplit', {
+            started: startedWorkOrders,
+            notStarted: todayWorkOrders - startedWorkOrders,
+            defaultValue: '{{started}} started · {{notStarted}} not started',
+          })
+        : undefined,
+      subtitleTone: 'amber' as const,
     },
     {
       label: t('common.dashboard.kpi.mttr', { range: DASHBOARD_RANGE_LABELS[RANGE] }),
       value: (monthly?.avgMttrHours ?? 0).toFixed(1),
       unit: 'hrs',
       color: complianceColor(monthly?.avgMttrHours ? 100 - monthly.avgMttrHours * 10 : 100),
+      scope: 'mtd' as const,
+      subtitle: t('common.dashboard.kpiSub.avgRepair', { defaultValue: 'average repair time' }),
     },
     {
       label: t('common.dashboard.kpi.pmCompliance'),
       value: Math.round(monthly?.pmComplianceRate ?? 0),
       unit: '%',
       color: complianceColor(monthly?.pmComplianceRate ?? 0),
+      scope: 'mtd' as const,
+      subtitle: (monthly?.pmMissed ?? 0) > 0
+        ? t('common.dashboard.kpiSub.pmOverdue', { count: monthly?.pmMissed ?? 0, defaultValue: '{{count}} overdue' })
+        : undefined,
+      subtitleTone: 'red' as const,
     },
   ];
 
+  const { plants } = usePlants(companyId);
+  const scopeName = plantId
+    ? plants.find((pl) => pl.id === plantId)?.name ?? ''
+    : t('common.dashboard.allPlants', { defaultValue: 'All plants' });
+  const dateLine = [
+    new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
+    scopeName,
+  ].filter(Boolean).join(' · ');
+
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="pb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-[#F0F4F8]">{dashboardTitle}</h1>
-          <p className="text-sm text-[#8BA3BF] mt-0.5">
-            {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
-          </p>
-        </div>
+      <div className="pb-4">
+        <p className="text-xs font-medium text-[#8BA3BF]">{dateLine}</p>
+        <h1 className="mt-1 text-xl font-bold text-[#F0F4F8]">{dashboardTitle}</h1>
+        <p className="mt-0.5 text-sm text-[#8BA3BF]">
+          {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
+        </p>
       </div>
 
       <IncompleteDataBanner sources={monthly?.incompleteSources} />
 
       <div className="pb-8 space-y-6">
-        {/* Row 1: KPI Cards — live current-month figures */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        {/* Key numbers: month-to-date and today, each tagged. Two across on a
+            phone, six across on a wide screen. */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
           ))}
@@ -136,48 +174,53 @@ export default function ManagerDashboard() {
         {/* All Plants view: per-plant breakdown so every number has a plant. */}
         <PlantOverviewWidget siteId={siteId} companyId={companyId} />
 
-        {/* Live factory floor: every machine with an open WO or breakdown. */}
-        <FactoryFloorMap companyId={companyId} />
+        {/* Wide screens: main column (2/3) + right rail (1/3). On a phone
+            everything stacks — main column first, then the rail. Only
+            Pending approvals, Need sign-off, Programme sign-off and PO
+            requests carry buttons; every other card is an indication. */}
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6 items-start">
+          <div className="space-y-6 min-w-0">
+            {/* Machines with a breakdown or a started work order. */}
+            <FactoryFloorMap companyId={companyId} />
 
-        {/* PM work orders due today / overdue */}
-        <TodaysPmWidget siteId={siteId} />
+            {/* PM work orders due today / overdue */}
+            <TodaysPmWidget siteId={siteId} />
 
-        {/* Live PO Requests */}
-        <LivePOsWidget />
+            {/* Purchase order requests */}
+            <LivePOsWidget />
 
-        {/* Open (not-closed) Safety Cases + Today's Trainings (safety and general) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <OpenSafetyCasesWidget companyId={companyId} />
-          <TodayTrainingsWidget companyId={companyId} />
-        </div>
-
-        {/* Pending WO approval requests + completed WOs awaiting sign-off —
-            admin/plant_manager get the same widgets as supervisor
-            (SupervisorDashboard), replacing the Work Orders page's
-            "Approval Requests" and "Need Sign-Off" tabs (removed there).
-            Not shown to safety_officer, who shares this dashboard but isn't
-            part of the WO sign-off workflow. */}
-        {(role === 'admin' || role === 'plant_manager') && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <PendingApprovalsWidget />
-            <NeedSignOffWidget />
+            {/* Pending WO approval requests + completed WOs awaiting sign-off —
+                admin/plant_manager get the same widgets as supervisor
+                (SupervisorDashboard), replacing the Work Orders page's
+                "Approval Requests" and "Need Sign-Off" tabs (removed there).
+                Not shown to safety_officer, who shares this dashboard but isn't
+                part of the WO sign-off workflow. */}
+            {(role === 'admin' || role === 'plant_manager') && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <PendingApprovalsWidget />
+                <NeedSignOffWidget />
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Trainees ready for their programme completion sign-off */}
-        <ProgrammeSignOffQueueWidget companyId={companyId} />
+          <div className="space-y-6 min-w-0">
+            <OpenSafetyCasesWidget companyId={companyId} />
+            <TodayTrainingsWidget companyId={companyId} />
 
-        {/* Plant manager's and safety officer's own outstanding trainings —
-            admin doesn't get personal training assignments, so this is
-            scoped to those two roles, replacing their old "My Training"
-            nav tab. */}
-        {(role === 'plant_manager' || role === 'safety_officer') && <MyTrainingsWidget readOnly />}
+            {/* Trainees ready for their programme completion sign-off */}
+            <ProgrammeSignOffQueueWidget companyId={companyId} />
 
-        {/* Who's actually on shift right now. Trend charts, heatmaps,
-            per-machine/contractor breakdowns, SLA, and Safety/Team
-            Performance analytics live exclusively on the Analytics tab —
-            see AnalyticsPage. */}
-        <LiveShiftStatusWidget companyId={companyId} />
+            {/* Plant manager's and safety officer's own outstanding trainings —
+                admin doesn't get personal training assignments, so this is
+                scoped to those two roles, replacing their old "My Training"
+                nav tab. */}
+            {(role === 'plant_manager' || role === 'safety_officer') && <MyTrainingsWidget readOnly />}
+
+            {/* Who is on shift, by department. Trend charts, heatmaps and
+                per-machine/contractor breakdowns live on the Analytics tab. */}
+            <LiveShiftStatusWidget companyId={companyId} />
+          </div>
+        </div>
       </div>
 
       {/* Company admins can't dismiss this until they've rated the system. */}

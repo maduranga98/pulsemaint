@@ -30,6 +30,11 @@ export interface KpiCardData {
   trendPositive?: boolean; // is "up" good or bad for this metric?
   color: 'green' | 'amber' | 'red' | 'cyan' | 'blue';
   sparklineData?: number[]; // last 7 data points for sparkline
+  /** Period tag shown top-right: month-to-date or today. */
+  scope?: 'mtd' | 'today';
+  /** One line under the value, e.g. "3 unassigned". */
+  subtitle?: string;
+  subtitleTone?: 'muted' | 'red' | 'amber';
 }
 
 // ---------------------------------------------------------------------------
