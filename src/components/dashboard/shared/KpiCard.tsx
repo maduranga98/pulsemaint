@@ -37,15 +37,37 @@ export default function KpiCard({ data, onClick }: KpiCardProps) {
         onClick ? 'cursor-pointer' : ''
       }`}
     >
-      <p className="text-[11px] font-medium text-[#8BA3BF] font-[DM_Sans] uppercase tracking-wide leading-snug break-words">
-        {data.label}
-      </p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[11px] font-medium text-[#8BA3BF] font-[DM_Sans] uppercase tracking-wide leading-snug break-words">
+          {data.label}
+        </p>
+        {data.scope && (
+          <span
+            className={`shrink-0 text-[9.5px] font-bold tracking-wider ${
+              data.scope === 'today' ? 'text-[#4ADE80]' : 'text-[#6C87A6]'
+            }`}
+          >
+            {data.scope === 'today'
+              ? t('common.dashboard.kpiScope.today', { defaultValue: 'TODAY' })
+              : t('common.dashboard.kpiScope.mtd', { defaultValue: 'MTD' })}
+          </span>
+        )}
+      </div>
       <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
         <span className={`text-3xl font-bold ${colors.text} leading-none`}>
           {typeof data.value === 'number' ? data.value.toLocaleString() : data.value}
         </span>
         {data.unit && <span className="text-xs text-[#8BA3BF]">{data.unit}</span>}
       </div>
+      {data.subtitle && (
+        <p
+          className={`mt-2 text-xs font-medium ${
+            data.subtitleTone === 'red' ? 'text-[#FCA5A5]' : data.subtitleTone === 'amber' ? 'text-[#FDE68A]' : 'text-[#8BA3BF]'
+          }`}
+        >
+          {data.subtitle}
+        </p>
+      )}
       {data.trend !== undefined && data.trendDirection && (
         <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${trendColor}`}>
           {data.trendDirection === 'up' ? (
