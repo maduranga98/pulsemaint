@@ -19,8 +19,10 @@ import { isBeyondViewWindow } from '../../lib/viewWindow';
 const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
 
 // Board columns, left to right. A WO on hold counts as still in progress, and
-// an assigned WO as open. Signed Off / Closed are only for the roles that may
-// see finished work (`canViewSignedOff`), Cancelled only for admins.
+// an assigned WO as open. Completed holds work every assignee has finished that
+// still needs sign-off; there is no Signed Off column — signed-off work sits in
+// Closed. Closed is only for the roles that may see finished work
+// (`canViewSignedOff`), Cancelled only for admins.
 interface BoardColumn {
   id: string;
   label: string;
@@ -33,8 +35,7 @@ const BOARD_COLUMNS: BoardColumn[] = [
   { id: 'open', label: 'Open', dot: 'bg-blue-500', statuses: ['DRAFT', 'OPEN', 'ASSIGNED'] },
   { id: 'in_progress', label: 'In Progress', dot: 'bg-amber-500', statuses: ['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'] },
   { id: 'completed', label: 'Completed', dot: 'bg-emerald-500', statuses: ['COMPLETED'] },
-  { id: 'signed_off', label: 'Signed Off', dot: 'bg-green-500', statuses: ['SIGNED_OFF'], access: 'finished' },
-  { id: 'closed', label: 'Closed', dot: 'bg-slate-500', statuses: ['CLOSED'], access: 'finished' },
+  { id: 'closed', label: 'Closed', dot: 'bg-slate-500', statuses: ['SIGNED_OFF', 'CLOSED'], access: 'finished' },
   { id: 'cancelled', label: 'Cancelled', dot: 'bg-gray-400', statuses: ['CANCELLED'], access: 'cancelled' },
 ];
 
