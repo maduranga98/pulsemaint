@@ -57,7 +57,6 @@ interface CsvRow {
   nextPmDue: Date | null;
   expectedLifespanYears: number | null;
   purchasePrice: number | null;
-  scrapValue: number | null;
   warrantyItems: CsvWarrantyItem[];
   spareParts: string[];
   modificationNotes: string;
@@ -147,7 +146,6 @@ function parseCsv(text: string, t: TFunction): CsvRow[] {
     const nextPm = parseCsvDate(get('next_pm_date'), t);
     const warranty = parseWarrantyItems(get('warranty_items'), t);
     const purchasePrice = parseCsvAmount(get('purchase_price'));
-    const scrapValue = parseCsvAmount(get('scrap_value'));
     const lifespanRaw = parseCsvAmount(get('expected_lifespan_years'));
     const spareParts = get('spare_parts')
       .split(';')
@@ -168,12 +166,8 @@ function parseCsv(text: string, t: TFunction): CsvRow[] {
       _error = t('common.machines.importModal.errors.field', { field: 'next_pm_date', error: nextPm.error });
     } else if (Number.isNaN(purchasePrice)) {
       _error = t('common.machines.importModal.errors.field', { field: 'purchase_price', error: t('common.machines.asset.errAmounts') });
-    } else if (Number.isNaN(scrapValue)) {
-      _error = t('common.machines.importModal.errors.field', { field: 'scrap_value', error: t('common.machines.asset.errAmounts') });
     } else if (Number.isNaN(lifespanRaw)) {
       _error = t('common.machines.importModal.errors.field', { field: 'expected_lifespan_years', error: t('common.machines.asset.errAmounts') });
-    } else if (purchasePrice != null && scrapValue != null && scrapValue > purchasePrice) {
-      _error = t('common.machines.importModal.errors.field', { field: 'scrap_value', error: t('common.machines.asset.errScrapOverPrice') });
     } else if (warranty.error) _error = warranty.error;
 
     return {
@@ -193,7 +187,6 @@ function parseCsv(text: string, t: TFunction): CsvRow[] {
       nextPmDue: nextPm.date,
       expectedLifespanYears: lifespanRaw != null && !Number.isNaN(lifespanRaw) ? Math.round(lifespanRaw) : null,
       purchasePrice: purchasePrice != null && !Number.isNaN(purchasePrice) ? purchasePrice : null,
-      scrapValue: scrapValue != null && !Number.isNaN(scrapValue) ? scrapValue : null,
       warrantyItems: warranty.items,
       spareParts,
       modificationNotes: get('modification_notes'),
@@ -206,11 +199,11 @@ function parseCsv(text: string, t: TFunction): CsvRow[] {
 function downloadCsvTemplate() {
   const headers =
     'name,type,manufacturer,model,serial_number,department,floor,bay,station,status,criticality,' +
-    'purchase_date,installation_date,next_pm_date,expected_lifespan_years,purchase_price,scrap_value,' +
+    'purchase_date,installation_date,next_pm_date,expected_lifespan_years,purchase_price,' +
     'warranty_items,spare_parts,modification_notes,additional_notes';
   const example =
     'CNC Lathe 01,cnc_machine,Mazak,QUICK TURN 200,SN-001,Production,Ground,A1,01,active,3,' +
-    '2023-05-10,2023-06-01,2026-09-01,10,1500000,150000,"Spindle Motor:2027-01-31:REF-123; Coolant Pump:2026-06-30",' +
+    '2023-05-10,2023-06-01,2026-09-01,10,1500000,"Spindle Motor:2027-01-31:REF-123; Coolant Pump:2026-06-30",' +
     '"Drive Belt; Hydraulic Filter","Upgraded controller in 2024","Runs two shifts daily"';
   const blob = new Blob([headers + '\n' + example], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -322,7 +315,6 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
         expectedLifespanYears: row.expectedLifespanYears,
         // Money details are admin / plant manager only, same as the Add Machine form.
         purchasePrice: canSetAssetValue ? row.purchasePrice : null,
-        scrapValue: canSetAssetValue ? row.scrapValue : null,
         lastServiceDate: null,
         lastServiceType: null,
         lastTechnicians: [],
@@ -436,7 +428,6 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
                             <th key={h} className="px-2 py-2 text-left font-medium text-gray-600">{h}</th>
                           ))}
                           {canSetAssetValue && <th className="px-2 py-2 text-left font-medium text-gray-600">{t('common.machines.asset.purchasePrice')} ({getCompanyCurrency()})</th>}
-                          {canSetAssetValue && <th className="px-2 py-2 text-left font-medium text-gray-600">{t('common.machines.asset.scrapValue')} ({getCompanyCurrency()})</th>}
                         </tr>
                       </thead>
                       <tbody>
@@ -452,7 +443,6 @@ function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
                             <td className="px-2 py-1">{row.criticality}</td>
                             <td className="px-2 py-1 text-red-600">{row._error ?? ''}</td>
                             {canSetAssetValue && <td className="px-2 py-1">{row.purchasePrice != null ? row.purchasePrice.toLocaleString() : ''}</td>}
-                            {canSetAssetValue && <td className="px-2 py-1">{row.scrapValue != null ? row.scrapValue.toLocaleString() : ''}</td>}
                           </tr>
                         ))}
                       </tbody>

@@ -122,8 +122,6 @@ export interface Machine {
 
   // Asset value (admin / plant manager only in the UI)
   purchasePrice?: number | null;
-  /** Expected scrap / salvage value at end of life. */
-  scrapValue?: number | null;
   /** Filled in when the machine is scrapped; the machine and its history stay on record. */
   scrapRecord?: ScrapRecord | null;
 
@@ -166,7 +164,6 @@ export interface CreateMachinePayload {
   nextPmDue: Date | null;
   expectedLifespanYears: number | null;
   purchasePrice?: number | null;
-  scrapValue?: number | null;
   department: string;
   floor: string | null;
   bay: string | null;
@@ -197,7 +194,6 @@ export interface UpdateMachinePayload {
   nextPmDue?: Date | null;
   expectedLifespanYears?: number | null;
   purchasePrice?: number | null;
-  scrapValue?: number | null;
   department?: string;
   floor?: string | null;
   bay?: string | null;

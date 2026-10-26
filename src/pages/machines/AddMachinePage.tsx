@@ -77,7 +77,6 @@ export function AddMachinePage() {
         nextPmDue: formData.nextPmDue || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
         purchasePrice: formData.purchasePrice ?? null,
-        scrapValue: formData.scrapValue ?? null,
         department: formData.department,
         floor: formData.floor || null,
         bay: formData.bay || null,

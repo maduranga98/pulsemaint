@@ -118,7 +118,6 @@ export function MachineForm({
             : null,
           expectedLifespanYears: initialData?.expectedLifespanYears,
           purchasePrice: (initialData as any)?.purchasePrice ?? undefined,
-          scrapValue: (initialData as any)?.scrapValue ?? undefined,
           department: initialData?.department,
           floor: initialData?.floor,
           bay: initialData?.bay,
@@ -552,10 +551,10 @@ function renderFormSection(
             </div>
           </div>
 
-          {/* Purchase price and scrap value are money details: admins and plant managers only. */}
+          {/* Purchase price is a money detail: admins and plant managers only. The expected scrap value is worked out from it. */}
           {['admin', 'plant_manager'].includes(useAuthStore.getState().userProfile?.role ?? '') && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(['purchasePrice', 'scrapValue'] as const).map((name) => (
+              {(['purchasePrice'] as const).map((name) => (
                 <div key={name}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t(`common.machines.asset.${name}`)} ({getCompanyCurrency()})

@@ -99,7 +99,7 @@
       },
       "asset": {
         "title": "Asset value & cost",
-        "body": "Purchase price, scrap value, annual depreciation and current value, plus everything spent on maintenance, so you can decide when to repair or replace."
+        "body": "Purchase price, expected scrap value, annual depreciation and current value, plus everything spent on maintenance, so you can decide when to repair or replace."
       }
     },
     "launcher": {
@@ -3574,7 +3574,7 @@
         "title": "Asset value & cost of ownership",
         "purchasePrice": "Purchase price",
         "scrapValue": "Expected scrap value",
-        "depreciationHint": "Current value is worked out by straight-line depreciation from the purchase date over the expected lifespan (set both on Edit machine).",
+        "depreciationHint": "The expected scrap value is worked out from the purchase price and lifespan (20% under 5 years, 10% for 5–10 years, 5% beyond). Current value falls in a straight line from the price to that scrap value over the expected lifespan (set price, purchase date and lifespan on Edit machine).",
         "currentValue": "Current value",
         "currentValueMissing": "Add price, purchase date and lifespan",
         "outsourcedJobs": "Outsourced jobs (recorded here)",
@@ -3585,7 +3585,6 @@
         "adviceWatch": "Total maintenance spend is approaching half of what this machine cost — keep an eye on it.",
         "adviceReplace": "Consider replacing: what has been spent on maintenance is now very high compared with this machine’s price or current value.",
         "errAmounts": "Amounts must be 0 or more.",
-        "errScrapOverPrice": "Scrap value can’t be more than the purchase price.",
         "scrap": {
           "title": "Scrap {{name}}",
           "intro": "The machine moves to the bottom of the list marked Scrapped. Its history is kept and its active PM schedules are archived (they come back if you undo the scrap).",
@@ -10894,10 +10893,10 @@
           {
             "title": "Record a machine's purchase price and see its value",
             "steps": [
-              "Open Machines and use Add Machine (or Edit on an existing machine). Admins and plant managers see Purchase price and Expected scrap value next to the purchase date and expected lifespan.",
-              "Enter the purchase price and the value you expect when the machine is scrapped. Amounts are in your company currency.",
+              "Open Machines and use Add Machine (or Edit on an existing machine). Admins and plant managers see Purchase price next to the purchase date and expected lifespan.",
+              "Enter the purchase price and the expected lifespan. The expected scrap value is worked out for you: 20% of the price for under 5 years, 10% for 5–10 years, 5% beyond. Amounts are in your company currency.",
               "Open the machine and look at Overview: the Asset value card shows annual depreciation, depreciation so far and the current value, worked out in a straight line over the expected lifespan.",
-              "Adding many machines? Download the CSV template from Import — it has expected_lifespan_years, purchase_price and scrap_value columns.",
+              "Adding many machines? Download the CSV template from Import — it has expected_lifespan_years and purchase_price columns.",
               "The card also adds up what has been spent on maintenance and warns you when repairing costs more than the machine is worth."
             ]
           },

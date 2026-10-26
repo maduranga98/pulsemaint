@@ -2020,7 +2020,6 @@
         "adviceWatch": "Les dépenses de maintenance approchent la moitié du prix de cette machine — à surveiller.",
         "adviceReplace": "Envisagez de la remplacer : les dépenses de maintenance sont très élevées par rapport au prix ou à la valeur actuelle de la machine.",
         "errAmounts": "Les montants doivent être supérieurs ou égaux à 0.",
-        "errScrapOverPrice": "La valeur de rebut ne peut pas dépasser le prix d'achat.",
         "scrap": {
           "title": "Mettre {{name}} au rebut",
           "intro": "La machine passe en bas de la liste, marquée Mise au rebut. Son historique est conservé et ses plannings de MP actifs sont archivés (ils reviennent si vous annulez la mise au rebut).",
@@ -10753,7 +10752,7 @@
               "Ouvrez Machines et utilisez Ajouter une machine (ou Modifier sur une machine existante). Les admins et responsables d'usine voient Prix d'achat et Valeur de rebut attendue à côté de la date d'achat et de la durée de vie prévue.",
               "Saisissez le prix d'achat et la valeur attendue à la mise au rebut. Les montants sont dans la devise de votre entreprise.",
               "Ouvrez la machine et regardez Aperçu : la carte Valeur de l'actif affiche l'amortissement annuel, l'amortissement cumulé et la valeur actuelle, calculés de façon linéaire sur la durée de vie prévue.",
-              "Beaucoup de machines à ajouter ? Téléchargez le modèle CSV depuis Importer : il contient les colonnes expected_lifespan_years, purchase_price et scrap_value.",
+              "Beaucoup de machines à ajouter ? Téléchargez le modèle CSV depuis Importer : il contient les colonnes expected_lifespan_years et purchase_price.",
               "La carte additionne aussi ce qui a été dépensé en maintenance et vous prévient quand réparer coûte plus que la machine ne vaut."
             ]
           },

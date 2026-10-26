@@ -34,35 +34,55 @@ export function outsourcedJobTotals(parts: OutsourcedPart[], labourCost: number)
   return { partsTotal, total: partsTotal + num(labourCost) };
 }
 
+/** Share of the purchase price expected back as scrap, by expected lifespan: the longer a machine runs, the less is left. */
+export function scrapPercentForLifespan(lifespanYears: number): number {
+  if (lifespanYears < 5) return 20;
+  if (lifespanYears <= 10) return 10;
+  return 5;
+}
+
 /**
- * Straight-line book value: falls evenly from the purchase price to the scrap value over the expected
- * lifespan, and never goes below the scrap value. Null when there is not enough data.
+ * Expected scrap value, worked out from the purchase price and expected lifespan (nobody types it):
+ * 20% of the price for under 5 years, 10% for 5-10 years, 5% for over 10 years. Null without price or lifespan.
+ */
+export function expectedScrapValue(opts: {
+  purchasePrice: number | null | undefined;
+  lifespanYears: number | null | undefined;
+}): { value: number; percent: number } | null {
+  const price = num(opts.purchasePrice);
+  const years = num(opts.lifespanYears);
+  if (!price || !years) return null;
+  const percent = scrapPercentForLifespan(years);
+  return { value: Math.round((price * percent) / 100), percent };
+}
+
+/**
+ * Straight-line book value: falls evenly from the purchase price to the expected scrap value over the
+ * expected lifespan, and never goes below the scrap value. Null when there is not enough data.
  */
 export function bookValue(opts: {
   purchasePrice: number | null | undefined;
-  scrapValue?: number | null;
   purchasedAtMs: number | null | undefined;
   lifespanYears: number | null | undefined;
   now?: number;
 }): number | null {
   const price = num(opts.purchasePrice);
-  if (!price || !opts.purchasedAtMs || !num(opts.lifespanYears)) return null;
-  const salvage = Math.min(num(opts.scrapValue), price);
+  const scrap = expectedScrapValue(opts);
+  if (!price || !opts.purchasedAtMs || !scrap) return null;
   const ageYears = Math.max(0, ((opts.now ?? Date.now()) - opts.purchasedAtMs) / MS_PER_YEAR);
   const fraction = Math.min(1, ageYears / (opts.lifespanYears as number));
-  return Math.round(price - (price - salvage) * fraction);
+  return Math.round(price - (price - scrap.value) * fraction);
 }
 
-/** Straight-line depreciation per year: (price - scrap value) / lifespan. Null without price or lifespan. */
+/** Straight-line depreciation per year: (price - expected scrap value) / lifespan. Null without price or lifespan. */
 export function annualDepreciation(opts: {
   purchasePrice: number | null | undefined;
-  scrapValue?: number | null;
   lifespanYears: number | null | undefined;
 }): number | null {
   const price = num(opts.purchasePrice);
-  if (!price || !num(opts.lifespanYears)) return null;
-  const salvage = Math.min(num(opts.scrapValue), price);
-  return Math.round((price - salvage) / (opts.lifespanYears as number));
+  const scrap = expectedScrapValue(opts);
+  if (!price || !scrap) return null;
+  return Math.round((price - scrap.value) / (opts.lifespanYears as number));
 }
 
 /** Depreciation written off so far (price minus current book value) and its share of the price, 0-100. */
