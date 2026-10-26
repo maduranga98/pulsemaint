@@ -761,7 +761,7 @@ describe('sales managers (custom claim salesManager) reach only the sales part o
     const sm = as('sm1', { salesManager: true });
     await assertSucceeds(setDoc(doc(sm, 'platformLeads/l1'), lead));
     await assertSucceeds(getDoc(doc(sm, 'platformLeads/l1')));
-    await assertSucceeds(setDoc(doc(sm, 'platformTodos/t1'), { kind: 'task', title: 'Call', done: false }));
+    await assertSucceeds(setDoc(doc(sm, 'platformTodos/t1'), { kind: 'task', title: 'Call', done: false, createdBy: 'sm1' }));
     await assertSucceeds(setDoc(doc(sm, 'platformCounters/leads'), { next: 2 }));
     await assertSucceeds(setDoc(doc(sm, 'platformFeatureRequests/f1'), { type: 'feature', status: 'requested', title: 'x' }));
   });
@@ -786,5 +786,35 @@ describe('sales managers (custom claim salesManager) reach only the sales part o
   });
   it('nobody can write the roster from a client', async () => {
     await assertFails(setDoc(doc(as('root', { superadmin: true }), 'platformSalesManagers/sm1'), { name: 'x' }));
+  });
+});
+
+describe('sales manager to-dos and feature requests are limited', () => {
+  const todo = (uid) => ({ kind: 'reminder', title: 'Call back', done: false, createdBy: uid });
+  it('a sales manager reads, ticks off (deletes) and creates only their own reminders', async () => {
+    const sm = as('sm1', { salesManager: true });
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'platformTodos/mine'), todo('sm1'));
+      await setDoc(doc(ctx.firestore(), 'platformTodos/theirs'), todo('root'));
+      await setDoc(doc(ctx.firestore(), 'platformTodos/test'), { ...todo('root'), kind: 'testing' });
+    });
+    await assertSucceeds(getDoc(doc(sm, 'platformTodos/mine')));
+    await assertSucceeds(getDocs(query(collection(sm, 'platformTodos'), where('createdBy', '==', 'sm1'))));
+    await assertFails(getDoc(doc(sm, 'platformTodos/theirs')));
+    await assertFails(getDocs(collection(sm, 'platformTodos')));
+    await assertSucceeds(setDoc(doc(sm, 'platformTodos/new1'), todo('sm1')));
+    await assertFails(setDoc(doc(sm, 'platformTodos/new2'), todo('someoneElse')));
+    await assertFails(setDoc(doc(sm, 'platformTodos/new3'), { ...todo('sm1'), kind: 'testing' }));
+    await assertFails(deleteDoc(doc(sm, 'platformTodos/theirs')));
+    await assertSucceeds(deleteDoc(doc(sm, 'platformTodos/mine')));
+    await assertSucceeds(getDoc(doc(as('root', { superadmin: true }), 'platformTodos/theirs')));
+  });
+  it('a sales manager can raise a request but not change or delete one', async () => {
+    const sm = as('sm1', { salesManager: true });
+    const fr = { type: 'bug', status: 'requested', title: 'x' };
+    await assertSucceeds(setDoc(doc(sm, 'platformFeatureRequests/f9'), fr));
+    await assertFails(updateDoc(doc(sm, 'platformFeatureRequests/f9'), { status: 'closed' }));
+    await assertFails(deleteDoc(doc(sm, 'platformFeatureRequests/f9')));
+    await assertSucceeds(updateDoc(doc(as('root', { superadmin: true }), 'platformFeatureRequests/f9'), { status: 'closed' }));
   });
 });

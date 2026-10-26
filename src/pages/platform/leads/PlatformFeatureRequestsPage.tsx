@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { featureTabFrom } from '@/lib/platform/subNav';
+import { useSalesOnly } from '@/lib/platform/useSuperadmin';
 import { Link } from 'react-router-dom';
 import { Building2, Bug, CheckCircle2, CircleCheck, Lightbulb, ListTodo, PhoneCall, Play, Plus, Trash2, X } from 'lucide-react';
 import type { Lead } from '@/lib/platform/leads';
@@ -29,6 +30,7 @@ export default function PlatformFeatureRequestsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [error, setError] = useState('');
   // Features and bugs live in their own tabs.
+  const { salesOnly } = useSalesOnly();
   const [params, setParams] = useSearchParams();
   const type: FeatureRequestType = featureTabFrom(`?${params.toString()}`);
   const setType = (v: FeatureRequestType) => setParams({ tab: v }, { replace: true });
@@ -46,7 +48,7 @@ export default function PlatformFeatureRequestsPage() {
   }, []);
   useEffect(() => subscribeLeads(setLeads, () => {}), []);
 
-  const filtered = useMemo(() => (rows ?? []).filter((r) => r.type === type && (!status || r.status === status)), [rows, type, status]);
+  const filtered = useMemo(() => (rows ?? []).filter((r) => r.type === type && (!status || r.status === status) && (!salesOnly || r.status !== 'closed')), [rows, type, status, salesOnly]);
   // Still-open requests per tab, shown as a count on the tab.
   const openCount = useMemo(() => {
     const n: Record<FeatureRequestType, number> = { feature: 0, bug: 0 };
@@ -64,7 +66,7 @@ export default function PlatformFeatureRequestsPage() {
     <div className="mx-auto max-w-4xl">
       <PageHeader
         title="Feature requests & bugs"
-        subtitle="Features and bugs have their own tabs — raised from here, from a customer's call, or from testing. Closing hands it to Testing in the To-Do list; ticking that to-do closes the request."
+        subtitle={salesOnly ? 'Open features and bugs, with their progress. A request disappears from here once it is fixed.' : "Features and bugs have their own tabs — raised from here, from a customer's call, or from testing. Closing hands it to Testing in the To-Do list; ticking that to-do closes the request."}
         actions={<button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setCreating(true)}><Plus className="h-4 w-4" /> New request</button>}
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
@@ -82,7 +84,7 @@ export default function PlatformFeatureRequestsPage() {
           </button>
         ))}
       </div>
-      <div className="mb-4 flex flex-wrap gap-1.5">
+      <div className={`mb-4 flex-wrap gap-1.5 ${salesOnly ? 'hidden' : 'flex'}`}>
         {([['', 'All statuses'], ...FEATURE_REQUEST_STATUSES.map((s) => [s, FEATURE_STATUS_LABEL[s]])] as [typeof status, string][]).map(([v, l]) => (
           <Chip key={l} on={status === v} onClick={() => setStatus(v)}>{l}</Chip>
         ))}
@@ -105,13 +107,13 @@ export default function PlatformFeatureRequestsPage() {
                     <span>{fmtDate(r.createdAt)}{r.createdByEmail && ` · ${r.createdByEmail}`}</span>
                     {r.leadId && <Link to={`/platform/leads?lead=${r.leadId}`} className="inline-flex items-center gap-1 text-sky-300!"><PhoneCall className="h-3 w-3" />{r.leadName}</Link>}
                     {r.companyId && <Link to={`/platform/companies/${r.companyId}`} className="inline-flex items-center gap-1 text-sky-300!"><Building2 className="h-3 w-3" />{r.companyName}</Link>}
-                    {(r.status === 'testing' || r.status === 'closed') && (
+                    {!salesOnly && (r.status === 'testing' || r.status === 'closed') && (
                       <Link to={`/platform/todos?tab=${r.status === 'closed' ? 'done' : 'open'}`} className="inline-flex items-center gap-1 text-emerald-300!"><ListTodo className="h-3 w-3" />Testing to-do</Link>
                     )}
-                    {r.howToTest && <span className="text-slate-400">How to test: {r.howToTest}</span>}
+                    {!salesOnly && r.howToTest && <span className="text-slate-400">How to test: {r.howToTest}</span>}
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-1 text-slate-400">
+                {!salesOnly && <div className="flex shrink-0 items-center gap-1 text-slate-400">
                   {r.status === 'requested' && (
                     <button title="Start — move to In progress" disabled={busyId === r.id} className="rounded p-1.5 text-amber-300 hover:bg-slate-800 disabled:opacity-50" onClick={() => void start(r)}>
                       <Play className="h-4 w-4" />
@@ -126,7 +128,7 @@ export default function PlatformFeatureRequestsPage() {
                   <button title="Delete" className="rounded p-1.5 hover:bg-slate-800 hover:text-white" onClick={() => window.confirm('Delete this request?') && void deleteFeatureRequest(r.id).catch((e) => setError(e.message))}>
                     <Trash2 className="h-4 w-4" />
                   </button>
-                </div>
+                </div>}
               </div>
             </div>
           ))}

@@ -27,11 +27,13 @@ function preset(kind: 'later' | 'tomorrow' | 'nextWeek'): number {
 }
 
 /** Create or edit a to-do / reminder, optionally linked to a lead (call) and/or a company. */
-export default function TodoDialog({ todo, initial, leads, companies, onClose, onError }: {
+export default function TodoDialog({ todo, initial, leads, companies, personal = false, onClose, onError }: {
   todo?: Todo | null;
   initial?: Partial<TodoInput>;
   leads: Lead[];
   companies: CompanyOption[];
+  /** A sales manager's own reminder: saved as personal. */
+  personal?: boolean;
   onClose: () => void;
   onError: (m: string) => void;
 }) {
@@ -55,7 +57,7 @@ export default function TodoDialog({ todo, initial, leads, companies, onClose, o
     setBusy(true);
     try {
       if (todo) await updateTodo(todo.id, draft);
-      else await createTodo(draft);
+      else await createTodo(draft, personal);
       onClose();
     } catch (e) {
       onError((e as Error).message);

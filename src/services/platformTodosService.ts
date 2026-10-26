@@ -6,7 +6,7 @@ import { auth, db } from '@/lib/firebase';
 import { TODO_KINDS, type Todo, type TodoKind } from '@/lib/platform/todos';
 
 /**
- * Lumora platform To-Dos (platformTodos, superadmin only; see firestore.rules).
+ * Lumora platform To-Dos (platformTodos; superadmins see all, a sales manager only their own personal reminders — see firestore.rules).
  * A testing to-do is linked to a feature request: completing it closes the
  * request, and closing the request completes its open testing to-dos.
  */
@@ -29,16 +29,30 @@ function toTodo(id: string, d: DocumentData): Todo {
     companyId: d.companyId ?? null, companyName: d.companyName ?? null,
     featureRequestId: d.featureRequestId ?? null,
     createdAt: tsMs(d.createdAt), createdByEmail: d.createdByEmail ?? null,
+    createdBy: typeof d.createdBy === 'string' ? d.createdBy : null, personal: d.personal === true,
   };
 }
 
-export function subscribeTodos(cb: (rows: Todo[]) => void, onError?: (e: Error) => void): Unsubscribe {
-  return onSnapshot(todosCol, (snap) => cb(snap.docs.map((d) => toTodo(d.id, d.data()))), onError);
+/**
+ * To-dos for the signed-in person. A sales manager passes their uid and gets
+ * only their own (the rules allow nothing else); a superadmin gets everything
+ * except the sales managers' private reminders.
+ */
+export function subscribeTodos(cb: (rows: Todo[]) => void, onError?: (e: Error) => void, ownerUid?: string | null): Unsubscribe {
+  const q = ownerUid ? query(todosCol, where('createdBy', '==', ownerUid)) : todosCol;
+  return onSnapshot(q, (snap) => {
+    const rows = snap.docs.map((d) => toTodo(d.id, d.data()));
+    cb(ownerUid ? rows : rows.filter((t) => !t.personal));
+  }, onError);
 }
 
-/** Open to-dos only — for the nav badge. */
-export function subscribeOpenTodos(cb: (rows: Todo[]) => void): Unsubscribe {
-  return onSnapshot(query(todosCol, where('done', '==', false)), (snap) => cb(snap.docs.map((d) => toTodo(d.id, d.data()))), () => {});
+/** Open to-dos only — for the nav badge and the launcher's Today list. */
+export function subscribeOpenTodos(cb: (rows: Todo[]) => void, ownerUid?: string | null): Unsubscribe {
+  const q = ownerUid ? query(todosCol, where('createdBy', '==', ownerUid), where('done', '==', false)) : query(todosCol, where('done', '==', false));
+  return onSnapshot(q, (snap) => {
+    const rows = snap.docs.map((d) => toTodo(d.id, d.data()));
+    cb(ownerUid ? rows : rows.filter((t) => !t.personal));
+  }, () => {});
 }
 
 export interface TodoInput {
@@ -67,10 +81,11 @@ function clean(input: TodoInput) {
   };
 }
 
-export async function createTodo(input: TodoInput): Promise<void> {
+export async function createTodo(input: TodoInput, personal = false): Promise<void> {
   const u = auth.currentUser;
   await addDoc(todosCol, {
     ...clean(input), done: false, doneAt: null,
+    ...(personal ? { personal: true } : {}),
     createdBy: u?.uid ?? '', createdByEmail: u?.email ?? null, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
   });
 }
