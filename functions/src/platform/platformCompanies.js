@@ -4,7 +4,7 @@ const { FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { getStripe, stripeSecretKey, firmicorePlanOfInvoice } = require("../billing/stripeClient");
 const { stripeErrorMessage, isMissingResource } = require("../billing/billingAccess");
-const { db, requireSuperadmin, audit, monthlyValue, toMillis } = require("./platformAccess");
+const { db, requireSuperadmin, requireSalesAccess, audit, monthlyValue, toMillis } = require("./platformAccess");
 const { platformSmtpPassword } = require("../lib/mailer");
 const { approvalStatusOf, emailApprovalDecision, clearRegistrationAlert } = require("./companyApprovals");
 const { departmentForRole } = require("../lib/roleDepartment");
@@ -51,6 +51,16 @@ function companySummary(id, c) {
   };
 }
 
+/** What a sales manager may see of a company (trial requests / lead linking): no billing, Stripe or notes. */
+function salesView(row) {
+  return {
+    ...row,
+    billingCycle: "monthly", subscriptionStatus: null, cancelAtPeriodEnd: false, currentPeriodEnd: null,
+    stripeCustomerId: null, monthlyValue: 0, lastReminderAt: null, platformNote: null, planSetBy: null,
+    enterpriseTier: null, limitOverrides: null, disabledModules: [],
+  };
+}
+
 /** Headline numbers for the console's overview. */
 exports.platformOverview = onCall(async (request) => {
   requireSuperadmin(request);
@@ -93,7 +103,7 @@ exports.platformOverview = onCall(async (request) => {
 
 /** Every subscribed / registered company with its billing state. */
 exports.platformListCompanies = onCall(async (request) => {
-  requireSuperadmin(request);
+  const caller = requireSalesAccess(request);
   const snap = await db.collection("companies").get();
   const rows = await Promise.all(snap.docs.map(async (doc) => {
     const c = { id: doc.id, ...doc.data() };
@@ -101,7 +111,9 @@ exports.platformListCompanies = onCall(async (request) => {
       db.collection(`companies/${doc.id}/users`).count().get(),
       adminContact(c),
     ]);
-    return { ...companySummary(doc.id, c), userCount: users.data().count, adminName: admin.name, adminEmail: admin.email };
+    const row = { ...companySummary(doc.id, c), userCount: users.data().count, adminName: admin.name, adminEmail: admin.email };
+    // Sales managers see who registered and the trial state, not billing or internal notes.
+    return caller.superadmin ? row : salesView(row);
   }));
   rows.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   return { companies: rows };
@@ -248,8 +260,9 @@ exports.platformGetCompany = onCall({ secrets: [stripeSecretKey] }, async (reque
  * Stripe subscription, or keep an internal note.
  */
 exports.platformUpdateCompany = onCall({ secrets: [stripeSecretKey, platformSmtpPassword] }, async (request) => {
-  const actor = requireSuperadmin(request);
   const { companyId, action } = request.data ?? {};
+  // Sales managers may only approve / reject trial requests; everything else is superadmin only.
+  const actor = action === "approve" || action === "reject" ? requireSalesAccess(request) : requireSuperadmin(request);
   if (typeof companyId !== "string" || !companyId) throw new HttpsError("invalid-argument", "companyId is required");
   const ref = db.collection("companies").doc(companyId);
   const snap = await ref.get();

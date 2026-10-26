@@ -156,6 +156,12 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.superadmin == true;
     }
 
+    // Sales part of the console: superadmins and sales managers (custom claim
+    // `salesManager`, granted by platformCreateSalesManager; no company login).
+    function isSalesStaff() {
+      return isSuperadmin() || (request.auth != null && request.auth.token.get('salesManager', false) == true);
+    }
+
     // A trainingModules doc must declare which of the two module libraries
     // it belongs to. On an update request.resource.data is the merged
     // result, so a doc that already carries a scope stays writable without
@@ -2324,6 +2330,11 @@ service cloud.firestore {
       allow read: if isSuperadmin();
       allow write: if false;
     }
+    // Sales manager roster (written by platformCreateSalesManager / platformManageSalesManager).
+    match /platformSalesManagers/{uid} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
     match /platformAuditLog/{entryId} {
       allow read: if isSuperadmin();
       allow write: if false;
@@ -2332,8 +2343,8 @@ service cloud.firestore {
     // referrals, imports), their call/note history, and the feature
     // requests / bugs raised on those calls. Superadmins only.
     match /platformLeads/{leadId} {
-      allow read, delete: if isSuperadmin();
-      allow create, update: if isSuperadmin()
+      allow read, delete: if isSalesStaff();
+      allow create, update: if isSalesStaff()
         && request.resource.data.businessName is string
         && request.resource.data.businessName.size() > 0 && request.resource.data.businessName.size() <= 500
         && request.resource.data.status in ['new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'trial_requested', 'negotiation', 'closed_won', 'closed_lost'];
@@ -2347,13 +2358,13 @@ service cloud.firestore {
     // History is append-only; it is only removed together with its lead.
     // Running counter behind the lead numbers (`next` = the number the next lead gets).
     match /platformCounters/{counterId} {
-      allow read: if isSuperadmin();
-      allow create, update: if isSuperadmin()
+      allow read: if isSalesStaff();
+      allow create, update: if isSalesStaff()
         && request.resource.data.next is int && request.resource.data.next >= 1;
     }
     match /platformLeadActivities/{activityId} {
-      allow read, delete: if isSuperadmin();
-      allow create: if isSuperadmin()
+      allow read, delete: if isSalesStaff();
+      allow create: if isSalesStaff()
         && request.resource.data.authorUid == request.auth.uid
         && request.resource.data.leadId is string
         && request.resource.data.type in ['call', 'note', 'status', 'demo']
@@ -2363,16 +2374,16 @@ service cloud.firestore {
     // Outside marketers / agents / callers working the leads — a roster for
     // assignment and commission, never a login.
     match /platformSalesTeam/{memberId} {
-      allow read, delete: if isSuperadmin();
-      allow create, update: if isSuperadmin()
+      allow read, delete: if isSalesStaff();
+      allow create, update: if isSalesStaff()
         && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 200
         && request.resource.data.role in ['marketer', 'agent', 'caller', 'manager']
         && request.resource.data.commissionPct is number
         && request.resource.data.commissionPct >= 0 && request.resource.data.commissionPct <= 100;
     }
     match /platformFeatureRequests/{requestId} {
-      allow read, delete: if isSuperadmin();
-      allow create, update: if isSuperadmin()
+      allow read, delete: if isSalesStaff();
+      allow create, update: if isSalesStaff()
         && request.resource.data.type in ['feature', 'bug']
         && request.resource.data.status in ['requested', 'in_progress', 'testing', 'closed']
         && request.resource.data.title is string && request.resource.data.title.size() <= 200;
@@ -2380,8 +2391,8 @@ service cloud.firestore {
     // Lumora's to-dos / reminders (optionally linked to a lead, company or
     // feature request). Superadmins only.
     match /platformTodos/{todoId} {
-      allow read, delete: if isSuperadmin();
-      allow create, update: if isSuperadmin()
+      allow read, delete: if isSalesStaff();
+      allow create, update: if isSalesStaff()
         && request.resource.data.kind in ['reminder', 'task', 'testing']
         && request.resource.data.title is string
         && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 300
@@ -2425,7 +2436,9 @@ service cloud.firestore {
     // Payment-received (and other) alerts for superadmins, written by the
     // Stripe webhook; superadmins only mark them read.
     match /platformNotifications/{id} {
-      allow read: if isSuperadmin();
+      // Sales managers see only the new-registration alerts (trial requests).
+      allow read: if isSuperadmin()
+        || (isSalesStaff() && resource.data.type == 'registration');
       allow update: if isSuperadmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow create, delete: if false;

@@ -167,7 +167,27 @@ export type UserAction =
   | { action: 'disable' }
   | { action: 'enable' };
 
+export interface SalesManager {
+  uid: string;
+  name: string | null;
+  email: string | null;
+  createdAt: number | null;
+  disabled: boolean;
+  lastSignInAt: number | null;
+}
+
+export type SalesManagerAction =
+  | { action: 'setPassword'; password: string }
+  | { action: 'disable' }
+  | { action: 'enable' }
+  | { action: 'remove' };
+
 export const platformService = {
+  listSalesManagers: () => call<void, { managers: SalesManager[] }>('platformListSalesManagers'),
+  createSalesManager: (data: { name: string; email: string; password: string }) =>
+    call<typeof data, { ok: boolean; uid: string }>('platformCreateSalesManager', data),
+  manageSalesManager: (uid: string, change: SalesManagerAction) =>
+    call<Record<string, unknown>, { ok: boolean }>('platformManageSalesManager', { uid, ...change }),
   claimSuperadmin: () => call<void, { ok: boolean }>('platformClaimSuperadmin'),
   overview: () => call<void, PlatformOverview>('platformOverview'),
   listCompanies: () => call<void, { companies: PlatformCompany[] }>('platformListCompanies'),

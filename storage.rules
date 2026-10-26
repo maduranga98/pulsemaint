@@ -88,11 +88,13 @@ service firebase.storage {
         && validUpload(100) && (request.resource == null || safeContentType());
     }
 
-    // Recorded sales calls on the Lumora platform console (superadmin only,
+    // Recorded sales calls on the Lumora platform console (superadmin or sales manager,
     // written once, never edited — kept to listen back to later).
     match /platformLeadCalls/{leadId}/{file} {
-      allow read: if signedIn() && request.auth.token.get('superadmin', false) == true;
-      allow create: if signedIn() && request.auth.token.get('superadmin', false) == true
+      allow read: if signedIn() && (request.auth.token.get('superadmin', false) == true
+        || request.auth.token.get('salesManager', false) == true);
+      allow create: if signedIn() && (request.auth.token.get('superadmin', false) == true
+        || request.auth.token.get('salesManager', false) == true)
         && validUpload(100) && safeContentType() && newObject();
     }
 

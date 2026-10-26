@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Menu, X, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers, UserCog } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
@@ -27,7 +27,11 @@ const NAV = [
   { to: '/platform/calls', label: 'Calls', icon: PhoneCall },
   { to: '/platform/feature-requests', label: 'Feature requests', icon: Lightbulb },
   { to: '/platform/todos', label: 'To-Do', icon: ListTodo },
+  { to: '/platform/sales-managers', label: 'Sales managers', icon: UserCog },
 ] as const;
+
+/** The only console pages a sales manager (no superadmin claim) may open. */
+const SALES_PATHS = ['/platform/leads', '/platform/calls', '/platform/feature-requests', '/platform/todos'];
 
 const BADGE_TITLE: Record<string, string> = {
   '/platform/payments': 'New payment alerts',
@@ -54,17 +58,19 @@ function NavBadge({ count, title }: { count: number; title?: string }) {
  * Signed-in accounts without the superadmin claim see the activation page.
  */
 export default function PlatformLayout() {
-  const { ready, signedIn, isSuperadmin, email } = useSuperadmin();
+  const { ready, signedIn, isSuperadmin, isSalesManager, email } = useSuperadmin();
+  const salesOnly = isSalesManager && !isSuperadmin;
+  const salesAccess = isSuperadmin || isSalesManager;
   const hasCompany = useAuthStore((s) => !!s.userProfile);
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const unread = usePlatformUnread(ready && isSuperadmin);
   const paymentAlerts = usePaymentAlerts(ready && isSuperadmin);
-  const callsDue = useCallsDue(ready && isSuperadmin);
-  const pendingRegistrations = usePendingRegistrations(ready && isSuperadmin);
-  const todosDue = useTodosDue(ready && isSuperadmin);
-  const newLeads = useNewLeads(ready && isSuperadmin);
-  const unseenFeatures = useUnseenFeatureRequests(ready && isSuperadmin);
+  const callsDue = useCallsDue(ready && salesAccess);
+  const pendingRegistrations = usePendingRegistrations(ready && salesAccess);
+  const todosDue = useTodosDue(ready && salesAccess);
+  const newLeads = useNewLeads(ready && salesAccess);
+  const unseenFeatures = useUnseenFeatureRequests(ready && salesAccess);
   const openCancellations = useOpenCancellations(ready && isSuperadmin);
   const [permission, setPermission] = useState(() => getNotificationPermission());
 
@@ -80,8 +86,15 @@ export default function PlatformLayout() {
   };
 
   if (!ready) return <AuthLoading />;
-  if (!signedIn) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  if (!isSuperadmin) return <SuperadminActivatePage />;
+  if (!signedIn) return <Navigate to="/platform/login" replace state={{ from: location.pathname }} />;
+  if (!salesAccess) return <SuperadminActivatePage />;
+  // Sales managers: only the sales tabs; anything else goes to Leads.
+  if (salesOnly && !SALES_PATHS.some((p) => location.pathname === p || location.pathname.startsWith(`${p}/`))) {
+    return <Navigate to="/platform/leads" replace />;
+  }
+  const nav = salesOnly
+    ? NAV.filter((item) => 'section' in item || SALES_PATHS.includes(item.to))
+    : NAV;
 
   return (
     <div className="scrollbar-dark min-h-screen bg-[#0A1628] text-slate-200 lg:flex">
@@ -90,12 +103,12 @@ export default function PlatformLayout() {
           <img src="/brand/lumora-logo.svg" alt="" className="h-9 w-9 rounded-full bg-white p-0.5" />
           <div>
             <p className="text-sm font-bold text-white">Lumora Ventures</p>
-            <p className="text-[11px] uppercase tracking-wider text-blue-300">FirmiCore platform</p>
+            <p className="text-[11px] uppercase tracking-wider text-blue-300">{salesOnly ? 'FirmiCore sales' : 'FirmiCore platform'}</p>
           </div>
           <button className="ml-auto lg:hidden text-slate-400" onClick={() => setOpen(false)} aria-label="Close menu"><X className="h-5 w-5" /></button>
         </div>
         <nav className="max-h-[calc(100vh-190px)] space-y-1 overflow-y-auto p-3">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             if ('section' in item) return <p key={item.section} className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{item.section}</p>;
             const { to, label, icon: Icon } = item;
             const end = 'end' in item ? item.end : false;
@@ -143,7 +156,7 @@ export default function PlatformLayout() {
             <Menu className="h-5 w-5" /> Menu
             <NavBadge count={Object.values(badges).reduce((a, b) => a + b, 0)} title="items need attention" />
           </button>
-          <PlatformBell paymentAlerts={paymentAlerts} requests={unread} />
+          {!salesOnly && <PlatformBell paymentAlerts={paymentAlerts} requests={unread} />}
         </div>
         <Outlet context={{ paymentAlerts }} />
       </main>

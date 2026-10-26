@@ -4,7 +4,7 @@ const {getStorage} = require("firebase-admin/storage");
 const {google} = require("googleapis");
 const {Anthropic} = require("@anthropic-ai/sdk");
 const logger = require("firebase-functions/logger");
-const {requireSuperadmin} = require("./platformAccess");
+const {requireSalesAccess} = require("./platformAccess");
 
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
@@ -110,13 +110,13 @@ async function summarize(transcript, languageCode) {
 /**
  * Transcribes a recorded sales call (already uploaded to Storage by the
  * console) and summarises what the customer needs, in the language that was
- * spoken. Superadmin only. The audio itself is kept by the client on the lead's
+ * spoken. Superadmin or sales manager. The audio itself is kept by the client on the lead's
  * activity record; this returns text only.
  */
 exports.platformTranscribeCall = onCall(
     {secrets: [anthropicApiKey], timeoutSeconds: 540, memory: "512MiB"},
     async (request) => {
-      requireSuperadmin(request);
+      requireSalesAccess(request);
       const {leadId, storagePath, languageHint} = request.data || {};
       if (typeof leadId !== "string" || !leadId || typeof storagePath !== "string" ||
         !storagePath.startsWith(`platformLeadCalls/${leadId}/`) || storagePath.includes("..")) {
