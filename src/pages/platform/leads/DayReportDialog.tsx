@@ -4,12 +4,14 @@ import {
   activityOutcomeLabel, activityTypeLabel, dayReport, dayReportToCsv, endOfDay, revenueText, startOfDay,
   type Lead, type LeadActivity,
 } from '@/lib/platform/leads';
+import { useSalesOnly } from '@/lib/platform/useSuperadmin';
 import { getActivitiesBetween } from '@/services/platformLeadsService';
 import { ErrorNote, Loading, btn, input } from '../platformUi';
 import { Modal, StatusPill, downloadText, fromDateInput, toDateInput } from './leadUi';
 
 /** What the team did on one day — calls, notes, demos, new leads, wins — with CSV export. */
 export default function DayReportDialog({ leads, onClose, onOpenLead }: { leads: Lead[]; onClose: () => void; onOpenLead: (id: string) => void }) {
+  const { salesOnly } = useSalesOnly();
   const [day, setDay] = useState(() => startOfDay(Date.now()));
   const [acts, setActs] = useState<LeadActivity[] | null>(null);
   const [error, setError] = useState('');
@@ -52,7 +54,7 @@ export default function DayReportDialog({ leads, onClose, onOpenLead }: { leads:
             <Mini icon={Users} label="Customers touched" value={report.customers} tone="text-orange-300" />
             <Mini icon={Sparkles} label="Demos booked" value={report.demosBooked} tone="text-violet-300" />
             <Mini icon={UserPlus} label="New leads" value={report.newLeads} tone="text-cyan-300" />
-            <Mini icon={Wallet} label={`Won (${revenueText(report.wonAmount)})`} value={report.won} tone="text-emerald-300" />
+            <Mini icon={Wallet} label={salesOnly ? 'Won' : `Won (${revenueText(report.wonAmount)})`} value={report.won} tone="text-emerald-300" />
           </div>
           {Object.keys(report.outcomes).length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">

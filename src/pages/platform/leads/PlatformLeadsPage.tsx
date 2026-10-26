@@ -21,6 +21,7 @@ import LeadInsights from './LeadInsights';
 import TrialRequestsView from './TrialRequestsView';
 import { LEADS_VIEW_KEY, PHONE_LEAD_WINDOWS, leadsViewFrom, type LeadView } from '@/lib/platform/subNav';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useSalesOnly } from '@/lib/platform/useSuperadmin';
 import { STATUS_STYLE, StatusPill, TagChip, downloadText, whenLabel } from './leadUi';
 
 type View = LeadView;
@@ -115,6 +116,7 @@ export default function PlatformLeadsPage() {
     && (!source || l.source === source)
     && (!owner || (owner === '__none' ? !l.assignedTo : l.assignedTo === owner || l.marketerId === owner)),
   ), [all, showArchived, q, tag, source, owner]);
+  const { salesOnly } = useSalesOnly();
   const stats = useMemo(() => leadStats(all), [all]);
   const current = openId ? all.find((l) => l.id === openId) ?? null : null;
 
@@ -187,7 +189,7 @@ export default function PlatformLeadsPage() {
         <StatTile icon={Rocket} tone="text-lime-300 bg-lime-900/40" value={stats.usingTrial} label="Using trial now" />
         <StatTile icon={PhoneCall} tone="text-amber-300 bg-amber-900/40" value={stats.followUpsDue} label="Follow-ups due" />
         <StatTile icon={Trophy} tone="text-emerald-300 bg-emerald-900/40" value={stats.won} label="Closed won" />
-        <StatTile icon={Wallet} tone="text-teal-300 bg-teal-900/40" value={revenueText(stats.revenue)} label="Revenue" />
+        {!salesOnly && <StatTile icon={Wallet} tone="text-teal-300 bg-teal-900/40" value={revenueText(stats.revenue)} label="Revenue" />}
       </div>
 
       <div className={`mb-4 flex-wrap items-center gap-2 ${phone && (view === 'dashboard' || view === 'insights') ? 'hidden' : 'flex'}`}>
