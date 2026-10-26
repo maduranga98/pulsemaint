@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers, UserCog } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Home, KanbanSquare, List, BarChart3, Hourglass, Bug, CheckCircle2, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers, UserCog } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
@@ -13,6 +13,8 @@ import { useAuthStore } from '@/store/authStore';
 import AuthLoading from '@/components/auth/AuthLoading';
 import SuperadminActivatePage from './SuperadminActivatePage';
 import PlatformBell from './PlatformBell';
+import PlatformLauncher from './PlatformLauncher';
+import { LEADS_VIEW_KEY, subNavFor, type SubIcon } from '@/lib/platform/subNav';
 
 type NavLinkItem = { to: string; label: string; icon: typeof Gauge; end?: boolean };
 type NavItem = NavLinkItem | { section: string };
@@ -34,6 +36,12 @@ const NAV: readonly NavItem[] = [
 ];
 
 /** The only console pages a sales manager (no superadmin claim) may open. */
+const SUB_ICON: Record<SubIcon, typeof Gauge> = {
+  board: KanbanSquare, list: List, insights: BarChart3, trials: Hourglass, feature: Lightbulb, bug: Bug, open: ListTodo, done: CheckCircle2,
+};
+
+/** Phone start page (the launcher) and the pages a sales manager may open. */
+const HOME_PATH = '/platform/home';
 const SALES_PATHS = ['/platform/leads', '/platform/calls', '/platform/feature-requests', '/platform/todos', '/platform/plans'];
 
 const BADGE_TITLE: Record<string, string> = {
@@ -91,17 +99,22 @@ export default function PlatformLayout() {
   if (!signedIn) return <Navigate to="/platform/login" replace state={{ from: location.pathname }} />;
   if (!salesAccess) return <SuperadminActivatePage />;
   // Sales managers: only the sales tabs; anything else goes to Leads.
-  if (salesOnly && !SALES_PATHS.some((p) => location.pathname === p || location.pathname.startsWith(`${p}/`))) {
-    return <Navigate to="/platform/leads" replace />;
+  if (salesOnly && location.pathname !== HOME_PATH && !SALES_PATHS.some((p) => location.pathname === p || location.pathname.startsWith(`${p}/`))) {
+    return <Navigate to={window.matchMedia('(max-width: 1023px)').matches ? HOME_PATH : '/platform/leads'} replace />;
   }
   const nav: readonly NavItem[] = salesOnly
     ? SALES_PATHS.map((p) => NAV.find((item): item is NavLinkItem => 'to' in item && item.to === p)!)
     : NAV;
 
   const items = nav.filter((item): item is NavLinkItem => 'to' in item);
-  const activeTo = items
-    .filter((i) => (i.end ? location.pathname === i.to : location.pathname.startsWith(i.to)))
-    .sort((a, b) => b.to.length - a.to.length)[0]?.to;
+  const isHome = location.pathname === HOME_PATH;
+  let storedLeadsView: string | null = null;
+  try {
+    storedLeadsView = localStorage.getItem(LEADS_VIEW_KEY);
+  } catch { /* private mode */ }
+  const sub = subNavFor(location.pathname, location.search, storedLeadsView);
+  const hour = new Date().getHours();
+  const greeting = `${hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'}${email ? `, ${email.split('@')[0]}` : ''}`;
 
   return (
     // dvh, not vh: on phones 100vh includes the browser's address bar, which pushed the dock off-screen.
@@ -159,10 +172,10 @@ export default function PlatformLayout() {
       <div className="flex h-dvh min-w-0 flex-1 flex-col">
         {/* Phone / tablet: the same top bar + floating icon dock as the client app. */}
         <header className="z-20 flex h-14 shrink-0 items-center justify-between border-b border-[#1E3A5F] bg-[#0F1E35] px-4 lg:hidden">
-          <div className="flex min-w-0 items-center gap-2">
+          <Link to={HOME_PATH} className="flex min-h-[44px] min-w-0 items-center gap-2">
             <img src="/brand/lumora-logo.svg" alt="" className="h-7 w-7 rounded-full bg-white p-0.5" />
             <span className="truncate text-sm font-semibold tracking-tight text-slate-100">{salesOnly ? 'FirmiCore sales' : 'FirmiCore platform'}</span>
-          </div>
+          </Link>
           <div className="flex shrink-0 items-center gap-2">
             {!salesOnly && <PlatformBell paymentAlerts={paymentAlerts} requests={unread} />}
             <button
@@ -178,42 +191,42 @@ export default function PlatformLayout() {
         </header>
 
         <main className="min-w-0 flex-1 overflow-y-auto px-4 py-5 sm:px-8 lg:py-6">
+          {isHome && <PlatformLauncher greeting={greeting} tiles={items.map((i) => ({ to: i.to, label: i.label, icon: i.icon, badge: badges[i.to] ?? 0, badgeTitle: BADGE_TITLE[i.to] }))} />}
           {!salesOnly && (
             <div className="mb-4 hidden justify-end lg:flex">
               <PlatformBell paymentAlerts={paymentAlerts} requests={unread} />
             </div>
           )}
-          <Outlet context={{ paymentAlerts }} />
+          {!isHome && <Outlet context={{ paymentAlerts }} />}
         </main>
 
-        <nav aria-label="Console navigation" className="shrink-0 px-3 pb-2 pt-1 lg:hidden">
-          <div
-            className="scrollbar-hide flex gap-1.5 overflow-x-auto rounded-2xl border border-[#1E3A5F] bg-[#0F1E35]/95 p-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.4)]"
-            style={{ scrollSnapType: 'x proximity' }}
-          >
-            {items.map(({ to, label, icon: Icon }) => {
-              const active = to === activeTo;
-              const count = badges[to] ?? 0;
-              return (
-                <NavLink
-                  key={to}
-                  to={to}
-                  aria-label={label}
-                  title={label}
-                  className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                    active
-                      ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_4px_12px_rgba(37,99,235,0.5)]'
-                      : 'text-[#9FB3D1]'
-                  }`}
-                  style={{ scrollSnapAlign: 'center' }}
-                >
-                  <Icon className="h-5 w-5" />
-                  {count > 0 && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-red-500" aria-hidden="true" />}
-                </NavLink>
-              );
-            })}
-          </div>
-        </nav>
+        {!isHome && (
+          <nav aria-label="Console navigation" className="shrink-0 px-3 pb-2 pt-1 lg:hidden">
+            <div className="scrollbar-hide flex gap-1.5 overflow-x-auto rounded-2xl border border-[#1E3A5F] bg-[#0F1E35]/95 p-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.4)]">
+              <Link to={HOME_PATH} aria-label="Home" title="Home" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.07] text-[#D5E2F5]">
+                <Home className="h-5 w-5" />
+              </Link>
+              {sub.items.map((it) => {
+                const Icon = SUB_ICON[it.icon];
+                const active = it.id === sub.activeId;
+                return (
+                  <Link
+                    key={it.id}
+                    to={it.to}
+                    replace
+                    aria-label={it.label}
+                    title={it.label}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                      active ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_4px_12px_rgba(37,99,235,0.5)]' : 'text-[#9FB3D1]'
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        )}
       </div>
     </div>
   );

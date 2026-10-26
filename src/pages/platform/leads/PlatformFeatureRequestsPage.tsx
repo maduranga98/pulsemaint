@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { featureTabFrom } from '@/lib/platform/subNav';
 import { Link } from 'react-router-dom';
 import { Building2, Bug, CheckCircle2, CircleCheck, Lightbulb, ListTodo, PhoneCall, Play, Plus, Trash2, X } from 'lucide-react';
 import type { Lead } from '@/lib/platform/leads';
@@ -27,7 +29,9 @@ export default function PlatformFeatureRequestsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [error, setError] = useState('');
   // Features and bugs live in their own tabs.
-  const [type, setType] = useState<FeatureRequestType>('feature');
+  const [params, setParams] = useSearchParams();
+  const type: FeatureRequestType = featureTabFrom(`?${params.toString()}`);
+  const setType = (v: FeatureRequestType) => setParams({ tab: v }, { replace: true });
   const [status, setStatus] = useState<'' | FeatureRequestStatus>('');
   const [creating, setCreating] = useState(false);
   const [testing, setTesting] = useState<FeatureRequest | null>(null);
@@ -64,7 +68,7 @@ export default function PlatformFeatureRequestsPage() {
         actions={<button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setCreating(true)}><Plus className="h-4 w-4" /> New request</button>}
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
-      <div role="tablist" className="mb-4 flex gap-1 border-b border-[#1E3A5F]">
+      <div role="tablist" className="mb-4 hidden gap-1 border-b border-[#1E3A5F] lg:flex">
         {([['feature', 'Feature requests', Lightbulb], ['bug', 'Bugs', Bug]] as const).map(([v, l, Icon]) => (
           <button
             key={v}

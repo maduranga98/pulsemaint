@@ -64,7 +64,7 @@ export default function PlatformTodosPage() {
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:border-b sm:border-[#1E3A5F]">
-        <div className="flex gap-1 border-b border-[#1E3A5F] sm:border-0" role="tablist">
+        <div className="hidden gap-1 border-b border-[#1E3A5F] sm:border-0 lg:flex" role="tablist">
           {([['open', 'Open'], ['done', 'Done']] as const).map(([v, l]) => (
             <button key={v} role="tab" aria-selected={tab === v} onClick={() => setParams(v === 'open' ? {} : { tab: v }, { replace: true })}
               className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3 pb-2.5 pt-1 text-sm font-semibold ${tab === v ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>

@@ -1101,6 +1101,7 @@ export default function AppRouter() {
         <Route path="sales-team" element={<Navigate to="/platform/expenses" replace />} />
         <Route path="feature-requests" element={<PlatformFeatureRequestsPage />} />
         <Route path="todos" element={<PlatformTodosPage />} />
+        <Route path="home" element={null} />
         <Route path="sales-managers" element={<PlatformSalesManagersPage />} />
         <Route path="cancellations" element={<PlatformCancellationsPage />} />
       </Route>
