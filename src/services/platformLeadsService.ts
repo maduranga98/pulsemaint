@@ -4,7 +4,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import {
-  LEAD_STATUSES, statusAfterCall, statusSideEffects,
+  normalizeLeadStatus, statusAfterCall, statusSideEffects,
   TEAM_ROLES,
   type CallOutcome, type Lead, type LeadActivity, type LeadInput, type LeadStatus, type TeamMember,
 } from '@/lib/platform/leads';
@@ -33,7 +33,7 @@ function toLead(id: string, d: DocumentData): Lead {
     businessName: str(d.businessName), contactPerson: str(d.contactPerson), phone: str(d.phone), whatsapp: str(d.whatsapp), email: str(d.email), website: str(d.website),
     location: str(d.location), district: str(d.district), source: str(d.source), campaign: str(d.campaign), industry: str(d.industry),
     leadDate: num(d.leadDate),
-    status: (LEAD_STATUSES as readonly string[]).includes(d.status) ? d.status : 'new',
+    status: normalizeLeadStatus(d.status),
     callsMade: num(d.callsMade) ?? 0,
     nextCallAt: num(d.nextCallAt), followUpNote: str(d.followUpNote), demoAt: num(d.demoAt), demoRequested: d.demoRequested === true, trialStartedAt: num(d.trialStartedAt),
     priceQuoted: str(d.priceQuoted), closedAmount: num(d.closedAmount) ?? 0, currency: d.currency === 'USD' ? 'USD' : 'LKR',
@@ -46,7 +46,7 @@ function toLead(id: string, d: DocumentData): Lead {
 function toActivity(id: string, d: DocumentData): LeadActivity {
   return {
     id, leadId: str(d.leadId), leadName: str(d.leadName), type: d.type, outcome: d.outcome ?? null, callNumber: num(d.callNumber),
-    body: str(d.body), statusFrom: d.statusFrom ?? null, statusTo: d.statusTo ?? null, nextCallAt: num(d.nextCallAt),
+    body: str(d.body), statusFrom: d.statusFrom ? normalizeLeadStatus(d.statusFrom) : null, statusTo: d.statusTo ? normalizeLeadStatus(d.statusTo) : null, nextCallAt: num(d.nextCallAt),
     at: num(d.at) ?? 0, authorEmail: d.authorEmail ?? null,
     recording: d.recording ?? null, transcript: d.transcript ?? null, spokenLanguage: d.spokenLanguage ?? null,
   };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  commissionFor, funnel, groupStats, staleLeads,
+  commissionFor, funnel, groupStats, staleLeads, normalizeLeadStatus, LEAD_STATUSES,
   dayReport, emptyLead, leadStats, leadsToCsv, mapImportHeaders, matchesSearch, parseImportRows, phoneKey, scheduledCalls,
   startOfDay, statusAfterCall, statusSideEffects, whatsappNumber, parseLeadText, trialDay, type Lead, type LeadActivity,
 } from '../platform/leads';
@@ -38,7 +38,7 @@ describe('statusAfterCall', () => {
 
 describe('statusSideEffects', () => {
   it('stamps and clears the close date', () => {
-    expect(statusSideEffects('negotiation', 'closed_won', NOW)).toEqual({ closedAt: NOW });
+    expect(statusSideEffects('demo_done', 'closed_won', NOW)).toEqual({ closedAt: NOW });
     expect(statusSideEffects('closed_won', 'follow_up', NOW)).toEqual({ closedAt: null });
     expect(statusSideEffects('new', 'called', NOW)).toEqual({});
   });
@@ -216,7 +216,7 @@ describe('trial tracking', () => {
     const s = leadStats([
       lead({ status: 'trial_requested' }),
       lead({ status: 'trial_requested', trialStartedAt: NOW - 86_400_000 * 2 }),
-      lead({ status: 'negotiation', trialStartedAt: NOW }),
+      lead({ status: 'demo_done', trialStartedAt: NOW }),
       lead({ status: 'closed_won', trialStartedAt: NOW - 86_400_000 * 9 }),
     ], NOW);
     expect(s.trialRequested).toBe(1);
@@ -235,5 +235,14 @@ describe('formatLeadNumber', () => {
     expect(formatLeadNumber(7)).toBe('7');
     expect(formatLeadNumber(12345)).toBe('12345');
     expect(formatLeadNumber(null)).toBe('');
+  });
+});
+
+describe('removed Negotiation stage', () => {
+  it('shows legacy negotiation leads as Demo done and keeps unknown values at New', () => {
+    expect(normalizeLeadStatus('negotiation')).toBe('demo_done');
+    expect(normalizeLeadStatus('called')).toBe('called');
+    expect(normalizeLeadStatus('nope')).toBe('new');
+    expect(LEAD_STATUSES).not.toContain('negotiation');
   });
 });

@@ -12,9 +12,18 @@ import { countryLabel, resolveCountry } from '@/lib/countries';
  */
 
 export const LEAD_STATUSES = [
-  'new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'trial_requested', 'negotiation', 'closed_won', 'closed_lost',
+  'new', 'called', 'not_answered', 'follow_up', 'demo_booked', 'demo_done', 'trial_requested', 'closed_won', 'closed_lost',
 ] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
+
+/**
+ * The Negotiation stage was removed. Leads saved with it count as "Demo done" (they had been through a demo),
+ * so nothing disappears from the board; every status read from storage or a file goes through here.
+ */
+export function normalizeLeadStatus(v: unknown): LeadStatus {
+  if (v === 'negotiation') return 'demo_done';
+  return (LEAD_STATUSES as readonly string[]).includes(v as string) ? (v as LeadStatus) : 'new';
+}
 
 export const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
   new: 'New',
@@ -24,7 +33,6 @@ export const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
   demo_booked: 'Demo booked',
   demo_done: 'Demo done',
   trial_requested: 'Trial requested',
-  negotiation: 'Negotiation',
   closed_won: 'Closed won',
   closed_lost: 'Closed lost',
 };
@@ -196,7 +204,7 @@ export function endOfDay(ms: number): number {
 /**
  * Where a lead moves after a logged call, so the board keeps itself up to
  * date. Only early-pipeline stages move — a call never drags a lead back
- * from demo/negotiation/closed.
+ * from demo/closed.
  */
 export function statusAfterCall(current: LeadStatus, outcome: CallOutcome, hasNextCall: boolean): LeadStatus {
   const early: LeadStatus[] = ['new', 'called', 'not_answered', 'follow_up'];
@@ -473,6 +481,7 @@ function parseImportDate(v: unknown): number | null {
 
 function parseStatus(v: string): LeadStatus {
   const n = norm(v).replace(/ /g, '_');
+  if (n === 'negotiation') return 'demo_done';
   if ((LEAD_STATUSES as readonly string[]).includes(n)) return n as LeadStatus;
   const byLabel = LEAD_STATUSES.find((s) => norm(LEAD_STATUS_LABEL[s]) === norm(v));
   return byLabel ?? 'new';
@@ -688,8 +697,8 @@ export function funnel(leads: Lead[]): { stage: string; count: number }[] {
   const live = leads.filter((l) => !l.archived);
   const contacted = live.filter((l) => l.status !== 'new' || l.callsMade > 0);
   const reached = live.filter((l) => !['new', 'not_answered'].includes(l.status) || l.demoAt);
-  const demo = live.filter((l) => l.demoAt || ['demo_booked', 'demo_done', 'negotiation', 'closed_won'].includes(l.status));
-  const demoDone = live.filter((l) => ['demo_done', 'negotiation', 'closed_won'].includes(l.status));
+  const demo = live.filter((l) => l.demoAt || ['demo_booked', 'demo_done', 'closed_won'].includes(l.status));
+  const demoDone = live.filter((l) => ['demo_done', 'closed_won'].includes(l.status));
   const won = live.filter((l) => l.status === 'closed_won');
   return [
     { stage: 'Leads', count: live.length },
