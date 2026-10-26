@@ -990,8 +990,6 @@ const {platformListSalesManagers, platformCreateSalesManager, platformManageSale
 exports.platformListSalesManagers = platformListSalesManagers;
 exports.platformCreateSalesManager = platformCreateSalesManager;
 exports.platformManageSalesManager = platformManageSalesManager;
-const {platformTranscribeCall} = require("./src/platform/callRecordings");
-exports.platformTranscribeCall = platformTranscribeCall;
 const {onSupportRequestCreated, onSupportMessageCreated, onSupportRequestStatusChanged} = require("./src/platform/supportRequests");
 const {onCompanyRegistered} = require("./src/platform/companyApprovals");
 const {onUserMappingWritten, syncCompanyClaim} = require("./src/auth/companyClaim");
