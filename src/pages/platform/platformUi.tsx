@@ -49,9 +49,10 @@ export function statusTone(status: string | null | undefined): Tone {
   }
 }
 
+// min-w-0: as a grid child a Card must not grow to its widest table, or the whole page scrolls sideways on phones.
 export function Card({ title, actions, children, className = '' }: { title?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={`rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-5 ${className}`}>
+    <section className={`min-w-0 rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-5 ${className}`}>
       {(title || actions) && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           {title && <h2 className="text-base font-semibold text-white!">{title}</h2>}
