@@ -2381,22 +2381,40 @@ service cloud.firestore {
         && request.resource.data.commissionPct is number
         && request.resource.data.commissionPct >= 0 && request.resource.data.commissionPct <= 100;
     }
+    // Sales managers raise requests and read them; only a superadmin moves one along or removes it.
     match /platformFeatureRequests/{requestId} {
-      allow read, delete: if isSalesStaff();
-      allow create, update: if isSalesStaff()
+      allow read: if isSalesStaff();
+      allow create: if isSalesStaff()
         && request.resource.data.type in ['feature', 'bug']
         && request.resource.data.status in ['requested', 'in_progress', 'testing', 'closed']
         && request.resource.data.title is string && request.resource.data.title.size() <= 200;
+      allow update: if isSuperadmin()
+        && request.resource.data.type in ['feature', 'bug']
+        && request.resource.data.status in ['requested', 'in_progress', 'testing', 'closed']
+        && request.resource.data.title is string && request.resource.data.title.size() <= 200;
+      allow delete: if isSuperadmin();
     }
     // Lumora's to-dos / reminders (optionally linked to a lead, company or
     // feature request). Superadmins only.
     match /platformTodos/{todoId} {
-      allow read, delete: if isSalesStaff();
-      allow create, update: if isSalesStaff()
-        && request.resource.data.kind in ['reminder', 'task', 'testing']
-        && request.resource.data.title is string
-        && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 300
-        && request.resource.data.done is bool;
+      // A sales manager only ever sees (and changes) the reminders they created themselves.
+      function ownTodo() {
+        return isSalesStaff() && resource.data.createdBy == request.auth.uid;
+      }
+      function validTodo() {
+        return request.resource.data.kind in ['reminder', 'task', 'testing']
+          && request.resource.data.title is string
+          && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 300
+          && request.resource.data.done is bool;
+      }
+      allow read: if isSuperadmin() || ownTodo();
+      allow create: if validTodo() && (isSuperadmin()
+        || (isSalesStaff() && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.kind in ['reminder', 'task']));
+      allow update: if validTodo() && (isSuperadmin()
+        || (ownTodo() && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.kind in ['reminder', 'task']));
+      allow delete: if isSuperadmin() || ownTodo();
     }
     // Subscription cancellations and requests to leave FirmiCore, with the
     // reason (written by requestCancellation / stripeWebhook). Superadmins

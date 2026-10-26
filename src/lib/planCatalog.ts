@@ -59,11 +59,6 @@ export const LOCKED_FEATURE_ROWS: Array<{ key: keyof PlanLimitConfig['features']
   { key: 'moeAnalytics', label: 'MOE analytics' },
   { key: 'advancedAnalytics', label: 'Advanced analytics (plants & team tabs, scheduled reports)' },
   { key: 'audits', label: 'Audits' },
-  { key: 'kaizen', label: 'Kaizen' },
-  { key: 'evaluations', label: 'Evaluations' },
-  { key: 'shiftHandover', label: 'Shift handover' },
-  { key: 'training', label: 'Training' },
-  { key: 'safety', label: 'Safety' },
 ];
 
 /** Features that are open on every plan — shown under the locked-features table. */

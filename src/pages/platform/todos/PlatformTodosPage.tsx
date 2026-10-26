@@ -7,6 +7,7 @@ import { subscribeLeads } from '@/services/platformLeadsService';
 import { deleteTodo, failTestingTodo, setTodoDone, subscribeTodos } from '@/services/platformTodosService';
 import { ErrorNote, Loading, PageHeader, btn, fmtDateTime } from '../platformUi';
 import { useCompanyOptions } from '../useCompanyOptions';
+import { useSalesOnly } from '@/lib/platform/useSuperadmin';
 import TodoDialog from './TodoDialog';
 
 const BUCKET_TONE: Record<string, string> = {
@@ -19,17 +20,22 @@ const BUCKET_TONE: Record<string, string> = {
  * Testing — ticking one of those closes the request.
  */
 export default function PlatformTodosPage() {
+  const { salesOnly, uid } = useSalesOnly();
   const [todos, setTodos] = useState<Todo[] | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const companies = useCompanyOptions();
   const [error, setError] = useState('');
   const [kind, setKind] = useState<'' | TodoKind>('');
   const [params, setParams] = useSearchParams();
-  const tab: 'open' | 'done' = params.get('tab') === 'done' ? 'done' : 'open';
+  // A sales manager only has open reminders: ticking one removes it for good.
+  const tab: 'open' | 'done' = !salesOnly && params.get('tab') === 'done' ? 'done' : 'open';
   const [editing, setEditing] = useState<Todo | 'new' | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
-  useEffect(() => subscribeTodos(setTodos, (e) => setError(e.message)), []);
+  useEffect(() => {
+    if (salesOnly && !uid) return undefined;
+    return subscribeTodos(setTodos, (e) => setError(e.message), salesOnly ? uid : null);
+  }, [salesOnly, uid]);
   useEffect(() => subscribeLeads(setLeads, () => {}), []);
   useEffect(() => {
     const t = window.setInterval(() => setNow(Date.now()), 60_000);
@@ -47,7 +53,7 @@ export default function PlatformTodosPage() {
   }, [todos, tab]);
 
   async function toggle(t: Todo) {
-    await setTodoDone(t, !t.done).catch((e) => setError(e.message));
+    await (salesOnly ? deleteTodo(t.id) : setTodoDone(t, !t.done)).catch((e) => setError(e.message));
   }
 
   async function testFailed(t: Todo) {
@@ -59,12 +65,12 @@ export default function PlatformTodosPage() {
     <div className="mx-auto max-w-4xl">
       <PageHeader
         title="To-Do"
-        subtitle="Reminders, linked to a lead (call) or company where relevant. Testing to-dos close their feature request when marked done; the bug button sends it back to In progress."
+        subtitle={salesOnly ? 'Your own reminders. Tick one when it is done and it is removed.' : 'Reminders, linked to a lead (call) or company where relevant. Testing to-dos close their feature request when marked done; the bug button sends it back to In progress.'}
         actions={<button className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setEditing('new')}><Plus className="h-4 w-4" /> New to-do</button>}
       />
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:border-b sm:border-[#1E3A5F]">
-        <div className="hidden gap-1 border-b border-[#1E3A5F] sm:border-0 lg:flex" role="tablist">
+        <div className={`hidden gap-1 border-b border-[#1E3A5F] sm:border-0 ${salesOnly ? '' : 'lg:flex'}`} role="tablist">
           {([['open', 'Open'], ['done', 'Done']] as const).map(([v, l]) => (
             <button key={v} role="tab" aria-selected={tab === v} onClick={() => setParams(v === 'open' ? {} : { tab: v }, { replace: true })}
               className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3 pb-2.5 pt-1 text-sm font-semibold ${tab === v ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
@@ -73,7 +79,7 @@ export default function PlatformTodosPage() {
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap gap-1.5 sm:pb-2.5">
+        <div className={`flex-wrap gap-1.5 sm:pb-2.5 ${salesOnly ? 'hidden' : 'flex'}`}>
           {([['', 'All'], ['reminder', 'Reminders'], ['task', 'Tasks'], ['testing', 'Testing']] as const).map(([v, l]) => (
             <button key={l} onClick={() => setKind(v)}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${kind === v ? 'border-blue-500 bg-blue-600/20 text-blue-200' : 'border-slate-600 text-slate-300 hover:bg-slate-800'}`}>
@@ -91,7 +97,7 @@ export default function PlatformTodosPage() {
           <ul className="divide-y divide-[#1E3A5F] overflow-hidden rounded-xl border border-[#1E3A5F] bg-[#0F1E35]">
             {g.items.map((t) => (
               <li key={t.id} className="flex items-start gap-3 px-4 py-3">
-                <button onClick={() => void toggle(t)} title={t.done ? 'Mark as not done' : 'Mark as done'} className="mt-0.5 shrink-0 text-slate-400 hover:text-emerald-300">
+                <button onClick={() => void toggle(t)} title={salesOnly ? 'Done — remove this reminder' : t.done ? 'Mark as not done' : 'Mark as done'} className="mt-0.5 shrink-0 text-slate-400 hover:text-emerald-300">
                   {t.done ? <CheckCircle2 className="h-5 w-5 text-emerald-400" /> : <Circle className="h-5 w-5" />}
                 </button>
                 <div className="min-w-0 flex-1">
@@ -127,7 +133,7 @@ export default function PlatformTodosPage() {
       ))}
 
       {editing && (
-        <TodoDialog todo={editing === 'new' ? null : editing} leads={leads} companies={companies} onClose={() => setEditing(null)} onError={setError} />
+        <TodoDialog todo={editing === 'new' ? null : editing} leads={leads} companies={companies} personal={salesOnly} onClose={() => setEditing(null)} onError={setError} />
       )}
     </div>
   );

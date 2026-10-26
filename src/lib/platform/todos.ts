@@ -27,6 +27,10 @@ export interface Todo {
   featureRequestId: string | null;
   createdAt: number | null;
   createdByEmail: string | null;
+  /** Uid of the creator; a sales manager only ever sees their own. */
+  createdBy: string | null;
+  /** A sales manager's private reminder: hidden from the superadmin's list, deleted once ticked. */
+  personal: boolean;
 }
 
 export type TodoBucket = 'overdue' | 'today' | 'upcoming' | 'someday' | 'done';
@@ -67,4 +71,10 @@ export function groupTodos<T extends Todo>(todos: T[], now = Date.now()): { buck
   map.get('someday')!.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   map.get('done')!.sort((a, b) => (b.doneAt ?? 0) - (a.doneAt ?? 0));
   return order.map((bucket) => ({ bucket, items: map.get(bucket)! })).filter((g) => g.items.length > 0);
+}
+
+/** Open reminders/tasks overdue or due before the end of today, soonest first (launcher "Today"). */
+export function todayReminders<T extends Pick<Todo, 'done' | 'dueAt'>>(todos: T[], now = Date.now()): T[] {
+  const { end } = dayBounds(now);
+  return todos.filter((t) => !t.done && t.dueAt != null && t.dueAt < end).sort((a, b) => a.dueAt! - b.dueAt!);
 }

@@ -19,7 +19,8 @@ import DayReportDialog from './DayReportDialog';
 import LeadImportDialog from './LeadImportDialog';
 import LeadInsights from './LeadInsights';
 import TrialRequestsView from './TrialRequestsView';
-import { LEADS_VIEW_KEY, leadsViewFrom, type LeadView } from '@/lib/platform/subNav';
+import { LEADS_VIEW_KEY, PHONE_LEAD_WINDOWS, leadsViewFrom, type LeadView } from '@/lib/platform/subNav';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { STATUS_STYLE, StatusPill, TagChip, downloadText, whenLabel } from './leadUi';
 
 type View = LeadView;
@@ -41,6 +42,8 @@ export default function PlatformLeadsPage() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  // Only shown where trial requests are (a failure must not block the rest of the page).
+  const [trialError, setTrialError] = useState('');
   const [trialRequests, setTrialRequests] = useState<PlatformCompany[] | null>(null);
   const [q, setQ] = useState('');
   const [tag, setTag] = useState('');
@@ -51,12 +54,18 @@ export default function PlatformLeadsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dragOver, setDragOver] = useState<BoardColumn | null>(null);
   const [params, setParams] = useSearchParams();
-  const view: View = leadsViewFrom(`?${params.toString()}`, readStoredView());
+  const phone = useMediaQuery('(max-width: 1023px)');
+  const rawView: View = leadsViewFrom(`?${params.toString()}`, readStoredView(), phone);
+  // The dashboard window only exists on phones; a desktop shows the board.
+  const view: View = rawView === 'dashboard' && !phone ? 'board' : rawView;
+  // Phone windows: the dashboard (stat tiles), one window per stage, analytics.
+  const stageView: BoardColumn | null = STAGE_VIEWS.includes(view) ? (view as BoardColumn) : null;
+  const windowLabel = PHONE_LEAD_WINDOWS.find((w) => w.id === view)?.label;
   const { start: startTour } = useTour();
   const openId = params.get('lead');
 
   const loadTrialRequests = useCallback(() => {
-    platformService.listCompanies().then((r) => setTrialRequests(r.companies)).catch((e) => setError(errorText(e, 'Could not load trial requests')));
+    platformService.listCompanies().then((r) => setTrialRequests(r.companies)).catch((e) => setTrialError(errorText(e, 'Could not load trial requests')));
   }, []);
   useEffect(loadTrialRequests, [loadTrialRequests]);
   const pendingTrials = (trialRequests ?? []).filter((c) => c.approvalStatus === 'pending').length;
@@ -150,15 +159,18 @@ export default function PlatformLeadsPage() {
   return (
     <div>
       <PageHeader
-        title="Leads"
-        subtitle="Prospects from outside marketing — calls, demos and follow-ups until they sign."
+        title={phone && windowLabel && view !== 'dashboard' ? `${windowLabel}${stageView ? ` · ${byStatus[stageView].length}` : ''}` : 'Leads'}
+        subtitle={phone ? undefined : 'Prospects from outside marketing — calls, demos and follow-ups until they sign.'}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            {/* On a phone the secondary tools live on the dashboard window only. */}
+            <div className={`flex-wrap items-center gap-2 ${phone && view !== 'dashboard' ? 'hidden' : 'flex'}`}>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} title="A short walkthrough of this page" onClick={() => startTour('leads')}><HelpCircle className="h-4 w-4" /> Page tour</button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('day')}><FileText className="h-4 w-4" /> Day report</button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} title="Export the filtered leads as CSV"
               onClick={() => downloadText(`leads-${new Date().toISOString().slice(0, 10)}.csv`, leadsToCsv(filtered))}><Download className="h-4 w-4" /></button>
             <button className={`${btn.ghost} inline-flex items-center gap-1.5`} onClick={() => setDialog('import')}><Upload className="h-4 w-4" /> Import</button>
+            </div>
             <button data-tour="leads-add" className={`${btn.primary} inline-flex items-center gap-1.5`} onClick={() => setDialog('add')}><Plus className="h-4 w-4" /> Add lead</button>
           </div>
         }
@@ -167,7 +179,7 @@ export default function PlatformLeadsPage() {
       {error && <div className="mb-4"><ErrorNote message={error} /></div>}
       {notice && <div className="mb-4 rounded-lg border border-emerald-700/50 bg-emerald-900/20 p-3 text-sm text-emerald-300">{notice}</div>}
 
-      <div data-tour="leads-stats" className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4 2xl:grid-cols-8">
+      <div data-tour="leads-stats" className={`mb-5 grid-cols-2 gap-3 md:grid-cols-4 2xl:grid-cols-8 ${!phone || view === 'dashboard' ? 'grid' : 'hidden'}`}>
         <StatTile icon={Users} tone="text-sky-300 bg-sky-900/40" value={stats.open} label="Open leads" />
         <StatTile icon={CalendarCheck} tone="text-violet-300 bg-violet-900/40" value={stats.demos} label="Demo booked or done" />
         <StatTile icon={CalendarDays} tone="text-fuchsia-300 bg-fuchsia-900/40" value={stats.demosToday} label="Demos today" />
@@ -178,23 +190,23 @@ export default function PlatformLeadsPage() {
         <StatTile icon={Wallet} tone="text-teal-300 bg-teal-900/40" value={revenueText(stats.revenue)} label="Revenue" />
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className={`mb-4 flex-wrap items-center gap-2 ${phone && (view === 'dashboard' || view === 'insights') ? 'hidden' : 'flex'}`}>
         {view !== 'trials' ? (<>
         <div className="relative min-w-[200px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
           <input className={`${input} pl-9!`} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, phone, city, campaign…" />
         </div>
-        <select className={`${input} w-auto!`} value={tag} onChange={(e) => setTag(e.target.value)}>
+        <select className={`${input} hidden w-auto! lg:block`} value={tag} onChange={(e) => setTag(e.target.value)}>
           <option value="">All tags</option>{LEAD_TAGS.map((t) => <option key={t}>{t}</option>)}
         </select>
-        <select className={`${input} w-auto!`} value={source} onChange={(e) => setSource(e.target.value)}>
+        <select className={`${input} hidden w-auto! lg:block`} value={source} onChange={(e) => setSource(e.target.value)}>
           <option value="">All sources</option>{sources.map((s) => <option key={s}>{s}</option>)}
         </select>
-        <select className={`${input} w-auto!`} value={owner} onChange={(e) => setOwner(e.target.value)}>
+        <select className={`${input} hidden w-auto! lg:block`} value={owner} onChange={(e) => setOwner(e.target.value)}>
           <option value="">Everyone</option><option value="__none">Unassigned</option>
           {team.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <label className="flex items-center gap-1.5 text-xs text-slate-400"><input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Archived</label>
+        <label className="hidden items-center gap-1.5 text-xs text-slate-400 lg:flex"><input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Archived</label>
         </>) : <div className="flex-1" />}
         <div className="hidden overflow-hidden rounded-lg border border-[#1E3A5F] lg:flex">
           <ViewBtn on={view === 'board'} onClick={() => setView('board')} title="Board"><KanbanSquare className="h-4 w-4" /></ViewBtn>
@@ -208,8 +220,22 @@ export default function PlatformLeadsPage() {
         </div>
       </div>
 
-      {view === 'trials' ? (
+      {phone && view === 'dashboard' ? null : stageView ? (
+        <div className="space-y-2">
+          {stageView === 'trial_requested' && (
+            <div className="mb-4">
+              {trialError && <div className="mb-3"><ErrorNote message={trialError} /></div>}
+              <TrialRequestsView requests={trialRequests} leads={all} team={team} onReload={loadTrialRequests} onOpenLead={openLead} onNotice={setNotice} />
+            </div>
+          )}
+          {!leads && !error ? <Loading /> : byStatus[stageView].map((l) => <LeadCard key={l.id} lead={l} owner={memberName(l.assignedTo)} onOpen={() => openLead(l.id)} />)}
+          {leads && byStatus[stageView].length === 0 && <p className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-8 text-center text-sm text-slate-400">No leads here.</p>}
+        </div>
+      ) : view === 'trials' ? (
+        <>
+        {trialError && <div className="mb-3"><ErrorNote message={trialError} /></div>}
         <TrialRequestsView requests={trialRequests} leads={all} team={team} onReload={loadTrialRequests} onOpenLead={openLead} onNotice={setNotice} />
+        </>
       ) : !leads && !error ? <Loading /> : view === 'insights' ? (
         <LeadInsights leads={all} team={team} onOpenLead={openLead} />
       ) : view === 'board' ? (
@@ -304,6 +330,7 @@ type BoardColumn = LeadStatus | typeof USING_TRIAL;
 /** Lives right after "Trial requested": leads that asked for a trial and have since started using it. */
 const USING_TRIAL = 'using_trial' as const;
 const BOARD_COLUMNS: BoardColumn[] = BOARD_STATUSES.flatMap((s) => (s === 'trial_requested' ? [s, USING_TRIAL] : [s])) as BoardColumn[];
+const STAGE_VIEWS: string[] = ['new', 'follow_up', 'called', 'not_answered', 'demo_booked', 'demo_done', 'trial_requested', USING_TRIAL, 'closed_won'];
 const columnOf = (l: Lead): BoardColumn => (l.status === 'trial_requested' && l.trialStartedAt ? USING_TRIAL : l.status);
 
 function LeadCard({ lead, owner, onOpen }: { lead: Lead; owner: string; onOpen: () => void }) {

@@ -4,7 +4,9 @@
  * Bugs), like the client app's launcher/dock. Pure so it can be unit-tested.
  */
 
-export type SubIcon = 'board' | 'list' | 'insights' | 'trials' | 'feature' | 'bug' | 'open' | 'done';
+export type SubIcon =
+  | 'board' | 'list' | 'insights' | 'trials' | 'feature' | 'bug' | 'open' | 'done'
+  | 'dashboard' | 'new' | 'follow_up' | 'called' | 'not_answered' | 'demo_booked' | 'demo_done' | 'trial_requested' | 'using_trial' | 'closed_won';
 
 export interface SubNavItem {
   id: string;
@@ -15,14 +17,40 @@ export interface SubNavItem {
 }
 
 export const LEADS_VIEW_KEY = 'platformLeads.view';
-export const LEAD_VIEWS = ['board', 'list', 'insights', 'trials'] as const;
-export type LeadView = (typeof LEAD_VIEWS)[number];
 
-/** The leads view in the URL, else the one last used on this device, else the board. */
-export function leadsViewFrom(search: string, stored: string | null): LeadView {
-  const q = new URLSearchParams(search).get('view');
-  const pick = (v: string | null) => (LEAD_VIEWS as readonly string[]).includes(v ?? '') ? (v as LeadView) : null;
-  return pick(q) ?? pick(stored) ?? 'board';
+/** Desktop views of the Leads page (switched with the buttons above the board). */
+export const DESKTOP_LEAD_VIEWS = ['board', 'list', 'insights', 'trials'] as const;
+
+/**
+ * Phone windows of the Leads page, in dock order: the dashboard, then one
+ * window per stage, then analytics. `insights` is the analytics window.
+ */
+export const PHONE_LEAD_WINDOWS: { id: string; label: string; icon: SubIcon }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { id: 'new', label: 'New', icon: 'new' },
+  { id: 'follow_up', label: 'Follow-up', icon: 'follow_up' },
+  { id: 'called', label: 'Called', icon: 'called' },
+  { id: 'not_answered', label: 'Not answered', icon: 'not_answered' },
+  { id: 'demo_booked', label: 'Demo booked', icon: 'demo_booked' },
+  { id: 'demo_done', label: 'Demo done', icon: 'demo_done' },
+  { id: 'trial_requested', label: 'Trial request', icon: 'trial_requested' },
+  { id: 'using_trial', label: 'Using trial', icon: 'using_trial' },
+  { id: 'closed_won', label: 'Closed won', icon: 'closed_won' },
+  { id: 'insights', label: 'Analytics', icon: 'insights' },
+];
+
+export type LeadView = (typeof DESKTOP_LEAD_VIEWS)[number] | (typeof PHONE_LEAD_WINDOWS)[number]['id'];
+const ALL_LEAD_VIEWS: readonly string[] = [...DESKTOP_LEAD_VIEWS, ...PHONE_LEAD_WINDOWS.map((w) => w.id)];
+
+/**
+ * The leads view in the URL; without one a phone opens the dashboard and a
+ * desktop the view last used on this device (else the board).
+ */
+export function leadsViewFrom(search: string, stored: string | null, phone = false): LeadView {
+  const pick = (v: string | null) => (ALL_LEAD_VIEWS.includes(v ?? '') ? (v as LeadView) : null);
+  const fromUrl = pick(new URLSearchParams(search).get('view'));
+  if (fromUrl) return fromUrl;
+  return phone ? 'dashboard' : pick(stored) ?? 'board';
 }
 
 export function featureTabFrom(search: string): 'feature' | 'bug' {
@@ -38,13 +66,8 @@ export function subNavFor(pathname: string, search: string, storedLeadsView: str
   const path = pathname.replace(/\/+$/, '');
   if (path === '/platform/leads') {
     return {
-      items: [
-        { id: 'board', label: 'Board', to: '/platform/leads?view=board', icon: 'board' },
-        { id: 'list', label: 'List', to: '/platform/leads?view=list', icon: 'list' },
-        { id: 'insights', label: 'Insights', to: '/platform/leads?view=insights', icon: 'insights' },
-        { id: 'trials', label: 'Trial requests', to: '/platform/leads?view=trials', icon: 'trials' },
-      ],
-      activeId: leadsViewFrom(search, storedLeadsView),
+      items: PHONE_LEAD_WINDOWS.map((w) => ({ id: w.id, label: w.label, to: `/platform/leads?view=${w.id}`, icon: w.icon })),
+      activeId: leadsViewFrom(search, storedLeadsView, true),
     };
   }
   if (path === '/platform/feature-requests') {

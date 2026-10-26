@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import type { LucideIcon } from 'lucide-react';
+import { BellRing, type LucideIcon } from 'lucide-react';
+import type { Todo } from '@/lib/platform/todos';
 
 export interface LauncherTile {
   to: string;
@@ -10,7 +11,7 @@ export interface LauncherTile {
 }
 
 /** Phone home of the platform console: one big icon per tab, like the client app's launcher. */
-export default function PlatformLauncher({ greeting, tiles }: { greeting: string; tiles: LauncherTile[] }) {
+export default function PlatformLauncher({ greeting, tiles, reminders }: { greeting: string; tiles: LauncherTile[]; reminders: Todo[] }) {
   return (
     <div className="mx-auto max-w-xl">
       <h1 className="text-2xl font-bold text-white!">{greeting}</h1>
@@ -30,6 +31,32 @@ export default function PlatformLauncher({ greeting, tiles }: { greeting: string
           </Link>
         ))}
       </div>
+
+      {/* Reminders from the To-Do tab that are due today (or overdue). */}
+      <section className="mt-8" aria-label="Today's reminders">
+        <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-amber-300!">
+          <BellRing className="h-4 w-4" /> Today's reminders · {reminders.length}
+        </p>
+        {reminders.length === 0 ? (
+          <p className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4 text-center text-sm text-slate-400">Nothing due today.</p>
+        ) : (
+          <ul className="divide-y divide-[#1E3A5F] overflow-hidden rounded-xl border border-[#1E3A5F] bg-[#0F1E35]">
+            {reminders.map((t) => (
+              <li key={t.id}>
+                <Link to="/platform/todos" className="flex items-start justify-between gap-3 px-4 py-3 hover:bg-[#142849]">
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-white">{t.title}</span>
+                    {t.leadName && <span className="block truncate text-xs text-slate-400">{t.leadName}</span>}
+                  </span>
+                  <span className={`shrink-0 text-xs ${t.dueAt! < Date.now() ? 'text-red-300' : 'text-slate-400'}`}>
+                    {new Date(t.dueAt!).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

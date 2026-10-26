@@ -3,10 +3,10 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { subscribeOpenTodos } from '@/services/platformTodosService';
 import { subscribeOpenCancellationCount } from '@/services/platformCancellationsService';
-import { countTodosDue, type Todo } from './todos';
+import { countTodosDue, todayReminders, type Todo } from './todos';
 
 /** Superadmins: open to-dos overdue or due today (To-Do nav badge). Re-counts every minute. */
-export function useTodosDue(enabled: boolean): number {
+export function useTodosDue(enabled: boolean, ownerUid?: string | null): number {
   const [open, setOpen] = useState<Todo[]>([]);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -18,8 +18,8 @@ export function useTodosDue(enabled: boolean): number {
       setOpen([]);
       return undefined;
     }
-    return subscribeOpenTodos(setOpen);
-  }, [enabled]);
+    return subscribeOpenTodos(setOpen, ownerUid);
+  }, [enabled, ownerUid]);
   return countTodosDue(open, now);
 }
 
@@ -101,4 +101,22 @@ export function useOpenCancellations(enabled: boolean): number {
     return subscribeOpenCancellationCount(setCount);
   }, [enabled]);
   return count;
+}
+
+/** Open to-dos due by the end of today (or overdue), for the launcher's Today list. A sales manager passes their uid. */
+export function useTodayReminders(enabled: boolean, ownerUid?: string | null): Todo[] {
+  const [open, setOpen] = useState<Todo[]>([]);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  useEffect(() => {
+    if (!enabled) {
+      setOpen([]);
+      return undefined;
+    }
+    return subscribeOpenTodos(setOpen, ownerUid);
+  }, [enabled, ownerUid]);
+  return todayReminders(open, now);
 }

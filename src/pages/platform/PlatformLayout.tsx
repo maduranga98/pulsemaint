@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Home, KanbanSquare, List, BarChart3, Hourglass, Bug, CheckCircle2, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers, UserCog } from 'lucide-react';
+import { Building2, ClipboardList, CreditCard, Gauge, LogOut, ArrowLeft, BellRing, Home, KanbanSquare, List, BarChart3, Hourglass, Bug, CheckCircle2, LayoutDashboard, Inbox, PhoneForwarded, Phone, PhoneMissed, CalendarCheck, CalendarClock, FlaskConical, Rocket, Trophy, Contact, PhoneCall, Wallet, Lightbulb, ListTodo, UserX, Layers, UserCog } from 'lucide-react';
 import { useSuperadmin } from '@/lib/platform/useSuperadmin';
 import { usePlatformUnread } from '@/lib/platform/usePlatformUnread';
 import { usePaymentAlerts } from '@/lib/platform/usePaymentAlerts';
 import { useCallsDue } from '@/lib/platform/useCallsDue';
 import { usePendingRegistrations } from '@/lib/platform/usePendingRegistrations';
-import { useNewLeads, useOpenCancellations, useTodosDue, useUnseenFeatureRequests } from '@/lib/platform/useNavBadges';
+import { useNewLeads, useOpenCancellations, useTodayReminders, useTodosDue, useUnseenFeatureRequests } from '@/lib/platform/useNavBadges';
 import { getNotificationPermission, isDeviceNotificationSupported, requestDeviceNotificationPermission } from '@/lib/notifications/deviceNotify';
 import { logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -38,6 +38,8 @@ const NAV: readonly NavItem[] = [
 /** The only console pages a sales manager (no superadmin claim) may open. */
 const SUB_ICON: Record<SubIcon, typeof Gauge> = {
   board: KanbanSquare, list: List, insights: BarChart3, trials: Hourglass, feature: Lightbulb, bug: Bug, open: ListTodo, done: CheckCircle2,
+  dashboard: LayoutDashboard, new: Inbox, follow_up: PhoneForwarded, called: Phone, not_answered: PhoneMissed, demo_booked: CalendarCheck,
+  demo_done: CalendarClock, trial_requested: FlaskConical, using_trial: Rocket, closed_won: Trophy,
 };
 
 /** Phone start page (the launcher) and the pages a sales manager may open. */
@@ -69,7 +71,7 @@ function NavBadge({ count, title }: { count: number; title?: string }) {
  * Signed-in accounts without the superadmin claim see the activation page.
  */
 export default function PlatformLayout() {
-  const { ready, signedIn, isSuperadmin, isSalesManager, email } = useSuperadmin();
+  const { ready, signedIn, isSuperadmin, isSalesManager, email, uid } = useSuperadmin();
   const salesOnly = isSalesManager && !isSuperadmin;
   const salesAccess = isSuperadmin || isSalesManager;
   const hasCompany = useAuthStore((s) => !!s.userProfile);
@@ -78,7 +80,11 @@ export default function PlatformLayout() {
   const paymentAlerts = usePaymentAlerts(ready && isSuperadmin);
   const callsDue = useCallsDue(ready && salesAccess);
   const pendingRegistrations = usePendingRegistrations(ready && salesAccess);
-  const todosDue = useTodosDue(ready && salesAccess);
+  // A sales manager's to-dos are their own: nothing else is readable (or counted).
+  const todoOwner = isSuperadmin ? null : uid;
+  const todoEnabled = ready && salesAccess && (isSuperadmin || !!uid);
+  const todosDue = useTodosDue(todoEnabled, todoOwner);
+  const reminders = useTodayReminders(todoEnabled, todoOwner);
   const newLeads = useNewLeads(ready && salesAccess);
   const unseenFeatures = useUnseenFeatureRequests(ready && salesAccess);
   const openCancellations = useOpenCancellations(ready && isSuperadmin);
@@ -112,7 +118,9 @@ export default function PlatformLayout() {
   try {
     storedLeadsView = localStorage.getItem(LEADS_VIEW_KEY);
   } catch { /* private mode */ }
-  const sub = subNavFor(location.pathname, location.search, storedLeadsView);
+  const subAll = subNavFor(location.pathname, location.search, storedLeadsView);
+  // A sales manager's to-dos are only open reminders: no Open/Done switch.
+  const sub = salesOnly && location.pathname.startsWith('/platform/todos') ? { items: [], activeId: null } : subAll;
   const hour = new Date().getHours();
   const greeting = `${hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'}${email ? `, ${email.split('@')[0]}` : ''}`;
 
@@ -191,7 +199,7 @@ export default function PlatformLayout() {
         </header>
 
         <main className="min-w-0 flex-1 overflow-y-auto px-4 py-5 sm:px-8 lg:py-6">
-          {isHome && <PlatformLauncher greeting={greeting} tiles={items.map((i) => ({ to: i.to, label: i.label, icon: i.icon, badge: badges[i.to] ?? 0, badgeTitle: BADGE_TITLE[i.to] }))} />}
+          {isHome && <PlatformLauncher greeting={greeting} reminders={reminders} tiles={items.map((i) => ({ to: i.to, label: i.label, icon: i.icon, badge: badges[i.to] ?? 0, badgeTitle: BADGE_TITLE[i.to] }))} />}
           {!salesOnly && (
             <div className="mb-4 hidden justify-end lg:flex">
               <PlatformBell paymentAlerts={paymentAlerts} requests={unread} />

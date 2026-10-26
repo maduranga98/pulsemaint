@@ -17,8 +17,17 @@ describe('platform phone dock sub-views', () => {
     expect(subNavFor('/platform/todos', '?tab=done').activeId).toBe('done');
     expect(todoTabFrom('')).toBe('open');
   });
-  it('leads show board, list, insights, trials', () => {
-    expect(subNavFor('/platform/leads/', '').items.map((i) => i.id)).toEqual(['board', 'list', 'insights', 'trials']);
+  it('leads show the phone windows in order: dashboard, stages, analytics', () => {
+    const r = subNavFor('/platform/leads/', '');
+    expect(r.items.map((i) => i.id)).toEqual([
+      'dashboard', 'new', 'follow_up', 'called', 'not_answered', 'demo_booked', 'demo_done', 'trial_requested', 'using_trial', 'closed_won', 'insights',
+    ]);
+    expect(r.activeId).toBe('dashboard');
+    expect(subNavFor('/platform/leads', '?view=called').activeId).toBe('called');
+  });
+  it('a desktop without a view opens the stored one, a phone the dashboard', () => {
+    expect(leadsViewFrom('', 'list')).toBe('list');
+    expect(leadsViewFrom('', 'list', true)).toBe('dashboard');
   });
   it('pages without sub-views have none (home only)', () => {
     expect(subNavFor('/platform/calls', '').items).toEqual([]);

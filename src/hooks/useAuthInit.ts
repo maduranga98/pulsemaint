@@ -74,8 +74,12 @@ export function useAuthInit() {
           // AFTER createUserWithEmailAndPassword(), which is what
           // triggers this listener. Retry a few times so we don't
           // strand the OnboardingWizard on its loading gate.
-          let companyId = await getCompanyIdFromUser(user.uid);
-          for (let attempt = 0; !companyId && attempt < 6; attempt++) {
+          // Lumora sales managers have no company at all (platform console
+          // only): skip the lookup instead of waiting ~3 s for a mapping that
+          // will never exist.
+          const platformOnly = (await user.getIdTokenResult()).claims.salesManager === true;
+          let companyId = platformOnly ? null : await getCompanyIdFromUser(user.uid);
+          for (let attempt = 0; !platformOnly && !companyId && attempt < 6; attempt++) {
             await new Promise((resolve) => setTimeout(resolve, 500));
             companyId = await getCompanyIdFromUser(user.uid);
           }
@@ -175,7 +179,7 @@ export function useAuthInit() {
                 console.error('Failed to subscribe to user profile', err);
               },
             );
-          } else if (!useAuthStore.getState().userProfile) {
+          } else if (!platformOnly && !useAuthStore.getState().userProfile) {
             console.warn('Company ID not found for user');
           }
         } else {
