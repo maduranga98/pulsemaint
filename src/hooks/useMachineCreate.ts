@@ -88,7 +88,6 @@ export function useMachineCreate({
           : null,
         expectedLifespanYears: payload.expectedLifespanYears || null,
         purchasePrice: payload.purchasePrice ?? null,
-        scrapValue: payload.scrapValue ?? null,
         department: payload.department,
         floor: payload.floor || null,
         bay: payload.bay || null,

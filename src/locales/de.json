@@ -2020,7 +2020,6 @@
         "adviceWatch": "Die Instandhaltungskosten nähern sich der Hälfte des Maschinenpreises – im Auge behalten.",
         "adviceReplace": "Ersatz erwägen: Die Instandhaltungskosten sind im Vergleich zu Preis oder aktuellem Wert der Maschine sehr hoch.",
         "errAmounts": "Beträge müssen 0 oder mehr betragen.",
-        "errScrapOverPrice": "Der Schrottwert darf den Kaufpreis nicht übersteigen.",
         "scrap": {
           "title": "{{name}} verschrotten",
           "intro": "Die Maschine rutscht ans Listenende und wird als Verschrottet markiert. Der Verlauf bleibt erhalten, aktive PM-Pläne werden archiviert (sie kommen zurück, wenn Sie die Verschrottung rückgängig machen).",
@@ -10753,7 +10752,7 @@
               "Öffnen Sie Maschinen und nutzen Sie Maschine hinzufügen (oder Bearbeiten bei einer vorhandenen). Admins und Werksleiter sehen Kaufpreis und Erwarteter Schrottwert neben Kaufdatum und erwarteter Lebensdauer.",
               "Geben Sie den Kaufpreis und den erwarteten Wert bei der Verschrottung ein. Beträge sind in Ihrer Firmenwährung.",
               "Öffnen Sie die Maschine und sehen Sie Übersicht: Die Karte Anlagenwert zeigt jährliche Abschreibung, bisherige Abschreibung und den aktuellen Wert, linear über die erwartete Lebensdauer berechnet.",
-              "Viele Maschinen auf einmal? Laden Sie unter Import die CSV-Vorlage herunter – sie enthält die Spalten expected_lifespan_years, purchase_price und scrap_value.",
+              "Viele Maschinen auf einmal? Laden Sie unter Import die CSV-Vorlage herunter – sie enthält die Spalten expected_lifespan_years und purchase_price.",
               "Die Karte addiert auch die Instandhaltungskosten und warnt, wenn die Reparatur mehr kostet, als die Maschine wert ist."
             ]
           },

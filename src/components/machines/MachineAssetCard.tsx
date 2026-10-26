@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import { formatMoney, getCompanyCurrency } from '@/lib/currency';
-import { annualDepreciation, bookValue, depreciationSoFar, replaceAdvice, workOrderCost } from '../../lib/machineAsset';
+import { annualDepreciation, bookValue, depreciationSoFar, expectedScrapValue, replaceAdvice, workOrderCost } from '../../lib/machineAsset';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { subscribeOutsourcedMaintenance } from '../../services/machineOutsourced.service';
 import type { Machine } from '../../types/machine';
@@ -22,7 +22,7 @@ const toMs = (t: { toDate?: () => Date; seconds?: number } | null | undefined): 
   t ? (t.toDate ? t.toDate().getTime() : t.seconds != null ? t.seconds * 1000 : null) : null;
 
 /**
- * Purchase price, scrap value, current (straight-line) value and what outside maintenance has cost so far.
+ * Purchase price, expected scrap value (worked out from price and lifespan), current (straight-line) value and what outside maintenance has cost so far.
  * Shown to admins and plant managers only — see the firestore rules for the cost records it reads.
  */
 export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId: string }) {
@@ -30,7 +30,6 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [price, setPrice] = useState(machine.purchasePrice != null ? String(machine.purchasePrice) : '');
-  const [scrapValue, setScrapValue] = useState(machine.scrapValue != null ? String(machine.scrapValue) : '');
   const [outsourcedTotal, setOutsourcedTotal] = useState(0);
   // Parts and contractor charges on this machine's finished work orders.
   const { workOrders } = useWorkOrders({ machineId: machine.id });
@@ -41,21 +40,20 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
     (rows) => setOutsourcedTotal(rows.reduce((s, r) => s + r.totalCost, 0)), () => setOutsourcedTotal(0)), [siteId, machine.id]);
 
   const book = useMemo(() => bookValue({
-    purchasePrice: machine.purchasePrice, scrapValue: machine.scrapValue,
+    purchasePrice: machine.purchasePrice,
     purchasedAtMs: toMs(machine.purchaseDate), lifespanYears: machine.expectedLifespanYears,
-  }), [machine.purchasePrice, machine.scrapValue, machine.purchaseDate, machine.expectedLifespanYears]);
-  const yearly = annualDepreciation({ purchasePrice: machine.purchasePrice, scrapValue: machine.scrapValue, lifespanYears: machine.expectedLifespanYears });
+  }), [machine.purchasePrice, machine.purchaseDate, machine.expectedLifespanYears]);
+  const scrap = expectedScrapValue({ purchasePrice: machine.purchasePrice, lifespanYears: machine.expectedLifespanYears });
+  const yearly = annualDepreciation({ purchasePrice: machine.purchasePrice, lifespanYears: machine.expectedLifespanYears });
   const written = depreciationSoFar(machine.purchasePrice, book);
   const advice = ADVICE[replaceAdvice({ purchasePrice: machine.purchasePrice, maintenanceCost: maintenanceTotal, bookValue: book })];
 
   async function save() {
     const p = price.trim() === '' ? null : Number(price);
-    const s = scrapValue.trim() === '' ? null : Number(scrapValue);
-    if ((p != null && (!Number.isFinite(p) || p < 0)) || (s != null && (!Number.isFinite(s) || s < 0))) return toast.error(t('common.machines.asset.errAmounts'));
-    if (p != null && s != null && s > p) return toast.error(t('common.machines.asset.errScrapOverPrice'));
+    if (p != null && (!Number.isFinite(p) || p < 0)) return toast.error(t('common.machines.asset.errAmounts'));
     setSaving(true);
     try {
-      await updateDoc(doc(db, 'machines', machine.id), { purchasePrice: p, scrapValue: s, updatedAt: serverTimestamp() });
+      await updateDoc(doc(db, 'machines', machine.id), { purchasePrice: p, updatedAt: serverTimestamp() });
       toast.success(t('common.machines.asset.saved'));
       setEditing(false);
     } catch (e) {
@@ -85,8 +83,6 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-sm"><span className="mb-1 block font-medium text-gray-700">{t('common.machines.asset.purchasePrice')} ({getCompanyCurrency()})</span>
               <input type="number" min={0} className={input} value={price} onChange={(e) => setPrice(e.target.value)} /></label>
-            <label className="text-sm"><span className="mb-1 block font-medium text-gray-700">{t('common.machines.asset.scrapValue')} ({getCompanyCurrency()})</span>
-              <input type="number" min={0} className={input} value={scrapValue} onChange={(e) => setScrapValue(e.target.value)} /></label>
           </div>
           <p className="text-xs text-gray-500">{t('common.machines.asset.depreciationHint')}</p>
           <div className="flex gap-2">
@@ -98,7 +94,7 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
         <>
           <dl className="grid gap-x-10 gap-y-2 text-sm sm:grid-cols-2">
             {row(t('common.machines.asset.purchasePrice'), money(machine.purchasePrice))}
-            {row(t('common.machines.asset.scrapValue'), money(machine.scrapValue))}
+            {row(t('common.machines.asset.scrapValue'), scrap == null ? t('common.machines.asset.currentValueMissing') : `${money(scrap.value)} (${scrap.percent}%)`)}
             {row(t('common.machines.asset.annualDepreciation'), yearly == null ? t('common.machines.asset.currentValueMissing') : t('common.machines.asset.perYear', { amount: money(yearly) }))}
             {row(t('common.machines.asset.accumulatedDepreciation'), written == null ? t('common.machines.asset.currentValueMissing') : `${money(written.amount)} (${written.percent}%)`)}
             {row(t('common.machines.asset.currentValue'), book == null ? t('common.machines.asset.currentValueMissing') : money(book))}

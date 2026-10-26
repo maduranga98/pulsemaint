@@ -30,7 +30,7 @@ Who can do what:
 |---|---|
 | View the machine list and a machine profile | Roles that have access to the module (for example supervisor, plant manager, admin, technician, trainee) |
 | **+ Add Machine**, **Import** (bulk), **Edit**, **View QR Code** | Supervisor, Plant manager, Admin |
-| Purchase price, scrap value, **Scrap machine**, the **Analytics** tab | Plant manager and Admin only |
+| Purchase price, expected scrap value, **Scrap machine**, the **Analytics** tab | Plant manager and Admin only |
 | Report a breakdown by scanning the QR code | Anyone with a phone — no login is needed |
 
 Plant and department rules: a person only sees the machines of their own plant, and a technician,
@@ -83,8 +83,9 @@ has no plants yet is not asked for a plant at all). Everyone else adds the machi
 - **Model** — optional. **Serial number** — optional, but unique serial numbers make the machine easy to identify.
 - **Purchase date**, **Installation date** — optional dates.
 - **Expected lifespan (years)** — optional, a whole number from 1 to 100.
-- **Purchase price** and **Scrap value** — only shown to plant manager and admin; the scrap value
-  cannot be higher than the purchase price.
+- **Purchase price** — only shown to plant manager and admin. The **Expected scrap value** is not typed in:
+  it is worked out from the purchase price and expected lifespan (20% of the price for under 5 years,
+  10% for 5–10 years, 5% beyond) and shown on the machine's Asset value card.
 
 ### Step 2 — Location
 - **Plant** — only shown to an admin who has not picked a plant tab (and only if the company has plants).
@@ -131,7 +132,7 @@ Use this when you have a spreadsheet of machines.
    or Google Sheets. It already contains one example row — replace it with your machines.
 3. Fill one machine per row. Keep the header row exactly as it is. Column names (all lower case):
 
-   `name, type, manufacturer, model, serial_number, department, floor, bay, station, status, criticality, purchase_date, installation_date, next_pm_date, expected_lifespan_years, purchase_price, scrap_value, warranty_items, spare_parts, modification_notes, additional_notes`
+   `name, type, manufacturer, model, serial_number, department, floor, bay, station, status, criticality, purchase_date, installation_date, next_pm_date, expected_lifespan_years, purchase_price, warranty_items, spare_parts, modification_notes, additional_notes`
 
 4. Rules for the cells:
    - **Required in every row:** `name`, `type`, `manufacturer`. A row without them is marked with a red error and will not be imported.
@@ -141,7 +142,7 @@ Use this when you have a spreadsheet of machines.
    - `status`: `active`, `under_maintenance` or `decommissioned` (blank means `active`).
    - `criticality`: a number 1–5 (1 = lowest, 5 = Mission Critical). Blank or invalid becomes 3.
    - Dates (`purchase_date`, `installation_date`, `next_pm_date`): write them as `YYYY-MM-DD`, for example `2026-09-01`.
-   - `expected_lifespan_years`, `purchase_price`, `scrap_value`: plain numbers (commas are allowed, negative numbers are not).
+   - `expected_lifespan_years`, `purchase_price`: plain numbers (commas are allowed, negative numbers are not).
      Scrap value must not be more than the purchase price. Prices are only saved when the importer is a plant manager or admin.
    - `warranty_items`: `Part Name:Expiry Date:Supplier Ref`, and separate several items with `;`
      (example: `Spindle Motor:2027-01-31:REF-123; Coolant Pump:2026-06-30`).
