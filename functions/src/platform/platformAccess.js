@@ -35,6 +35,20 @@ function requireSuperadmin(request) {
   return { uid: request.auth.uid, email: request.auth.token.email ?? null };
 }
 
+/**
+ * Sales access = superadmin OR a sales manager (Firebase Auth custom claim
+ * `salesManager: true`, granted by a superadmin through platformCreateSalesManager).
+ * Sales managers only reach the sales part of the console.
+ */
+function requireSalesAccess(request) {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
+  const t = request.auth.token || {};
+  if (t.superadmin !== true && t.salesManager !== true) {
+    throw new HttpsError("permission-denied", "Sales access required");
+  }
+  return { uid: request.auth.uid, email: t.email ?? null, superadmin: t.superadmin === true };
+}
+
 /** Every superadmin action is written to platformAuditLog. */
 async function audit(actor, action, details) {
   await db.collection("platformAuditLog").add({
@@ -62,6 +76,7 @@ module.exports = {
   PLATFORM_ALERT_EMAIL,
   bootstrapSuperadminEmails,
   requireSuperadmin,
+  requireSalesAccess,
   audit,
   monthlyValue,
   toMillis,

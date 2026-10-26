@@ -17,7 +17,6 @@ import { StatusPill, TagChip, fromLocalInput, toLocalInput, whenLabel } from './
 import TodoDialog from '../todos/TodoDialog';
 import { useCompanyOptions } from '../useCompanyOptions';
 import CallRecorder, { type RecordedCall } from './CallRecorder';
-import { analysisToNote } from '@/lib/platform/callRecording';
 
 type Panel = 'call' | 'note' | 'demo' | 'issue' | null;
 
@@ -206,7 +205,6 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
                     leadId={lead.id}
                     value={recorded}
                     onChange={setRecorded}
-                    onSummary={(a) => setCallNote((prev) => [prev.trim(), analysisToNote(a)].filter(Boolean).join('\n\n'))}
                   />
                   <textarea className={input} rows={6} value={callNote} onChange={(e) => setCallNote(e.target.value)} placeholder="What they said…" />
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -228,7 +226,7 @@ export default function LeadDetailPanel({ lead, team, onClose, onEdit }: {
                   <button className={btn.primary} disabled={busy} onClick={() => void run(
                     () => logCall(lead, {
                       outcome, body: callNote, nextCallAt: fromLocalInput(nextCall), followUpNote: nextCall ? followUpNote : '',
-                      ...(recorded ? { recording: recorded.recording, transcript: recorded.analysis?.transcript ?? '', spokenLanguage: recorded.analysis?.languageName ?? null } : {}),
+                      ...(recorded ? { recording: recorded.recording } : {}),
                     }),
                     () => { setCallNote(''); setNextCall(''); setFollowUpNote(''); setOutcome('spoke'); setRecorded(null); },
                   )}>{busy ? 'Saving…' : 'Log call'}</button>

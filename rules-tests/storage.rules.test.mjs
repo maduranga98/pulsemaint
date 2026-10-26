@@ -131,3 +131,15 @@ describe('outsourced maintenance invoices', () => {
     await assertFails(deleteObject(ref(member('B'), `${base}${++n}_x.pdf`)));
   });
 });
+
+describe('sales call recordings', () => {
+  it('sales managers and superadmins read them; ordinary users do not', async () => {
+    const p = 'platformLeadCalls/l1/call.webm';
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await uploadBytes(ref(ctx.storage(), p), new Uint8Array([1, 2, 3]), { contentType: 'audio/webm' });
+    });
+    await assertSucceeds(getBytes(ref(env.authenticatedContext('sm1', { salesManager: true }).storage(), p)));
+    await assertSucceeds(getBytes(ref(env.authenticatedContext('root', { superadmin: true }).storage(), p)));
+    await assertFails(getBytes(ref(env.authenticatedContext('u1', { companyId: 'A' }).storage(), p)));
+  });
+});

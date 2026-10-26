@@ -986,8 +986,10 @@ const {
 const {
   platformListPayments, platformDailyBillingDigest,
 } = require("./src/platform/platformPayments");
-const {platformTranscribeCall} = require("./src/platform/callRecordings");
-exports.platformTranscribeCall = platformTranscribeCall;
+const {platformListSalesManagers, platformCreateSalesManager, platformManageSalesManager} = require("./src/platform/salesManagers");
+exports.platformListSalesManagers = platformListSalesManagers;
+exports.platformCreateSalesManager = platformCreateSalesManager;
+exports.platformManageSalesManager = platformManageSalesManager;
 const {onSupportRequestCreated, onSupportMessageCreated, onSupportRequestStatusChanged} = require("./src/platform/supportRequests");
 const {onCompanyRegistered} = require("./src/platform/companyApprovals");
 const {onUserMappingWritten, syncCompanyClaim} = require("./src/auth/companyClaim");

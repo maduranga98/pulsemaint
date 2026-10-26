@@ -754,3 +754,37 @@ describe('retentionStatus (export-before-delete banner)', () => {
     await assertFails(getDoc(doc(as('adminB'), 'retentionStatus/A')));
   });
 });
+
+describe('sales managers (custom claim salesManager) reach only the sales part of the console', () => {
+  const lead = { businessName: 'Acme', status: 'new' };
+  it('read and write the sales collections like a superadmin', async () => {
+    const sm = as('sm1', { salesManager: true });
+    await assertSucceeds(setDoc(doc(sm, 'platformLeads/l1'), lead));
+    await assertSucceeds(getDoc(doc(sm, 'platformLeads/l1')));
+    await assertSucceeds(setDoc(doc(sm, 'platformTodos/t1'), { kind: 'task', title: 'Call', done: false }));
+    await assertSucceeds(setDoc(doc(sm, 'platformCounters/leads'), { next: 2 }));
+    await assertSucceeds(setDoc(doc(sm, 'platformFeatureRequests/f1'), { type: 'feature', status: 'requested', title: 'x' }));
+  });
+  it('cannot read companies, payments alerts, expenses, the roster or the audit log', async () => {
+    const sm = as('sm1', { salesManager: true });
+    await assertFails(getDoc(doc(sm, 'platformExpenses/e1')));
+    await assertFails(getDoc(doc(sm, 'platformCancellations/c1')));
+    await assertFails(getDoc(doc(sm, 'platformSalesManagers/sm1')));
+    await assertFails(getDoc(doc(sm, 'platformAuditLog/a1')));
+    await assertFails(getDocs(query(collection(sm, 'platformNotifications'), where('type', '==', 'payment'))));
+  });
+  it('may read registration alerts only', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'platformNotifications/n1'), { type: 'registration', read: false });
+    });
+    const sm = as('sm1', { salesManager: true });
+    await assertSucceeds(getDocs(query(collection(sm, 'platformNotifications'), where('type', '==', 'registration'))));
+  });
+  it('people without the claim get nothing', async () => {
+    await assertFails(setDoc(doc(as('x1'), 'platformLeads/l2'), lead));
+    await assertFails(setDoc(doc(as('x1', { salesManager: false }), 'platformLeads/l2'), lead));
+  });
+  it('nobody can write the roster from a client', async () => {
+    await assertFails(setDoc(doc(as('root', { superadmin: true }), 'platformSalesManagers/sm1'), { name: 'x' }));
+  });
+});

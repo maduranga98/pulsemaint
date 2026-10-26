@@ -153,6 +153,8 @@ import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 // Billing
 import BillingPage from '../pages/billing/BillingPage';
 import SupportRequestsPage from '../pages/support/SupportRequestsPage';
+import PlatformLoginPage from '../pages/platform/PlatformLoginPage';
+import PlatformSalesManagersPage from '../pages/platform/PlatformSalesManagersPage';
 import PlatformLayout from '../pages/platform/PlatformLayout';
 import PlatformOverviewPage from '../pages/platform/PlatformOverviewPage';
 import PlatformCompaniesPage from '../pages/platform/PlatformCompaniesPage';
@@ -1083,6 +1085,7 @@ export default function AppRouter() {
 
       {/* Lumora Ventures platform console — its own shell and superadmin
           guard (Firebase custom claim), outside the tenant app. */}
+      <Route path="/platform/login" element={<PlatformLoginPage />} />
       <Route path="/platform" element={<PlatformLayout />}>
         <Route index element={<PlatformOverviewPage />} />
         <Route path="trial-requests" element={<Navigate to="/platform/leads?view=trials" replace />} />
@@ -1098,6 +1101,7 @@ export default function AppRouter() {
         <Route path="sales-team" element={<Navigate to="/platform/expenses" replace />} />
         <Route path="feature-requests" element={<PlatformFeatureRequestsPage />} />
         <Route path="todos" element={<PlatformTodosPage />} />
+        <Route path="sales-managers" element={<PlatformSalesManagersPage />} />
         <Route path="cancellations" element={<PlatformCancellationsPage />} />
       </Route>
 

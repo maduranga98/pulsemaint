@@ -1,35 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Mic, Square, Trash2 } from 'lucide-react';
-import {
-  CALL_LANGUAGES, canTranscribe, formatDuration, pickRecordingMime,
-  type CallAnalysis, type CallRecordingInfo,
-} from '@/lib/platform/callRecording';
-import { transcribeCallRecording, uploadCallRecording } from '@/services/platformCallRecordings';
-import { btn, input } from '../platformUi';
+import { formatDuration, pickRecordingMime, type CallRecordingInfo } from '@/lib/platform/callRecording';
+import { uploadCallRecording } from '@/services/platformCallRecordings';
+import { btn } from '../platformUi';
 
 export interface RecordedCall {
   recording: CallRecordingInfo;
-  analysis: CallAnalysis | null;
 }
 
 /**
- * Records the call from the microphone (put the phone on speaker), saves the
- * audio, and — once recording stops — transcribes it and summarises what the
- * customer needs in the language they spoke. The parent receives the result and
- * stores it with the call log, so the audio stays on the lead's profile.
+ * Records the call from the microphone (put the phone on speaker) and saves
+ * the audio. Nothing is transcribed or translated: the person types what was
+ * said in the call note. The parent stores the audio with the call log, so it
+ * stays on the lead's profile.
  */
-export default function CallRecorder({ leadId, value, onChange, onSummary }: {
+export default function CallRecorder({ leadId, value, onChange }: {
   leadId: string;
   value: RecordedCall | null;
   onChange: (v: RecordedCall | null) => void;
-  /** Called with the analysis so the parent can fill the call note. */
-  onSummary: (a: CallAnalysis) => void;
 }) {
   const [state, setState] = useState<'idle' | 'recording' | 'processing'>('idle');
   const [seconds, setSeconds] = useState(0);
-  const [language, setLanguage] = useState('auto');
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -55,7 +47,6 @@ export default function CallRecorder({ leadId, value, onChange, onSummary }: {
 
   async function start() {
     setError(null);
-    setNotice(null);
     try {
       const mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true } });
       stream.current = mic;
@@ -93,20 +84,7 @@ export default function CallRecorder({ leadId, value, onChange, onSummary }: {
       setError('The recording could not be saved. Check your connection and record again.');
       return;
     }
-    // The audio is safe from here on; transcription is best effort.
-    let analysis: CallAnalysis | null = null;
-    if (!canTranscribe(mime)) {
-      setNotice('Audio saved. This browser records a format that can\'t be transcribed — use Chrome, Edge or Firefox for summaries.');
-    } else {
-      try {
-        analysis = await transcribeCallRecording(leadId, info.path, language);
-        if (!analysis.transcript) setNotice('Audio saved, but no speech was detected.');
-        else onSummary(analysis);
-      } catch (e) {
-        setNotice(`Audio saved, but it could not be summarised${e instanceof Error && e.message ? ` (${e.message})` : ''}. You can still type the note.`);
-      }
-    }
-    onChange({ recording: info, analysis });
+    onChange({ recording: info });
     setState('idle');
   }
 
@@ -127,24 +105,15 @@ export default function CallRecorder({ leadId, value, onChange, onSummary }: {
             <Mic className="h-4 w-4 text-red-400" /> {value ? 'Record again' : 'Record call'}
           </button>
         )}
-        <select
-          className={`${input} !w-auto !py-1.5 text-xs`}
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          disabled={state !== 'idle'}
-          aria-label="Spoken language"
-        >
-          {CALL_LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
-        </select>
         {state === 'processing' && (
           <span className="inline-flex items-center gap-1.5 text-xs text-sky-300">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving and summarising…
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving the recording…
           </span>
         )}
       </div>
 
       {state === 'idle' && !value && (
-        <p className="text-xs text-slate-500">Put the call on speaker and record it. When you stop, it's saved to this lead and the customer's needs are summarised in the language they spoke.</p>
+        <p className="text-xs text-slate-500">Put the call on speaker and record it. When you stop, the audio is saved with this call. Then type what they said below.</p>
       )}
 
       {value && state !== 'processing' && (
@@ -155,13 +124,10 @@ export default function CallRecorder({ leadId, value, onChange, onSummary }: {
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
-          {value.analysis?.languageName && value.analysis.transcript && (
-            <p className="text-xs text-slate-400">Detected language: <span className="text-slate-200">{value.analysis.languageName}</span> · {formatDuration(value.recording.durationSec)}</p>
-          )}
+          <p className="text-xs text-slate-400">{formatDuration(value.recording.durationSec)}</p>
         </div>
       )}
 
-      {notice && <p className="text-xs text-amber-300">{notice}</p>}
       {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );
