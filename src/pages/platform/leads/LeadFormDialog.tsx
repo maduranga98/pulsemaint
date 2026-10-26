@@ -30,16 +30,25 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
    */
   function applyPaste(text: string) {
     const p = parseLeadText(text);
-    setF((prev) => ({
-      ...prev,
-      businessName: p.company || p.name || prev.businessName,
-      contactPerson: p.name || prev.contactPerson,
-      phone: p.phone || prev.phone,
-      whatsapp: p.whatsapp && p.whatsapp !== (p.phone || prev.phone) ? p.whatsapp : prev.whatsapp,
-      email: p.email || prev.email,
-      website: p.website || prev.website,
-      location: p.location || prev.location,
-    }));
+    setF((prev) => {
+      const phone = p.phone || prev.phone;
+      return {
+        ...prev,
+        businessName: p.company || p.name || prev.businessName,
+        contactPerson: p.name || prev.contactPerson,
+        phone,
+        // WhatsApp: the pasted one, otherwise it follows the phone number.
+        whatsapp: p.whatsapp || (!prev.whatsapp || prev.whatsapp === prev.phone ? phone : prev.whatsapp),
+        email: p.email || prev.email,
+        website: p.website || prev.website,
+        location: p.location || prev.location,
+      };
+    });
+  }
+
+  /** New leads: the WhatsApp number follows the phone until it is typed separately. */
+  function setPhone(v: string) {
+    setF((prev) => ({ ...prev, phone: v, whatsapp: !prev.whatsapp || prev.whatsapp === prev.phone ? v : prev.whatsapp }));
   }
 
   const dup = f.phone && phoneKey(f.phone).length >= 9
@@ -95,9 +104,9 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
         <Field label="Business name *"><input className={input} value={f.businessName} onChange={(e) => set('businessName', e.target.value)} placeholder="Silva Engineering (Pvt) Ltd" autoFocus /></Field>
         <Field label="Contact person"><input className={input} value={f.contactPerson} onChange={(e) => set('contactPerson', e.target.value)} placeholder="Nimal Silva" /></Field>
         <Field label="Phone" hint={dup ? `Same number as “${dup.businessName}” — possible duplicate.` : undefined}>
-          <input className={input} value={f.phone} onChange={(e) => set('phone', e.target.value)} placeholder="077 123 4567" inputMode="tel" />
+          <input className={input} value={f.phone} onChange={(e) => setPhone(e.target.value)} placeholder="077 123 4567" inputMode="tel" />
         </Field>
-        <Field label="WhatsApp" hint="Only if different from the phone — leave empty to use the phone number.">
+        <Field label="WhatsApp" hint="Filled from the phone number — change it only if different.">
           <input className={input} value={f.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} placeholder="077 123 4567" inputMode="tel" />
         </Field>
         <Field label="Email"><input className={input} type="email" value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="owner@example.com" /></Field>
@@ -108,11 +117,12 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
         <Field label="Country" hint="Pick from the list or type one that isn't there.">
           <CountryInput value={f.district} onChange={(v) => set('district', v)} className={input} placeholder="Sri Lanka" />
         </Field>
+        <Field label="Industry"><input className={input} value={f.industry} onChange={(e) => set('industry', e.target.value)} placeholder="Garment factory, workshop…" /></Field>
+        {lead && <>
         <Field label="Source" hint="Which outside channel brought them in.">
           <input className={input} list="lead-sources" value={f.source} onChange={(e) => set('source', e.target.value)} placeholder="Facebook ad" />
           <datalist id="lead-sources">{LEAD_SOURCES.map((s) => <option key={s} value={s} />)}</datalist>
         </Field>
-        <Field label="Industry"><input className={input} value={f.industry} onChange={(e) => set('industry', e.target.value)} placeholder="Garment factory, workshop…" /></Field>
         <Field label="Lead date"><input className={input} type="date" value={toDateInput(f.leadDate)} onChange={(e) => set('leadDate', fromDateInput(e.target.value))} /></Field>
         <Field label="Status">
           <select className={input} value={f.status} onChange={(e) => set('status', e.target.value as LeadInput['status'])}>
@@ -159,6 +169,7 @@ export default function LeadFormDialog({ lead, allLeads, onClose, onSaved }: {
         <Field label="Notes" className="sm:col-span-2">
           <textarea className={input} rows={3} value={f.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Background worth keeping — number of machines, what they use today, who decides." />
         </Field>
+        </>}
       </div>
     </Modal>
   );
