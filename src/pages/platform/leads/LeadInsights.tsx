@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react';
 import { countryLabel } from '@/lib/countries';
+import { useSalesOnly } from '@/lib/platform/useSuperadmin';
 import { funnel, groupStats, revenueText, staleLeads, type GroupStats, type Lead, type TeamMember } from '@/lib/platform/leads';
 import { Card, fmtDate } from '../platformUi';
 import { StatusPill } from './leadUi';
 
 const pct = (v: number | null) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 
-/** Which outside channels, campaigns and people actually produce customers. */
+/** Which outside channels, campaigns and people actually produce customers. A sales manager sees counts and rates only, never revenue. */
 export default function LeadInsights({ leads, team, onOpenLead }: { leads: Lead[]; team: TeamMember[]; onOpenLead: (id: string) => void }) {
+  const { salesOnly } = useSalesOnly();
   const [staleDays, setStaleDays] = useState(7);
   const name = (id: string | null) => (id ? team.find((m) => m.id === id)?.name ?? 'Removed member' : 'Lumora (direct)');
   const steps = useMemo(() => funnel(leads), [leads]);
@@ -36,10 +38,10 @@ export default function LeadInsights({ leads, team, onOpenLead }: { leads: Lead[
       </Card>
 
       <div className="grid gap-5 xl:grid-cols-2">
-        <GroupTable title="By source" rows={bySource} label={(k) => k} />
-        <GroupTable title="By outside marketer / agent" rows={byMarketer} label={(k) => name(k === '—' ? null : k)} />
-        <GroupTable title="By campaign" rows={byCampaign} label={(k) => k} empty="Set a campaign on leads (or on import) to compare ads." />
-        <GroupTable title="Top countries" rows={byDistrict} label={(k) => countryLabel(k) || k} />
+        <GroupTable title="By source" rows={bySource} label={(k) => k} showRevenue={!salesOnly} />
+        <GroupTable title="By outside marketer / agent" rows={byMarketer} label={(k) => name(k === '—' ? null : k)} showRevenue={!salesOnly} />
+        <GroupTable title="By campaign" rows={byCampaign} label={(k) => k} empty="Set a campaign on leads (or on import) to compare ads." showRevenue={!salesOnly} />
+        <GroupTable title="Top countries" rows={byDistrict} label={(k) => countryLabel(k) || k} showRevenue={!salesOnly} />
       </div>
 
       <Card
@@ -69,14 +71,14 @@ export default function LeadInsights({ leads, team, onOpenLead }: { leads: Lead[
   );
 }
 
-function GroupTable({ title, rows, label, empty }: { title: string; rows: GroupStats[]; label: (k: string) => string; empty?: string }) {
+function GroupTable({ title, rows, label, empty, showRevenue }: { title: string; rows: GroupStats[]; label: (k: string) => string; empty?: string; showRevenue: boolean }) {
   return (
     <Card title={title}>
       {rows.length === 0 ? <p className="text-sm text-slate-400">{empty ?? 'No data yet.'}</p> : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[460px] text-left text-sm">
+          <table className={`w-full ${showRevenue ? 'min-w-[460px]' : 'min-w-[360px]'} text-left text-sm`}>
             <thead className="text-xs text-slate-400">
-              <tr><th className="py-1.5 pr-2"></th><th className="px-2 text-right">Leads</th><th className="px-2 text-right">Open</th><th className="px-2 text-right">Demos</th><th className="px-2 text-right">Won</th><th className="px-2 text-right">Win rate</th><th className="pl-2 text-right">Revenue</th></tr>
+              <tr><th className="py-1.5 pr-2"></th><th className="px-2 text-right">Leads</th><th className="px-2 text-right">Open</th><th className="px-2 text-right">Demos</th><th className="px-2 text-right">Won</th><th className="px-2 text-right">Win rate</th>{showRevenue && <th className="pl-2 text-right">Revenue</th>}</tr>
             </thead>
             <tbody>
               {rows.map((g) => (
@@ -87,7 +89,7 @@ function GroupTable({ title, rows, label, empty }: { title: string; rows: GroupS
                   <td className="px-2 text-right text-violet-300">{g.demos}</td>
                   <td className="px-2 text-right text-emerald-300">{g.won}</td>
                   <td className="px-2 text-right">{pct(g.winRate)}</td>
-                  <td className="pl-2 text-right text-xs text-slate-300">{revenueText(g.revenue)}</td>
+                  {showRevenue && <td className="pl-2 text-right text-xs text-slate-300">{revenueText(g.revenue)}</td>}
                 </tr>
               ))}
             </tbody>
