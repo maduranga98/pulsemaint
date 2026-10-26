@@ -19,17 +19,16 @@ import DayReportDialog from './DayReportDialog';
 import LeadImportDialog from './LeadImportDialog';
 import LeadInsights from './LeadInsights';
 import TrialRequestsView from './TrialRequestsView';
+import { LEADS_VIEW_KEY, leadsViewFrom, type LeadView } from '@/lib/platform/subNav';
 import { STATUS_STYLE, StatusPill, TagChip, downloadText, whenLabel } from './leadUi';
 
-type View = 'board' | 'list' | 'insights' | 'trials';
-const VIEW_KEY = 'platformLeads.view';
+type View = LeadView;
 
-function readView(): View {
+function readStoredView(): string | null {
   try {
-    const v = localStorage.getItem(VIEW_KEY);
-    return v === 'list' || v === 'insights' || v === 'trials' ? v : 'board';
+    return localStorage.getItem(LEADS_VIEW_KEY);
   } catch {
-    return 'board';
+    return null;
   }
 }
 
@@ -42,7 +41,6 @@ export default function PlatformLeadsPage() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [view, setViewState] = useState<View>(readView);
   const [trialRequests, setTrialRequests] = useState<PlatformCompany[] | null>(null);
   const [q, setQ] = useState('');
   const [tag, setTag] = useState('');
@@ -53,16 +51,14 @@ export default function PlatformLeadsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dragOver, setDragOver] = useState<BoardColumn | null>(null);
   const [params, setParams] = useSearchParams();
+  const view: View = leadsViewFrom(`?${params.toString()}`, readStoredView());
   const { start: startTour } = useTour();
   const openId = params.get('lead');
-  // Deep link from the sidebar badge / old Trial requests URL.
-  const wantsTrials = params.get('view') === 'trials';
 
   const loadTrialRequests = useCallback(() => {
     platformService.listCompanies().then((r) => setTrialRequests(r.companies)).catch((e) => setError(errorText(e, 'Could not load trial requests')));
   }, []);
   useEffect(loadTrialRequests, [loadTrialRequests]);
-  useEffect(() => { if (wantsTrials) setViewState('trials'); }, [wantsTrials]);
   const pendingTrials = (trialRequests ?? []).filter((c) => c.approvalStatus === 'pending').length;
 
   useEffect(() => subscribeLeads(setLeads, (e) => setError(e.message)), []);
@@ -86,9 +82,12 @@ export default function PlatformLeadsPage() {
   }, [leads]);
   useEffect(() => subscribeTeam(setTeam, () => {}), []);
 
+  /** The view lives in the URL (`?view=`) so the phone dock and deep links can switch it. */
   function setView(v: View) {
-    setViewState(v);
-    try { localStorage.setItem(VIEW_KEY, v); } catch { /* private mode */ }
+    try { localStorage.setItem(LEADS_VIEW_KEY, v); } catch { /* private mode */ }
+    const next = new URLSearchParams(params);
+    next.set('view', v);
+    setParams(next, { replace: true });
   }
   const openLead = (id: string | null) => {
     const next = new URLSearchParams(params);
@@ -197,7 +196,7 @@ export default function PlatformLeadsPage() {
         </select>
         <label className="flex items-center gap-1.5 text-xs text-slate-400"><input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Archived</label>
         </>) : <div className="flex-1" />}
-        <div className="flex overflow-hidden rounded-lg border border-[#1E3A5F]">
+        <div className="hidden overflow-hidden rounded-lg border border-[#1E3A5F] lg:flex">
           <ViewBtn on={view === 'board'} onClick={() => setView('board')} title="Board"><KanbanSquare className="h-4 w-4" /></ViewBtn>
           <ViewBtn on={view === 'list'} onClick={() => setView('list')} title="List"><List className="h-4 w-4" /></ViewBtn>
           <ViewBtn on={view === 'insights'} onClick={() => setView('insights')} title="Insights"><BarChart3 className="h-4 w-4" /></ViewBtn>

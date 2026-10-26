@@ -17,7 +17,7 @@ export default function PlatformLoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  if (ready && signedIn) return <Navigate to="/platform" replace />;
+  if (ready && signedIn) return <Navigate to="/platform/home" replace />;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -25,7 +25,7 @@ export default function PlatformLoginPage() {
     setError('');
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      navigate('/platform', { replace: true });
+      navigate('/platform/home', { replace: true });
     } catch (err) {
       const code = (err as { code?: string }).code ?? '';
       setError(code === 'auth/user-disabled'
