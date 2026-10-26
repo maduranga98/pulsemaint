@@ -19,7 +19,7 @@ Do not commit directly to `main`. For every fix or change, create a feature bran
 - **Quality bar:** always build code and fulfil every requirement and task 100% correctly, without errors. Run the repo's checks (`npx tsc --noEmit -p .`, `npx vitest run`, `npx eslint` in `functions/`, and `rules-tests` when rules change) before pushing, and re-read the diff for mistakes. Do the tasks one at a time, in order, not in parallel.
 - **Final summary (always, in Sinhala):** when everything is done, finish with a Sinhala summary that says (1) what was completed, (2) what the owner still has to do (deploys to check, console steps such as TTL policies or disabling providers, manual tests), (3) any actions to save/keep for later, and (4) anything that failed or couldn't be verified, why, and how to fix it.
 - **Before every merge, check CI:** read the PR's check runs (`get_check_runs`). Merge only when all of them have finished and passed; if one is queued/in progress, wait for it, and if one fails, fix it first. Never merge on red or unfinished CI.
-- Open a PR for every change (never commit to `main`). Merge only when the owner asks for it; a merge approval for one PR does not carry over to later ones.
+- Open a PR for every change (never commit to `main`). Once every check run on the PR has finished and passed, merge it into `main` yourself (standing instruction from the owner) — never merge on red or unfinished CI.
 
 ## Commands
 
