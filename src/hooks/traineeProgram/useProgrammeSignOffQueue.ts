@@ -8,6 +8,7 @@ import { isModuleDone } from '../../lib/training/programmeProgress';
 interface UseProgrammeSignOffQueueResult {
   programmes: TraineeProgramme[];
   loading: boolean;
+  error: string | null;
 }
 
 /**
@@ -22,6 +23,7 @@ export function useProgrammeSignOffQueue(companyId: string): UseProgrammeSignOff
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [programmesLoaded, setProgrammesLoaded] = useState(false);
   const [assignmentsLoaded, setAssignmentsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!companyId) {
@@ -42,6 +44,7 @@ export function useProgrammeSignOffQueue(companyId: string): UseProgrammeSignOff
       },
       (err) => {
         console.error('useProgrammeSignOffQueue: programmes', err.message);
+        setError(err.message);
         setProgrammesLoaded(true);
       },
     );
@@ -54,6 +57,7 @@ export function useProgrammeSignOffQueue(companyId: string): UseProgrammeSignOff
       },
       (err) => {
         console.error('useProgrammeSignOffQueue: assignments', err.message);
+        setError(err.message);
         setAssignmentsLoaded(true);
       },
     );
@@ -66,11 +70,13 @@ export function useProgrammeSignOffQueue(companyId: string): UseProgrammeSignOff
 
   const programmes = useMemo(() => {
     return allActiveProgrammes.filter((p) => {
-      const allModuleIds = p.months.flatMap((m) => m.moduleIds);
+      // Older programmes may lack a month's module list — never let one bad
+      // record blank the whole widget.
+      const allModuleIds = (p.months ?? []).flatMap((m) => m.moduleIds ?? []);
       if (allModuleIds.length === 0) return false;
       return allModuleIds.every((id) => isModuleDone(assignments, p.traineeId, id));
     });
   }, [allActiveProgrammes, assignments]);
 
-  return { programmes, loading: !programmesLoaded || !assignmentsLoaded };
+  return { programmes, loading: !programmesLoaded || !assignmentsLoaded, error };
 }

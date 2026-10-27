@@ -1780,7 +1780,8 @@
         "ready": "{{count}} bereit",
         "readyToSignOff": "Bereit zur Abnahme",
         "summary": "{{months}}-Monats-Programm · {{count}} Module abgeschlossen · begonnen am {{date}}",
-        "title": "Auszubildenden-Programmabnahme"
+        "title": "Auszubildenden-Programmabnahme",
+        "programSummary": "{{program}} · {{count}} Module abgeschlossen · fällig {{date}}"
       },
       "requestedPartsWidget": {
         "empty": "Keine ausstehenden Teileanfragen",

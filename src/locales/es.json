@@ -1780,7 +1780,8 @@
         "ready": "{{count}} listos",
         "readyToSignOff": "Listo para aprobar",
         "summary": "Programa de {{months}} meses · {{count}} módulos completados · iniciado el {{date}}",
-        "title": "Aprobación de programa de aprendices"
+        "title": "Aprobación de programa de aprendices",
+        "programSummary": "{{program}} · {{count}} módulos completados · vence {{date}}"
       },
       "requestedPartsWidget": {
         "empty": "Sin solicitudes de repuestos pendientes",

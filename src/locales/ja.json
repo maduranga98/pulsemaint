@@ -1780,7 +1780,8 @@
         "ready": "{{count}}件準備完了",
         "readyToSignOff": "承認準備完了",
         "summary": "{{months}}か月プログラム · {{count}}モジュール修了 · {{date}}開始",
-        "title": "研修生プログラムの承認"
+        "title": "研修生プログラムの承認",
+        "programSummary": "{{program}} · {{count}} モジュール完了 · 期限 {{date}}"
       },
       "requestedPartsWidget": {
         "empty": "未完了の部品申請はありません",

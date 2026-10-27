@@ -1780,7 +1780,8 @@
         "ready": "{{count}} prêts",
         "readyToSignOff": "Prêt pour approbation",
         "summary": "Programme de {{months}} mois · {{count}} modules terminés · commencé le {{date}}",
-        "title": "Approbation du programme des stagiaires"
+        "title": "Approbation du programme des stagiaires",
+        "programSummary": "{{program}} · {{count}} modules terminés · échéance {{date}}"
       },
       "requestedPartsWidget": {
         "empty": "Aucune demande de pièces en attente",
