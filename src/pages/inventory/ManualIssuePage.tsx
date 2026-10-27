@@ -248,7 +248,8 @@ export function ManualIssuePage() {
 
         tx.set(requestRef, {
           companyId,
-          plantId: selectedWo?.machinePlantId ?? scopedPlantId ?? null,
+          // The work order's plant, else the person the parts go to (so their own list matches), else the issuer's.
+          plantId: selectedWo?.machinePlantId ?? recipient.plantId ?? scopedPlantId ?? null,
           requestNumber: makeRequestNumber(),
           workOrderId: selectedWo?.id ?? null,
           workOrderNumber: selectedWo?.woNumber ?? null,

@@ -30,10 +30,10 @@ export function usePartReturns(options: UsePartReturnsOptions = {}): UsePartRetu
   const plantPartIds = usePlantPartIds(companyId);
   const returns = useMemo(
     () =>
-      isPlantScoped
+      isPlantScoped && !ownOnly
         ? allReturns.filter((r) => plantPartIds?.has(r.partId) || inPlant(null, r.requestedBy))
         : allReturns,
-    [allReturns, isPlantScoped, plantPartIds, inPlant],
+    [allReturns, isPlantScoped, plantPartIds, inPlant, ownOnly],
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
