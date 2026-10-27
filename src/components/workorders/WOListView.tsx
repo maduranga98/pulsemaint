@@ -129,9 +129,13 @@ export function WOListView() {
     myIds.includes(wo.createdBy) ||
     myIds.includes(wo.supervisorInChargeId) ||
     (wo.assignedTechnicianIds ?? []).some((id) => myIds.includes(id));
-  const nonExcludedWOs = workOrders
-    .filter((wo) => !EXCLUDED_TYPES.includes(wo.woType))
-    .filter((wo) => !(canCreateWorkOrder && scope === 'mine') || isMine(wo));
+  // "My WOs" lists every work order the person raised, supervises or is
+  // assigned to — including breakdown repair and PM ones, which the general
+  // board leaves to their own pages.
+  const mineOnly = canCreateWorkOrder && scope === 'mine';
+  const nonExcludedWOs = workOrders.filter((wo) =>
+    mineOnly ? isMine(wo) : !EXCLUDED_TYPES.includes(wo.woType),
+  );
 
   // A supervisor sees a finished WO for 90 days (the view window); admin and plant manager see all.
   const visibleColumns = BOARD_COLUMNS.filter((c) =>
