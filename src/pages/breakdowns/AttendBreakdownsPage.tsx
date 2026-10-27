@@ -384,16 +384,16 @@ export default function AttendBreakdownsPage() {
           </div>
 
           {isQuickFix && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4">
+            <div className="rounded-lg border border-[#2E5A8F] bg-[#0F1E35] p-4">
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm font-medium text-slate-800">{t('common.breakdowns.attendPage.quickFixLabel')}</label>
+                <label className="block text-sm font-medium text-[#F0F4F8]">{t('common.breakdowns.attendPage.quickFixLabel')}</label>
                 <VoiceDictationButton
                   disabled={saving}
                   className="w-8 h-8"
                   onTranscript={(text) => setCompletionNotes((prev) => (prev ? `${prev} ${text}` : text))}
                 />
               </div>
-              <p className="text-xs text-slate-500 mb-2">{t('common.breakdowns.attendPage.quickFixHint')}</p>
+              <p className="text-xs text-[#B8C7DB] mb-2">{t('common.breakdowns.attendPage.quickFixHint')}</p>
               <textarea
                 value={completionNotes}
                 onChange={(e) => setCompletionNotes(e.target.value)}
@@ -401,7 +401,7 @@ export default function AttendBreakdownsPage() {
                 rows={4}
                 required
                 placeholder={t('common.breakdowns.attendPage.quickFixPlaceholder')}
-                className="w-full px-4 py-2 border border-slate-200 bg-white rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-[#2E5A8F] bg-[#0A1628] text-[#F0F4F8] placeholder:text-[#8BA3BF] rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
           )}
