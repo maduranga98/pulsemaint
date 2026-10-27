@@ -18,7 +18,7 @@ import { useTour } from '../../features/tour/TourProvider';
 import { companyApproval } from '../../lib/companyApproval';
 import { isTrialExpired } from '../../lib/planLimits';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
-import { Icon, LAUNCHER_PATH, visibleNav } from './navConfig';
+import { Icon, LAUNCHER_PATH, usesLauncher, visibleNav } from './navConfig';
 import MobileDock from './MobileDock';
 
 /** Set once per browser session so the phone launcher is only the *first* screen. */
@@ -136,8 +136,10 @@ export default function AppLayout() {
   // the page replaces the menu. Only the first landing on a dashboard is
   // redirected, so Home → Dashboard from the dock still works afterwards.
   const isPhone = useMediaQuery('(max-width: 1023px)');
+  const launcherRole = usesLauncher(role);
+  const homePath = launcherRole ? LAUNCHER_PATH : (visibleDashboard?.to ?? '/app');
   useEffect(() => {
-    if (!isPhone || !role) return;
+    if (!isPhone || !role || !launcherRole) return;
     try {
       if (sessionStorage.getItem(LAUNCHER_SEEN_KEY)) return;
       sessionStorage.setItem(LAUNCHER_SEEN_KEY, '1');
@@ -147,8 +149,12 @@ export default function AppLayout() {
     if (location.pathname === '/app' || location.pathname.startsWith('/app/dashboard')) {
       navigate(LAUNCHER_PATH, { replace: true });
     }
-  }, [isPhone, role, location.pathname, navigate]);
-  const showDock = isPhone && location.pathname !== LAUNCHER_PATH;
+  }, [isPhone, role, launcherRole, location.pathname, navigate]);
+  // Roles without a launcher never land on it (old links / bookmarks go to their dashboard).
+  useEffect(() => {
+    if (role && !launcherRole && location.pathname === LAUNCHER_PATH) navigate(homePath, { replace: true });
+  }, [role, launcherRole, location.pathname, homePath, navigate]);
+  const showDock = isPhone && (location.pathname !== LAUNCHER_PATH || !launcherRole);
 
   // Only the category containing the current page starts expanded — every
   // other one stays collapsed so the sidebar doesn't dump every category on
@@ -282,7 +288,7 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0 h-dvh">
         <header className="h-14 shrink-0 bg-[#0F1E35] border-b border-[#1E3A5F] flex items-center justify-between px-4 lg:px-6 z-20">
           <div className="flex items-center gap-3 min-w-0">
-            <Link to={LAUNCHER_PATH} className="lg:hidden flex items-center gap-2 min-h-[44px]">
+            <Link to={homePath} className="lg:hidden flex items-center gap-2 min-h-[44px]">
               <img src="/logo.svg" alt={t('common.ui2.layout.appLayout.firmicore')} className="w-7 h-7 rounded-md object-contain" />
               <span className="text-sm font-semibold tracking-tight text-[#F0F4F8]">
                 {t('common.ui2.layout.appLayout.firmicore')}
@@ -343,7 +349,7 @@ export default function AppLayout() {
           </div>
         </main>
 
-        {showDock && <MobileDock nav={nav} />}
+        {showDock && <MobileDock nav={nav} bar={!launcherRole} />}
       </div>
     </div>
   );
