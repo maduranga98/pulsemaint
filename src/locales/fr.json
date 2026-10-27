@@ -113,7 +113,9 @@
       "livePOs": {
         "title": "Demandes d'achat",
         "pending": "{{count}} en attente",
-        "empty": "Aucun bon de commande en attente d'approbation"
+        "empty": "Aucun bon de commande en attente d'approbation",
+        "approve": "Approuver",
+        "reject": "Rejeter"
       },
       "safetyCases": {
         "title": "Cas de sécurité ouverts",

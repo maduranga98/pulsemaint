@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Plus, Truck } from 'lucide-react';
-import { doc, serverTimestamp, updateDoc, addDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
@@ -9,11 +9,7 @@ import { usePurchaseOrders } from '@/hooks/inventory/usePurchaseOrders';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
 import { PurchaseOrderList } from '@/components/inventory/po/PurchaseOrderList';
 import { LowStockWidget } from '@/components/inventory/dashboard/LowStockWidget';
-import { logAuditEvent } from '@/utils/reports/auditLogger';
-
-// Kept in sync with PurchaseOrderDetail's canApprove — approval is not
-// limited to plant_manager/admin, supervisors can approve too.
-const CAN_APPROVE_ROLES = ['plant_manager', 'admin', 'supervisor', 'maintenance_supervisor'];
+import { usePurchaseOrderDecisions } from '@/hooks/inventory/usePurchaseOrderDecisions';
 
 export function PurchaseOrdersPage() {
   const { t } = useTranslation();
@@ -22,108 +18,21 @@ export function PurchaseOrdersPage() {
   const { parts: lowStockParts } = useInventoryParts({ stockStatus: 'low_stock', pageSize: 10 });
   const userProfile = useAuthStore((s) => s.userProfile);
   const { error: toastError, success: toastSuccess } = useToast();
-  const canApprove = !!userProfile && CAN_APPROVE_ROLES.includes(userProfile.role);
+  const { canApprove, approve, reject } = usePurchaseOrderDecisions();
   // Closed purchase orders (fully received or cancelled) are only ever
   // visible to admins — every other role stops seeing a PO once it's done.
   const CLOSED_PO_STATUSES = new Set(['received', 'cancelled']);
   const visibleOrders =
     userProfile?.role === 'admin' ? orders : orders.filter((o) => !CLOSED_PO_STATUSES.has(o.status));
 
-  async function queueEmail(order: (typeof orders)[number], event: 'approved' | 'rejected') {
-    try {
-      const usersSnap = await getDocs(
-        query(collection(db, `companies/${order.companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
-      );
-      const recipients = usersSnap.docs
-        .map((d) => (d.data() as any).email as string | undefined)
-        .filter(Boolean) as string[];
-      if (recipients.length === 0) return;
-      await addDoc(collection(db, 'po_notifications'), {
-        companyId: order.companyId,
-        poId: order.id,
-        poNumber: order.poNumber,
-        supplierName: order.supplierName,
-        supplierEmail: order.supplierEmail ?? '',
-        total: order.totalOrderValue,
-        currency: order.currency,
-        recipients,
-        event,
-        message: '',
-        status: 'queued',
-        createdAt: serverTimestamp(),
-      });
-    } catch (err) {
-      console.error('Failed to queue PO email notification', err);
-    }
-  }
-
   async function handleApprove(id: string) {
-    if (!userProfile) return;
-    try {
-      await updateDoc(doc(db, 'purchaseOrders', id), {
-        status: 'approved',
-        approvedBy: userProfile.id,
-        approvedByName: userProfile.fullName ?? '',
-        approvedByRole: userProfile.role,
-        approvedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      const order = orders.find((o) => o.id === id);
-      if (order) await queueEmail(order, 'approved');
-      toastSuccess(t('common.inventory.po.list.toasts.approved'));
-      logAuditEvent({
-        companyId: userProfile.companyId,
-        userId: userProfile.id,
-        userName: userProfile.fullName ?? '',
-        userRole: userProfile.role,
-        action: 'APPROVE',
-        entityType: 'inventory',
-        entityId: id,
-        entityName: `Purchase Order ${id}`,
-      }).catch(() => {});
-    } catch (err) {
-      toastError(
-        err instanceof Error
-          ? t('common.inventory.po.list.toasts.approveFailed', { message: err.message })
-          : t('common.inventory.po.list.toasts.approveFailedGeneric'),
-      );
-    }
+    const order = orders.find((o) => o.id === id);
+    if (order) await approve(order);
   }
 
   async function handleReject(id: string) {
-    if (!userProfile) return;
-    const reason = window.prompt(t('common.inventory.po.list.toasts.rejectPrompt')) ?? '';
-    if (!reason) return;
-    try {
-      await updateDoc(doc(db, 'purchaseOrders', id), {
-        status: 'rejected',
-        rejectedReason: reason,
-        approvedBy: userProfile.id,
-        approvedByName: userProfile.fullName ?? '',
-        approvedByRole: userProfile.role,
-        approvedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      const order = orders.find((o) => o.id === id);
-      if (order) await queueEmail(order, 'rejected');
-      toastSuccess(t('common.inventory.po.list.toasts.rejected'));
-      logAuditEvent({
-        companyId: userProfile.companyId,
-        userId: userProfile.id,
-        userName: userProfile.fullName ?? '',
-        userRole: userProfile.role,
-        action: 'REJECT',
-        entityType: 'inventory',
-        entityId: id,
-        entityName: `Purchase Order ${id}`,
-      }).catch(() => {});
-    } catch (err) {
-      toastError(
-        err instanceof Error
-          ? t('common.inventory.po.list.toasts.rejectFailed', { message: err.message })
-          : t('common.inventory.po.list.toasts.rejectFailedGeneric'),
-      );
-    }
+    const order = orders.find((o) => o.id === id);
+    if (order) await reject(order);
   }
 
   async function handleCancel(id: string) {

@@ -44,6 +44,7 @@ const QUERIES = {
   machines: (db) => getDocs(query(collection(db, 'machines'), where('siteId', '==', 'A'))),
   pm_history: co('pm_history'),
   pm_schedules: co('pm_schedules'),
+  purchaseOrders: co('purchaseOrders', where('status', '==', 'pending_approval')),
   contractorJobs: co('contractorJobs'),
   evaluations: co('evaluations'),
   roster: (db) => getDocs(collection(db, 'companies/A/users')),
@@ -55,11 +56,11 @@ const QUERIES = {
 const NEEDS = {
   admin: Object.keys(QUERIES),
   plant_manager: Object.keys(QUERIES),
-  supervisor: ['shift_sessions', 'shift_config', 'trainingAssignments', 'traineeProgrammes', 'programAssignments', 'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'pm_schedules', 'roster'],
+  supervisor: ['shift_sessions', 'shift_config', 'trainingAssignments', 'traineeProgrammes', 'programAssignments', 'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'pm_schedules', 'purchaseOrders', 'roster'],
   hr_officer: ['shift_sessions', 'shift_config', 'trainingAssignments', 'trainingModules', 'traineeProgrammes', 'programAssignments',
     'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'contractorJobs', 'evaluations', 'roster'],
   safety_officer: ['shift_sessions', 'shift_config', 'trainingAssignments', 'trainingModules', 'traineeProgrammes', 'programAssignments',
-    'safety_cases', 'work_permits', 'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'pm_schedules', 'roster'],
+    'safety_cases', 'work_permits', 'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'pm_schedules', 'purchaseOrders', 'roster'],
 };
 
 for (const [role, needs] of Object.entries(NEEDS)) {

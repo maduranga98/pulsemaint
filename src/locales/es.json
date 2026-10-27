@@ -113,7 +113,9 @@
       "livePOs": {
         "title": "Solicitudes de compra",
         "pending": "{{count}} pendientes",
-        "empty": "No hay órdenes de compra pendientes de aprobación"
+        "empty": "No hay órdenes de compra pendientes de aprobación",
+        "approve": "Aprobar",
+        "reject": "Rechazar"
       },
       "safetyCases": {
         "title": "Casos de seguridad abiertos",

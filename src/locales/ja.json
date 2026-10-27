@@ -113,7 +113,9 @@
       "livePOs": {
         "title": "発注申請",
         "pending": "{{count}}件保留中",
-        "empty": "承認待ちの発注書はありません"
+        "empty": "承認待ちの発注書はありません",
+        "approve": "承認",
+        "reject": "却下"
       },
       "safetyCases": {
         "title": "未解決の安全事例",
