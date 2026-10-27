@@ -4831,6 +4831,10 @@
       "summary": {
         "extensionsTitle": "Extension (added before sign-off)",
         "extensionReason": "Why it was extended"
+      },
+      "scope": {
+        "all": "All work orders",
+        "mine": "My WOs"
       }
     },
     "pmSchedules": {

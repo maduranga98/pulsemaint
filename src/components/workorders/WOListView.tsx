@@ -45,6 +45,8 @@ export function WOListView() {
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  // Admin / plant manager / supervisor can narrow the board to the work orders they raised, supervise or are assigned.
+  const [scope, setScope] = useState<'all' | 'mine'>('all');
   const prefilledMachineId = searchParams.get('machineId');
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
@@ -122,7 +124,14 @@ export function WOListView() {
 
   // Breakdown Repair and Preventive Maintenance WOs live on their own pages
   // (Breakdowns, PM Schedules) — never shown here.
-  const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
+  const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];
+  const isMine = (wo: WorkOrder) =>
+    myIds.includes(wo.createdBy) ||
+    myIds.includes(wo.supervisorInChargeId) ||
+    (wo.assignedTechnicianIds ?? []).some((id) => myIds.includes(id));
+  const nonExcludedWOs = workOrders
+    .filter((wo) => !EXCLUDED_TYPES.includes(wo.woType))
+    .filter((wo) => !(canCreateWorkOrder && scope === 'mine') || isMine(wo));
 
   // A supervisor sees a finished WO for 90 days (the view window); admin and plant manager see all.
   const visibleColumns = BOARD_COLUMNS.filter((c) =>
@@ -162,8 +171,26 @@ export function WOListView() {
         {/* Stats */}
         <WOStatsBar />
 
-        {/* Search */}
-        <div className="flex justify-end">
+        {/* Scope toggle + search */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {canCreateWorkOrder ? (
+            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-sm" role="tablist">
+              {(['all', 'mine'] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  role="tab"
+                  aria-selected={scope === s}
+                  onClick={() => setScope(s)}
+                  className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
+                    scope === s ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {t(`common.workOrders.scope.${s}`)}
+                </button>
+              ))}
+            </div>
+          ) : <span />}
           <input
             type="text"
             value={searchQuery}

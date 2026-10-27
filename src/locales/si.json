@@ -3577,6 +3577,10 @@
       "summary": {
         "extensionsTitle": "දිගුව (අත්සන් කිරීමට පෙර එක් කළ)",
         "extensionReason": "එය දිගු කළේ ඇයි"
+      },
+      "scope": {
+        "all": "සියලු වැඩ ඇණවුම්",
+        "mine": "මගේ WO"
       }
     },
     "pmSchedules": {
