@@ -12,6 +12,7 @@ import TodaysPmWidget from '../../components/dashboard/supervisor/TodaysPmWidget
 import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
 import NeedSignOffWidget from '../../components/dashboard/supervisor/NeedSignOffWidget';
 import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
+import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 import { useModuleEnabled } from '../../hooks/useModuleEnabled';
@@ -20,6 +21,7 @@ export default function SupervisorDashboard() {
   const { t } = useTranslation();
   const pmOn = useModuleEnabled('pm');
   const safetyOn = useModuleEnabled('safety');
+  const trainingOn = useModuleEnabled('training');
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Supervisor';
@@ -102,6 +104,9 @@ export default function SupervisorDashboard() {
           <PendingApprovalsWidget />
           <NeedSignOffWidget />
         </div>
+
+        {/* Trainees whose programme is complete and waiting for sign-off. */}
+        {trainingOn && <ProgrammeSignOffQueueWidget companyId={companyId} />}
 
         {/* Row 4: Safety Trainings Assigned to Me — clickable, since the
             dashboard is the supervisor's only way into these trainings. */}

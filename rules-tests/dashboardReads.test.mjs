@@ -55,7 +55,7 @@ const QUERIES = {
 const NEEDS = {
   admin: Object.keys(QUERIES),
   plant_manager: Object.keys(QUERIES),
-  supervisor: ['shift_sessions', 'shift_config', 'trainingAssignments', 'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'pm_schedules', 'roster'],
+  supervisor: ['shift_sessions', 'shift_config', 'trainingAssignments', 'traineeProgrammes', 'programAssignments', 'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'pm_schedules', 'roster'],
   hr_officer: ['shift_sessions', 'shift_config', 'trainingAssignments', 'trainingModules', 'traineeProgrammes', 'programAssignments',
     'workOrders', 'breakdown_tickets', 'machines', 'pm_history', 'contractorJobs', 'evaluations', 'roster'],
   safety_officer: ['shift_sessions', 'shift_config', 'trainingAssignments', 'trainingModules', 'traineeProgrammes', 'programAssignments',
