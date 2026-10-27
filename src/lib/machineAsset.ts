@@ -1,4 +1,4 @@
-/** Pure helpers for a machine's asset value, scrapping and outsourced maintenance cost. */
+/** Pure helpers for a machine's asset value, scrapping and maintenance cost. */
 
 const MS_PER_YEAR = 365.25 * 24 * 3600 * 1000;
 
@@ -13,26 +13,7 @@ export const SCRAP_REASON_LABEL: Record<ScrapReason, string> = {
   other: 'Other',
 };
 
-export interface OutsourcedPart {
-  name: string;
-  partNumber?: string;
-  /** Fitted new (replaced a worn part) or added as an upgrade. */
-  kind: 'replaced' | 'added';
-  quantity: number;
-  unitPrice: number;
-}
-
 const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0);
-
-export function partLineTotal(p: Pick<OutsourcedPart, 'quantity' | 'unitPrice'>): number {
-  return num(p.quantity) * num(p.unitPrice);
-}
-
-/** Parts + labour/service charge for one outsourced job. */
-export function outsourcedJobTotals(parts: OutsourcedPart[], labourCost: number): { partsTotal: number; total: number } {
-  const partsTotal = parts.reduce((s, p) => s + partLineTotal(p), 0);
-  return { partsTotal, total: partsTotal + num(labourCost) };
-}
 
 /** Share of the purchase price expected back as scrap, by expected lifespan: the longer a machine runs, the less is left. */
 export function scrapPercentForLifespan(lifespanYears: number): number {

@@ -277,19 +277,6 @@ describe('cross-company isolation', () => {
     await assertSucceeds(updateDoc(doc(as('adminA'), 'machines/mA'), { status: 'scrapped', scrapRecord: { reason: 'broken' } }));
     await assertFails(updateDoc(doc(as('adminB'), 'machines/mA'), { status: 'scrapped' }));
   });
-  it('outsourced maintenance records: managers write their own company only, nobody edits', async () => {
-    const job = (by, c = 'A') => ({ siteId: c, machineId: `m${c}`, contractorName: 'X', totalCost: 100, createdBy: by });
-    await assertSucceeds(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j1'), job('adminA')));
-    await assertSucceeds(setDoc(doc(as('supA'), 'machineOutsourcedMaintenance/j2'), job('supA')));
-    await assertFails(setDoc(doc(as('techA'), 'machineOutsourcedMaintenance/j3'), job('techA')));
-    await assertFails(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j4'), job('adminA', 'B')));
-    await assertFails(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j5'), job('somebodyElse')));
-    await assertFails(setDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j6'), { ...job('adminA'), totalCost: -1 }));
-    await assertFails(updateDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j1'), { totalCost: 5 }));
-    await assertFails(getDoc(doc(as('techA'), 'machineOutsourcedMaintenance/j1')));
-    await assertFails(getDoc(doc(as('adminB'), 'machineOutsourcedMaintenance/j1')));
-    await assertSucceeds(deleteDoc(doc(as('adminA'), 'machineOutsourcedMaintenance/j1')));
-  });
   it('machines: scoped reads/writes; anonymous QR visitors get no direct machine access', async () => {
     await assertSucceeds(getDocs(query(collection(as('techA'), 'machines'), where('siteId', '==', 'A'))));
     await assertFails(getDocs(query(collection(as('techB'), 'machines'), where('siteId', '==', 'A'))));

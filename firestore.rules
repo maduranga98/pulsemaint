@@ -587,19 +587,6 @@ service cloud.firestore {
     // Machines (Module 3 stub — read access for WO creation)
     // ---------------------------------------------------------------------------
 
-    // Maintenance a machine's outside contractors did: parts fitted, costs and
-    // invoice files. Costs are sensitive, so supervisors and managers only.
-    match /machineOutsourcedMaintenance/{jobId} {
-      allow read, delete: if isAuthenticated() && tenantMatches(resource.data)
-        && (isAdmin() || isSupervisor() || isPlantManager());
-      allow create: if isAuthenticated() && tenantMatches(request.resource.data)
-        && (isAdmin() || isSupervisor() || isPlantManager())
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.machineId is string
-        && request.resource.data.totalCost is number && request.resource.data.totalCost >= 0;
-      allow update: if false;
-    }
-
     match /machines/{machineId} {
       // floor_operator needs read access: scanning a machine QR opens the
       // breakdown report form, which loads machines to auto-select the one

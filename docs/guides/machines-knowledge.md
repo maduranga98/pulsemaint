@@ -184,8 +184,7 @@ Lists the linked spare parts, low-stock ones first.
   scrap value, depreciation and current value plus total maintenance spend.
 - **Documents** — photos and documents with a **Download** link for each.
 - **History** — the machine's breakdown history.
-- **Maintenance** — work orders and maintenance records; managers also see outsourced (contractor)
-  maintenance with invoices and costs.
+- **Maintenance** — work orders and maintenance records.
 - **Analytics** — plant manager and admin only: work-order types (breakdown, corrective, preventive,
   installation, modification, inspection, contractor, other) and trends.
 

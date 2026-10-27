@@ -1,10 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { OutsourcedJobFields, draftDayMs, emptyJobDraft, isJobDraftFilled, jobDraftError, type OutsourcedJobDraft } from '../machines/OutsourcedJobFields';
-import { createOutsourcedMaintenance } from '../../services/machineOutsourced.service';
-import { getCompanyCurrency } from '@/lib/currency';
-import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
@@ -125,12 +121,9 @@ export function CreateWODrawer({
   const [wpHazards, setWpHazards] = useState('');
   const [wpPpe, setWpPpe] = useState('');
   const [wpPrecautions, setWpPrecautions] = useState<Record<string, boolean>>({});
-  // Outsourced work details (contractor work orders): saved to the machine's maintenance history on create.
-  const [outsourced, setOutsourced] = useState<OutsourcedJobDraft>(emptyJobDraft);
 
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
-  const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
   // A supervisor (or any other department-scoped role that can reach this
   // drawer) can only raise a work order against a machine in their own
@@ -459,14 +452,6 @@ export function CreateWODrawer({
       setSubmitErrors([pmScheduleLimit.message ?? 'PM schedule limit reached on your current plan.']);
       return;
     }
-    const outsourcedFilled = values.woType === 'CONTRACTOR' && isJobDraftFilled(outsourced);
-    if (outsourcedFilled) {
-      const problem = !(values.contractorCompanyName as string | null)?.trim() ? 'errContractor' : jobDraftError(outsourced);
-      if (problem) {
-        setSubmitErrors([t(`common.machines.asset.outsourced.${problem}`)]);
-        return;
-      }
-    }
     const wpCategoryDef = WORK_PERMIT_CATEGORIES.find((c) => c.value === wpCategory)!;
     const woId = await createWO({
       ...values,
@@ -485,33 +470,7 @@ export function CreateWODrawer({
           }
         : null,
     });
-    if (woId && outsourcedFilled && companyId) {
-      // The work order exists either way; a failure here only skips the cost record.
-      try {
-        await createOutsourcedMaintenance(companyId, {
-          siteId: siteIds?.[0] || companyId,
-          machineId: values.machineId,
-          contractorId: (values.contractorCompanyId as string | null) ?? null,
-          contractorName: (values.contractorCompanyName as string | null) ?? '',
-          workOrderId: woId,
-          jobType: outsourced.jobType,
-          description: outsourced.description.trim() || values.description?.slice(0, 500) || '',
-          startedAt: draftDayMs(outsourced.startedAt),
-          completedAt: outsourced.completedAt ? draftDayMs(outsourced.completedAt) : null,
-          parts: outsourced.parts.filter((p) => p.name.trim()).map((p) => ({ ...p, name: p.name.trim(), partNumber: p.partNumber?.trim() || undefined })),
-          labourCost: Number(outsourced.labour) || 0,
-          currency: getCompanyCurrency(),
-          invoiceNumber: outsourced.invoiceNumber.trim(),
-          notes: outsourced.notes.trim(),
-          createdBy: userProfile?.id ?? '',
-          createdByName: userProfile?.fullName ?? '',
-        }, outsourced.files);
-      } catch (e) {
-        toast.error((e as Error).message || t('common.machines.asset.outsourced.saveFailed'));
-      }
-    }
     if (woId) {
-      setOutsourced(emptyJobDraft());
       onCreated?.(woId);
       onClose();
       form.reset();
@@ -963,13 +922,6 @@ export function CreateWODrawer({
                   isActive: c.status === 'active',
                 }))}
             />
-            {isContractorWO && (
-              <div className="mt-5 rounded-xl border border-gray-200 bg-white p-4">
-                <h3 className="text-sm font-semibold text-gray-900">{t('common.machines.asset.outsourced.woSectionTitle')}</h3>
-                <p className="mb-3 mt-0.5 text-xs text-gray-500">{t('common.machines.asset.outsourced.woSectionHint')}</p>
-                <OutsourcedJobFields value={outsourced} onChange={setOutsourced} />
-              </div>
-            )}
             </>
           )}
 

@@ -14,7 +14,6 @@ import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields
 import type { WOType } from '../../types/workOrder';
 import { MachineSparePartsPanel } from '../../components/machines/MachineSparePartsPanel';
 import { useMachinesWithOpenWork, effectiveMachineStatus } from '../../hooks/useMachinesWithOpenWork';
-import { OutsourcedMaintenanceSection } from '../../components/machines/OutsourcedMaintenanceSection';
 import { MachineAssetCard } from '../../components/machines/MachineAssetCard';
 import { ScrapMachineDialog } from '../../components/machines/ScrapMachineDialog';
 import { restoreSchedulesAfterUnscrap } from '../../services/machineScrap.service';
@@ -308,10 +307,10 @@ export function MachineProfilePage() {
 
       {/* Tab Content */}
       <div>
-        {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} showAsset={canManageAsset} siteId={machine.siteId} />}
+        {activeTab === 'overview' && <OverviewTab machine={{ ...machine, status: effectiveMachineStatus(machine, openWork) }} canEdit={canEditMachine} showAsset={canManageAsset} />}
         {activeTab === 'documents' && <DocumentsTab machine={machine} />}
         {activeTab === 'history' && <HistoryTab machine={machine} />}
-        {activeTab === 'maintenance' && <MaintenanceTab machine={machine} showOutsourced={canEditMachine} />}
+        {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
       </div>
     </div>
@@ -319,7 +318,7 @@ export function MachineProfilePage() {
 }
 
 // Tab Components
-function OverviewTab({ machine, canEdit, showAsset, siteId }: any) {
+function OverviewTab({ machine, canEdit, showAsset }: any) {
   const { t } = useTranslation();
   const na = t('common.machines.profile.na');
   return (
@@ -429,7 +428,7 @@ function OverviewTab({ machine, canEdit, showAsset, siteId }: any) {
       {/* Downtime Cost */}
       <DowntimeCostFields machine={machine} canEdit={canEdit} />
 
-      {showAsset && <MachineAssetCard machine={machine} siteId={siteId} />}
+      {showAsset && <MachineAssetCard machine={machine} />}
     </div>
   );
 }
@@ -491,10 +490,9 @@ function HistoryTab({ machine }: any) {
   );
 }
 
-function MaintenanceTab({ machine, showOutsourced }: any) {
+function MaintenanceTab({ machine }: any) {
   return (
     <div>
-      {showOutsourced && <OutsourcedMaintenanceSection machineId={machine.id} siteId={machine.siteId} />}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
       </div>
