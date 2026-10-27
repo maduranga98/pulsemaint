@@ -19,6 +19,7 @@ import DashboardWidget from '../../components/dashboard/shared/DashboardWidget';
 import EmptyState from '../../components/dashboard/shared/EmptyState';
 import type { WorkOrder } from '../../types/workOrder';
 import type { EvaluationSession } from '../../modules/evaluation/types/evaluation.types';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -67,6 +68,11 @@ function useMyRecentEvaluations(userId: string, limitCount = 3) {
 // read-only dashboard.
 export default function TraineeDashboard() {
   const { t } = useTranslation();
+  const evalOn = useModuleEnabled('evaluations');
+  const inventoryOn = useModuleEnabled('inventory');
+  const pmOn = useModuleEnabled('pm');
+  const safetyOn = useModuleEnabled('safety');
+  const trainingOn = useModuleEnabled('training');
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   // Match the security rule, which authorizes assigned-WO reads on
@@ -79,7 +85,7 @@ export default function TraineeDashboard() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { workOrders, loading } = useMyJobQueue(traineeId, siteId);
-  const { evaluations, loading: evalLoading } = useMyRecentEvaluations(traineeId);
+  const { evaluations, loading: evalLoading } = useMyRecentEvaluations(evalOn ? traineeId : '');
 
   // Re-derive selected WO from the live list so the execution sheet updates
   // in realtime and auto-closes when the WO leaves the active queue.
@@ -141,21 +147,21 @@ export default function TraineeDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TodaysPmList technicianId={traineeId} siteId={siteId} onSelect={(woId) => setSelectedId(woId)} />
-          <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />
+          {pmOn && <TodaysPmList technicianId={traineeId} siteId={siteId} onSelect={(woId) => setSelectedId(woId)} />}
+          {inventoryOn && <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MyReturnablePartsWidget />
-          <MyTrainingsWidget />
+          {inventoryOn && <MyReturnablePartsWidget />}
+          {trainingOn && <MyTrainingsWidget />}
         </div>
 
-        <MySafetyTrainingsWidget />
+        {safetyOn && <MySafetyTrainingsWidget />}
 
-        <MySafetyCasesWidget />
+        {safetyOn && <MySafetyCasesWidget />}
 
         {/* My Evaluations — trainee-specific */}
-        <DashboardWidget title={t('common.widgets.traineeDashboard.myEvaluations')} loading={evalLoading}>
+        {evalOn && <DashboardWidget title={t('common.widgets.traineeDashboard.myEvaluations')} loading={evalLoading}>
           {evaluations.length === 0 ? (
             <EmptyState message={t('common.widgets.traineeDashboard.noEvaluations')} />
           ) : (
@@ -176,7 +182,7 @@ export default function TraineeDashboard() {
               ))}
             </div>
           )}
-        </DashboardWidget>
+        </DashboardWidget>}
       </div>
 
       {selectedWO && (

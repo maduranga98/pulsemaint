@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { MODULE_KEYS, moduleForPath, disabledModuleForPath } from '../companyModules';
+import { MODULE_KEYS, moduleForPath, disabledModuleForPath, isModuleEnabled } from '../companyModules';
 
 describe('company module switches', () => {
   it('most specific prefix wins (purchase orders are not just inventory)', () => {
@@ -19,6 +19,12 @@ describe('company module switches', () => {
     expect(disabledModuleForPath(company, '/app/safety/cases')).toBeNull();
     expect(disabledModuleForPath({ disabledModules: [] }, '/app/training')).toBeNull();
     expect(disabledModuleForPath(null, '/app/training')).toBeNull();
+  });
+  it('isModuleEnabled follows disabledModules', () => {
+    expect(isModuleEnabled({ disabledModules: ['pm'] }, 'pm')).toBe(false);
+    expect(isModuleEnabled({ disabledModules: ['pm'] }, 'safety')).toBe(true);
+    expect(isModuleEnabled(null, 'pm')).toBe(true);
+    expect(isModuleEnabled({}, 'pm')).toBe(true);
   });
   it('server list matches', () => {
     const src = readFileSync(resolve(__dirname, '../../../functions/src/platform/platformCompanies.js'), 'utf8');

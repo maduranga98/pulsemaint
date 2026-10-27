@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 import LowStockPartsChartLight from '../../components/dashboard/inventory/LowStockPartsChartLight';
 import TopUsedPartsChartLight from '../../components/dashboard/inventory/TopUsedPartsChartLight';
 import MostMovedPartsChartLight from '../../components/dashboard/inventory/MostMovedPartsChartLight';
@@ -26,13 +27,17 @@ export default function InventoryAnalyticsPage() {
     { label: t('common.analytics.durationOptions.days', { count: 90 }), days: 90 },
   ] as const;
 
-  const TABS: { id: TabId; label: string }[] = [
+  const posOn = useModuleEnabled('purchaseOrders');
+
+  const ALL_TABS: { id: TabId; label: string }[] = [
     { id: 'low_stock', label: t('common.analytics.inventoryPage.tabs.lowStock') },
     { id: 'reasons', label: t('common.analytics.inventoryPage.tabs.reasons') },
     { id: 'most_moved', label: t('common.analytics.inventoryPage.tabs.mostMoved') },
     { id: 'suppliers', label: t('common.analytics.inventoryPage.tabs.suppliers') },
     { id: 'receipt_quality', label: t('common.analytics.inventoryPage.tabs.receiptQuality') },
   ];
+  // Supplier / receipt charts come from purchase orders — gone when that module is off.
+  const TABS = ALL_TABS.filter((tab) => posOn || (tab.id !== 'suppliers' && tab.id !== 'receipt_quality'));
 
   return (
     <div className="min-h-full">

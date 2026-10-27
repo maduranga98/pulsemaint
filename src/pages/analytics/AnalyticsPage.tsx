@@ -31,12 +31,16 @@ import {
   type DashboardRange as Range,
 } from '../../utils/analytics/dashboardRange';
 import { getCompanyCurrency } from '@/lib/currency';
+import { useModuleEnabled } from '@/hooks/useModuleEnabled';
 import { PlanFeatureGate } from '@/components/settings/PlanFeatureGate';
 
 type Tab = 'breakdowns' | 'pm' | 'workorders' | 'machines' | 'plants' | 'safety' | 'team';
 
 export default function AnalyticsPage() {
   const { t } = useTranslation();
+  const pmOn = useModuleEnabled('pm');
+  const safetyOn = useModuleEnabled('safety');
+  const contractorsOn = useModuleEnabled('contractors');
 
   // workOrders (and the charts fed from it — Work Order distribution,
   // Maintenance Cost Overview) are scoped by siteId, not companyId; for a
@@ -57,15 +61,19 @@ export default function AnalyticsPage() {
   // Supervisors get the maintenance tabs only — Safety and Team Performance
   // are for managers/admins.
   const SUPERVISOR_HIDDEN_TABS: Tab[] = ['plants', 'safety', 'team'];
-  const TABS = userProfile?.role === 'supervisor'
-    ? ALL_TABS.filter((tb) => !SUPERVISOR_HIDDEN_TABS.includes(tb.value))
-    : ALL_TABS;
+  // Tabs of a module Lumora switched off for this company are dropped too.
+  const TABS = ALL_TABS.filter(
+    (tb) =>
+      !(userProfile?.role === 'supervisor' && SUPERVISOR_HIDDEN_TABS.includes(tb.value)) &&
+      !(tb.value === 'pm' && !pmOn) &&
+      !(tb.value === 'safety' && !safetyOn),
+  );
   const isDedicatedAnalyticsRole =
     userProfile?.role === 'store_keeper' || userProfile?.role === 'hr_officer' || userProfile?.role === 'safety_officer';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   // Store keeper / HR officer render a dedicated analytics page below and
   // never see this data — pass '' so the underlying hooks skip subscribing.
-  const { kpis: safetyKpis } = useSafetyKpis(isDedicatedAnalyticsRole ? '' : companyId);
+  const { kpis: safetyKpis } = useSafetyKpis(isDedicatedAnalyticsRole || !safetyOn ? '' : companyId);
   const [range, setRange] = useState<Range>('mtd');
   const [tab, setTab] = useState<Tab>('breakdowns');
 
@@ -100,11 +108,13 @@ export default function AnalyticsPage() {
       unit: 'h',
       color: 'red' as const,
     },
-    {
-      label: t('common.analytics.mainPage.kpis.safetyCases'),
-      value: safetyKpis.totalCases,
-      color: (safetyKpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green',
-    },
+    ...(safetyOn
+      ? [{
+          label: t('common.analytics.mainPage.kpis.safetyCases'),
+          value: safetyKpis.totalCases,
+          color: (safetyKpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green',
+        }]
+      : []),
   ];
 
   // Store keeper / HR officer / Safety officer get dedicated analytics views
@@ -181,7 +191,7 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {tab === 'pm' && (
+        {tab === 'pm' && pmOn && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-8">
               <PmTrendChart companyId={companyId} months={months} />
@@ -202,7 +212,7 @@ export default function AnalyticsPage() {
                 <MaintenanceCostChart companyId={companyId} month={months} />
               </div>
             </div>
-            <ContractorScoreboard companyId={companyId} month={months} />
+            {contractorsOn && <ContractorScoreboard companyId={companyId} month={months} />}
           </div>
         )}
 
@@ -214,7 +224,7 @@ export default function AnalyticsPage() {
           </PlanFeatureGate>
         )}
 
-        {tab === 'safety' && (
+        {tab === 'safety' && safetyOn && (
           <div className="space-y-6">
             <SafetySnapshotWidget companyId={companyId} hideKpiCards />
             <SafetyBlacklistWidget companyId={companyId} />

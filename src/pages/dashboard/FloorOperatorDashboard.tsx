@@ -6,6 +6,7 @@ import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySaf
 import MySafetyCasesWidget from '../../components/dashboard/technician/MySafetyCasesWidget';
 
 import { useTranslation } from 'react-i18next';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 function getGreeting(): string {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
@@ -20,6 +21,8 @@ function getGreeting(): string {
 // check instead of hunting across sections.
 export default function FloorOperatorDashboard() {
   const { t } = useTranslation();
+  const safetyOn = useModuleEnabled('safety');
+  const trainingOn = useModuleEnabled('training');
   const userProfile = useAuthStore((s) => s.userProfile);
   const siteId = userProfile?.siteIds?.[0] ?? userProfile?.companyId ?? '';
   const firstName = userProfile?.fullName?.split(' ')[0] ?? 'there';
@@ -36,12 +39,12 @@ export default function FloorOperatorDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <MyDepartmentBreakdownsWidget siteId={siteId} />
-          <MyTrainingsWidget />
+          {trainingOn && <MyTrainingsWidget />}
         </div>
 
-        <MySafetyTrainingsWidget />
+        {safetyOn && <MySafetyTrainingsWidget />}
 
-        <MySafetyCasesWidget />
+        {safetyOn && <MySafetyCasesWidget />}
       </div>
     </div>
   );

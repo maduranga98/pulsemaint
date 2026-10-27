@@ -14,9 +14,14 @@ import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainings
 import { CreatePartsRequestModal } from '../../components/inventory/requests/CreatePartsRequestModal';
 import { TechnicianWOExecutionSheet } from '../../components/workorders/technician/TechnicianWOExecutionSheet';
 import type { WorkOrder } from '../../types/workOrder';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 
 export default function TechnicianDashboard() {
   const { t } = useTranslation();
+  const inventoryOn = useModuleEnabled('inventory');
+  const pmOn = useModuleEnabled('pm');
+  const safetyOn = useModuleEnabled('safety');
+  const trainingOn = useModuleEnabled('training');
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   // Match the security rule, which authorizes assigned-WO reads on
@@ -93,18 +98,18 @@ export default function TechnicianDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TodaysPmList technicianId={technicianId} siteId={siteId} onSelect={(woId) => setSelectedId(woId)} />
-          <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />
+          {pmOn && <TodaysPmList technicianId={technicianId} siteId={siteId} onSelect={(woId) => setSelectedId(woId)} />}
+          {inventoryOn && <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MyReturnablePartsWidget />
-          <MyTrainingsWidget />
+          {inventoryOn && <MyReturnablePartsWidget />}
+          {trainingOn && <MyTrainingsWidget />}
         </div>
 
-        <MySafetyTrainingsWidget />
+        {safetyOn && <MySafetyTrainingsWidget />}
 
-        <MySafetyCasesWidget />
+        {safetyOn && <MySafetyCasesWidget />}
       </div>
 
       {selectedWO && (
