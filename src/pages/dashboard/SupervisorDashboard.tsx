@@ -12,6 +12,7 @@ import TodaysPmWidget from '../../components/dashboard/supervisor/TodaysPmWidget
 import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
 import NeedSignOffWidget from '../../components/dashboard/supervisor/NeedSignOffWidget';
 import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
+import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
@@ -22,6 +23,7 @@ export default function SupervisorDashboard() {
   const pmOn = useModuleEnabled('pm');
   const safetyOn = useModuleEnabled('safety');
   const trainingOn = useModuleEnabled('training');
+  const posOn = useModuleEnabled('purchaseOrders');
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Supervisor';
@@ -106,6 +108,7 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* Trainees whose programme is complete and waiting for sign-off. */}
+        {posOn && <LivePOsWidget />}
         {trainingOn && <ProgrammeSignOffQueueWidget companyId={companyId} />}
 
         {/* Row 4: Safety Trainings Assigned to Me — clickable, since the

@@ -113,7 +113,9 @@
       "livePOs": {
         "title": "采购申请",
         "pending": "{{count}} 待处理",
-        "empty": "没有待批准的采购单"
+        "empty": "没有待批准的采购单",
+        "approve": "批准",
+        "reject": "拒绝"
       },
       "safetyCases": {
         "title": "未结安全案例",

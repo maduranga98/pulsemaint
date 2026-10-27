@@ -1678,7 +1678,9 @@
       "livePOs": {
         "title": "PO Requests",
         "pending": "{{count}} pending",
-        "empty": "No purchase orders awaiting approval"
+        "empty": "No purchase orders awaiting approval",
+        "approve": "Approve",
+        "reject": "Reject"
       },
       "safetyCases": {
         "title": "Open Safety Cases",

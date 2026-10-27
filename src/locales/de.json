@@ -113,7 +113,9 @@
       "livePOs": {
         "title": "Bestellanfragen",
         "pending": "{{count}} ausstehend",
-        "empty": "Keine Bestellungen zur Genehmigung ausstehend"
+        "empty": "Keine Bestellungen zur Genehmigung ausstehend",
+        "approve": "Genehmigen",
+        "reject": "Ablehnen"
       },
       "safetyCases": {
         "title": "Offene Sicherheitsfälle",
