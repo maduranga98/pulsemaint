@@ -2021,6 +2021,9 @@
         "outsourcedJobs": "外注作業（ここに記録）",
         "workOrders": "作業指示（部品＋請負費用）",
         "totalMaintenance": "保全費用の合計",
+        "downtimeHours": "停止時間（時間）",
+        "downtimeCost": "停止コスト",
+        "downtimeRateMissing": "設備プロファイルで停止コストを設定してください",
         "totalOwnership": "総所有コスト",
         "scrapProceeds": "スクラップ／売却額",
         "adviceWatch": "保全費用の合計がこの設備の価格の半分に近づいています。注意してください。",
@@ -7904,7 +7907,8 @@
           "location": "場所",
           "woType": "作業指示書タイプ",
           "createdAt": "作成日",
-          "downtimeMinutes": "ダウンタイム（分）"
+          "downtimeMinutes": "ダウンタイム（分）",
+          "downtimeCost": "停止コスト"
         },
         "work_order_detail": {
           "woNumber": "作業指示書番号",

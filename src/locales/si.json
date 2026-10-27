@@ -2484,6 +2484,9 @@
         "outsourcedJobs": "පිටතින් කළ කටයුතු (මෙහි සටහන් කළ)",
         "workOrders": "වැඩ ඇණවුම් (කොටස් + කොන්ත්‍රාත්කරු ගාස්තු)",
         "totalMaintenance": "නඩත්තුවට වැය කළ මුළු මුදල",
+        "downtimeHours": "නිෂ්ක්‍රිය කාලය (පැය)",
+        "downtimeCost": "නිෂ්ක්‍රිය පිරිවැය",
+        "downtimeRateMissing": "යන්ත්‍ර පැතිකඩේ Downtime Cost අගය සකසන්න",
         "totalOwnership": "මුළු හිමිකාරිත්ව පිරිවැය",
         "scrapProceeds": "Scrap / විකුණුම් මුදල",
         "adviceWatch": "මුළු නඩත්තු වියදම මෙම යන්ත්‍රයේ මිලෙන් අඩකට ආසන්න වේ — සැලකිලිමත් වන්න.",
@@ -7816,7 +7819,8 @@
           "location": "ස්ථානය",
           "woType": "WO වර්ගය",
           "createdAt": "සෑදූ දිනය",
-          "downtimeMinutes": "අක්‍රිය කාලය (මිනි.)"
+          "downtimeMinutes": "අක්‍රිය කාලය (මිනි.)",
+          "downtimeCost": "නිෂ්ක්‍රිය පිරිවැය"
         },
         "work_order_detail": {
           "woNumber": "WO අංකය",

@@ -2021,6 +2021,9 @@
         "outsourcedJobs": "Travaux sous-traités (enregistrés ici)",
         "workOrders": "Ordres de travail (pièces + frais de sous-traitants)",
         "totalMaintenance": "Total dépensé en maintenance",
+        "downtimeHours": "Temps d'arrêt (heures)",
+        "downtimeCost": "Coût d'arrêt",
+        "downtimeRateMissing": "Définissez le coût d'arrêt dans le profil de la machine",
         "totalOwnership": "Coût total de possession",
         "scrapProceeds": "Montant de la mise au rebut / vente",
         "adviceWatch": "Les dépenses de maintenance approchent la moitié du prix de cette machine — à surveiller.",
@@ -7904,7 +7907,8 @@
           "location": "Emplacement",
           "woType": "Type d'OT",
           "createdAt": "Date de création",
-          "downtimeMinutes": "Arrêt (min)"
+          "downtimeMinutes": "Arrêt (min)",
+          "downtimeCost": "Coût d'arrêt"
         },
         "work_order_detail": {
           "woNumber": "OT n°",
