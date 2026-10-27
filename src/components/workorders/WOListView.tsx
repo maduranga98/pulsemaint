@@ -80,6 +80,8 @@ export function WOListView() {
   // firestore.rules grants them the matching create permission.
   const canCreateWorkOrder =
     role === 'supervisor' || role === 'admin' || role === 'plant_manager';
+  // The All / My WOs toggle is for supervisors; admin and plant manager always see the whole board.
+  const canShowMyWos = role === 'supervisor';
   // Signed-off work orders (every type, Breakdown Repair and PM included):
   // admins and plant managers see all of them; supervisors see the ones
   // signed off in the last 30 days, after which they drop off their list.
@@ -132,7 +134,7 @@ export function WOListView() {
   // "My WOs" lists every work order the person raised, supervises or is
   // assigned to — including breakdown repair and PM ones, which the general
   // board leaves to their own pages.
-  const mineOnly = canCreateWorkOrder && scope === 'mine';
+  const mineOnly = canShowMyWos && scope === 'mine';
   const nonExcludedWOs = workOrders.filter((wo) =>
     mineOnly ? isMine(wo) : !EXCLUDED_TYPES.includes(wo.woType),
   );
@@ -177,7 +179,7 @@ export function WOListView() {
 
         {/* Scope toggle + search */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {canCreateWorkOrder ? (
+          {canShowMyWos ? (
             <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-sm" role="tablist">
               {(['all', 'mine'] as const).map((s) => (
                 <button
