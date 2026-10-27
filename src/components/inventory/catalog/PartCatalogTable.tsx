@@ -167,7 +167,7 @@ export function PartCatalogTable({
                 <PartCriticalityBadge criticality={part.criticality} />
               </td>
               <td className="px-4 py-3">
-                <PartStatusBadge status={part.status} />
+                <PartStatusBadge status={part.status} stockStatus={getStockStatus(part)} />
               </td>
               <td className="px-4 py-3 text-right tabular-nums text-gray-600">
                 {part.minStockLevel.toLocaleString()}

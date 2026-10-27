@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import type { PartStatus } from '@/types/inventory';
+import type { PartStatus, StockStatus } from '@/types/inventory';
 
 interface PartStatusBadgeProps {
   status: PartStatus;
+  /** Live stock level; an active part that is running low / out shows that instead of "Active". */
+  stockStatus?: StockStatus;
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -21,16 +23,24 @@ const statusColors: Record<PartStatus, { color: string; bg: string }> = {
   },
 };
 
+const lowStockColors = {
+  low_stock: { color: 'text-amber-700', bg: 'bg-amber-50' },
+  out_of_stock: { color: 'text-red-700', bg: 'bg-red-50' },
+};
+
 const sizeClasses = {
   sm: 'px-2 py-0.5 text-xs',
   md: 'px-2.5 py-1 text-sm',
   lg: 'px-3 py-1.5 text-base',
 };
 
-export function PartStatusBadge({ status, size = 'sm' }: PartStatusBadgeProps) {
+export function PartStatusBadge({ status, stockStatus, size = 'sm' }: PartStatusBadgeProps) {
   const { t } = useTranslation();
-  const config = statusColors[status];
-  const label = t(`common.inventory.enums.status.${status}`);
+  // Derived from the live stock level, so it goes back to Active on its own
+  // once the stock is topped up above the minimum.
+  const low = status === 'active' && (stockStatus === 'low_stock' || stockStatus === 'out_of_stock') ? stockStatus : null;
+  const config = low ? lowStockColors[low] : statusColors[status];
+  const label = low ? t(`common.inventory.enums.stockStatus.${low}`) : t(`common.inventory.enums.status.${status}`);
 
   return (
     <span
