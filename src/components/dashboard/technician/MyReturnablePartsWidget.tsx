@@ -32,7 +32,7 @@ export default function MyReturnablePartsWidget() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
 
   const { requests, loading: requestsLoading, error } = usePartsRequests({ ownOnly: true });
-  const { returns: myPendingReturns, loading: returnsLoading } = usePartReturns({ ownOnly: true, status: 'pending' });
+  const { returns: myPendingReturns, loading: returnsLoading, error: returnsError } = usePartReturns({ ownOnly: true, status: 'pending' });
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [writeOffRow, setWriteOffRow] = useState<ReturnableRow | null>(null);
   const [writeOffReason, setWriteOffReason] = useState('');
@@ -155,7 +155,7 @@ export default function MyReturnablePartsWidget() {
   }
 
   return (
-    <DashboardWidget title={t('common.widgets.myReturnablePartsWidget.title')} loading={requestsLoading || returnsLoading} error={error}>
+    <DashboardWidget title={t('common.widgets.myReturnablePartsWidget.title')} loading={requestsLoading || returnsLoading} error={error ?? returnsError}>
       {rows.length === 0 ? (
         <EmptyState message={t('common.widgets.myReturnablePartsWidget.empty')} subMessage={t('common.widgets.myReturnablePartsWidget.emptySub')} />
       ) : (

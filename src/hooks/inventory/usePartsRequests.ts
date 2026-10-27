@@ -41,9 +41,12 @@ export function usePartsRequests(options: UsePartsRequestsOptions = {}): UsePart
   // Own plant only (admin: selected plant tab). Requests predating plant
   // stamping fall back to the requester's plant.
   const { inPlant } = usePlantFilter(companyId);
+  // A person's own requests are always theirs to see, whatever plant a store
+  // keeper / admin stamped on them (a manual issue made from another plant's
+  // tab used to hide the parts from the technician it was issued to).
   const requests = useMemo(
-    () => allRequests.filter((r) => inPlant(r.plantId, r.requestedBy)),
-    [allRequests, inPlant],
+    () => (ownOnly ? allRequests : allRequests.filter((r) => inPlant(r.plantId, r.requestedBy))),
+    [allRequests, inPlant, ownOnly],
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
