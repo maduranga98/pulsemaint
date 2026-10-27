@@ -5,7 +5,7 @@ import { Compass, Search, X } from 'lucide-react';
 import { getDashboardRoute } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { LAUNCHER_PATH } from '@/components/layout/navConfig';
+import { LAUNCHER_PATH, usesLauncher } from '@/components/layout/navConfig';
 import { HELP_MODULE_ROUTES, ROLE_HELP_MODULES, type HelpModuleId } from './helpContent';
 
 interface HelpGuide {
@@ -73,7 +73,7 @@ export default function HelpSupportPage() {
             // first-time tour — so it shows every stop (the plant switcher, for one,
             // is hidden on this Help page and would be skipped here). On phones the
             // equivalent screen is the app launcher, which is where its features live.
-            if (role) navigate(isPhone ? LAUNCHER_PATH : getDashboardRoute(role), { state: { startTour: 'main' } });
+            if (role) navigate(isPhone && usesLauncher(role) ? LAUNCHER_PATH : getDashboardRoute(role), { state: { startTour: 'main' } });
           }}
           className="shrink-0 rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1648B8]"
         >

@@ -325,6 +325,14 @@ export const NAV_GROUPS: NavGroup[] = [
 /** Phone launcher screen (first view of a session on phones/tablets). */
 export const LAUNCHER_PATH = '/app/home';
 
+/**
+ * Roles that open the phone app launcher first. Everyone else (technician, trainee,
+ * store keeper, HR, safety officer, floor operator) gets a bottom bar with every tab
+ * as an icon, the dashboard first, and no launcher window.
+ */
+export const LAUNCHER_ROLES: UserRole[] = ['admin', 'plant_manager', 'supervisor'];
+export const usesLauncher = (role?: UserRole) => !!role && LAUNCHER_ROLES.includes(role);
+
 type NavCompany = Parameters<typeof disabledModuleForPath>[0];
 
 /** Everything the signed-in role may open, in sidebar order. */

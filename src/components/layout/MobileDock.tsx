@@ -14,8 +14,11 @@ const HOME_ICON = (
  * It scrolls sideways (no visible scrollbar) so every module the role can open
  * is reachable; the first button returns to the app launcher. It is not
  * rendered on the launcher itself.
+ *
+ * `bar` (roles without a launcher): a full-width bottom tab bar instead — no Home button,
+ * the dashboard is the first icon, every other tab follows (scrolls sideways when many).
  */
-export default function MobileDock({ nav }: { nav: VisibleNav }) {
+export default function MobileDock({ nav, bar = false }: { nav: VisibleNav; bar?: boolean }) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const items = flatNav(nav);
@@ -31,22 +34,31 @@ export default function MobileDock({ nav }: { nav: VisibleNav }) {
   }, [pathname]);
 
   return (
-    <nav aria-label={t('common.nav.mobile.label')} className="lg:hidden shrink-0 px-3 pt-1 pb-2">
+    <nav
+      aria-label={t('common.nav.mobile.label')}
+      className={bar ? 'lg:hidden shrink-0 border-t border-[#1E3A5F] bg-[#0F1E35] pb-[env(safe-area-inset-bottom)]' : 'lg:hidden shrink-0 px-3 pt-1 pb-2'}
+    >
       <div
-        className="scrollbar-hide flex gap-1.5 overflow-x-auto rounded-2xl border border-[#1E3A5F] bg-[#0F1E35]/95 p-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.4)]"
-        style={{
+        className={
+          bar
+            ? 'scrollbar-hide flex gap-1 overflow-x-auto px-2 py-1.5'
+            : 'scrollbar-hide flex gap-1.5 overflow-x-auto rounded-2xl border border-[#1E3A5F] bg-[#0F1E35]/95 p-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.4)]'
+        }
+        style={bar ? { scrollSnapType: 'x proximity' } : {
           scrollSnapType: 'x proximity',
           WebkitMaskImage: 'linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 30px), transparent 100%)',
           maskImage: 'linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 30px), transparent 100%)',
         }}
       >
-        <NavLink
-          to={LAUNCHER_PATH}
-          aria-label={t('common.nav.mobile.home')}
-          className="mr-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.07] text-[#D5E2F5]"
-        >
-          {HOME_ICON}
-        </NavLink>
+        {!bar && (
+          <NavLink
+            to={LAUNCHER_PATH}
+            aria-label={t('common.nav.mobile.home')}
+            className="mr-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.07] text-[#D5E2F5]"
+          >
+            {HOME_ICON}
+          </NavLink>
+        )}
         {items.map((item) => {
           const active = item.to === activeTo;
           return (
@@ -56,7 +68,7 @@ export default function MobileDock({ nav }: { nav: VisibleNav }) {
               ref={active ? activeRef : undefined}
               aria-label={t(item.labelKey)}
               title={t(item.labelKey)}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl [&>svg]:!h-5 [&>svg]:!w-5 ${
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl [&>svg]:!h-5 [&>svg]:!w-5 ${
                 active
                   ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_4px_12px_rgba(37,99,235,0.5)]'
                   : 'text-[#9FB3D1]'

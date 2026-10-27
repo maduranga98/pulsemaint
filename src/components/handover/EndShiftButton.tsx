@@ -5,7 +5,7 @@ import { Clock, Play } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useHandoverStore } from '@/store/handover.store';
 import { formatDuration } from '@/utils/handover.utils';
-import { LAUNCHER_PATH } from '@/components/layout/navConfig';
+import { LAUNCHER_PATH, usesLauncher } from '@/components/layout/navConfig';
 import EndShiftConfirmModal from './EndShiftConfirmModal';
 import ShiftSummaryModal from './ShiftSummaryModal';
 import type { ShiftSession } from '@/types/handover.types';
@@ -13,9 +13,13 @@ import type { ShiftSession } from '@/types/handover.types';
 export function EndShiftButton() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  // On phones the floating start/end-shift button belongs to the launcher only.
-  const onLauncher = useLocation().pathname === LAUNCHER_PATH;
   const profile = useAuthStore((state) => state.userProfile);
+  // On phones the floating start/end-shift button belongs to the launcher — or, for roles
+  // without a launcher, to the dashboard, lifted above their bottom tab bar.
+  const pathname = useLocation().pathname;
+  const launcherRole = usesLauncher(profile?.role);
+  const onLauncher = launcherRole ? pathname === LAUNCHER_PATH : pathname.startsWith('/app/dashboard');
+  const fabBottom = launcherRole ? 'bottom-4' : 'bottom-20';
   const currentShift = useHandoverStore((state) => state.currentShift);
   const shiftStartTime = useHandoverStore((state) => state.shiftStartTime);
   const isShiftActive = useHandoverStore((state) => state.isShiftActive);
@@ -98,7 +102,7 @@ export function EndShiftButton() {
           onClick={() => void handleStart()}
           disabled={starting}
           data-tour="shift-fab"
-          className={`fixed bottom-4 right-4 z-30 min-h-12 rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg sm:hidden disabled:opacity-60 ${onLauncher ? '' : 'hidden'}`}
+          className={`fixed ${fabBottom} right-4 z-30 min-h-12 rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg sm:hidden disabled:opacity-60 ${onLauncher ? '' : 'hidden'}`}
         >
           {starting ? t('common.shiftHandovers.endShiftButton.starting') : t('common.shiftHandovers.endShiftButton.startShift')}
         </button>
@@ -125,7 +129,7 @@ export function EndShiftButton() {
         type="button"
         onClick={() => setOpen(true)}
         data-tour="shift-fab"
-        className={`fixed bottom-4 right-4 z-30 min-h-12 rounded-full bg-amber-500 px-5 py-3 text-sm font-bold text-white shadow-lg sm:hidden ${onLauncher ? '' : 'hidden'}`}
+        className={`fixed ${fabBottom} right-4 z-30 min-h-12 rounded-full bg-amber-500 px-5 py-3 text-sm font-bold text-white shadow-lg sm:hidden ${onLauncher ? '' : 'hidden'}`}
       >
         {t('common.shiftHandovers.endShiftButton.endShift')}
       </button>
