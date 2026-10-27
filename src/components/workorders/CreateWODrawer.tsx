@@ -433,7 +433,9 @@ export function CreateWODrawer({
   );
 
   // Auto-suggest due date from priority
+  // (never overwrite a due date the user has picked themselves)
   useEffect(() => {
+    if (form.getFieldState('dueDate').isDirty) return;
     const sla = getSlaDeadline(new Date(), priority, woType);
     form.setValue('dueDate', sla);
   }, [priority, woType, form]);

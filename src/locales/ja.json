@@ -2950,6 +2950,7 @@
         "noChecklistDefined": "チェックリストのステップが定義されていません。",
         "overdueNotice": "この作業指示書は期限を超過しており、まだ完了していません。",
         "safetyPrecautionsTitle": "安全対策（LOTO / PTW）",
+        "lotoReminder": "作業開始前に、すべてのエネルギー源を遮断・ロックアウト（LOTO）し、ゼロエネルギーを確認して、必要な作業許可を取得してください。",
         "workPermitsTitle_one": "作業許可証",
         "workPermitsTitle_other": "作業許可証（{{count}}件）",
         "workPermitMissing": "この作業指示書には作業許可証が必要ですが、見つかりませんでした。",
