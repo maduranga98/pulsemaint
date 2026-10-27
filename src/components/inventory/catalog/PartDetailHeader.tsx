@@ -71,7 +71,7 @@ export function PartDetailHeader({
         <span className="font-mono text-lg font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-lg">
           {part.partNumber}
         </span>
-        <PartStatusBadge status={part.status} size="md" />
+        <PartStatusBadge status={part.status} stockStatus={stockStatus} size="md" />
         <PartCriticalityBadge criticality={part.criticality} size="md" />
       </div>
 

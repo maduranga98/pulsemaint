@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { InventoryPart } from '@/types/inventory';
 import { PartStatusBadge } from '@/components/inventory/shared/PartStatusBadge';
+import { getStockStatus } from '@/lib/inventory/stockCalculator';
 import { PartCriticalityBadge } from '@/components/inventory/shared/PartCriticalityBadge';
 import { CategoryBadge } from '@/components/inventory/shared/CategoryBadge';
 import { StockLevelIndicator } from '@/components/inventory/shared/StockLevelIndicator';
@@ -38,7 +39,7 @@ export function PartCatalogCard({ part, onClick }: PartCatalogCardProps) {
           {part.partNumber}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
-          <PartStatusBadge status={part.status} />
+          <PartStatusBadge status={part.status} stockStatus={getStockStatus(part)} />
           <button
             type="button"
             onClick={(e) => {
