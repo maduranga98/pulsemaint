@@ -3,19 +3,11 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { TraineeProgramme } from '../../types/traineeProgram';
 import type { TrainingAssignment } from '../../lib/training/trainingTypes';
+import { isModuleDone } from '../../lib/training/programmeProgress';
 
 interface UseProgrammeSignOffQueueResult {
   programmes: TraineeProgramme[];
   loading: boolean;
-}
-
-// A programme module is "done" once its final test is passed — programme
-// modules aren't certified one-by-one, mirroring the same check
-// TraineeProgrammePage uses to decide whether "Issue Completion Certificate"
-// can be shown.
-function isModuleDone(assignments: TrainingAssignment[], traineeId: string, moduleId: string): boolean {
-  const a = assignments.find((x) => x.traineeId === traineeId && x.moduleId === moduleId);
-  return !!a && (a.quizPassed === true || a.status === 'quiz_passed' || a.status === 'certified');
 }
 
 /**
@@ -48,7 +40,10 @@ export function useProgrammeSignOffQueue(companyId: string): UseProgrammeSignOff
         setAllActiveProgrammes(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as TraineeProgramme));
         setProgrammesLoaded(true);
       },
-      () => setProgrammesLoaded(true),
+      (err) => {
+        console.error('useProgrammeSignOffQueue: programmes', err.message);
+        setProgrammesLoaded(true);
+      },
     );
 
     const unsubAssignments = onSnapshot(
@@ -57,7 +52,10 @@ export function useProgrammeSignOffQueue(companyId: string): UseProgrammeSignOff
         setAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as TrainingAssignment));
         setAssignmentsLoaded(true);
       },
-      () => setAssignmentsLoaded(true),
+      (err) => {
+        console.error('useProgrammeSignOffQueue: assignments', err.message);
+        setAssignmentsLoaded(true);
+      },
     );
 
     return () => {
