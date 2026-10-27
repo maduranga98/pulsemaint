@@ -1602,7 +1602,8 @@ service cloud.firestore {
       // Members read their own sessions; managers read all company sessions.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.userId == request.auth.uid
-          || getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
+          // safety_officer shares the Manager dashboard (Who's on shift) with admin / plant manager.
+          || getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer']);
       // Members create/update only their own session records.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && request.resource.data.userId == request.auth.uid;
@@ -1620,7 +1621,8 @@ service cloud.firestore {
 
     match /pm_schedules/{scheduleId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee']
+        // safety_officer shares the Manager dashboard / Analytics (PM widgets) — read-only.
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee', 'safety_officer']
         && plantVisible(resource.data.get('plantId', null));
       // Only into the creator's own company (and plant), which it can't later be moved out of.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
