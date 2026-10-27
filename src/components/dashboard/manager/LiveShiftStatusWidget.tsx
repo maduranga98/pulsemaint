@@ -3,6 +3,8 @@ import { Building2, Clock, Users } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useLiveShiftStatus } from '../../../hooks/useLiveShiftStatus';
+import { usePeopleActivity } from '../../../hooks/dashboard/usePeopleActivity';
+import PersonActivityBadges from '../shared/PersonActivityBadges';
 import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import { usePlants } from '../../../hooks/usePlants';
 import { groupWorkingByDepartment } from '../../../lib/liveShiftGroups';
@@ -35,6 +37,7 @@ function formatSince(date: Date | null, t: (key: string, opts?: Record<string, u
 export default function LiveShiftStatusWidget({ companyId }: Props) {
   const { t } = useTranslation();
   const { rows, loading } = useLiveShiftStatus(companyId);
+  const activity = usePeopleActivity(companyId);
   const { plantId } = useDepartmentScope();
   const { plants } = usePlants(companyId);
   const plantName = useMemo(() => new Map(plants.map((p) => [p.id, p.name])), [plants]);
@@ -90,6 +93,9 @@ export default function LiveShiftStatusWidget({ companyId }: Props) {
                         {m.shiftName}
                       </span>
                       <span className="font-medium text-[#10B981]">{formatSince(m.workingSince, t)}</span>
+                    </span>
+                    <span className="flex w-full flex-wrap items-center gap-1">
+                      <PersonActivityBadges activities={activity.get(m.id)} />
                     </span>
                   </div>
                 ))}

@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useDashboardStore } from '../../../store/dashboard.store';
+import PersonActivityBadges from '../shared/PersonActivityBadges';
+import type { PersonActivity } from '../../../lib/dashboard/peopleActivity';
 import type { TechnicianStatusDoc } from '../../../types/analytics.types';
 
 const STATUS_CONFIG: Record<string, { dot: string; labelKey: string; pulse: boolean }> = {
@@ -33,9 +35,10 @@ function formatShiftStart(ts: { toDate?: () => Date } | Date | null): string | n
 
 interface TechnicianStatusRowProps {
   technician: TechnicianStatusDoc;
+  activities?: PersonActivity[];
 }
 
-export default function TechnicianStatusRow({ technician }: TechnicianStatusRowProps) {
+export default function TechnicianStatusRow({ technician, activities }: TechnicianStatusRowProps) {
   const { t } = useTranslation();
   const config = STATUS_CONFIG[technician.currentStatus] ?? STATUS_CONFIG.available;
   const setSidePanel = useDashboardStore((s) => s.setSidePanel);
@@ -73,11 +76,9 @@ export default function TechnicianStatusRow({ technician }: TechnicianStatusRowP
           {formatShiftStart(technician.shiftStartTime) ? ` · ${formatShiftStart(technician.shiftStartTime)}` : ''}
         </p>
 
-        {technician.currentWoNumber && (
-          <p className="text-[11px] text-[#5B8DEF] truncate mt-0.5">
-            {t('common.widgets.technicianStatusRow.on', { wo: technician.currentWoNumber })} · {technician.currentMachineName}
-          </p>
-        )}
+        <div className="mt-1 flex flex-wrap items-center gap-1">
+          <PersonActivityBadges activities={activities} />
+        </div>
       </div>
 
       <div className="text-right shrink-0">

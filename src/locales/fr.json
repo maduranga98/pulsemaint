@@ -1868,6 +1868,12 @@
         "tech": "Technicien",
         "title": "Performance par ordre de travail"
       },
+      "personActivity": {
+        "idle": "Disponible",
+        "workOrder": "Ordre de travail",
+        "breakdown": "Panne",
+        "training": "En formation"
+      },
       "technicianStatusList": {
         "active": "{{count}} actifs",
         "empty": "Aucun technicien ou stagiaire de votre service en poste",

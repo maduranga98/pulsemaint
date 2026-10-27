@@ -1868,6 +1868,12 @@
         "tech": "技術者",
         "title": "作業指示別パフォーマンス"
       },
+      "personActivity": {
+        "idle": "待機中",
+        "workOrder": "作業指示",
+        "breakdown": "故障",
+        "training": "研修中"
+      },
       "technicianStatusList": {
         "active": "{{count}}人稼働中",
         "empty": "あなたの部署にシフト中の技術者・研修生はいません",
