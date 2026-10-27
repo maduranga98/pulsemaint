@@ -19,3 +19,17 @@ describe('isModuleDone', () => {
     expect(isModuleDone([a({ traineeId: 't2', quizPassed: true }), a({ moduleId: 'm2', quizPassed: true })], 't1', 'm1')).toBe(false);
   });
 });
+
+import { isProgramAssignmentReady } from '../training/programmeProgress';
+
+describe('isProgramAssignmentReady', () => {
+  const mods = new Map([['a', { overallProgress: 100 }], ['b', { overallProgress: 100 }], ['c', { overallProgress: 60 }]]);
+  it('is ready when every module is at 100 %', () => {
+    expect(isProgramAssignmentReady({ status: 'in_progress', moduleAssignmentIds: ['a', 'b'] }, mods)).toBe(true);
+  });
+  it('is not ready while a module is unfinished, missing or already signed off', () => {
+    expect(isProgramAssignmentReady({ status: 'in_progress', moduleAssignmentIds: ['a', 'c'] }, mods)).toBe(false);
+    expect(isProgramAssignmentReady({ status: 'in_progress', moduleAssignmentIds: [] }, mods)).toBe(false);
+    expect(isProgramAssignmentReady({ status: 'signed_off', moduleAssignmentIds: ['a'] }, mods)).toBe(false);
+  });
+});

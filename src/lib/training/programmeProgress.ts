@@ -15,3 +15,19 @@ export function isModuleDone(assignments: TrainingAssignment[], traineeId: strin
       (a.quizPassed === true || a.status === 'quiz_passed' || a.status === 'certified'),
   );
 }
+
+/**
+ * A program assignment (Trainee Management → Assigned) is ready for sign-off
+ * once it has module assignments and every one of them is at 100 % — the same
+ * rule the Assigned tab uses to show its "Awaiting Sign-Off" / Sign Off button.
+ */
+export function isProgramAssignmentReady(
+  programAssignment: { status: string; moduleAssignmentIds: string[] },
+  moduleAssignmentsById: Map<string, { overallProgress?: number }>,
+): boolean {
+  if (programAssignment.status === 'signed_off') return false;
+  const modules = (programAssignment.moduleAssignmentIds ?? [])
+    .map((id) => moduleAssignmentsById.get(id))
+    .filter((a): a is { overallProgress?: number } => !!a);
+  return modules.length > 0 && modules.every((a) => (a.overallProgress ?? 0) >= 100);
+}

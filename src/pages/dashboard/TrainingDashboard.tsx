@@ -9,6 +9,7 @@ import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/Pro
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { useModuleEnabled } from '../../hooks/useModuleEnabled';
+import { monthsForDashboardRange } from '../../utils/analytics/dashboardRange';
 
 export default function TrainingDashboard() {
   const { t } = useTranslation();
@@ -20,10 +21,9 @@ export default function TrainingDashboard() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'HR Officer';
 
-  const currentMonth = useMemo(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  }, []);
+  // Contractor jobs of the last six months — a single calendar month leaves
+  // the scoreboard empty at the start of a month or in a quiet one.
+  const scoreboardMonths = useMemo(() => monthsForDashboardRange('6m'), []);
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
@@ -51,7 +51,7 @@ export default function TrainingDashboard() {
         {(evalOn || auditOn) && <OngoingEvaluationsAuditsWidget companyId={companyId} />}
 
         {/* Contractor Scoreboard / suppliers / top performers (HR-003) */}
-        {contractorsOn && <ContractorScoreboard companyId={companyId} month={currentMonth} />}
+        {contractorsOn && <ContractorScoreboard companyId={companyId} month={scoreboardMonths} />}
 
         {/* HR officer's own outstanding trainings — replaces the old nav tab */}
         {trainingOn && <MyTrainingsWidget readOnly />}

@@ -3353,7 +3353,8 @@
         "ready": "{{count}} ready",
         "readyToSignOff": "Ready to Sign Off",
         "summary": "{{months}}-month programme · {{count}} modules completed · started {{date}}",
-        "title": "Trainee Programme Sign-Off"
+        "title": "Trainee Programme Sign-Off",
+        "programSummary": "{{program}} · {{count}} modules completed · due {{date}}"
       },
       "requestedPartsWidget": {
         "empty": "No outstanding parts requests",

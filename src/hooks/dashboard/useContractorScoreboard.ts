@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { computeMonthlyAnalytics, type MonthArg } from '../../services/analyticsAggregation';
+import { useEffect, useState } from 'react';
+import { subscribeMonthlyAnalytics, type MonthArg } from '../../services/analyticsAggregation';
 import type { AnalyticsMonthly, ContractorPerformanceRecord } from '../../types/analytics.types';
 import { useDepartmentScope } from '../useDepartmentScope';
 
@@ -16,7 +16,8 @@ function rankRecords(records: ContractorPerformanceRecord[]): ContractorPerforma
 // Jobs/SLA/first-fix are computed from contractorJobs for the selected
 // month range, not read off the (lifetime, non-range-aware) contractor
 // registry fields — that's what lets the scoreboard actually move when the
-// Analytics page's MTD/3M/6M/12M range changes.
+// range changes. It is live (the same subscription the Analytics page uses),
+// so a job that is finished or rated shows up without a reload.
 export function useContractorScoreboard(companyId: string, month: MonthArg) {
   // Plant-scoped roles / admin's plant tab only see their plant's figures.
   const { plantId } = useDepartmentScope();
@@ -33,23 +34,20 @@ export function useContractorScoreboard(companyId: string, month: MonthArg) {
     }
     setLoading(true);
     setError(null);
-    let cancelled = false;
-
-    computeMonthlyAnalytics(companyId, month, plantId)
-      .then((result) => {
-        if (cancelled) return;
-        setData({ contractorPerformance: rankRecords(result.contractorPerformance) } as AnalyticsMonthly);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        setError((err as Error).message);
-        setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    try {
+      return subscribeMonthlyAnalytics(
+        companyId,
+        month,
+        (result) => {
+          setData({ contractorPerformance: rankRecords(result.contractorPerformance) } as AnalyticsMonthly);
+          setLoading(false);
+        },
+        plantId,
+      );
+    } catch (err) {
+      setError((err as Error).message);
+      setLoading(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId, monthKeyStr, nonce, plantId]);
 
