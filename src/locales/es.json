@@ -1868,6 +1868,12 @@
         "tech": "Técnico",
         "title": "Desempeño por órdenes de trabajo"
       },
+      "personActivity": {
+        "idle": "Libre",
+        "workOrder": "Orden de trabajo",
+        "breakdown": "Avería",
+        "training": "En formación"
+      },
       "technicianStatusList": {
         "active": "{{count}} activos",
         "empty": "Ningún técnico o aprendiz de tu departamento en turno",

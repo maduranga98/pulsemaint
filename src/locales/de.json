@@ -1868,6 +1868,12 @@
         "tech": "Techniker",
         "title": "Leistung nach Arbeitsaufträgen"
       },
+      "personActivity": {
+        "idle": "Frei",
+        "workOrder": "Arbeitsauftrag",
+        "breakdown": "Störung",
+        "training": "In Schulung"
+      },
       "technicianStatusList": {
         "active": "{{count}} aktiv",
         "empty": "Keine Techniker oder Auszubildenden Ihrer Abteilung in der Schicht",

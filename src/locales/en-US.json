@@ -3441,6 +3441,12 @@
         "tech": "Tech",
         "title": "Performance By WOs"
       },
+      "personActivity": {
+        "idle": "Idle",
+        "workOrder": "Work order",
+        "breakdown": "Breakdown",
+        "training": "In training"
+      },
       "technicianStatusList": {
         "active": "{{count}} active",
         "empty": "No technicians or trainees from your department on shift",

@@ -1868,6 +1868,12 @@
         "tech": "技术员",
         "title": "按工单统计的绩效"
       },
+      "personActivity": {
+        "idle": "空闲",
+        "workOrder": "工单",
+        "breakdown": "故障",
+        "training": "培训中"
+      },
       "technicianStatusList": {
         "active": "{{count}} 人在岗",
         "empty": "您部门没有在班的技术员或学员",
