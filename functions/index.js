@@ -497,13 +497,19 @@ exports.onWOCreated = onDocumentCreated({ database: "default", document: "workOr
       wo.woNumber :
       await generateWONumber(wo.siteId, year);
 
-    // SLA: a preventive work order is due on its due date (it may be raised
-    // days ahead under the schedule's lead time); everything else is timed
+    // SLA: the due date the creator picked is the deadline. A preventive work
+    // order is due at the end of its due day (it may be raised days ahead under
+    // the schedule's lead time); only a work order with no due date is timed
     // from creation by priority.
     const due = wo.dueDate && typeof wo.dueDate.toDate === "function" ? wo.dueDate.toDate() : null;
-    const slaDeadline = wo.woType === "PREVENTIVE" && due ?
-      new Date(Date.UTC(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate()) + 24 * 60 * 60 * 1000 - 1) :
-      calcSlaDeadline(now, wo.priority);
+    let slaDeadline;
+    if (wo.woType === "PREVENTIVE" && due) {
+      slaDeadline = new Date(Date.UTC(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate()) + 24 * 60 * 60 * 1000 - 1);
+    } else if (due) {
+      slaDeadline = due;
+    } else {
+      slaDeadline = calcSlaDeadline(now, wo.priority);
+    }
 
     const updates = {
       woNumber,

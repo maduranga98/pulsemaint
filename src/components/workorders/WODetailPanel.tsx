@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle } from 'lucide-react';
 import { Timestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { WorkOrder } from '../../types/workOrder';
 import type { Breakdown } from '../../types/breakdown';
-import type { IsolationPoint } from '../../types/machine';
 import { WOTypeBadge } from './WOTypeBadge';
 import { PriorityBadge } from './PriorityBadge';
 import { WOStatusBadge } from './WOStatusBadge';
@@ -15,7 +15,6 @@ import { WOSignOffSummary } from './WOSignOffSummary';
 import { WOApprovalRequests } from './WOApprovalRequests';
 import { ExtendWODialog } from './ExtendWODialog';
 import { ChecklistExecutor } from './ChecklistExecutor';
-import { LotoGate } from './LotoGate';
 import { WorkPermitDetails } from './WorkPermitDetails';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useWorkOrderDetail } from '../../hooks/useWorkOrderDetail';
@@ -55,7 +54,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showExtend, setShowExtend] = useState(false);
-  const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
   const [linkedBreakdowns, setLinkedBreakdowns] = useState<Breakdown[]>([]);
 
   const { updateWO, updateStatus, loading: statusLoading } = useUpdateWorkOrder();
@@ -146,25 +144,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
     { key: 'history', label: t('common.workOrders.copy.tabHistory') },
   ];
 
-  // Load the machine's isolation points so the LOTO/PTW safety gate can be
-  // completed here before check-in (supervisors don't get the technician
-  // execution sheet, so without this they couldn't satisfy the gate).
-  useEffect(() => {
-    let cancelled = false;
-    getDoc(doc(db, 'machines', workOrder.machineId))
-      .then((snap) => {
-        if (!cancelled) {
-          setIsolationPoints((snap.data()?.isolationPoints ?? []) as IsolationPoint[]);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setIsolationPoints([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [workOrder.machineId]);
-
   // Full history of every breakdown ticket this WO was raised for — lets a
   // supervisor review the whole chain (reported → attended → repaired) on
   // this machine before signing off, not just the WO's own status history.
@@ -199,9 +178,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
     !TERMINAL_STATUSES.includes(workOrder.status);
   const safetyGateVisible =
     ['OPEN', 'ASSIGNED'].includes(workOrder.status) &&
-    (isSupervisor || (isTechnician && isAssigned)) &&
-    isolationPoints !== null &&
-    (isolationPoints.length > 0 || !!workOrder.ptwCategory);
+    (isSupervisor || (isTechnician && isAssigned));
 
   // Manual check-in — records arrival on the WO, then moves it to
   // IN_PROGRESS. Available to the assigned technician and to
@@ -369,13 +346,17 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
                 </section>
               )}
 
-              {/* Safety gate (LOTO/PTW) — must pass before check-in */}
+              {/* Standard LOTO reminder — the same for every machine, no
+                  per-machine isolation procedure to set up. */}
               {safetyGateVisible && (
                 <section className="bg-white border border-gray-200 rounded-xl p-4">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
                     {t('common.workOrders.detailPanel.safetyPrecautionsTitle')}
                   </h3>
-                  <LotoGate workOrder={workOrder} machineIsolationPoints={isolationPoints ?? []} />
+                  <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <p>{t('common.workOrders.detailPanel.lotoReminder')}</p>
+                  </div>
                 </section>
               )}
 

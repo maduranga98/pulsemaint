@@ -4515,6 +4515,7 @@
         "noChecklistDefined": "No checklist steps defined.",
         "overdueNotice": "This work order is overdue and not yet finished.",
         "safetyPrecautionsTitle": "Safety Precautions (LOTO / PTW)",
+        "lotoReminder": "Before starting: isolate and lock out all energy sources (LOTO), verify zero energy, and have the required permit to work in place.",
         "workPermitsTitle_one": "Work Permit",
         "workPermitsTitle_other": "Work Permits ({{count}})",
         "workPermitMissing": "This work order requires a Work Permit, but none was found.",

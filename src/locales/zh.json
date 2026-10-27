@@ -2950,6 +2950,7 @@
         "noChecklistDefined": "未定义清单步骤。",
         "overdueNotice": "此工单已逾期且尚未完成。",
         "safetyPrecautionsTitle": "安全防范措施（LOTO / PTW）",
+        "lotoReminder": "开始之前：隔离并锁定所有能源（LOTO），确认零能量状态，并取得所需的工作许可。",
         "workPermitsTitle_one": "工作许可证",
         "workPermitsTitle_other": "工作许可证（{{count}}）",
         "workPermitMissing": "此工单需要工作许可证，但未找到相关记录。",

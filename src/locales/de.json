@@ -2922,6 +2922,7 @@
         "noChecklistDefined": "Keine Listenschritte definiert.",
         "overdueNotice": "Dieser Arbeitsauftrag ist überfällig und noch nicht abgeschlossen.",
         "safetyPrecautionsTitle": "Sicherheitsvorkehrungen (LOTO / PTW)",
+        "lotoReminder": "Vor Arbeitsbeginn: Alle Energiequellen isolieren und sperren (LOTO), Energiefreiheit prüfen und die erforderliche Arbeitsfreigabe einholen.",
         "workPermitsTitle_one": "Arbeitserlaubnis",
         "workPermitsTitle_other": "Arbeitserlaubnisse ({{count}})",
         "workPermitMissing": "Dieser Arbeitsauftrag erfordert eine Arbeitserlaubnis, es wurde jedoch keine gefunden.",

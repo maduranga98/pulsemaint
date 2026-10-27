@@ -3345,6 +3345,7 @@
         "noChecklistDefined": "පරීක්ෂණ පියවර නිර්වචනය කර නැත.",
         "overdueNotice": "මෙම වැඩ ඇණවුම කල් ඉකුත් වී ඇති අතර තවම අවසන් නැත.",
         "safetyPrecautionsTitle": "ආරක්ෂක පූර්වාරක්ෂා (LOTO / PTW)",
+        "lotoReminder": "ආරම්භ කිරීමට පෙර: සියලු ශක්ති ප්‍රභව වෙන් කර ලොක් කරන්න (LOTO), ශුන්‍ය ශක්ති තත්ත්වය තහවුරු කරන්න, අවශ්‍ය වැඩ අවසරය ලබාගන්න.",
         "workPermitsTitle_one": "වැඩ අවසරය",
         "workPermitsTitle_other": "වැඩ අවසර ({{count}})",
         "workPermitMissing": "මෙම වැඩ ඇණවුමට වැඩ අවසරයක් අවශ්‍ය නමුත් කිසිවක් හමු නොවීය.",

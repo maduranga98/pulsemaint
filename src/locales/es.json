@@ -2922,6 +2922,7 @@
         "noChecklistDefined": "No se definieron pasos de la lista.",
         "overdueNotice": "Esta orden de trabajo está vencida y aún no ha finalizado.",
         "safetyPrecautionsTitle": "Precauciones de Seguridad (LOTO / PTW)",
+        "lotoReminder": "Antes de empezar: aísle y bloquee todas las fuentes de energía (LOTO), verifique energía cero y disponga del permiso de trabajo requerido.",
         "workPermitsTitle_one": "Permiso de Trabajo",
         "workPermitsTitle_other": "Permisos de Trabajo ({{count}})",
         "workPermitMissing": "Esta orden de trabajo requiere un Permiso de Trabajo, pero no se encontró ninguno.",
