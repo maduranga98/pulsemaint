@@ -75,7 +75,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
   const { workOrder: extensionWo } = useWorkOrderDetail(workOrder.activeExtensionWoId);
 
   const isSupervisor = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'].includes(role);
-  const isTechnician = role === 'technician';
+  // A trainee works assigned work orders exactly like a technician does.
+  const isTechnician = role === 'technician' || role === 'trainee';
   // Assignment may be stored under the Firebase Auth uid or the user profile id.
   const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];
   const isAssigned = workOrder.assignedTechnicianIds.some((id) => myIds.includes(id));

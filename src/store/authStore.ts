@@ -30,7 +30,8 @@ function roleFlags(profile: UserProfile | null) {
   return {
     isAdmin: profile?.role === 'admin',
     isSupervisor: profile?.role === 'supervisor',
-    isTechnician: profile?.role === 'technician',
+    // Trainees get the technician experience (assigned work, no cost figures).
+    isTechnician: profile?.role === 'technician' || profile?.role === 'trainee',
     isStoreKeeper: profile?.role === 'store_keeper',
   };
 }
