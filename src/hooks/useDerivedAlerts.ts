@@ -23,7 +23,7 @@ export interface DerivedAlert {
 const AUDIENCE: Record<string, UserRole[]> = {
   certificates: ['hr_officer', 'plant_manager', 'admin', 'safety_officer'],
   permits: ['safety_officer', 'supervisor', 'plant_manager', 'admin'],
-  pm: ['supervisor', 'plant_manager', 'admin', 'technician'],
+  pm: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'],
   // Inventory is store keeper / plant manager / admin only.
   stock: ['store_keeper', 'plant_manager', 'admin'],
   po: ['store_keeper', 'plant_manager', 'admin'],
