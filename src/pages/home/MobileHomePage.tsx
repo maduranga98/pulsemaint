@@ -8,7 +8,8 @@ import { getDashboardRoute } from '../../lib/auth';
 import { flatNav, visibleNav } from '../../components/layout/navConfig';
 import { useMyNotifications } from '../../hooks/useMyNotifications';
 import { useDerivedAlerts } from '../../hooks/useDerivedAlerts';
-import { badgeLabel, launcherBadgeCounts } from '../../lib/launcherBadges';
+import { badgeLabel, inSelectedPlant, launcherBadgeCounts } from '../../lib/launcherBadges';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { LAUNCHER_DESCRIPTIONS, launcherKeyOf } from '../../features/tour/launcherDescriptions';
 
 /**
@@ -28,13 +29,18 @@ export default function MobileHomePage() {
   // PM alerts only count when due today or overdue, not the 7-day look-ahead.
   const { notifications } = useMyNotifications();
   const derivedAlerts = useDerivedAlerts();
+  // The plant tab at the top (admin) / the user's own plant: the red tags count only that plant's items.
+  const { plantId } = useDepartmentScope();
   const badges = useMemo(
     () =>
       launcherBadgeCounts(
-        [...notifications, ...derivedAlerts.filter((a) => a.type !== 'pm' || (a.dueInDays ?? 0) <= 0)],
+        [
+          ...notifications.filter((n) => inSelectedPlant(n, plantId)),
+          ...derivedAlerts.filter((a) => (a.type !== 'pm' || (a.dueInDays ?? 0) <= 0) && inSelectedPlant(a, plantId)),
+        ],
         items.map((i) => i.to),
       ),
-    [notifications, derivedAlerts, items],
+    [notifications, derivedAlerts, items, plantId],
   );
   const needle = search.trim().toLowerCase();
   const shown = needle ? items.filter((i) => t(i.labelKey).toLowerCase().includes(needle)) : items;
