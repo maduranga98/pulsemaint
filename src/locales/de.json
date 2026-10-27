@@ -3061,7 +3061,9 @@
         "activeWOsInline": "{{count}} aktive AA",
         "busyInline": "Beschäftigt — bei {{ref}}",
         "chooseContactPerson": "Ansprechpartner wählen…",
-        "primaryContactOption": "{{name}} (Hauptansprechpartner)"
+        "primaryContactOption": "{{name}} (Hauptansprechpartner)",
+        "noContractors": "Noch keine registrierten Auftragnehmer – unter Auftragnehmer hinzufügen.",
+        "noContractorMatch": "Kein registrierter Auftragnehmer passt zu diesem Namen."
       },
       "pageTitle": "Arbeitsaufträge",
       "count": "{{count}} Arbeitsaufträge",

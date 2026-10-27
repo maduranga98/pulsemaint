@@ -3089,7 +3089,9 @@
         "activeWOsInline": "進行中の作業指示書 {{count}} 件",
         "busyInline": "対応中 — {{ref}}",
         "chooseContactPerson": "連絡担当者を選択…",
-        "primaryContactOption": "{{name}}（主担当）"
+        "primaryContactOption": "{{name}}（主担当）",
+        "noContractors": "登録済みの業者がありません。「業者」から追加してください。",
+        "noContractorMatch": "その名前に一致する登録業者がありません。"
       },
       "signOffForm": {
         "starLabel": "{{count}} つ星",

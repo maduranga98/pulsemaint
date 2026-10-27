@@ -3046,7 +3046,9 @@
         "assignInternalTechniciansLabel": "අභ්‍යන්තර තාක්ෂණ ශිල්පීන් පවරන්න",
         "optionalLabel": "(විකල්ප)",
         "activeWOsInline": "සක්‍රිය WO {{count}}",
-        "busyInline": "කාර්යබහුල — {{ref}} හි"
+        "busyInline": "කාර්යබහුල — {{ref}} හි",
+        "noContractors": "තවම ලියාපදිංචි කොන්ත්‍රාත්කරුවන් නැත — කොන්ත්‍රාත්කරුවන් යටතේ එකක් එක් කරන්න.",
+        "noContractorMatch": "එම නමට ගැළපෙන ලියාපදිංචි කොන්ත්‍රාත්කරුවෙකු නැත."
       },
       "technicianSheet": {
         "approvalAttachmentsLabel": "ඇමුණුම් (විකල්ප)",

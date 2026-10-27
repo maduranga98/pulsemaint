@@ -3061,7 +3061,9 @@
         "activeWOsInline": "{{count}} OT activas",
         "busyInline": "Ocupado — en {{ref}}",
         "chooseContactPerson": "Elige una persona de contacto…",
-        "primaryContactOption": "{{name}} (contacto principal)"
+        "primaryContactOption": "{{name}} (contacto principal)",
+        "noContractors": "Aún no hay contratistas registrados: añada uno en Contratistas.",
+        "noContractorMatch": "Ningún contratista registrado coincide con ese nombre."
       },
       "pageTitle": "Órdenes de Trabajo",
       "count": "{{count}} órdenes de trabajo",

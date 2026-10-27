@@ -4654,7 +4654,9 @@
         "activeWOsInline": "{{count}} active WOs",
         "busyInline": "Busy — on {{ref}}",
         "chooseContactPerson": "Choose a contact person…",
-        "primaryContactOption": "{{name}} (primary contact)"
+        "primaryContactOption": "{{name}} (primary contact)",
+        "noContractors": "No registered contractors yet — add one under Contractors.",
+        "noContractorMatch": "No registered contractor matches that name."
       },
       "signOffForm": {
         "starLabel": "{{count}} star",
