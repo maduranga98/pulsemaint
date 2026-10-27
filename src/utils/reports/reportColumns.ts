@@ -141,6 +141,7 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'woType', label: 'WO Type', labelKey: 'common.reports.columns.downtime_analysis.woType' },
     { key: 'createdAt', label: 'Date of Created', format: 'date', labelKey: 'common.reports.columns.downtime_analysis.createdAt' },
     { key: 'downtimeMinutes', label: 'Downtime (min)', format: 'number', labelKey: 'common.reports.columns.downtime_analysis.downtimeMinutes' },
+    { key: 'downtimeCost', label: 'Downtime Cost', format: 'currency', labelKey: 'common.reports.columns.downtime_analysis.downtimeCost' },
   ],
   work_order_detail: [
     { key: 'woNumber', label: 'WO #', labelKey: 'common.reports.columns.work_order_detail.woNumber' },

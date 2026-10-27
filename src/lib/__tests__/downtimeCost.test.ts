@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeEffectiveCostPerHour, computeDowntimeCost, formatDowntimeCost } from '../downtimeCost';
+import { computeEffectiveCostPerHour, computeDowntimeCost, formatDowntimeCost, machineDowntimeCost } from '../downtimeCost';
 
 describe('computeEffectiveCostPerHour', () => {
   it('returns direct rate when costPerHourDown is provided', () => {
@@ -49,5 +49,21 @@ describe('formatDowntimeCost', () => {
     const result = formatDowntimeCost(1.0, 500, 'USD');
     expect(result).toContain('USD');
     expect(result).toContain('500');
+  });
+});
+
+describe('machineDowntimeCost', () => {
+  const events = [{ hours: 1.5 }, { hours: 0.5 }];
+
+  it('prices downtime with the direct per-hour cost from the machine profile', () => {
+    expect(machineDowntimeCost(events, { costPerHourDown: 1000 })).toEqual({ hours: 2, rate: 1000, cost: 2000 });
+  });
+
+  it('falls back to units per hour × value per unit', () => {
+    expect(machineDowntimeCost(events, { costPerHourDown: null, unitsPerHour: 20, unitValue: 50 })).toEqual({ hours: 2, rate: 1000, cost: 2000 });
+  });
+
+  it('has no cost when the machine has no rate', () => {
+    expect(machineDowntimeCost(events, {})).toEqual({ hours: 2, rate: null, cost: null });
   });
 });

@@ -3586,6 +3586,9 @@
         "outsourcedJobs": "Outsourced jobs (recorded here)",
         "workOrders": "Work orders (parts + contractor charges)",
         "totalMaintenance": "Total spent on maintenance",
+        "downtimeHours": "Downtime (hours)",
+        "downtimeCost": "Downtime cost",
+        "downtimeRateMissing": "Set a Downtime Cost rate in the machine profile",
         "totalOwnership": "Total cost of ownership",
         "scrapProceeds": "Scrap / sale amount",
         "adviceWatch": "Total maintenance spend is approaching half of what this machine cost — keep an eye on it.",
@@ -8459,7 +8462,8 @@
           "location": "Location",
           "woType": "WO Type",
           "createdAt": "Date of Created",
-          "downtimeMinutes": "Downtime (min)"
+          "downtimeMinutes": "Downtime (min)",
+          "downtimeCost": "Downtime Cost"
         },
         "work_order_detail": {
           "woNumber": "WO #",

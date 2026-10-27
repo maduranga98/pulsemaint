@@ -35,6 +35,7 @@ import {
   woSlaOutcome,
 } from '../lib/analytics/maintenanceMetrics';
 import { computeDowntimeEvents } from '../lib/machineDowntime';
+import { computeEffectiveCostPerHour } from '../lib/downtimeCost';
 import { getEffectivePMHistoryStatus } from '../utils/pm.utils';
 import { fetchTeamPerformanceByUser } from './teamPerformance.service';
 import { flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
@@ -634,6 +635,14 @@ export async function fetchReportRows(
     const workOrders = woSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>);
     const breakdowns = bdSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>);
     const woById = new Map(workOrders.map((w) => [String(w.id), w]));
+    // Each machine's own Downtime Cost rate (machine profile) prices its downtime.
+    const machineSnap = await scopedGetDocs(query(collection(db, 'machines'), where('siteId', '==', companyId), ...plantConstraints('machines')));
+    const rateByMachine = new Map<string, number>();
+    machineSnap.docs.forEach((d) => {
+      const m = d.data();
+      const rate = computeEffectiveCostPerHour(m.costPerHourDown ?? null, m.unitsPerHour ?? null, m.unitValue ?? null);
+      if (rate !== null) rateByMachine.set(d.id, rate);
+    });
     const rowsOut: Record<string, unknown>[] = [];
     computeDowntimeEvents(breakdowns, workOrders, new Date(), breakdownDowntimeHours).forEach((e) => {
       if (!inReportRange(e.anchor, config)) return;
@@ -651,6 +660,7 @@ export async function fetchReportRows(
         department: r.machineDepartment ?? '',
         createdAt: e.start,
         downtimeMinutes: Math.round(e.hours * 60),
+        downtimeCost: rateByMachine.has(String(e.machineId)) ? Math.round(e.hours * rateByMachine.get(String(e.machineId))!) : null,
         ongoing: e.ongoing,
       });
     });

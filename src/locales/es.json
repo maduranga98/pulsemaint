@@ -2021,6 +2021,9 @@
         "outsourcedJobs": "Trabajos subcontratados (registrados aquí)",
         "workOrders": "Órdenes de trabajo (repuestos + cargos de contratistas)",
         "totalMaintenance": "Total gastado en mantenimiento",
+        "downtimeHours": "Tiempo de inactividad (horas)",
+        "downtimeCost": "Costo de inactividad",
+        "downtimeRateMissing": "Defina la tarifa de costo de inactividad en el perfil de la máquina",
         "totalOwnership": "Costo total de propiedad",
         "scrapProceeds": "Importe de desecho / venta",
         "adviceWatch": "El gasto total de mantenimiento se acerca a la mitad de lo que costó esta máquina; vigílelo.",
@@ -7904,7 +7907,8 @@
           "location": "Ubicación",
           "woType": "Tipo de OT",
           "createdAt": "Fecha de Creación",
-          "downtimeMinutes": "Tiempo de Inactividad (min)"
+          "downtimeMinutes": "Tiempo de Inactividad (min)",
+          "downtimeCost": "Costo de inactividad"
         },
         "work_order_detail": {
           "woNumber": "OT N.º",

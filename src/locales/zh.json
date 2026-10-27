@@ -2021,6 +2021,9 @@
         "outsourcedJobs": "外包作业（在此记录）",
         "workOrders": "工单（备件 + 承包商费用）",
         "totalMaintenance": "维护总支出",
+        "downtimeHours": "停机时间（小时）",
+        "downtimeCost": "停机成本",
+        "downtimeRateMissing": "请在设备档案中设置停机成本",
         "totalOwnership": "总拥有成本",
         "scrapProceeds": "报废/出售金额",
         "adviceWatch": "维护总支出已接近该设备价格的一半——请留意。",
@@ -7904,7 +7907,8 @@
           "location": "位置",
           "woType": "工单类型",
           "createdAt": "创建日期",
-          "downtimeMinutes": "停机时长（分钟）"
+          "downtimeMinutes": "停机时长（分钟）",
+          "downtimeCost": "停机成本"
         },
         "work_order_detail": {
           "woNumber": "工单号",

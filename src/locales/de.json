@@ -2021,6 +2021,9 @@
         "outsourcedJobs": "Fremdvergebene Aufträge (hier erfasst)",
         "workOrders": "Arbeitsaufträge (Teile + Auftragnehmerkosten)",
         "totalMaintenance": "Gesamtausgaben für Instandhaltung",
+        "downtimeHours": "Stillstand (Stunden)",
+        "downtimeCost": "Stillstandskosten",
+        "downtimeRateMissing": "Stillstandskosten im Maschinenprofil festlegen",
         "totalOwnership": "Gesamte Besitzkosten",
         "scrapProceeds": "Schrott-/Verkaufserlös",
         "adviceWatch": "Die Instandhaltungskosten nähern sich der Hälfte des Maschinenpreises – im Auge behalten.",
@@ -7904,7 +7907,8 @@
           "location": "Standort",
           "woType": "AA-Typ",
           "createdAt": "Erstellungsdatum",
-          "downtimeMinutes": "Stillstand (Min.)"
+          "downtimeMinutes": "Stillstand (Min.)",
+          "downtimeCost": "Stillstandskosten"
         },
         "work_order_detail": {
           "woNumber": "AA-Nr.",

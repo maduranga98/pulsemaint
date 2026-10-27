@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 import { Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,10 @@ import { db } from '../../lib/firebase';
 import { formatMoney, getCompanyCurrency } from '@/lib/currency';
 import { annualDepreciation, bookValue, depreciationSoFar, expectedScrapValue, replaceAdvice, workOrderCost } from '../../lib/machineAsset';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
+import { plantConstraints } from '../../lib/plantQuery';
+import { computeDowntimeEvents } from '../../lib/machineDowntime';
+import { breakdownDowntimeHours } from '../../services/analyticsAggregation';
+import { machineDowntimeCost } from '../../lib/downtimeCost';
 import { subscribeOutsourcedMaintenance } from '../../services/machineOutsourced.service';
 import type { Machine } from '../../types/machine';
 
@@ -35,6 +39,22 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
   const { workOrders } = useWorkOrders({ machineId: machine.id });
   const woTotal = useMemo(() => workOrders.reduce((s, wo) => s + workOrderCost(wo), 0), [workOrders]);
   const maintenanceTotal = outsourcedTotal + woTotal;
+
+  // Downtime cost: this machine's downtime (same events the dashboards sum)
+  // times the Downtime Cost rate set in its profile.
+  const [breakdowns, setBreakdowns] = useState<Record<string, unknown>[]>([]);
+  useEffect(() => onSnapshot(
+    query(collection(db, 'breakdown_tickets'), where('machineId', '==', machine.id), ...plantConstraints('breakdown_tickets')),
+    (snap) => setBreakdowns(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    () => setBreakdowns([]),
+  ), [machine.id]);
+  const downtime = useMemo(
+    () => machineDowntimeCost(
+      computeDowntimeEvents(breakdowns, workOrders as unknown as Record<string, unknown>[], new Date(), breakdownDowntimeHours),
+      machine,
+    ),
+    [breakdowns, workOrders, machine],
+  );
 
   useEffect(() => subscribeOutsourcedMaintenance(siteId, machine.id,
     (rows) => setOutsourcedTotal(rows.reduce((s, r) => s + r.totalCost, 0)), () => setOutsourcedTotal(0)), [siteId, machine.id]);
@@ -101,6 +121,8 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
             {row(t('common.machines.asset.outsourcedJobs'), money(outsourcedTotal))}
             {row(t('common.machines.asset.workOrders'), money(woTotal))}
             {row(t('common.machines.asset.totalMaintenance'), money(maintenanceTotal), true)}
+            {row(t('common.machines.asset.downtimeHours'), `${downtime.hours.toFixed(1)} h`)}
+            {row(t('common.machines.asset.downtimeCost'), downtime.cost == null ? t('common.machines.asset.downtimeRateMissing') : money(Math.round(downtime.cost)), true)}
             {machine.purchasePrice != null && row(t('common.machines.asset.totalOwnership'), money(machine.purchasePrice + maintenanceTotal), true)}
             {machine.scrapRecord && row(t('common.machines.asset.scrapProceeds'), `${machine.scrapRecord.currency} ${machine.scrapRecord.proceeds.toLocaleString()}`)}
           </dl>
