@@ -745,7 +745,7 @@ export function CreateWODrawer({
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                   />
                   {showBreakdownDropdown && (
-                    <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full bg-[#0F1E35] border border-[#2E5A8F] text-[#F0F4F8] rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
                       {breakdownTickets.length === 0 ? (
                         <p className="px-3 py-2 text-xs text-gray-400">{t('common.workOrders.createDrawer.noBreakdownTicketsFound')}</p>
                       ) : (
@@ -786,7 +786,7 @@ export function CreateWODrawer({
                                 setBreakdownSearch(b.ticketNumber);
                                 setShowBreakdownDropdown(false);
                               }}
-                              className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-50 last:border-0 text-sm"
+                              className="w-full text-left px-3 py-2 text-[#F0F4F8] hover:bg-[#1E3A5F] hover:text-white border-b border-[#1E3A5F] last:border-0 text-sm"
                             >
                               <div className="flex items-center justify-between">
                                 <span className="font-medium">{b.ticketNumber}</span>
@@ -831,7 +831,7 @@ export function CreateWODrawer({
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                 />
                 {showMachineDropdown && (
-                  <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+                  <div className="absolute z-10 w-full bg-[#0F1E35] border border-[#2E5A8F] text-[#F0F4F8] rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
                     {machines.length === 0 ? (
                       <p className="px-3 py-2 text-xs text-gray-400">{t('common.workOrders.createDrawer.noMachinesFound')}</p>
                     ) : (
@@ -858,10 +858,10 @@ export function CreateWODrawer({
                               setMachineSearch(m.name);
                               setShowMachineDropdown(false);
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-50 last:border-0 text-sm"
+                            className="w-full text-left px-3 py-2 text-[#F0F4F8] hover:bg-[#1E3A5F] hover:text-white border-b border-[#1E3A5F] last:border-0 text-sm"
                           >
                             <div className="font-medium">{m.name}</div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-[#B8C7DB]">
                               {m.type ?? ''} {m.department ? `· ${m.department}` : ''}
                             </div>
                           </button>
