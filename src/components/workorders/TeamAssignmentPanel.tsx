@@ -99,7 +99,6 @@ export function TeamAssignmentPanel({
   const { register, watch, setValue, formState: { errors } } = form;
   const [contractorSearch, setContractorSearch] = useState('');
   const [techSearch, setTechSearch] = useState('');
-  const [showContractorDropdown, setShowContractorDropdown] = useState(false);
 
   const selectedTechIds = watch('assignedTechnicianIds') ?? [];
   const selectedContractorId = watch('contractorCompanyId');
@@ -175,7 +174,6 @@ export function TeamAssignmentPanel({
     // A different company — its team members replace any previously picked.
     setValue('contractorTechnicianIds', []);
     setValue('contractorTechnicianNames', []);
-    setShowContractorDropdown(false);
     setContractorSearch(c.companyName);
   }
 
@@ -184,7 +182,6 @@ export function TeamAssignmentPanel({
     setValue('contractorCompanyName', val);
     setValue('contractorCompanyId', null);
     setValue('isManualContractor', true);
-    setShowContractorDropdown(true);
   }
 
   const filteredContractors = contractors.filter(
@@ -271,8 +268,6 @@ export function TeamAssignmentPanel({
               type="text"
               value={contractorSearch}
               onChange={(e) => handleContractorInput(e.target.value)}
-              onFocus={() => setShowContractorDropdown(true)}
-              onBlur={() => setTimeout(() => setShowContractorDropdown(false), 200)}
               placeholder={t('common.workOrders.copy.contractorPlaceholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
@@ -282,33 +277,45 @@ export function TeamAssignmentPanel({
                 <span>{t('common.workOrders.copy.unregisteredContractorWarning')}</span>
               </div>
             )}
-            {showContractorDropdown && filteredContractors.length > 0 && (
-              <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
-                {filteredContractors.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onMouseDown={() => selectContractor(c)}
-                    className={`w-full text-left px-3 py-2.5 hover:bg-blue-50 border-b border-gray-50 last:border-0 ${
-                      selectedContractorId === c.id ? 'bg-blue-50' : ''
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{c.companyName}</span>
-                      <span className="text-xs text-amber-500">★ {c.rating.toFixed(1)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      {c.specializations.slice(0, 3).map((s) => (
-                        <span key={s} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                    {c.lastJobDate && (
-                      <p className="text-xs text-gray-400 mt-0.5">{t('common.workOrders.teamAssignment.lastJobInline', { date: c.lastJobDate })}</p>
-                    )}
-                  </button>
-                ))}
+            {/* Registered contractors, always listed until one is picked — dark
+                surface with light text so it reads in the dark app theme. */}
+            {!(selectedContractorId && !isManualContractor) && (
+              <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-[#2E5A8F] bg-[#0F1E35] shadow-lg">
+                {filteredContractors.length === 0 ? (
+                  <p className="px-3 py-3 text-sm text-[#B8C7DB]">
+                    {contractors.some((c) => c.isActive)
+                      ? t('common.workOrders.teamAssignment.noContractorMatch')
+                      : t('common.workOrders.teamAssignment.noContractors')}
+                  </p>
+                ) : (
+                  filteredContractors.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => selectContractor(c)}
+                      className={`w-full border-b border-[#1E3A5F] px-3 py-2.5 text-left text-[#F0F4F8] last:border-0 hover:bg-[#1E3A5F] hover:text-white ${
+                        selectedContractorId === c.id ? 'bg-[#1A56DB]/25' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{c.companyName}</span>
+                        <span className="text-xs text-amber-400">★ {c.rating.toFixed(1)}</span>
+                      </div>
+                      {c.specializations.length > 0 && (
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                          {c.specializations.slice(0, 3).map((sp) => (
+                            <span key={sp} className="rounded bg-[#142849] px-1.5 py-0.5 text-xs text-[#B8C7DB]">
+                              {sp}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {c.lastJobDate && (
+                        <p className="mt-0.5 text-xs text-[#8BA3BF]">{t('common.workOrders.teamAssignment.lastJobInline', { date: c.lastJobDate })}</p>
+                      )}
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </div>

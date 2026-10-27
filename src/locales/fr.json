@@ -3000,7 +3000,9 @@
         "activeWOsInline": "{{count}} OT actifs",
         "busyInline": "Occupé — sur {{ref}}",
         "chooseContactPerson": "Choisissez un contact…",
-        "primaryContactOption": "{{name}} (contact principal)"
+        "primaryContactOption": "{{name}} (contact principal)",
+        "noContractors": "Aucun sous-traitant enregistré — ajoutez-en un dans Sous-traitants.",
+        "noContractorMatch": "Aucun sous-traitant enregistré ne correspond à ce nom."
       },
       "pageTitle": "Ordres de Travail",
       "count": "{{count}} ordres de travail",
