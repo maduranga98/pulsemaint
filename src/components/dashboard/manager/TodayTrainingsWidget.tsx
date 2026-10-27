@@ -21,6 +21,7 @@ const tsDateStr = (ts: Ts) => (ts?.toDate ? localDateStr(ts.toDate()) : null);
 /** Live training assignments for the company (every kind). */
 function useCompanyAssignments(companyId: string) {
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!companyId) {
@@ -29,13 +30,20 @@ function useCompanyAssignments(companyId: string) {
     }
     const unsub = onSnapshot(
       query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
-      (snap) => setAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as TrainingAssignment)),
-      () => setAssignments([]),
+      (snap) => {
+        setAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as TrainingAssignment));
+        setError(null);
+      },
+      (err) => {
+        console.error('TodayTrainingsWidget: assignments', err);
+        setAssignments([]);
+        setError(err.message);
+      },
     );
     return () => unsub();
   }, [companyId]);
 
-  return assignments;
+  return { assignments, error };
 }
 
 type SessionKind = 'lesson' | 'practice' | 'test' | 'external' | 'due';
@@ -55,6 +63,7 @@ interface TodaySession {
 function useAllTrainingModules(companyId: string) {
   const [modules, setModules] = useState<TrainingModule[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!companyId) {
@@ -66,17 +75,20 @@ function useAllTrainingModules(companyId: string) {
       query(collection(db, 'trainingModules'), where('companyId', '==', companyId)),
       (snap) => {
         setModules(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as TrainingModule));
+        setError(null);
         setLoading(false);
       },
-      () => {
+      (err) => {
+        console.error('TodayTrainingsWidget: modules', err);
         setModules([]);
+        setError(err.message);
         setLoading(false);
       },
     );
     return () => unsub();
   }, [companyId]);
 
-  return { modules, loading };
+  return { modules, loading, error };
 }
 
 interface TodayTrainingsWidgetProps {
@@ -88,8 +100,8 @@ interface TodayTrainingsWidgetProps {
 
 export default function TodayTrainingsWidget({ companyId, safetyOnly = false }: TodayTrainingsWidgetProps) {
   const { t } = useTranslation();
-  const { modules, loading } = useAllTrainingModules(companyId);
-  const assignments = useCompanyAssignments(companyId);
+  const { modules, loading, error: modulesError } = useAllTrainingModules(companyId);
+  const { assignments, error: assignmentsError } = useCompanyAssignments(companyId);
   // Plant tab on top (admin) / the caller's own plant — null = All Plants.
   const plantUserIds = usePlantUserIds(companyId);
   const todayStr = localDateStr(new Date());
@@ -162,6 +174,7 @@ export default function TodayTrainingsWidget({ companyId, safetyOnly = false }: 
     <DashboardWidget
       title={safetyOnly ? "Today's Safety Trainings" : t('common.dashboard.trainings.title')}
       loading={loading}
+      error={modulesError ?? assignmentsError}
       live
       action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.trainings.today', { count: todaySessions.length })}</span>}
     >
