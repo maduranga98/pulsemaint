@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { badgeLabel, launcherBadgeCounts, pathOnly, tileForLink } from '../launcherBadges';
+import { badgeLabel, launcherBadgeCounts, pathOnly, tileForLink, inSelectedPlant } from '../launcherBadges';
 
 const TILES = [
   '/app/dashboard',
@@ -59,5 +59,18 @@ describe('launcher badges', () => {
     expect(badgeLabel(3)).toBe('3');
     expect(badgeLabel(9)).toBe('9');
     expect(badgeLabel(10)).toBe('9+');
+  });
+});
+
+describe('inSelectedPlant', () => {
+  it('counts everything on All Plants', () => {
+    expect(inSelectedPlant({ plantId: 'p1' }, null)).toBe(true);
+    expect(inSelectedPlant({ plantId: null }, null)).toBe(true);
+  });
+  it('counts only the selected plant plus company-wide entries', () => {
+    expect(inSelectedPlant({ plantId: 'p1' }, 'p1')).toBe(true);
+    expect(inSelectedPlant({ plantId: 'p2' }, 'p1')).toBe(false);
+    expect(inSelectedPlant({ plantId: null }, 'p1')).toBe(true);
+    expect(inSelectedPlant({}, 'p1')).toBe(true);
   });
 });

@@ -13,6 +13,8 @@ export interface DerivedAlert {
   severity: 'critical' | 'high' | 'medium' | 'low';
   message: string;
   linkTo: string | null;
+  /** The plant the alert is about (null / absent = company-wide). */
+  plantId?: string | null;
   /** PM alerts only: whole days until due (0 = today, negative = overdue). */
   dueInDays?: number;
 }
@@ -35,6 +37,12 @@ function toMs(v: unknown): number | null {
   if (typeof ts.toDate === 'function') return ts.toDate().getTime();
   if (typeof ts.seconds === 'number') return ts.seconds * 1000;
   return null;
+}
+
+/** The plant a record belongs to (its own, else its machine's), null when it has none. */
+function plantOf(r: Record<string, unknown>): string | null {
+  const v = r.plantId ?? r.machinePlantId;
+  return typeof v === 'string' && v ? v : null;
 }
 
 function useCollectionWhenAllowed(
@@ -101,6 +109,7 @@ export function useDerivedAlerts(): DerivedAlert[] {
             ? `Certificate expired: ${who} — ${what}`
             : `Certificate expiring in ${days}d: ${who} — ${what}`,
         linkTo: '/app/training/manage/certificates',
+        plantId: plantOf(c),
       });
     }
 
@@ -113,6 +122,7 @@ export function useDerivedAlerts(): DerivedAlert[] {
         severity: 'high',
         message: `Work permit overdue: ${String(p.permitNumber ?? '')} ${String(p.title ?? '')}`.trim(),
         linkTo: '/app/safety/permits',
+        plantId: plantOf(p),
       });
     }
 
@@ -131,6 +141,7 @@ export function useDerivedAlerts(): DerivedAlert[] {
         message: days < 0 ? `PM overdue: ${machine}` : `PM due in ${days}d: ${machine}`,
         linkTo: '/app/pm-schedules',
         dueInDays: days,
+        plantId: plantOf(pm),
       });
     }
 
@@ -140,9 +151,9 @@ export function useDerivedAlerts(): DerivedAlert[] {
       const min = Number(part.minStockLevel ?? 0);
       const name = String(part.name ?? part.partName ?? 'A part');
       if (stock <= 0) {
-        out.push({ id: `stock-${part.id}`, type: 'parts', severity: 'critical', message: `Out of stock: ${name}`, linkTo: '/app/inventory' });
+        out.push({ id: `stock-${part.id}`, type: 'parts', severity: 'critical', message: `Out of stock: ${name}`, linkTo: '/app/inventory', plantId: plantOf(part) });
       } else if (min > 0 && stock <= min) {
-        out.push({ id: `stock-${part.id}`, type: 'parts', severity: 'high', message: `Low stock: ${name} (${stock} left)`, linkTo: '/app/inventory' });
+        out.push({ id: `stock-${part.id}`, type: 'parts', severity: 'high', message: `Low stock: ${name} (${stock} left)`, linkTo: '/app/inventory', plantId: plantOf(part) });
       }
     }
 
@@ -151,13 +162,13 @@ export function useDerivedAlerts(): DerivedAlert[] {
       const status = String(po.status ?? '');
       const num = String(po.poNumber ?? po.orderNumber ?? po.id);
       if (status === 'pending_approval') {
-        out.push({ id: `po-appr-${po.id}`, type: 'parts', severity: 'high', message: `PO awaiting approval: ${num}`, linkTo: '/app/inventory' });
+        out.push({ id: `po-appr-${po.id}`, type: 'parts', severity: 'high', message: `PO awaiting approval: ${num}`, linkTo: '/app/inventory', plantId: plantOf(po) });
         continue;
       }
       const expected = toMs(po.expectedDelivery);
       const openStatuses = ['approved', 'sent', 'acknowledged', 'partially_received'];
       if (expected != null && expected < now && openStatuses.includes(status)) {
-        out.push({ id: `po-late-${po.id}`, type: 'parts', severity: 'medium', message: `PO delivery overdue: ${num}`, linkTo: '/app/inventory' });
+        out.push({ id: `po-late-${po.id}`, type: 'parts', severity: 'medium', message: `PO delivery overdue: ${num}`, linkTo: '/app/inventory', plantId: plantOf(po) });
       }
     }
 

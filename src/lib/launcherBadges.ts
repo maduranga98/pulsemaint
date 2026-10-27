@@ -42,3 +42,12 @@ export function launcherBadgeCounts(
 export function badgeLabel(count: number): string {
   return count > 9 ? '9+' : String(count);
 }
+
+/**
+ * Does an entry belong to the selected plant? With no plant selected (All
+ * Plants) everything counts; an entry with no plant of its own is company-wide
+ * and always counts.
+ */
+export function inSelectedPlant(entry: { plantId?: string | null }, plantId: string | null): boolean {
+  return !plantId || !entry.plantId || entry.plantId === plantId;
+}
