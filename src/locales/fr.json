@@ -3267,6 +3267,10 @@
       "summary": {
         "extensionsTitle": "Prolongation (ajoutée avant la validation)",
         "extensionReason": "Pourquoi elle a été prolongée"
+      },
+      "scope": {
+        "all": "Tous les ordres",
+        "mine": "Mes OT"
       }
     },
     "pmSchedules": {

@@ -3267,6 +3267,10 @@
       "summary": {
         "extensionsTitle": "延期内容（签字前添加）",
         "extensionReason": "延期原因"
+      },
+      "scope": {
+        "all": "全部工单",
+        "mine": "我的工单"
       }
     },
     "pmSchedules": {

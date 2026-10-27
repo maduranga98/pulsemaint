@@ -3267,6 +3267,10 @@
       "summary": {
         "extensionsTitle": "延長分（承認前に追加）",
         "extensionReason": "延長の理由"
+      },
+      "scope": {
+        "all": "すべての作業指示",
+        "mine": "自分の作業指示"
       }
     },
     "pmSchedules": {

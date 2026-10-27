@@ -3267,6 +3267,10 @@
       "summary": {
         "extensionsTitle": "Ampliación (añadida antes de la firma)",
         "extensionReason": "Por qué se amplió"
+      },
+      "scope": {
+        "all": "Todas las órdenes",
+        "mine": "Mis OT"
       }
     },
     "pmSchedules": {

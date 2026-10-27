@@ -3267,6 +3267,10 @@
       "summary": {
         "extensionsTitle": "Erweiterung (vor der Abzeichnung hinzugefügt)",
         "extensionReason": "Warum erweitert wurde"
+      },
+      "scope": {
+        "all": "Alle Arbeitsaufträge",
+        "mine": "Meine AA"
       }
     },
     "pmSchedules": {
