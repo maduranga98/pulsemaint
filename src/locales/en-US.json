@@ -91,7 +91,7 @@
       },
       "tabs": {
         "title": "Maintenance tab",
-        "body": "Open Maintenance to see the machine's work history and the saved outsourced jobs, with the parts fitted, costs and invoices."
+        "body": "Open Maintenance to see the machine's work history and maintenance records."
       },
       "more": {
         "title": "More actions",
@@ -3583,7 +3583,6 @@
         "depreciationHint": "The expected scrap value is worked out from the purchase price and lifespan (20% under 5 years, 10% for 5–10 years, 5% beyond). Current value falls in a straight line from the price to that scrap value over the expected lifespan (set price, purchase date and lifespan on Edit machine).",
         "currentValue": "Current value",
         "currentValueMissing": "Add price, purchase date and lifespan",
-        "outsourcedJobs": "Outsourced jobs (recorded here)",
         "workOrders": "Work orders (parts + contractor charges)",
         "totalMaintenance": "Total spent on maintenance",
         "downtimeHours": "Downtime (hours)",
@@ -3629,66 +3628,6 @@
           "undoConfirm": "Bring {{name}} back into service? The scrap record will be removed.",
           "restored": "Machine restored.",
           "restoreFailed": "Could not restore the machine."
-        },
-        "outsourced": {
-          "fromWorkOrder": "Add these when you create a contractor work order (Work Orders → Create, type Contractor).",
-          "woSectionTitle": "Outsourced work details (optional)",
-          "woSectionHint": "Fill this in if the contractor has already done the work — parts fitted, prices and the bill. It is saved to the machine's maintenance history.",
-          "title": "Outsourced maintenance",
-          "subtitle": "Work done by outside companies — with parts fitted, cost and invoices.",
-          "total": "Total so far: {{amount}}.",
-          "add": "Add outsourced job",
-          "empty": "No outsourced jobs recorded for this machine yet.",
-          "deleteConfirm": "Delete this {{name}} job and its invoices? This cannot be undone.",
-          "deleteFailed": "Could not delete.",
-          "delete": "Delete",
-          "invoice": "Invoice {{number}}",
-          "part": "Part",
-          "partNo": "Part no.",
-          "fittedAs": "Fitted as",
-          "replaced": "Replaced",
-          "added": "Added",
-          "qty": "Qty",
-          "unitPrice": "Unit price",
-          "colTotal": "Total",
-          "partsAndLabour": "Parts {{parts}} + labour / service {{labour}}",
-          "dialogTitle": "Add outsourced maintenance",
-          "contractor": "Contractor / company",
-          "contractorPlaceholder": "Pick from your contractors or type",
-          "typeOfWork": "Type of work",
-          "jobTypes": {
-            "repair": "Repair",
-            "service": "Service",
-            "overhaul": "Overhaul",
-            "installation": "Installation / upgrade",
-            "other": "Other"
-          },
-          "started": "Started",
-          "finished": "Finished",
-          "whatWasDone": "What was done",
-          "whatPlaceholder": "e.g. Replaced main bearings and re-aligned the shaft",
-          "partsHeading": "Parts replaced or added",
-          "addPart": "Add part",
-          "removePart": "Remove part",
-          "noParts": "No parts fitted? Leave empty and enter only the labour / service charge.",
-          "partPlaceholder": "Bearing 6205",
-          "labourLabel": "Labour / service charge ({{currency}})",
-          "invoiceNumber": "Invoice number",
-          "totalParts": "Parts",
-          "totalLabour": "Labour / service",
-          "totalCost": "Total cost",
-          "invoicesLabel": "Invoices / bills (PDF or photos, up to 15 MB each)",
-          "filesSelected": "{{count}} file(s) selected",
-          "notes": "Notes",
-          "notesPlaceholder": "Warranty given, follow-up needed…",
-          "saveJob": "Save job",
-          "saved": "Outsourced job saved.",
-          "saveFailed": "Could not save the job.",
-          "errContractor": "Enter the contractor / company that did the work.",
-          "errStart": "Enter the date the work started.",
-          "errDates": "Finish date is before the start date.",
-          "errParts": "Each part needs a quantity above 0 and a price.",
-          "errLabour": "Labour cost can’t be negative."
         }
       },
       "statusLabels": {
@@ -10979,17 +10918,6 @@
               "They record parts used, notes, and any media (photos) as they go.",
               "Once finished, they submit it for sign-off.",
               "A supervisor or above reviews the completed checklist and sign-off details, then closes the work order."
-            ]
-          },
-          {
-            "title": "Record work done by an outside contractor",
-            "steps": [
-              "Create a work order and choose the Contractor type (it needs the Contractors module on your plan).",
-              "On the team step, pick the contractor company.",
-              "Under Outsourced work details (optional), fill in the type of work, the dates and what was done.",
-              "Add each part that was replaced or added with its quantity and unit price, then the labour or service charge. The total is worked out for you.",
-              "Enter the invoice number and attach the invoice (PDF or photo).",
-              "Create the work order. The details are saved to the machine's Maintenance tab, where the costs, parts and invoice links stay on record."
             ]
           }
         ]

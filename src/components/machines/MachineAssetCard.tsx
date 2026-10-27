@@ -11,7 +11,6 @@ import { plantConstraints } from '../../lib/plantQuery';
 import { computeDowntimeEvents } from '../../lib/machineDowntime';
 import { breakdownDowntimeHours } from '../../services/analyticsAggregation';
 import { machineDowntimeCost } from '../../lib/downtimeCost';
-import { subscribeOutsourcedMaintenance } from '../../services/machineOutsourced.service';
 import type { Machine } from '../../types/machine';
 
 const input = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm';
@@ -29,16 +28,15 @@ const toMs = (t: { toDate?: () => Date; seconds?: number } | null | undefined): 
  * Purchase price, expected scrap value (worked out from price and lifespan), current (straight-line) value and what outside maintenance has cost so far.
  * Shown to admins and plant managers only — see the firestore rules for the cost records it reads.
  */
-export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId: string }) {
+export function MachineAssetCard({ machine }: { machine: Machine }) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [price, setPrice] = useState(machine.purchasePrice != null ? String(machine.purchasePrice) : '');
-  const [outsourcedTotal, setOutsourcedTotal] = useState(0);
   // Parts and contractor charges on this machine's finished work orders.
   const { workOrders } = useWorkOrders({ machineId: machine.id });
   const woTotal = useMemo(() => workOrders.reduce((s, wo) => s + workOrderCost(wo), 0), [workOrders]);
-  const maintenanceTotal = outsourcedTotal + woTotal;
+  const maintenanceTotal = woTotal;
 
   // Downtime cost: this machine's downtime (same events the dashboards sum)
   // times the Downtime Cost rate set in its profile.
@@ -55,9 +53,6 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
     ),
     [breakdowns, workOrders, machine],
   );
-
-  useEffect(() => subscribeOutsourcedMaintenance(siteId, machine.id,
-    (rows) => setOutsourcedTotal(rows.reduce((s, r) => s + r.totalCost, 0)), () => setOutsourcedTotal(0)), [siteId, machine.id]);
 
   const book = useMemo(() => bookValue({
     purchasePrice: machine.purchasePrice,
@@ -118,7 +113,6 @@ export function MachineAssetCard({ machine, siteId }: { machine: Machine; siteId
             {row(t('common.machines.asset.annualDepreciation'), yearly == null ? t('common.machines.asset.currentValueMissing') : t('common.machines.asset.perYear', { amount: money(yearly) }))}
             {row(t('common.machines.asset.accumulatedDepreciation'), written == null ? t('common.machines.asset.currentValueMissing') : `${money(written.amount)} (${written.percent}%)`)}
             {row(t('common.machines.asset.currentValue'), book == null ? t('common.machines.asset.currentValueMissing') : money(book))}
-            {row(t('common.machines.asset.outsourcedJobs'), money(outsourcedTotal))}
             {row(t('common.machines.asset.workOrders'), money(woTotal))}
             {row(t('common.machines.asset.totalMaintenance'), money(maintenanceTotal), true)}
             {row(t('common.machines.asset.downtimeHours'), `${downtime.hours.toFixed(1)} h`)}

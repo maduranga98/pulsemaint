@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { annualDepreciation, depreciationSoFar, bookValue, expectedScrapValue, outsourcedJobTotals, partLineTotal, replaceAdvice, workOrderCost } from '../machineAsset';
+import { annualDepreciation, depreciationSoFar, bookValue, expectedScrapValue, replaceAdvice, workOrderCost } from '../machineAsset';
 
 const YEAR = 365.25 * 24 * 3600 * 1000;
 const t0 = Date.UTC(2020, 0, 1);
@@ -32,18 +32,6 @@ describe('bookValue', () => {
     expect(bookValue({ purchasePrice: null, purchasedAtMs: t0, lifespanYears: 10 })).toBeNull();
     expect(bookValue({ purchasePrice: 5, purchasedAtMs: null, lifespanYears: 10 })).toBeNull();
     expect(bookValue({ purchasePrice: 5, purchasedAtMs: t0, lifespanYears: null })).toBeNull();
-  });
-});
-
-describe('outsourced totals', () => {
-  it('adds parts and labour', () => {
-    const parts = [
-      { name: 'Bearing', kind: 'replaced' as const, quantity: 2, unitPrice: 4500 },
-      { name: 'Sensor', kind: 'added' as const, quantity: 1, unitPrice: 12000 },
-    ];
-    expect(partLineTotal(parts[0])).toBe(9000);
-    expect(outsourcedJobTotals(parts, 8000)).toEqual({ partsTotal: 21000, total: 29000 });
-    expect(outsourcedJobTotals([], -5)).toEqual({ partsTotal: 0, total: 0 });
   });
 });
 
