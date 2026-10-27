@@ -8,9 +8,13 @@ import PendingReceiptPOsWidget from '../../components/dashboard/inventory/Pendin
 import SafetyForYouWidget from '../../components/dashboard/inventory/SafetyForYouWidget';
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 
 export default function InventoryDashboard() {
   const { t } = useTranslation();
+  const posOn = useModuleEnabled('purchaseOrders');
+  const safetyOn = useModuleEnabled('safety');
+  const trainingOn = useModuleEnabled('training');
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Store Keeper';
 
@@ -34,14 +38,14 @@ export default function InventoryDashboard() {
         {/* Returns awaiting store keeper action + POs sent but not yet received */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PendingReturnsWidget companyId={companyId} />
-          <PendingReceiptPOsWidget companyId={companyId} />
+          {posOn && <PendingReceiptPOsWidget companyId={companyId} />}
         </div>
 
         {/* Safety — trainings assigned to this user and cases reported to them */}
-        <SafetyForYouWidget />
+        {safetyOn && <SafetyForYouWidget />}
 
         {/* My Trainings — not-completed, replaces the old nav tab */}
-        <MyTrainingsWidget readOnly />
+        {trainingOn && <MyTrainingsWidget readOnly />}
       </div>
 
       <DashboardSidePanel />

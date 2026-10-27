@@ -14,9 +14,12 @@ import NeedSignOffWidget from '../../components/dashboard/supervisor/NeedSignOff
 import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 
 export default function SupervisorDashboard() {
   const { t } = useTranslation();
+  const pmOn = useModuleEnabled('pm');
+  const safetyOn = useModuleEnabled('safety');
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Supervisor';
@@ -88,7 +91,7 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* PM work orders due today / overdue */}
-        <TodaysPmWidget siteId={siteId} />
+        {pmOn && <TodaysPmWidget siteId={siteId} />}
 
         {/* Row 3: Pending Approvals + Need Sign-Off — replaces the Work
             Orders page's "Approval Requests" and "Need Sign-Off" tabs
@@ -102,7 +105,7 @@ export default function SupervisorDashboard() {
 
         {/* Row 4: Safety Trainings Assigned to Me — clickable, since the
             dashboard is the supervisor's only way into these trainings. */}
-        <MySafetyTrainingsWidget />
+        {safetyOn && <MySafetyTrainingsWidget />}
       </div>
 
       <DashboardSidePanel />

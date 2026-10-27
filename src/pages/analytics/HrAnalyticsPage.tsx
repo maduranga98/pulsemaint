@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
 import CategoryStatusChart from '../../components/dashboard/training/CategoryStatusChart';
@@ -23,13 +24,24 @@ export default function HrAnalyticsPage() {
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
 
-  const TABS: { id: TabId; label: string }[] = [
+  const trainingOn = useModuleEnabled('training');
+  const auditOn = useModuleEnabled('audit');
+  const evalOn = useModuleEnabled('evaluations');
+
+  const ALL_TABS: { id: TabId; label: string }[] = [
     { id: 'top-performers', label: t('common.analytics.hrPage.tabs.topPerformers') },
     { id: 'staff-headcount', label: t('common.analytics.hrPage.tabs.staffHeadcount') },
     { id: 'training-categories', label: t('common.analytics.hrPage.tabs.trainingCategories') },
     { id: 'audits', label: t('common.analytics.hrPage.tabs.audits') },
     { id: 'evaluations', label: t('common.analytics.hrPage.tabs.evaluations') },
   ];
+  // Reports of a module Lumora switched off for this company are not offered.
+  const TABS = ALL_TABS.filter(
+    (tab) =>
+      !(tab.id === 'training-categories' && !trainingOn) &&
+      !(tab.id === 'audits' && !auditOn) &&
+      !(tab.id === 'evaluations' && !evalOn),
+  );
 
   const [activeTab, setActiveTab] = useState<TabId>('top-performers');
   const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });

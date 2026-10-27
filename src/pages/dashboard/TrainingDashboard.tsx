@@ -8,9 +8,15 @@ import ContractorScoreboard from '../../components/dashboard/manager/ContractorS
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 
 export default function TrainingDashboard() {
   const { t } = useTranslation();
+  const auditOn = useModuleEnabled('audit');
+  const contractorsOn = useModuleEnabled('contractors');
+  const evalOn = useModuleEnabled('evaluations');
+  const shiftOn = useModuleEnabled('shift');
+  const trainingOn = useModuleEnabled('training');
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'HR Officer';
 
@@ -34,21 +40,21 @@ export default function TrainingDashboard() {
         <HrKpiStrip companyId={companyId} />
 
         {/* Today's shifts grouped by department (replaces Compliance by Machine) */}
-        <TodayShiftsByDepartment companyId={companyId} />
+        {shiftOn && <TodayShiftsByDepartment companyId={companyId} />}
 
         {/* Trainees ready for their programme completion sign-off */}
-        <ProgrammeSignOffQueueWidget companyId={companyId} />
+        {trainingOn && <ProgrammeSignOffQueueWidget companyId={companyId} />}
 
         {/* Team Performance, Training Activity, Training Status, and Staff
             Headcount by Role now live on the Analytics tab (Insights >
             Analytics) instead of here — see HrAnalyticsPage. */}
-        <OngoingEvaluationsAuditsWidget companyId={companyId} />
+        {(evalOn || auditOn) && <OngoingEvaluationsAuditsWidget companyId={companyId} />}
 
         {/* Contractor Scoreboard / suppliers / top performers (HR-003) */}
-        <ContractorScoreboard companyId={companyId} month={currentMonth} />
+        {contractorsOn && <ContractorScoreboard companyId={companyId} month={currentMonth} />}
 
         {/* HR officer's own outstanding trainings — replaces the old nav tab */}
-        <MyTrainingsWidget readOnly />
+        {trainingOn && <MyTrainingsWidget readOnly />}
       </div>
 
       <DashboardSidePanel />

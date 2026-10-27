@@ -57,3 +57,11 @@ export function disabledModuleForPath(
   const m = moduleForPath(pathname);
   return m && off.includes(m.key) ? m : null;
 }
+
+/** False when Lumora has turned this module off for the company (unknown company = on). */
+export function isModuleEnabled(
+  company: { disabledModules?: string[] | null } | null | undefined,
+  key: string,
+): boolean {
+  return !(company?.disabledModules ?? []).includes(key);
+}

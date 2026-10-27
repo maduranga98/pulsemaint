@@ -30,6 +30,7 @@ import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 import { isWoWorkStarted } from '../../lib/machineWorkState';
 import { usePlants } from '../../hooks/usePlants';
+import { useModuleEnabled } from '../../hooks/useModuleEnabled';
 
 // This dashboard always shows live, current-month figures — the trend
 // charts, heatmaps, and per-machine/contractor breakdowns that used to
@@ -39,6 +40,11 @@ const RANGE = 'mtd' as const;
 
 export default function ManagerDashboard() {
   const { t } = useTranslation();
+  const pmOn = useModuleEnabled('pm');
+  const posOn = useModuleEnabled('purchaseOrders');
+  const safetyOn = useModuleEnabled('safety');
+  const shiftOn = useModuleEnabled('shift');
+  const trainingOn = useModuleEnabled('training');
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   // Admin and plant manager are both plant-wide roles, so both resolve to the
@@ -129,6 +135,7 @@ export default function ManagerDashboard() {
       subtitle: t('common.dashboard.kpiSub.avgRepair', { defaultValue: 'average repair time' }),
     },
     {
+      pmOnly: true,
       label: t('common.dashboard.kpi.pmCompliance'),
       value: Math.round(monthly?.pmComplianceRate ?? 0),
       unit: '%',
@@ -139,7 +146,7 @@ export default function ManagerDashboard() {
         : undefined,
       subtitleTone: 'red' as const,
     },
-  ];
+  ].filter((k) => pmOn || !('pmOnly' in k));
 
   const { plants } = usePlants(companyId);
   const scopeName = plantId
@@ -184,10 +191,10 @@ export default function ManagerDashboard() {
             <FactoryFloorMap companyId={companyId} />
 
             {/* PM work orders due today / overdue */}
-            <TodaysPmWidget siteId={siteId} />
+            {pmOn && <TodaysPmWidget siteId={siteId} />}
 
             {/* Purchase order requests */}
-            <LivePOsWidget />
+            {posOn && <LivePOsWidget />}
 
             {/* Pending WO approval requests + completed WOs awaiting sign-off —
                 admin/plant_manager get the same widgets as supervisor
@@ -204,21 +211,21 @@ export default function ManagerDashboard() {
           </div>
 
           <div className="space-y-6 min-w-0">
-            <OpenSafetyCasesWidget companyId={companyId} />
-            <TodayTrainingsWidget companyId={companyId} />
+            {safetyOn && <OpenSafetyCasesWidget companyId={companyId} />}
+            {trainingOn && <TodayTrainingsWidget companyId={companyId} />}
 
             {/* Trainees ready for their programme completion sign-off */}
-            <ProgrammeSignOffQueueWidget companyId={companyId} />
+            {trainingOn && <ProgrammeSignOffQueueWidget companyId={companyId} />}
 
             {/* Plant manager's and safety officer's own outstanding trainings —
                 admin doesn't get personal training assignments, so this is
                 scoped to those two roles, replacing their old "My Training"
                 nav tab. */}
-            {(role === 'plant_manager' || role === 'safety_officer') && <MyTrainingsWidget readOnly />}
+            {(role === 'plant_manager' || role === 'safety_officer') && trainingOn && <MyTrainingsWidget readOnly />}
 
             {/* Who is on shift, by department. Trend charts, heatmaps and
                 per-machine/contractor breakdowns live on the Analytics tab. */}
-            <LiveShiftStatusWidget companyId={companyId} />
+            {shiftOn && <LiveShiftStatusWidget companyId={companyId} />}
           </div>
         </div>
       </div>
