@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Compass, Search, X } from 'lucide-react';
+import { Compass, Play, Search, X } from 'lucide-react';
 import { getDashboardRoute } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { LAUNCHER_PATH, usesLauncher } from '@/components/layout/navConfig';
-import { HELP_MODULE_ROUTES, ROLE_HELP_MODULES, type HelpModuleId } from './helpContent';
+import {
+  HELP_MODULE_ROUTES,
+  HELP_MODULE_VIDEOS,
+  HELP_OTHER_VIDEOS,
+  ROLE_HELP_MODULES,
+  helpVideoEmbedUrl,
+  helpVideoThumbnailUrl,
+  type HelpModuleId,
+  type HelpVideo,
+} from './helpContent';
 
 interface HelpGuide {
   title: string;
@@ -51,6 +60,11 @@ export default function HelpSupportPage() {
       })
       .filter((c): c is { id: HelpModuleId; content: HelpModuleContent } => c !== null);
   }, [moduleIds, phrase, searching, t]);
+
+  const otherVideos = useMemo(
+    () => (searching ? HELP_OTHER_VIDEOS.filter((v) => v.title.toLowerCase().includes(phrase)) : HELP_OTHER_VIDEOS),
+    [phrase, searching],
+  );
 
   return (
     <div className="max-w-4xl">
@@ -107,13 +121,23 @@ export default function HelpSupportPage() {
         </div>
       </div>
 
-      {cards.length === 0 ? (
+      {cards.length === 0 && otherVideos.length === 0 ? (
         <p className="text-slate-500 text-sm">{t('help.noResults')}</p>
       ) : (
         <div className="space-y-4">
           {cards.map(({ id, content }) => (
             <HelpModuleCard key={id} id={id} content={content} searching={searching} />
           ))}
+        </div>
+      )}
+
+      {otherVideos.length > 0 && (
+        <div className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+          <h3 className="text-base font-semibold text-slate-900">{t('help.videos.otherTitle', { defaultValue: 'Other videos' })}</h3>
+          <p className="mt-1 text-sm text-slate-600">
+            {t('help.videos.otherBody', { defaultValue: 'Getting started and overview videos.' })}
+          </p>
+          <VideoGrid videos={otherVideos} />
         </div>
       )}
 
@@ -134,6 +158,7 @@ export default function HelpSupportPage() {
 function HelpModuleCard({ id, content, searching }: { id: HelpModuleId; content: HelpModuleContent; searching: boolean }) {
   const { t } = useTranslation();
   const route = HELP_MODULE_ROUTES[id];
+  const videos = HELP_MODULE_VIDEOS[id] ?? [];
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5">
@@ -169,6 +194,66 @@ function HelpModuleCard({ id, content, searching }: { id: HelpModuleId; content:
           ))}
         </div>
       )}
+
+      {videos.length > 0 && (
+        <div className="mt-4 border-t border-slate-100 pt-4">
+          <h4 className="text-sm font-semibold text-slate-900">{t('help.videos.title', { defaultValue: 'Video guide' })}</h4>
+          <VideoGrid videos={videos} />
+        </div>
+      )}
     </div>
+  );
+}
+
+function VideoGrid({ videos }: { videos: HelpVideo[] }) {
+  return (
+    <div className="mt-3 grid gap-4 sm:grid-cols-2">
+      {videos.map((v) => (
+        <HelpVideoPlayer key={v.youtubeId} video={v} />
+      ))}
+    </div>
+  );
+}
+
+// Shows a thumbnail first and only loads the player once it is clicked, so a
+// page with many videos stays light. The video plays here, not on YouTube.
+function HelpVideoPlayer({ video }: { video: HelpVideo }) {
+  const { t } = useTranslation();
+  const [playing, setPlaying] = useState(false);
+  return (
+    <figure>
+      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-slate-900">
+        {playing ? (
+          <iframe
+            src={helpVideoEmbedUrl(video.youtubeId)}
+            title={video.title}
+            className="absolute inset-0 h-full w-full"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            aria-label={t('help.videos.play', { defaultValue: 'Play video: {{title}}', title: video.title })}
+            className="group absolute inset-0 h-full w-full"
+          >
+            <img
+              src={helpVideoThumbnailUrl(video.youtubeId)}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
+            />
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#1A56DB] text-white shadow-lg group-hover:bg-[#1648B8]">
+                <Play className="h-6 w-6 translate-x-0.5" fill="currentColor" />
+              </span>
+            </span>
+          </button>
+        )}
+      </div>
+      <figcaption className="mt-2 text-sm font-medium text-slate-800">{video.title}</figcaption>
+    </figure>
   );
 }
