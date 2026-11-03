@@ -107,3 +107,38 @@ export const ROLE_HELP_MODULES: Record<UserRole, HelpModuleId[]> = {
     'myShift', 'analytics', 'reports', 'audit',
   ],
 };
+
+// ---------------------------------------------------------------------------
+// Video guides. They play inside the app (privacy-friendly youtube-nocookie
+// embed) — never as a link out to YouTube. A video that belongs to a module is
+// listed under that module's help card; the rest go in "Other videos".
+// ---------------------------------------------------------------------------
+export interface HelpVideo {
+  /** YouTube video id (the part after youtu.be/). */
+  youtubeId: string;
+  title: string;
+}
+
+export const HELP_MODULE_VIDEOS: Partial<Record<HelpModuleId, HelpVideo[]>> = {
+  machines: [{ youtubeId: 'W_JFLAtiojo', title: 'Add machine guide' }],
+  breakdowns: [{ youtubeId: 'SVI_opgKNGY', title: 'FirmiCore Breakdown Guide' }],
+  inventory: [{ youtubeId: 'GFDBfb-B_z4', title: 'FirmiCore Inventory Procedure Guide' }],
+  contractors: [{ youtubeId: 'MfbBBXeVE0A', title: 'FirmiCore Contractor Management' }],
+};
+
+// Videos with no matching help category (getting started, overviews).
+export const HELP_OTHER_VIDEOS: HelpVideo[] = [
+  { youtubeId: 'lBycQlUeum0', title: 'Register a company' },
+  { youtubeId: 'j2WVzhZ3jao', title: 'FirmiCore Product Walkthrough Video' },
+  { youtubeId: 'z5hd7U9Hu8s', title: 'FirmiCore Role Dashboards Guide' },
+  { youtubeId: 'Cx9mHbETq1Y', title: 'FirmiCore Features Video' },
+];
+
+/** Embed URL for a video; autoplay is on because it only loads after a click. */
+export function helpVideoEmbedUrl(youtubeId: string): string {
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&rel=0&modestbranding=1`;
+}
+
+export function helpVideoThumbnailUrl(youtubeId: string): string {
+  return `https://i.ytimg.com/vi/${encodeURIComponent(youtubeId)}/hqdefault.jpg`;
+}
