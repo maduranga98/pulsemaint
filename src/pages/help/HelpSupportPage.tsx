@@ -128,21 +128,30 @@ export default function HelpSupportPage() {
         <p className="text-slate-500 text-sm">{t('help.noResults')}</p>
       ) : (
         <div className="space-y-4">
-          {/* Topics that have a video come first, then the "Other videos" group,
-              then the remaining topics (the card order inside each group is kept). */}
-          {withVideos.map(({ id, content }) => (
-            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
-          ))}
-
+          {/* "Other videos" (getting started and overviews) are listed first, one after
+              another. Then the topics that have a video, then the remaining topics. */}
           {otherVideos.length > 0 && (
             <div className="rounded-lg border border-slate-200 bg-white p-5">
               <h3 className="text-base font-semibold text-slate-900">{t('help.videos.otherTitle', { defaultValue: 'Other videos' })}</h3>
               <p className="mt-1 text-sm text-slate-600">
                 {t('help.videos.otherBody', { defaultValue: 'Getting started and overview videos.' })}
               </p>
-              <VideoGrid videos={otherVideos} />
+              <div className="mt-4 space-y-6">
+                {otherVideos.map((v) => (
+                  <div key={v.youtubeId}>
+                    <h4 className="mb-2 text-sm font-semibold text-slate-900">{v.title}</h4>
+                    <div className="max-w-2xl">
+                      <HelpVideoPlayer video={v} hideCaption />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+
+          {withVideos.map(({ id, content }) => (
+            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
+          ))}
 
           {withoutVideos.map(({ id, content }) => (
             <HelpModuleCard key={id} id={id} content={content} searching={searching} />
@@ -226,7 +235,7 @@ function VideoGrid({ videos }: { videos: HelpVideo[] }) {
 
 // Shows a thumbnail first and only loads the player once it is clicked, so a
 // page with many videos stays light. The video plays here, not on YouTube.
-function HelpVideoPlayer({ video }: { video: HelpVideo }) {
+function HelpVideoPlayer({ video, hideCaption = false }: { video: HelpVideo; hideCaption?: boolean }) {
   const { t } = useTranslation();
   const [playing, setPlaying] = useState(false);
   return (
@@ -262,7 +271,7 @@ function HelpVideoPlayer({ video }: { video: HelpVideo }) {
           </button>
         )}
       </div>
-      <figcaption className="mt-2 text-sm font-medium text-slate-800">{video.title}</figcaption>
+      {!hideCaption && <figcaption className="mt-2 text-sm font-medium text-slate-800">{video.title}</figcaption>}
     </figure>
   );
 }

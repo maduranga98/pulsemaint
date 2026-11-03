@@ -128,10 +128,10 @@ export const HELP_MODULE_VIDEOS: Partial<Record<HelpModuleId, HelpVideo[]>> = {
 
 // Videos with no matching help category (getting started, overviews).
 export const HELP_OTHER_VIDEOS: HelpVideo[] = [
-  { youtubeId: 'lBycQlUeum0', title: 'Register a company' },
-  { youtubeId: 'j2WVzhZ3jao', title: 'FirmiCore Product Walkthrough Video' },
-  { youtubeId: 'z5hd7U9Hu8s', title: 'FirmiCore Role Dashboards Guide' },
-  { youtubeId: 'Cx9mHbETq1Y', title: 'FirmiCore Features Video' },
+  { youtubeId: 'lBycQlUeum0', title: 'How to register a company?' },
+  { youtubeId: 'j2WVzhZ3jao', title: "Let's get a walkthrough of the Product!" },
+  { youtubeId: 'z5hd7U9Hu8s', title: 'What does each role see? Role dashboards guide' },
+  { youtubeId: 'Cx9mHbETq1Y', title: 'Explore all the FirmiCore features' },
 ];
 
 /** Embed URL for a video; autoplay is on because it only loads after a click. */
