@@ -61,6 +61,9 @@ export default function HelpSupportPage() {
       .filter((c): c is { id: HelpModuleId; content: HelpModuleContent } => c !== null);
   }, [moduleIds, phrase, searching, t]);
 
+  const withVideos = useMemo(() => cards.filter((c) => (HELP_MODULE_VIDEOS[c.id]?.length ?? 0) > 0), [cards]);
+  const withoutVideos = useMemo(() => cards.filter((c) => !(HELP_MODULE_VIDEOS[c.id]?.length ?? 0)), [cards]);
+
   const otherVideos = useMemo(
     () => (searching ? HELP_OTHER_VIDEOS.filter((v) => v.title.toLowerCase().includes(phrase)) : HELP_OTHER_VIDEOS),
     [phrase, searching],
@@ -125,19 +128,25 @@ export default function HelpSupportPage() {
         <p className="text-slate-500 text-sm">{t('help.noResults')}</p>
       ) : (
         <div className="space-y-4">
-          {cards.map(({ id, content }) => (
+          {/* Topics that have a video come first, then the "Other videos" group,
+              then the remaining topics (the card order inside each group is kept). */}
+          {withVideos.map(({ id, content }) => (
             <HelpModuleCard key={id} id={id} content={content} searching={searching} />
           ))}
-        </div>
-      )}
 
-      {otherVideos.length > 0 && (
-        <div className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
-          <h3 className="text-base font-semibold text-slate-900">{t('help.videos.otherTitle', { defaultValue: 'Other videos' })}</h3>
-          <p className="mt-1 text-sm text-slate-600">
-            {t('help.videos.otherBody', { defaultValue: 'Getting started and overview videos.' })}
-          </p>
-          <VideoGrid videos={otherVideos} />
+          {otherVideos.length > 0 && (
+            <div className="rounded-lg border border-slate-200 bg-white p-5">
+              <h3 className="text-base font-semibold text-slate-900">{t('help.videos.otherTitle', { defaultValue: 'Other videos' })}</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                {t('help.videos.otherBody', { defaultValue: 'Getting started and overview videos.' })}
+              </p>
+              <VideoGrid videos={otherVideos} />
+            </div>
+          )}
+
+          {withoutVideos.map(({ id, content }) => (
+            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
+          ))}
         </div>
       )}
 
