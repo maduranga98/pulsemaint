@@ -830,3 +830,14 @@ describe('departmentDisplays (public board links) are server-only', () => {
     await assertFails(deleteDoc(doc(as('adminA'), 'departmentDisplays', 'tokenA0123456789012345678')));
   });
 });
+
+describe('displayTranslations (cached board text) are server-only', () => {
+  it('nobody can read or write them from a client', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'displayTranslations', 'abc'), { companyId: 'A', lang: 'si', text: 'x' });
+    });
+    await assertFails(getDoc(doc(as('adminA'), 'displayTranslations', 'abc')));
+    await assertFails(setDoc(doc(as('adminA'), 'displayTranslations', 'new'), { companyId: 'A', lang: 'si', text: 'x' }));
+    await assertFails(deleteDoc(doc(anon(), 'displayTranslations', 'abc')));
+  });
+});

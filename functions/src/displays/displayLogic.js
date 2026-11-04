@@ -10,6 +10,8 @@
  * Overdue work (planned before today and not started) is never shown.
  */
 
+const crypto = require("crypto");
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SCHEDULE_DAYS = 365;
 const MAX_BREAKDOWNS = 60;
@@ -197,7 +199,73 @@ function buildDisplayPayload({now, win, plantId, tickets, workOrders, pmSchedule
   };
 }
 
+// ---------------------------------------------------------------------------
+// One language on the screen: the free text people typed (fault description,
+// work order description, PM name) is translated into the viewer's language.
+// Machine names stay as they are. The pure parts live here; the AI call is
+// in translateTexts.js.
+// ---------------------------------------------------------------------------
+
+// Same codes as src/lib/supportedLanguages.ts.
+const LANGUAGE_NAMES = {
+  "en-US": "English", "si": "Sinhala", "ta": "Tamil", "es": "Spanish",
+  "fr": "French", "de": "German", "zh": "Simplified Chinese", "ja": "Japanese",
+};
+
+/**
+ * @param {*} lang a language code from the browser
+ * @return {?string} the code when the app supports it, else null
+ */
+function normalizeLanguage(lang) {
+  return typeof lang === "string" && Object.prototype.hasOwnProperty.call(LANGUAGE_NAMES, lang) ? lang : null;
+}
+
+/**
+ * @param {string} text the typed text
+ * @param {string} lang target language code
+ * @return {boolean} false for empty text and for plain English text shown in English
+ */
+function needsTranslation(text, lang) {
+  if (typeof text !== "string" || !text.trim()) return false;
+  // eslint-disable-next-line no-control-regex
+  if (lang === "en-US" && /^[\x00-\x7F]*$/.test(text)) return false;
+  return true;
+}
+
+/**
+ * @param {string} lang target language code
+ * @param {string} text source text
+ * @return {string} the cache document id for this text in this language
+ */
+function translationId(lang, text) {
+  return crypto.createHash("sha256").update(`${lang}\u0000${text}`).digest("hex").slice(0, 40);
+}
+
+/**
+ * @param {{breakdowns:object[],maintenance:object[],scheduled:object[]}} payload the board payload
+ * @param {string} lang target language code
+ * @return {string[]} the distinct texts that need translating
+ */
+function collectTexts(payload, lang) {
+  const out = new Set();
+  for (const list of [payload.breakdowns, payload.maintenance, payload.scheduled]) {
+    for (const row of list) if (needsTranslation(row.what, lang)) out.add(row.what);
+  }
+  return [...out];
+}
+
+/**
+ * @param {{breakdowns:object[],maintenance:object[],scheduled:object[]}} payload the board payload
+ * @param {Map<string,string>} translations source text to translated text
+ * @return {{breakdowns:object[],maintenance:object[],scheduled:object[]}} the payload with translated `what`
+ */
+function applyTranslations(payload, translations) {
+  const map = (rows) => rows.map((r) => (translations.has(r.what) ? {...r, what: translations.get(r.what)} : r));
+  return {breakdowns: map(payload.breakdowns), maintenance: map(payload.maintenance), scheduled: map(payload.scheduled)};
+}
+
 module.exports = {
+  LANGUAGE_NAMES, normalizeLanguage, needsTranslation, translationId, collectTexts, applyTranslations,
   DAY_MS, SCHEDULE_DAYS, BREAKDOWN_QUERY_STATUSES, WO_QUERY_STATUSES,
   toMs, dayWindow, durationMinutes, breakdownRow, workOrderRow, pmScheduleRow, buildDisplayPayload,
 };

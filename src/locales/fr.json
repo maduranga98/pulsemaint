@@ -88,12 +88,11 @@
     "stops": "Arrêt",
     "tomorrow": "Demain",
     "inDays": "Dans {{n}} jours",
-    "tagWO": "MAINTENANCE",
+    "tagWO": "Maintenance",
     "tagPM": "PM",
     "mins": "{{m}} min",
     "hrs": "{{h}} h {{m}} min",
-    "hrsOnly": "{{h}} h",
-    "readOnly": "Lecture seule · aucune connexion requise"
+    "hrsOnly": "{{h}} h"
   },
   "common": {
     "signOut": "Se déconnecter",

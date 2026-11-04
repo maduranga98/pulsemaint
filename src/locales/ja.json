@@ -92,8 +92,7 @@
     "tagPM": "PM",
     "mins": "{{m}}分",
     "hrs": "{{h}}時間{{m}}分",
-    "hrsOnly": "{{h}}時間",
-    "readOnly": "閲覧専用 · ログイン不要"
+    "hrsOnly": "{{h}}時間"
   },
   "common": {
     "signOut": "サインアウト",

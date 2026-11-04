@@ -113,7 +113,8 @@ function LanguagePicker() {
 export default function DepartmentDisplayPage() {
   const { token } = useParams<{ token: string }>();
   const { t, i18n } = useTranslation();
-  const locale = intlLocale(i18n.language);
+  const language = i18n.language;
+  const locale = intlLocale(language);
   const [data, setData] = useState<DisplayData | null>(null);
   const [state, setState] = useState<PageState>('loading');
   const [offline, setOffline] = useState(false);
@@ -126,7 +127,7 @@ export default function DepartmentDisplayPage() {
   const load = useCallback(async () => {
     if (!token) return;
     try {
-      const d = await fetchDepartmentDisplay(token);
+      const d = await fetchDepartmentDisplay(token, language);
       setOffline(false);
       setData(d);
       setState(d.enabled ? 'ready' : 'off');
@@ -146,7 +147,7 @@ export default function DepartmentDisplayPage() {
       if (code === 'functions/invalid-argument') setState('invalid');
       else setOffline(true); // keep showing the last update
     }
-  }, [token, i18n]);
+  }, [token, i18n, language]);
 
   useEffect(() => {
     void load();
@@ -404,9 +405,6 @@ export default function DepartmentDisplayPage() {
         </section>
       </div>
 
-      <footer className="dd-foot">
-        <span>{t('display.readOnly', 'Read only · no login needed')}</span>
-      </footer>
     </div>
   );
 }

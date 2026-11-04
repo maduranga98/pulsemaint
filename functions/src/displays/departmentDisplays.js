@@ -21,6 +21,7 @@ const {FieldValue} = require("firebase-admin/firestore");
 const {getDb, requireOwnCompany} = require("../lib/access");
 const {clientIp, enforceRateLimit} = require("../lib/rateLimit");
 const logic = require("./displayLogic");
+const {translateDisplayTexts, anthropicApiKey} = require("./translateTexts");
 
 const MANAGE_ROLES = ["supervisor", "plant_manager", "admin"];
 // Same codes as src/lib/supportedLanguages.ts.
@@ -149,7 +150,7 @@ exports.manageDepartmentDisplay = onCall({maxInstances: 10}, async (request) => 
 });
 
 /** Public: the board data for a token. Off / unknown / replaced links all answer `enabled: false`. */
-exports.getDepartmentDisplay = onCall({maxInstances: 40}, async (request) => {
+exports.getDepartmentDisplay = onCall({maxInstances: 40, secrets: [anthropicApiKey], timeoutSeconds: 60}, async (request) => {
   const data = request.data || {};
   const token = data.token;
   if (typeof token !== "string" || !TOKEN_PATTERN.test(token)) {
@@ -179,12 +180,21 @@ exports.getDepartmentDisplay = onCall({maxInstances: 40}, async (request) => {
         .where("status", "==", "active").get(),
     db.collection("plants").doc(String(plantId)).get(),
   ]);
-  const payload = logic.buildDisplayPayload({
+  let payload = logic.buildDisplayPayload({
     now, win, plantId,
     tickets: tickets.docs.map((d) => d.data()),
     workOrders: workOrders.docs.map((d) => d.data()),
     pmSchedules: pm.docs.map((d) => d.data()),
   });
+  // One language on the screen: translate what people typed into the viewer's language.
+  const lang = logic.normalizeLanguage(data.lang);
+  if (lang) {
+    const texts = logic.collectTexts(payload, lang);
+    if (texts.length) {
+      const translations = await translateDisplayTexts(db, {companyId, token, lang, texts});
+      if (translations.size) payload = logic.applyTranslations(payload, translations);
+    }
+  }
   return {
     enabled: true,
     department,

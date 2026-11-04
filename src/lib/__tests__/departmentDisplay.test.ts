@@ -210,3 +210,46 @@ describe('client helpers', () => {
     expect(displayUrl('abc', 'https://app.example.com/')).toBe('https://app.example.com/display/abc');
   });
 });
+
+describe('server: one language on the screen', () => {
+  const payload = () => build({
+    tickets: [ticket({ description: 'මැෂින් එක නැවතුනා' }), ticket({ description: 'Conveyor jam' }), ticket({ description: '' })],
+    workOrders: [wo({ description: 'Conveyor jam' })],
+    pmSchedules: [pm({ name: 'Monthly inspection' })],
+  });
+
+  it('accepts only the app languages', () => {
+    for (const l of ['en-US', 'si', 'ta', 'es', 'fr', 'de', 'zh', 'ja']) expect(logic.normalizeLanguage(l)).toBe(l);
+    for (const l of ['en', 'xx', '', null, undefined, 5, '__proto__']) expect(logic.normalizeLanguage(l)).toBeNull();
+  });
+
+  it('skips empty text, and plain English text when the screen is in English', () => {
+    expect(logic.needsTranslation('', 'si')).toBe(false);
+    expect(logic.needsTranslation('Conveyor jam', 'en-US')).toBe(false);
+    expect(logic.needsTranslation('මැෂින් එක නැවතුනා', 'en-US')).toBe(true);
+    expect(logic.needsTranslation('Conveyor jam', 'si')).toBe(true);
+  });
+
+  it('collects each distinct text once', () => {
+    expect(logic.collectTexts(payload(), 'si').sort()).toEqual(['Conveyor jam', 'Monthly inspection', 'මැෂින් එක නැවතුනා']);
+    expect(logic.collectTexts(payload(), 'en-US')).toEqual(['මැෂින් එක නැවතුනා']);
+  });
+
+  it('keys the cache by language and text', () => {
+    const a = logic.translationId('si', 'Conveyor jam');
+    expect(a).toMatch(/^[0-9a-f]{40}$/);
+    expect(a).toBe(logic.translationId('si', 'Conveyor jam'));
+    expect(a).not.toBe(logic.translationId('ta', 'Conveyor jam'));
+    expect(a).not.toBe(logic.translationId('si', 'Conveyor jam '));
+  });
+
+  it('replaces only the typed text and leaves machine names and everything else alone', () => {
+    const p = payload();
+    const out = logic.applyTranslations(p, new Map([['Conveyor jam', 'කන්වේයර් ජැම්']]));
+    expect(out.breakdowns.map((b: { what: string }) => b.what)).toContain('කන්වේයර් ජැම්');
+    expect(out.maintenance[0].what).toBe('කන්වේයර් ජැම්');
+    expect(out.scheduled.length + out.maintenance.length).toBeGreaterThan(0);
+    expect(out.breakdowns[0].machine).toBe(p.breakdowns[0].machine);
+    expect(p.breakdowns.some((b: { what: string }) => b.what === 'Conveyor jam')).toBe(true); // input not mutated
+  });
+});

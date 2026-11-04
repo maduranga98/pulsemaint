@@ -88,12 +88,11 @@
     "stops": "Parada",
     "tomorrow": "Mañana",
     "inDays": "En {{n}} días",
-    "tagWO": "MANTENIMIENTO",
+    "tagWO": "Mantenimiento",
     "tagPM": "PM",
     "mins": "{{m}} min",
     "hrs": "{{h}} h {{m}} min",
-    "hrsOnly": "{{h}} h",
-    "readOnly": "Solo lectura · sin inicio de sesión"
+    "hrsOnly": "{{h}} h"
   },
   "common": {
     "signOut": "Cerrar sesión",

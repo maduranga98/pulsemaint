@@ -88,12 +88,11 @@
     "stops": "Stillstand",
     "tomorrow": "Morgen",
     "inDays": "In {{n}} Tagen",
-    "tagWO": "WARTUNG",
+    "tagWO": "Wartung",
     "tagPM": "PM",
     "mins": "{{m}} Min",
     "hrs": "{{h}} Std {{m}} Min",
-    "hrsOnly": "{{h}} Std",
-    "readOnly": "Nur Ansicht · keine Anmeldung nötig"
+    "hrsOnly": "{{h}} Std"
   },
   "common": {
     "signOut": "Abmelden",

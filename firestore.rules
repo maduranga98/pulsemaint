@@ -2185,6 +2185,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // displayTranslations — cached translations of the free text on a display board; written and read by the display callable only.
+    match /displayTranslations/{translationId} {
+      allow read, write: if false;
+    }
+
     // ---------------------------------------------------------------------------
     // Evaluations
     // ---------------------------------------------------------------------------
