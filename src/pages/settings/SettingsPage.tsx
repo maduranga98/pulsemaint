@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { countryLabel } from '@/lib/countries';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Building2, Users, Factory, ChevronRight, Pencil } from 'lucide-react';
+import { Building2, Users, Factory, ChevronRight, Pencil, MonitorPlay } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import type { UserRole } from '../../types/auth';
 import { CompanyProfileEditModal } from '../../components/settings/CompanyProfileEditModal';
@@ -38,6 +38,14 @@ export default function SettingsPage() {
       to: '/app/settings/plants',
       icon: <Factory className="w-5 h-5" />,
       roles: ['admin'],
+    },
+    {
+      title: t('displaySharing.tile.title', 'Department display'),
+      description: t('displaySharing.tile.description', "Share a department's live board on a TV or phone."),
+      to: '/app/settings/department-displays',
+      icon: <MonitorPlay className="w-5 h-5" />,
+      // Same roles the sharing page allows; the server re-checks them.
+      roles: ['supervisor', 'plant_manager', 'admin'],
     },
   ];
   const tiles = allTiles.filter((tile) => !tile.roles || (role && tile.roles.includes(role)));

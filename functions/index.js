@@ -140,6 +140,13 @@ const {getPublicMachine} = require("./src/machines/publicMachine");
 
 exports.getPublicMachine = getPublicMachine;
 
+// Department display links: a read-only TV / phone board for one department (supervisor, plant manager, admin share it; anyone with the link views it).
+const departmentDisplays = require("./src/displays/departmentDisplays");
+exports.listDepartmentDisplays = departmentDisplays.listDepartmentDisplays;
+exports.manageDepartmentDisplay = departmentDisplays.manageDepartmentDisplay;
+exports.getDepartmentDisplay = departmentDisplays.getDepartmentDisplay;
+
+
 // Public QR breakdown report — no sign-in, no anonymous Auth user.
 exports.submitPublicBreakdown = require("./src/breakdowns/publicReport").submitPublicBreakdown;
 

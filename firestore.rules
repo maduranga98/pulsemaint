@@ -2178,6 +2178,13 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
     }
 
+    // departmentDisplays — public TV/phone board links. The token is the document id,
+    // so no client may read or write them; the display callables (functions/src/displays)
+    // check the caller's role and serve the board with admin rights.
+    match /departmentDisplays/{displayId} {
+      allow read, write: if false;
+    }
+
     // ---------------------------------------------------------------------------
     // Evaluations
     // ---------------------------------------------------------------------------

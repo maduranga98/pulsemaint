@@ -185,6 +185,8 @@ import MyWorkOrdersPage from '../pages/workorders/MyWorkOrdersPage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
 import PlantsPage from '../pages/settings/PlantsPage';
+import DepartmentDisplaysPage from '../pages/settings/DepartmentDisplaysPage';
+import DepartmentDisplayPage from '../pages/display/DepartmentDisplayPage';
 
 // Module 16 — MOE (Machine Overall Effectiveness)
 import { MoePage } from '../modules/moe/pages/MoePage';
@@ -220,6 +222,8 @@ export default function AppRouter() {
       <Route path="/report-breakdown" element={<PublicBreakdownReportPage />} />
       {/* Public, no-login safety training form for contractor team members — reached from the link they are sent */}
       <Route path="/safety-training/:token" element={<PublicSafetyTrainingPage />} />
+      {/* Public, no-login, read-only department board — reached from the link a supervisor shares */}
+      <Route path="/display/:token" element={<DepartmentDisplayPage />} />
       {/* A Contractor Safety Card's QR code — staff land on the safety-case report for the holder */}
       <Route path="/safety-card" element={<SafetyCardRedirectPage />} />
 
@@ -952,6 +956,15 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin', 'supervisor', 'plant_manager', 'hr_officer']}>
               <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="settings/department-displays"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <DepartmentDisplaysPage />
             </ProtectedRoute>
           }
         />
