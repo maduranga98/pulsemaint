@@ -1,94 +1,101 @@
 /* Department display board (/display/:token). Plain CSS, scoped by the dd- prefix, so it cannot touch the app.
-   Look: the app's dark-navy dashboard — the palette in src/style.css, KPI cards with a coloured left edge,
-   widget panels, tinted tiles and pills as on the Factory Floor Map (status colours from src/lib/factoryFloor.ts).
-   Type: the app's own font stack and scale (headings 600, small uppercase labels), enlarged for a screen across the room. */
+   Look: the app's dark-navy dashboard — the palette in src/style.css, tinted tiles and pills as on the Factory Floor Map
+   (status colours from src/lib/factoryFloor.ts). Type: the app's own font stack, weight 600.
+   Sizes: everything is in em from one base size that grows with the screen width (about 23px on a 1920 px TV, 44px on 4K),
+   so the contents stay readable from across the shop floor and keep the same proportions on every screen. */
 
 .dd-board {
   --b-bg: #0A1628; --b-card: #0F1E35; --b-raised: #142849; --b-line: #1E3A5F; --b-line2: #2E5A8F;
-  --b-fg: #F0F4F8; --b-text: #B8C7DB; --b-muted: #8BA3BF; --b-accent: #60A5FA;
+  --b-fg: #F0F4F8; --b-text: #D5DEEA; --b-muted: #A3B6CE; --b-accent: #60A5FA;
   --r: #EF4444; --a: #F59E0B; --g: #10B981; --b: #3B82F6; --cy: #06B6D4;
   height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
-  background: var(--b-bg); color: var(--b-fg); font-family: var(--font-sans); font-size: 15px; line-height: 1.5;
+  background: var(--b-bg); color: var(--b-fg); font-family: var(--font-sans); line-height: 1.4;
+  font-size: clamp(17px, 1.2vw, 44px);
   -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
   color-scheme: dark;
 }
 .dd-board.dd-light {
   --b-bg: #F8FAFC; --b-card: #FFFFFF; --b-raised: #F1F5F9; --b-line: #E2E8F0; --b-line2: #CBD5E1;
-  --b-fg: #0F172A; --b-text: #334155; --b-muted: #64748B; --b-accent: #1A56DB;
+  --b-fg: #0F172A; --b-text: #1E293B; --b-muted: #475569; --b-accent: #1A56DB;
   --r: #DC2626; --a: #D97706; --g: #059669; --b: #2563EB; --cy: #0891B2;
   color-scheme: light;
 }
 .dd-board * { box-sizing: border-box; }
 .dd-board h1, .dd-board h2, .dd-board h3 { color: inherit; font-family: inherit; margin: 0; }
 .dd-board button, .dd-board select { font: inherit; color: inherit; cursor: pointer; }
+.dd-board select { padding: .4em .6em; border: 1px solid var(--b-line); border-radius: .5em; background: var(--b-card); color: var(--b-fg); font-size: .7em; }
+.dd-board select option { background: var(--b-card); color: var(--b-fg); }
 .dd-board :focus-visible { outline: 2px solid var(--b-accent); outline-offset: 2px; }
 
 /* header bar */
 .dd-head {
-  display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
-  padding: 14px max(24px, env(safe-area-inset-right, 0px)) 14px max(24px, env(safe-area-inset-left, 0px));
-  padding-top: max(14px, env(safe-area-inset-top, 0px));
+  display: flex; flex-wrap: wrap; gap: .5em 1em; align-items: center; justify-content: space-between;
+  padding: .6em max(1em, env(safe-area-inset-right, 0px)) .6em max(1em, env(safe-area-inset-left, 0px));
+  padding-top: max(.6em, env(safe-area-inset-top, 0px));
   background: var(--b-card); border-bottom: 1px solid var(--b-line);
 }
-.dd-plant { color: var(--b-muted); font-size: 14px; }
-.dd-title { font-size: clamp(26px, 3.6vw, 40px); font-weight: 700; line-height: 1.2; }
-.dd-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.dd-seg { display: inline-flex; border: 1px solid var(--b-line); border-radius: 8px; overflow: hidden; background: var(--b-bg); }
-.dd-seg button { background: transparent; border: 0; padding: 7px 13px; font-size: 13px; font-weight: 500; color: var(--b-muted); }
+.dd-brand { display: flex; align-items: center; gap: .4em; margin-bottom: .2em; color: var(--b-fg); font-size: .8em; font-weight: 700; }
+.dd-brand img { width: 1.5em; height: 1.5em; border-radius: .3em; object-fit: contain; }
+.dd-plant { color: var(--b-muted); font-size: .75em; }
+.dd-title { font-size: 2.5em; font-weight: 700; line-height: 1.1; }
+.dd-tools { display: flex; gap: .4em; flex-wrap: wrap; align-items: center; }
+.dd-seg { display: inline-flex; border: 1px solid var(--b-line); border-radius: .5em; overflow: hidden; background: var(--b-bg); }
+.dd-seg button { background: transparent; border: 0; padding: .4em .7em; font-size: .7em; font-weight: 500; color: var(--b-muted); }
 .dd-seg button[aria-pressed="true"] { background: var(--b-raised); color: var(--b-fg); font-weight: 600; box-shadow: inset 0 -2px 0 var(--b-accent); }
-.dd-clock { text-align: right; font-variant-numeric: tabular-nums; min-width: 130px; }
-.dd-clock b { display: block; font-size: clamp(28px, 3.6vw, 40px); font-weight: 700; line-height: 1.15; }
-.dd-clock span { color: var(--b-muted); font-size: 13px; }
-.dd-offline { padding: 6px 24px; font-size: 13px; text-align: center; color: var(--a); background: color-mix(in srgb, var(--a) 10%, var(--b-card)); border-bottom: 1px solid var(--b-line); }
+.dd-clock { text-align: right; font-variant-numeric: tabular-nums; min-width: 5em; }
+.dd-clock b { display: block; font-size: 2.5em; font-weight: 700; line-height: 1; }
+.dd-clock span { color: var(--b-muted); font-size: .75em; }
+.dd-offline { padding: .3em 1em; font-size: .75em; text-align: center; color: var(--a); background: color-mix(in srgb, var(--a) 10%, var(--b-card)); border-bottom: 1px solid var(--b-line); }
 
-/* three columns: a KPI card on top of a widget panel */
-.dd-cols { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); gap: 16px; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); min-height: 0; }
-.dd-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
+/* three columns: a header card on top of a panel */
+.dd-cols { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); gap: .7em; padding: .7em; padding-bottom: max(.7em, env(safe-area-inset-bottom, 0px)); min-height: 0; }
+.dd-col { display: flex; flex-direction: column; gap: .6em; min-width: 0; min-height: 0; }
 .dd-x1 { --tc: var(--r); } .dd-x2 { --tc: var(--a); } .dd-x3 { --tc: var(--b); }
 
-.dd-chead { position: relative; display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 0; flex: none; padding: 14px 18px 12px; background: var(--b-card); border: 1px solid var(--b-line); border-left: 4px solid var(--tc); border-radius: 12px; }
-.dd-ct { color: var(--b-text); font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; overflow-wrap: anywhere; }
-.dd-n { color: var(--tc); font-size: clamp(38px, 4vw, 54px); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.dd-alert { position: absolute; top: 16px; right: 16px; width: 12px; height: 12px; border-radius: 50%; background: var(--r); animation: dd-blink 1.4s infinite; }
+.dd-chead { position: relative; display: flex; align-items: center; gap: .6em; flex: none; padding: .45em .8em; background: var(--b-card); border: 1px solid var(--b-line); border-left: .2em solid var(--tc); border-radius: .6em; }
+.dd-ct { color: var(--b-fg); font-size: 1.4em; font-weight: 600; line-height: 1.15; overflow-wrap: anywhere; }
+.dd-n { min-width: 1.1em; color: var(--tc); font-size: 3em; font-weight: 700; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; }
+.dd-alert { margin-left: auto; flex: none; width: .6em; height: .6em; border-radius: 50%; background: var(--r); animation: dd-blink 1.4s infinite; }
 @keyframes dd-blink { 50% { opacity: .25; } }
 
-.dd-cbody { flex: 1; min-height: 0; padding: 14px; overflow-y: auto; scrollbar-width: none; background: var(--b-card); border: 1px solid var(--b-line); border-radius: 12px; }
+.dd-cbody { flex: 1; min-height: 0; padding: .6em; overflow-y: auto; scrollbar-width: none; background: var(--b-card); border: 1px solid var(--b-line); border-radius: .6em; }
 .dd-cbody::-webkit-scrollbar { display: none; }
-.dd-h3 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--b-line); color: var(--b-text); font-size: 15px; font-weight: 600; }
-.dd-h3:not(:first-child) { margin-top: 20px; }
+.dd-h3 { margin: 0 0 .45em; padding-bottom: .3em; border-bottom: 1px solid var(--b-line); color: var(--b-text); font-size: .95em; font-weight: 600; }
+.dd-h3:not(:first-child) { margin-top: .9em; }
 
 /* tiles — tinted fill, status-coloured border and sub-text, as on the Factory Floor Map */
-.dd-card { --c: var(--b-muted); margin-bottom: 10px; padding: 12px 14px; min-width: 0; background: color-mix(in srgb, var(--c) 8%, transparent); border: 1px solid color-mix(in srgb, var(--c) 33%, transparent); border-radius: 10px; }
+.dd-card { --c: var(--b-muted); margin-bottom: .5em; padding: .55em .7em; min-width: 0; background: color-mix(in srgb, var(--c) 8%, transparent); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); border-radius: .5em; }
 .dd-r { --c: var(--r); } .dd-a { --c: var(--a); } .dd-g { --c: var(--g); } .dd-b { --c: var(--b); }
 .dd-fresh { animation: dd-warn 1.8s infinite; }
 @keyframes dd-warn { 50% { background: color-mix(in srgb, var(--r) 18%, transparent); } }
-.dd-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.dd-name { color: var(--b-fg); font-size: clamp(18px, 1.8vw, 24px); font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
-.dd-what { margin-top: 2px; color: var(--c); font-size: 14px; overflow-wrap: anywhere; }
-.dd-badge { flex: none; padding: 3px 10px; border-radius: 99px; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); font-size: 12px; font-weight: 600; text-align: center; }
-.dd-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin-top: 10px; color: var(--b-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-.dd-meta b { color: var(--b-text); font-weight: 600; }
-.dd-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
-.dd-steps span { padding: 6px 4px; background: var(--b-raised); border: 1px solid var(--b-line); border-radius: 6px; color: var(--b-muted); font-size: 12px; font-weight: 500; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
-.dd-steps span.dd-on { background: color-mix(in srgb, var(--c) 15%, transparent); border-color: color-mix(in srgb, var(--c) 45%, transparent); color: var(--c); font-weight: 600; }
-.dd-prog { height: 8px; margin-top: 12px; background: var(--b-raised); border-radius: 99px; overflow: hidden; }
+.dd-top { display: flex; justify-content: space-between; align-items: flex-start; gap: .5em; }
+.dd-name { color: var(--b-fg); font-size: 1.7em; font-weight: 600; line-height: 1.15; overflow-wrap: anywhere; }
+.dd-what { margin-top: .1em; color: var(--c); font-size: 1em; overflow-wrap: anywhere; }
+.dd-badge { flex: none; padding: .15em .6em; border-radius: 99px; background: color-mix(in srgb, var(--c) 18%, transparent); color: var(--c); font-size: .8em; font-weight: 600; text-align: center; }
+.dd-meta { display: flex; flex-wrap: wrap; gap: .2em .9em; align-items: center; margin-top: .5em; color: var(--b-text); font-size: .85em; font-variant-numeric: tabular-nums; }
+.dd-meta b { color: var(--b-fg); font-weight: 600; }
+.dd-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3em; margin-top: .6em; }
+.dd-steps span { padding: .4em .2em; background: var(--b-raised); border: 1px solid var(--b-line); border-radius: .35em; color: var(--b-muted); font-size: .72em; font-weight: 500; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
+.dd-steps span.dd-on { background: color-mix(in srgb, var(--c) 18%, transparent); border-color: color-mix(in srgb, var(--c) 55%, transparent); color: var(--c); font-weight: 600; }
+.dd-prog { height: .5em; margin-top: .6em; background: var(--b-raised); border-radius: 99px; overflow: hidden; }
 .dd-prog i { display: block; height: 100%; background: var(--c); border-radius: 99px; }
-.dd-tag { display: inline-block; padding: 2px 9px; border-radius: 99px; background: color-mix(in srgb, currentColor 15%, transparent); font-size: 12px; font-weight: 600; }
+.dd-tag { display: inline-block; padding: .05em .6em; border-radius: 99px; background: color-mix(in srgb, currentColor 18%, transparent); font-size: .75em; font-weight: 600; }
 .dd-pm { color: var(--cy); } .dd-wo { color: var(--b); }
-.dd-empty { margin-bottom: 10px; padding: 28px 16px; border: 1px dashed color-mix(in srgb, var(--g) 45%, transparent); border-radius: 10px; color: var(--g); font-size: 17px; font-weight: 600; text-align: center; }
+.dd-empty { margin-bottom: .5em; padding: 1em .7em; border: 1px dashed color-mix(in srgb, var(--g) 45%, transparent); border-radius: .5em; color: var(--g); font-size: 1.1em; font-weight: 600; text-align: center; }
 .dd-empty-muted { color: var(--b-muted); border-color: var(--b-line); }
 
-/* scheduled rows — dark rows with a coloured left edge, as the technician job queue */
-.dd-sched { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 8px 14px; align-items: center; margin-bottom: 10px; padding: 10px 14px 10px 12px; background: var(--b-bg); border: 1px solid var(--b-line); border-left: 4px solid var(--b); border-radius: 10px; }
-.dd-chip { padding: 5px 0; background: var(--b-raised); border-radius: 8px; text-align: center; }
-.dd-chip b { display: block; color: var(--b-fg); font-size: 24px; font-weight: 700; line-height: 1.1; }
-.dd-chip span { color: var(--b-muted); font-size: 12px; }
-.dd-sright { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; color: var(--b-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-.dd-sright b { color: var(--b-text); font-size: 14px; font-weight: 600; }
+/* scheduled rows — dark rows with a coloured left edge */
+.dd-sched { display: grid; grid-template-columns: 3em minmax(0, 1fr); gap: .35em .7em; align-items: center; margin-bottom: .5em; padding: .5em .7em .5em .55em; background: var(--b-bg); border: 1px solid var(--b-line); border-left: .2em solid var(--b); border-radius: .5em; }
+.dd-sched .dd-name { font-size: 1.5em; }
+.dd-chip { padding: .2em 0; background: var(--b-raised); border-radius: .4em; text-align: center; }
+.dd-chip b { display: block; color: var(--b-fg); font-size: 1.6em; font-weight: 700; line-height: 1.1; }
+.dd-chip span { color: var(--b-muted); font-size: .65em; }
+.dd-sright { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .2em .8em; align-items: center; color: var(--b-text); font-size: .85em; font-variant-numeric: tabular-nums; }
+.dd-sright b { color: var(--b-fg); font-size: 1.05em; font-weight: 600; }
 
-.dd-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; }
-.dd-center h1 { font-size: clamp(26px, 3.6vw, 40px); font-weight: 700; }
-.dd-center p { max-width: 560px; margin: 0; color: var(--b-muted); font-size: 18px; }
+.dd-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4em; padding: 1em; text-align: center; }
+.dd-center h1 { font-size: 2.2em; font-weight: 700; }
+.dd-center p { max-width: 24em; margin: 0; color: var(--b-muted); font-size: 1em; }
 
 @media (max-width: 1100px) {
   .dd-board { height: auto; min-height: 100vh; overflow: visible; }
