@@ -20,6 +20,24 @@ export const PLAN_PRICES: Record<Plan, PlanPrice> = {
   enterprise: { monthly: null, yearly: null, minMonthly: 1000 },
 };
 
+/**
+ * File storage per plan in GB, from the product booklet's pricing page (null = set in the contract). It is shown in the
+ * plan tables and on the Billing cards only: the app does not measure or cap storage yet.
+ */
+export const PLAN_STORAGE_GB: Record<Plan, number | null> = {
+  starter: 10,
+  workshop: 50,
+  factory: 250,
+  enterprise: null,
+};
+
+/** Finished work records (closed work orders, breakdowns, PM history, safety cases, permits, stock movements) are kept this long on every plan. */
+export const FINISHED_RECORDS_KEPT = '1 year';
+
+export function formatStorageGb(gb: number | null): string {
+  return gb === null ? 'Custom' : `${gb.toLocaleString('en-US')} GB`;
+}
+
 export const PLAN_ORDER: Plan[] = ['starter', 'workshop', 'factory', 'enterprise'];
 
 export const PLAN_DISPLAY_NAME: Record<Plan, string> = {
@@ -64,7 +82,7 @@ export const LOCKED_FEATURE_ROWS: Array<{ key: keyof PlanLimitConfig['features']
 /** Features that are open on every plan — shown under the locked-features table. */
 export const OPEN_ON_EVERY_PLAN =
   'Machine registry & QR codes, breakdowns, work orders, PM scheduling, inventory & suppliers, purchase orders, reports, dashboards, ' +
-  'machine health score, work request portal, triage, AI suggestions (within the monthly credits), 13 languages, CSV export, file storage (no limit).';
+  'machine health score, work request portal, triage, AI suggestions (within the monthly credits), 13 languages, CSV export, and full data export (ZIP with attachments).';
 
 /** "All", "—" (none), a count, "N / month" or "N months" — for one cell of the limits table. */
 export function formatLimit(value: number | null, perMonth = false, months = false): string {
