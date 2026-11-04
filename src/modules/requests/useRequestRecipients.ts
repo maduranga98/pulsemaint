@@ -4,6 +4,7 @@ import { functions } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useCompanyUsers, type CompanyUserOption } from '@/hooks/useCompanyUsers';
 import { sameDepartment } from '@/hooks/useRecordPlantMatcher';
+import { canAddressRecipient } from '@/lib/staffRequestInbox';
 import { recipientOptionsFor, type StaffRequest, type StaffRequestRecipientRole } from '@/types/staffRequest';
 
 /**
@@ -75,13 +76,14 @@ export function useEligibleRequestRecipients(): { recipients: CompanyUserOption[
     const source = remote ?? users;
     return source
       .filter((u) => {
-        if (u.id === profile?.id || !allowed.includes(u.role)) return false;
-        if (u.role === 'admin') return true;
-        if (u.plantId !== (profile?.plantId ?? null)) return false;
-        return u.role === 'plant_manager' || sameDepartment(u.department, profile?.department);
+        if (!profile || !allowed.includes(u.role)) return false;
+        return canAddressRecipient(
+          { id: profile.id, role: profile.role, plantId: profile.plantId ?? null, department: profile.department ?? null },
+          { id: u.id, role: u.role, plantId: u.plantId ?? null, department: u.department ?? null },
+        );
       })
       .sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.fullName.localeCompare(b.fullName));
-  }, [remote, users, profile?.id, profile?.role, profile?.plantId, profile?.department]);
+  }, [remote, users, profile]);
 
   return { recipients, loading };
 }

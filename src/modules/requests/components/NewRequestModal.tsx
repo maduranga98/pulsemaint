@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { createStaffRequest } from '@/services/staffRequests.service';
+import { isFrontlineRequester } from '@/lib/staffRequestInbox';
 import { notifyUsers } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
 import {
@@ -76,7 +77,12 @@ export default function NewRequestModal({ onClose }: Props) {
         referenceMachineName: category === 'record_access' && reference ? reference.machineName : null,
         files,
       });
-      void notifyUsers(profile.companyId, [recipient.id], {
+      // A request from the floor to a supervisor is shown to every supervisor of the department (not only the named
+      // one), so all of them are notified; a supervisor writing to another department's supervisor notifies that person.
+      const notifyIds = recipientRole === 'supervisor' && isFrontlineRequester(profile.role)
+        ? Array.from(new Set([recipient.id, ...eligible.filter((u) => u.role === 'supervisor').map((u) => u.id)]))
+        : [recipient.id];
+      void notifyUsers(profile.companyId, notifyIds, {
         type: 'request',
         message: t('common.staffRequests.notifications.newRequest', {
           name: profile.fullName ?? '',
@@ -88,7 +94,8 @@ export default function NewRequestModal({ onClose }: Props) {
         actorRole: profile.role as UserRole,
         actorUserId: profile.id,
         plantId: profile.plantId ?? null,
-        department: recipientRole === 'supervisor' ? profile.department ?? null : null,
+        // The notification is scoped to the department of whoever reads it: the recipient's own department.
+        department: recipientRole === 'supervisor' ? recipient.department ?? profile.department ?? null : null,
       });
       toast.success(t('common.staffRequests.newRequest.sent'));
       onClose();
@@ -136,7 +143,9 @@ export default function NewRequestModal({ onClose }: Props) {
                 {recipientsLoading ? t('common.staffRequests.newRequest.loadingPeople') : t('common.staffRequests.newRequest.choosePerson')}
               </option>
               {recipients.map((u) => (
-                <option key={u.id} value={u.id}>{u.fullName} ({roleLabel(u.role, t)})</option>
+                <option key={u.id} value={u.id}>
+                  {u.fullName} ({roleLabel(u.role, t)}{u.role === 'supervisor' && u.department ? ` · ${u.department}` : ''})
+                </option>
               ))}
             </select>
             {category === 'record_access' && (

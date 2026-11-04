@@ -48,6 +48,9 @@ export const Icon = {
   settings: (
     <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.3 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1Z"/></svg>
   ),
+  monitor: (
+    <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+  ),
   inbox: (
     <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
   ),
@@ -234,6 +237,9 @@ export const NAV_GROUPS: NavGroup[] = [
       // plant managers and admins answer the ones addressed to them.
       { labelKey: 'common.nav.items.myRequests', to: '/app/requests', icon: Icon.message, roles: ['plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer'] },
       { labelKey: 'common.nav.items.requestsInbox', to: '/app/requests/inbox', icon: Icon.inbox, roles: ['supervisor', 'plant_manager', 'admin'] },
+      // Share a department's live board as a link (public TV / phone view). Supervisors have no Settings entry, so
+      // it is reached from here; the label is translated in every language under displaySharing.tile.title.
+      { labelKey: 'displaySharing.tile.title', to: '/app/settings/department-displays', icon: Icon.monitor, roles: ['supervisor', 'plant_manager', 'admin'] },
       // "My Training" nav entries for other roles were dropped in favor of
       // dashboard widgets (see MyTrainingsWidget); trainee's own "My Training"
       // / "My Program", and "My Certificates" for every role that has one,

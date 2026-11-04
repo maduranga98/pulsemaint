@@ -9515,7 +9515,7 @@
         "scope": {
           "admin": "An den Administrator gesendete Anfragen.",
           "plantManager": "An den Werksleiter Ihres Werks gesendete Anfragen.",
-          "supervisor": "An die Vorgesetzten Ihrer Abteilung ({{department}}) gesendete Anfragen."
+          "supervisor": "An Sie gerichtete Anfragen, Anfragen der Techniker und Auszubildenden Ihrer Abteilung ({{department}}) und Anfragen von Vorgesetzten anderer Abteilungen Ihres Werks."
         },
         "title": "Anfragen-Posteingang"
       },

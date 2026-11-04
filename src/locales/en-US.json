@@ -9824,7 +9824,7 @@
       "inbox": {
         "title": "Requests Inbox",
         "scope": {
-          "supervisor": "Requests sent to the supervisors of your department ({{department}}).",
+          "supervisor": "Requests sent to you, requests from the technicians and trainees of your department ({{department}}), and requests from supervisors of other departments in your plant.",
           "plantManager": "Requests sent to the plant manager of your plant.",
           "admin": "Requests sent to admin."
         },

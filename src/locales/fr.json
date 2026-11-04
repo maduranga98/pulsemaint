@@ -9515,7 +9515,7 @@
         "scope": {
           "admin": "Demandes envoyées à l'administrateur.",
           "plantManager": "Demandes envoyées au directeur de votre usine.",
-          "supervisor": "Demandes envoyées aux superviseurs de votre service ({{department}})."
+          "supervisor": "Demandes qui vous sont adressées, demandes des techniciens et stagiaires de votre service ({{department}}) et demandes des superviseurs d’autres services de votre usine."
         },
         "title": "Boîte des demandes"
       },
