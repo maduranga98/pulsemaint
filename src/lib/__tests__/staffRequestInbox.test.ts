@@ -1,5 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createRequire } from 'node:module';
+
+// staffRequestInbox imports sameDepartment from a module that also imports the Firebase app; keep Firebase out of the test.
+vi.mock('../firebase', () => ({ db: {} }));
+
 import { canAddressRecipient, isFrontlineRequester, isVisibleToSupervisor } from '../staffRequestInbox';
 import { recipientOptionsFor } from '@/types/staffRequest';
 
