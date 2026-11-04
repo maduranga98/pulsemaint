@@ -72,27 +72,25 @@
     "nothingPlanned": "暂无计划",
     "status": {
       "reported": "已报告",
-      "attending": "处理中",
-      "waiting_parts": "等待备件",
-      "fixed": "今日已修复",
+      "fixed": "已修复",
       "running": "进行中",
-      "scheduled_today": "今日计划"
+      "scheduled_today": "今日计划",
+      "attended": "已接单",
+      "in_progress": "进行中",
+      "completed": "已完成"
     },
     "step0": "已报告",
-    "step1": "处理中",
-    "step2": "备件",
+    "step1": "已接单",
+    "step2": "进行中",
     "step3": "已修复",
     "reportedAt": "报告时间",
-    "openFor": "已持续",
-    "machineStops": "设备停机",
-    "stops": "停机",
     "tomorrow": "明天",
     "inDays": "{{n}}天后",
     "tagWO": "维护",
     "tagPM": "PM",
-    "mins": "{{m}}分钟",
-    "hrs": "{{h}}小时{{m}}分钟",
-    "hrsOnly": "{{h}}小时"
+    "colCP": "已完成",
+    "fixedAt": "修复时间",
+    "nothingCompleted": "今天还没有完成的"
   },
   "common": {
     "signOut": "退出登录",

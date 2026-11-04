@@ -2,19 +2,20 @@
  * Pure logic for the department display board (the shareable TV link).
  * No Firestore here, so it can be unit tested (src/lib/__tests__/departmentDisplay.test.ts).
  *
- * The board shows, for ONE department of ONE plant:
- *  - breakdowns: every open ticket plus tickets resolved today. Signed-off
- *    (closed) and cancelled tickets are never shown.
+ * The board shows, for ONE department of ONE plant, only machine names, a
+ * status and times — never what happened (no descriptions), people, costs or notes:
+ *  - breakdowns: open tickets as Reported → Attended → In progress → Fixed
+ *    (Fixed = resolved today, waiting for sign-off). Cancelled tickets are never shown.
+ *  - completed: breakdowns signed off (closed) today.
  *  - maintenance today: work running now and work still to do today.
  *  - scheduled: everything planned after today, up to a year ahead.
  * Overdue work (planned before today and not started) is never shown.
  */
 
-const crypto = require("crypto");
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SCHEDULE_DAYS = 365;
 const MAX_BREAKDOWNS = 60;
+const MAX_COMPLETED = 60;
 const MAX_MAINTENANCE = 80;
 const MAX_SCHEDULED = 400;
 const FRESH_MS = 30 * 60 * 1000;
@@ -79,29 +80,46 @@ const samePlant = (rec, plantId) => (rec == null ? null : rec) === (plantId == n
  */
 function breakdownRow(t, now, win) {
   const status = String(t.status || "");
-  let key; let step;
+  let key; let step; let fixedAt = null;
   if (status === "reported" || status === "acknowledged" || status === "triage_in_progress") {
     key = "reported"; step = 0;
-  } else if (status === "assigned" || status === "en_route" || status === "repair_in_progress" || status === "on_hold_approval") {
-    key = "attending"; step = 1;
-  } else if (status === "on_hold_parts") {
-    key = "waiting_parts"; step = 2;
+  } else if (status === "assigned" || status === "en_route") {
+    key = "attended"; step = 1;
+  } else if (status === "repair_in_progress" || status === "on_hold_parts" || status === "on_hold_approval") {
+    key = "in_progress"; step = 2;
   } else if (status === "resolved") {
     const at = toMs(t.resolvedAt) ?? toMs(t.updatedAt);
     if (at == null || at < win.start || at >= win.end) return null;
-    key = "fixed"; step = 3;
+    key = "fixed"; step = 3; fixedAt = at;
   } else {
-    return null; // closed (signed off), cancelled, anything else
+    return null; // closed (shown under completed), cancelled, anything else
   }
   const reportedAt = toMs(t.reportedAt) ?? now;
   return {
     machine: text(t.machineName, 80) || "—",
-    what: text(t.description, 140),
     status: key,
     step,
     at: reportedAt,
-    fixed: key === "fixed",
+    fixedAt,
     fresh: key === "reported" && now - reportedAt < FRESH_MS,
+  };
+}
+
+/**
+ * A breakdown that was signed off (closed) today.
+ * @param {object} t a breakdown_tickets document with status closed
+ * @param {number} now current time
+ * @param {{start:number,end:number}} win today's window
+ * @return {object|null} the completed row, or null when it was not signed off today
+ */
+function completedRow(t, now, win) {
+  if (String(t.status || "") !== "closed") return null;
+  const closedAt = toMs(t.closedAt);
+  if (closedAt == null || closedAt < win.start || closedAt >= win.end) return null;
+  return {
+    machine: text(t.machineName, 80) || "—",
+    at: toMs(t.reportedAt) ?? closedAt,
+    fixedAt: closedAt,
   };
 }
 
@@ -119,14 +137,12 @@ function workOrderRow(w, now, win) {
   const mins = durationMinutes(w);
   const base = {
     machine: text(w.machineName, 80) || "—",
-    what: text(w.description, 140),
     type: w.woType === "PREVENTIVE" ? "PM" : "WO",
     from,
     to: mins ? from + mins * 60000 : from,
-    stopMin: 0,
   };
   if (status === "IN_PROGRESS" || status === "ON_HOLD_PARTS" || status === "ON_HOLD_APPROVAL") {
-    return {kind: "maintenance", row: {...base, status: status === "ON_HOLD_PARTS" ? "waiting_parts" : "running"}};
+    return {kind: "maintenance", row: {...base, status: "running"}};
   }
   if (status !== "OPEN" && status !== "ASSIGNED") return null;
   if (from < win.start) return null; // overdue: not shown
@@ -152,11 +168,9 @@ function pmScheduleRow(p, now, win) {
   const mins = durationMinutes(p);
   const row = {
     machine: text(p.machineName, 80) || "—",
-    what: text(p.name, 140),
     type: "PM",
     from,
     to: mins ? from + mins * 60000 : from,
-    stopMin: mins,
   };
   if (from < win.end) return {kind: "maintenance", row: {...row, status: "scheduled_today"}};
   if (from < win.start + SCHEDULE_DAYS * DAY_MS) return {kind: "scheduled", row};
@@ -165,15 +179,21 @@ function pmScheduleRow(p, now, win) {
 
 /**
  * Builds the board payload from already-fetched department records.
- * @param {{now:number,win:{start:number,end:number},plantId:?string,tickets:object[],workOrders:object[],pmSchedules:object[]}} input records
- * @return {{breakdowns:object[],maintenance:object[],scheduled:object[]}} what the board shows
+ * @param {{now:number,win:{start:number,end:number},plantId:?string,tickets:object[],closedTickets:object[],workOrders:object[],pmSchedules:object[]}} input records
+ * @return {{breakdowns:object[],completed:object[],maintenance:object[],scheduled:object[]}} what the board shows
  */
-function buildDisplayPayload({now, win, plantId, tickets, workOrders, pmSchedules}) {
+function buildDisplayPayload({now, win, plantId, tickets, closedTickets = [], workOrders, pmSchedules}) {
   const breakdowns = [];
   for (const t of tickets) {
     if (!samePlant(t.machinePlantId, plantId)) continue;
     const r = breakdownRow(t, now, win);
     if (r) breakdowns.push(r);
+  }
+  const completed = [];
+  for (const t of closedTickets) {
+    if (!samePlant(t.machinePlantId, plantId)) continue;
+    const r = completedRow(t, now, win);
+    if (r) completed.push(r);
   }
   const maintenance = [];
   const scheduled = [];
@@ -189,83 +209,19 @@ function buildDisplayPayload({now, win, plantId, tickets, workOrders, pmSchedule
     if (!samePlant(p.plantId, plantId)) continue;
     put(pmScheduleRow(p, now, win));
   }
-  breakdowns.sort((a, b) => (a.fixed - b.fixed) || (b.at - a.at));
+  breakdowns.sort((a, b) => ((a.fixedAt ? 1 : 0) - (b.fixedAt ? 1 : 0)) || (b.at - a.at));
+  completed.sort((a, b) => b.fixedAt - a.fixedAt);
   maintenance.sort((a, b) => a.from - b.from);
   scheduled.sort((a, b) => a.from - b.from);
   return {
     breakdowns: breakdowns.slice(0, MAX_BREAKDOWNS),
+    completed: completed.slice(0, MAX_COMPLETED),
     maintenance: maintenance.slice(0, MAX_MAINTENANCE),
     scheduled: scheduled.slice(0, MAX_SCHEDULED),
   };
 }
 
-// ---------------------------------------------------------------------------
-// One language on the screen: the free text people typed (fault description,
-// work order description, PM name) is translated into the viewer's language.
-// Machine names stay as they are. The pure parts live here; the AI call is
-// in translateTexts.js.
-// ---------------------------------------------------------------------------
-
-// Same codes as src/lib/supportedLanguages.ts.
-const LANGUAGE_NAMES = {
-  "en-US": "English", "si": "Sinhala", "ta": "Tamil", "es": "Spanish",
-  "fr": "French", "de": "German", "zh": "Simplified Chinese", "ja": "Japanese",
-};
-
-/**
- * @param {*} lang a language code from the browser
- * @return {?string} the code when the app supports it, else null
- */
-function normalizeLanguage(lang) {
-  return typeof lang === "string" && Object.prototype.hasOwnProperty.call(LANGUAGE_NAMES, lang) ? lang : null;
-}
-
-/**
- * @param {string} text the typed text
- * @param {string} lang target language code
- * @return {boolean} false for empty text and for plain English text shown in English
- */
-function needsTranslation(text, lang) {
-  if (typeof text !== "string" || !text.trim()) return false;
-  // eslint-disable-next-line no-control-regex
-  if (lang === "en-US" && /^[\x00-\x7F]*$/.test(text)) return false;
-  return true;
-}
-
-/**
- * @param {string} lang target language code
- * @param {string} text source text
- * @return {string} the cache document id for this text in this language
- */
-function translationId(lang, text) {
-  return crypto.createHash("sha256").update(`${lang}\u0000${text}`).digest("hex").slice(0, 40);
-}
-
-/**
- * @param {{breakdowns:object[],maintenance:object[],scheduled:object[]}} payload the board payload
- * @param {string} lang target language code
- * @return {string[]} the distinct texts that need translating
- */
-function collectTexts(payload, lang) {
-  const out = new Set();
-  for (const list of [payload.breakdowns, payload.maintenance, payload.scheduled]) {
-    for (const row of list) if (needsTranslation(row.what, lang)) out.add(row.what);
-  }
-  return [...out];
-}
-
-/**
- * @param {{breakdowns:object[],maintenance:object[],scheduled:object[]}} payload the board payload
- * @param {Map<string,string>} translations source text to translated text
- * @return {{breakdowns:object[],maintenance:object[],scheduled:object[]}} the payload with translated `what`
- */
-function applyTranslations(payload, translations) {
-  const map = (rows) => rows.map((r) => (translations.has(r.what) ? {...r, what: translations.get(r.what)} : r));
-  return {breakdowns: map(payload.breakdowns), maintenance: map(payload.maintenance), scheduled: map(payload.scheduled)};
-}
-
 module.exports = {
-  LANGUAGE_NAMES, normalizeLanguage, needsTranslation, translationId, collectTexts, applyTranslations,
   DAY_MS, SCHEDULE_DAYS, BREAKDOWN_QUERY_STATUSES, WO_QUERY_STATUSES,
-  toMs, dayWindow, durationMinutes, breakdownRow, workOrderRow, pmScheduleRow, buildDisplayPayload,
+  toMs, dayWindow, durationMinutes, breakdownRow, completedRow, workOrderRow, pmScheduleRow, buildDisplayPayload,
 };

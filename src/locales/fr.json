@@ -72,27 +72,25 @@
     "nothingPlanned": "Rien de planifié",
     "status": {
       "reported": "Signalée",
-      "attending": "En intervention",
-      "waiting_parts": "Attente de pièces",
-      "fixed": "Réparée aujourd’hui",
+      "fixed": "Réparée",
       "running": "En cours",
-      "scheduled_today": "Prévue aujourd’hui"
+      "scheduled_today": "Prévue aujourd’hui",
+      "attended": "Prise en charge",
+      "in_progress": "En cours",
+      "completed": "Terminée"
     },
     "step0": "Signalée",
-    "step1": "Intervention",
-    "step2": "Pièces",
+    "step1": "Prise en charge",
+    "step2": "En cours",
     "step3": "Réparée",
     "reportedAt": "Signalée à",
-    "openFor": "Ouverte depuis",
-    "machineStops": "Arrêt machine",
-    "stops": "Arrêt",
     "tomorrow": "Demain",
     "inDays": "Dans {{n}} jours",
     "tagWO": "Maintenance",
     "tagPM": "PM",
-    "mins": "{{m}} min",
-    "hrs": "{{h}} h {{m}} min",
-    "hrsOnly": "{{h}} h"
+    "colCP": "Terminées",
+    "fixedAt": "Réparée à",
+    "nothingCompleted": "Rien de terminé pour le moment aujourd’hui"
   },
   "common": {
     "signOut": "Se déconnecter",

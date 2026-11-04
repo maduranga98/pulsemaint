@@ -72,27 +72,25 @@
     "nothingPlanned": "予定なし",
     "status": {
       "reported": "報告済み",
-      "attending": "対応中",
-      "waiting_parts": "部品待ち",
-      "fixed": "本日復旧",
+      "fixed": "復旧",
       "running": "作業中",
-      "scheduled_today": "本日予定"
+      "scheduled_today": "本日予定",
+      "attended": "対応開始",
+      "in_progress": "作業中",
+      "completed": "完了"
     },
     "step0": "報告",
-    "step1": "対応",
-    "step2": "部品",
+    "step1": "対応開始",
+    "step2": "作業中",
     "step3": "復旧",
     "reportedAt": "報告時刻",
-    "openFor": "経過",
-    "machineStops": "設備停止",
-    "stops": "停止",
     "tomorrow": "明日",
     "inDays": "{{n}}日後",
     "tagWO": "保全",
     "tagPM": "PM",
-    "mins": "{{m}}分",
-    "hrs": "{{h}}時間{{m}}分",
-    "hrsOnly": "{{h}}時間"
+    "colCP": "完了",
+    "fixedAt": "復旧時刻",
+    "nothingCompleted": "本日の完了はまだありません"
   },
   "common": {
     "signOut": "サインアウト",
