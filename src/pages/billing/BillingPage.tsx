@@ -7,7 +7,7 @@ import { useAuthStore } from '../../store/authStore';
 import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
-import { PLAN_PRICES } from '../../lib/planCatalog';
+import { PLAN_PRICES, PLAN_STORAGE_GB } from '../../lib/planCatalog';
 import { LockedFeaturesTable, PlanLimitsTable } from '../../components/billing/PlanComparisonTables';
 import BillingAccountPanel from '../../components/billing/BillingAccountPanel';
 import CancellationReasonDialog from '../../components/billing/CancellationReasonDialog';
@@ -94,9 +94,9 @@ const PLANS: PlanDef[] = [
     borderColor: 'border-slate-700',
     limits: limitsFor('starter'),
     featureGroups: [
-      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['starterCore'] },
+      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['starterCore', 'dataExportFeature'] },
       { categoryKey: 'common.billing.categories.inventoryProcurement', itemKeys: ['starterInventory'] },
-      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['aiCreditsFeature', 'analyticsHistoryFeature'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['aiCreditsFeature', 'analyticsHistoryFeature', 'storageFeature'] },
     ],
   },
   {
@@ -114,7 +114,7 @@ const PLANS: PlanDef[] = [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInStarter'] },
       { categoryKey: 'common.billing.categories.inventoryProcurement', itemKeys: ['autoPoEmail', 'qrScanLowStock'] },
       { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['growthTeam', 'multiPlant'] },
-      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['aiCreditsFeature', 'analyticsHistoryFeature'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['aiCreditsFeature', 'analyticsHistoryFeature', 'storageFeature'] },
     ],
   },
   {
@@ -129,7 +129,7 @@ const PLANS: PlanDef[] = [
     limits: limitsFor('factory'),
     featureGroups: [
       { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInWorkshop'] },
-      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature', 'aiCreditsFeature', 'analyticsHistoryFeature'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['moeTrendAnalytics', 'advancedAnalyticsFeature', 'auditsFeature', 'aiCreditsFeature', 'analyticsHistoryFeature', 'storageFeature'] },
       { categoryKey: 'common.billing.categories.teamOperations', itemKeys: ['kaizenEvaluations', 'multiPlant'] },
     ],
   },
@@ -162,6 +162,8 @@ const NEW_FEATURE_TEXT: Record<string, string> = {
   kaizenEvaluations: 'Kaizen & evaluations',
   aiCreditsFeature: '{{ai}} AI credits per month',
   analyticsHistoryFeature: '{{months}} months of analytics history',
+  storageFeature: '{{storage}} file storage',
+  dataExportFeature: 'Full data export (ZIP with attachments)',
   fullAnalyticsHistory: 'Full analytics history',
   advancedAnalyticsFeature: 'Advanced analytics: plants & team tabs, scheduled reports',
   auditsFeature: 'Audits',
@@ -170,14 +172,15 @@ const NEW_FEATURE_TEXT: Record<string, string> = {
   yearlyPrepayDiscounts: 'Yearly prepay and multi-year discounts',
 };
 
-/** Values for the {{ai}}/{{months}} placeholders of one plan's bullets; Factory's "36 months" becomes full history. */
-function featureText(plan: Plan, key: string): { key: string; ai: string; months: string } {
+/** Values for the {{ai}}/{{months}}/{{storage}} placeholders of one plan's bullets; a plan with no history limit shows full history. */
+function featureText(plan: Plan, key: string): { key: string; ai: string; months: string; storage: string } {
   const c = PLAN_LIMITS[plan];
   const fullHistory = key === 'analyticsHistoryFeature' && c.analyticsHistoryMonths === null;
   return {
     key: fullHistory ? 'fullAnalyticsHistory' : key,
     ai: fmtNumber(c.aiCreditsPerMonth),
     months: `${c.analyticsHistoryMonths ?? ''}`,
+    storage: `${PLAN_STORAGE_GB[plan] ?? ''} GB`,
   };
 }
 
@@ -536,6 +539,7 @@ export default function BillingPage() {
                             defaultValue: NEW_FEATURE_TEXT[featureText(plan.id, key).key],
                             ai: featureText(plan.id, key).ai,
                             months: featureText(plan.id, key).months,
+                            storage: featureText(plan.id, key).storage,
                             basicName: t('common.billing.plans.starter.name'),
                             workshopName: t('common.billing.plans.workshop.name'),
                             factoryName: t('common.billing.plans.factory.name'),

@@ -9,8 +9,8 @@ describe('PLAN_LIMITS', () => {
       return counts;
     };
     expect(pick('starter')).toEqual({ fullUsers: 3, lightUsers: 10, plants: 1, machines: 15, inventoryItems: 100, pmSchedules: 30, workOrdersPerMonth: 60, breakdownsPerMonth: 40, contractors: 0, trainingModules: 0, aiCreditsPerMonth: 20, analyticsHistoryMonths: 12 });
-    expect(pick('workshop')).toEqual({ fullUsers: 10, lightUsers: 50, plants: 3, machines: 75, inventoryItems: 2000, pmSchedules: 400, workOrdersPerMonth: 400, breakdownsPerMonth: 300, contractors: 25, trainingModules: 25, aiCreditsPerMonth: 150, analyticsHistoryMonths: 36 });
-    expect(pick('factory')).toEqual({ fullUsers: 40, lightUsers: 250, plants: 5, machines: 400, inventoryItems: 10000, pmSchedules: 3000, workOrdersPerMonth: 2500, breakdownsPerMonth: 2000, contractors: 250, trainingModules: 250, aiCreditsPerMonth: 800, analyticsHistoryMonths: null });
+    expect(pick('workshop')).toEqual({ fullUsers: 10, lightUsers: 50, plants: 3, machines: 75, inventoryItems: 2000, pmSchedules: 400, workOrdersPerMonth: 400, breakdownsPerMonth: 300, contractors: 25, trainingModules: 25, aiCreditsPerMonth: 150, analyticsHistoryMonths: 12 });
+    expect(pick('factory')).toEqual({ fullUsers: 40, lightUsers: 250, plants: 5, machines: 400, inventoryItems: 10000, pmSchedules: 3000, workOrdersPerMonth: 2500, breakdownsPerMonth: 2000, contractors: 250, trainingModules: 250, aiCreditsPerMonth: 800, analyticsHistoryMonths: 12 });
   });
   it('grows with every plan', () => {
     for (const key of ['fullUsers', 'lightUsers', 'plants', 'machines', 'inventoryItems', 'pmSchedules', 'workOrdersPerMonth', 'breakdownsPerMonth', 'contractors', 'trainingModules', 'aiCreditsPerMonth'] as const) {

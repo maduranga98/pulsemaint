@@ -7,11 +7,14 @@ import {
   ENTERPRISE_RATE_CARD,
   ENTERPRISE_RULES,
   LOCKED_FEATURE_ROWS,
+  FINISHED_RECORDS_KEPT,
   OPEN_ON_EVERY_PLAN,
   PLAN_DISPLAY_NAME,
   PLAN_ORDER,
   PLAN_PRICES,
+  PLAN_STORAGE_GB,
   formatLimit,
+  formatStorageGb,
 } from '../../lib/planCatalog';
 
 const TH = 'px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400';
@@ -31,7 +34,7 @@ function Heading({ title, note }: { title: string; note?: string }) {
 export function PlanLimitsTable() {
   return (
     <section>
-      <Heading title="Plan limits" note="Counts apply to the whole company. Yearly billing = pay 10 months, get 12. File storage is not limited on any plan." />
+      <Heading title="Plan limits" note="Counts apply to the whole company. Yearly billing = pay 10 months, get 12. AI credit: 1 credit = a normal suggestion, 6 credits = one with web research. Enterprise: every limit is set in the contract." />
       <div className={BOX}>
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
@@ -67,8 +70,25 @@ export function PlanLimitsTable() {
                 ))}
               </tr>
             ))}
+            <tr className="border-b border-[#1E3A5F]/60">
+              <td className={`${TD} text-slate-400`}>File storage (photos, manuals, files)</td>
+              {PLAN_ORDER.map((p) => <td key={p} className={TD}>{formatStorageGb(PLAN_STORAGE_GB[p])}</td>)}
+            </tr>
+            <tr>
+              <td className={`${TD} text-slate-400`}>Finished work records kept</td>
+              {PLAN_ORDER.map((p) => <td key={p} className={TD}>{FINISHED_RECORDS_KEPT}</td>)}
+            </tr>
           </tbody>
         </table>
+      </div>
+      <div className="mt-3 rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4 text-xs text-slate-400">
+        <p className="font-semibold text-slate-200 mb-1">Storage, data export &amp; expiry</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><span className="text-slate-300">Kept permanently:</span> machines and their files, inventory, suppliers, contractors, users, audits, evaluations and training records.</li>
+          <li><span className="text-slate-300">Finished work records</span> (closed work orders, breakdowns, PM history, safety cases, permits, stock movements) are kept for 1 year on every plan. Older ones are cleared only after you export them; open work is never removed.</li>
+          <li><span className="text-slate-300">Export all data</span> any time from Settings: ZIP files with attachments (parts of up to 1 GB, download links valid 24 hours). Machines, inventory and users stay in the app and are not part of the ZIP.</li>
+          <li>Storage, retention and export are the same on monthly and yearly billing.</li>
+        </ul>
       </div>
     </section>
   );
@@ -93,21 +113,25 @@ export function LockedFeaturesTable() {
                 <td className={TD}>{row.label}</td>
                 {PLAN_ORDER.map((p) => (
                   <td key={p} className={TD}>
-                    {p === 'enterprise' ? 'Custom' : <Mark on={PLAN_LIMITS[p].features[row.key]} />}
+                    <Mark on={PLAN_LIMITS[p].features[row.key]} />
                   </td>
                 ))}
               </tr>
             ))}
-            <tr>
+            <tr className="border-b border-[#1E3A5F]/60">
               <td className={TD}>Multi-plant management</td>
               {PLAN_ORDER.map((p) => {
                 const plants = PLAN_LIMITS[p].plants;
                 return (
                   <td key={p} className={TD}>
-                    {p === 'enterprise' ? 'Custom' : plants === null || plants > 1 ? <Mark on label={plants === null ? undefined : `up to ${plants}`} /> : <Mark on={false} />}
+                    {plants === null || plants > 1 ? <Mark on label={plants === null || p === 'enterprise' ? undefined : `up to ${plants}`} /> : <Mark on={false} />}
                   </td>
                 );
               })}
+            </tr>
+            <tr>
+              <td className={TD}>Full data export (ZIP with attachments)</td>
+              {PLAN_ORDER.map((p) => <td key={p} className={TD}><Mark on /></td>)}
             </tr>
           </tbody>
         </table>

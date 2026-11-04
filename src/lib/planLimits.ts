@@ -69,7 +69,7 @@ export interface PlanLimitConfig extends PlanCountLimits {
 // customer-facing pricing sheet and mirrored in BillingPage's plan cards and
 // the platform console's plan tables (see planCatalog.ts for prices). Anything
 // gated here should read from here rather than hardcoding numbers/flags at the
-// call site, so the two never drift apart again. Storage is not limited.
+// call site, so the two never drift apart again. Analytics history is 1 year on every plan; file storage per plan (PLAN_STORAGE_GB in planCatalog.ts) is shown in the plan tables but not measured or capped yet.
 export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
   starter: {
     fullUsers: 3,
@@ -113,7 +113,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
     contractors: 25,
     trainingModules: 25,
     aiCreditsPerMonth: 150,
-    analyticsHistoryMonths: 36,
+    analyticsHistoryMonths: 12,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
@@ -143,7 +143,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
     contractors: 250,
     trainingModules: 250,
     aiCreditsPerMonth: 800,
-    analyticsHistoryMonths: null,
+    analyticsHistoryMonths: 12,
     features: {
       autoPOEmail: true,
       qrLowStockAlerts: true,
