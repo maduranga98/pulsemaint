@@ -805,3 +805,28 @@ describe('sales manager to-dos and feature requests are limited', () => {
     await assertSucceeds(updateDoc(doc(as('root', { superadmin: true }), 'platformFeatureRequests/f9'), { status: 'closed' }));
   });
 });
+
+describe('departmentDisplays (public board links) are server-only', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'departmentDisplays', 'tokenA0123456789012345678'), {
+        companyId: 'A', plantId: 'p1', department: 'Packing', enabled: true, language: 'en-US',
+      });
+    });
+  });
+
+  it('nobody can read a link doc from a client — not even the admin of that company', async () => {
+    await assertFails(getDoc(doc(as('adminA'), 'departmentDisplays', 'tokenA0123456789012345678')));
+    await assertFails(getDoc(doc(as('supA'), 'departmentDisplays', 'tokenA0123456789012345678')));
+    await assertFails(getDoc(doc(anon(), 'departmentDisplays', 'tokenA0123456789012345678')));
+    await assertFails(getDocs(query(collection(as('adminA'), 'departmentDisplays'), where('companyId', '==', 'A'))));
+  });
+
+  it('nobody can create, change or delete one from a client', async () => {
+    await assertFails(setDoc(doc(as('adminA'), 'departmentDisplays', 'newtoken0123456789012345'), {
+      companyId: 'A', plantId: 'p1', department: 'Packing', enabled: true,
+    }));
+    await assertFails(updateDoc(doc(as('supA'), 'departmentDisplays', 'tokenA0123456789012345678'), { enabled: false }));
+    await assertFails(deleteDoc(doc(as('adminA'), 'departmentDisplays', 'tokenA0123456789012345678')));
+  });
+});
