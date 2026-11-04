@@ -172,7 +172,7 @@ exports.getDepartmentDisplay = onCall({maxInstances: 40}, async (request) => {
     db.collection("breakdown_tickets")
         .where("siteId", "==", companyId).where("machineDepartment", "==", department)
         .where("status", "in", logic.BREAKDOWN_QUERY_STATUSES).get(),
-    // Breakdowns signed off today. A failure here (e.g. its index is still building) only empties the Completed tab.
+    // Breakdowns signed off today (shown as Fixed today). A failure here (e.g. its index is still building) only leaves them out.
     db.collection("breakdown_tickets")
         .where("siteId", "==", companyId).where("machineDepartment", "==", department)
         .where("status", "==", "closed").where("closedAt", ">=", Timestamp.fromMillis(win.start)).get()

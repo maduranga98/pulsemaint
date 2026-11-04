@@ -76,8 +76,7 @@
       "running": "En cours",
       "scheduled_today": "Prévue aujourd’hui",
       "attended": "Prise en charge",
-      "in_progress": "En cours",
-      "completed": "Terminée"
+      "in_progress": "En cours"
     },
     "step0": "Signalée",
     "step1": "Prise en charge",
@@ -88,9 +87,7 @@
     "inDays": "Dans {{n}} jours",
     "tagWO": "Maintenance",
     "tagPM": "PM",
-    "colCP": "Terminées",
-    "fixedAt": "Réparée à",
-    "nothingCompleted": "Rien de terminé pour le moment aujourd’hui"
+    "fixedAt": "Réparée à"
   },
   "common": {
     "signOut": "Se déconnecter",

@@ -102,8 +102,9 @@ describe('server: breakdowns', () => {
     expect(out.breakdowns.map((b: { fixedAt: number | null }) => b.fixedAt === null)).toEqual([true, false]);
   });
 
-  it('puts breakdowns signed off today under completed, newest first, with reported and fixed times', () => {
+  it('lists breakdowns signed off today under Fixed today, after open ones, newest fix first, with reported and fixed times', () => {
     const out = build({
+      tickets: [ticket({ status: 'assigned' })],
       closedTickets: [
         ticket({ status: 'closed', reportedAt: NOW - 5 * HOUR, closedAt: WIN.start + 2 * HOUR }),
         ticket({ status: 'closed', reportedAt: NOW - 6 * HOUR, closedAt: WIN.start + 3 * HOUR }),
@@ -112,9 +113,11 @@ describe('server: breakdowns', () => {
         ticket({ status: 'closed', machinePlantId: 'p2', closedAt: WIN.start + HOUR }),
       ],
     });
-    expect(out.completed).toHaveLength(2);
-    expect(out.completed[0]).toEqual({ machine: 'Filler F-02', at: NOW - 6 * HOUR, fixedAt: WIN.start + 3 * HOUR });
-    expect(out.breakdowns).toHaveLength(0);
+    expect(out.completed).toBeUndefined();
+    expect(out.breakdowns).toHaveLength(3);
+    expect(out.breakdowns[0].status).toBe('attended');
+    expect(out.breakdowns[1]).toEqual({ machine: 'Filler F-02', status: 'fixed', step: 3, at: NOW - 6 * HOUR, fixedAt: WIN.start + 3 * HOUR, fresh: false });
+    expect(out.breakdowns[2].fixedAt).toBe(WIN.start + 2 * HOUR);
   });
 
   it('shows only machine names, statuses and times: no descriptions, people, costs or notes', () => {
@@ -125,7 +128,7 @@ describe('server: breakdowns', () => {
       pmSchedules: [pm({ name: 'Monthly inspection', description: 'Check everything' })],
     });
     expect(Object.keys(out.breakdowns[0]).sort()).toEqual(['at', 'fixedAt', 'fresh', 'machine', 'status', 'step']);
-    expect(Object.keys(out.completed[0]).sort()).toEqual(['at', 'fixedAt', 'machine']);
+    expect(Object.keys(out.breakdowns[1]).sort()).toEqual(['at', 'fixedAt', 'fresh', 'machine', 'status', 'step']);
     expect(Object.keys(out.maintenance[0]).sort()).toEqual(['from', 'machine', 'status', 'to', 'type']);
     expect(Object.keys(out.scheduled.length ? out.scheduled[0] : out.maintenance[1] ?? {}).sort()).toEqual(['from', 'machine', 'to', 'type']);
     expect(JSON.stringify(out)).not.toMatch(/Conveyor jam|Replace belt|Monthly inspection|Nimal|Kamal/);

@@ -76,8 +76,7 @@
       "running": "Läuft gerade",
       "scheduled_today": "Heute geplant",
       "attended": "Angenommen",
-      "in_progress": "In Arbeit",
-      "completed": "Abgeschlossen"
+      "in_progress": "In Arbeit"
     },
     "step0": "Gemeldet",
     "step1": "Angenommen",
@@ -88,9 +87,7 @@
     "inDays": "In {{n}} Tagen",
     "tagWO": "Wartung",
     "tagPM": "PM",
-    "colCP": "Abgeschlossen",
-    "fixedAt": "Behoben um",
-    "nothingCompleted": "Heute noch nichts abgeschlossen"
+    "fixedAt": "Behoben um"
   },
   "common": {
     "signOut": "Abmelden",
