@@ -98,8 +98,6 @@ function LanguagePicker() {
         }
         setAppLanguage(e.target.value as AppLanguage);
       }}
-      className="dd-seg"
-      style={{ background: 'transparent', padding: '7px 10px', fontSize: 14 }}
     >
       {SUPPORTED_LANGUAGES.map((l) => (
         <option key={l.code} value={l.code}>
@@ -323,6 +321,7 @@ export default function DepartmentDisplayPage() {
     <div className={shellClass}>
       <header className="dd-head">
         <div>
+          <div className="dd-brand"><img src="/logo.svg" alt="" />{t('common.ui2.layout.appLayout.firmicore')}</div>
           <div className="dd-plant">{[data.plantName, t('display.department', 'Department')].filter(Boolean).join(' · ')}</div>
           <h1 className="dd-title">{data.department}</h1>
         </div>

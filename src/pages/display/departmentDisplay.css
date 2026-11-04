@@ -21,6 +21,8 @@
 .dd-board * { box-sizing: border-box; }
 .dd-board h1, .dd-board h2, .dd-board h3 { color: inherit; font-family: inherit; margin: 0; }
 .dd-board button, .dd-board select { font: inherit; color: inherit; cursor: pointer; }
+.dd-board select { padding: 7px 10px; border: 1px solid var(--b-line); border-radius: 8px; background: var(--b-card); color: var(--b-fg); font-size: 14px; }
+.dd-board select option { background: var(--b-card); color: var(--b-fg); }
 .dd-board :focus-visible { outline: 2px solid var(--b-accent); outline-offset: 2px; }
 
 /* header bar */
@@ -31,13 +33,15 @@
   background: var(--b-card); border-bottom: 1px solid var(--b-line);
 }
 .dd-plant { color: var(--b-muted); font-size: 14px; }
-.dd-title { font-size: clamp(26px, 3.6vw, 40px); font-weight: 700; line-height: 1.2; }
+.dd-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--b-fg); font-size: 15px; font-weight: 700; }
+.dd-brand img { width: 28px; height: 28px; border-radius: 6px; object-fit: contain; }
+.dd-title { font-size: clamp(34px, 5vw, 58px); font-weight: 700; line-height: 1.1; }
 .dd-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .dd-seg { display: inline-flex; border: 1px solid var(--b-line); border-radius: 8px; overflow: hidden; background: var(--b-bg); }
 .dd-seg button { background: transparent; border: 0; padding: 7px 13px; font-size: 13px; font-weight: 500; color: var(--b-muted); }
 .dd-seg button[aria-pressed="true"] { background: var(--b-raised); color: var(--b-fg); font-weight: 600; box-shadow: inset 0 -2px 0 var(--b-accent); }
 .dd-clock { text-align: right; font-variant-numeric: tabular-nums; min-width: 130px; }
-.dd-clock b { display: block; font-size: clamp(28px, 3.6vw, 40px); font-weight: 700; line-height: 1.15; }
+.dd-clock b { display: block; font-size: clamp(34px, 5vw, 58px); font-weight: 700; line-height: 1; }
 .dd-clock span { color: var(--b-muted); font-size: 13px; }
 .dd-offline { padding: 6px 24px; font-size: 13px; text-align: center; color: var(--a); background: color-mix(in srgb, var(--a) 10%, var(--b-card)); border-bottom: 1px solid var(--b-line); }
 
@@ -46,15 +50,15 @@
 .dd-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
 .dd-x1 { --tc: var(--r); } .dd-x2 { --tc: var(--a); } .dd-x3 { --tc: var(--b); }
 
-.dd-chead { position: relative; display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 0; flex: none; padding: 14px 18px 12px; background: var(--b-card); border: 1px solid var(--b-line); border-left: 4px solid var(--tc); border-radius: 12px; }
-.dd-ct { color: var(--b-text); font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; overflow-wrap: anywhere; }
-.dd-n { color: var(--tc); font-size: clamp(38px, 4vw, 54px); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.dd-alert { position: absolute; top: 16px; right: 16px; width: 12px; height: 12px; border-radius: 50%; background: var(--r); animation: dd-blink 1.4s infinite; }
+.dd-chead { position: relative; display: flex; align-items: center; gap: 14px; flex: none; padding: 12px 18px; background: var(--b-card); border: 1px solid var(--b-line); border-left: 4px solid var(--tc); border-radius: 12px; }
+.dd-ct { color: var(--b-fg); font-size: clamp(20px, 2.2vw, 30px); font-weight: 600; line-height: 1.15; overflow-wrap: anywhere; }
+.dd-n { min-width: 1.2em; color: var(--tc); font-size: clamp(40px, 5vw, 64px); font-weight: 700; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; }
+.dd-alert { margin-left: auto; flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--r); animation: dd-blink 1.4s infinite; }
 @keyframes dd-blink { 50% { opacity: .25; } }
 
 .dd-cbody { flex: 1; min-height: 0; padding: 14px; overflow-y: auto; scrollbar-width: none; background: var(--b-card); border: 1px solid var(--b-line); border-radius: 12px; }
 .dd-cbody::-webkit-scrollbar { display: none; }
-.dd-h3 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--b-line); color: var(--b-text); font-size: 15px; font-weight: 600; }
+.dd-h3 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--b-line); color: var(--b-text); font-size: clamp(18px, 1.8vw, 22px); font-weight: 600; }
 .dd-h3:not(:first-child) { margin-top: 20px; }
 
 /* tiles — tinted fill, status-coloured border and sub-text, as on the Factory Floor Map */
@@ -63,28 +67,28 @@
 .dd-fresh { animation: dd-warn 1.8s infinite; }
 @keyframes dd-warn { 50% { background: color-mix(in srgb, var(--r) 18%, transparent); } }
 .dd-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.dd-name { color: var(--b-fg); font-size: clamp(18px, 1.8vw, 24px); font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
-.dd-what { margin-top: 2px; color: var(--c); font-size: 14px; overflow-wrap: anywhere; }
-.dd-badge { flex: none; padding: 3px 10px; border-radius: 99px; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); font-size: 12px; font-weight: 600; text-align: center; }
-.dd-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin-top: 10px; color: var(--b-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.dd-name { color: var(--b-fg); font-size: clamp(28px, 3vw, 38px); font-weight: 600; line-height: 1.1; overflow-wrap: anywhere; }
+.dd-what { margin-top: 2px; color: var(--c); font-size: 16px; overflow-wrap: anywhere; }
+.dd-badge { flex: none; padding: 3px 10px; border-radius: 99px; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); font-size: 13px; font-weight: 600; text-align: center; }
+.dd-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; margin-top: 12px; color: var(--b-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 .dd-meta b { color: var(--b-text); font-weight: 600; }
 .dd-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
-.dd-steps span { padding: 6px 4px; background: var(--b-raised); border: 1px solid var(--b-line); border-radius: 6px; color: var(--b-muted); font-size: 12px; font-weight: 500; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
+.dd-steps span { padding: 8px 4px; background: var(--b-raised); border: 1px solid var(--b-line); border-radius: 6px; color: var(--b-muted); font-size: 12px; font-weight: 500; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
 .dd-steps span.dd-on { background: color-mix(in srgb, var(--c) 15%, transparent); border-color: color-mix(in srgb, var(--c) 45%, transparent); color: var(--c); font-weight: 600; }
-.dd-prog { height: 8px; margin-top: 12px; background: var(--b-raised); border-radius: 99px; overflow: hidden; }
+.dd-prog { height: 12px; margin-top: 12px; background: var(--b-raised); border-radius: 99px; overflow: hidden; }
 .dd-prog i { display: block; height: 100%; background: var(--c); border-radius: 99px; }
 .dd-tag { display: inline-block; padding: 2px 9px; border-radius: 99px; background: color-mix(in srgb, currentColor 15%, transparent); font-size: 12px; font-weight: 600; }
 .dd-pm { color: var(--cy); } .dd-wo { color: var(--b); }
-.dd-empty { margin-bottom: 10px; padding: 28px 16px; border: 1px dashed color-mix(in srgb, var(--g) 45%, transparent); border-radius: 10px; color: var(--g); font-size: 17px; font-weight: 600; text-align: center; }
+.dd-empty { margin-bottom: 10px; padding: 28px 16px; border: 1px dashed color-mix(in srgb, var(--g) 45%, transparent); border-radius: 10px; color: var(--g); font-size: 22px; font-weight: 600; text-align: center; }
 .dd-empty-muted { color: var(--b-muted); border-color: var(--b-line); }
 
 /* scheduled rows — dark rows with a coloured left edge, as the technician job queue */
-.dd-sched { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 8px 14px; align-items: center; margin-bottom: 10px; padding: 10px 14px 10px 12px; background: var(--b-bg); border: 1px solid var(--b-line); border-left: 4px solid var(--b); border-radius: 10px; }
+.dd-sched { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px 14px; align-items: center; margin-bottom: 10px; padding: 10px 14px 10px 12px; background: var(--b-bg); border: 1px solid var(--b-line); border-left: 4px solid var(--b); border-radius: 10px; }
 .dd-chip { padding: 5px 0; background: var(--b-raised); border-radius: 8px; text-align: center; }
-.dd-chip b { display: block; color: var(--b-fg); font-size: 24px; font-weight: 700; line-height: 1.1; }
-.dd-chip span { color: var(--b-muted); font-size: 12px; }
-.dd-sright { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; color: var(--b-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-.dd-sright b { color: var(--b-text); font-size: 14px; font-weight: 600; }
+.dd-chip b { display: block; color: var(--b-fg); font-size: 34px; font-weight: 700; line-height: 1.1; }
+.dd-chip span { color: var(--b-muted); font-size: 13px; }
+.dd-sright { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; color: var(--b-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.dd-sright b { color: var(--b-text); font-size: 16px; font-weight: 600; }
 
 .dd-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; }
 .dd-center h1 { font-size: clamp(26px, 3.6vw, 40px); font-weight: 700; }
