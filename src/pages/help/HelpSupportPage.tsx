@@ -128,8 +128,16 @@ export default function HelpSupportPage() {
         <p className="text-slate-500 text-sm">{t('help.noResults')}</p>
       ) : (
         <div className="space-y-4">
-          {/* "Other videos" (getting started and overviews) are listed first, one after
-              another. Then the topics that have a video, then the remaining topics. */}
+          {withVideos.map(({ id, content }) => (
+            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
+          ))}
+
+          {withoutVideos.map(({ id, content }) => (
+            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
+          ))}
+
+          {/* "Other videos" (getting started and overviews) come last, after every
+              topic, one video after another. */}
           {otherVideos.length > 0 && (
             <div className="rounded-lg border border-slate-200 bg-white p-5">
               <h3 className="text-base font-semibold text-slate-900">{t('help.videos.otherTitle', { defaultValue: 'Other videos' })}</h3>
@@ -148,14 +156,6 @@ export default function HelpSupportPage() {
               </div>
             </div>
           )}
-
-          {withVideos.map(({ id, content }) => (
-            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
-          ))}
-
-          {withoutVideos.map(({ id, content }) => (
-            <HelpModuleCard key={id} id={id} content={content} searching={searching} />
-          ))}
         </div>
       )}
 
