@@ -7,8 +7,8 @@
  *   manager any department of their plant, an admin any department.
  * - getDepartmentDisplay: public, rate limited. The long random token is the
  *   document id; "stop sharing" turns it off at once, "new link" replaces it.
- *   It returns only what the floor needs — machine names, short fault text,
- *   status and times. Never people, costs, parts, notes or files.
+ *   It returns only what the floor needs — machine names, a status and
+ *   times. Never what happened, people, costs, parts, notes or files.
  *
  * `departmentDisplays` is server-only (firestore.rules deny every client read
  * and write); it is also in TENANT_COLLECTIONS so closing a company erases it.
@@ -16,12 +16,12 @@
 
 const crypto = require("crypto");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
-const {FieldValue} = require("firebase-admin/firestore");
+const {FieldValue, Timestamp} = require("firebase-admin/firestore");
+const logger = require("firebase-functions/logger");
 
 const {getDb, requireOwnCompany} = require("../lib/access");
 const {clientIp, enforceRateLimit} = require("../lib/rateLimit");
 const logic = require("./displayLogic");
-const {translateDisplayTexts, anthropicApiKey} = require("./translateTexts");
 
 const MANAGE_ROLES = ["supervisor", "plant_manager", "admin"];
 // Same codes as src/lib/supportedLanguages.ts.
@@ -150,15 +150,15 @@ exports.manageDepartmentDisplay = onCall({maxInstances: 10}, async (request) => 
 });
 
 /** Public: the board data for a token. Off / unknown / replaced links all answer `enabled: false`. */
-exports.getDepartmentDisplay = onCall({maxInstances: 40, secrets: [anthropicApiKey], timeoutSeconds: 60}, async (request) => {
+exports.getDepartmentDisplay = onCall({maxInstances: 40}, async (request) => {
   const data = request.data || {};
   const token = data.token;
   if (typeof token !== "string" || !TOKEN_PATTERN.test(token)) {
     throw new HttpsError("invalid-argument", "This link is not valid.");
   }
-  // A screen polls every 30 s (120 / hour); several screens can share one address.
-  await enforceRateLimit(`display:ip:${clientIp(request)}:${token}`, 600, 60 * 60 * 1000);
-  await enforceRateLimit(`display:token:${token}`, 6000, 60 * 60 * 1000);
+  // A screen polls every 30 s (120 / hour); a factory can have many screens behind one address.
+  await enforceRateLimit(`display:ip:${clientIp(request)}:${token}`, 3000, 60 * 60 * 1000);
+  await enforceRateLimit(`display:token:${token}`, 20000, 60 * 60 * 1000);
 
   const db = getDb();
   const snap = await db.collection("departmentDisplays").doc(token).get();
@@ -168,10 +168,18 @@ exports.getDepartmentDisplay = onCall({maxInstances: 40, secrets: [anthropicApiK
 
   const now = Date.now();
   const win = logic.dayWindow(now, data.dayStartMs, data.dayEndMs);
-  const [tickets, workOrders, pm, plant] = await Promise.all([
+  const [tickets, closed, workOrders, pm, plant] = await Promise.all([
     db.collection("breakdown_tickets")
         .where("siteId", "==", companyId).where("machineDepartment", "==", department)
         .where("status", "in", logic.BREAKDOWN_QUERY_STATUSES).get(),
+    // Breakdowns signed off today. A failure here (e.g. its index is still building) only empties the Completed tab.
+    db.collection("breakdown_tickets")
+        .where("siteId", "==", companyId).where("machineDepartment", "==", department)
+        .where("status", "==", "closed").where("closedAt", ">=", Timestamp.fromMillis(win.start)).get()
+        .catch((err) => {
+          logger.warn("display: completed breakdowns not loaded", {err: String(err && err.message ? err.message : err).slice(0, 300)});
+          return {docs: []};
+        }),
     db.collection("workOrders")
         .where("siteId", "==", companyId).where("machineDepartment", "==", department)
         .where("status", "in", logic.WO_QUERY_STATUSES).get(),
@@ -180,21 +188,13 @@ exports.getDepartmentDisplay = onCall({maxInstances: 40, secrets: [anthropicApiK
         .where("status", "==", "active").get(),
     db.collection("plants").doc(String(plantId)).get(),
   ]);
-  let payload = logic.buildDisplayPayload({
+  const payload = logic.buildDisplayPayload({
     now, win, plantId,
     tickets: tickets.docs.map((d) => d.data()),
+    closedTickets: closed.docs.map((d) => d.data()),
     workOrders: workOrders.docs.map((d) => d.data()),
     pmSchedules: pm.docs.map((d) => d.data()),
   });
-  // One language on the screen: translate what people typed into the viewer's language.
-  const lang = logic.normalizeLanguage(data.lang);
-  if (lang) {
-    const texts = logic.collectTexts(payload, lang);
-    if (texts.length) {
-      const translations = await translateDisplayTexts(db, {companyId, token, lang, texts});
-      if (translations.size) payload = logic.applyTranslations(payload, translations);
-    }
-  }
   return {
     enabled: true,
     department,

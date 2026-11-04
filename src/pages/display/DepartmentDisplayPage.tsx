@@ -8,9 +8,9 @@ import {
   groupByMonth,
   intlLocale,
   isAllDay,
-  openFor,
   progressPercent,
   type DisplayBreakdown,
+  type DisplayCompleted,
   type DisplayData,
   type DisplayMaintenance,
   type DisplayScheduled,
@@ -115,18 +115,18 @@ export default function DepartmentDisplayPage() {
   const locale = intlLocale(language);
   const [data, setData] = useState<DisplayData | null>(null);
   const [state, setState] = useState<PageState>('loading');
-  const [offline, setOffline] = useState(false);
+  const [offline, setOffline] = useState<string | null>(null);
   const [light, setLight] = useState(readTheme);
   const [auto, setAuto] = useState(true);
   const languageApplied = useRef(false);
-  const bodies = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
+  const bodies = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
   const hover = useAutoScroll(bodies, auto);
 
   const load = useCallback(async () => {
     if (!token) return;
     try {
-      const d = await fetchDepartmentDisplay(token, language);
-      setOffline(false);
+      const d = await fetchDepartmentDisplay(token);
+      setOffline(null);
       setData(d);
       setState(d.enabled ? 'ready' : 'off');
       // The supervisor's default language, unless this device already chose one.
@@ -143,9 +143,9 @@ export default function DepartmentDisplayPage() {
     } catch (err) {
       const code = (err as { code?: string }).code;
       if (code === 'functions/invalid-argument') setState('invalid');
-      else setOffline(true); // keep showing the last update
+      else setOffline(code ? code.replace('functions/', '') : 'network'); // keep showing the last update
     }
-  }, [token, i18n, language]);
+  }, [token, i18n]);
 
   useEffect(() => {
     void load();
@@ -225,24 +225,14 @@ export default function DepartmentDisplayPage() {
   }
 
   const nowMs = Date.now();
-  const openBreakdowns = data.breakdowns.filter((b) => !b.fixed);
-  const fixedToday = data.breakdowns.filter((b) => b.fixed);
+  const openBreakdowns = data.breakdowns.filter((b) => b.fixedAt === null);
+  const fixedToday = data.breakdowns.filter((b) => b.fixedAt !== null);
   const running = data.maintenance.filter((m) => m.status !== 'scheduled_today');
   const laterToday = data.maintenance.filter((m) => m.status === 'scheduled_today');
   const monthGroups = groupByMonth(data.scheduled, locale);
   const anyFresh = openBreakdowns.some((b) => b.fresh);
 
   const time = (ms: number) => new Date(ms).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
-  const dur = (min: number) => {
-    if (min < 60) return t('display.mins', { m: min, defaultValue: '{{m}} min' });
-    return min % 60
-      ? t('display.hrs', { h: Math.floor(min / 60), m: min % 60, defaultValue: '{{h}} h {{m}} min' })
-      : t('display.hrsOnly', { h: min / 60, defaultValue: '{{h}} h' });
-  };
-  const since = (ms: number) => {
-    const { hours, minutes } = openFor(ms, nowMs);
-    return hours ? dur(hours * 60 + minutes) : dur(minutes);
-  };
   const typeTag = (type: 'WO' | 'PM') =>
     type === 'PM'
       ? <span className="dd-tag dd-pm">{t('display.tagPM', 'PM')}</span>
@@ -253,10 +243,7 @@ export default function DepartmentDisplayPage() {
     return (
       <div key={`${b.machine}-${b.at}-${i}`} className={`dd-card ${color}${b.fresh ? ' dd-fresh' : ''}`}>
         <div className="dd-top">
-          <div>
-            <div className="dd-name">{b.machine}</div>
-            {b.what && <div className="dd-what">{b.what}</div>}
-          </div>
+          <div className="dd-name">{b.machine}</div>
           <span className="dd-badge">{t(`display.status.${b.status}`)}</span>
         </div>
         <div className="dd-steps">
@@ -266,21 +253,31 @@ export default function DepartmentDisplayPage() {
         </div>
         <div className="dd-meta">
           <span>{t('display.reportedAt', 'Reported at')} <b>{time(b.at)}</b></span>
-          {!b.fixed && <span>{t('display.openFor', 'Open for')} <b>{since(b.at)}</b></span>}
+          {b.fixedAt !== null && <span>{t('display.fixedAt', 'Fixed at')} <b>{time(b.fixedAt)}</b></span>}
         </div>
       </div>
     );
   };
 
+  const completedCard = (c: DisplayCompleted, i: number) => (
+    <div key={`${c.machine}-${c.fixedAt}-${i}`} className="dd-card dd-g">
+      <div className="dd-top">
+        <div className="dd-name">{c.machine}</div>
+        <span className="dd-badge">{t('display.status.completed', 'Completed')}</span>
+      </div>
+      <div className="dd-meta">
+        <span>{t('display.reportedAt', 'Reported at')} <b>{time(c.at)}</b></span>
+        <span>{t('display.fixedAt', 'Fixed at')} <b>{time(c.fixedAt)}</b></span>
+      </div>
+    </div>
+  );
+
   const maintenanceCard = (m: DisplayMaintenance, i: number) => {
-    const color = m.status === 'scheduled_today' ? 'dd-a' : m.status === 'waiting_parts' ? 'dd-a' : 'dd-b';
+    const color = m.status === 'scheduled_today' ? 'dd-a' : 'dd-b';
     return (
       <div key={`${m.machine}-${m.from}-${i}`} className={`dd-card ${color}`}>
         <div className="dd-top">
-          <div>
-            <div className="dd-name">{m.machine}</div>
-            {m.what && <div className="dd-what">{m.what}</div>}
-          </div>
+          <div className="dd-name">{m.machine}</div>
           <span className="dd-badge">{t(`display.status.${m.status}`)}</span>
         </div>
         {m.status === 'running' && (
@@ -289,7 +286,6 @@ export default function DepartmentDisplayPage() {
         <div className="dd-meta">
           {typeTag(m.type)}
           {!isAllDay(m.from) && <b>{time(m.from)}{m.to > m.from ? ` – ${time(m.to)}` : ''}</b>}
-          {m.stopMin > 0 && <span>{t('display.machineStops', 'Machine stops')} <b>{dur(m.stopMin)}</b></span>}
         </div>
       </div>
     );
@@ -303,15 +299,11 @@ export default function DepartmentDisplayPage() {
           <b>{new Date(s.from).getDate()}</b>
           <span>{new Date(s.from).toLocaleDateString(locale, { weekday: 'short' })}</span>
         </div>
-        <div>
-          <div className="dd-name">{s.machine}</div>
-          {s.what && <div className="dd-what">{s.what}</div>}
-        </div>
+        <div className="dd-name">{s.machine}</div>
         <div className="dd-sright">
           {typeTag(s.type)}
           {!isAllDay(s.from) && <b>{time(s.from)}</b>}
           <span>{days === 1 ? t('display.tomorrow', 'Tomorrow') : t('display.inDays', { n: days, defaultValue: 'In {{n}} days' })}</span>
-          {s.stopMin > 0 && <span>{t('display.stops', 'Stops')} {dur(s.stopMin)}</span>}
         </div>
       </div>
     );
@@ -337,7 +329,7 @@ export default function DepartmentDisplayPage() {
         </div>
         <Clock locale={locale} />
       </header>
-      {offline && <div className="dd-offline" role="status">{t('display.reconnecting', 'No connection · showing the last update')}</div>}
+      {offline && <div className="dd-offline" role="status">{t('display.reconnecting', 'No connection · showing the last update')} ({offline})</div>}
 
       <div
         className="dd-cols"
@@ -399,6 +391,18 @@ export default function DepartmentDisplayPage() {
                 {g.items.map(scheduledRow)}
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="dd-col dd-x4">
+          <div className="dd-chead">
+            <span className="dd-n">{data.completed.length}</span>
+            <span className="dd-ct">{t('display.colCP', 'Completed')}</span>
+          </div>
+          <div className="dd-cbody" ref={bodies[3]}>
+            {data.completed.length === 0
+              ? <div className="dd-empty dd-empty-muted">{t('display.nothingCompleted', 'Nothing completed yet today')}</div>
+              : data.completed.map(completedCard)}
           </div>
         </section>
       </div>

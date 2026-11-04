@@ -21,27 +21,25 @@
     "nothingPlanned": "Nothing planned",
     "status": {
       "reported": "Reported",
-      "attending": "Attending",
-      "waiting_parts": "Waiting for parts",
-      "fixed": "Fixed today",
+      "fixed": "Fixed",
       "running": "Running now",
-      "scheduled_today": "Scheduled today"
+      "scheduled_today": "Scheduled today",
+      "attended": "Attended",
+      "in_progress": "In progress",
+      "completed": "Completed"
     },
     "step0": "Reported",
-    "step1": "Attending",
-    "step2": "Parts",
+    "step1": "Attended",
+    "step2": "In progress",
     "step3": "Fixed",
     "reportedAt": "Reported at",
-    "openFor": "Open for",
-    "machineStops": "Machine stops",
-    "stops": "Stops",
     "tomorrow": "Tomorrow",
     "inDays": "In {{n}} days",
     "tagWO": "Maintenance",
     "tagPM": "PM",
-    "mins": "{{m}} min",
-    "hrs": "{{h}} h {{m}} min",
-    "hrsOnly": "{{h}} h"
+    "colCP": "Completed",
+    "fixedAt": "Fixed at",
+    "nothingCompleted": "Nothing completed yet today"
   },
   "displaySharing": {
     "tile": {

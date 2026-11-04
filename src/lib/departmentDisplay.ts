@@ -14,38 +14,43 @@ export function canManageDepartmentDisplay(role: UserRole | null | undefined): b
   return !!role && DISPLAY_MANAGER_ROLES.includes(role);
 }
 
-export type DisplayBreakdownStatus = 'reported' | 'attending' | 'waiting_parts' | 'fixed';
-export type DisplayMaintenanceStatus = 'running' | 'waiting_parts' | 'scheduled_today';
+export type DisplayBreakdownStatus = 'reported' | 'attended' | 'in_progress' | 'fixed';
+export type DisplayMaintenanceStatus = 'running' | 'scheduled_today';
 
+/** An open breakdown: machine, where it is in the procedure, and its times — never what happened. */
 export interface DisplayBreakdown {
   machine: string;
-  what: string;
   status: DisplayBreakdownStatus;
-  /** 0 reported · 1 attending · 2 waiting for parts · 3 fixed */
+  /** 0 reported · 1 attended · 2 in progress · 3 fixed */
   step: 0 | 1 | 2 | 3;
   /** When it was reported (ms). */
   at: number;
-  fixed: boolean;
+  /** When it was fixed (ms); set once it is fixed and waiting for sign-off. */
+  fixedAt: number | null;
   fresh: boolean;
+}
+
+/** A breakdown signed off today. */
+export interface DisplayCompleted {
+  machine: string;
+  at: number;
+  /** When it was signed off (ms). */
+  fixedAt: number;
 }
 
 export interface DisplayMaintenance {
   machine: string;
-  what: string;
   type: 'WO' | 'PM';
   status: DisplayMaintenanceStatus;
   from: number;
   to: number;
-  stopMin: number;
 }
 
 export interface DisplayScheduled {
   machine: string;
-  what: string;
   type: 'WO' | 'PM';
   from: number;
   to: number;
-  stopMin: number;
 }
 
 export type DisplayData =
@@ -57,6 +62,7 @@ export type DisplayData =
       language: string;
       now: number;
       breakdowns: DisplayBreakdown[];
+      completed: DisplayCompleted[];
       maintenance: DisplayMaintenance[];
       scheduled: DisplayScheduled[];
     };
@@ -79,12 +85,6 @@ export function todayWindow(now: Date = new Date()): { dayStartMs: number; dayEn
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
   return { dayStartMs: start.getTime(), dayEndMs: end.getTime() };
-}
-
-/** Minutes a breakdown has been open, split for display. */
-export function openFor(atMs: number, nowMs: number): { hours: number; minutes: number } {
-  const total = Math.max(1, Math.round((nowMs - atMs) / 60000));
-  return { hours: Math.floor(total / 60), minutes: total % 60 };
 }
 
 /** 0–100 share of a planned job that has elapsed. */

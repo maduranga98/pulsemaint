@@ -21,27 +21,25 @@
     "nothingPlanned": "සැලසුම් කර නැත",
     "status": {
       "reported": "වාර්තා කළා",
-      "attending": "අලුත්වැඩියා කරමින්",
-      "waiting_parts": "කොටස් බලාපොරොත්තුවෙන්",
-      "fixed": "අද නිවැරදි කළා",
+      "fixed": "නිවැරදි කළා",
       "running": "දැන් සිදුවෙමින්",
-      "scheduled_today": "අද සැලසුම් කර ඇත"
+      "scheduled_today": "අද සැලසුම් කර ඇත",
+      "attended": "පැමිණියා",
+      "in_progress": "සිදුවෙමින්",
+      "completed": "අවසන්"
     },
     "step0": "වාර්තා",
-    "step1": "අලුත්වැඩියා",
-    "step2": "කොටස්",
+    "step1": "පැමිණියා",
+    "step2": "සිදුවෙමින්",
     "step3": "නිවැරදියි",
     "reportedAt": "වාර්තා කළේ",
-    "openFor": "විවෘතව ඇත්තේ",
-    "machineStops": "යන්ත්‍රය නවතී",
-    "stops": "නවතී",
     "tomorrow": "හෙට",
     "inDays": "දින {{n}}කින්",
     "tagWO": "නඩත්තු",
     "tagPM": "PM",
-    "mins": "මිනිත්තු {{m}}",
-    "hrs": "පැය {{h}} මිනිත්තු {{m}}",
-    "hrsOnly": "පැය {{h}}"
+    "colCP": "අවසන්",
+    "fixedAt": "නිවැරදි කළේ",
+    "nothingCompleted": "අද තවම අවසන් වූ කිසිවක් නැත"
   },
   "displaySharing": {
     "tile": {

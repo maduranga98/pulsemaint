@@ -7,7 +7,6 @@ import {
   groupByMonth,
   intlLocale,
   isAllDay,
-  openFor,
   progressPercent,
   todayWindow,
 } from '../departmentDisplay';
@@ -51,8 +50,8 @@ const pm = (over: Record<string, unknown>) => ({
   estimatedDurationUnit: 'hours',
   ...over,
 });
-const build = (over: Partial<Record<'tickets' | 'workOrders' | 'pmSchedules', unknown[]>>) =>
-  logic.buildDisplayPayload({ now: NOW, win: WIN, plantId: 'p1', tickets: [], workOrders: [], pmSchedules: [], ...over });
+const build = (over: Partial<Record<'tickets' | 'closedTickets' | 'workOrders' | 'pmSchedules', unknown[]>>) =>
+  logic.buildDisplayPayload({ now: NOW, win: WIN, plantId: 'p1', tickets: [], closedTickets: [], workOrders: [], pmSchedules: [], ...over });
 
 describe('who may share a department', () => {
   it('allows only supervisor, plant manager and admin', () => {
@@ -65,44 +64,76 @@ describe('who may share a department', () => {
 });
 
 describe('server: breakdowns', () => {
-  it('maps open statuses to the four steps and flags a fresh report', () => {
+  it('maps every open status to Reported, Attended or In progress', () => {
     const out = build({
       tickets: [
         ticket({ status: 'reported' }),
-        ticket({ status: 'repair_in_progress', reportedAt: NOW - 3 * HOUR }),
-        ticket({ status: 'on_hold_parts', reportedAt: NOW - 5 * HOUR }),
+        ticket({ status: 'acknowledged', reportedAt: NOW - 2 * HOUR }),
+        ticket({ status: 'assigned', reportedAt: NOW - 3 * HOUR }),
+        ticket({ status: 'en_route', reportedAt: NOW - 4 * HOUR }),
+        ticket({ status: 'repair_in_progress', reportedAt: NOW - 5 * HOUR }),
+        ticket({ status: 'on_hold_parts', reportedAt: NOW - 6 * HOUR }),
+        ticket({ status: 'on_hold_approval', reportedAt: NOW - 7 * HOUR }),
       ],
     });
-    expect(out.breakdowns.map((b: { status: string }) => b.status)).toEqual(['reported', 'attending', 'waiting_parts']);
+    expect(out.breakdowns.map((b: { status: string }) => b.status)).toEqual([
+      'reported', 'reported', 'attended', 'attended', 'in_progress', 'in_progress', 'in_progress',
+    ]);
+    expect(out.breakdowns.map((b: { step: number }) => b.step)).toEqual([0, 0, 1, 1, 2, 2, 2]);
     expect(out.breakdowns[0].fresh).toBe(true);
     expect(out.breakdowns[1].fresh).toBe(false);
-    expect(out.breakdowns.map((b: { step: number }) => b.step)).toEqual([0, 1, 2]);
   });
 
-  it('shows resolved tickets only when fixed today and never closed or cancelled ones', () => {
+  it('shows a ticket resolved today as Fixed with its fixed time, and none resolved earlier', () => {
     const out = build({
       tickets: [
         ticket({ status: 'resolved', resolvedAt: WIN.start + HOUR }),
         ticket({ status: 'resolved', resolvedAt: WIN.start - HOUR }),
-        ticket({ status: 'closed' }),
         ticket({ status: 'cancelled' }),
+        ticket({ status: 'closed' }),
       ],
     });
     expect(out.breakdowns).toHaveLength(1);
-    expect(out.breakdowns[0]).toMatchObject({ status: 'fixed', fixed: true, step: 3 });
+    expect(out.breakdowns[0]).toMatchObject({ status: 'fixed', step: 3, fixedAt: WIN.start + HOUR });
   });
 
   it('lists open breakdowns before fixed ones', () => {
     const out = build({ tickets: [ticket({ status: 'resolved', resolvedAt: WIN.start + HOUR }), ticket({ status: 'assigned' })] });
-    expect(out.breakdowns.map((b: { fixed: boolean }) => b.fixed)).toEqual([false, true]);
+    expect(out.breakdowns.map((b: { fixedAt: number | null }) => b.fixedAt === null)).toEqual([true, false]);
   });
 
-  it('ignores another plant, and never leaks people or costs', () => {
+  it('puts breakdowns signed off today under completed, newest first, with reported and fixed times', () => {
     const out = build({
-      tickets: [ticket({ machinePlantId: 'p2' }), ticket({ reporterName: 'Nimal', assignedTechnicianNames: ['Kamal'], cost: 99 })],
+      closedTickets: [
+        ticket({ status: 'closed', reportedAt: NOW - 5 * HOUR, closedAt: WIN.start + 2 * HOUR }),
+        ticket({ status: 'closed', reportedAt: NOW - 6 * HOUR, closedAt: WIN.start + 3 * HOUR }),
+        ticket({ status: 'closed', closedAt: WIN.start - HOUR }), // signed off yesterday
+        ticket({ status: 'resolved', closedAt: WIN.start + HOUR }), // not signed off
+        ticket({ status: 'closed', machinePlantId: 'p2', closedAt: WIN.start + HOUR }),
+      ],
     });
+    expect(out.completed).toHaveLength(2);
+    expect(out.completed[0]).toEqual({ machine: 'Filler F-02', at: NOW - 6 * HOUR, fixedAt: WIN.start + 3 * HOUR });
+    expect(out.breakdowns).toHaveLength(0);
+  });
+
+  it('shows only machine names, statuses and times: no descriptions, people, costs or notes', () => {
+    const out = build({
+      tickets: [ticket({ reporterName: 'Nimal', assignedTechnicianNames: ['Kamal'], cost: 99, description: 'Conveyor jam', technicianFindings: 'x' })],
+      closedTickets: [ticket({ status: 'closed', closedAt: WIN.start + HOUR, description: 'Conveyor jam', reporterName: 'Nimal' })],
+      workOrders: [wo({ description: 'Replace belt' })],
+      pmSchedules: [pm({ name: 'Monthly inspection', description: 'Check everything' })],
+    });
+    expect(Object.keys(out.breakdowns[0]).sort()).toEqual(['at', 'fixedAt', 'fresh', 'machine', 'status', 'step']);
+    expect(Object.keys(out.completed[0]).sort()).toEqual(['at', 'fixedAt', 'machine']);
+    expect(Object.keys(out.maintenance[0]).sort()).toEqual(['from', 'machine', 'status', 'to', 'type']);
+    expect(Object.keys(out.scheduled.length ? out.scheduled[0] : out.maintenance[1] ?? {}).sort()).toEqual(['from', 'machine', 'to', 'type']);
+    expect(JSON.stringify(out)).not.toMatch(/Conveyor jam|Replace belt|Monthly inspection|Nimal|Kamal/);
+  });
+
+  it('ignores another plant', () => {
+    const out = build({ tickets: [ticket({ machinePlantId: 'p2' }), ticket({})] });
     expect(out.breakdowns).toHaveLength(1);
-    expect(Object.keys(out.breakdowns[0]).sort()).toEqual(['at', 'fixed', 'fresh', 'machine', 'status', 'step', 'what']);
   });
 });
 
@@ -136,7 +167,7 @@ describe('server: maintenance today and scheduled', () => {
       ],
     });
     expect(out.maintenance).toHaveLength(1);
-    expect(out.maintenance[0]).toMatchObject({ type: 'PM', status: 'scheduled_today', stopMin: 45 });
+    expect(out.maintenance[0]).toMatchObject({ type: 'PM', status: 'scheduled_today' });
     expect(out.scheduled.map((s: { type: string }) => s.type)).toEqual(['PM', 'PM']);
     expect(out.scheduled[0].from).toBeLessThan(out.scheduled[1].from);
   });
@@ -147,9 +178,9 @@ describe('server: maintenance today and scheduled', () => {
     expect(logic.durationMinutes({})).toBe(0);
   });
 
-  it('marks an on-hold-for-parts work order as waiting for parts', () => {
+  it('shows an on-hold work order as running (no separate parts state)', () => {
     const out = build({ workOrders: [wo({ status: 'ON_HOLD_PARTS', scheduledStart: NOW - HOUR })] });
-    expect(out.maintenance[0].status).toBe('waiting_parts');
+    expect(out.maintenance[0].status).toBe('running');
   });
 });
 
@@ -167,12 +198,6 @@ describe('client helpers', () => {
     const w = todayWindow(new Date(2026, 10, 4, 15, 30));
     expect(w.dayStartMs).toBe(WIN.start);
     expect(w.dayEndMs).toBe(WIN.end);
-  });
-
-  it('reports how long a breakdown has been open', () => {
-    expect(openFor(NOW - 18 * 60000, NOW)).toEqual({ hours: 0, minutes: 18 });
-    expect(openFor(NOW - 95 * 60000, NOW)).toEqual({ hours: 1, minutes: 35 });
-    expect(openFor(NOW, NOW)).toEqual({ hours: 0, minutes: 1 });
   });
 
   it('computes progress within 0-100', () => {
@@ -208,48 +233,5 @@ describe('client helpers', () => {
     expect(intlLocale('si')).toBe('si-LK');
     expect(intlLocale('de')).toBe('de');
     expect(displayUrl('abc', 'https://app.example.com/')).toBe('https://app.example.com/display/abc');
-  });
-});
-
-describe('server: one language on the screen', () => {
-  const payload = () => build({
-    tickets: [ticket({ description: 'මැෂින් එක නැවතුනා' }), ticket({ description: 'Conveyor jam' }), ticket({ description: '' })],
-    workOrders: [wo({ description: 'Conveyor jam' })],
-    pmSchedules: [pm({ name: 'Monthly inspection' })],
-  });
-
-  it('accepts only the app languages', () => {
-    for (const l of ['en-US', 'si', 'ta', 'es', 'fr', 'de', 'zh', 'ja']) expect(logic.normalizeLanguage(l)).toBe(l);
-    for (const l of ['en', 'xx', '', null, undefined, 5, '__proto__']) expect(logic.normalizeLanguage(l)).toBeNull();
-  });
-
-  it('skips empty text, and plain English text when the screen is in English', () => {
-    expect(logic.needsTranslation('', 'si')).toBe(false);
-    expect(logic.needsTranslation('Conveyor jam', 'en-US')).toBe(false);
-    expect(logic.needsTranslation('මැෂින් එක නැවතුනා', 'en-US')).toBe(true);
-    expect(logic.needsTranslation('Conveyor jam', 'si')).toBe(true);
-  });
-
-  it('collects each distinct text once', () => {
-    expect(logic.collectTexts(payload(), 'si').sort()).toEqual(['Conveyor jam', 'Monthly inspection', 'මැෂින් එක නැවතුනා']);
-    expect(logic.collectTexts(payload(), 'en-US')).toEqual(['මැෂින් එක නැවතුනා']);
-  });
-
-  it('keys the cache by language and text', () => {
-    const a = logic.translationId('si', 'Conveyor jam');
-    expect(a).toMatch(/^[0-9a-f]{40}$/);
-    expect(a).toBe(logic.translationId('si', 'Conveyor jam'));
-    expect(a).not.toBe(logic.translationId('ta', 'Conveyor jam'));
-    expect(a).not.toBe(logic.translationId('si', 'Conveyor jam '));
-  });
-
-  it('replaces only the typed text and leaves machine names and everything else alone', () => {
-    const p = payload();
-    const out = logic.applyTranslations(p, new Map([['Conveyor jam', 'කන්වේයර් ජැම්']]));
-    expect(out.breakdowns.map((b: { what: string }) => b.what)).toContain('කන්වේයර් ජැම්');
-    expect(out.maintenance[0].what).toBe('කන්වේයර් ජැම්');
-    expect(out.scheduled.length + out.maintenance.length).toBeGreaterThan(0);
-    expect(out.breakdowns[0].machine).toBe(p.breakdowns[0].machine);
-    expect(p.breakdowns.some((b: { what: string }) => b.what === 'Conveyor jam')).toBe(true); // input not mutated
   });
 });
