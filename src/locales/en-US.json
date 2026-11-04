@@ -11001,22 +11001,30 @@
           {
             "title": "Create a work order",
             "steps": [
-              "Open Work Orders and use Create — this opens a multi-step drawer.",
-              "Pick the machine (search by name), or it's pre-filled if you're converting a breakdown ticket.",
-              "Choose the work order type: Breakdown, Corrective, Preventive, Installation, Modification, Inspection, Contractor, or Other (locked to Breakdown if you're converting a breakdown).",
-              "Set the priority — critical, high, medium, or low — and assign it to a technician (and supervisor, if needed).",
-              "If the job needs one, turn on Work Permit and fill in its category, hazards, PPE, and required precautions.",
-              "Add a checklist of steps the technician should complete, and attach any reference documents.",
-              "Review and submit — the work order is created and appears in the assigned technician's list."
+              "Open Work Orders and press + Create Work Order — a 6-step drawer opens.",
+              "Step 1 · Basic information: choose the type (Breakdown Repair, Corrective, Preventive, Installation, Modification, Inspection, Contractor Job or Other), set the priority, describe the work, and set the Start and Due date/time. Preventive Maintenance also asks for a PM Type.",
+              "Step 2 · Machine: search by name and select the machine (it is pre-filled when you convert a breakdown ticket).",
+              "Step 3 · Team: pick the Supervisor In-Charge (required) and tick the technicians or trainees. Anyone with an overlapping job in that time slot shows as \"Already assigned\" and can't be picked.",
+              "Step 4 · Task checklist: add the steps to perform — each is a Checkbox or a Measurement (method, unit, min, max) with an estimated time, and you choose which workers do it. Steps can also be imported from a CSV template.",
+              "Step 5 · Documents: drag and drop or upload drawings, PDFs, images, videos or ZIP files (500 MB limit).",
+              "Step 6 · Tools and review: list special tools or components, tick Require a Work Permit if one must be active before the job starts (category, validity, hazards, precautions and PPE), check the summary and press Create Work Order."
             ]
           },
           {
-            "title": "Complete and sign off a work order",
+            "title": "Do the job (technician)",
             "steps": [
-              "The assigned technician opens the work order and works through its checklist.",
-              "They record parts used, notes, and any media (photos) as they go.",
-              "Once finished, they submit it for sign-off.",
-              "A supervisor or above reviews the completed checklist and sign-off details, then closes the work order."
+              "The assigned person is notified and finds the work order under My Job Queue on their dashboard; use Start Shift first.",
+              "Open the work order and press Start WO — you confirm the safety precautions before work begins.",
+              "Time on Job counts automatically. Tick Mark as complete on each checklist step and enter readings on measurement steps.",
+              "Attach a photo, video or file as evidence, use Request Inventory Items for parts, Hold · Parts to pause until parts arrive, or Request Approval to ask the supervisor.",
+              "Press Complete My Work when your steps are done. The work order goes to sign-off once every assigned team member has completed their part."
+            ]
+          },
+          {
+            "title": "Approve and sign off (supervisor)",
+            "steps": [
+              "Technician requests appear under Pending Approvals on the supervisor dashboard — add a note, then Approve or Reject.",
+              "Finished work orders appear under Need Sign-Off. Review the checklist and press Sign Off & Close to close the job."
             ]
           }
         ]
@@ -11028,34 +11036,42 @@
           {
             "title": "Find and work on your assigned orders",
             "steps": [
-              "Open My Work Orders — it only shows the ones assigned to you.",
+              "Open My Work Orders — it only shows the ones assigned to you (they are also in My Job Queue on your dashboard).",
               "They're sorted by priority and due date, so the most urgent is at the top.",
-              "Open one to see its checklist, machine details, and any attached permit.",
-              "Work through it and submit for sign-off when done."
+              "Open one to see its tasks, machine details and any attached permit, then press Start WO and confirm the safety precautions.",
+              "Tick each step as you finish it, add photos, request parts if needed, then press Complete My Work."
             ]
           }
         ]
       },
       "pmSchedules": {
         "title": "PM Schedules",
-        "description": "Preventive maintenance schedules and their calendar and workload views.",
+        "description": "Preventive maintenance on one calendar, with the work orders that carry it out.",
         "guides": [
           {
-            "title": "Set up a PM schedule",
+            "title": "Read the PM calendar",
             "steps": [
-              "Open PM Schedules and create a new one.",
-              "Pick the machine it applies to.",
-              "Choose a recurrence — daily, weekly, monthly, or a custom interval.",
-              "Assign a default technician and add the checklist of tasks to perform each time.",
-              "Save — future occurrences generate automatically according to the recurrence."
+              "Open PM Schedules — all preventive work for your plant (and department, for supervisors) is on one calendar; switch between Week and Month.",
+              "Each entry shows its planned start time, the PM type and the work order number, coloured by status (on track, due soon, overdue, in progress, completed, paused).",
+              "Select a day to list its jobs below the calendar, and click an entry (or Open Work Order) to go to the work order that services it.",
+              "Use PM Workload to see how PM tasks are distributed across technicians."
             ]
           },
           {
-            "title": "See what's coming up",
+            "title": "Create a PM work order",
             "steps": [
-              "Use PM Calendar for a day/week/month view of scheduled PM.",
-              "Use PM Workload to see how PM tasks are distributed across technicians.",
-              "Open any occurrence to see or reassign it before it's due."
+              "Supervisors and admins press New PM Work Order (or Create Work Order and choose Preventive Maintenance).",
+              "Choose the PM Type — it sets the category shown in PM Schedules, the calendar and compliance — then set the priority, description, and the Start and Due date/time.",
+              "Select the machine, pick the supervisor and technicians (anyone already booked in that time slot is greyed out), and build the checklist.",
+              "Add any special tools or a work permit, review and press Create Work Order — it appears on the calendar at its start time."
+            ]
+          },
+          {
+            "title": "Set up a PM schedule",
+            "steps": [
+              "Open PM Schedules and create a new schedule, picking the machine it applies to.",
+              "Choose a recurrence, assign a default technician and add the checklist of tasks to perform each time.",
+              "Save — future occurrences generate automatically according to the recurrence."
             ]
           }
         ]

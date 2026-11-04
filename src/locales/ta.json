@@ -10733,78 +10733,83 @@
         ]
       },
       "workOrders": {
-        "title": "பணி உத்தரவுகள்",
-        "description": "பணி உத்தரவுகளைத் திறப்பதிலிருந்து ஒப்புதல் வரை உருவாக்கவும், ஒதுக்கவும், கண்காணிக்கவும்.",
+        "title": "Work Orders",
+        "description": "Create, assign, and track work orders from open to signed off.",
         "guides": [
           {
-            "title": "பணி உத்தரவை உருவாக்க",
+            "title": "Create a work order",
             "steps": [
-              "\"பணி உத்தரவுகள்\" திறந்து \"உருவாக்கு\" பயன்படுத்துங்கள் — இது பல படிகள் கொண்ட பலகத்தைத் திறக்கும்.",
-              "இயந்திரத்தைத் தேர்ந்தெடுங்கள் (பெயரால் தேடலாம்); பழுது டிக்கெட்டை மாற்றுகிறீர்கள் என்றால் அது ஏற்கனவே நிரப்பப்பட்டிருக்கும்.",
-              "பணி உத்தரவு வகையைத் தேர்ந்தெடுங்கள்: பழுது, திருத்தம், தடுப்பு, நிறுவல், மாற்றம், ஆய்வு, ஒப்பந்ததாரர் அல்லது மற்றவை (பழுதை மாற்றுகிறீர்கள் என்றால் \"பழுது\" என்று பூட்டப்படும்).",
-              "முன்னுரிமையை — மிக முக்கியம், உயர், நடுத்தரம் அல்லது குறைவு — அமைத்து, ஒரு தொழில்நுட்பருக்கு (தேவைப்பட்டால் மேற்பார்வையாளருக்கும்) ஒதுக்குங்கள்.",
-              "வேலைக்கு அனுமதி தேவையெனில் \"பணி அனுமதி\"யை இயக்கி, அதன் பிரிவு, ஆபத்துகள், PPE மற்றும் தேவையான முன்னெச்சரிக்கைகளை நிரப்புங்கள்.",
-              "தொழில்நுட்பர் முடிக்க வேண்டிய படிகளின் சரிபார்ப்புப் பட்டியலைச் சேர்த்து, தேவையான ஆவணங்களை இணையுங்கள்.",
-              "சரிபார்த்துச் சமர்ப்பியுங்கள் — பணி உத்தரவு உருவாகி ஒதுக்கப்பட்ட தொழில்நுட்பரின் பட்டியலில் தோன்றும்."
+              "Open Work Orders and press + Create Work Order — a 6-step drawer opens.",
+              "Step 1 · Basic information: choose the type (Breakdown Repair, Corrective, Preventive, Installation, Modification, Inspection, Contractor Job or Other), set the priority, describe the work, and set the Start and Due date/time. Preventive Maintenance also asks for a PM Type.",
+              "Step 2 · Machine: search by name and select the machine (it is pre-filled when you convert a breakdown ticket).",
+              "Step 3 · Team: pick the Supervisor In-Charge (required) and tick the technicians or trainees. Anyone with an overlapping job in that time slot shows as \"Already assigned\" and can't be picked.",
+              "Step 4 · Task checklist: add the steps to perform — each is a Checkbox or a Measurement (method, unit, min, max) with an estimated time, and you choose which workers do it. Steps can also be imported from a CSV template.",
+              "Step 5 · Documents: drag and drop or upload drawings, PDFs, images, videos or ZIP files (500 MB limit).",
+              "Step 6 · Tools and review: list special tools or components, tick Require a Work Permit if one must be active before the job starts (category, validity, hazards, precautions and PPE), check the summary and press Create Work Order."
             ]
           },
           {
-            "title": "பணி உத்தரவை முடித்து ஒப்புதல் பெற",
+            "title": "Do the job (technician)",
             "steps": [
-              "ஒதுக்கப்பட்ட தொழில்நுட்பர் பணி உத்தரவைத் திறந்து அதன் சரிபார்ப்புப் பட்டியலை முடிக்கிறார்.",
-              "அவர் செல்லும்போதே பயன்படுத்திய பாகங்கள், குறிப்புகள் மற்றும் ஊடகங்களை (புகைப்படங்கள்) பதிகிறார்.",
-              "முடிந்ததும் ஒப்புதலுக்குச் சமர்ப்பிக்கிறார்.",
-              "மேற்பார்வையாளர் அல்லது அதற்கு மேற்பட்டவர் முடிக்கப்பட்ட சரிபார்ப்புப் பட்டியலையும் ஒப்புதல் விவரங்களையும் பார்த்து பணி உத்தரவை மூடுகிறார்."
+              "The assigned person is notified and finds the work order under My Job Queue on their dashboard; use Start Shift first.",
+              "Open the work order and press Start WO — you confirm the safety precautions before work begins.",
+              "Time on Job counts automatically. Tick Mark as complete on each checklist step and enter readings on measurement steps.",
+              "Attach a photo, video or file as evidence, use Request Inventory Items for parts, Hold · Parts to pause until parts arrive, or Request Approval to ask the supervisor.",
+              "Press Complete My Work when your steps are done. The work order goes to sign-off once every assigned team member has completed their part."
             ]
           },
           {
-            "title": "வெளி ஒப்பந்ததாரர் செய்த வேலையைப் பதிய",
+            "title": "Approve and sign off (supervisor)",
             "steps": [
-              "பணி உத்தரவை உருவாக்கி \"ஒப்பந்ததாரர்\" வகையைத் தேர்ந்தெடுங்கள் (உங்கள் திட்டத்தில் ஒப்பந்ததாரர் தொகுதி தேவை).",
-              "குழு படியில் ஒப்பந்ததாரர் நிறுவனத்தைத் தேர்ந்தெடுங்கள்.",
-              "\"வெளிப்பணி விவரங்கள்\" (விருப்பம்) என்பதன் கீழ் வேலை வகை, தேதிகள் மற்றும் செய்தவற்றை நிரப்புங்கள்.",
-              "மாற்றிய அல்லது சேர்த்த ஒவ்வொரு பாகத்தையும் அதன் அளவு மற்றும் ஒரு அலகு விலையுடன் சேர்த்து, பின்னர் உழைப்பு அல்லது சேவைக் கட்டணத்தைச் சேர்க்கவும். மொத்தம் தானாகக் கணக்கிடப்படும்.",
-              "விலைப்பட்டியல் எண்ணை உள்ளிட்டு விலைப்பட்டியலை (PDF அல்லது புகைப்படம்) இணையுங்கள்.",
-              "பணி உத்தரவை உருவாக்குங்கள். விவரங்கள் இயந்திரத்தின் \"பராமரிப்பு\" தாவலில் சேமிக்கப்படும்; செலவுகள், பாகங்கள் மற்றும் விலைப்பட்டியல் இணைப்புகள் பதிவில் இருக்கும்."
+              "Technician requests appear under Pending Approvals on the supervisor dashboard — add a note, then Approve or Reject.",
+              "Finished work orders appear under Need Sign-Off. Review the checklist and press Sign Off & Close to close the job."
             ]
           }
         ]
       },
       "myWorkOrders": {
-        "title": "எனது பணி உத்தரவுகள்",
-        "description": "உங்களுக்கு ஒதுக்கப்பட்ட பணி உத்தரவுகள் ஒரே பட்டியலில்.",
+        "title": "My Work Orders",
+        "description": "The work orders assigned to you, in one list.",
         "guides": [
           {
-            "title": "உங்களுக்கு ஒதுக்கப்பட்டவற்றைக் கண்டு வேலை செய்ய",
+            "title": "Find and work on your assigned orders",
             "steps": [
-              "\"எனது பணி உத்தரவுகள்\" திறங்கள் — உங்களுக்கு ஒதுக்கப்பட்டவை மட்டுமே காட்டும்.",
-              "அவை முன்னுரிமை மற்றும் முடிவு தேதிப்படி வரிசைப்படுத்தப்பட்டுள்ளன, மிக அவசரமானது மேலே இருக்கும்.",
-              "ஒன்றைத் திறந்து அதன் சரிபார்ப்புப் பட்டியல், இயந்திர விவரங்கள் மற்றும் இணைக்கப்பட்ட அனுமதியைக் காணுங்கள்.",
-              "அதை முடித்து, முடிந்ததும் ஒப்புதலுக்குச் சமர்ப்பியுங்கள்."
+              "Open My Work Orders — it only shows the ones assigned to you (they are also in My Job Queue on your dashboard).",
+              "They're sorted by priority and due date, so the most urgent is at the top.",
+              "Open one to see its tasks, machine details and any attached permit, then press Start WO and confirm the safety precautions.",
+              "Tick each step as you finish it, add photos, request parts if needed, then press Complete My Work."
             ]
           }
         ]
       },
       "pmSchedules": {
-        "title": "PM அட்டவணைகள்",
-        "description": "தடுப்புப் பராமரிப்பு அட்டவணைகள் மற்றும் அவற்றின் நாட்காட்டி, பணிச்சுமைப் பார்வைகள்.",
+        "title": "PM Schedules",
+        "description": "Preventive maintenance on one calendar, with the work orders that carry it out.",
         "guides": [
           {
-            "title": "PM அட்டவணையை அமைக்க",
+            "title": "Read the PM calendar",
             "steps": [
-              "\"PM அட்டவணைகள்\" திறந்து புதியதை உருவாக்குங்கள்.",
-              "அது பொருந்தும் இயந்திரத்தைத் தேர்ந்தெடுங்கள்.",
-              "மீள்வு முறையைத் தேர்ந்தெடுங்கள் — தினசரி, வாராந்திர, மாதாந்திர அல்லது தனிப்பயன் இடைவெளி.",
-              "இயல்புநிலை தொழில்நுட்பரை ஒதுக்கி, ஒவ்வொரு முறையும் செய்ய வேண்டிய பணிகளின் சரிபார்ப்புப் பட்டியலைச் சேர்க்கவும்.",
-              "சேமியுங்கள் — எதிர்கால நிகழ்வுகள் மீள்வு முறைப்படி தானாக உருவாகும்."
+              "Open PM Schedules — all preventive work for your plant (and department, for supervisors) is on one calendar; switch between Week and Month.",
+              "Each entry shows its planned start time, the PM type and the work order number, coloured by status (on track, due soon, overdue, in progress, completed, paused).",
+              "Select a day to list its jobs below the calendar, and click an entry (or Open Work Order) to go to the work order that services it.",
+              "Use PM Workload to see how PM tasks are distributed across technicians."
             ]
           },
           {
-            "title": "வரப்போவதைக் காண",
+            "title": "Create a PM work order",
             "steps": [
-              "திட்டமிட்ட PM-ஐ நாள்/வாரம்/மாதக் காட்சியில் காண \"PM நாட்காட்டி\"யைப் பயன்படுத்துங்கள்.",
-              "தொழில்நுட்பர்களுக்கிடையே PM பணிகள் எப்படிப் பகிரப்பட்டுள்ளன என்று காண \"PM பணிச்சுமை\"யைப் பயன்படுத்துங்கள்.",
-              "ஏதேனும் நிகழ்வைத் திறந்து அது நிலுவைக்கு வருவதற்கு முன் பார்க்கவோ மறுஒதுக்கவோ செய்யலாம்."
+              "Supervisors and admins press New PM Work Order (or Create Work Order and choose Preventive Maintenance).",
+              "Choose the PM Type — it sets the category shown in PM Schedules, the calendar and compliance — then set the priority, description, and the Start and Due date/time.",
+              "Select the machine, pick the supervisor and technicians (anyone already booked in that time slot is greyed out), and build the checklist.",
+              "Add any special tools or a work permit, review and press Create Work Order — it appears on the calendar at its start time."
+            ]
+          },
+          {
+            "title": "Set up a PM schedule",
+            "steps": [
+              "Open PM Schedules and create a new schedule, picking the machine it applies to.",
+              "Choose a recurrence, assign a default technician and add the checklist of tasks to perform each time.",
+              "Save — future occurrences generate automatically according to the recurrence."
             ]
           }
         ]
