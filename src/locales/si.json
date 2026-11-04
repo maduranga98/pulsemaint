@@ -41,8 +41,7 @@
     "tagPM": "PM",
     "mins": "මිනිත්තු {{m}}",
     "hrs": "පැය {{h}} මිනිත්තු {{m}}",
-    "hrsOnly": "පැය {{h}}",
-    "readOnly": "බැලීමට පමණි · ලොග් වීම අවශ්‍ය නැත"
+    "hrsOnly": "පැය {{h}}"
   },
   "displaySharing": {
     "tile": {

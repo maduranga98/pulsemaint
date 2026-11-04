@@ -8,12 +8,14 @@ import {
 } from '@/lib/departmentDisplay';
 
 // Public — no sign-in. Answers { enabled: false } for a stopped, replaced or unknown link.
-export async function fetchDepartmentDisplay(token: string): Promise<DisplayData> {
-  const fn = httpsCallable<{ token: string; dayStartMs: number; dayEndMs: number }, DisplayData>(
+// `lang` is the app language code (en-US, si, …): the server translates the typed text (fault descriptions, work
+// descriptions, PM names) into it, so the whole board is in one language.
+export async function fetchDepartmentDisplay(token: string, lang: string): Promise<DisplayData> {
+  const fn = httpsCallable<{ token: string; lang: string; dayStartMs: number; dayEndMs: number }, DisplayData>(
     functions,
     'getDepartmentDisplay',
   );
-  const res = await fn({ token, ...todayWindow() });
+  const res = await fn({ token, lang, ...todayWindow() });
   return res.data;
 }
 

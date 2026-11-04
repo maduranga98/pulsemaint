@@ -37,12 +37,11 @@
     "stops": "Stops",
     "tomorrow": "Tomorrow",
     "inDays": "In {{n}} days",
-    "tagWO": "MAINTENANCE",
+    "tagWO": "Maintenance",
     "tagPM": "PM",
     "mins": "{{m}} min",
     "hrs": "{{h}} h {{m}} min",
-    "hrsOnly": "{{h}} h",
-    "readOnly": "Read only · no login needed"
+    "hrsOnly": "{{h}} h"
   },
   "displaySharing": {
     "tile": {
