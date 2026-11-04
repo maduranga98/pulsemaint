@@ -24,6 +24,8 @@ interface PMWorkOrderEvent {
   woNumber: string;
   machineName: string;
   dueDate: Date;
+  /** Planned start; the calendar places a work order here (falls back to the due date). */
+  scheduledStart: Date | null;
   priority: 'critical' | 'high' | 'medium' | 'low';
   assignedTechnicianNames: string[];
   status: 'active' | 'paused';
@@ -98,11 +100,13 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
       snap.docs.forEach((d) => {
         const data = d.data() as any;
         const due: Date | null = data.dueDate?.toDate ? data.dueDate.toDate() : null;
+        const start: Date | null = data.scheduledStart?.toDate ? data.scheduledStart.toDate() : null;
         const event: PMWorkOrderEvent = {
           id: d.id,
           woNumber: data.woNumber ?? '',
           machineName: data.machineName ?? 'Unknown',
           dueDate: due ?? new Date(),
+          scheduledStart: start,
           priority: data.priority ?? 'medium',
           assignedTechnicianNames: data.assignedTechnicianNames ?? [],
           status: 'active',
@@ -151,7 +155,8 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
         // Calendar entries show the PM type, not the (often junk) free-text
         // schedule name or WO description.
         title: t(`common.pmSchedules.types.${pmType}`),
-        date: nextDue,
+        // Show the job in its planned start slot (its linked WO's start), not the due date.
+        date: linkedWo?.scheduledStart ?? nextDue,
         priority: s.priority,
         machineName: s.machineName,
         technicianNames: s.assignedTechnicianNames,
@@ -172,7 +177,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
         woId: wo.id,
         woNumber: wo.woNumber || null,
         title: t(`common.pmSchedules.types.${wo.pmType}`),
-        date: wo.dueDate,
+        date: wo.scheduledStart ?? wo.dueDate,
         priority: wo.priority,
         machineName: wo.machineName,
         technicianNames: wo.assignedTechnicianNames,
