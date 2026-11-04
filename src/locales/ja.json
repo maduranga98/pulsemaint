@@ -10851,78 +10851,83 @@
         ]
       },
       "workOrders": {
-        "title": "作業指示",
-        "description": "開始からサインオフまで作業指示を作成、割り当て、追跡します。",
+        "title": "Work Orders",
+        "description": "Create, assign, and track work orders from open to signed off.",
         "guides": [
           {
-            "title": "作業指示を作成する",
+            "title": "Create a work order",
             "steps": [
-              "「作業指示」を開き、「作成」を使用します — 複数ステップのパネルが開きます。",
-              "機械を選択します（名前で検索）。故障チケットから変換する場合は自動的に入力されます。",
-              "作業指示の種類を選択します：故障、修正、予防、設置、改造、点検、業者、その他（故障から変換する場合は「故障」に固定されます）。",
-              "優先度（緊急、高、中、低）を設定し、技術者（必要に応じて監督者も）に割り当てます。",
-              "作業に必要な場合は「作業許可証」を有効にし、区分、危険源、PPE、必要な予防措置を入力します。",
-              "技術者が完了すべき手順のチェックリストを追加し、参考資料を添付します。",
-              "確認して送信します — 作業指示が作成され、割り当てられた技術者のリストに表示されます。"
+              "Open Work Orders and press + Create Work Order — a 6-step drawer opens.",
+              "Step 1 · Basic information: choose the type (Breakdown Repair, Corrective, Preventive, Installation, Modification, Inspection, Contractor Job or Other), set the priority, describe the work, and set the Start and Due date/time. Preventive Maintenance also asks for a PM Type.",
+              "Step 2 · Machine: search by name and select the machine (it is pre-filled when you convert a breakdown ticket).",
+              "Step 3 · Team: pick the Supervisor In-Charge (required) and tick the technicians or trainees. Anyone with an overlapping job in that time slot shows as \"Already assigned\" and can't be picked.",
+              "Step 4 · Task checklist: add the steps to perform — each is a Checkbox or a Measurement (method, unit, min, max) with an estimated time, and you choose which workers do it. Steps can also be imported from a CSV template.",
+              "Step 5 · Documents: drag and drop or upload drawings, PDFs, images, videos or ZIP files (500 MB limit).",
+              "Step 6 · Tools and review: list special tools or components, tick Require a Work Permit if one must be active before the job starts (category, validity, hazards, precautions and PPE), check the summary and press Create Work Order."
             ]
           },
           {
-            "title": "作業指示を完了しサインオフする",
+            "title": "Do the job (technician)",
             "steps": [
-              "割り当てられた技術者が作業指示を開き、チェックリストを進めます。",
-              "作業を進めながら使用した部品、メモ、写真などのメディアを記録します。",
-              "完了後、サインオフのために提出します。",
-              "監督者以上が完了したチェックリストとサインオフ内容を確認し、作業指示をクローズします。"
+              "The assigned person is notified and finds the work order under My Job Queue on their dashboard; use Start Shift first.",
+              "Open the work order and press Start WO — you confirm the safety precautions before work begins.",
+              "Time on Job counts automatically. Tick Mark as complete on each checklist step and enter readings on measurement steps.",
+              "Attach a photo, video or file as evidence, use Request Inventory Items for parts, Hold · Parts to pause until parts arrive, or Request Approval to ask the supervisor.",
+              "Press Complete My Work when your steps are done. The work order goes to sign-off once every assigned team member has completed their part."
             ]
           },
           {
-            "title": "外部の請負業者が行った作業を記録する",
+            "title": "Approve and sign off (supervisor)",
             "steps": [
-              "作業指示を作成し、種類で請負業者を選びます（プランに請負業者モジュールが必要です）。",
-              "チームの手順で請負業者の会社を選びます。",
-              "外注作業の詳細（任意）に、作業の種類、日付、実施内容を入力します。",
-              "交換または追加した部品を数量と単価とともに追加し、次に作業またはサービス料金を入力します。合計は自動計算されます。",
-              "請求書番号を入力し、請求書（PDFまたは写真）を添付します。",
-              "作業指示を作成します。詳細は設備の保全タブに保存され、費用・部品・請求書リンクが記録として残ります。"
+              "Technician requests appear under Pending Approvals on the supervisor dashboard — add a note, then Approve or Reject.",
+              "Finished work orders appear under Need Sign-Off. Review the checklist and press Sign Off & Close to close the job."
             ]
           }
         ]
       },
       "myWorkOrders": {
-        "title": "自分の作業指示",
-        "description": "自分に割り当てられた作業指示を一覧で表示します。",
+        "title": "My Work Orders",
+        "description": "The work orders assigned to you, in one list.",
         "guides": [
           {
-            "title": "割り当てられた作業指示を見つけて対応する",
+            "title": "Find and work on your assigned orders",
             "steps": [
-              "「自分の作業指示」を開きます — 自分に割り当てられたもののみ表示されます。",
-              "優先度と期限順に並んでおり、最も緊急なものが一番上に表示されます。",
-              "開くとチェックリスト、機械の詳細、添付された許可証を確認できます。",
-              "作業を進め、完了したらサインオフのために提出します。"
+              "Open My Work Orders — it only shows the ones assigned to you (they are also in My Job Queue on your dashboard).",
+              "They're sorted by priority and due date, so the most urgent is at the top.",
+              "Open one to see its tasks, machine details and any attached permit, then press Start WO and confirm the safety precautions.",
+              "Tick each step as you finish it, add photos, request parts if needed, then press Complete My Work."
             ]
           }
         ]
       },
       "pmSchedules": {
-        "title": "PMスケジュール",
-        "description": "予防保全スケジュールと、そのカレンダーおよび作業負荷のビュー。",
+        "title": "PM Schedules",
+        "description": "Preventive maintenance on one calendar, with the work orders that carry it out.",
         "guides": [
           {
-            "title": "PMスケジュールを設定する",
+            "title": "Read the PM calendar",
             "steps": [
-              "「PMスケジュール」を開き、新規作成します。",
-              "対象の機械を選択します。",
-              "繰り返し周期を選択します — 毎日、毎週、毎月、またはカスタム間隔。",
-              "デフォルトの技術者を割り当て、毎回実施するタスクのチェックリストを追加します。",
-              "保存します — 繰り返し周期に従って今後の予定が自動生成されます。"
+              "Open PM Schedules — all preventive work for your plant (and department, for supervisors) is on one calendar; switch between Week and Month.",
+              "Each entry shows its planned start time, the PM type and the work order number, coloured by status (on track, due soon, overdue, in progress, completed, paused).",
+              "Select a day to list its jobs below the calendar, and click an entry (or Open Work Order) to go to the work order that services it.",
+              "Use PM Workload to see how PM tasks are distributed across technicians."
             ]
           },
           {
-            "title": "今後の予定を確認する",
+            "title": "Create a PM work order",
             "steps": [
-              "予定されたPMを日/週/月単位で表示するには「PMカレンダー」を使用します。",
-              "技術者間のPM作業の配分を確認するには「PM作業負荷」を使用します。",
-              "期限前に確認・再割り当てするには該当の予定を開きます。"
+              "Supervisors and admins press New PM Work Order (or Create Work Order and choose Preventive Maintenance).",
+              "Choose the PM Type — it sets the category shown in PM Schedules, the calendar and compliance — then set the priority, description, and the Start and Due date/time.",
+              "Select the machine, pick the supervisor and technicians (anyone already booked in that time slot is greyed out), and build the checklist.",
+              "Add any special tools or a work permit, review and press Create Work Order — it appears on the calendar at its start time."
+            ]
+          },
+          {
+            "title": "Set up a PM schedule",
+            "steps": [
+              "Open PM Schedules and create a new schedule, picking the machine it applies to.",
+              "Choose a recurrence, assign a default technician and add the checklist of tasks to perform each time.",
+              "Save — future occurrences generate automatically according to the recurrence."
             ]
           }
         ]

@@ -10851,78 +10851,83 @@
         ]
       },
       "workOrders": {
-        "title": "工单",
-        "description": "从创建到签核，创建、分配并跟踪工单。",
+        "title": "Work Orders",
+        "description": "Create, assign, and track work orders from open to signed off.",
         "guides": [
           {
-            "title": "创建一个工单",
+            "title": "Create a work order",
             "steps": [
-              "打开工单，使用创建——这会打开一个多步骤面板。",
-              "选择机器（按名称搜索），如果是从故障工单转换而来，会自动预填。",
-              "选择工单类型：故障、纠正性、预防性、安装、改造、检查、承包商或其他（如果是从故障转换而来，则锁定为故障）。",
-              "设置优先级——紧急、高、中或低——并分配给技术员（如需要，也分配给主管）。",
-              "如果作业需要，开启工作许可证并填写其类别、危险源、个人防护装备（PPE）和所需的防护措施。",
-              "添加技术员需要完成的步骤清单，并附上任何参考文件。",
-              "审核后提交——工单创建完成，并出现在所分配技术员的列表中。"
+              "Open Work Orders and press + Create Work Order — a 6-step drawer opens.",
+              "Step 1 · Basic information: choose the type (Breakdown Repair, Corrective, Preventive, Installation, Modification, Inspection, Contractor Job or Other), set the priority, describe the work, and set the Start and Due date/time. Preventive Maintenance also asks for a PM Type.",
+              "Step 2 · Machine: search by name and select the machine (it is pre-filled when you convert a breakdown ticket).",
+              "Step 3 · Team: pick the Supervisor In-Charge (required) and tick the technicians or trainees. Anyone with an overlapping job in that time slot shows as \"Already assigned\" and can't be picked.",
+              "Step 4 · Task checklist: add the steps to perform — each is a Checkbox or a Measurement (method, unit, min, max) with an estimated time, and you choose which workers do it. Steps can also be imported from a CSV template.",
+              "Step 5 · Documents: drag and drop or upload drawings, PDFs, images, videos or ZIP files (500 MB limit).",
+              "Step 6 · Tools and review: list special tools or components, tick Require a Work Permit if one must be active before the job starts (category, validity, hazards, precautions and PPE), check the summary and press Create Work Order."
             ]
           },
           {
-            "title": "完成并签核工单",
+            "title": "Do the job (technician)",
             "steps": [
-              "被分配的技术员打开工单，按清单逐项完成。",
-              "在此过程中记录所用备件、备注以及任何影像资料（照片）。",
-              "完成后，将其提交以待签核。",
-              "主管或更高级别人员审核已完成的清单和签核详情，然后关闭工单。"
+              "The assigned person is notified and finds the work order under My Job Queue on their dashboard; use Start Shift first.",
+              "Open the work order and press Start WO — you confirm the safety precautions before work begins.",
+              "Time on Job counts automatically. Tick Mark as complete on each checklist step and enter readings on measurement steps.",
+              "Attach a photo, video or file as evidence, use Request Inventory Items for parts, Hold · Parts to pause until parts arrive, or Request Approval to ask the supervisor.",
+              "Press Complete My Work when your steps are done. The work order goes to sign-off once every assigned team member has completed their part."
             ]
           },
           {
-            "title": "记录外部承包商完成的工作",
+            "title": "Approve and sign off (supervisor)",
             "steps": [
-              "创建工单并选择“承包商”类型（需要您的套餐包含承包商模块）。",
-              "在团队步骤中选择承包商公司。",
-              "在“外包工作详情（可选）”中填写工作类型、日期和完成的内容。",
-              "添加每个更换或新增的备件及其数量和单价，再填写人工或服务费。系统会自动计算总额。",
-              "输入发票号码并附上发票（PDF 或照片）。",
-              "创建工单。详情会保存到设备的“维护”标签页，费用、备件和发票链接会一直保留。"
+              "Technician requests appear under Pending Approvals on the supervisor dashboard — add a note, then Approve or Reject.",
+              "Finished work orders appear under Need Sign-Off. Review the checklist and press Sign Off & Close to close the job."
             ]
           }
         ]
       },
       "myWorkOrders": {
-        "title": "我的工单",
-        "description": "分配给您的工单，集中显示在一个列表中。",
+        "title": "My Work Orders",
+        "description": "The work orders assigned to you, in one list.",
         "guides": [
           {
-            "title": "查找并处理分配给您的工单",
+            "title": "Find and work on your assigned orders",
             "steps": [
-              "打开我的工单——仅显示分配给您的工单。",
-              "工单按优先级和截止日期排序，最紧急的排在最前面。",
-              "打开一个工单以查看其清单、机器详情和附带的任何许可证。",
-              "处理完成后提交以待签核。"
+              "Open My Work Orders — it only shows the ones assigned to you (they are also in My Job Queue on your dashboard).",
+              "They're sorted by priority and due date, so the most urgent is at the top.",
+              "Open one to see its tasks, machine details and any attached permit, then press Start WO and confirm the safety precautions.",
+              "Tick each step as you finish it, add photos, request parts if needed, then press Complete My Work."
             ]
           }
         ]
       },
       "pmSchedules": {
-        "title": "预防性维护计划",
-        "description": "预防性维护计划及其日历和工作量视图。",
+        "title": "PM Schedules",
+        "description": "Preventive maintenance on one calendar, with the work orders that carry it out.",
         "guides": [
           {
-            "title": "设置一个预防性维护计划",
+            "title": "Read the PM calendar",
             "steps": [
-              "打开预防性维护计划并创建一个新计划。",
-              "选择适用的机器。",
-              "选择重复周期——每天、每周、每月或自定义间隔。",
-              "分配默认技术员，并添加每次需要执行的任务清单。",
-              "保存——系统会根据重复周期自动生成后续任务。"
+              "Open PM Schedules — all preventive work for your plant (and department, for supervisors) is on one calendar; switch between Week and Month.",
+              "Each entry shows its planned start time, the PM type and the work order number, coloured by status (on track, due soon, overdue, in progress, completed, paused).",
+              "Select a day to list its jobs below the calendar, and click an entry (or Open Work Order) to go to the work order that services it.",
+              "Use PM Workload to see how PM tasks are distributed across technicians."
             ]
           },
           {
-            "title": "查看即将到来的任务",
+            "title": "Create a PM work order",
             "steps": [
-              "使用预防性维护日历查看按日/周/月排列的计划任务。",
-              "使用预防性维护工作量查看任务在各技术员之间的分配情况。",
-              "打开某个任务以在到期前查看或重新分配。"
+              "Supervisors and admins press New PM Work Order (or Create Work Order and choose Preventive Maintenance).",
+              "Choose the PM Type — it sets the category shown in PM Schedules, the calendar and compliance — then set the priority, description, and the Start and Due date/time.",
+              "Select the machine, pick the supervisor and technicians (anyone already booked in that time slot is greyed out), and build the checklist.",
+              "Add any special tools or a work permit, review and press Create Work Order — it appears on the calendar at its start time."
+            ]
+          },
+          {
+            "title": "Set up a PM schedule",
+            "steps": [
+              "Open PM Schedules and create a new schedule, picking the machine it applies to.",
+              "Choose a recurrence, assign a default technician and add the checklist of tasks to perform each time.",
+              "Save — future occurrences generate automatically according to the recurrence."
             ]
           }
         ]

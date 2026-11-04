@@ -10993,67 +10993,83 @@
         ]
       },
       "workOrders": {
-        "title": "කාර්ය නියෝග",
-        "description": "විවෘත සිට අත්සන් කිරීම දක්වා කාර්ය නියෝග සාදන්න, පවරන්න සහ නිරීක්ෂණය කරන්න.",
+        "title": "Work Orders",
+        "description": "Create, assign, and track work orders from open to signed off.",
         "guides": [
           {
-            "title": "කාර්ය නියෝගයක් සාදන්න",
+            "title": "Create a work order",
             "steps": [
-              "කාර්ය නියෝග විවෘත කර 'සාදන්න' භාවිත කරන්න — මෙය බහු-පියවර පැනලයක් විවෘත කරයි.",
-              "යන්ත්‍රය තෝරන්න (නම අනුව සොයන්න), නැතහොත් බිඳවැටීම් ටිකට් එකක් පරිවර්තනය කරන්නේ නම් එය කලින්ම පුරවා ඇත.",
-              "කාර්ය නියෝග වර්ගය තෝරන්න: බිඳවැටීම, නිවැරදි කිරීම, වැළැක්වීම, ස්ථාපනය, වෙනස් කිරීම, පරීක්ෂාව, කොන්ත්‍රාත්කරු, හෝ වෙනත් (බිඳවැටීමක් පරිවර්තනය කරන්නේ නම් 'බිඳවැටීම' ට අගුළු දමා ඇත).",
-              "ප්‍රමුඛතාවය සකසන්න — අතිශය, ඉහළ, මධ්‍යම, හෝ අඩු — සහ තාක්ෂණවේදියෙකුට (අවශ්‍ය නම් අධීක්ෂකවරයෙකුටද) පවරන්න.",
-              "කාර්යයට අවශ්‍ය නම්, 'කාර්ය අවසර පත්‍රය' ක්‍රියාත්මක කර එහි කාණ්ඩය, අන්තරායන්, PPE සහ අවශ්‍ය පූර්වාරක්ෂාවන් පුරවන්න.",
-              "තාක්ෂණවේදියා සම්පූර්ණ කළ යුතු පියවර ලැයිස්තුවක් එකතු කර, ඕනෑම යොමු ලේඛනයක් අමුණන්න.",
-              "සමාලෝචනය කර ඉදිරිපත් කරන්න — කාර්ය නියෝගය සාදනු ලබන අතර පවරන ලද තාක්ෂණවේදියාගේ ලැයිස්තුවේ පෙනී යයි."
+              "Open Work Orders and press + Create Work Order — a 6-step drawer opens.",
+              "Step 1 · Basic information: choose the type (Breakdown Repair, Corrective, Preventive, Installation, Modification, Inspection, Contractor Job or Other), set the priority, describe the work, and set the Start and Due date/time. Preventive Maintenance also asks for a PM Type.",
+              "Step 2 · Machine: search by name and select the machine (it is pre-filled when you convert a breakdown ticket).",
+              "Step 3 · Team: pick the Supervisor In-Charge (required) and tick the technicians or trainees. Anyone with an overlapping job in that time slot shows as \"Already assigned\" and can't be picked.",
+              "Step 4 · Task checklist: add the steps to perform — each is a Checkbox or a Measurement (method, unit, min, max) with an estimated time, and you choose which workers do it. Steps can also be imported from a CSV template.",
+              "Step 5 · Documents: drag and drop or upload drawings, PDFs, images, videos or ZIP files (500 MB limit).",
+              "Step 6 · Tools and review: list special tools or components, tick Require a Work Permit if one must be active before the job starts (category, validity, hazards, precautions and PPE), check the summary and press Create Work Order."
             ]
           },
           {
-            "title": "කාර්ය නියෝගයක් සම්පූර්ණ කර අත්සන් කරන්න",
+            "title": "Do the job (technician)",
             "steps": [
-              "පවරන ලද තාක්ෂණවේදියා කාර්ය නියෝගය විවෘත කර එහි පියවර ලැයිස්තුව හරහා වැඩ කරයි.",
-              "ඔවුන් භාවිත කළ කොටස්, සටහන් සහ ඕනෑම මාධ්‍යයක් (ඡායාරූප) ගමන් කරන අතරතුර සටහන් කරයි.",
-              "අවසන් වූ පසු, එය අත්සන් කිරීම සඳහා ඉදිරිපත් කරයි.",
-              "අධීක්ෂකවරයෙකු හෝ ඊට වැඩි තනතුරක් සම්පූර්ණ කළ පියවර ලැයිස්තුව හා අත්සන් කිරීමේ විස්තර සමාලෝචනය කර, කාර්ය නියෝගය වසා දමයි."
+              "The assigned person is notified and finds the work order under My Job Queue on their dashboard; use Start Shift first.",
+              "Open the work order and press Start WO — you confirm the safety precautions before work begins.",
+              "Time on Job counts automatically. Tick Mark as complete on each checklist step and enter readings on measurement steps.",
+              "Attach a photo, video or file as evidence, use Request Inventory Items for parts, Hold · Parts to pause until parts arrive, or Request Approval to ask the supervisor.",
+              "Press Complete My Work when your steps are done. The work order goes to sign-off once every assigned team member has completed their part."
+            ]
+          },
+          {
+            "title": "Approve and sign off (supervisor)",
+            "steps": [
+              "Technician requests appear under Pending Approvals on the supervisor dashboard — add a note, then Approve or Reject.",
+              "Finished work orders appear under Need Sign-Off. Review the checklist and press Sign Off & Close to close the job."
             ]
           }
         ]
       },
       "myWorkOrders": {
-        "title": "මගේ කාර්ය නියෝග",
-        "description": "ඔබට පවරා ඇති කාර්ය නියෝග එක් ලැයිස්තුවක.",
+        "title": "My Work Orders",
+        "description": "The work orders assigned to you, in one list.",
         "guides": [
           {
-            "title": "ඔබට පවරන ලද කාර්යයන් සොයා වැඩ කරන්න",
+            "title": "Find and work on your assigned orders",
             "steps": [
-              "'මගේ කාර්ය නියෝග' විවෘත කරන්න — ඔබට පවරා ඇති ඒවා පමණක් පෙන්වයි.",
-              "ඒවා ප්‍රමුඛතාවය සහ නියමිත දිනය අනුව සකසා ඇත, එබැවින් වඩාත් හදිසි එක ඉහළින්ම ඇත.",
-              "එහි පියවර ලැයිස්තුව, යන්ත්‍ර විස්තර සහ අමුණා ඇති ඕනෑම අවසර පත්‍රයක් බැලීමට එකක් විවෘත කරන්න.",
-              "එය හරහා වැඩ කර අවසන් වූ පසු අත්සන් කිරීම සඳහා ඉදිරිපත් කරන්න."
+              "Open My Work Orders — it only shows the ones assigned to you (they are also in My Job Queue on your dashboard).",
+              "They're sorted by priority and due date, so the most urgent is at the top.",
+              "Open one to see its tasks, machine details and any attached permit, then press Start WO and confirm the safety precautions.",
+              "Tick each step as you finish it, add photos, request parts if needed, then press Complete My Work."
             ]
           }
         ]
       },
       "pmSchedules": {
-        "title": "PM කාලසටහන්",
-        "description": "වැළැක්වීමේ නඩත්තු කාලසටහන් සහ ඒවායේ දින දර්ශන හා වැඩබර දසුන්.",
+        "title": "PM Schedules",
+        "description": "Preventive maintenance on one calendar, with the work orders that carry it out.",
         "guides": [
           {
-            "title": "PM කාලසටහනක් සකසන්න",
+            "title": "Read the PM calendar",
             "steps": [
-              "PM කාලසටහන් විවෘත කර නවයක් සාදන්න.",
-              "එය අදාළ වන යන්ත්‍රය තෝරන්න.",
-              "පුනරාවර්තනයක් තෝරන්න — දෛනික, සතිපතා, මාසිකව, හෝ අභිරුචි පරතරයක්.",
-              "පෙරනිමි තාක්ෂණවේදියෙකු පවරා, සෑම වතාවකම කළ යුතු කාර්යයන්ගේ පියවර ලැයිස්තුව එකතු කරන්න.",
-              "සුරකින්න — පුනරාවර්තනයට අනුව අනාගත සිදුවීම් ස්වයංක්‍රීයව ජනනය වේ."
+              "Open PM Schedules — all preventive work for your plant (and department, for supervisors) is on one calendar; switch between Week and Month.",
+              "Each entry shows its planned start time, the PM type and the work order number, coloured by status (on track, due soon, overdue, in progress, completed, paused).",
+              "Select a day to list its jobs below the calendar, and click an entry (or Open Work Order) to go to the work order that services it.",
+              "Use PM Workload to see how PM tasks are distributed across technicians."
             ]
           },
           {
-            "title": "ඉදිරියට එන දේ බලන්න",
+            "title": "Create a PM work order",
             "steps": [
-              "නියමිත PM හි දින/සති/මාස දසුනක් සඳහා PM දින දර්ශනය භාවිත කරන්න.",
-              "තාක්ෂණවේදීන් අතර PM කාර්යයන් බෙදී ඇති ආකාරය බැලීමට PM වැඩබරය භාවිත කරන්න.",
-              "එය නියමිත වීමට පෙර බැලීමට හෝ නැවත පැවරීමට ඕනෑම සිදුවීමක් විවෘත කරන්න."
+              "Supervisors and admins press New PM Work Order (or Create Work Order and choose Preventive Maintenance).",
+              "Choose the PM Type — it sets the category shown in PM Schedules, the calendar and compliance — then set the priority, description, and the Start and Due date/time.",
+              "Select the machine, pick the supervisor and technicians (anyone already booked in that time slot is greyed out), and build the checklist.",
+              "Add any special tools or a work permit, review and press Create Work Order — it appears on the calendar at its start time."
+            ]
+          },
+          {
+            "title": "Set up a PM schedule",
+            "steps": [
+              "Open PM Schedules and create a new schedule, picking the machine it applies to.",
+              "Choose a recurrence, assign a default technician and add the checklist of tasks to perform each time.",
+              "Save — future occurrences generate automatically according to the recurrence."
             ]
           }
         ]

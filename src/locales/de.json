@@ -10851,78 +10851,83 @@
         ]
       },
       "workOrders": {
-        "title": "Arbeitsaufträge",
-        "description": "Erstellen, zuweisen und verfolgen Sie Arbeitsaufträge von der Eröffnung bis zur Abzeichnung.",
+        "title": "Work Orders",
+        "description": "Create, assign, and track work orders from open to signed off.",
         "guides": [
           {
-            "title": "Einen Arbeitsauftrag erstellen",
+            "title": "Create a work order",
             "steps": [
-              "Öffnen Sie Arbeitsaufträge und verwenden Sie Erstellen — ein mehrstufiges Fenster öffnet sich.",
-              "Wählen Sie die Maschine (Suche nach Name), oder sie ist bereits vorausgefüllt, wenn Sie ein Ausfallticket umwandeln.",
-              "Wählen Sie den Arbeitsauftragstyp: Ausfall, Korrektiv, Präventiv, Installation, Modifikation, Inspektion, Fremdfirma oder Sonstiges (bei Umwandlung eines Ausfalls auf Ausfall festgelegt).",
-              "Legen Sie die Priorität fest — kritisch, hoch, mittel oder niedrig — und weisen Sie einen Techniker zu (bei Bedarf auch einen Vorgesetzten).",
-              "Falls erforderlich, aktivieren Sie Arbeitserlaubnis und geben Sie Kategorie, Gefahren, PSA und erforderliche Vorsichtsmaßnahmen ein.",
-              "Fügen Sie eine Checkliste der vom Techniker auszuführenden Schritte hinzu und hängen Sie Referenzdokumente an.",
-              "Überprüfen und absenden — der Arbeitsauftrag wird erstellt und erscheint in der Liste des zugewiesenen Technikers."
+              "Open Work Orders and press + Create Work Order — a 6-step drawer opens.",
+              "Step 1 · Basic information: choose the type (Breakdown Repair, Corrective, Preventive, Installation, Modification, Inspection, Contractor Job or Other), set the priority, describe the work, and set the Start and Due date/time. Preventive Maintenance also asks for a PM Type.",
+              "Step 2 · Machine: search by name and select the machine (it is pre-filled when you convert a breakdown ticket).",
+              "Step 3 · Team: pick the Supervisor In-Charge (required) and tick the technicians or trainees. Anyone with an overlapping job in that time slot shows as \"Already assigned\" and can't be picked.",
+              "Step 4 · Task checklist: add the steps to perform — each is a Checkbox or a Measurement (method, unit, min, max) with an estimated time, and you choose which workers do it. Steps can also be imported from a CSV template.",
+              "Step 5 · Documents: drag and drop or upload drawings, PDFs, images, videos or ZIP files (500 MB limit).",
+              "Step 6 · Tools and review: list special tools or components, tick Require a Work Permit if one must be active before the job starts (category, validity, hazards, precautions and PPE), check the summary and press Create Work Order."
             ]
           },
           {
-            "title": "Einen Arbeitsauftrag abschließen und abzeichnen",
+            "title": "Do the job (technician)",
             "steps": [
-              "Der zugewiesene Techniker öffnet den Arbeitsauftrag und arbeitet die Checkliste ab.",
-              "Er erfasst dabei verwendete Teile, Notizen und etwaige Medien (Fotos).",
-              "Nach Abschluss reicht er ihn zur Abzeichnung ein.",
-              "Ein Vorgesetzter oder höher prüft die abgeschlossene Checkliste und die Abzeichnungsdetails und schließt den Arbeitsauftrag."
+              "The assigned person is notified and finds the work order under My Job Queue on their dashboard; use Start Shift first.",
+              "Open the work order and press Start WO — you confirm the safety precautions before work begins.",
+              "Time on Job counts automatically. Tick Mark as complete on each checklist step and enter readings on measurement steps.",
+              "Attach a photo, video or file as evidence, use Request Inventory Items for parts, Hold · Parts to pause until parts arrive, or Request Approval to ask the supervisor.",
+              "Press Complete My Work when your steps are done. The work order goes to sign-off once every assigned team member has completed their part."
             ]
           },
           {
-            "title": "Von einem externen Auftragnehmer ausgeführte Arbeit erfassen",
+            "title": "Approve and sign off (supervisor)",
             "steps": [
-              "Erstellen Sie einen Arbeitsauftrag und wählen Sie den Typ Auftragnehmer (das Modul Auftragnehmer muss in Ihrem Tarif enthalten sein).",
-              "Wählen Sie im Schritt Team die Auftragnehmer-Firma.",
-              "Unter Details zur Fremdvergabe (optional) tragen Sie Art der Arbeit, Daten und das Ausgeführte ein.",
-              "Fügen Sie jedes ersetzte oder hinzugefügte Teil mit Menge und Stückpreis hinzu, danach Arbeits- oder Servicekosten. Die Summe wird berechnet.",
-              "Tragen Sie die Rechnungsnummer ein und hängen Sie die Rechnung an (PDF oder Foto).",
-              "Erstellen Sie den Arbeitsauftrag. Die Angaben werden im Tab Instandhaltung der Maschine gespeichert, wo Kosten, Teile und Rechnungslinks erhalten bleiben."
+              "Technician requests appear under Pending Approvals on the supervisor dashboard — add a note, then Approve or Reject.",
+              "Finished work orders appear under Need Sign-Off. Review the checklist and press Sign Off & Close to close the job."
             ]
           }
         ]
       },
       "myWorkOrders": {
-        "title": "Meine Arbeitsaufträge",
-        "description": "Die Ihnen zugewiesenen Arbeitsaufträge in einer Liste.",
+        "title": "My Work Orders",
+        "description": "The work orders assigned to you, in one list.",
         "guides": [
           {
-            "title": "Ihre zugewiesenen Aufträge finden und bearbeiten",
+            "title": "Find and work on your assigned orders",
             "steps": [
-              "Öffnen Sie Meine Arbeitsaufträge — es werden nur die Ihnen zugewiesenen angezeigt.",
-              "Sie sind nach Priorität und Fälligkeitsdatum sortiert, der dringendste steht oben.",
-              "Öffnen Sie einen, um Checkliste, Maschinendetails und angehängte Genehmigungen zu sehen.",
-              "Bearbeiten Sie ihn und reichen Sie ihn nach Abschluss zur Abzeichnung ein."
+              "Open My Work Orders — it only shows the ones assigned to you (they are also in My Job Queue on your dashboard).",
+              "They're sorted by priority and due date, so the most urgent is at the top.",
+              "Open one to see its tasks, machine details and any attached permit, then press Start WO and confirm the safety precautions.",
+              "Tick each step as you finish it, add photos, request parts if needed, then press Complete My Work."
             ]
           }
         ]
       },
       "pmSchedules": {
-        "title": "PM-Pläne",
-        "description": "Vorbeugende Wartungspläne sowie deren Kalender- und Auslastungsansichten.",
+        "title": "PM Schedules",
+        "description": "Preventive maintenance on one calendar, with the work orders that carry it out.",
         "guides": [
           {
-            "title": "Einen PM-Plan einrichten",
+            "title": "Read the PM calendar",
             "steps": [
-              "Öffnen Sie PM-Pläne und erstellen Sie einen neuen.",
-              "Wählen Sie die betreffende Maschine.",
-              "Wählen Sie eine Wiederholung — täglich, wöchentlich, monatlich oder ein benutzerdefiniertes Intervall.",
-              "Weisen Sie einen Standardtechniker zu und fügen Sie die Checkliste der jeweils durchzuführenden Aufgaben hinzu.",
-              "Speichern — künftige Termine werden entsprechend der Wiederholung automatisch generiert."
+              "Open PM Schedules — all preventive work for your plant (and department, for supervisors) is on one calendar; switch between Week and Month.",
+              "Each entry shows its planned start time, the PM type and the work order number, coloured by status (on track, due soon, overdue, in progress, completed, paused).",
+              "Select a day to list its jobs below the calendar, and click an entry (or Open Work Order) to go to the work order that services it.",
+              "Use PM Workload to see how PM tasks are distributed across technicians."
             ]
           },
           {
-            "title": "Anstehende Termine ansehen",
+            "title": "Create a PM work order",
             "steps": [
-              "Nutzen Sie den PM-Kalender für eine Tages-/Wochen-/Monatsansicht der geplanten PM.",
-              "Nutzen Sie die PM-Auslastung, um zu sehen, wie PM-Aufgaben auf Techniker verteilt sind.",
-              "Öffnen Sie einen Termin, um ihn vor Fälligkeit einzusehen oder neu zuzuweisen."
+              "Supervisors and admins press New PM Work Order (or Create Work Order and choose Preventive Maintenance).",
+              "Choose the PM Type — it sets the category shown in PM Schedules, the calendar and compliance — then set the priority, description, and the Start and Due date/time.",
+              "Select the machine, pick the supervisor and technicians (anyone already booked in that time slot is greyed out), and build the checklist.",
+              "Add any special tools or a work permit, review and press Create Work Order — it appears on the calendar at its start time."
+            ]
+          },
+          {
+            "title": "Set up a PM schedule",
+            "steps": [
+              "Open PM Schedules and create a new schedule, picking the machine it applies to.",
+              "Choose a recurrence, assign a default technician and add the checklist of tasks to perform each time.",
+              "Save — future occurrences generate automatically according to the recurrence."
             ]
           }
         ]

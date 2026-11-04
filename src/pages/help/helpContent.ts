@@ -122,6 +122,8 @@ export interface HelpVideo {
 export const HELP_MODULE_VIDEOS: Partial<Record<HelpModuleId, HelpVideo[]>> = {
   machines: [{ youtubeId: 'W_JFLAtiojo', title: 'Add machine guide' }],
   breakdowns: [{ youtubeId: 'SVI_opgKNGY', title: 'FirmiCore Breakdown Guide' }],
+  workOrders: [{ youtubeId: 'tP5S_D72xYw', title: 'FirmiCore Work Orders Guide' }],
+  pmSchedules: [{ youtubeId: 'jED85TC0q-Y', title: 'FirmiCore PM Schedules Guide' }],
   inventory: [{ youtubeId: 'GFDBfb-B_z4', title: 'FirmiCore Inventory Procedure Guide' }],
   contractors: [{ youtubeId: 'MfbBBXeVE0A', title: 'FirmiCore Contractor Management' }],
 };
