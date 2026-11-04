@@ -9515,7 +9515,7 @@
         "scope": {
           "admin": "发送给管理员的申请。",
           "plantManager": "发送给您所在工厂厂长的申请。",
-          "supervisor": "发送给您部门（{{department}}）主管的申请。"
+          "supervisor": "发给您的申请、您部门（{{department}}）技术员和实习生的申请，以及本工厂其他部门主管的申请。"
         },
         "title": "申请收件箱"
       },

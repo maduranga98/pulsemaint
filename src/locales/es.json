@@ -9515,7 +9515,7 @@
         "scope": {
           "admin": "Solicitudes enviadas al administrador.",
           "plantManager": "Solicitudes enviadas al gerente de planta de tu planta.",
-          "supervisor": "Solicitudes enviadas a los supervisores de tu departamento ({{department}})."
+          "supervisor": "Solicitudes enviadas a ti, solicitudes de los técnicos y aprendices de tu departamento ({{department}}) y solicitudes de supervisores de otros departamentos de tu planta."
         },
         "title": "Bandeja de solicitudes"
       },

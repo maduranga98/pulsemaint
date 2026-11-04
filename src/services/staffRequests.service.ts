@@ -14,7 +14,7 @@ import {
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
 import { nanoid } from 'nanoid';
 import { db, storage } from '@/lib/firebase';
-import { sameDepartment } from '@/hooks/useRecordPlantMatcher';
+import { isVisibleToSupervisor } from '@/lib/staffRequestInbox';
 import type {
   StaffRequest,
   StaffRequestAttachment,
@@ -163,7 +163,8 @@ export function subscribeMyStaffRequests(
 
 /**
  * Requests addressed to the signed-in handler:
- * - supervisor: own plant + own department
+ * - supervisor: own plant — requests sent to them (also by supervisors of other departments) and requests
+ *   from their own department's technicians / trainees / floor operators
  * - plant_manager: own plant
  * - admin: every admin-addressed request in the company (optionally one plant)
  */
@@ -190,11 +191,10 @@ export function subscribeRequestInbox(
     (rows) =>
       cb(
         rows.filter((r) => {
-          // Sent to a named person — only that person's inbox.
-          if (r.recipientUserId) return r.recipientUserId === opts.userId;
-          // Older role-group requests: supervisors of the department
-          // (compared case/spacing-insensitively), otherwise the whole role.
-          return opts.role !== 'supervisor' || sameDepartment(r.department, opts.department);
+          // Supervisors: addressed to them, or from the floor of their own department (see staffRequestInbox.ts).
+          if (opts.role === 'supervisor') return isVisibleToSupervisor(r, { userId: opts.userId, department: opts.department });
+          // Plant managers / admins: only what was sent to them by name; older role-group requests reach the whole role.
+          return r.recipientUserId ? r.recipientUserId === opts.userId : true;
         }),
       ),
     onError,

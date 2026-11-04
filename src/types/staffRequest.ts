@@ -90,7 +90,8 @@ export interface StaffRequest {
 export function recipientOptionsFor(role: string | undefined): StaffRequestRecipientRole[] {
   if (!role || role === 'admin') return [];
   if (role === 'plant_manager') return ['admin'];
-  if (role === 'supervisor') return ['plant_manager', 'admin'];
+  // A supervisor can also hand a matter to the supervisors of other departments in the same plant.
+  if (role === 'supervisor') return ['supervisor', 'plant_manager', 'admin'];
   return ['supervisor', 'plant_manager', 'admin'];
 }
 

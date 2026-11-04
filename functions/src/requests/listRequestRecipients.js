@@ -1,23 +1,14 @@
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore} = require("firebase-admin/firestore");
 
-// Staff Requests: the people the signed-in user may send a request to —
-// supervisors of their own plant + department, plant managers of their own
-// plant, and the company's admins (narrowed to the roles the caller's own
-// role may address). Frontline roles (technician, trainee, floor operator)
+// Staff Requests: the people the signed-in user may send a request to — see
+// recipientRules.js (supervisors may also address supervisors of other
+// departments in their plant). Frontline roles (technician, trainee, floor operator)
 // can't read the company user roster under firestore.rules, so the client
 // can't build this list itself; this returns only name / role / department /
 // plant — never phone, address or other profile fields.
 
-const RECIPIENT_ROLES = {
-  plant_manager: ["admin"],
-  supervisor: ["plant_manager", "admin"],
-};
-const DEFAULT_RECIPIENT_ROLES = ["supervisor", "plant_manager", "admin"];
-
-function normDept(v) {
-  return String(v || "").trim().replace(/\s+/g, " ").toLowerCase();
-}
+const {RECIPIENT_ROLES, DEFAULT_RECIPIENT_ROLES, canAddress} = require("./recipientRules");
 
 exports.listRequestRecipients = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
@@ -40,17 +31,10 @@ exports.listRequestRecipients = onCall(async (request) => {
       .where("role", "in", allowed)
       .get();
 
-  const myPlant = me.plantId || null;
-  const myDept = normDept(me.department);
+  const sender = {id: uid, role: me.role, plantId: me.plantId || null, department: me.department || null};
   const recipients = snap.docs
-      .filter((d) => d.id !== uid)
       .map((d) => ({id: d.id, ...d.data()}))
-      .filter((u) => u.status !== "inactive")
-      .filter((u) => {
-        if (u.role === "admin") return true;
-        if ((u.plantId || null) !== myPlant) return false;
-        return u.role === "plant_manager" || (myDept && normDept(u.department) === myDept);
-      })
+      .filter((u) => canAddress(sender, u))
       .map((u) => ({
         id: u.id,
         fullName: u.fullName || "",
