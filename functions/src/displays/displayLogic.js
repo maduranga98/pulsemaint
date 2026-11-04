@@ -4,9 +4,8 @@
  *
  * The board shows, for ONE department of ONE plant, only machine names, a
  * status and times — never what happened (no descriptions), people, costs or notes:
- *  - breakdowns: open tickets as Reported → Attended → In progress → Fixed
- *    (Fixed = resolved today, waiting for sign-off). Cancelled tickets are never shown.
- *  - completed: breakdowns signed off (closed) today.
+ *  - breakdowns: open tickets as Reported → Attended → In progress, and "Fixed today":
+ *    tickets resolved today plus tickets signed off (closed) today. Cancelled tickets are never shown.
  *  - maintenance today: work running now and work still to do today.
  *  - scheduled: everything planned after today, up to a year ahead.
  * Overdue work (planned before today and not started) is never shown.
@@ -15,7 +14,6 @@
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SCHEDULE_DAYS = 365;
 const MAX_BREAKDOWNS = 60;
-const MAX_COMPLETED = 60;
 const MAX_MAINTENANCE = 80;
 const MAX_SCHEDULED = 400;
 const FRESH_MS = 30 * 60 * 1000;
@@ -106,20 +104,23 @@ function breakdownRow(t, now, win) {
 }
 
 /**
- * A breakdown that was signed off (closed) today.
+ * A breakdown that was signed off (closed) today counts as "Fixed today", with the sign-off time as its fixed time.
  * @param {object} t a breakdown_tickets document with status closed
  * @param {number} now current time
  * @param {{start:number,end:number}} win today's window
- * @return {object|null} the completed row, or null when it was not signed off today
+ * @return {object|null} the Fixed row, or null when it was not signed off today
  */
-function completedRow(t, now, win) {
+function signedOffRow(t, now, win) {
   if (String(t.status || "") !== "closed") return null;
   const closedAt = toMs(t.closedAt);
   if (closedAt == null || closedAt < win.start || closedAt >= win.end) return null;
   return {
     machine: text(t.machineName, 80) || "—",
+    status: "fixed",
+    step: 3,
     at: toMs(t.reportedAt) ?? closedAt,
     fixedAt: closedAt,
+    fresh: false,
   };
 }
 
@@ -180,7 +181,7 @@ function pmScheduleRow(p, now, win) {
 /**
  * Builds the board payload from already-fetched department records.
  * @param {{now:number,win:{start:number,end:number},plantId:?string,tickets:object[],closedTickets:object[],workOrders:object[],pmSchedules:object[]}} input records
- * @return {{breakdowns:object[],completed:object[],maintenance:object[],scheduled:object[]}} what the board shows
+ * @return {{breakdowns:object[],maintenance:object[],scheduled:object[]}} what the board shows
  */
 function buildDisplayPayload({now, win, plantId, tickets, closedTickets = [], workOrders, pmSchedules}) {
   const breakdowns = [];
@@ -189,11 +190,10 @@ function buildDisplayPayload({now, win, plantId, tickets, closedTickets = [], wo
     const r = breakdownRow(t, now, win);
     if (r) breakdowns.push(r);
   }
-  const completed = [];
   for (const t of closedTickets) {
     if (!samePlant(t.machinePlantId, plantId)) continue;
-    const r = completedRow(t, now, win);
-    if (r) completed.push(r);
+    const r = signedOffRow(t, now, win);
+    if (r) breakdowns.push(r);
   }
   const maintenance = [];
   const scheduled = [];
@@ -209,13 +209,12 @@ function buildDisplayPayload({now, win, plantId, tickets, closedTickets = [], wo
     if (!samePlant(p.plantId, plantId)) continue;
     put(pmScheduleRow(p, now, win));
   }
-  breakdowns.sort((a, b) => ((a.fixedAt ? 1 : 0) - (b.fixedAt ? 1 : 0)) || (b.at - a.at));
-  completed.sort((a, b) => b.fixedAt - a.fixedAt);
+  // Open ones first (newest report first), then Fixed today (latest fix first).
+  breakdowns.sort((a, b) => ((a.fixedAt ? 1 : 0) - (b.fixedAt ? 1 : 0)) || (a.fixedAt ? b.fixedAt - a.fixedAt : b.at - a.at));
   maintenance.sort((a, b) => a.from - b.from);
   scheduled.sort((a, b) => a.from - b.from);
   return {
     breakdowns: breakdowns.slice(0, MAX_BREAKDOWNS),
-    completed: completed.slice(0, MAX_COMPLETED),
     maintenance: maintenance.slice(0, MAX_MAINTENANCE),
     scheduled: scheduled.slice(0, MAX_SCHEDULED),
   };
@@ -223,5 +222,5 @@ function buildDisplayPayload({now, win, plantId, tickets, closedTickets = [], wo
 
 module.exports = {
   DAY_MS, SCHEDULE_DAYS, BREAKDOWN_QUERY_STATUSES, WO_QUERY_STATUSES,
-  toMs, dayWindow, durationMinutes, breakdownRow, completedRow, workOrderRow, pmScheduleRow, buildDisplayPayload,
+  toMs, dayWindow, durationMinutes, breakdownRow, signedOffRow, workOrderRow, pmScheduleRow, buildDisplayPayload,
 };

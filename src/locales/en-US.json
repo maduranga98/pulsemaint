@@ -25,8 +25,7 @@
       "running": "Running now",
       "scheduled_today": "Scheduled today",
       "attended": "Attended",
-      "in_progress": "In progress",
-      "completed": "Completed"
+      "in_progress": "In progress"
     },
     "step0": "Reported",
     "step1": "Attended",
@@ -37,9 +36,7 @@
     "inDays": "In {{n}} days",
     "tagWO": "Maintenance",
     "tagPM": "PM",
-    "colCP": "Completed",
-    "fixedAt": "Fixed at",
-    "nothingCompleted": "Nothing completed yet today"
+    "fixedAt": "Fixed at"
   },
   "displaySharing": {
     "tile": {

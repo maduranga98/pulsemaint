@@ -76,8 +76,7 @@
       "running": "En curso",
       "scheduled_today": "Programada hoy",
       "attended": "Atendida",
-      "in_progress": "En curso",
-      "completed": "Completada"
+      "in_progress": "En curso"
     },
     "step0": "Reportada",
     "step1": "Atendida",
@@ -88,9 +87,7 @@
     "inDays": "En {{n}} días",
     "tagWO": "Mantenimiento",
     "tagPM": "PM",
-    "colCP": "Completadas",
-    "fixedAt": "Reparada a las",
-    "nothingCompleted": "Nada completado hoy todavía"
+    "fixedAt": "Reparada a las"
   },
   "common": {
     "signOut": "Cerrar sesión",

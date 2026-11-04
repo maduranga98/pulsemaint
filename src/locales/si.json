@@ -25,8 +25,7 @@
       "running": "දැන් සිදුවෙමින්",
       "scheduled_today": "අද සැලසුම් කර ඇත",
       "attended": "පැමිණියා",
-      "in_progress": "සිදුවෙමින්",
-      "completed": "අවසන්"
+      "in_progress": "සිදුවෙමින්"
     },
     "step0": "වාර්තා",
     "step1": "පැමිණියා",
@@ -37,9 +36,7 @@
     "inDays": "දින {{n}}කින්",
     "tagWO": "නඩත්තු",
     "tagPM": "PM",
-    "colCP": "අවසන්",
-    "fixedAt": "නිවැරදි කළේ",
-    "nothingCompleted": "අද තවම අවසන් වූ කිසිවක් නැත"
+    "fixedAt": "නිවැරදි කළේ"
   },
   "displaySharing": {
     "tile": {

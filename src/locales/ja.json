@@ -76,8 +76,7 @@
       "running": "作業中",
       "scheduled_today": "本日予定",
       "attended": "対応開始",
-      "in_progress": "作業中",
-      "completed": "完了"
+      "in_progress": "作業中"
     },
     "step0": "報告",
     "step1": "対応開始",
@@ -88,9 +87,7 @@
     "inDays": "{{n}}日後",
     "tagWO": "保全",
     "tagPM": "PM",
-    "colCP": "完了",
-    "fixedAt": "復旧時刻",
-    "nothingCompleted": "本日の完了はまだありません"
+    "fixedAt": "復旧時刻"
   },
   "common": {
     "signOut": "サインアウト",

@@ -25,17 +25,9 @@ export interface DisplayBreakdown {
   step: 0 | 1 | 2 | 3;
   /** When it was reported (ms). */
   at: number;
-  /** When it was fixed (ms); set once it is fixed and waiting for sign-off. */
+  /** When it was fixed (ms), or signed off; set for the Fixed today list. */
   fixedAt: number | null;
   fresh: boolean;
-}
-
-/** A breakdown signed off today. */
-export interface DisplayCompleted {
-  machine: string;
-  at: number;
-  /** When it was signed off (ms). */
-  fixedAt: number;
 }
 
 export interface DisplayMaintenance {
@@ -62,7 +54,6 @@ export type DisplayData =
       language: string;
       now: number;
       breakdowns: DisplayBreakdown[];
-      completed: DisplayCompleted[];
       maintenance: DisplayMaintenance[];
       scheduled: DisplayScheduled[];
     };

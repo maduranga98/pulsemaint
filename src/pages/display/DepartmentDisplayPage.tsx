@@ -10,7 +10,6 @@ import {
   isAllDay,
   progressPercent,
   type DisplayBreakdown,
-  type DisplayCompleted,
   type DisplayData,
   type DisplayMaintenance,
   type DisplayScheduled,
@@ -119,7 +118,7 @@ export default function DepartmentDisplayPage() {
   const [light, setLight] = useState(readTheme);
   const [auto, setAuto] = useState(true);
   const languageApplied = useRef(false);
-  const bodies = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
+  const bodies = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
   const hover = useAutoScroll(bodies, auto);
 
   const load = useCallback(async () => {
@@ -259,19 +258,6 @@ export default function DepartmentDisplayPage() {
     );
   };
 
-  const completedCard = (c: DisplayCompleted, i: number) => (
-    <div key={`${c.machine}-${c.fixedAt}-${i}`} className="dd-card dd-g">
-      <div className="dd-top">
-        <div className="dd-name">{c.machine}</div>
-        <span className="dd-badge">{t('display.status.completed', 'Completed')}</span>
-      </div>
-      <div className="dd-meta">
-        <span>{t('display.reportedAt', 'Reported at')} <b>{time(c.at)}</b></span>
-        <span>{t('display.fixedAt', 'Fixed at')} <b>{time(c.fixedAt)}</b></span>
-      </div>
-    </div>
-  );
-
   const maintenanceCard = (m: DisplayMaintenance, i: number) => {
     const color = m.status === 'scheduled_today' ? 'dd-a' : 'dd-b';
     return (
@@ -391,18 +377,6 @@ export default function DepartmentDisplayPage() {
                 {g.items.map(scheduledRow)}
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className="dd-col dd-x4">
-          <div className="dd-chead">
-            <span className="dd-n">{data.completed.length}</span>
-            <span className="dd-ct">{t('display.colCP', 'Completed')}</span>
-          </div>
-          <div className="dd-cbody" ref={bodies[3]}>
-            {data.completed.length === 0
-              ? <div className="dd-empty dd-empty-muted">{t('display.nothingCompleted', 'Nothing completed yet today')}</div>
-              : data.completed.map(completedCard)}
           </div>
         </section>
       </div>

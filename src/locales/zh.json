@@ -76,8 +76,7 @@
       "running": "进行中",
       "scheduled_today": "今日计划",
       "attended": "已接单",
-      "in_progress": "进行中",
-      "completed": "已完成"
+      "in_progress": "进行中"
     },
     "step0": "已报告",
     "step1": "已接单",
@@ -88,9 +87,7 @@
     "inDays": "{{n}}天后",
     "tagWO": "维护",
     "tagPM": "PM",
-    "colCP": "已完成",
-    "fixedAt": "修复时间",
-    "nothingCompleted": "今天还没有完成的"
+    "fixedAt": "修复时间"
   },
   "common": {
     "signOut": "退出登录",
