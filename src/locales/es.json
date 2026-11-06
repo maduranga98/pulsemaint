@@ -11270,12 +11270,15 @@
         "description": "Configuración de la empresa, usuarios, plantas y configuración de turnos.",
         "guides": [
           {
-            "title": "Agregar un nuevo usuario",
+            "title": "Add a new user",
             "steps": [
-              "Abre Configuración y ve a Usuarios.",
-              "Usa Invitar usuario.",
-              "Completa su nombre, correo electrónico, rol y el sitio/planta al que pertenece.",
-              "Envía la invitación — la reciben por correo y configuran su propio inicio de sesión."
+              "Open Admin → Settings and select the Users tile (Team Management).",
+              "Press Invite Member.",
+              "Enter their email address and full name, then choose their role. Once a person is invited the role can't be changed inside the company, so choose carefully.",
+              "Choose their plant and department (technicians, trainees, supervisors and floor operators only see their own department's work orders and breakdowns). Job title and address are optional.",
+              "Press Send Invitation. The invitation is emailed and its link is shown so you can copy and share it — it expires in 3 days.",
+              "The new member opens the link (or presses Accept Invitation in the email) and signs up with email and password, or with Google.",
+              "To add many people at once, press Import Users, download the Excel template, fill it in (full name, email and role are required) and upload it."
             ]
           },
           {

@@ -9,9 +9,9 @@ import {
 describe('help videos', () => {
   const all = [...Object.values(HELP_MODULE_VIDEOS).flat(), ...HELP_OTHER_VIDEOS];
 
-  it('lists all 10 guides, each once, with a valid YouTube id', () => {
-    expect(all).toHaveLength(10);
-    expect(new Set(all.map((v) => v.youtubeId)).size).toBe(10);
+  it('lists all 11 guides, each once, with a valid YouTube id', () => {
+    expect(all).toHaveLength(11);
+    expect(new Set(all.map((v) => v.youtubeId)).size).toBe(11);
     for (const v of all) expect(v!.youtubeId).toMatch(/^[\w-]{11}$/);
   });
 

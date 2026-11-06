@@ -11412,12 +11412,15 @@
         "description": "සමාගම් සැකසුම්, පරිශීලකයින්, ප්ලාන්ට් සහ මුර වින්‍යාසය.",
         "guides": [
           {
-            "title": "නව පරිශීලකයෙකු එකතු කරන්න",
+            "title": "Add a new user",
             "steps": [
-              "සැකසුම් විවෘත කර පරිශීලකයින් වෙත යන්න.",
-              "'පරිශීලකයෙකු ආරාධනා කරන්න' භාවිත කරන්න.",
-              "ඔවුන්ගේ නම, විද්‍යුත් තැපෑල, භූමිකාව සහ ඔවුන් අයත් වන අඩවිය/ප්ලාන්ට් පුරවන්න.",
-              "ආරාධනාව යවන්න — ඔවුන් එය විද්‍යුත් තැපෑලෙන් ලබාගෙන ඔවුන්ගේම පිවිසුම සකසා ගනී."
+              "Open Admin → Settings and select the Users tile (Team Management).",
+              "Press Invite Member.",
+              "Enter their email address and full name, then choose their role. Once a person is invited the role can't be changed inside the company, so choose carefully.",
+              "Choose their plant and department (technicians, trainees, supervisors and floor operators only see their own department's work orders and breakdowns). Job title and address are optional.",
+              "Press Send Invitation. The invitation is emailed and its link is shown so you can copy and share it — it expires in 3 days.",
+              "The new member opens the link (or presses Accept Invitation in the email) and signs up with email and password, or with Google.",
+              "To add many people at once, press Import Users, download the Excel template, fill it in (full name, email and role are required) and upload it."
             ]
           },
           {
