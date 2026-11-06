@@ -11270,12 +11270,15 @@
         "description": "公司设置、用户、工厂和班次配置。",
         "guides": [
           {
-            "title": "添加一个新用户",
+            "title": "Add a new user",
             "steps": [
-              "打开设置并进入用户。",
-              "使用邀请用户。",
-              "填写其姓名、邮箱、角色以及所属的站点/工厂。",
-              "发送邀请——对方会通过邮件收到邀请并设置自己的登录信息。"
+              "Open Admin → Settings and select the Users tile (Team Management).",
+              "Press Invite Member.",
+              "Enter their email address and full name, then choose their role. Once a person is invited the role can't be changed inside the company, so choose carefully.",
+              "Choose their plant and department (technicians, trainees, supervisors and floor operators only see their own department's work orders and breakdowns). Job title and address are optional.",
+              "Press Send Invitation. The invitation is emailed and its link is shown so you can copy and share it — it expires in 3 days.",
+              "The new member opens the link (or presses Accept Invitation in the email) and signs up with email and password, or with Google.",
+              "To add many people at once, press Import Users, download the Excel template, fill it in (full name, email and role are required) and upload it."
             ]
           },
           {

@@ -11152,12 +11152,15 @@
         "description": "நிறுவன அமைப்புகள், பயனர்கள், ஆலைகள் மற்றும் ஷிப்ட் உள்ளமைவு.",
         "guides": [
           {
-            "title": "புதிய பயனரைச் சேர்க்க",
+            "title": "Add a new user",
             "steps": [
-              "\"அமைப்புகள்\" திறந்து \"பயனர்கள்\" பகுதிக்குச் செல்லுங்கள்.",
-              "\"பயனரை அழை\" பயன்படுத்துங்கள்.",
-              "அவர்களின் பெயர், மின்னஞ்சல், பொறுப்பு மற்றும் அவர்கள் சேர்ந்த தளம்/ஆலையை நிரப்புங்கள்.",
-              "அழைப்பை அனுப்புங்கள் — அவர்கள் அதை மின்னஞ்சலில் பெற்று தங்கள் உள்நுழைவை அமைத்துக்கொள்வார்கள்."
+              "Open Admin → Settings and select the Users tile (Team Management).",
+              "Press Invite Member.",
+              "Enter their email address and full name, then choose their role. Once a person is invited the role can't be changed inside the company, so choose carefully.",
+              "Choose their plant and department (technicians, trainees, supervisors and floor operators only see their own department's work orders and breakdowns). Job title and address are optional.",
+              "Press Send Invitation. The invitation is emailed and its link is shown so you can copy and share it — it expires in 3 days.",
+              "The new member opens the link (or presses Accept Invitation in the email) and signs up with email and password, or with Google.",
+              "To add many people at once, press Import Users, download the Excel template, fill it in (full name, email and role are required) and upload it."
             ]
           },
           {

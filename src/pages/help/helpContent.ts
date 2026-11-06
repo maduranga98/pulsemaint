@@ -126,6 +126,7 @@ export const HELP_MODULE_VIDEOS: Partial<Record<HelpModuleId, HelpVideo[]>> = {
   pmSchedules: [{ youtubeId: 'jED85TC0q-Y', title: 'FirmiCore PM Schedules Guide' }],
   inventory: [{ youtubeId: 'GFDBfb-B_z4', title: 'FirmiCore Inventory Procedure Guide' }],
   contractors: [{ youtubeId: 'MfbBBXeVE0A', title: 'FirmiCore Contractor Management' }],
+  settings: [{ youtubeId: '3XUhcxvQu1c', title: 'FirmiCore Add Users Guide' }],
 };
 
 // Videos with no matching help category (getting started, overviews).

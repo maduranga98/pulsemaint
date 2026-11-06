@@ -11270,12 +11270,15 @@
         "description": "Paramètres de l'entreprise, utilisateurs, usines et configuration des quarts.",
         "guides": [
           {
-            "title": "Ajouter un nouvel utilisateur",
+            "title": "Add a new user",
             "steps": [
-              "Ouvrez Paramètres et allez dans Utilisateurs.",
-              "Utilisez Inviter un utilisateur.",
-              "Renseignez son nom, son e-mail, son rôle et le site/l'usine auquel il appartient.",
-              "Envoyez l'invitation — elle la reçoit par e-mail et configure sa propre connexion."
+              "Open Admin → Settings and select the Users tile (Team Management).",
+              "Press Invite Member.",
+              "Enter their email address and full name, then choose their role. Once a person is invited the role can't be changed inside the company, so choose carefully.",
+              "Choose their plant and department (technicians, trainees, supervisors and floor operators only see their own department's work orders and breakdowns). Job title and address are optional.",
+              "Press Send Invitation. The invitation is emailed and its link is shown so you can copy and share it — it expires in 3 days.",
+              "The new member opens the link (or presses Accept Invitation in the email) and signs up with email and password, or with Google.",
+              "To add many people at once, press Import Users, download the Excel template, fill it in (full name, email and role are required) and upload it."
             ]
           },
           {
