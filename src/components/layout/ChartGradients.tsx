@@ -4,7 +4,7 @@ import { gradientSpec, normalizeColor, type GradientKind } from '@/lib/chartGrad
 const NS = 'http://www.w3.org/2000/svg';
 const BARS = '.recharts-bar-rectangle path, .recharts-bar-rectangle rect, path.recharts-rectangle';
 const SLICES = '.recharts-pie-sector path, .recharts-radial-bar-sector, .recharts-sector';
-const AREAS = 'path.recharts-area-area';
+const AREAS = 'path.recharts-area-area, path.recharts-radar-polygon';
 
 /**
  * Charts are drawn by Recharts with one flat colour per series. This gives

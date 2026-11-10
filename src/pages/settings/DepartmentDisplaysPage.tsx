@@ -72,8 +72,8 @@ export default function DepartmentDisplaysPage() {
   };
 
   return (
-    <div className="min-h-full">
-      <div className="border-b border-slate-200 pb-5">
+    <div className="share-page min-h-full">
+      <div className="pb-5">
         <Link to="/app/settings" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
           <ChevronLeft className="w-4 h-4" />
           {t('common.settings.page.title', 'Settings')}
@@ -115,7 +115,7 @@ export default function DepartmentDisplaysPage() {
                       {plantsInUse && row.plantName && <p className="text-xs text-slate-500 truncate">{row.plantName}</p>}
                     </div>
                   </div>
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${d?.enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                  <span className={`share-status inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${d?.enabled ? 'is-on bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-current" />
                     {d?.enabled ? t('displaySharing.on', 'Sharing is on') : t('displaySharing.off', 'Not shared')}
                   </span>
@@ -133,7 +133,7 @@ export default function DepartmentDisplaysPage() {
                           readOnly
                           value={url}
                           onFocus={(e) => e.currentTarget.select()}
-                          className="flex-1 min-w-0 basis-64 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-mono text-slate-700"
+                          className="share-link flex-1 min-w-0 basis-64 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-mono text-slate-700"
                         />
                         <button type="button" onClick={() => void copy(url)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                           <Copy className="w-4 h-4" />{t('displaySharing.copy', 'Copy link')}
@@ -211,17 +211,17 @@ export default function DepartmentDisplaysPage() {
         <aside className="space-y-4">
           <section className="bg-white rounded-xl border border-slate-200 p-5 text-sm text-slate-600">
             <h2 className="font-semibold text-slate-900 mb-2">{t('displaySharing.shows.heading', 'What the link shows')}</h2>
-            <ul className="list-disc pl-5 space-y-1.5">
+            <ul className="share-list space-y-1.5">
               <li>{t('displaySharing.shows.breakdowns', 'Breakdowns: open ones and the ones fixed today, with progress and time since reported. Signed-off ones are not shown.')}</li>
               <li>{t('displaySharing.shows.maintenance', 'Maintenance today: work running now and work still to do today (maintenance and PM).')}</li>
               <li>{t('displaySharing.shows.scheduled', 'Scheduled: everything planned after today, up to a year ahead, grouped by month. Overdue PM is not shown.')}</li>
               <li>{t('displaySharing.shows.language', 'One language at a time. People at the screen pick from every language FirmiCore supports.')}</li>
-              <li>{t('displaySharing.shows.hidden', 'Never shown: technician names, costs, parts, notes, photos, signed-off work.')}</li>
+              <li className="share-no">{t('displaySharing.shows.hidden', 'Never shown: technician names, costs, parts, notes, photos, signed-off work.')}</li>
             </ul>
           </section>
           <section className="bg-white rounded-xl border border-slate-200 p-5 text-sm text-slate-600">
             <h2 className="font-semibold text-slate-900 mb-2">{t('displaySharing.good.heading', 'Good to know')}</h2>
-            <ul className="list-disc pl-5 space-y-1.5">
+            <ul className="share-list space-y-1.5">
               <li>{t('displaySharing.good.anyone', 'Anyone who has the link can see the board, so share it only on the shop floor.')}</li>
               <li>{t('displaySharing.good.stop', 'Stop sharing turns the link off at once.')}</li>
               <li>{t('displaySharing.good.new', 'Make a new link when a link was passed on by mistake.')}</li>
