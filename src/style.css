@@ -33,6 +33,14 @@ html.app-shell-active body {
   background: #0A1628;
 }
 
+/* Light theme (set by useAppTheme on <html data-theme>). The per-class
+ * recolouring of the navy shell is generated at build time — see
+ * src/lib/theme/lightThemeRules.ts; only the page-level basics live here. */
+html[data-theme="light"].app-shell-active,
+html[data-theme="light"].app-shell-active body { background: #EEF2F8; }
+html[data-theme="dark"] { color-scheme: dark; }
+html[data-theme="light"] .app-main { color: #101A33; }
+
 body {
   margin: 0;
   font-family: var(--font-sans);
@@ -112,6 +120,211 @@ a {
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------------
+ * Sidebar. The selected item takes the colour of the page beside it and runs
+ * to the sidebar's edge with rounded "fillet" corners, so the tab reads as
+ * part of the window instead of a highlighted row with a line next to it.
+ * Colours are variables so the dark and light themes share the shapes.
+ * --------------------------------------------------------------------------- */
+.app-sidebar {
+  --sb-bg: #0F1E35;
+  --sb-fg: #8BA3BF;
+  --sb-fg-strong: #F0F4F8;
+  --sb-hover: #142849;
+  --sb-line: #1E3A5F;
+  --sb-label: #6C87A6;
+  --sb-accent: #60A5FA;
+  --sb-window: #0A1628;
+  --sb-radius: 14px;
+  background: var(--sb-bg);
+  color: var(--sb-fg-strong);
+  box-shadow: inset -1px 0 0 var(--sb-line);
+}
+html[data-theme="light"] .app-sidebar {
+  --sb-bg: #1450C8;
+  --sb-fg: #D6E3FF;
+  --sb-fg-strong: #FFFFFF;
+  --sb-hover: rgba(255, 255, 255, 0.13);
+  --sb-line: rgba(255, 255, 255, 0.2);
+  --sb-label: #B4C9FF;
+  --sb-accent: #0F3FA8;
+  --sb-window: #EEF2F8;
+  box-shadow: none;
+}
+.app-sidebar .sb-brand { border-bottom: 1px solid var(--sb-line); color: var(--sb-fg-strong); }
+.app-sidebar .sb-divider { border-top: 1px solid var(--sb-line); }
+.app-sidebar .nav-item {
+  position: relative;
+  border-radius: 10px;
+  color: var(--sb-fg);
+  transition: color 0.2s, background-color 0.2s, transform 0.2s;
+}
+.app-sidebar .nav-item:hover { background: var(--sb-hover); color: var(--sb-fg-strong); transform: translateX(2px); }
+.app-sidebar .nav-item-active,
+.app-sidebar .nav-item-active:hover {
+  z-index: 1;
+  margin-right: -0.75rem; /* out to the sidebar edge (the nav has px-3) */
+  border-radius: var(--sb-radius) 0 0 var(--sb-radius);
+  background: var(--sb-window);
+  color: var(--sb-accent);
+  font-weight: 600;
+  transform: none;
+  animation: nav-join 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* The two concave corners: an empty box with one rounded corner whose
+ * shadow, in the window colour, fills only the sliver outside that curve. */
+.app-sidebar .nav-item-active::before,
+.app-sidebar .nav-item-active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: var(--sb-radius);
+  height: var(--sb-radius);
+  pointer-events: none;
+}
+.app-sidebar .nav-item-active::before {
+  bottom: 100%;
+  border-bottom-right-radius: var(--sb-radius);
+  box-shadow: 5px 5px 0 5px var(--sb-window);
+}
+.app-sidebar .nav-item-active::after {
+  top: 100%;
+  border-top-right-radius: var(--sb-radius);
+  box-shadow: 5px -5px 0 5px var(--sb-window);
+}
+.app-sidebar .nav-group { color: var(--sb-label); }
+.app-sidebar .nav-group:hover { color: var(--sb-fg-strong); }
+.app-sidebar .nav-group-active { color: var(--sb-fg-strong); }
+html:not([data-theme="light"]) .app-sidebar .nav-group-active { color: var(--sb-accent); }
+.app-sidebar .nav-group-items { animation: nav-open 0.22s ease-out; }
+.app-sidebar .nav-badge { background: #1A56DB; color: #FFFFFF; }
+html[data-theme="light"] .app-sidebar .nav-badge { background: #FFFFFF; color: #0F3FA8; }
+.app-sidebar .nav-item-active .nav-badge { background: #1A56DB; color: #FFFFFF; }
+@keyframes nav-join { from { opacity: 0.4; transform: translateX(-8px); } }
+@keyframes nav-open { from { opacity: 0; transform: translateY(-4px); } }
+
+/* ---------------------------------------------------------------------------
+ * Dashboard KPI tiles: outline, label and figure in the tile's own colour.
+ * --------------------------------------------------------------------------- */
+.kpi-card {
+  --kpi: #5B8DEF;
+  border: 1.5px solid color-mix(in srgb, var(--kpi) 75%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.kpi-card:hover {
+  border-color: var(--kpi);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--kpi) 26%, transparent);
+}
+.kpi-card .kpi-ink { color: var(--kpi); }
+.kpi-card[data-color="green"] { --kpi: #10B981; }
+.kpi-card[data-color="amber"] { --kpi: #F59E0B; }
+.kpi-card[data-color="red"] { --kpi: #EF4444; }
+.kpi-card[data-color="cyan"] { --kpi: #00C2FF; }
+.kpi-card[data-color="blue"] { --kpi: #5B8DEF; }
+html[data-theme="light"] .kpi-card[data-color="green"] { --kpi: #047857; }
+html[data-theme="light"] .kpi-card[data-color="amber"] { --kpi: #B45309; }
+html[data-theme="light"] .kpi-card[data-color="red"] { --kpi: #DC2626; }
+html[data-theme="light"] .kpi-card[data-color="cyan"] { --kpi: #0077A8; }
+html[data-theme="light"] .kpi-card[data-color="blue"] { --kpi: #1A56DB; }
+
+/* ---------------------------------------------------------------------------
+ * Motion. Short, from-only keyframes (the resting state is always the final
+ * one, so nothing stays hidden if an animation never runs) and no transform
+ * left behind afterwards — a lingering transform on a page wrapper would
+ * re-anchor every `position: fixed` dialog inside it.
+ * --------------------------------------------------------------------------- */
+@keyframes fc-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes fc-fade { from { opacity: 0; } }
+@keyframes fc-pop { from { opacity: 0; transform: scale(0.94) translateY(-6px); } }
+@keyframes fc-dialog { from { opacity: 0; transform: scale(0.96) translateY(10px); } }
+@keyframes fc-badge { from { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.2); } }
+@keyframes fc-ring {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(18deg); } 30% { transform: rotate(-16deg); }
+  45% { transform: rotate(12deg); } 60% { transform: rotate(-8deg); } 80% { transform: rotate(4deg); }
+}
+@keyframes fc-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes fc-turn { from { opacity: 0; transform: rotate(-90deg) scale(0.6); } }
+
+/* PM calendar: compliance ring, month change and day selection. */
+.pm-ring-track { stroke: #E2E8F0; }
+.app-main-dark .pm-ring-track { stroke: #1E3A5F; }
+.pm-ring-value { stroke: #10B981; transition: stroke-dasharray 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pm-ring-text { fill: currentColor; font-size: 8.5px; font-weight: 700; }
+.pm-month { animation: fc-rise 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pm-day-selected { animation: fc-badge 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.pm-day-list > * { animation: fc-rise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.pm-day-list > :nth-child(2) { animation-delay: 60ms; }
+.pm-day-list > :nth-child(n + 3) { animation-delay: 120ms; }
+
+/* Sign-in screen: the marketing panel slides in behind a slanted edge and
+ * the form's rows rise one after another. Same fields and wording as before. */
+.login-art { clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%); animation: login-art-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.login-orb {
+  position: absolute; top: 12%; right: 12%; width: 150px; height: 150px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 38% 34%, #D7F0FF, #6EC2FF 38%, #1E6BE6 72%);
+  box-shadow: 0 0 80px rgba(110, 194, 255, 0.55);
+  animation: login-float 6s ease-in-out infinite;
+}
+.login-ring { position: absolute; border-radius: 50%; border: 2px dashed rgba(255, 255, 255, 0.28); pointer-events: none; animation: login-spin 44s linear infinite; }
+.login-ring-a { top: calc(12% - 35px); right: calc(12% - 35px); width: 220px; height: 220px; }
+.login-ring-b { top: calc(12% - 75px); right: calc(12% - 75px); width: 300px; height: 300px; border-style: dotted; opacity: 0.6; animation-direction: reverse; animation-duration: 70s; }
+.login-form > * { animation: fc-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.login-form > :nth-child(2) { animation-delay: 80ms; }
+.login-form > :nth-child(3) { animation-delay: 160ms; }
+.login-form > :nth-child(4) { animation-delay: 240ms; }
+.login-form > :nth-child(n + 5) { animation-delay: 320ms; }
+.login-form button[type="submit"] { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+.login-form button[type="submit"]:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(26, 86, 219, 0.4); }
+.login-form button[type="submit"]:not(:disabled):active { transform: scale(0.98); }
+@keyframes login-art-in { from { transform: translateX(-100%); } }
+@keyframes login-float { 50% { transform: translateY(-10px); } }
+@keyframes login-spin { to { transform: rotate(360deg); } }
+
+/* A page opening, then its tiles and widgets one after another. */
+.fc-page { animation: fc-fade 0.25s ease-out; }
+.fc-page .kpi-card,
+.fc-page .fc-widget { animation: fc-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.fc-page .kpi-card:nth-child(2) { animation-delay: 50ms; }
+.fc-page .kpi-card:nth-child(3) { animation-delay: 100ms; }
+.fc-page .kpi-card:nth-child(4) { animation-delay: 150ms; }
+.fc-page .kpi-card:nth-child(5) { animation-delay: 200ms; }
+.fc-page .kpi-card:nth-child(n + 6) { animation-delay: 250ms; }
+.fc-page .fc-widget { animation-delay: 180ms; }
+
+/* Loading placeholders: a light sweep instead of a plain blink. */
+.fc-skel {
+  background-image: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.13) 50%, transparent 70%);
+  background-size: 300% 100%;
+  animation: fc-shimmer 1.3s linear infinite;
+}
+html[data-theme="light"] .fc-skel {
+  background-image: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.85) 50%, transparent 70%);
+}
+
+/* Menus that drop from the header (notifications, language). */
+.fc-dropdown { transform-origin: top right; animation: fc-pop 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+.fc-bell-ring { transform-origin: 50% 10%; animation: fc-ring 0.75s ease-in-out; }
+.fc-badge-pop { animation: fc-badge 0.4s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.theme-switch-icon { animation: fc-turn 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+
+/* Dialogs and drawers inside the app: the backdrop fades, the panel settles in. */
+html.app-shell-active .fixed.inset-0 { animation: fc-fade 0.18s ease-out; }
+html.app-shell-active .fixed.inset-0 > .bg-white,
+html.app-shell-active .fixed.inset-0 > [class*="bg-[#0F1E35]"],
+html.app-shell-active .fixed.inset-0 > [class*="rounded-"] { animation: fc-dialog 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* Pressing a button gives a small, quick response. */
+html.app-shell-active button:not(:disabled):active { transform: scale(0.98); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-page, .fc-page .kpi-card, .fc-page .fc-widget, .fc-skel, .fc-dropdown, .fc-bell-ring, .fc-badge-pop,
+  .theme-switch-icon, .login-art, .login-orb, .login-ring, .login-form > *, .pm-month, .pm-day-selected, .pm-day-list > *, .pm-ring-value, .app-sidebar .nav-item-active, .app-sidebar .nav-group-items,
+  html.app-shell-active .fixed.inset-0, html.app-shell-active .fixed.inset-0 > * { animation: none !important; }
+  .kpi-card:hover, .app-sidebar .nav-item:hover, html.app-shell-active button:not(:disabled):active { transform: none; }
 }
 
 /* ---------------------------------------------------------------------------
@@ -208,29 +421,29 @@ a {
      Caption / labels       12px (text-xs and smaller are left alone)
    Utility classes on headings (text-lg … text-3xl, font-sora, …) are
    overridden on purpose; compact toolbars opt out with text-sm / text-xs. */
-.app-main-dark { font-size: 14px; line-height: 1.5; }
-.app-main-dark h1:not(.text-sm):not(.text-xs) {
+.app-main { font-size: 14px; line-height: 1.5; }
+.app-main h1:not(.text-sm):not(.text-xs) {
   font-family: inherit;
   font-size: 22px;
   line-height: 1.25;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
-.app-main-dark h1 > svg:first-child { display: none; }
-.app-main-dark h1 + p {
+.app-main h1 > svg:first-child { display: none; }
+.app-main h1 + p {
   font-size: 14px;
   line-height: 1.45;
   margin-top: 2px;
 }
-.app-main-dark h2:not(.text-sm):not(.text-xs) {
+.app-main h2:not(.text-sm):not(.text-xs) {
   font-family: inherit;
   font-size: 16px;
   line-height: 1.35;
   font-weight: 600;
   letter-spacing: 0;
 }
-.app-main-dark h3:not(.text-xs),
-.app-main-dark h4:not(.text-xs) {
+.app-main h3:not(.text-xs),
+.app-main h4:not(.text-xs) {
   font-family: inherit;
   font-size: 14px;
   line-height: 1.4;

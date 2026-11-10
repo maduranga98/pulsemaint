@@ -61,7 +61,7 @@ export default function LanguageSwitcher() {
         <div
           role="listbox"
           aria-label={t('common.language')}
-          className="fixed z-50 max-h-[70dvh] w-56 overflow-y-auto rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-1.5 shadow-2xl shadow-black/50 scrollbar-hide"
+          className="fc-dropdown fixed z-50 max-h-[70dvh] w-56 overflow-y-auto rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-1.5 shadow-2xl shadow-black/50 scrollbar-hide"
           style={{ colorScheme: 'dark', top: pos.top, right: pos.right }}
         >
           {SUPPORTED_LANGUAGES.map((l) => {

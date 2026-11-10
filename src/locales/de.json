@@ -3703,7 +3703,10 @@
         "pageTitle": "PM-Kalender",
         "eventsThisPeriod_one": "{{count}} Ereignis in diesem Zeitraum",
         "eventsThisPeriod_other": "{{count}} Ereignisse in diesem Zeitraum",
-        "loading": "Kalender wird geladen..."
+        "loading": "Kalender wird geladen...",
+        "doneOfDue": "{{done}} von {{total}} bisher fälligen PMs sind abgeschlossen",
+        "pmCount_one": "{{count}} PM",
+        "pmCount_other": "{{count}} PMs"
       },
       "workloadPage": {
         "title": "Techniker-Auslastung",
@@ -10585,6 +10588,13 @@
       "reason": "Grund",
       "signOut": "Abmelden",
       "registerNote": "Nach der Registrierung prüft unser Team Ihr Unternehmen, bevor Sie sich anmelden können – meist innerhalb eines Werktags. Wir informieren Sie per E-Mail, sobald es freigegeben ist."
+    },
+    "theme": {
+      "label": "Design",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "auto": "Automatisch",
+      "autoHint": "Automatisch: hell ab 6 Uhr, dunkel ab 18 Uhr"
     }
   },
   "triage": {
