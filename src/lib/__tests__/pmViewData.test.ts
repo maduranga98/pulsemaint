@@ -14,7 +14,7 @@ describe('groupByStatus', () => {
   });
   it('adds a paused column only when something is paused; unknown status counts as on track', () => {
     const cols = groupByStatus([ev('p', new Date(2026, 10, 3), 'paused'), ev('x', new Date(2026, 10, 4))]);
-    expect(cols.at(-1)?.status).toBe('paused');
+    expect(cols[cols.length - 1].status).toBe('paused');
     expect(cols.find((c) => c.status === 'on_track')?.items.map((e) => e.id)).toEqual(['x']);
   });
 });
