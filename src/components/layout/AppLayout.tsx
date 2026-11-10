@@ -10,6 +10,7 @@ import type { UserRole } from '../../types/auth';
 import EndShiftButton from '../handover/EndShiftButton';
 import NotificationBell from './NotificationBell';
 import ThemeSwitcher from './ThemeSwitcher';
+import ChartGradients from './ChartGradients';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
@@ -326,6 +327,7 @@ export default function AppLayout() {
         <PlantTabs />
 
         <main className={`app-main ${theme === 'dark' ? 'app-main-dark' : ''} flex-1 min-w-0 bg-[#0A1628] overflow-y-auto scrollbar-hide`}>
+          <ChartGradients />
           <TourAutoStart />
           <TrialExpiryBanner />
           <RetentionExportBanner />

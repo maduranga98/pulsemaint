@@ -18,6 +18,7 @@ import type { ContractorSafetyCard } from '@/lib/safety/contractorSafety';
 import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
 import ScanSafetyCardModal from '../components/ScanSafetyCardModal';
 import type { UserRole } from '@/types/auth';
+import { PillTabs } from '@/components/ui/PillTabs';
 import {
   SAFETY_CASE_SUBJECT_TYPES,
   SAFETY_CASE_TYPES,
@@ -147,6 +148,21 @@ export default function SafetyCasesPage() {
     return list;
   }, [cases, isSafetyOfficer, role, profile?.id, scopedPlantId]);
 
+  // Status tabs with live counts: All, then each status that has cases.
+  const [statusTab, setStatusTab] = useState<'all' | SafetyCaseStatus>('all');
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    visible.forEach((c) => { counts[c.status] = (counts[c.status] ?? 0) + 1; });
+    return counts;
+  }, [visible]);
+  const shown = statusTab === 'all' ? visible : visible.filter((c) => c.status === statusTab);
+  const statusTabs = [
+    { id: 'all' as const, label: t('common.breakdowns.severityOptions.all'), count: visible.length },
+    ...(['open', 'investigating', 'closed'] as const)
+      .filter((s) => statusCounts[s])
+      .map((s) => ({ id: s, label: statusLabel(s, t), count: statusCounts[s] })),
+  ];
+
   const heading = isSafetyOfficer ? t('common.safetyCases.pageTitle') : t('common.safetyCases.pageTitleReportedToMe');
   const subtitle = isSafetyOfficer
     ? t('common.safetyCases.subtitle')
@@ -195,8 +211,11 @@ export default function SafetyCasesPage() {
           ) : visible.length === 0 ? (
             <EmptyState message={isSafetyOfficer ? t('common.safetyCases.empty.officer') : t('common.safetyCases.empty.reportedToMe')} />
           ) : (
-            <div className="space-y-2">
-              {visible.map((c) => (
+            <div className="space-y-3">
+              {statusTabs.length > 2 && (
+                <PillTabs tabs={statusTabs} value={statusTab} onChange={setStatusTab} ariaLabel={t('common.safetyCases.cases', { count: visible.length })} />
+              )}
+              {shown.map((c) => (
                 <CaseRow key={c.id} c={c} canAct={c.status !== 'closed' && (isSafetyOfficer || REPORTED_TO_ROLES.includes(role))} />
               ))}
             </div>
@@ -309,7 +328,7 @@ function CaseRow({ c, canAct }: { c: SafetyCase; canAct: boolean }) {
   }
 
   return (
-    <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35]">
+    <div className="case-row rounded-lg border border-[#1E3A5F] bg-[#0F1E35]" data-severity={c.severity}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
