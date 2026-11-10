@@ -3704,7 +3704,7 @@
         "eventsThisPeriod_one": "この期間に {{count}} 件のイベント",
         "eventsThisPeriod_other": "この期間に {{count}} 件のイベント",
         "loading": "カレンダーを読み込み中...",
-        "doneOfDue": "これまでに期限が来た PM {{total}} 件中 {{done}} 件が完了",
+        "doneOfDue": "これまでに期限が来た PM {{total}} 件中 {{done}} 件を期限内に完了",
         "pmCount_one": "PM {{count}} 件",
         "pmCount_other": "PM {{count}} 件"
       },

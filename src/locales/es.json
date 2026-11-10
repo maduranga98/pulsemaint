@@ -3704,7 +3704,7 @@
         "eventsThisPeriod_one": "{{count}} evento en este período",
         "eventsThisPeriod_other": "{{count}} eventos en este período",
         "loading": "Cargando calendario...",
-        "doneOfDue": "{{done}} de {{total}} PM vencidos hasta hoy están completados",
+        "doneOfDue": "{{done}} de {{total}} PM vencidos hasta hoy se hicieron a tiempo",
         "pmCount_one": "{{count}} PM",
         "pmCount_other": "{{count}} PM"
       },

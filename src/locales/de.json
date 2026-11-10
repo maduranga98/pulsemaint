@@ -3704,7 +3704,7 @@
         "eventsThisPeriod_one": "{{count}} Ereignis in diesem Zeitraum",
         "eventsThisPeriod_other": "{{count}} Ereignisse in diesem Zeitraum",
         "loading": "Kalender wird geladen...",
-        "doneOfDue": "{{done}} von {{total}} bisher fälligen PMs sind abgeschlossen",
+        "doneOfDue": "{{done}} von {{total}} bisher fälligen PMs wurden pünktlich erledigt",
         "pmCount_one": "{{count}} PM",
         "pmCount_other": "{{count}} PMs"
       },
