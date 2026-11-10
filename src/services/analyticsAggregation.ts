@@ -1204,3 +1204,58 @@ export async function computePlantEfficiency(companyId: string, months: string[]
 
   return [...byPlant.values()];
 }
+
+export interface DowntimeCostPoint {
+  /** Sort key: 'YYYY-MM-DD' (one month selected) or 'YYYY-MM' (several months). */
+  key: string;
+  hours: number;
+  cost: number;
+}
+
+/**
+ * Production downtime cost over time: per day when a single month is selected
+ * (the "this month" range), per month for longer ranges. Same downtime events
+ * and per-machine cost rates as the monthly figures; machines without a rate
+ * add hours but no cost. `plantId` narrows it to one plant.
+ */
+export async function computeDowntimeCostSeries(
+  companyId: string,
+  months: string[],
+  plantId: string | null = null,
+): Promise<DowntimeCostPoint[]> {
+  const [breakdowns, workOrders, machines] = await Promise.all([
+    fetchAll('breakdown_tickets', companyId),
+    fetchAll('workOrders', companyId),
+    fetchMachines(companyId),
+  ]);
+  const inPlant = plantId ? plantRowFilter(machines, plantId) : () => true;
+  const rate = new Map<string, number>();
+  machines.forEach((m) => {
+    const r = computeEffectiveCostPerHour(m.costPerHourDown ?? null, m.unitsPerHour ?? null, m.unitValue ?? null);
+    if (r !== null) rate.set(String(m.id), r);
+  });
+  const monthSet = new Set(months);
+  const daily = months.length === 1;
+  const byKey = new Map<string, DowntimeCostPoint>();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  if (daily) {
+    const [y, mo] = months[0].split('-').map(Number);
+    const days = new Date(y, mo, 0).getDate();
+    for (let d = 1; d <= days; d++) byKey.set(`${months[0]}-${pad(d)}`, { key: `${months[0]}-${pad(d)}`, hours: 0, cost: 0 });
+  } else {
+    months.forEach((m) => byKey.set(m, { key: m, hours: 0, cost: 0 }));
+  }
+  computeDowntimeEvents(breakdowns.filter(inPlant), workOrders.filter(inPlant), new Date(), breakdownDowntimeHours).forEach((e) => {
+    const d = toDate(e.anchor);
+    if (!d || !monthSet.has(monthKey(d))) return;
+    const key = daily ? `${monthKey(d)}-${pad(d.getDate())}` : monthKey(d);
+    const point = byKey.get(key);
+    if (!point) return;
+    point.hours += e.hours;
+    const r = e.machineId != null ? rate.get(String(e.machineId)) : undefined;
+    if (r !== undefined) point.cost += e.hours * r;
+  });
+  return [...byKey.values()]
+    .sort((a, b) => a.key.localeCompare(b.key))
+    .map((p) => ({ key: p.key, hours: Number(p.hours.toFixed(1)), cost: Math.round(p.cost) }));
+}
