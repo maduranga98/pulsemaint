@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
 import { useAuthStore } from '../../store/authStore';
 import { usePMStore } from '../../store/pm.store';
+import { useState } from 'react';
 import { PMCalendarView } from '../../components/pm/PMCalendarView';
+import { PMBoardView } from '../../components/pm/PMBoardView';
+import { PMTimelineView } from '../../components/pm/PMTimelineView';
 import { usePMCalendarEvents } from '../../hooks/pm/usePMCalendarEvents';
 import type { CalendarEvent } from '../../types/pm.types';
 import { PageHeader, Button } from '../../components/ui';
@@ -12,6 +15,7 @@ import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
 export default function PMSchedulesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [view, setView] = useState<'calendar' | 'board' | 'timeline'>('calendar');
   const company = useAuthStore((s) => s.company);
   const userProfile = useAuthStore((s) => s.userProfile);
   const isSupervisor = useAuthStore((s) => s.isSupervisor || s.isAdmin);
@@ -60,8 +64,19 @@ export default function PMSchedulesPage() {
       />
 
       <div className="space-y-4">
+        <div role="tablist" className="pm-views">
+          {(['calendar', 'board', 'timeline'] as const).map((v) => (
+            <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)} className={view === v ? 'is-on' : ''}>
+              {t(`common.pmSchedules.views.${v}`)}
+            </button>
+          ))}
+        </div>
         {calendarLoading ? (
           <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.loadingCalendar')}</div>
+        ) : view === 'board' ? (
+          <PMBoardView events={calendarEvents} onEventClick={handleCalendarEventClick} />
+        ) : view === 'timeline' ? (
+          <PMTimelineView events={calendarEvents} onEventClick={handleCalendarEventClick} />
         ) : (
           <PMCalendarView events={calendarEvents} onEventClick={handleCalendarEventClick} />
         )}

@@ -1079,6 +1079,11 @@
         "overdue": "{{days}}d overdue",
         "dueToday": "Due today",
         "dueIn": "in {{days}}d"
+      },
+      "views": {
+        "calendar": "Calendar",
+        "board": "Board",
+        "timeline": "Timeline"
       }
     },
     "pendingApproval": {

@@ -1,0 +1,261 @@
+/* ---------------------------------------------------------------------------
+ * Design v2 — soft, rounded "floating card" look for the app shell.
+ *
+ * Shapes only: radius, depth, row cards, pill buttons, backdrop glow. No
+ * content, wording or layout changes. Everything is scoped to .app-main (the
+ * page area) or the shell pieces that carry an app-* class, and reads its
+ * colours from the --dv-* variables below so Light and Dark share the shapes.
+ * Unlayered on purpose: it must win over Tailwind's utilities without !important.
+ * --------------------------------------------------------------------------- */
+.app-main {
+  --dv-card: #ffffff;
+  --dv-row: #f3f6fc;
+  --dv-line: rgba(16, 26, 51, 0.09);
+  --dv-brand: #1a56db;
+  --dv-shadow: 0 1px 2px rgba(16, 26, 51, 0.04), 0 12px 30px rgba(30, 60, 140, 0.08);
+  --dv-shadow-hover: 0 2px 4px rgba(16, 26, 51, 0.05), 0 18px 40px rgba(30, 60, 140, 0.14);
+  background-image:
+    radial-gradient(760px 420px at 4% -8%, rgba(46, 111, 230, 0.2), transparent 62%),
+    radial-gradient(620px 380px at 100% 2%, rgba(0, 194, 255, 0.16), transparent 60%),
+    radial-gradient(700px 420px at 62% 108%, rgba(124, 92, 255, 0.14), transparent 62%);
+  background-repeat: no-repeat;
+}
+html[data-theme="dark"] .app-main {
+  --dv-card: #0f1e35;
+  --dv-row: #132545;
+  --dv-line: rgba(120, 160, 230, 0.16);
+  --dv-brand: #5b8def;
+  --dv-shadow: 0 1px 0 rgba(255, 255, 255, 0.035) inset, 0 16px 36px rgba(0, 0, 0, 0.38);
+  --dv-shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 22px 46px rgba(0, 0, 0, 0.5);
+  background-image:
+    radial-gradient(760px 440px at 4% -8%, rgba(26, 86, 219, 0.34), transparent 62%),
+    radial-gradient(620px 380px at 100% 2%, rgba(0, 194, 255, 0.16), transparent 60%),
+    radial-gradient(700px 420px at 62% 108%, rgba(124, 92, 255, 0.2), transparent 62%);
+}
+
+/* Cards: any white / navy panel with a rounded corner floats above the page. */
+.app-main :is(.bg-white, [class*="bg-[#0F1E35]"]):is(.rounded-lg, .rounded-xl, .rounded-2xl) {
+  border-radius: 18px;
+  border-color: var(--dv-line);
+  box-shadow: var(--dv-shadow);
+}
+.app-main :is(.bg-white, [class*="bg-[#0F1E35]"]):is(.rounded-lg, .rounded-xl, .rounded-2xl):is(a, button, [role="button"]):hover,
+.app-main .fc-widget:hover {
+  box-shadow: var(--dv-shadow-hover);
+}
+.app-main .fc-widget { border-radius: 20px; }
+.app-main .fc-widget > div:first-child { border-bottom: 0; padding-bottom: 0.25rem; }
+.app-main .fc-widget > div:last-child { padding-top: 0.5rem; }
+
+/* Page header: no rule under it, the title floats on the page. */
+.app-main .fc-page > div:first-child > .border-b:first-child,
+.app-main h1 + p { border-bottom: 0; }
+
+/* Buttons: pills (full-width list rows and left-aligned card buttons keep their shape). */
+.app-main button:is(.rounded-md, .rounded-lg):not(.w-full):not(.text-left) { border-radius: 999px; }
+.app-main button:is(.rounded-md, .rounded-lg):not(.w-full):not(.text-left):not(:disabled):hover {
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--dv-brand) 22%, transparent);
+}
+.app-main button:is([class*="bg-[#1A56DB]"], [class*="bg-indigo-6"], [class*="bg-blue-6"]):not(.w-full):not(:disabled):hover {
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--dv-brand) 38%, transparent);
+}
+
+/* Fields */
+.app-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]), select, textarea) {
+  border-radius: 12px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.app-main :is(input, select, textarea):focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--dv-brand) 22%, transparent);
+}
+
+/* Tables: every row is its own rounded card, raised on hover. */
+.app-main table:not(.table-plain) { border-collapse: separate; border-spacing: 0 6px; }
+.app-main table:not(.table-plain) thead th { background: transparent; border-bottom: 0; }
+.app-main table:not(.table-plain) thead th.sticky,
+.app-main table:not(.table-plain) thead.sticky th { background: var(--dv-card); }
+.app-main table:not(.table-plain) tbody tr { transition: transform 0.18s ease, filter 0.18s ease; }
+.app-main table:not(.table-plain) tbody tr:not([class*="bg-"]) td {
+  background-color: var(--dv-row);
+  border-top: 0;
+  border-bottom: 0;
+  transition: background-color 0.18s ease;
+}
+.app-main table:not(.table-plain) tbody td:first-child { border-radius: 14px 0 0 14px; }
+.app-main table:not(.table-plain) tbody td:last-child { border-radius: 0 14px 14px 0; }
+.app-main table:not(.table-plain) tbody tr:hover { transform: translateY(-1px); filter: drop-shadow(0 8px 14px rgba(20, 40, 100, 0.14)); }
+.app-main table:not(.table-plain) tbody tr:not([class*="bg-"]):hover td {
+  background-color: color-mix(in srgb, var(--dv-brand) 11%, var(--dv-row));
+}
+
+/* Pills and chips */
+.app-main :is(.rounded, .rounded-md):is([class*="bg-green-100"], [class*="bg-red-100"], [class*="bg-amber-100"], [class*="bg-blue-100"], [class*="bg-emerald-100"], [class*="bg-purple-100"], [class*="bg-slate-100"]):not(button):not(td):not(tr) {
+  border-radius: 999px;
+}
+
+/* Tab lists: a pill track, the selected tab raised on it. */
+.app-main [role="tablist"] { border-radius: 999px; }
+.app-main [role="tablist"] > [role="tab"] { border-radius: 999px; transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; }
+
+/* Header and plant bar: flat on the page, the content floats below them. */
+.app-header {
+  background: color-mix(in srgb, var(--hd-bg, #0a1628) 78%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+html[data-theme="light"] .app-header { --hd-bg: #eef2f8; }
+html[data-theme="dark"] .app-header { --hd-bg: #0a1628; }
+.app-header .theme-switch,
+.app-header [data-tour="language"] button { border-radius: 999px; }
+
+/* Notifications and language menus */
+.fc-dropdown { border-radius: 18px !important; box-shadow: 0 28px 60px rgba(8, 14, 32, 0.32) !important; }
+
+/* KPI tiles: bigger radius, a faint wash of their own colour. */
+.kpi-card {
+  border-radius: 18px;
+  background-image: linear-gradient(165deg, color-mix(in srgb, var(--kpi) 10%, transparent), transparent 62%);
+}
+
+/* Factory floor map: zones with glowing machine pins. */
+.floor-map { position: relative; }
+.floor-map-tools { display: flex; justify-content: flex-end; gap: 0.4rem; margin-bottom: 0.5rem; }
+.floor-map-btn {
+  display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 999px; border: 1px solid var(--dv-line);
+  background: var(--dv-card); color: inherit; transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.floor-map-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 8px 18px color-mix(in srgb, var(--dv-brand) 25%, transparent); }
+.floor-map-btn:disabled { opacity: 0.4; cursor: default; }
+.floor-map-scroll {
+  max-height: 340px; overflow: auto; border-radius: 16px; border: 1px solid var(--dv-line);
+  background:
+    linear-gradient(var(--dv-line) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(90deg, var(--dv-line) 1px, transparent 1px) 0 0 / 28px 28px,
+    color-mix(in srgb, var(--dv-row) 70%, transparent);
+}
+.floor-map-grid {
+  display: grid; gap: 0.9rem; padding: 0.9rem; width: calc(100% * var(--fm-zoom, 1)); min-width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.floor-zone {
+  position: relative; border-radius: 16px; padding: 1.7rem 0.8rem 0.8rem; background: color-mix(in srgb, var(--dv-card) 88%, transparent);
+  border: 1px solid var(--dv-line); box-shadow: var(--dv-shadow);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  animation: fc-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--i) * 80ms);
+}
+.floor-zone-name { position: absolute; top: 0.55rem; left: 0.9rem; font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; opacity: 0.6; }
+.floor-zone-pins { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.floor-pin {
+  display: flex; align-items: center; gap: 0.5rem; max-width: 100%; border-radius: 14px; padding: 0.4rem 0.65rem 0.4rem 0.55rem;
+  border: 1.5px solid color-mix(in srgb, var(--pin) 70%, transparent);
+  background: color-mix(in srgb, var(--pin) 12%, var(--dv-card));
+  transition: transform 0.18s ease, box-shadow 0.2s ease;
+  animation: fc-pop 0.4s cubic-bezier(0.3, 1.4, 0.5, 1) backwards; animation-delay: calc(0.25s + var(--i) * 70ms);
+}
+.floor-pin:hover { transform: translateY(-2px); box-shadow: 0 10px 22px color-mix(in srgb, var(--pin) 34%, transparent); }
+.floor-pin-dot { position: relative; flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--pin); }
+.floor-pin-alert .floor-pin-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--pin); animation: floor-ring 1.5s ease-out infinite; }
+.floor-pin-text { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.floor-pin-text b { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.floor-pin-text small { font-size: 10.5px; color: var(--pin); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.floor-pin-count { flex: none; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 10px; font-weight: 700; color: var(--pin); background: color-mix(in srgb, var(--pin) 18%, transparent); }
+@keyframes floor-ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(2.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .floor-zone, .floor-pin, .floor-pin-dot::after { animation: none !important; } }
+
+/* Page wrappers that paint the page colour themselves would hide the backdrop glow. */
+.app-main :is(.min-h-full, .min-h-screen)[class*="bg-[#0A1628]"] { background-color: transparent !important; }
+
+/* Frosted glass on desktop: cards are translucent and blur the glow behind them. */
+@media (min-width: 1024px) and (prefers-reduced-transparency: no-preference) {
+  .app-main :is(.bg-white, [class*="bg-[#0F1E35]"]):is(.rounded-lg, .rounded-xl, .rounded-2xl),
+  .app-main .fc-widget,
+  .app-main .kpi-card {
+    background-color: color-mix(in srgb, var(--dv-card) 70%, transparent) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    border-color: color-mix(in srgb, var(--dv-line) 70%, rgba(255, 255, 255, 0.5));
+  }
+  .fc-dropdown, .app-header { -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); }
+}
+
+/* Charts (Recharts): soft grid, glowing lines, rounded tooltips, a reveal on load. */
+.app-main .recharts-wrapper { animation: fc-rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.app-main .recharts-cartesian-grid line { stroke-dasharray: 4 7; opacity: 0.5; }
+.app-main .recharts-line-curve { stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 5px 7px color-mix(in srgb, currentColor 30%, transparent)); }
+.app-main .recharts-area-area { transition: opacity 0.3s ease; }
+.app-main .recharts-dot { transition: r 0.15s ease; }
+.app-main .recharts-active-dot circle { stroke-width: 3; filter: drop-shadow(0 0 6px currentColor); }
+.app-main .recharts-bar-rectangle { transition: filter 0.2s ease; }
+.app-main .recharts-bar-rectangle:hover { filter: brightness(1.18) drop-shadow(0 6px 10px rgba(30, 80, 200, 0.35)); }
+.app-main .recharts-tooltip-wrapper > div { border-radius: 14px !important; box-shadow: 0 16px 36px rgba(8, 14, 32, 0.28) !important; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.app-main .recharts-sector { transition: transform 0.2s ease; }
+
+/* Table rows glide in one after another. */
+.app-main table:not(.table-plain) tbody tr { animation: fc-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.app-main table:not(.table-plain) tbody tr:nth-child(2) { animation-delay: 40ms; }
+.app-main table:not(.table-plain) tbody tr:nth-child(3) { animation-delay: 80ms; }
+.app-main table:not(.table-plain) tbody tr:nth-child(4) { animation-delay: 120ms; }
+.app-main table:not(.table-plain) tbody tr:nth-child(5) { animation-delay: 160ms; }
+.app-main table:not(.table-plain) tbody tr:nth-child(n + 6) { animation-delay: 200ms; }
+/* Sidebar groups cascade when the page loads. */
+.app-sidebar .nav-item, .app-sidebar .nav-group { animation: fc-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.app-sidebar nav > :nth-child(2) .nav-group, .app-sidebar nav > :nth-child(3) { animation-delay: 60ms; }
+.app-sidebar nav > :nth-child(4) { animation-delay: 100ms; }
+.app-sidebar nav > :nth-child(5) { animation-delay: 140ms; }
+.app-sidebar nav > :nth-child(6) { animation-delay: 180ms; }
+.app-sidebar nav > :nth-child(n + 7) { animation-delay: 220ms; }
+@media (prefers-reduced-motion: reduce) {
+  .app-main .recharts-wrapper, .app-main table tbody tr, .app-sidebar .nav-item, .app-sidebar .nav-group { animation: none !important; }
+}
+
+/* PM tab: view switch, status board and Gantt timeline. */
+.pm-views { display: inline-flex; gap: 0.25rem; padding: 0.25rem; border-radius: 999px; border: 1px solid var(--dv-line); background: var(--dv-card); }
+.pm-views button { border: 0; background: none; border-radius: 999px; padding: 0.4rem 1.1rem; font-size: 13px; font-weight: 600; color: inherit; opacity: 0.65; transition: all 0.2s ease; }
+.pm-views button:hover { opacity: 1; }
+.pm-views button.is-on { opacity: 1; background: var(--dv-brand); color: #fff; box-shadow: 0 8px 18px color-mix(in srgb, var(--dv-brand) 35%, transparent); }
+html[data-theme="dark"] .pm-views button.is-on { color: #06122a; }
+
+.pm-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(235px, 1fr); gap: 0.9rem; overflow-x: auto; padding-bottom: 0.5rem; align-items: start; }
+.pm-col { border-radius: 20px; padding: 0.8rem; background: color-mix(in srgb, var(--dv-card) 72%, transparent); border: 1px solid var(--dv-line); box-shadow: var(--dv-shadow); animation: fc-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--ci) * 70ms); }
+@media (min-width: 1024px) { .pm-col { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); } }
+.pm-col-head { display: flex; align-items: center; gap: 0.5rem; margin: 0.1rem 0.15rem 0.7rem; }
+.pm-col-head h3 { flex: 1; margin: 0; font-size: 13.5px; font-weight: 700; }
+.pm-col-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--col); box-shadow: 0 0 10px var(--col); }
+.pm-col-count { min-width: 1.5rem; text-align: center; border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 11.5px; font-weight: 700; color: var(--col); background: color-mix(in srgb, var(--col) 16%, transparent); }
+.pm-col-body { display: flex; flex-direction: column; gap: 0.55rem; }
+.pm-col-empty { margin: 0.4rem 0; text-align: center; font-size: 12px; opacity: 0.55; }
+.pm-card { position: relative; display: flex; flex-direction: column; gap: 0.2rem; text-align: left; width: 100%; padding: 0.7rem 0.8rem 0.7rem 1rem; border: 1px solid var(--dv-line); border-radius: 14px; background: var(--dv-card); color: inherit; transition: transform 0.18s ease, box-shadow 0.2s ease; animation: fc-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(0.15s + var(--i) * 60ms); }
+.pm-card::before { content: ""; position: absolute; left: 0.4rem; top: 0.8rem; bottom: 0.8rem; width: 3px; border-radius: 2px; background: var(--prio); }
+.pm-card:hover { transform: translateY(-3px); box-shadow: var(--dv-shadow-hover); }
+.pm-card-type { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--prio); }
+.pm-card-machine { font-size: 13.5px; font-weight: 600; }
+.pm-card-meta { font-size: 11.5px; opacity: 0.65; }
+.pm-card-people { display: flex; margin-top: 0.2rem; }
+.pm-card-people i { display: grid; place-items: center; width: 1.45rem; height: 1.45rem; margin-right: -0.3rem; border-radius: 50%; font-style: normal; font-size: 9.5px; font-weight: 700; color: #fff; background: var(--dv-brand); border: 2px solid var(--dv-card); }
+
+.pm-gantt-card { border-radius: 20px; padding: 1rem; background: color-mix(in srgb, var(--dv-card) 72%, transparent); border: 1px solid var(--dv-line); box-shadow: var(--dv-shadow); }
+@media (min-width: 1024px) { .pm-gantt-card { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); } }
+.pm-gantt-bar { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem; }
+.pm-gantt-bar h3 { margin: 0; flex: 1; font-size: 15px; font-weight: 700; }
+.pm-gantt-nav { width: 2rem; height: 2rem; border-radius: 999px; border: 1px solid var(--dv-line); background: var(--dv-card); color: inherit; transition: transform 0.15s ease, box-shadow 0.2s ease; }
+.pm-gantt-nav:hover { transform: translateY(-1px); box-shadow: 0 8px 18px color-mix(in srgb, var(--dv-brand) 25%, transparent); }
+.pm-gantt-scroll { overflow-x: auto; }
+.pm-gantt { --label: 150px; min-width: 780px; position: relative; }
+.pm-gantt-head, .pm-gantt-row { display: grid; grid-template-columns: var(--label) 1fr; }
+.pm-gantt-days { display: grid; grid-template-columns: repeat(var(--days), 1fr); }
+.pm-gantt-days span { display: flex; flex-direction: column; align-items: center; padding: 0.2rem 0; font-size: 12.5px; font-weight: 700; border-left: 1px solid var(--dv-line); }
+.pm-gantt-days small { font-size: 10px; font-weight: 600; opacity: 0.55; text-transform: uppercase; }
+.pm-gantt-days .is-weekend { background: color-mix(in srgb, var(--dv-brand) 6%, transparent); }
+.pm-gantt-body { position: relative; padding-top: 0.4rem; }
+.pm-gantt-row { align-items: center; min-height: 2.6rem; animation: fc-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--i) * 45ms); }
+.pm-gantt-label { display: flex; flex-direction: column; min-width: 0; padding-right: 0.6rem; line-height: 1.2; }
+.pm-gantt-label b { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pm-gantt-label small { font-size: 10.5px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pm-gantt-track { position: relative; height: 2.6rem; background: repeating-linear-gradient(90deg, var(--dv-line) 0 1px, transparent 1px calc(100% / var(--days))); }
+.pm-gantt-barpill { position: absolute; top: 0.55rem; height: 1.5rem; min-width: 1.6rem; border: 0; border-radius: 999px; padding: 0 0.6rem; font-size: 10.5px; font-weight: 700; color: #fff; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: linear-gradient(90deg, var(--bar), color-mix(in srgb, var(--bar) 70%, #fff)); box-shadow: 0 6px 14px color-mix(in srgb, var(--bar) 35%, transparent); transform-origin: left; animation: growx 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(0.2s + var(--i) * 45ms); transition: transform 0.15s ease, filter 0.15s ease; }
+.pm-gantt-barpill:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.pm-gantt-today { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--dv-brand); z-index: 2; pointer-events: none; }
+.pm-gantt-today span { position: absolute; top: -1.35rem; left: 0; transform: translateX(-50%); border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; color: #fff; background: var(--dv-brand); white-space: nowrap; }
+html[data-theme="dark"] .pm-gantt-today span { color: #06122a; }
+@keyframes growx { from { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .pm-col, .pm-card, .pm-gantt-row, .pm-gantt-barpill { animation: none !important; } }

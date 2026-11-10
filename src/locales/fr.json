@@ -3757,6 +3757,11 @@
       "editPage": {
         "title": "Modifier le Programme de MP",
         "notFound": "Programme introuvable. Il a peut-être été supprimé."
+      },
+      "views": {
+        "calendar": "Calendrier",
+        "board": "Tableau",
+        "timeline": "Chronologie"
       }
     },
     "workPermits": {

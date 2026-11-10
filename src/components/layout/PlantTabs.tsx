@@ -49,12 +49,12 @@ export function PlantTabs() {
   const options = activePlants.map((p) => ({ id: p.id, label: p.name }));
 
   return (
-    <div data-tour="plant-tabs" className="shrink-0 border-b border-[#1E3A5F] bg-[#0B172A] px-4 py-2.5 lg:px-6">
+    <div data-tour="plant-tabs" className="app-header shrink-0 px-4 py-2.5 lg:px-6">
       <div className="flex items-center gap-3">
         <div
           role="tablist"
           aria-label={t('common.layout.plantTabs.label', 'Plant')}
-          className="scrollbar-hide flex min-w-0 items-center gap-1 overflow-x-auto rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-1"
+          className="scrollbar-hide flex min-w-0 items-center gap-1 overflow-x-auto rounded-full border border-[#1E3A5F] bg-[#0F1E35] p-1"
         >
           {options.map((o) => {
             const active = activePlantId === o.id;
@@ -65,7 +65,7 @@ export function PlantTabs() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setActivePlant(o.id)}
-                className={`flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 text-[12.5px] font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] ${
+                className={`flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[12.5px] font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] ${
                   active
                     ? 'bg-gradient-to-b from-[#2563EB] to-[#1A56DB] text-white shadow-md shadow-[#1A56DB]/30'
                     : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'

@@ -3757,6 +3757,11 @@
       "editPage": {
         "title": "PM-Plan Bearbeiten",
         "notFound": "Plan nicht gefunden. Er wurde möglicherweise gelöscht."
+      },
+      "views": {
+        "calendar": "Kalender",
+        "board": "Board",
+        "timeline": "Zeitleiste"
       }
     },
     "workPermits": {
