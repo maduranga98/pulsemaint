@@ -16,6 +16,10 @@ import TopProblemMachinesChart from '../../components/dashboard/manager/TopProbl
 import MaintenanceCostChart from '../../components/dashboard/manager/MaintenanceCostChart';
 import TechnicianPerformanceTable from '../../components/dashboard/manager/TechnicianPerformanceTable';
 import PmComplianceWidget from '../../components/dashboard/manager/PmComplianceWidget';
+import BreakdownBubbleChart from '../../components/dashboard/manager/BreakdownBubbleChart';
+import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
+import WoTypeRankBars from '../../components/dashboard/manager/WoTypeRankBars';
+import MachineLoadRadar from '../../components/dashboard/manager/MachineLoadRadar';
 import PmTrendChart from '../../components/dashboard/manager/PmTrendChart';
 import WoTypeDistributionChart from '../../components/dashboard/manager/WoTypeDistributionChart';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
@@ -188,6 +192,12 @@ export default function AnalyticsPage() {
             <div className="lg:col-span-5">
               <BreakdownByTypeChart companyId={companyId} />
             </div>
+            <div className="lg:col-span-7">
+              <BreakdownBubbleChart />
+            </div>
+            <div className="lg:col-span-5">
+              <SlaGaugeWidget companyId={companyId} />
+            </div>
           </div>
         )}
 
@@ -212,11 +222,17 @@ export default function AnalyticsPage() {
                 <MaintenanceCostChart companyId={companyId} month={months} />
               </div>
             </div>
+            <WoTypeRankBars companyId={companyId} months={months} />
             {contractorsOn && <ContractorScoreboard companyId={companyId} month={months} />}
           </div>
         )}
 
-        {tab === 'machines' && <TopProblemMachinesChart companyId={companyId} month={months} />}
+        {tab === 'machines' && (
+          <div className="space-y-6">
+            <TopProblemMachinesChart companyId={companyId} month={months} />
+            <MachineLoadRadar companyId={companyId} month={months} />
+          </div>
+        )}
         {/* Plants and Team are advanced analytics — Factory Pro and above. */}
         {tab === 'plants' && (
           <PlanFeatureGate feature="advancedAnalytics">

@@ -181,13 +181,13 @@ html[data-theme="dark"] .app-header { --hd-bg: #0a1628; }
 /* Charts (Recharts): soft grid, glowing lines, rounded tooltips, a reveal on load. */
 .app-main .recharts-wrapper { animation: fc-rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 .app-main .recharts-cartesian-grid line { stroke-dasharray: 4 7; opacity: 0.5; }
-.app-main .recharts-line-curve { stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 5px 7px color-mix(in srgb, currentColor 30%, transparent)); }
+
 .app-main .recharts-area-area { transition: opacity 0.3s ease; }
 .app-main .recharts-dot { transition: r 0.15s ease; }
-.app-main .recharts-active-dot circle { stroke-width: 3; filter: drop-shadow(0 0 6px currentColor); }
+
 .app-main .recharts-bar-rectangle { transition: filter 0.2s ease; }
-.app-main .recharts-bar-rectangle:hover { filter: brightness(1.18) drop-shadow(0 6px 10px rgba(30, 80, 200, 0.35)); }
-.app-main .recharts-tooltip-wrapper > div { border-radius: 14px !important; box-shadow: 0 16px 36px rgba(8, 14, 32, 0.28) !important; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.app-main .recharts-bar-rectangle:hover { filter: brightness(1.12); }
+.app-main .recharts-tooltip-wrapper > div { border-radius: 14px !important; box-shadow: 0 8px 20px rgba(8, 14, 32, 0.18) !important; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .app-main .recharts-sector { transition: transform 0.2s ease; }
 
 /* Table rows glide in one after another. */
@@ -469,7 +469,6 @@ html[data-theme="dark"] .pill-ink { background: #2563eb; }
 .seg-tick { stroke-width: 7; stroke-linecap: round; stroke: color-mix(in srgb, currentColor 16%, transparent); transition: stroke 0.3s ease; }
 .seg-tick.is-lit {
   stroke: color-mix(in srgb, var(--c) calc(100% - var(--mix)), #ffffff);
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 55%, transparent));
   animation: seg-on 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--i) * 28ms);
 }
 .seg-gauge-label { position: absolute; left: 0; right: 0; bottom: 6%; text-align: center; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
@@ -477,9 +476,9 @@ html[data-theme="dark"] .pill-ink { background: #2563eb; }
 @media (prefers-reduced-motion: reduce) { .seg-tick.is-lit { animation: none !important; } }
 
 /* Charts, neon style: bright glowing lines with a dot at the end, bars that grow, a dashed cursor with a halo on the active point. */
-.app-main .recharts-line-curve { stroke-width: 3; filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 6px 10px color-mix(in srgb, currentColor 35%, transparent)); }
+
 .app-main .recharts-line .recharts-line-dots circle { r: 3.5; stroke-width: 2; }
-.app-main .recharts-active-dot circle { r: 6; filter: drop-shadow(0 0 8px currentColor); }
+
 .app-main .recharts-tooltip-cursor { stroke-dasharray: 4 5; stroke: color-mix(in srgb, currentColor 55%, transparent); }
 .app-main .recharts-bar-rectangle { transform-box: fill-box; transform-origin: 50% 100%; animation: bar-grow 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 .app-main .recharts-bar-rectangle:nth-child(2) { animation-delay: 60ms; } .app-main .recharts-bar-rectangle:nth-child(3) { animation-delay: 120ms; }
@@ -488,5 +487,41 @@ html[data-theme="dark"] .pill-ink { background: #2563eb; }
 .app-main .recharts-pie-sector, .app-main .recharts-radial-bar-sector { animation: fc-fade 0.9s ease-out backwards; }
 @keyframes bar-grow { from { transform: scaleY(0); opacity: 0.4; } }
 @media (prefers-reduced-motion: reduce) { .app-main .recharts-bar-rectangle, .app-main .recharts-area-area, .app-main .recharts-pie-sector { animation: none !important; } }
-html[data-theme="light"] .app-main .recharts-line-curve { filter: drop-shadow(0 4px 5px rgba(40, 80, 200, 0.22)); }
-html[data-theme="light"] .app-main .recharts-active-dot circle { filter: drop-shadow(0 0 5px rgba(40, 80, 200, 0.45)); }
+html[data-theme="light"] 
+html[data-theme="light"] 
+
+/* Charts: calm lines, no glow. */
+.app-main .recharts-line-curve { stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.app-main .recharts-active-dot circle { r: 5; stroke-width: 2; }
+
+/* Bubble chart, radar and ranked bars (Analytics). */
+.bubble-chart { display: block; width: 100%; height: auto; max-height: 300px; }
+.bubble { animation: bubble-pop 0.6s cubic-bezier(0.3, 1.3, 0.5, 1) backwards; animation-delay: calc(var(--i) * 90ms); }
+.bubble circle { transition: transform 0.2s ease; transform-box: fill-box; transform-origin: center; }
+.bubble:hover circle { transform: scale(1.04); }
+.bubble-pct { fill: #ffffff; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bubble-name { fill: #ffffff; font-size: 11px; opacity: 0.92; }
+@keyframes bubble-pop { from { opacity: 0; transform: scale(0.4); } }
+.radar-wrap { position: relative; }
+.radar-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 1.6rem; font-weight: 700; pointer-events: none; font-variant-numeric: tabular-nums; }
+.app-main .recharts-polar-grid-concentric-polygon, .app-main .recharts-polar-grid-angle line { stroke: color-mix(in srgb, currentColor 20%, transparent); fill: none; }
+.rank-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+.rank-bars li { display: grid; grid-template-columns: minmax(6.5rem, 9rem) 1fr 3rem; align-items: center; gap: 0.9rem; animation: fc-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--i) * 70ms); }
+.rank-name { font-size: 13.5px; font-weight: 500; }
+.rank-track { display: block; height: 0.5rem; border-radius: 999px; background: color-mix(in srgb, currentColor 10%, transparent); overflow: hidden; }
+.rank-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #6d5df6, #38bdf8); transform-origin: left; animation: growx 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(0.15s + var(--i) * 70ms); }
+.rank-value { text-align: right; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .bubble, .rank-bars li, .rank-track i { animation: none !important; } }
+
+/* Department display (link share) window: frosted glass cards, a pulsing "on" status, check-mark lists. */
+.share-page .share-status.is-on > span { position: relative; }
+.share-page .share-status.is-on > span::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid currentColor; animation: floor-ring 1.8s ease-out infinite; }
+.share-page .share-link { border-radius: 999px !important; padding-left: 1rem; }
+.share-page section { border-radius: 24px !important; animation: fc-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.share-page aside section { animation-delay: 0.12s; }
+.share-page section[role="alertdialog"], .share-page [role="alertdialog"] { border-radius: 18px; animation: fc-pop 0.25s cubic-bezier(0.2, 0.8, 0.3, 1.1); }
+.share-list { list-style: none; padding: 0; margin: 0; }
+.share-list li { position: relative; padding-left: 1.6rem; }
+.share-list li::before { content: "✓"; position: absolute; left: 0; top: 0; font-weight: 700; color: var(--dv-brand); }
+.share-list li.share-no::before { content: "✕"; color: #ef4444; }
+@media (prefers-reduced-motion: reduce) { .share-page section, .share-page .share-status.is-on > span::after { animation: none !important; } }
