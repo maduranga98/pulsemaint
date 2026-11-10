@@ -392,3 +392,48 @@ html[data-theme="dark"] .app-main .recharts-legend-item-text { color: #E3ECF8 !i
   box-shadow: 0 0 10px color-mix(in srgb, currentColor 18%, transparent);
   transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+/* ---------------------------------------------------------------------------
+ * Rounded everywhere. The whole app sits in one rounded window, the header is
+ * a floating rounded bar, and Tailwind's corner sizes are raised so no panel,
+ * dialog, field or chip has a sharp corner.
+ * --------------------------------------------------------------------------- */
+:root {
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.375rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2rem;
+}
+.rounded { border-radius: 0.625rem; }
+.rounded-sm { border-radius: var(--radius-sm); }
+
+/* Boxes drawn with a border but no corner of their own. */
+.app-main :is(div, section, article, aside, ul, details, form)[class~="border"]:not([class*="rounded"]):not(.table-plain) { border-radius: 14px; }
+
+/* The window: on desktop the app is a rounded frame inset from the screen edge. */
+@media (min-width: 1024px) {
+  .app-root { padding: 12px; }
+  .app-frame { border-radius: 30px; box-shadow: 0 30px 70px rgba(8, 20, 60, 0.22), 0 0 0 1px rgba(120, 160, 230, 0.14); }
+  html[data-theme="dark"] .app-frame { box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(120, 160, 230, 0.16); }
+  .app-sidebar { border-radius: 30px 0 0 30px; }
+}
+
+/* The header: a floating rounded bar. */
+.app-header {
+  --hd-line: rgba(16, 26, 51, 0.09);
+  margin: 10px 12px 0;
+  border-radius: 22px;
+  border: 1px solid var(--hd-line);
+  box-shadow: 0 10px 28px rgba(30, 60, 140, 0.08);
+}
+html[data-theme="dark"] .app-header { --hd-line: rgba(120, 160, 230, 0.16); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35); }
+@media (min-width: 1024px) { .app-header { margin: 12px 16px 0; } }
+
+/* Sidebar: every row is a rounded pill, the group headings too. */
+.app-sidebar .nav-group { border-radius: 14px; }
+.app-sidebar .nav-item { border-radius: 14px; }
+.app-sidebar .sb-brand { border-bottom: 0; }
+.app-sidebar .me, .app-sidebar .nav-badge { border-radius: 999px; }
