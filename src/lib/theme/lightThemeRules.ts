@@ -18,16 +18,16 @@ export const LIGHT = {
   trackStrong: '#C3D0E4',
   line: '#DCE4F0',
   lineStrong: '#B9C7DD',
-  ink: '#101A33',
-  inkSoft: '#1E2A44',
-  inkMuted: '#34405A',
-  inkSubtle: '#445068',
+  ink: '#080D1C',
+  inkSoft: '#0F1830',
+  inkMuted: '#18223C',
+  inkSubtle: '#222D47',
 } as const;
 
 /** Pale accent text that is unreadable on white → a deeper shade of the same hue. */
 const INK_ACCENTS: Record<string, string> = {
   '#60A5FA': '#1D4ED8', '#93C5FD': '#1E40AF', '#5B8DEF': '#1A56DB', '#8DB8FF': '#1D4ED8', '#4C8DFF': '#1A56DB',
-  '#00C2FF': '#0077A8', '#10B981': '#047857', '#34D399': '#047857', '#4ADE80': '#15803D', '#86EFAC': '#15803D',
+  '#00C2FF': '#005A8A', '#10B981': '#047857', '#34D399': '#047857', '#4ADE80': '#15803D', '#86EFAC': '#15803D',
   '#EF4444': '#DC2626', '#F87171': '#DC2626', '#FCA5A5': '#B91C1C', '#FECACA': '#B91C1C',
   '#F59E0B': '#B45309', '#FBBF24': '#B45309', '#FCD34D': '#B45309', '#FDE68A': '#92400E', '#EAB308': '#A16207',
   '#A78BFA': '#6D28D9',

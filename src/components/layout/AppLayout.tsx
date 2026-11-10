@@ -191,7 +191,8 @@ export default function AppLayout() {
 
   return (
     // dvh, not vh: on phones 100vh includes the browser's address bar, which pushed the dock off-screen.
-    <div className="h-dvh bg-[#0A1628] text-[#F0F4F8] flex overflow-hidden">
+    <div className="app-root h-dvh bg-[#0A1628] text-[#F0F4F8] overflow-hidden">
+    <div className="app-frame flex h-full w-full overflow-hidden">
       {/* Sidebar */}
       <aside className="app-sidebar hidden lg:flex w-60 shrink-0 flex-col">
         <div className="sb-brand h-14 flex items-center px-5 shrink-0">
@@ -277,7 +278,7 @@ export default function AppLayout() {
       </aside>
 
       {/* Main column */}
-      <div className="flex-1 flex flex-col min-w-0 h-dvh">
+      <div className="flex-1 flex flex-col min-w-0 h-full">
         <header className="app-header h-14 shrink-0 flex items-center justify-between px-4 lg:px-6 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <Link to={homePath} className="lg:hidden flex items-center gap-2 min-h-[44px]">
@@ -348,6 +349,7 @@ export default function AppLayout() {
 
         {showDock && <MobileDock nav={nav} bar={!launcherRole} />}
       </div>
+    </div>
     </div>
   );
 }

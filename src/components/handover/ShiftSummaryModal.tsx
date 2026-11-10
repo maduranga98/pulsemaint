@@ -1,4 +1,5 @@
 import { X, Clock, TrendingUp } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { ShiftSession } from '@/types/handover.types';
 import { formatDuration, formatTimeRange } from '@/utils/handover.utils';
@@ -29,46 +30,47 @@ export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToH
   const totalMinutes = session.totalMinutes ?? 0;
   const otMinutes = session.otMinutes ?? 0;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end bg-slate-950/70 p-4 sm:items-center sm:justify-center">
-      <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-5 shadow-xl">
+      <div className="w-full max-w-md rounded-3xl border border-[#1E3A5F] bg-[#0F1E35] p-6 shadow-2xl">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className=" text-lg font-bold text-white">{t('common.myShift.summaryModal.title')}</h2>
-            <p className="mt-1 text-sm text-slate-300">{session.shiftName} · {session.shiftDate}</p>
+            <h2 className=" text-lg font-bold text-[#F0F4F8]">{t('common.myShift.summaryModal.title')}</h2>
+            <p className="mt-1 text-sm text-[#B8C7DB]">{session.shiftName} · {session.shiftDate}</p>
           </div>
-          <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-md text-slate-400 hover:text-white" aria-label={t('common.myShift.summaryModal.closeAria')}>
+          <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-full text-[#8BA3BF] hover:text-[#F0F4F8]" aria-label={t('common.myShift.summaryModal.closeAria')}>
             <X className="mx-auto h-5 w-5" />
           </button>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-cyan-300"><Clock className="h-4 w-4" /> {t('common.myShift.summaryModal.totalHours')}</div>
-            <p className="mt-1 text-2xl font-bold text-cyan-100">{formatDuration(totalMinutes * 60000)}</p>
+          <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#00C2FF]"><Clock className="h-4 w-4" /> {t('common.myShift.summaryModal.totalHours')}</div>
+            <p className="mt-1 text-2xl font-bold text-[#F0F4F8]">{formatDuration(totalMinutes * 60000)}</p>
           </div>
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-amber-300"><TrendingUp className="h-4 w-4" /> {t('common.myShift.summaryModal.overtime')}</div>
-            <p className="mt-1 text-2xl font-bold text-amber-100">{otMinutes > 0 ? formatDuration(otMinutes * 60000) : t('common.myShift.summaryModal.none')}</p>
+          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#FBBF24]"><TrendingUp className="h-4 w-4" /> {t('common.myShift.summaryModal.overtime')}</div>
+            <p className="mt-1 text-2xl font-bold text-[#F0F4F8]">{otMinutes > 0 ? formatDuration(otMinutes * 60000) : t('common.myShift.summaryModal.none')}</p>
           </div>
         </div>
 
-        <dl className="mt-3 grid gap-2 rounded-lg border border-slate-700 bg-slate-800 p-4 text-sm">
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">{t('common.myShift.summaryModal.scheduled')}</dt><dd className="text-slate-100">{formatTimeRange(session.scheduledStart, session.scheduledEnd)} ({formatDuration(session.scheduledMinutes * 60000)})</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">{t('common.myShift.summaryModal.started')}</dt><dd className="text-slate-100">{formatDateTime(session.actualStart)}</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">{t('common.myShift.summaryModal.ended')}</dt><dd className="text-slate-100">{session.actualEnd ? formatDateTime(session.actualEnd) : '-'}</dd></div>
+        <dl className="mt-3 grid gap-2 rounded-2xl border border-[#1E3A5F] bg-[#142849] p-4 text-sm">
+          <div className="flex justify-between gap-3"><dt className="text-[#B8C7DB]">{t('common.myShift.summaryModal.scheduled')}</dt><dd className="text-[#F0F4F8]">{formatTimeRange(session.scheduledStart, session.scheduledEnd)} ({formatDuration(session.scheduledMinutes * 60000)})</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-[#B8C7DB]">{t('common.myShift.summaryModal.started')}</dt><dd className="text-[#F0F4F8]">{formatDateTime(session.actualStart)}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-[#B8C7DB]">{t('common.myShift.summaryModal.ended')}</dt><dd className="text-[#F0F4F8]">{session.actualEnd ? formatDateTime(session.actualEnd) : '-'}</dd></div>
         </dl>
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className="min-h-12 rounded-md border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800">{t('common.myShift.summaryModal.close')}</button>
+          <button type="button" onClick={onClose} className="min-h-12 rounded-full border border-[#1E3A5F] px-4 py-2 text-sm font-semibold text-[#F0F4F8] hover:bg-[#142849]">{t('common.myShift.summaryModal.close')}</button>
           {canHandover && (
-            <button type="button" onClick={onContinueToHandover} className="min-h-12 rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white">
+            <button type="button" onClick={onContinueToHandover} className="min-h-12 rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white">
               {t('common.myShift.summaryModal.handOverToNext')}
             </button>
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
