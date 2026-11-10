@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
             {t('common.analytics.mainPage.subtitle')}
           </p>
         </div>
-        <div className="inline-flex rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-1 text-xs">
+        <div className="inline-flex rounded-full border border-[#1E3A5F] bg-[#0F1E35] p-1 text-xs">
           {(['mtd', '3m', '6m', '12m'] as Range[]).map((r) => (
             <button
               key={r}
@@ -163,16 +163,16 @@ export default function AnalyticsPage() {
         <ProductionDowntimeStrip companyId={companyId} />
 
         {/* Section tabs */}
-        <div className="flex flex-wrap gap-1 border-b border-[#1E3A5F]">
+        <div className="dv-tabs inline-flex flex-wrap gap-1 rounded-full border border-[#1E3A5F] bg-[#0F1E35] p-1">
           {TABS.map((t) => (
             <button
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
                 tab === t.value
-                  ? 'border-[#1A56DB] text-[#F0F4F8]'
-                  : 'border-transparent text-[#8BA3BF] hover:text-[#F0F4F8]'
+                  ? 'bg-[#1A56DB] text-white shadow-md shadow-[#1A56DB]/30'
+                  : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
               }`}
             >
               {t.label}

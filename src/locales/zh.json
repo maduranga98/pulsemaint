@@ -3757,6 +3757,11 @@
       "editPage": {
         "title": "编辑 PM 计划",
         "notFound": "未找到该计划，可能已被删除。"
+      },
+      "views": {
+        "calendar": "日历",
+        "board": "看板",
+        "timeline": "时间线"
       }
     },
     "workPermits": {

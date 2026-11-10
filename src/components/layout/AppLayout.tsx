@@ -277,7 +277,7 @@ export default function AppLayout() {
 
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0 h-dvh">
-        <header className="h-14 shrink-0 bg-[#0F1E35] border-b border-[#1E3A5F] flex items-center justify-between px-4 lg:px-6 z-20">
+        <header className="app-header h-14 shrink-0 flex items-center justify-between px-4 lg:px-6 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <Link to={homePath} className="lg:hidden flex items-center gap-2 min-h-[44px]">
               <img src="/logo.svg" alt={t('common.ui2.layout.appLayout.firmicore')} className="w-7 h-7 rounded-md object-contain" />

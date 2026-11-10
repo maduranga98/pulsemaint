@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/appDesign.css";
 
 :root {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
@@ -262,7 +263,34 @@ html[data-theme="light"] .kpi-card[data-color="blue"] { --kpi: #1A56DB; }
 
 /* Sign-in screen: the marketing panel slides in behind a slanted edge and
  * the form's rows rise one after another. Same fields and wording as before. */
-.login-art { clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%); animation: login-art-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.login-art {
+  clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
+  animation: login-art-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background-image: linear-gradient(155deg, #071f66 0%, #0f3fa8 38%, #1a6be8 74%, #52b0ff 100%);
+}
+/* The scene: three machines on a belt, cycling breakdown → attended → fixed. */
+.login-scene { position: absolute; top: 8%; right: 14%; width: 270px; height: 230px; pointer-events: none; }
+@media (max-height: 820px) { .login-scene { display: none; } }
+.login-belt { position: absolute; left: 22px; top: 18px; bottom: 18px; width: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.22); }
+.login-belt::after { content: ""; position: absolute; left: -4px; width: 11px; height: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px #fff; animation: login-travel 6s linear infinite; }
+.login-machine {
+  --c: #ef4444; position: absolute; left: 40px; right: 0; height: 64px; border-radius: 18px; padding: 10px 14px;
+  display: grid; grid-template-columns: 14px 1fr; gap: 6px 14px; align-content: center;
+  background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.35);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 18px 40px rgba(4, 18, 70, 0.35);
+  top: calc(var(--i) * 82px); animation: fc-rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(0.3s + var(--i) * 0.15s);
+}
+.login-state { grid-row: 1 / span 2; align-self: center; width: 14px; height: 14px; border-radius: 50%; background: var(--c); position: relative; animation: login-state 6s ease-in-out infinite; animation-delay: calc(var(--i) * -2s); }
+.login-state::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid currentColor; color: var(--c); animation: login-ping 2s ease-out infinite; animation-delay: calc(var(--i) * -0.6s); }
+.login-lines { display: flex; flex-direction: column; gap: 7px; }
+.login-lines i { display: block; height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.55); }
+.login-lines i:last-child { width: 55%; background: rgba(255, 255, 255, 0.3); }
+.login-bar { grid-column: 2; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
+.login-bar i { display: block; height: 100%; width: 100%; border-radius: 3px; background: linear-gradient(90deg, #fff, #9bd4ff); transform-origin: left; animation: login-fill 6s ease-in-out infinite; animation-delay: calc(var(--i) * -2s); }
+@keyframes login-state { 0%, 22% { background: #ef4444; } 33%, 55% { background: #f59e0b; } 66%, 100% { background: #22c55e; } }
+@keyframes login-fill { 0%, 22% { transform: scaleX(0.12); } 55% { transform: scaleX(0.6); } 66%, 100% { transform: scaleX(1); } }
+@keyframes login-travel { from { top: 0; } to { top: calc(100% - 11px); } }
+@keyframes login-ping { from { transform: scale(0.8); opacity: 0.9; } to { transform: scale(2); opacity: 0; } }
 .login-form > * { animation: fc-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 .login-form > :nth-child(2) { animation-delay: 80ms; }
 .login-form > :nth-child(3) { animation-delay: 160ms; }
@@ -311,7 +339,7 @@ html.app-shell-active button:not(:disabled):active { transform: scale(0.98); }
 
 @media (prefers-reduced-motion: reduce) {
   .fc-page, .fc-page .kpi-card, .fc-page .fc-widget, .fc-skel, .fc-dropdown, .fc-bell-ring, .fc-badge-pop,
-  .theme-switch-icon, .login-art, .login-form > *, .pm-month, .pm-day-selected, .pm-day-list > *, .pm-ring-value, .app-sidebar .nav-item-active, .app-sidebar .nav-group-items,
+  .theme-switch-icon, .login-art, .login-machine, .login-state, .login-state::after, .login-bar i, .login-belt::after, .login-form > *, .pm-month, .pm-day-selected, .pm-day-list > *, .pm-ring-value, .app-sidebar .nav-item-active, .app-sidebar .nav-group-items,
   html.app-shell-active .fixed.inset-0, html.app-shell-active .fixed.inset-0 > * { animation: none !important; }
   .kpi-card:hover, .app-sidebar .nav-item:hover, html.app-shell-active button:not(:disabled):active { transform: none; }
 }

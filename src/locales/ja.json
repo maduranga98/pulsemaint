@@ -3757,6 +3757,11 @@
       "editPage": {
         "title": "PM スケジュールを編集",
         "notFound": "スケジュールが見つかりません。削除された可能性があります。"
+      },
+      "views": {
+        "calendar": "カレンダー",
+        "board": "ボード",
+        "timeline": "タイムライン"
       }
     },
     "workPermits": {

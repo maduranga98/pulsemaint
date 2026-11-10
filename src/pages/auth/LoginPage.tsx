@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import LoginScene from './LoginScene';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, QrCode, X, ShieldCheck, Zap, Workflow, Target, Mail, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -141,8 +142,7 @@ export default function LoginPage() {
     <div className="min-h-dvh bg-[#0D1B33] flex overflow-x-hidden">
       {/* Marketing panel */}
       <div className="login-art hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex-col p-12">
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-[#1A56DB]/25 blur-3xl pointer-events-none" />
-        <div className="absolute top-1/3 -right-16 w-80 h-80 rounded-full bg-[#00C2FF]/15 blur-3xl pointer-events-none" />
+        <LoginScene />
 
         <div className="relative flex items-center gap-3">
           <img src="/logo.svg" alt="FirmiCore" className="h-9 w-auto" />

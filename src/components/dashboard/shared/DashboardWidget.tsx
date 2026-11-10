@@ -27,10 +27,10 @@ export default function DashboardWidget({
   const { t } = useTranslation();
   return (
     <div
-      className={`fc-widget relative bg-[#0F1E35] border border-[#1E3A5F] rounded-xl overflow-hidden hover:border-[#2E5A8F] transition-colors ${className}`}
+      className={`fc-widget relative bg-[#0F1E35] border border-[#1E3A5F] rounded-2xl overflow-hidden transition-shadow duration-300 ${className}`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-[#1E3A5F]">
+      <div className="flex items-center justify-between px-5 pt-4 pb-1">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-[#F0F4F8]">{title}</h3>
         </div>

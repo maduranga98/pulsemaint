@@ -5322,6 +5322,11 @@
       "editPage": {
         "title": "Edit PM Schedule",
         "notFound": "Schedule not found. It may have been deleted."
+      },
+      "views": {
+        "calendar": "Calendar",
+        "board": "Board",
+        "timeline": "Timeline"
       }
     },
     "workPermits": {

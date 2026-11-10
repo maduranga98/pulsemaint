@@ -1,6 +1,7 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { KpiCardData } from '../../../types/analytics.types';
+import { useCountUp } from '../../../hooks/useCountUp';
 
 // Each tile is outlined and lettered in its own colour (set per theme in style.css: .kpi-card).
 const KPI_COLORS = new Set(['green', 'amber', 'red', 'cyan', 'blue']);
@@ -13,6 +14,10 @@ interface KpiCardProps {
 export default function KpiCard({ data, onClick }: KpiCardProps) {
   const { t } = useTranslation();
   const color = KPI_COLORS.has(data.color) ? data.color : 'blue';
+  const numeric = typeof data.value === 'number' ? data.value : null;
+  const counted = useCountUp(numeric ?? 0);
+  // Whole numbers count up as integers, fractions keep their decimals.
+  const shown = numeric === null ? data.value : (Number.isInteger(numeric) ? Math.round(counted) : Number(counted.toFixed(String(numeric).split('.')[1]?.length ?? 1))).toLocaleString();
   const isPositiveTrend = data.trendPositive !== false;
   const trendColor =
     data.trendDirection === 'up'
@@ -49,7 +54,7 @@ export default function KpiCard({ data, onClick }: KpiCardProps) {
       </div>
       <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
         <span className="kpi-ink text-3xl font-bold leading-none">
-          {typeof data.value === 'number' ? data.value.toLocaleString() : data.value}
+          {shown}
         </span>
         {data.unit && <span className="text-xs text-[#8BA3BF]">{data.unit}</span>}
       </div>
