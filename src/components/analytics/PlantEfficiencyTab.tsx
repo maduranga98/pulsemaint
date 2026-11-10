@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Activity, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { usePlants } from '@/hooks/usePlants';
@@ -92,8 +92,6 @@ function WoTypeCounts({ plants, title }: { plants: PlantEfficiency[]; title: str
 // plants' fixed order, so a plant keeps its colour whatever is filtered.
 const PLANT_COLORS = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'];
 const UNASSIGNED_COLOR = '#8BA3BF';
-// Two-series charts (breakdowns vs work orders) use slots 1 and 2.
-const SERIES = { breakdowns: PLANT_COLORS[1], workOrders: PLANT_COLORS[0] };
 
 type Metric = keyof PlantEfficiencyFigures;
 
@@ -245,24 +243,6 @@ export function PlantComparison({
         <DashboardWidget title={metricLabel('downtimeHours')}>
           <HoursLine data={chartRows} xKey="name" dataKey="downtimeHours" color="#F59E0B" format={(v) => fmt('downtimeHours', v)} />
         </DashboardWidget>
-        {(['breakdowns', 'workOrders'] as Metric[]).map((m) => (
-          <DashboardWidget key={m} title={metricLabel(m)}>
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartRows} barCategoryGap="30%" margin={{ top: 22 }}>
-                  <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
-                  <XAxis {...CHART_DEFAULTS.xAxis} dataKey="name" interval={0} />
-                  <YAxis {...CHART_DEFAULTS.yAxis} width={40} allowDecimals={false} />
-                  <Tooltip {...CHART_DEFAULTS.tooltip} cursor={{ fill: '#142849' }} formatter={(v) => [fmt(m, Number(v ?? 0)), metricLabel(m)]} />
-                  <Bar dataKey={m} radius={[6, 6, 0, 0]} maxBarSize={56}>
-                    {chartRows.map((r) => <Cell key={r.name} fill={r.color} />)}
-                    <LabelList dataKey={m} position="top" style={LABEL_STYLE} />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </DashboardWidget>
-        ))}
       </div>
 
       <DashboardWidget title={t('common.analytics.plantEfficiency.health.title')}>
@@ -317,21 +297,21 @@ export function PlantDetail({ plant, name, color, fmt, compact, metricLabel }: S
   const { t } = useTranslation();
   const monthLabel = (mk: string) => new Date(`${mk}-01T00:00:00`).toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
   const trend = plant.months.map((m) => ({ ...m, label: monthLabel(m.month) }));
-  const tiles: Metric[] = ['maintenanceCost', 'downtimeHours', 'downtimeCost', 'breakdowns', 'workOrders'];
+  const tiles: Metric[] = ['maintenanceCost', 'downtimeHours', 'downtimeCost', 'breakdowns'];
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4">
-          <p className="text-xs text-[#8BA3BF]">{t('common.analytics.plantEfficiency.health.title')}</p>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+        <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-5">
+          <p className="text-base font-medium text-[#8BA3BF]">{t('common.analytics.plantEfficiency.health.title')}</p>
           <SegmentedGauge value={plant.healthScore ?? 0} color={gaugeColor(plant.healthScore)} label={plant.healthScore == null ? '—' : `${plant.healthScore}`} />
           <div className="mt-1 flex justify-center"><HealthBadge score={plant.healthScore} /></div>
           <p className="mt-1 text-xs text-[#8BA3BF]">{t('common.analytics.plantEfficiency.machines', { count: plant.machineCount })}</p>
         </div>
         {tiles.map((m) => (
-          <div key={m} className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4">
-            <p className="text-xs text-[#8BA3BF]">{metricLabel(m)}</p>
-            <p className="mt-1 text-2xl font-bold text-[#F0F4F8] tabular-nums">{fmt(m, plant.totals[m])}</p>
+          <div key={m} className="flex flex-col justify-center rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-5">
+            <p className="text-base font-medium text-[#8BA3BF]">{metricLabel(m)}</p>
+            <p className="mt-2 text-3xl font-bold leading-tight text-[#F0F4F8] tabular-nums">{fmt(m, plant.totals[m])}</p>
           </div>
         ))}
       </div>
@@ -342,22 +322,6 @@ export function PlantDetail({ plant, name, color, fmt, compact, metricLabel }: S
         </DashboardWidget>
         <DashboardWidget title={`${metricLabel('downtimeHours')} · ${name}`}>
           <HoursLine data={trend} xKey="label" dataKey="downtimeHours" color={color} format={(v) => fmt('downtimeHours', v)} />
-        </DashboardWidget>
-        <DashboardWidget title={t('common.analytics.plantEfficiency.countsTitle', { plant: name })} className="lg:col-span-2">
-          <div className="h-60">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trend} barGap={2} barCategoryGap="28%">
-                <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
-                <XAxis {...CHART_DEFAULTS.xAxis} dataKey="label" />
-                <YAxis {...CHART_DEFAULTS.yAxis} width={40} allowDecimals={false} />
-                <Tooltip {...CHART_DEFAULTS.tooltip} cursor={{ fill: '#142849' }} />
-                {/* Legend text stays in text ink; the swatch carries the series colour. */}
-                <Legend wrapperStyle={{ fontSize: 12 }} formatter={(value) => <span style={{ color: '#B8C7DB' }}>{value}</span>} />
-                <Bar dataKey="breakdowns" name={metricLabel('breakdowns')} fill={SERIES.breakdowns} radius={[4, 4, 0, 0]} maxBarSize={28} />
-                <Bar dataKey="workOrders" name={metricLabel('workOrders')} fill={SERIES.workOrders} radius={[4, 4, 0, 0]} maxBarSize={28} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
         </DashboardWidget>
         <div className="lg:col-span-2">
           <WoTypeCounts plants={[plant]} title={t('common.analytics.plantEfficiency.distributionTitle', { defaultValue: 'Maintenance distribution' })} />

@@ -160,7 +160,7 @@ export default function AnalyticsPage() {
           ))}
         </div>
 
-        <ProductionDowntimeStrip companyId={companyId} />
+        <ProductionDowntimeStrip companyId={companyId} months={months} />
 
         {/* Section tabs */}
         <div className="dv-tabs inline-flex flex-wrap gap-1 rounded-full border border-[#1E3A5F] bg-[#0F1E35] p-1">

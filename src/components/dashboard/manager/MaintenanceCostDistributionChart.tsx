@@ -1,4 +1,4 @@
-import { Area, AreaChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
@@ -8,16 +8,17 @@ import { WO_TYPE_CONFIG } from '../../../constants/woConfig';
 import type { WOType } from '../../../types/workOrder';
 import { getCompanyCurrency } from '@/lib/currency';
 
+const PALETTE = ['#1A56DB', '#22D3EE', '#10B981', '#F59E0B', '#EF4444', '#9085e9', '#d55181', '#8BA3BF'];
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K` : String(Math.round(n)));
 
-/** Maintenance cost by work-order type as a filled curve, with the cost written on each point. */
+/** Maintenance cost by work-order type as ranked horizontal bars with the cost written on each row. */
 export default function MaintenanceCostDistributionChart({ companyId, month }: { companyId: string; month: string | string[] }) {
   const { t } = useTranslation();
   const { data, loading, error, refetch } = useCostByWoType(companyId, month);
   const rows = data.map((r) => ({
     name: WO_TYPE_CONFIG[r.woType as WOType] ? t(`common.workOrders.types.${r.woType}`) : r.woType,
     cost: Math.round(r.cost),
-  }));
+  })).sort((a, b) => b.cost - a.cost);
   const total = rows.reduce((s, r) => s + r.cost, 0);
   const cur = getCompanyCurrency();
 
@@ -36,23 +37,34 @@ export default function MaintenanceCostDistributionChart({ companyId, month }: {
             {t('common.widgets.maintenanceCostChart.totalThisMonth')}{' '}
             <span className="text-[#F0F4F8] font-semibold">{cur} {total.toLocaleString()}</span>
           </p>
-          <div className="h-72">
+          <div style={{ height: Math.max(200, rows.length * 52 + 40) }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={rows} margin={{ top: 24, right: 24, left: 4, bottom: 4 }}>
-                <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
-                <XAxis {...CHART_DEFAULTS.xAxis} dataKey="name" interval={0} padding={{ left: 24, right: 24 }} />
-                <YAxis {...CHART_DEFAULTS.yAxis} tickFormatter={(v) => compact(Number(v))} width={48} />
+              <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 92, left: 8, bottom: 4 }} barCategoryGap="22%">
+                <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} horizontal={false} />
+                <XAxis {...CHART_DEFAULTS.xAxis} type="number" tickFormatter={(v) => compact(Number(v))} />
+                <YAxis {...CHART_DEFAULTS.yAxis} type="category" dataKey="name" width={120} interval={0} tick={{ fill: '#F0F4F8', fontSize: 12 }} />
                 <Tooltip
                   {...CHART_DEFAULTS.tooltip}
+                  cursor={{ fill: '#142849' }}
                   formatter={(v) => [`${cur} ${Number(v ?? 0).toLocaleString()}`, t('common.widgets.maintenanceCostChart.cost')]}
                 />
-                <Area type="monotone" dataKey="cost" stroke="#22D3EE" strokeWidth={2.5} fill="#22D3EE" fillOpacity={0.35}
-                  dot={{ r: 4, fill: '#0F1E35', stroke: '#22D3EE', strokeWidth: 2 }} isAnimationActive>
-                  <LabelList dataKey="cost" position="top" offset={10} formatter={(v) => compact(Number(v ?? 0))}
-                    style={{ fill: '#F0F4F8', fontSize: 11, fontWeight: 600 }} />
-                </Area>
-              </AreaChart>
+                <Bar dataKey="cost" radius={[0, 8, 8, 0]} maxBarSize={34}>
+                  {rows.map((r, i) => <Cell key={r.name} fill={PALETTE[i % PALETTE.length]} />)}
+                  <LabelList dataKey="cost" position="right" formatter={(v) => `${cur} ${Number(v ?? 0).toLocaleString()}`}
+                    style={{ fill: '#F0F4F8', fontSize: 12, fontWeight: 700 }} />
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-3 pt-3 border-t border-[#1E3A5F]/50 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
+            {rows.map((r, i) => (
+              <div key={r.name} className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-1.5 text-[#8BA3BF]">
+                  <span className="h-2 w-2 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />{r.name}
+                </span>
+                <span className="font-medium text-[#F0F4F8]">{cur} {r.cost.toLocaleString()}</span>
+              </div>
+            ))}
           </div>
         </>
       )}
