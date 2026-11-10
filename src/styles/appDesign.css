@@ -259,3 +259,136 @@ html[data-theme="dark"] .pm-views button.is-on { color: #06122a; }
 html[data-theme="dark"] .pm-gantt-today span { color: #06122a; }
 @keyframes growx { from { transform: scaleX(0); } }
 @media (prefers-reduced-motion: reduce) { .pm-col, .pm-card, .pm-gantt-row, .pm-gantt-barpill { animation: none !important; } }
+
+/* ---------------------------------------------------------------------------
+ * Kanban boards (Breakdowns, Work Orders): glass columns with a stage accent,
+ * the stage name as the heading and its count as a pill, cards that rise in.
+ * --------------------------------------------------------------------------- */
+.kb-col {
+  --stage: #5b8def;
+  position: relative; overflow: hidden; border-radius: 22px !important; border: 1px solid var(--dv-line) !important;
+  background: color-mix(in srgb, var(--dv-card) 66%, transparent) !important; box-shadow: var(--dv-shadow);
+  animation: fc-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+@media (min-width: 1024px) { .kb-col { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); } }
+.kb-col::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, var(--stage), color-mix(in srgb, var(--stage) 40%, transparent)); }
+.kb-col:nth-child(2) { animation-delay: 60ms; } .kb-col:nth-child(3) { animation-delay: 120ms; }
+.kb-col:nth-child(4) { animation-delay: 180ms; } .kb-col:nth-child(n + 5) { animation-delay: 240ms; }
+.kb-head { border-bottom: 0 !important; padding: 1rem 1rem 0.4rem !important; }
+.kb-head h2 { display: flex; align-items: center; gap: 0.55rem; font-size: 14.5px !important; font-weight: 700 !important; letter-spacing: 0.01em; }
+.kb-head h2::before { content: ""; flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--stage); box-shadow: 0 0 12px var(--stage); }
+.kb-head h2 > span.rounded-full { display: none; }
+.kb-head > span:last-child {
+  min-width: 1.7rem; text-align: center; border-radius: 999px !important; border: 0 !important; padding: 0.1rem 0.6rem !important;
+  font-size: 12px !important; font-weight: 700 !important; color: var(--stage) !important;
+  background: color-mix(in srgb, var(--stage) 16%, transparent) !important;
+}
+.kb-body > * { animation: fc-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.kb-body > :nth-child(2) { animation-delay: 50ms; } .kb-body > :nth-child(3) { animation-delay: 100ms; } .kb-body > :nth-child(n + 4) { animation-delay: 150ms; }
+.kb-body > :is(a, div, article, button):hover { transform: translateY(-3px); }
+.kb-col[data-stage="reported"], .kb-col[data-stage="newly_reported"] { --stage: #ef4444; }
+.kb-col[data-stage="assigned"], .kb-col[data-stage="in_progress"], .kb-col[data-stage="attending"] { --stage: #f59e0b; }
+.kb-col[data-stage="open"] { --stage: #3b82f6; }
+.kb-col[data-stage="completed"], .kb-col[data-stage="resolved"], .kb-col[data-stage="sign_off"] { --stage: #10b981; }
+.kb-col[data-stage="closed"] { --stage: #64748b; }
+.kb-col[data-stage="cancelled"] { --stage: #94a3b8; }
+@media (prefers-reduced-motion: reduce) { .kb-col, .kb-body > * { animation: none !important; } }
+
+/* Stat tiles: the name is the heading, the count sits under it (works for any "number, then caption" tile). */
+.app-main :is(div, li, a, section):has(> :is(div, span, p)[class*="text-2xl"][class*="font-bold"]:first-child + :is(div, span, p)[class*="text-xs"]:last-child) {
+  display: flex; flex-direction: column-reverse; gap: 0.2rem;
+}
+.app-main :is(div, li, a, section):has(> :is(div, span, p)[class*="text-2xl"][class*="font-bold"]:first-child + :is(div, span, p)[class*="text-xs"]:last-child) > :last-child {
+  font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.01em; opacity: 0.85;
+}
+.stat-tile { transition: transform 0.18s ease, box-shadow 0.2s ease; }
+.stat-tile:hover { transform: translateY(-2px); box-shadow: var(--dv-shadow-hover); }
+
+/* Tabs written with an underline: the same pill treatment as the Safety Trainings tabs, with a pop when selected. */
+.app-main button[class*="border-b-2"] { border-radius: 999px; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.2s ease; }
+.app-main button[class*="border-b-2"]:hover { transform: translateY(-1px); }
+.app-main button[class*="border-b-2"]:not([class*="border-transparent"]),
+.app-main [role="tab"][aria-selected="true"]:not(.pill-tab) { background-color: color-mix(in srgb, currentColor 13%, transparent); animation: fc-badge 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
+
+/* Pill tabs with a sliding highlight (PillTabs). */
+.pill-tabs { position: relative; display: inline-flex; gap: 0.15rem; max-width: 100%; overflow-x: auto; padding: 0.25rem; border-radius: 999px; border: 1px solid var(--dv-line); background: var(--dv-card); scrollbar-width: none; }
+.pill-tabs::-webkit-scrollbar { display: none; }
+.pill-ink { position: absolute; top: 0.25rem; bottom: 0.25rem; left: 0; border-radius: 999px; background: var(--dv-brand); box-shadow: 0 8px 18px color-mix(in srgb, var(--dv-brand) 38%, transparent); transition: transform 0.38s cubic-bezier(0.3, 1.25, 0.5, 1), width 0.38s cubic-bezier(0.3, 1.25, 0.5, 1); }
+.pill-tab { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.45rem; border: 0; background: none; border-radius: 999px; padding: 0.4rem 1rem; font-size: 13px; font-weight: 600; white-space: nowrap; color: inherit; opacity: 0.7; transition: color 0.25s ease, opacity 0.25s ease; }
+.pill-tab:hover { opacity: 1; }
+.pill-tab.is-on { opacity: 1; color: #fff; }
+html[data-theme="dark"] .pill-tab.is-on { color: #06122a; }
+.pill-tab-count { min-width: 1.35rem; text-align: center; border-radius: 999px; padding: 0 0.4rem; font-size: 11px; font-weight: 700; background: color-mix(in srgb, currentColor 18%, transparent); }
+.pill-tab.is-on .pill-tab-count { background: color-mix(in srgb, currentColor 22%, transparent); }
+
+/* Safety cases: a colour stripe by severity, rows that lift on hover. */
+.case-row { position: relative; overflow: hidden; transition: transform 0.18s ease, box-shadow 0.2s ease; }
+.case-row::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #94a3b8; }
+.case-row[data-severity="critical"]::before { background: #ef4444; }
+.case-row[data-severity="high"]::before { background: #f59e0b; }
+.case-row[data-severity="medium"]::before { background: #3b82f6; }
+.case-row[data-severity="low"]::before { background: #10b981; }
+.case-row:hover { transform: translateY(-2px); box-shadow: var(--dv-shadow-hover); }
+
+/* Shift configuration: a day ribbon, a stepped form and plan cards with their own hours bar. */
+.shift-ribbon-track { position: relative; height: calc(1.9rem * var(--lanes, 1)); border-radius: 14px; background: color-mix(in srgb, var(--dv-brand) 7%, var(--dv-card)); border: 1px solid var(--dv-line); overflow: hidden; }
+.shift-ribbon.is-compact .shift-ribbon-track { height: 0.6rem; border-radius: 999px; }
+.shift-ribbon-tick { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--dv-line); }
+.shift-ribbon-bar { position: absolute; height: calc(100% / var(--lanes, 1)); display: flex; align-items: center; padding: 0 0.6rem; border-radius: 12px; font-size: 11.5px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: linear-gradient(90deg, var(--bar), color-mix(in srgb, var(--bar) 70%, #fff)); box-shadow: 0 4px 12px color-mix(in srgb, var(--bar) 35%, transparent); transform-origin: left; animation: growx 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: left 0.35s ease, width 0.35s ease; }
+.shift-ribbon.is-compact .shift-ribbon-bar { border-radius: 999px; }
+.shift-ribbon-bar.is-preview { background: repeating-linear-gradient(135deg, var(--bar) 0 8px, color-mix(in srgb, var(--bar) 55%, transparent) 8px 16px); outline: 2px dashed var(--bar); outline-offset: -2px; }
+.shift-ribbon-hours { position: relative; height: 1.1rem; margin-top: 0.25rem; font-size: 10.5px; font-weight: 600; opacity: 0.6; font-variant-numeric: tabular-nums; }
+.shift-ribbon-hours span { position: absolute; transform: translateX(-50%); }
+.shift-ribbon-hours span:first-child { transform: none; } .shift-ribbon-hours span:last-child { transform: translateX(-100%); }
+
+.shift-page .shift-form { counter-reset: step; border-radius: 22px; padding: 1.25rem; }
+.shift-page .shift-step { counter-increment: step; position: relative; padding-left: 2.6rem; }
+.shift-page .shift-step::before { content: counter(step); position: absolute; left: 0; top: 0.2rem; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border-radius: 50%; font-size: 12px; font-weight: 700; color: #fff; background: var(--dv-brand); box-shadow: 0 6px 14px color-mix(in srgb, var(--dv-brand) 35%, transparent); }
+html[data-theme="dark"] .shift-page .shift-step::before { color: #06122a; }
+.shift-page .shift-step:not(:last-of-type)::after { content: ""; position: absolute; left: 0.9rem; top: 2.2rem; bottom: -1rem; width: 2px; background: linear-gradient(var(--dv-line), transparent); }
+.shift-page .shift-step.shift-days { padding-top: 0.2rem; }
+.shift-page input[type="color"] { width: 100%; min-height: 3rem; border-radius: 999px; padding: 0.3rem; cursor: pointer; }
+.shift-page input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; } .shift-page input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 999px; }
+.day-chip { position: relative; cursor: pointer; border-radius: 999px !important; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease; }
+.day-chip input[type="checkbox"] { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.day-chip:hover { transform: translateY(-1px); }
+.day-chip:has(input:checked) { background: var(--dv-brand) !important; border-color: var(--dv-brand) !important; color: #fff; box-shadow: 0 8px 18px color-mix(in srgb, var(--dv-brand) 30%, transparent); animation: fc-badge 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
+html[data-theme="dark"] .day-chip:has(input:checked) { color: #06122a; }
+.day-chip:has(input:focus-visible) { outline: 2px solid var(--dv-brand); outline-offset: 2px; }
+.shift-card { position: relative; overflow: hidden; border-radius: 20px !important; transition: transform 0.18s ease, box-shadow 0.2s ease; animation: fc-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.shift-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--shift, var(--dv-brand)); box-shadow: 0 0 14px var(--shift, transparent); }
+.shift-card:hover { transform: translateY(-3px); box-shadow: var(--dv-shadow-hover); }
+@media (prefers-reduced-motion: reduce) { .shift-ribbon-bar, .shift-card, .day-chip:has(input:checked), .app-main button[class*="border-b-2"], .app-main [role="tab"] { animation: none !important; } }
+
+/* ---------------------------------------------------------------------------
+ * Text colours: dark text on the light theme, white or near-white on the dark
+ * theme. No mid-grey fonts in either.
+ * --------------------------------------------------------------------------- */
+/* Dark theme: the grey-blue tones written as classes all over the app become near-white. */
+html[data-theme="dark"] :is(.text-\[\#8BA3BF\], .text-\[\#9FB3D1\], .text-\[\#94A3B8\], .text-\[\#6C87A6\], .text-\[\#6B7F9A\], .text-\[\#5B7A99\], .text-\[\#7F93B5\], .text-\[\#5C7290\], .text-\[\#5A7390\]) { color: #D3DEEE !important; }
+html[data-theme="dark"] :is(.text-\[\#B8C7DB\], .text-\[\#B6C4D6\], .text-\[\#A7B6D3\], .text-\[\#C7D5E6\], .text-\[\#9DB6D3\]) { color: #E6EEF9 !important; }
+html[data-theme="dark"] :is(.text-\[\#D5DEEA\], .text-\[\#CBD5EA\], .text-\[\#D5E2F5\]) { color: #F2F6FC !important; }
+html[data-theme="dark"] :is(.placeholder\:text-\[\#8BA3BF\], .placeholder\:text-\[\#6B7F9A\])::placeholder { color: #A9BAD2 !important; }
+/* Light theme: Tailwind's slate / gray greys become a dark ink. */
+html[data-theme="light"] .app-main :is(.text-slate-400, .text-gray-400) { color: #445068 !important; }
+html[data-theme="light"] .app-main :is(.text-slate-500, .text-gray-500) { color: #34405A !important; }
+html[data-theme="light"] .app-main :is(.text-slate-600, .text-gray-600) { color: #26324C !important; }
+html[data-theme="light"] .app-main :is(.text-slate-700, .text-gray-700, .text-slate-800, .text-gray-800) { color: #121C36 !important; }
+/* Charts: axis numbers, category names and legends follow the theme instead of a fixed grey. */
+html[data-theme="light"] .app-main .recharts-text,
+html[data-theme="light"] .app-main .recharts-cartesian-axis-tick-value,
+html[data-theme="light"] .app-main .recharts-polar-angle-axis-tick-value { fill: #1E2A44 !important; }
+html[data-theme="light"] .app-main .recharts-legend-item-text { color: #1E2A44 !important; }
+html[data-theme="light"] .app-main .recharts-cartesian-axis-line, html[data-theme="light"] .app-main .recharts-cartesian-axis-tick-line { stroke: #8C98B0; }
+html[data-theme="dark"] .app-main .recharts-text,
+html[data-theme="dark"] .app-main .recharts-cartesian-axis-tick-value,
+html[data-theme="dark"] .app-main .recharts-polar-angle-axis-tick-value { fill: #E3ECF8 !important; }
+html[data-theme="dark"] .app-main .recharts-legend-item-text { color: #E3ECF8 !important; }
+
+/* Progress bars and meters drawn with a coloured div: a sheen from dark to light so they are never one flat colour. */
+.app-main :is(.h-1, .h-1\.5, .h-2, .h-2\.5, .h-3)[style*="width"][class*="bg-"]:not(.animate-pulse),
+.app-main :is(.h-1, .h-1\.5, .h-2, .h-2\.5, .h-3)[style*="width"][style*="background"] {
+  background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.16), rgba(255, 255, 255, 0.3));
+  box-shadow: 0 0 10px color-mix(in srgb, currentColor 18%, transparent);
+  transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}

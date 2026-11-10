@@ -227,15 +227,15 @@ export function WOListView() {
             {visibleColumns.map((c) => {
               const cards = cardsFor(c);
               return (
-                <section key={c.id} className="shrink-0 snap-start w-[85vw] sm:w-72 rounded-xl bg-gray-50 border border-gray-200">
-                  <header className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-200">
+                <section key={c.id} data-stage={c.id} className="kb-col shrink-0 snap-start w-[85vw] sm:w-72 rounded-xl bg-gray-50 border border-gray-200">
+                  <header className="kb-head flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-200">
                     <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                       <span className={`h-2 w-2 rounded-full ${c.dot}`} />
                       {t(`common.workOrders.board.${c.id}`, { defaultValue: c.label })}
                     </h2>
                     <span className="text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full px-2 py-0.5">{cards.length}</span>
                   </header>
-                  <div className="p-3 space-y-3 sm:max-h-[70vh] sm:overflow-y-auto">
+                  <div className="kb-body p-3 space-y-3 sm:max-h-[70vh] sm:overflow-y-auto">
                     {cards.length === 0 ? (
                       <div className="py-6 text-center">
                         <ClipboardList className="w-8 h-8 mx-auto mb-2 text-gray-300" />

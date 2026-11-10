@@ -50,10 +50,10 @@ export function WOStatsBar() {
       {statItems.map((item) => (
         <div
           key={item.label}
-          className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex flex-col"
+          className="stat-tile bg-white rounded-lg border border-gray-100 shadow-sm p-4 flex flex-col"
         >
-          <span className={`text-2xl font-bold ${item.color}`}>{item.value}</span>
-          <span className="text-xs text-gray-500 mt-0.5">{item.label}</span>
+          <span className="stat-name text-sm font-semibold text-gray-700">{item.label}</span>
+          <span className={`stat-value text-2xl font-bold mt-1 ${item.color}`}>{item.value}</span>
         </div>
       ))}
     </div>

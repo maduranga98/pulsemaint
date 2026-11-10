@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import { useShiftConfig } from '@/hooks/useShiftConfig';
 import ShiftConfigForm from '@/components/handover/ShiftConfigForm';
+import ShiftRibbon from '@/components/handover/ShiftRibbon';
+import type { RibbonShift } from '@/lib/shiftRibbon';
 import { defaultShiftConfigs, describeShiftAssignment, formatTimeRange } from '@/utils/handover.utils';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartmentScope } from '@/hooks/useDepartmentScope';
@@ -23,6 +25,14 @@ export function ShiftConfigPage() {
   // on "All Plants" sees every plan, including ones with no plant yet.
   const shifts = role === 'admin' && !plantId ? allShifts : allShifts.filter((s) => s.plantId === plantId);
   const [editing, setEditing] = useState<ShiftConfig | undefined>(undefined);
+  const [preview, setPreview] = useState<{ name: string; start: string; end: string; color: string } | null>(null);
+  // Saved plans, with the one being edited swapped for what is typed, or the new one added.
+  const ribbonShifts = useMemo<RibbonShift[]>(() => {
+    const saved = shifts
+      .filter((s) => s.id !== editing?.id)
+      .map((s) => ({ id: s.id, name: s.shiftName, start: s.startTime, end: s.endTime, color: s.color }));
+    return preview ? [...saved, { id: 'preview', name: preview.name, start: preview.start, end: preview.end, color: preview.color, preview: true }] : saved;
+  }, [shifts, editing?.id, preview]);
 
   async function seedDefaults() {
     if (!companyId || !plantId) return;
@@ -39,7 +49,7 @@ export function ShiftConfigPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="shift-page space-y-6">
       <div>
         <Link
           to="/app/shift/handover/history"
@@ -66,7 +76,11 @@ export function ShiftConfigPage() {
         </div>
       </div>
 
-      <section className="space-y-3">
+      {/* The day at a glance: every plan on a 24-hour ribbon, plus the shift being typed. */}
+      <ShiftRibbon shifts={ribbonShifts} />
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <section className="space-y-3 lg:sticky lg:top-2">
         <div className="flex items-center justify-between">
           <h2 className=" text-sm font-bold text-slate-700">
             {editing ? t('common.shiftHandovers.configPage.editingShift', { name: editing.shiftName }) : t('common.shiftHandovers.configPage.addNewShift')}
@@ -81,6 +95,7 @@ export function ShiftConfigPage() {
         <ShiftConfigForm
           key={editing?.id ?? 'new'}
           initial={editing}
+          onPreview={setPreview}
           onSave={async (s) => {
             await save(s);
             setEditing(undefined);
@@ -94,22 +109,26 @@ export function ShiftConfigPage() {
             ? t('common.shiftHandovers.configPage.shiftPlansWithCount', { count: shifts.length })
             : t('common.shiftHandovers.configPage.shiftPlans')}
         </h2>
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
           {loading ? (
             <div className="text-sm text-slate-500">{t('common.shiftHandovers.configPage.loadingShifts')}</div>
           ) : shifts.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-400 lg:col-span-3">
+            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-400 sm:col-span-2 lg:col-span-1 xl:col-span-2">
               {t('common.shiftHandovers.configPage.noShiftsConfigured')}
             </div>
           ) : (
             shifts.map((shift) => (
-              <article key={shift.id} className="flex flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <article key={shift.id} className="shift-card flex flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm" style={{ ['--shift' as string]: shift.color }}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h3 className="truncate text-base font-bold text-slate-950">{shift.shiftName}</h3>
                     <p className="text-sm text-slate-500">{formatTimeRange(shift.startTime, shift.endTime)}</p>
                   </div>
                   <span className="h-5 w-5 shrink-0 rounded-full ring-1 ring-inset ring-slate-200" style={{ backgroundColor: shift.color }} />
+                </div>
+
+                <div className="mt-3">
+                  <ShiftRibbon compact shifts={[{ id: shift.id, name: shift.shiftName, start: shift.startTime, end: shift.endTime, color: shift.color }]} />
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-1.5">
@@ -149,6 +168,7 @@ export function ShiftConfigPage() {
           )}
         </div>
       </section>
+      </div>
     </div>
   );
 }

@@ -12,6 +12,8 @@ import { useCompanyUsers, type CompanyUserOption } from '@/hooks/useCompanyUsers
 import { resolveShiftAssignBy } from '@/utils/handover.utils';
 
 interface ShiftConfigFormProps {
+  /** Reports the name, hours and colour as they are typed, for the live day ribbon on the page. */
+  onPreview?: (preview: { name: string; start: string; end: string; color: string }) => void;
   onSave: (shift: Omit<ShiftConfig, 'id' | 'companyId'> & { id?: string }) => Promise<void>;
   initial?: ShiftConfig;
 }
@@ -45,7 +47,7 @@ function roleLabelFor(t: TFunction, role: string): string {
   return key ? t(key) : role.replace(/_/g, ' ');
 }
 
-export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
+export function ShiftConfigForm({ onSave, initial, onPreview }: ShiftConfigFormProps) {
   const { t } = useTranslation();
   const [shiftName, setShiftName] = useState(initial?.shiftName ?? '');
   const [startTime, setStartTime] = useState(initial?.startTime ?? '06:00');
@@ -171,9 +173,13 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
     }
   }
 
+  useEffect(() => {
+    onPreview?.({ name: shiftName, start: startTime, end: endTime, color });
+  }, [onPreview, shiftName, startTime, endTime, color]);
+
   return (
-    <form className="rounded-lg border border-slate-200 bg-white p-4 space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <form className="shift-form rounded-lg border border-slate-200 bg-white p-4 space-y-4">
+      <div className="shift-step grid gap-3 sm:grid-cols-2">
         {showPlantPicker && (
           <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
             {t('common.ui.shiftConfig.plant')}
@@ -221,7 +227,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
 
       {/* Who works this shift: pick the category first, then the targets for
           that category. Only the picked category's selection is saved. */}
-      <div className="rounded-md border border-slate-200 bg-slate-50 p-3 space-y-3">
+      <div className="shift-step rounded-md border border-slate-200 bg-slate-50 p-3 space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
             {t('common.shiftHandovers.configForm.assignShiftBy')}
@@ -282,9 +288,9 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
       </div>
 
       {/* Active Days */}
-      <div className="flex flex-wrap gap-2">
+      <div className="shift-step shift-days flex flex-wrap gap-2">
         {DAYS.map((day) => (
-          <label key={day} className="flex min-h-12 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm">
+          <label key={day} className="day-chip flex min-h-12 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm">
             <input
               type="checkbox"
               checked={activeDays.includes(day)}

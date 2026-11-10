@@ -409,13 +409,13 @@ html.app-shell-active button:not(:disabled):active { transform: scale(0.98); }
 .app-main-dark .text-slate-800,
 .app-main-dark .text-gray-800,
 .app-main-dark .text-slate-700,
-.app-main-dark .text-gray-700 { color: #D5DEEA !important; }
+.app-main-dark .text-gray-700 { color: #EEF3FB !important; }
 .app-main-dark .text-slate-600,
-.app-main-dark .text-gray-600 { color: #B8C7DB !important; }
+.app-main-dark .text-gray-600 { color: #E1EAF6 !important; }
 .app-main-dark .text-slate-500,
-.app-main-dark .text-gray-500 { color: #8BA3BF !important; }
+.app-main-dark .text-gray-500 { color: #CFDBEC !important; }
 .app-main-dark .text-slate-400,
-.app-main-dark .text-gray-400 { color: #6B7F9A !important; }
+.app-main-dark .text-gray-400 { color: #BCCBE0 !important; }
 
 .app-main-dark .hover\:text-slate-900:hover,
 .app-main-dark .hover\:text-gray-900:hover { color: #F0F4F8 !important; }
@@ -477,7 +477,7 @@ html.app-shell-active button:not(:disabled):active { transform: scale(0.98); }
   border-color: #1E3A5F;
 }
 .app-main-dark input::placeholder,
-.app-main-dark textarea::placeholder { color: #6B7F9A; opacity: 1; }
+.app-main-dark textarea::placeholder { color: #A9BAD2; opacity: 1; }
 .app-main-dark select option { background-color: #0F1E35; color: #F0F4F8; }
 .app-main-dark input:focus,
 .app-main-dark select:focus,

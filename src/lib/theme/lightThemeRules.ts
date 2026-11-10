@@ -19,9 +19,9 @@ export const LIGHT = {
   line: '#DCE4F0',
   lineStrong: '#B9C7DD',
   ink: '#101A33',
-  inkSoft: '#2B3854',
-  inkMuted: '#56627B',
-  inkSubtle: '#6F7B92',
+  inkSoft: '#1E2A44',
+  inkMuted: '#34405A',
+  inkSubtle: '#445068',
 } as const;
 
 /** Pale accent text that is unreadable on white → a deeper shade of the same hue. */
