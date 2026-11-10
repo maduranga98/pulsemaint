@@ -4,7 +4,7 @@ import type { CalendarEvent } from '../../types/pm.types';
 
 const ev = (id: string, date: Date, status?: CalendarEvent['operationalStatus']): CalendarEvent => ({
   id, scheduleId: id, title: id, date, priority: 'medium', machineName: 'M', technicianNames: [], pmType: 'time_based', status: 'active', operationalStatus: status,
-}) as CalendarEvent;
+}) as unknown as CalendarEvent;
 
 describe('groupByStatus', () => {
   it('orders columns by urgency, sorts cards by date and hides the paused column when empty', () => {
