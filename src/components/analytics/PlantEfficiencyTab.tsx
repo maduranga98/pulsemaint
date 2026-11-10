@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Activity, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { usePlants } from '@/hooks/usePlants';
@@ -9,6 +9,83 @@ import { computePlantEfficiency, type PlantEfficiency, type PlantEfficiencyFigur
 import { CHART_DEFAULTS } from '@/constants/chartTheme';
 import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
 import EmptyState from '@/components/dashboard/shared/EmptyState';
+import SegmentedGauge from '@/components/charts/SegmentedGauge';
+
+const LABEL_STYLE = { fill: '#F0F4F8', fontSize: 11, fontWeight: 600 } as const;
+const gaugeColor = (score: number | null) => (score == null ? '#8BA3BF' : score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444');
+
+/** Cost over plants / months as a filled curve with the value written on each point. */
+function CostArea({ data, xKey, dataKey, color, format, compact }: { data: any[]; xKey: string; dataKey: string; color: string; format: (v: number) => string; compact: (n: number) => string }) {
+  return (
+    <div className="h-56">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 22, right: 20, left: 4, bottom: 4 }}>
+          <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
+          <XAxis {...CHART_DEFAULTS.xAxis} dataKey={xKey} interval={0} padding={{ left: 20, right: 20 }} />
+          <YAxis {...CHART_DEFAULTS.yAxis} tickFormatter={(v) => compact(Number(v))} width={72} />
+          <Tooltip {...CHART_DEFAULTS.tooltip} formatter={(v) => [format(Number(v ?? 0)), '']} />
+          <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2.5} fill={color} fillOpacity={0.35}
+            dot={{ r: 4, fill: '#0F1E35', stroke: color, strokeWidth: 2 }}>
+            <LabelList dataKey={dataKey} position="top" offset={8} formatter={(v) => compact(Number(v ?? 0))} style={LABEL_STYLE} />
+          </Area>
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/** Downtime hours as a smooth line with dots and the hours written above each dot. */
+function HoursLine({ data, xKey, dataKey, color, format }: { data: any[]; xKey: string; dataKey: string; color: string; format: (v: number) => string }) {
+  return (
+    <div className="h-56">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 22, right: 20, left: 4, bottom: 4 }}>
+          <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
+          <XAxis {...CHART_DEFAULTS.xAxis} dataKey={xKey} interval={0} padding={{ left: 20, right: 20 }} />
+          <YAxis {...CHART_DEFAULTS.yAxis} width={40} />
+          <Tooltip {...CHART_DEFAULTS.tooltip} formatter={(v) => [format(Number(v ?? 0)), '']} />
+          <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2.5}
+            dot={{ r: 4.5, fill: '#0F1E35', stroke: color, strokeWidth: 2 }} activeDot={{ r: 6 }}>
+            <LabelList dataKey={dataKey} position="top" offset={10} formatter={(v) => `${v}h`} style={LABEL_STYLE} />
+          </Line>
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/** Maintenance distribution: how many work orders of each type (PM, breakdown, installation, contractor …). */
+function WoTypeCounts({ plants, title }: { plants: PlantEfficiency[]; title: string }) {
+  const { t } = useTranslation();
+  const totals: Record<string, number> = {};
+  plants.forEach((p) => Object.entries(p.woTypes ?? {}).forEach(([k, n]) => { totals[k] = (totals[k] ?? 0) + n; }));
+  const data = Object.entries(totals)
+    .map(([type, count]) => ({ name: t(`common.workOrders.types.${type}`, { defaultValue: type }), count }))
+    .sort((a, b) => b.count - a.count);
+  const palette = ['#3987e5', '#22D3EE', '#10B981', '#F59E0B', '#EF4444', '#9085e9', '#d55181', '#8BA3BF'];
+  return (
+    <DashboardWidget title={title}>
+      {data.length === 0 ? (
+        <EmptyState message={t('common.analytics.plantEfficiency.empty')} />
+      ) : (
+        <div className="h-60">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 22, right: 12, left: 4, bottom: 4 }} barCategoryGap="28%">
+              <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
+              <XAxis {...CHART_DEFAULTS.xAxis} dataKey="name" interval={0} />
+              <YAxis {...CHART_DEFAULTS.yAxis} width={40} allowDecimals={false} />
+              <Tooltip {...CHART_DEFAULTS.tooltip} cursor={{ fill: '#142849' }} />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                {data.map((_, i) => <Cell key={i} fill={palette[i % palette.length]} />)}
+                <LabelList dataKey="count" position="top" style={LABEL_STYLE} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </DashboardWidget>
+  );
+}
 
 // Categorical hues for plants, validated for the dark surface (#0F1E35):
 // lightness band, CVD separation and 3:1 contrast all pass. Assigned in the
@@ -158,22 +235,28 @@ export function PlantComparison({
 }: SharedFormat & { rows: PlantEfficiency[]; nameOf: (id: string | null) => string; colorOf: (id: string | null) => string }) {
   const { t } = useTranslation();
   const chartRows = rows.map((r) => ({ name: nameOf(r.plantId), color: colorOf(r.plantId), health: r.healthScore ?? 0, ...r.totals }));
-  const metrics: Metric[] = ['maintenanceCost', 'downtimeHours', 'breakdowns', 'workOrders'];
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
-        {metrics.map((m) => (
+        <DashboardWidget title={metricLabel('maintenanceCost')}>
+          <CostArea data={chartRows} xKey="name" dataKey="maintenanceCost" color="#22D3EE" format={(v) => fmt('maintenanceCost', v)} compact={compact} />
+        </DashboardWidget>
+        <DashboardWidget title={metricLabel('downtimeHours')}>
+          <HoursLine data={chartRows} xKey="name" dataKey="downtimeHours" color="#F59E0B" format={(v) => fmt('downtimeHours', v)} />
+        </DashboardWidget>
+        {(['breakdowns', 'workOrders'] as Metric[]).map((m) => (
           <DashboardWidget key={m} title={metricLabel(m)}>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartRows} barCategoryGap="30%">
+                <BarChart data={chartRows} barCategoryGap="30%" margin={{ top: 22 }}>
                   <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
                   <XAxis {...CHART_DEFAULTS.xAxis} dataKey="name" interval={0} />
-                  <YAxis {...CHART_DEFAULTS.yAxis} tickFormatter={(v) => (m === 'maintenanceCost' ? compact(Number(v)) : String(v))} width={m === 'maintenanceCost' ? 72 : 40} allowDecimals={m === 'downtimeHours'} />
+                  <YAxis {...CHART_DEFAULTS.yAxis} width={40} allowDecimals={false} />
                   <Tooltip {...CHART_DEFAULTS.tooltip} cursor={{ fill: '#142849' }} formatter={(v) => [fmt(m, Number(v ?? 0)), metricLabel(m)]} />
-                  <Bar dataKey={m} radius={[4, 4, 0, 0]} maxBarSize={56}>
+                  <Bar dataKey={m} radius={[6, 6, 0, 0]} maxBarSize={56}>
                     {chartRows.map((r) => <Cell key={r.name} fill={r.color} />)}
+                    <LabelList dataKey={m} position="top" style={LABEL_STYLE} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -183,20 +266,18 @@ export function PlantComparison({
       </div>
 
       <DashboardWidget title={t('common.analytics.plantEfficiency.health.title')}>
-        <div className="h-48">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartRows} layout="vertical" margin={{ left: 8, right: 24 }}>
-              <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} horizontal={false} />
-              <XAxis {...CHART_DEFAULTS.xAxis} type="number" domain={[0, 100]} />
-              <YAxis {...CHART_DEFAULTS.yAxis} type="category" dataKey="name" width={110} />
-              <Tooltip {...CHART_DEFAULTS.tooltip} cursor={{ fill: '#142849' }} formatter={(v) => [`${v} / 100`, t('common.analytics.plantEfficiency.health.title')]} />
-              <Bar dataKey="health" radius={[0, 4, 4, 0]} maxBarSize={22}>
-                {chartRows.map((r) => <Cell key={r.name} fill={r.color} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {rows.map((r) => (
+            <div key={r.plantId ?? 'none'} className="flex flex-col items-center">
+              <SegmentedGauge value={r.healthScore ?? 0} color={gaugeColor(r.healthScore)} label={r.healthScore == null ? '—' : `${r.healthScore}`} />
+              <p className="mt-1 text-sm font-semibold text-[#F0F4F8]">{nameOf(r.plantId)}</p>
+              <HealthBadge score={r.healthScore} />
+            </div>
+          ))}
         </div>
       </DashboardWidget>
+
+      <WoTypeCounts plants={rows} title={t('common.analytics.plantEfficiency.distributionTitle', { defaultValue: 'Maintenance distribution' })} />
 
       {/* Table view: the same numbers, readable without the charts. */}
       <DashboardWidget title={t('common.analytics.plantEfficiency.table')}>
@@ -243,8 +324,8 @@ export function PlantDetail({ plant, name, color, fmt, compact, metricLabel }: S
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4">
           <p className="text-xs text-[#8BA3BF]">{t('common.analytics.plantEfficiency.health.title')}</p>
-          <p className="mt-1 text-3xl font-bold text-[#F0F4F8]">{plant.healthScore ?? '—'}<span className="text-sm font-normal text-[#8BA3BF]"> / 100</span></p>
-          <div className="mt-1"><HealthBadge score={plant.healthScore} /></div>
+          <SegmentedGauge value={plant.healthScore ?? 0} color={gaugeColor(plant.healthScore)} label={plant.healthScore == null ? '—' : `${plant.healthScore}`} />
+          <div className="mt-1 flex justify-center"><HealthBadge score={plant.healthScore} /></div>
           <p className="mt-1 text-xs text-[#8BA3BF]">{t('common.analytics.plantEfficiency.machines', { count: plant.machineCount })}</p>
         </div>
         {tiles.map((m) => (
@@ -257,30 +338,10 @@ export function PlantDetail({ plant, name, color, fmt, compact, metricLabel }: S
 
       <div className="grid gap-4 lg:grid-cols-2">
         <DashboardWidget title={`${metricLabel('maintenanceCost')} · ${name}`}>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trend}>
-                <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
-                <XAxis {...CHART_DEFAULTS.xAxis} dataKey="label" />
-                <YAxis {...CHART_DEFAULTS.yAxis} tickFormatter={(v) => compact(Number(v))} width={72} />
-                <Tooltip {...CHART_DEFAULTS.tooltip} cursor={{ fill: '#142849' }} formatter={(v) => [fmt('maintenanceCost', Number(v ?? 0)), metricLabel('maintenanceCost')]} />
-                <Bar dataKey="maintenanceCost" fill={color} radius={[4, 4, 0, 0]} maxBarSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <CostArea data={trend} xKey="label" dataKey="maintenanceCost" color={color} format={(v) => fmt('maintenanceCost', v)} compact={compact} />
         </DashboardWidget>
         <DashboardWidget title={`${metricLabel('downtimeHours')} · ${name}`}>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trend}>
-                <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} vertical={false} />
-                <XAxis {...CHART_DEFAULTS.xAxis} dataKey="label" />
-                <YAxis {...CHART_DEFAULTS.yAxis} width={40} />
-                <Tooltip {...CHART_DEFAULTS.tooltip} cursor={{ fill: '#142849' }} formatter={(v) => [fmt('downtimeHours', Number(v ?? 0)), metricLabel('downtimeHours')]} />
-                <Bar dataKey="downtimeHours" fill={color} radius={[4, 4, 0, 0]} maxBarSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <HoursLine data={trend} xKey="label" dataKey="downtimeHours" color={color} format={(v) => fmt('downtimeHours', v)} />
         </DashboardWidget>
         <DashboardWidget title={t('common.analytics.plantEfficiency.countsTitle', { plant: name })} className="lg:col-span-2">
           <div className="h-60">
@@ -298,6 +359,9 @@ export function PlantDetail({ plant, name, color, fmt, compact, metricLabel }: S
             </ResponsiveContainer>
           </div>
         </DashboardWidget>
+        <div className="lg:col-span-2">
+          <WoTypeCounts plants={[plant]} title={t('common.analytics.plantEfficiency.distributionTitle', { defaultValue: 'Maintenance distribution' })} />
+        </div>
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
   const [mode, setMode] = useState<MetricMode>('breakdowns');
   const { data, loading, error, refetch } = useTopProblemMachines(companyId, month);
 
-  const machines = data?.topProblemMachines?.slice(0, 10) ?? [];
+  const machines = data?.topProblemMachines?.slice(0, 5) ?? [];
   const { format } = MODE_CONFIG[mode];
 
   const chartData = machines.map((m) => ({
@@ -54,14 +54,14 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
     severity: m.severity,
   }));
 
-  // Each row needs ~38px to keep 10 long machine names legible without
+  // Each row needs ~38px to keep 5 long machine names legible without
   // crowding — a fixed height clipped/overlapped labels once more than a
   // handful of machines were returned.
   const chartHeight = Math.max(280, chartData.length * 38 + 40);
 
   return (
     <DashboardWidget
-      title={t('common.widgets.topProblemMachinesChart.title')}
+      title={t('common.widgets.topProblemMachinesChart.titleTop5', { defaultValue: 'Top 5 Problem Machines' })}
       loading={loading}
       error={error}
       onRetry={refetch}

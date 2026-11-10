@@ -1073,6 +1073,8 @@ export interface PlantEfficiency {
   machineCount: number;
   /** Average machine health score (0–100) of the plant's machines, null when it has none. */
   healthScore: number | null;
+  /** Work orders raised in the period by type (PM, breakdown, installation, contractor …). */
+  woTypes: Record<string, number>;
 }
 
 const emptyFigures = (): PlantEfficiencyFigures => ({
@@ -1122,6 +1124,7 @@ export async function computePlantEfficiency(companyId: string, months: string[]
         months: months.map((month) => ({ month, ...emptyFigures() })),
         machineCount: 0,
         healthScore: null,
+        woTypes: {},
       };
       byPlant.set(key, p);
     }
@@ -1156,6 +1159,12 @@ export async function computePlantEfficiency(companyId: string, months: string[]
     if (String(w.status ?? '') === 'CANCELLED') return;
     // Count work orders by when they were raised…
     add(w, w.createdAt, (f) => { f.workOrders += 1; });
+    const created = toDate(w.createdAt);
+    if (created && monthSet.has(monthKey(created))) {
+      const p = ensure(plantOf(w));
+      const type = String(w.woType ?? 'OTHER');
+      p.woTypes[type] = (p.woTypes[type] ?? 0) + 1;
+    }
     // …and cost by when the work was done, as monthly analytics does.
     add(w, woDoneAt(w) ?? w.createdAt, (f) => {
       f.maintenanceCost += woCost(w);

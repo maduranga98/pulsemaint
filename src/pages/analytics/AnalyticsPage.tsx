@@ -13,15 +13,11 @@ import KpiCard from '../../components/dashboard/shared/KpiCard';
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
 import TopProblemMachinesChart from '../../components/dashboard/manager/TopProblemMachinesChart';
-import MaintenanceCostChart from '../../components/dashboard/manager/MaintenanceCostChart';
+import MaintenanceCostDistributionChart from '../../components/dashboard/manager/MaintenanceCostDistributionChart';
 import TechnicianPerformanceTable from '../../components/dashboard/manager/TechnicianPerformanceTable';
 import PmComplianceWidget from '../../components/dashboard/manager/PmComplianceWidget';
-import BreakdownBubbleChart from '../../components/dashboard/manager/BreakdownBubbleChart';
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
-import WoTypeRankBars from '../../components/dashboard/manager/WoTypeRankBars';
-import MachineLoadRadar from '../../components/dashboard/manager/MachineLoadRadar';
 import PmTrendChart from '../../components/dashboard/manager/PmTrendChart';
-import WoTypeDistributionChart from '../../components/dashboard/manager/WoTypeDistributionChart';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
@@ -192,10 +188,7 @@ export default function AnalyticsPage() {
             <div className="lg:col-span-5">
               <BreakdownByTypeChart companyId={companyId} />
             </div>
-            <div className="lg:col-span-7">
-              <BreakdownBubbleChart />
-            </div>
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-12">
               <SlaGaugeWidget companyId={companyId} />
             </div>
           </div>
@@ -214,24 +207,13 @@ export default function AnalyticsPage() {
 
         {tab === 'workorders' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-6">
-                <WoTypeDistributionChart companyId={companyId} months={months} />
-              </div>
-              <div className="lg:col-span-6">
-                <MaintenanceCostChart companyId={companyId} month={months} />
-              </div>
-            </div>
-            <WoTypeRankBars companyId={companyId} months={months} />
+            <MaintenanceCostDistributionChart companyId={companyId} month={months} />
             {contractorsOn && <ContractorScoreboard companyId={companyId} month={months} />}
           </div>
         )}
 
         {tab === 'machines' && (
-          <div className="space-y-6">
-            <TopProblemMachinesChart companyId={companyId} month={months} />
-            <MachineLoadRadar companyId={companyId} month={months} />
-          </div>
+          <TopProblemMachinesChart companyId={companyId} month={months} />
         )}
         {/* Plants and Team are advanced analytics — Factory Pro and above. */}
         {tab === 'plants' && (
