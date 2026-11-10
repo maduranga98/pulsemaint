@@ -525,3 +525,10 @@ html[data-theme="light"]
 .share-list li::before { content: "✓"; position: absolute; left: 0; top: 0; font-weight: 700; color: var(--dv-brand); }
 .share-list li.share-no::before { content: "✕"; color: #ef4444; }
 @media (prefers-reduced-motion: reduce) { .share-page section, .share-page .share-status.is-on > span::after { animation: none !important; } }
+
+/* Analytics section tabs: one scrollable row on phones so labels never wrap out of the pill. */
+@media (max-width: 1023px) {
+  .dv-tabs { display: flex; flex-wrap: nowrap; width: 100%; max-width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .dv-tabs::-webkit-scrollbar { display: none; }
+  .dv-tabs > button { flex: 0 0 auto; white-space: nowrap; }
+}
