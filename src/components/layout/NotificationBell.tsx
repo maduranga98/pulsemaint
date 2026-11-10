@@ -1,5 +1,6 @@
 import { safeInternalPath } from '@/lib/safeUrl';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useNavigate } from 'react-router-dom';
@@ -57,6 +58,7 @@ export default function NotificationBell() {
     lastUnread.current = unreadCount;
   }, [unreadCount]);
   const ref = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   // Desktop only: anchor the panel to the bell's actual on-screen position
   // instead of a fixed viewport offset, so it opens right under the icon
@@ -105,7 +107,8 @@ export default function NotificationBell() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (ref.current && !ref.current.contains(target) && !panelRef.current?.contains(target)) setOpen(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -136,7 +139,9 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {open && (
+      {open && createPortal(
+        // Rendered on <body> so the glass header (backdrop-filter) can't become its
+        // containing block and push it off the left edge of a phone screen.
         // Always `fixed`, never `absolute` — the header's action-group
         // container has `overflow-x-auto` (see AppLayout.tsx) so it can
         // scroll itself instead of the whole page on narrow screens. An
@@ -146,6 +151,7 @@ export default function NotificationBell() {
         // `position: fixed` escapes ancestor overflow/scroll clipping
         // entirely, anchoring purely to the viewport.
         <div
+          ref={panelRef}
           className="fc-dropdown fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto scrollbar-hide bg-[#0F1E35] rounded-xl shadow-2xl shadow-black/50 border border-[#1E3A5F] z-50"
           style={isDesktop ? desktopStyle : undefined}
         >
@@ -263,7 +269,8 @@ export default function NotificationBell() {
               )}
             </>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
