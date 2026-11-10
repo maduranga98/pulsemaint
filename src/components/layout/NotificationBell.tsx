@@ -49,6 +49,13 @@ export default function NotificationBell() {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const alerts = derivedAlerts.filter((a) => !dismissed.has(a.id));
   const [open, setOpen] = useState(false);
+  // Ring the bell (CSS only) each time the unread count goes up.
+  const [ringKey, setRingKey] = useState(0);
+  const lastUnread = useRef(unreadCount);
+  useEffect(() => {
+    if (unreadCount > lastUnread.current) setRingKey((k) => k + 1);
+    lastUnread.current = unreadCount;
+  }, [unreadCount]);
   const ref = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   // Desktop only: anchor the panel to the bell's actual on-screen position
@@ -121,9 +128,9 @@ export default function NotificationBell() {
         className="relative p-2 rounded-lg text-slate-300 hover:bg-white/10 transition-colors"
         aria-label={t('common.ui.notifications.title')}
       >
-        <Bell className="w-5 h-5" />
+        <Bell key={ringKey} className={`w-5 h-5 ${ringKey > 0 ? 'fc-bell-ring' : ''}`} />
         {totalCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+          <span key={totalCount} className="fc-badge-pop absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
             {totalCount > 9 ? '9+' : totalCount}
           </span>
         )}
@@ -139,7 +146,7 @@ export default function NotificationBell() {
         // `position: fixed` escapes ancestor overflow/scroll clipping
         // entirely, anchoring purely to the viewport.
         <div
-          className="fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto scrollbar-hide bg-[#0F1E35] rounded-xl shadow-2xl shadow-black/50 border border-[#1E3A5F] z-50"
+          className="fc-dropdown fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto scrollbar-hide bg-[#0F1E35] rounded-xl shadow-2xl shadow-black/50 border border-[#1E3A5F] z-50"
           style={isDesktop ? desktopStyle : undefined}
         >
           <div className="px-4 py-3 border-b border-[#1E3A5F] flex items-center justify-between gap-2">

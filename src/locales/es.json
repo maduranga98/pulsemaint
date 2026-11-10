@@ -3703,7 +3703,10 @@
         "pageTitle": "Calendario de MP",
         "eventsThisPeriod_one": "{{count}} evento en este período",
         "eventsThisPeriod_other": "{{count}} eventos en este período",
-        "loading": "Cargando calendario..."
+        "loading": "Cargando calendario...",
+        "doneOfDue": "{{done}} de {{total}} PM vencidos hasta hoy están completados",
+        "pmCount_one": "{{count}} PM",
+        "pmCount_other": "{{count}} PM"
       },
       "workloadPage": {
         "title": "Carga de Trabajo de Técnicos",
@@ -10585,6 +10588,13 @@
       "reason": "Motivo",
       "signOut": "Cerrar sesión",
       "registerNote": "Tras registrarse, nuestro equipo revisará su empresa antes de que pueda iniciar sesión, normalmente en un día laborable. Le avisaremos por correo en cuanto esté aprobada."
+    },
+    "theme": {
+      "label": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "auto": "Automático",
+      "autoHint": "Automático: claro desde las 6:00, oscuro desde las 18:00"
     }
   },
   "triage": {

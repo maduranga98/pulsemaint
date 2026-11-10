@@ -4957,7 +4957,10 @@
         "pageTitle": "PM Calendar",
         "eventsThisPeriod_one": "{{count}} event this period",
         "eventsThisPeriod_other": "{{count}} events this period",
-        "loading": "Loading calendar..."
+        "loading": "Loading calendar...",
+        "doneOfDue": "{{done}} of {{total}} PMs due so far are completed",
+        "pmCount_one": "{{count}} PM",
+        "pmCount_other": "{{count}} PMs"
       },
       "newPmWorkOrder": "New PM Work Order",
       "selectedCount": "{{count}} selected",
@@ -10896,6 +10899,13 @@
       "reason": "Reason",
       "signOut": "Sign out",
       "registerNote": "After you register, our team reviews your company before you can sign in — usually within one working day. We'll email you as soon as it's approved."
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto",
+      "autoHint": "Auto: light from 6 am, dark from 6 pm"
     }
   },
   "help": {

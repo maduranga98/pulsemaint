@@ -1111,6 +1111,13 @@
           "healthScoreAutoHint": "Calculated automatically from the last 90 days of breakdowns and PM work — it can't be set by hand."
         }
       }
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto",
+      "autoHint": "Auto: light from 6 am, dark from 6 pm"
     }
   }
 }

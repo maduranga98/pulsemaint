@@ -3703,7 +3703,10 @@
         "pageTitle": "PM 日历",
         "eventsThisPeriod_one": "本时段共 {{count}} 个事件",
         "eventsThisPeriod_other": "本时段共 {{count}} 个事件",
-        "loading": "正在加载日历..."
+        "loading": "正在加载日历...",
+        "doneOfDue": "到目前为止到期的 {{total}} 项 PM 中已完成 {{done}} 项",
+        "pmCount_one": "{{count}} 项 PM",
+        "pmCount_other": "{{count}} 项 PM"
       },
       "workloadPage": {
         "title": "技术员工作负荷",
@@ -10585,6 +10588,13 @@
       "reason": "原因",
       "signOut": "退出登录",
       "registerNote": "注册后，我们的团队会先审核您的公司，审核通过后您才能登录，通常在一个工作日内完成。批准后我们会立即发邮件通知您。"
+    },
+    "theme": {
+      "label": "主题",
+      "light": "浅色",
+      "dark": "深色",
+      "auto": "自动",
+      "autoHint": "自动：6 点起浅色，18 点起深色"
     }
   },
   "triage": {

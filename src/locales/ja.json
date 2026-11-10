@@ -3703,7 +3703,10 @@
         "pageTitle": "PM カレンダー",
         "eventsThisPeriod_one": "この期間に {{count}} 件のイベント",
         "eventsThisPeriod_other": "この期間に {{count}} 件のイベント",
-        "loading": "カレンダーを読み込み中..."
+        "loading": "カレンダーを読み込み中...",
+        "doneOfDue": "これまでに期限が来た PM {{total}} 件中 {{done}} 件が完了",
+        "pmCount_one": "PM {{count}} 件",
+        "pmCount_other": "PM {{count}} 件"
       },
       "workloadPage": {
         "title": "技術者の作業負荷",
@@ -10585,6 +10588,13 @@
       "reason": "理由",
       "signOut": "ログアウト",
       "registerNote": "ご登録後、ログインいただく前に当社チームが会社情報を確認します（通常 1 営業日以内）。承認され次第メールでお知らせします。"
+    },
+    "theme": {
+      "label": "テーマ",
+      "light": "ライト",
+      "dark": "ダーク",
+      "auto": "自動",
+      "autoHint": "自動：6時からライト、18時からダーク"
     }
   },
   "triage": {

@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './style.css';
+import 'virtual:firmicore-light-theme.css';
 import i18n from './lib/i18n';
 import { startCurrencySync } from './lib/currency';
 

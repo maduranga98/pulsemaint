@@ -9,6 +9,8 @@ import { useAuthActions } from '../../hooks/useAuthActions';
 import type { UserRole } from '../../types/auth';
 import EndShiftButton from '../handover/EndShiftButton';
 import NotificationBell from './NotificationBell';
+import ThemeSwitcher from './ThemeSwitcher';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
 import PlantSwitcher from './PlantSwitcher';
@@ -121,6 +123,7 @@ export default function AppLayout() {
     document.documentElement.classList.add('app-shell-active');
     return () => document.documentElement.classList.remove('app-shell-active');
   }, []);
+  const theme = useAppTheme();
   const { logout } = useAuthActions();
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
@@ -189,10 +192,10 @@ export default function AppLayout() {
     // dvh, not vh: on phones 100vh includes the browser's address bar, which pushed the dock off-screen.
     <div className="h-dvh bg-[#0A1628] text-[#F0F4F8] flex overflow-hidden">
       {/* Sidebar */}
-      <aside className="hidden lg:flex w-60 shrink-0 bg-[#0F1E35] border-r border-[#1E3A5F] flex-col">
-        <div className="h-14 flex items-center px-5 border-b border-[#1E3A5F] shrink-0">
+      <aside className="app-sidebar hidden lg:flex w-60 shrink-0 flex-col">
+        <div className="sb-brand h-14 flex items-center px-5 shrink-0">
           <img src="/logo.svg" alt={t('common.ui2.layout.appLayout.firmicore')} className="w-7 h-7 rounded-md mr-2 object-contain" />
-          <span className="text-sm font-semibold tracking-tight text-[#F0F4F8]">
+          <span className="text-sm font-semibold tracking-tight">
             {t('common.ui2.layout.appLayout.firmicore')}
           </span>
         </div>
@@ -204,11 +207,7 @@ export default function AppLayout() {
               to={visibleDashboard.to}
               end
               className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
-                  isActive
-                    ? 'bg-[#1A56DB]/15 text-[#60A5FA] border-l-2 border-[#1A56DB] pl-[10px]'
-                    : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
-                }`
+                `nav-item flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium ${isActive ? 'nav-item-active' : ''}`
               }
             >
               {visibleDashboard.icon}
@@ -216,7 +215,7 @@ export default function AppLayout() {
             </NavLink>
           )}
 
-          {visibleGroups.length > 0 && <div className="my-2 border-t border-[#1E3A5F]" />}
+          {visibleGroups.length > 0 && <div className="sb-divider my-2" />}
 
           {visibleGroups.map((group) => {
             const isOpen = openGroupId === group.id;
@@ -228,31 +227,27 @@ export default function AppLayout() {
                   data-tour={`nav-group-${group.id}`}
                   onClick={() => setManualOpenGroupId(isOpen ? null : group.id)}
                   aria-expanded={isOpen}
-                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-[11px] font-semibold uppercase tracking-wide transition-colors ${
-                    groupHasActive ? 'text-[#60A5FA]' : 'text-[#6C87A6] hover:text-[#D5DEEA]'
+                  className={`nav-group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-[11px] font-semibold uppercase tracking-wide transition-colors ${
+                    groupHasActive ? 'nav-group-active' : ''
                   }`}
                 >
                   <span>{group.id === 'triage-training' && role === 'technician' ? t('common.nav.items.triage') : t(group.labelKey)}</span>
-                  <span className={isOpen ? 'rotate-90' : ''}>{Icon.chevron}</span>
+                  <span className={`transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}>{Icon.chevron}</span>
                 </button>
                 {isOpen && (
-                  <div className="space-y-0.5 mb-1">
+                  <div className="nav-group-items space-y-0.5 mb-1">
                     {group.items.map((item) => (
                       <NavLink
                         key={item.to}
                         to={item.to}
                         className={({ isActive }) =>
-                          `flex items-center gap-2.5 pl-6 pr-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
-                            isActive
-                              ? 'bg-[#1A56DB]/15 text-[#60A5FA] border-l-2 border-[#1A56DB] pl-[22px]'
-                              : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
-                          }`
+                          `nav-item flex items-center gap-2.5 pl-6 pr-3 py-2 text-[13px] font-medium ${isActive ? 'nav-item-active' : ''}`
                         }
                       >
                         {item.icon}
                         <span>{t(item.labelKey)}</span>
                         {item.to === '/app/support-requests' && supportUnread > 0 && (
-                          <span className="ml-auto rounded-full bg-blue-600 px-1.5 text-[10px] font-bold leading-4 text-white">{supportUnread}</span>
+                          <span className="nav-badge ml-auto rounded-full px-1.5 text-[10px] font-bold leading-4">{supportUnread}</span>
                         )}
                       </NavLink>
                     ))}
@@ -264,16 +259,12 @@ export default function AppLayout() {
 
           {visibleHelp && (
             <>
-              <div className="my-2 border-t border-[#1E3A5F]" />
+              <div className="sb-divider my-2" />
               <NavLink
                 data-tour="nav-help"
                 to={visibleHelp.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
-                    isActive
-                      ? 'bg-[#1A56DB]/15 text-[#60A5FA] border-l-2 border-[#1A56DB] pl-[10px]'
-                      : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
-                  }`
+                  `nav-item flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium ${isActive ? 'nav-item-active' : ''}`
                 }
               >
                 {visibleHelp.icon}
@@ -307,6 +298,7 @@ export default function AppLayout() {
               panel off-screen. */}
           <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide shrink-0">
             <LanguageSwitcher />
+            <ThemeSwitcher />
             <NotificationBell />
             <EndShiftButton />
             <div className="text-right hidden sm:block leading-tight">
@@ -333,7 +325,7 @@ export default function AppLayout() {
 
         <PlantTabs />
 
-        <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto scrollbar-hide">
+        <main className={`app-main ${theme === 'dark' ? 'app-main-dark' : ''} flex-1 min-w-0 bg-[#0A1628] overflow-y-auto scrollbar-hide`}>
           <TourAutoStart />
           <TrialExpiryBanner />
           <RetentionExportBanner />
@@ -342,9 +334,12 @@ export default function AppLayout() {
             <CancellationReasonDialog kind="reason" onDone={() => {}} />
           )}
           <div className="px-4 sm:px-6 lg:px-8 py-5 pb-24 sm:pb-5 max-w-[1400px] mx-auto w-full">
+            {/* Each page fades up as it opens; re-keyed so the animation replays on every route. */}
             <ErrorBoundary key={location.pathname}>
+              <div className="fc-page">
               {/* Pages build their Firestore queries from the signed-in profile's plant and department (plantConstraints); remount them when those arrive or change so a new user's profile completing late never leaves a page on a stale, rejected query. */}
               <Outlet key={`${userProfile?.role ?? ''}|${userProfile?.plantId ?? ''}|${userProfile?.department ?? ''}`} />
+              </div>
             </ErrorBoundary>
           </div>
         </main>

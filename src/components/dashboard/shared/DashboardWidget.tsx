@@ -27,7 +27,7 @@ export default function DashboardWidget({
   const { t } = useTranslation();
   return (
     <div
-      className={`relative bg-[#0F1E35] border border-[#1E3A5F] rounded-xl overflow-hidden hover:border-[#2E5A8F] transition-colors ${className}`}
+      className={`fc-widget relative bg-[#0F1E35] border border-[#1E3A5F] rounded-xl overflow-hidden hover:border-[#2E5A8F] transition-colors ${className}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-[#1E3A5F]">

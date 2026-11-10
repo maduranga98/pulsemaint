@@ -3703,7 +3703,10 @@
         "pageTitle": "Calendrier de MP",
         "eventsThisPeriod_one": "{{count}} événement sur cette période",
         "eventsThisPeriod_other": "{{count}} événements sur cette période",
-        "loading": "Chargement du calendrier..."
+        "loading": "Chargement du calendrier...",
+        "doneOfDue": "{{done}} MP sur {{total}} arrivées à échéance sont terminées",
+        "pmCount_one": "{{count}} MP",
+        "pmCount_other": "{{count}} MP"
       },
       "workloadPage": {
         "title": "Charge de Travail des Techniciens",
@@ -10585,6 +10588,13 @@
       "reason": "Motif",
       "signOut": "Se déconnecter",
       "registerNote": "Après votre inscription, notre équipe vérifie votre entreprise avant que vous puissiez vous connecter — généralement sous un jour ouvré. Nous vous préviendrons par e-mail dès son approbation."
+    },
+    "theme": {
+      "label": "Thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "auto": "Auto",
+      "autoHint": "Auto : clair dès 6 h, sombre dès 18 h"
     }
   },
   "triage": {

@@ -2,13 +2,8 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { KpiCardData } from '../../../types/analytics.types';
 
-const COLOR_MAP: Record<string, { border: string; text: string; glow?: string }> = {
-  green: { border: 'border-l-[#10B981]', text: 'text-[#10B981]' },
-  amber: { border: 'border-l-[#F59E0B]', text: 'text-[#F59E0B]' },
-  red: { border: 'border-l-[#EF4444]', text: 'text-[#EF4444]' },
-  cyan: { border: 'border-l-[#00C2FF]', text: 'text-[#00C2FF]' },
-  blue: { border: 'border-l-[#1A56DB]', text: 'text-[#1A56DB]' },
-};
+// Each tile is outlined and lettered in its own colour (set per theme in style.css: .kpi-card).
+const KPI_COLORS = new Set(['green', 'amber', 'red', 'cyan', 'blue']);
 
 interface KpiCardProps {
   data: KpiCardData;
@@ -17,7 +12,7 @@ interface KpiCardProps {
 
 export default function KpiCard({ data, onClick }: KpiCardProps) {
   const { t } = useTranslation();
-  const colors = COLOR_MAP[data.color] ?? COLOR_MAP.blue;
+  const color = KPI_COLORS.has(data.color) ? data.color : 'blue';
   const isPositiveTrend = data.trendPositive !== false;
   const trendColor =
     data.trendDirection === 'up'
@@ -33,12 +28,11 @@ export default function KpiCard({ data, onClick }: KpiCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-4 min-h-[104px] border-l-4 ${colors.border} hover:border-[#2E5A8F] transition-colors ${
-        onClick ? 'cursor-pointer' : ''
-      }`}
+      data-color={color}
+      className={`kpi-card bg-[#0F1E35] rounded-xl p-4 min-h-[104px] ${onClick ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] font-medium text-[#8BA3BF] font-[DM_Sans] uppercase tracking-wide leading-snug break-words">
+        <p className="kpi-ink text-[11px] font-semibold font-[DM_Sans] uppercase tracking-wide leading-snug break-words">
           {data.label}
         </p>
         {data.scope && (
@@ -54,7 +48,7 @@ export default function KpiCard({ data, onClick }: KpiCardProps) {
         )}
       </div>
       <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-        <span className={`text-3xl font-bold ${colors.text} leading-none`}>
+        <span className="kpi-ink text-3xl font-bold leading-none">
           {typeof data.value === 'number' ? data.value.toLocaleString() : data.value}
         </span>
         {data.unit && <span className="text-xs text-[#8BA3BF]">{data.unit}</span>}

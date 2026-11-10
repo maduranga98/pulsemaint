@@ -140,7 +140,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-dvh bg-[#0D1B33] flex overflow-x-hidden">
       {/* Marketing panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex-col p-12">
+      <div className="login-art hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex-col p-12">
+        {/* Decoration only: the glowing core of the logo with two slow gear rings. */}
+        <div className="login-ring login-ring-b" aria-hidden="true" />
+        <div className="login-ring login-ring-a" aria-hidden="true" />
+        <div className="login-orb" aria-hidden="true" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-[#1A56DB]/25 blur-3xl pointer-events-none" />
         <div className="absolute top-1/3 -right-16 w-80 h-80 rounded-full bg-[#00C2FF]/15 blur-3xl pointer-events-none" />
 
@@ -199,7 +203,7 @@ export default function LoginPage() {
           there's more to scroll to — so mobile flows from the top instead,
           only centering from the lg breakpoint up where there's headroom. */}
       <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center overflow-y-auto p-4 py-8 sm:p-8 bg-[#0D1B33]">
-      <div className="w-full max-w-md">
+      <div className="login-form w-full max-w-md">
         {/* Mobile: logo and language on one row; desktop shows the logo on the marketing panel. */}
         <div className="mb-8 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 lg:invisible">
