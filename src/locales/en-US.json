@@ -4958,7 +4958,7 @@
         "eventsThisPeriod_one": "{{count}} event this period",
         "eventsThisPeriod_other": "{{count}} events this period",
         "loading": "Loading calendar...",
-        "doneOfDue": "{{done}} of {{total}} PMs due so far are completed",
+        "doneOfDue": "{{done}} of {{total}} PMs due so far were done on time",
         "pmCount_one": "{{count}} PM",
         "pmCount_other": "{{count}} PMs"
       },

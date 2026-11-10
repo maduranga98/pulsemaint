@@ -1,6 +1,8 @@
 import { useState, useMemo, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CalendarEvent, PMOperationalStatus } from '../../types/pm.types';
+import { useAuthStore } from '../../store/authStore';
+import { usePMMonthCompliance } from '../../hooks/pm/usePMMonthCompliance';
 import { PM_PRIORITY_CONFIG, PM_OPERATIONAL_STATUS_CONFIG } from '../../constants/pmConfig';
 
 interface PMCalendarViewProps {
@@ -98,17 +100,10 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
     a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
   const selectedEvents = getEventsForDate(selectedDate);
 
-  // Compliance for the month on screen: of the PMs that have fallen due so far
-  // (paused ones don't count), how many are completed.
-  const compliance = useMemo(() => {
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
-    const due = events.filter(
-      (e) => e.date.getMonth() === month && e.date.getFullYear() === year && e.date <= endOfToday && e.operationalStatus !== 'paused',
-    );
-    const done = due.filter((e) => e.operationalStatus === 'completed' || e.status === 'completed').length;
-    return { due: due.length, done, percent: due.length ? Math.round((done / due.length) * 100) : null };
-  }, [events, month, year]);
+  // Compliance for the month on screen comes from pm_history: the calendar's
+  // events only hold open / upcoming PMs, so they can't say how many were done.
+  const companyId = useAuthStore((state) => state.company?.id ?? '');
+  const compliance = usePMMonthCompliance(companyId, year, month);
 
   const legend = useMemo(() => {
     const seen = new Set<PMOperationalStatus>();
@@ -264,31 +259,33 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
         )}
 
         <div className="min-w-0 space-y-4">
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4">
-            <svg viewBox="0 0 36 36" className="h-[72px] w-[72px] shrink-0" role="img" aria-label={t('common.pmSchedules.detail.complianceRate')}>
-              <circle className="pm-ring-track" cx="18" cy="18" r="15.915" fill="none" strokeWidth="3.4" />
-              <circle
-                className="pm-ring-value"
-                cx="18"
-                cy="18"
-                r="15.915"
-                fill="none"
-                strokeWidth="3.4"
-                strokeLinecap="round"
-                strokeDasharray={`${compliance.percent ?? 0} 100`}
-                transform="rotate(-90 18 18)"
-              />
-              <text x="18" y="21" textAnchor="middle" className="pm-ring-text">
-                {compliance.percent === null ? '–' : `${compliance.percent}%`}
-              </text>
-            </svg>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900">{t('common.pmSchedules.detail.complianceRate')}</p>
-              <p className="text-xs text-gray-500">
-                {t('common.pmSchedules.calendarView.doneOfDue', { done: compliance.done, total: compliance.due })}
-              </p>
+          {compliance && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4">
+              <svg viewBox="0 0 36 36" className="h-[72px] w-[72px] shrink-0" role="img" aria-label={t('common.pmSchedules.detail.complianceRate')}>
+                <circle className="pm-ring-track" cx="18" cy="18" r="15.915" fill="none" strokeWidth="3.4" />
+                <circle
+                  className="pm-ring-value"
+                  cx="18"
+                  cy="18"
+                  r="15.915"
+                  fill="none"
+                  strokeWidth="3.4"
+                  strokeLinecap="round"
+                  strokeDasharray={`${compliance.percent ?? 0} 100`}
+                  transform="rotate(-90 18 18)"
+                />
+                <text x="18" y="21" textAnchor="middle" className="pm-ring-text">
+                  {compliance.percent === null ? '–' : `${compliance.percent}%`}
+                </text>
+              </svg>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900">{t('common.pmSchedules.detail.complianceRate')}</p>
+                <p className="text-xs text-gray-500">
+                  {t('common.pmSchedules.calendarView.doneOfDue', { done: compliance.onTime, total: compliance.due })}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="bg-white rounded-2xl border border-gray-200 p-4">
             <p className="text-sm font-semibold text-gray-900">

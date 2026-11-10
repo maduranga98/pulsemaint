@@ -3704,7 +3704,7 @@
         "eventsThisPeriod_one": "{{count}} événement sur cette période",
         "eventsThisPeriod_other": "{{count}} événements sur cette période",
         "loading": "Chargement du calendrier...",
-        "doneOfDue": "{{done}} MP sur {{total}} arrivées à échéance sont terminées",
+        "doneOfDue": "{{done}} MP sur {{total}} arrivées à échéance ont été faites à temps",
         "pmCount_one": "{{count}} MP",
         "pmCount_other": "{{count}} MP"
       },

@@ -3704,7 +3704,7 @@
         "eventsThisPeriod_one": "本时段共 {{count}} 个事件",
         "eventsThisPeriod_other": "本时段共 {{count}} 个事件",
         "loading": "正在加载日历...",
-        "doneOfDue": "到目前为止到期的 {{total}} 项 PM 中已完成 {{done}} 项",
+        "doneOfDue": "到目前为止到期的 {{total}} 项 PM 中有 {{done}} 项按时完成",
         "pmCount_one": "{{count}} 项 PM",
         "pmCount_other": "{{count}} 项 PM"
       },

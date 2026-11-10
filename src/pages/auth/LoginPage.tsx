@@ -141,10 +141,6 @@ export default function LoginPage() {
     <div className="min-h-dvh bg-[#0D1B33] flex overflow-x-hidden">
       {/* Marketing panel */}
       <div className="login-art hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex-col p-12">
-        {/* Decoration only: the glowing core of the logo with two slow gear rings. */}
-        <div className="login-ring login-ring-b" aria-hidden="true" />
-        <div className="login-ring login-ring-a" aria-hidden="true" />
-        <div className="login-orb" aria-hidden="true" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-[#1A56DB]/25 blur-3xl pointer-events-none" />
         <div className="absolute top-1/3 -right-16 w-80 h-80 rounded-full bg-[#00C2FF]/15 blur-3xl pointer-events-none" />
 

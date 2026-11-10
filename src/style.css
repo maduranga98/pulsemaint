@@ -263,15 +263,6 @@ html[data-theme="light"] .kpi-card[data-color="blue"] { --kpi: #1A56DB; }
 /* Sign-in screen: the marketing panel slides in behind a slanted edge and
  * the form's rows rise one after another. Same fields and wording as before. */
 .login-art { clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%); animation: login-art-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.login-orb {
-  position: absolute; top: 12%; right: 12%; width: 150px; height: 150px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle at 38% 34%, #D7F0FF, #6EC2FF 38%, #1E6BE6 72%);
-  box-shadow: 0 0 80px rgba(110, 194, 255, 0.55);
-  animation: login-float 6s ease-in-out infinite;
-}
-.login-ring { position: absolute; border-radius: 50%; border: 2px dashed rgba(255, 255, 255, 0.28); pointer-events: none; animation: login-spin 44s linear infinite; }
-.login-ring-a { top: calc(12% - 35px); right: calc(12% - 35px); width: 220px; height: 220px; }
-.login-ring-b { top: calc(12% - 75px); right: calc(12% - 75px); width: 300px; height: 300px; border-style: dotted; opacity: 0.6; animation-direction: reverse; animation-duration: 70s; }
 .login-form > * { animation: fc-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 .login-form > :nth-child(2) { animation-delay: 80ms; }
 .login-form > :nth-child(3) { animation-delay: 160ms; }
@@ -281,8 +272,6 @@ html[data-theme="light"] .kpi-card[data-color="blue"] { --kpi: #1A56DB; }
 .login-form button[type="submit"]:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(26, 86, 219, 0.4); }
 .login-form button[type="submit"]:not(:disabled):active { transform: scale(0.98); }
 @keyframes login-art-in { from { transform: translateX(-100%); } }
-@keyframes login-float { 50% { transform: translateY(-10px); } }
-@keyframes login-spin { to { transform: rotate(360deg); } }
 
 /* A page opening, then its tiles and widgets one after another. */
 .fc-page { animation: fc-fade 0.25s ease-out; }
@@ -322,7 +311,7 @@ html.app-shell-active button:not(:disabled):active { transform: scale(0.98); }
 
 @media (prefers-reduced-motion: reduce) {
   .fc-page, .fc-page .kpi-card, .fc-page .fc-widget, .fc-skel, .fc-dropdown, .fc-bell-ring, .fc-badge-pop,
-  .theme-switch-icon, .login-art, .login-orb, .login-ring, .login-form > *, .pm-month, .pm-day-selected, .pm-day-list > *, .pm-ring-value, .app-sidebar .nav-item-active, .app-sidebar .nav-group-items,
+  .theme-switch-icon, .login-art, .login-form > *, .pm-month, .pm-day-selected, .pm-day-list > *, .pm-ring-value, .app-sidebar .nav-item-active, .app-sidebar .nav-group-items,
   html.app-shell-active .fixed.inset-0, html.app-shell-active .fixed.inset-0 > * { animation: none !important; }
   .kpi-card:hover, .app-sidebar .nav-item:hover, html.app-shell-active button:not(:disabled):active { transform: none; }
 }

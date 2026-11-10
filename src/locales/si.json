@@ -3730,7 +3730,7 @@
         "eventsThisPeriod_one": "මෙම කාලයේ සිදුවීම් {{count}}",
         "eventsThisPeriod_other": "මෙම කාලයේ සිදුවීම් {{count}}",
         "loading": "දින දර්ශනය පූරණය වෙමින්...",
-        "doneOfDue": "මේ දක්වා නියමිත PM {{total}} න් {{done}} ක් සම්පූර්ණයි",
+        "doneOfDue": "මේ දක්වා නියමිත PM {{total}} න් {{done}} ක් නියමිත වේලාවට කළා",
         "pmCount_one": "PM {{count}}",
         "pmCount_other": "PM {{count}}"
       },
