@@ -1,4 +1,4 @@
-import { ResponsiveContainer, RadialBarChart, RadialBar, Legend } from 'recharts';
+import SegmentedGauge from '../../charts/SegmentedGauge';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useDashboardStore } from '../../../store/dashboard.store';
 import { CHART_COLORS } from '../../../constants/chartTheme';
@@ -19,41 +19,13 @@ export default function SlaGaugeWidget({}: SlaGaugeWidgetProps) {
   const within = Math.round((total * rate) / 100);
   const breached = total - within;
 
-  const data = [
-    { name: 'Within SLA', value: rate, fill: CHART_COLORS.success },
-    { name: 'Remaining', value: 100 - rate, fill: '#1E3A5F' },
-  ];
-
   return (
     <DashboardWidget title={t('common.widgets.slaGaugeWidget.title')} loading={loading}>
       {total === 0 ? (
         <EmptyState message={t('common.widgets.slaGaugeWidget.empty')} />
       ) : (
         <div className="flex flex-col items-center">
-          <div className="w-full h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadialBarChart
-                cx="50%"
-                cy="100%"
-                innerRadius="60%"
-                outerRadius="100%"
-                data={data}
-                startAngle={180}
-                endAngle={0}
-              >
-                <RadialBar dataKey="value" cornerRadius={4} background={{ fill: '#1E3A5F' }} />
-                <Legend
-                  iconSize={8}
-                  wrapperStyle={{ fontSize: 11, color: '#8BA3BF', fontFamily: 'DM Sans' }}
-                  verticalAlign="bottom"
-                />
-              </RadialBarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="text-center -mt-4">
-            <span className="text-3xl font-bold text-[#F0F4F8]">{Math.round(rate)}%</span>
-          </div>
+          <SegmentedGauge value={rate} color={CHART_COLORS.success} />
 
           <div className="w-full mt-3 pt-3 border-t border-[#1E3A5F]/50 space-y-1 text-xs">
             <div className="flex justify-between">
