@@ -64,8 +64,8 @@ describe('lightRuleForToken', () => {
     expect(lightRuleForToken('border-l-[#1E3A5F]')).toContain('border-left-color:');
   });
   it('lets near-white text stay white on solid accents', () => {
-    expect(lightRuleForToken('text-white')).toBe('html[data-theme="light"] .text-white{color:var(--fc-on-accent, #101A33) !important}');
-    expect(lightRuleForToken('text-[#F0F4F8]')).toContain('var(--fc-on-accent, #101A33)');
+    expect(lightRuleForToken('text-white')).toBe('html[data-theme="light"] .text-white{color:var(--fc-on-accent, ' + LIGHT.ink + ') !important}');
+    expect(lightRuleForToken('text-[#F0F4F8]')).toContain(`var(--fc-on-accent, ${LIGHT.ink})`);
     expect(lightRuleForToken('text-[#60A5FA]')).toContain('color:#1D4ED8 !important');
   });
   it('writes nothing for colours that already work on a light page', () => {

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import LoginScene from './LoginScene';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, QrCode, X, ShieldCheck, Zap, Workflow, Target, Mail, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -26,6 +27,7 @@ type EmailLoginForm = z.infer<typeof emailLoginSchema>;
 
 export default function LoginPage() {
   const { t } = useTranslation();
+  useAppTheme(); // Light, Dark or Auto, the same choice as inside the app
   const navigate = useNavigate();
   const location = useLocation();
   // Deep link (e.g. a scanned machine QR) the user was heading to before
@@ -139,9 +141,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-[#0D1B33] flex overflow-x-hidden">
-      {/* Marketing panel */}
-      <div className="login-art hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex-col p-12">
+    <div className="min-h-dvh bg-[#0D1B33] flex flex-col lg:flex-row overflow-x-hidden">
+      {/* Marketing panel: a slanted blue band on top on phones, the left half on desktop. */}
+      <div className="login-art flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#12335C] flex-col p-6 pb-16 lg:p-12">
         <LoginScene />
 
         <div className="relative flex items-center gap-3">
@@ -157,20 +159,20 @@ export default function LoginPage() {
             tags, which was collapsing the headline, paragraph, and feature
             rows on top of each other. `gap` on the flex parent sidesteps
             that entirely since it isn't a per-child margin. */}
-        <div className="relative flex-1 flex flex-col justify-center gap-10">
+        <div className="relative flex-1 flex flex-col justify-center gap-10 mt-6 lg:mt-0">
           <div className="flex flex-col gap-4">
             <h1
-              className="text-4xl leading-tight max-w-lg"
+              className="text-2xl lg:text-4xl leading-tight max-w-lg"
               style={{ color: '#ffffff', fontWeight: 700, letterSpacing: '-0.01em' }}
             >
               {t('common.auth.login.heroLine1')}<br />{t('common.auth.login.heroLine2')}
             </h1>
-            <p className="text-slate-300 text-base leading-relaxed max-w-md">
+            <p className="hidden lg:block text-slate-300 text-base leading-relaxed max-w-md">
               {t('common.auth.login.heroBody')}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 max-w-md">
+          <div className="hidden lg:grid grid-cols-2 gap-3 max-w-md">
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3.5">
               <Zap className="w-5 h-5 text-[#00C2FF] shrink-0" />
               <span className="text-white text-sm font-medium">{t('common.auth.login.features.realtime')}</span>
@@ -190,7 +192,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="relative text-slate-400 text-xs">{t('common.auth.login.copyright', { year: new Date().getFullYear() })}</p>
+        <p className="relative hidden lg:block text-slate-400 text-xs">{t('common.auth.login.copyright', { year: new Date().getFullYear() })}</p>
       </div>
 
       {/* Login form. Vertically centering short content is fine on desktop,
@@ -198,11 +200,11 @@ export default function LoginPage() {
           (the QR report button) below the fold with no obvious way to tell
           there's more to scroll to — so mobile flows from the top instead,
           only centering from the lg breakpoint up where there's headroom. */}
-      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center overflow-y-auto p-4 py-8 sm:p-8 bg-[#0D1B33]">
+      <div className="w-full lg:w-1/2 flex flex-1 items-start lg:items-center justify-center overflow-y-auto p-4 -mt-8 pb-8 lg:mt-0 lg:py-8 sm:p-8 bg-[#0D1B33]">
       <div className="login-form w-full max-w-md">
         {/* Mobile: logo and language on one row; desktop shows the logo on the marketing panel. */}
-        <div className="mb-8 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 lg:invisible">
+        <div className="mb-6 flex items-center justify-end gap-3">
+          <div className="hidden">
             <img src="/logo.svg" alt="FirmiCore" className="h-10 w-auto" />
             <div className="text-2xl font-bold">
               <span className="text-white">Firmi</span>
@@ -214,8 +216,8 @@ export default function LoginPage() {
 
         <div className="flex flex-col gap-1 mb-6">
           <h2
-            className="text-3xl"
-            style={{ color: '#ffffff', fontWeight: 700 }}
+            className="text-3xl text-white"
+            style={{ fontWeight: 700 }}
           >
             {t('common.auth.login.title')}
           </h2>

@@ -131,11 +131,11 @@ a {
  * --------------------------------------------------------------------------- */
 .app-sidebar {
   --sb-bg: #0F1E35;
-  --sb-fg: #8BA3BF;
-  --sb-fg-strong: #F0F4F8;
+  --sb-fg: #E3ECF8;
+  --sb-fg-strong: #FFFFFF;
   --sb-hover: #142849;
   --sb-line: #1E3A5F;
-  --sb-label: #6C87A6;
+  --sb-label: #D3DEEE;
   --sb-accent: #60A5FA;
   --sb-window: #0A1628;
   --sb-radius: 14px;
@@ -145,11 +145,11 @@ a {
 }
 html[data-theme="light"] .app-sidebar {
   --sb-bg: #1450C8;
-  --sb-fg: #D6E3FF;
+  --sb-fg: #F2F7FF;
   --sb-fg-strong: #FFFFFF;
   --sb-hover: rgba(255, 255, 255, 0.13);
   --sb-line: rgba(255, 255, 255, 0.2);
-  --sb-label: #B4C9FF;
+  --sb-label: #E2ECFF;
   --sb-accent: #0F3FA8;
   --sb-window: #EEF2F8;
   box-shadow: none;
@@ -216,7 +216,7 @@ html[data-theme="light"] .app-sidebar .nav-badge { background: #FFFFFF; color: #
 }
 .kpi-card:hover {
   border-color: var(--kpi);
-  transform: translateY(-2px);
+  top: -2px;
   box-shadow: 0 10px 26px color-mix(in srgb, var(--kpi) 26%, transparent);
 }
 .kpi-card .kpi-ink { color: var(--kpi); }
@@ -264,10 +264,21 @@ html[data-theme="light"] .kpi-card[data-color="blue"] { --kpi: #1A56DB; }
 /* Sign-in screen: the marketing panel slides in behind a slanted edge and
  * the form's rows rise one after another. Same fields and wording as before. */
 .login-art {
-  clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
   animation: login-art-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
   background-image: linear-gradient(155deg, #071f66 0%, #0f3fa8 38%, #1a6be8 74%, #52b0ff 100%);
+  --fc-on-accent: #ffffff;
+  color: #ffffff;
 }
+@media (min-width: 1024px) { .login-art { clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%); } }
+html[data-theme="light"] .login-art .bg-white\/10 { background-color: rgba(255, 255, 255, 0.16) !important; }
+@media (max-width: 1023px) { .login-scene { display: none; } }
+/* Text on the blue art keeps its light colours in the light theme. */
+html[data-theme="light"] .login-art :is(.text-\[\#00C2FF\], [class*="text-[#00C2FF]"]) { color: #9BEBFF !important; }
+html[data-theme="light"] .login-art .text-slate-400 { color: #E2ECFF !important; }
+/* Form side: no grey fonts, near-black on light and near-white on dark. */
+html[data-theme="light"] .login-form :is(.text-slate-300, .text-slate-400, .text-slate-500, .text-gray-400, .text-gray-500, .text-\[\#8BA3BF\]) { color: #18223C !important; }
+html[data-theme="dark"] .login-form :is(.text-slate-300, .text-slate-400, .text-slate-500, .text-gray-400, .text-gray-500, .text-\[\#8BA3BF\]) { color: #E8EFFA !important; }
 /* The scene: three machines on a belt, cycling breakdown → attended → fixed. */
 .login-scene { position: absolute; top: 8%; right: 14%; width: 270px; height: 230px; pointer-events: none; }
 @media (max-height: 820px) { .login-scene { display: none; } }
@@ -409,13 +420,13 @@ html.app-shell-active button:not(:disabled):active { transform: scale(0.98); }
 .app-main-dark .text-slate-800,
 .app-main-dark .text-gray-800,
 .app-main-dark .text-slate-700,
-.app-main-dark .text-gray-700 { color: #EEF3FB !important; }
+.app-main-dark .text-gray-700 { color: #F6F9FD !important; }
 .app-main-dark .text-slate-600,
-.app-main-dark .text-gray-600 { color: #E1EAF6 !important; }
+.app-main-dark .text-gray-600 { color: #EEF3FB !important; }
 .app-main-dark .text-slate-500,
-.app-main-dark .text-gray-500 { color: #CFDBEC !important; }
+.app-main-dark .text-gray-500 { color: #E8EFFA !important; }
 .app-main-dark .text-slate-400,
-.app-main-dark .text-gray-400 { color: #BCCBE0 !important; }
+.app-main-dark .text-gray-400 { color: #DCE6F4 !important; }
 
 .app-main-dark .hover\:text-slate-900:hover,
 .app-main-dark .hover\:text-gray-900:hover { color: #F0F4F8 !important; }
