@@ -68,7 +68,7 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
               </span>
             ))}
           </div>
-          <FloorZones tiles={tiles} typeLabel={typeLabel} breakdownLabel={t('common.dashboard.floorMap.statusBreakdown')} plantName={plantName} zoomIn={t('common.ui.zoomIn', { defaultValue: 'Zoom in' })} zoomOut={t('common.ui.zoomOut', { defaultValue: 'Zoom out' })} />
+          <FloorZones tiles={tiles} typeLabel={typeLabel} breakdownLabel={t('common.dashboard.floorMap.statusBreakdown')} plantName={plantName} />
         </>
       )}
     </DashboardWidget>

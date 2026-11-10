@@ -7,6 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import SegmentedGauge from '../../charts/SegmentedGauge';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useDashboardStore } from '../../../store/dashboard.store';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
@@ -33,16 +34,11 @@ export default function PmComplianceWidget({ companyId }: PmComplianceWidgetProp
 
   return (
     <DashboardWidget title={t('common.widgets.pmComplianceWidget.title')} loading={loading}>
-      <div className="text-center">
-        <span
-          className={`text-6xl font-bold ${
-            color === 'green' ? 'text-[#10B981]' : color === 'amber' ? 'text-[#F59E0B]' : 'text-[#EF4444]'
-          }`}
-        >
-          {Math.round(rate)}%
-        </span>
-        <p className="text-xs text-[#8BA3BF] mt-1">{t('common.widgets.pmComplianceWidget.thisMonth')}</p>
-      </div>
+      <SegmentedGauge
+        value={rate}
+        color={color === 'green' ? '#10B981' : color === 'amber' ? '#F59E0B' : '#EF4444'}
+      />
+      <p className="text-xs text-[#8BA3BF] text-center -mt-1">{t('common.widgets.pmComplianceWidget.thisMonth')}</p>
 
       <div className="mt-4 h-24">
         {miniData.length > 0 ? (

@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { ZoomIn, ZoomOut } from 'lucide-react';
+import { useMemo } from 'react';
 
 export interface FloorTile {
   m: { machineId: string; machineName: string; plantId?: string | null; openWoCount: number };
@@ -13,19 +12,14 @@ interface FloorZonesProps {
   typeLabel: (woType: string) => string;
   breakdownLabel: string;
   plantName: (plantId?: string | null) => string | null | undefined;
-  zoomIn: string;
-  zoomOut: string;
 }
-
-const ZOOMS = [1, 1.25, 1.5];
 
 /**
  * The machines that need attention, laid out as a plant floor: one zone per
  * plant, each machine a glowing pin (pulsing ring for a breakdown) with its
  * open work-order count. Same data and wording as the old tile list.
  */
-export default function FloorZones({ tiles, typeLabel, breakdownLabel, plantName, zoomIn, zoomOut }: FloorZonesProps) {
-  const [zoom, setZoom] = useState(0);
+export default function FloorZones({ tiles, typeLabel, breakdownLabel, plantName }: FloorZonesProps) {
   const zones = useMemo(() => {
     const map = new Map<string, { name: string; items: FloorTile[] }>();
     tiles.forEach((t) => {
@@ -39,16 +33,8 @@ export default function FloorZones({ tiles, typeLabel, breakdownLabel, plantName
 
   return (
     <div className="floor-map">
-      <div className="floor-map-tools">
-        <button type="button" className="floor-map-btn" onClick={() => setZoom((z) => Math.max(0, z - 1))} disabled={zoom === 0} aria-label={zoomOut}>
-          <ZoomOut className="h-4 w-4" aria-hidden="true" />
-        </button>
-        <button type="button" className="floor-map-btn" onClick={() => setZoom((z) => Math.min(ZOOMS.length - 1, z + 1))} disabled={zoom === ZOOMS.length - 1} aria-label={zoomIn}>
-          <ZoomIn className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
       <div className="floor-map-scroll">
-        <div className="floor-map-grid" style={{ ['--fm-zoom' as string]: ZOOMS[zoom] }}>
+        <div className="floor-map-grid">
           {zones.map((zone, zi) => (
             <section key={zone.name + zi} className="floor-zone" style={{ ['--i' as string]: zi }}>
               {zone.name && <h4 className="floor-zone-name">{zone.name}</h4>}

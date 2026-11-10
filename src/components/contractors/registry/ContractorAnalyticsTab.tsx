@@ -65,7 +65,7 @@ export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
     <div className="grid gap-4 xl:grid-cols-2">
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.jobsPerMonth')}</h2>
-        <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={monthly}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Bar dataKey="jobs" fill="#1A56DB" /></BarChart></ResponsiveContainer></div>
+        <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={monthly}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Bar radius={[8, 8, 0, 0]} dataKey="jobs" fill="#1A56DB" /></BarChart></ResponsiveContainer></div>
       </section>
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.ratingTrend')}</h2>
@@ -73,7 +73,7 @@ export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
       </section>
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.costPerJob')}</h2>
-        <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={monthly}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Bar dataKey="cost" fill="#00C2FF" /></BarChart></ResponsiveContainer></div>
+        <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={monthly}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Bar radius={[8, 8, 0, 0]} dataKey="cost" fill="#00C2FF" /></BarChart></ResponsiveContainer></div>
       </section>
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.jobTypeDistribution')}</h2>
