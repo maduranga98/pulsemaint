@@ -10,6 +10,7 @@ import type { UserRole } from '../../types/auth';
 import EndShiftButton from '../handover/EndShiftButton';
 import NotificationBell from './NotificationBell';
 import ThemeSwitcher from './ThemeSwitcher';
+import InstallAppButton from './InstallAppButton';
 import ChartGradients from './ChartGradients';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -301,6 +302,7 @@ export default function AppLayout() {
           <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide shrink-0">
             <LanguageSwitcher />
             <ThemeSwitcher />
+            <InstallAppButton />
             <NotificationBell />
             <EndShiftButton />
             <div className="text-right hidden sm:block leading-tight">

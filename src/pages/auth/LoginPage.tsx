@@ -16,6 +16,7 @@ import {
   getDashboardRoute,
 } from '../../lib/auth';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
+import InstallAppButton from '../../components/layout/InstallAppButton';
 import { consumePostLoginRedirect } from '../../lib/scanTarget';
 
 const emailLoginSchema = z.object({
@@ -211,6 +212,7 @@ export default function LoginPage() {
               <span className="text-[#00C2FF]">Core</span>
             </div>
           </div>
+          <InstallAppButton />
           <LanguageSwitcher />
         </div>
 

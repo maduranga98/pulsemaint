@@ -10600,6 +10600,15 @@
       "dark": "深色",
       "auto": "自动",
       "autoHint": "自动：6 点起浅色，18 点起深色"
+    },
+    "installApp": {
+      "button": "安装应用",
+      "hint": "在此设备上安装 FirmiCore — 它会像应用一样在独立窗口中打开",
+      "iosTitle": "在此设备上安装 FirmiCore",
+      "iosStep1": "点按浏览器工具栏中的“分享”按钮。",
+      "iosStep2": "选择“添加到主屏幕”。",
+      "iosStep3": "点按“添加”。之后即可像应用一样从主屏幕打开 FirmiCore。",
+      "close": "关闭"
     }
   },
   "triage": {
