@@ -54,6 +54,11 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
   font-weight: 600;
 }
+/* The rule above is unlayered, so it beats Tailwind's `text-white` utility:
+   a heading on a dark page (login, forgot password, invite …) came out dark
+   on dark. An explicit `text-white` on a heading wins again; the app shell's
+   own heading rules below and the light-theme overrides still apply. */
+:is(h1, h2, h3, h4, h5, h6).text-white { color: #ffffff; }
 
 p { margin: 0; }
 
