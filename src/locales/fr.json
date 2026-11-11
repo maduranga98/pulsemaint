@@ -10600,6 +10600,15 @@
       "dark": "Sombre",
       "auto": "Auto",
       "autoHint": "Auto : clair dès 6 h, sombre dès 18 h"
+    },
+    "installApp": {
+      "button": "Installer l'app",
+      "hint": "Installez FirmiCore sur cet appareil : il s'ouvre dans sa propre fenêtre, comme une application",
+      "iosTitle": "Installer FirmiCore sur cet appareil",
+      "iosStep1": "Touchez le bouton Partager dans la barre du navigateur.",
+      "iosStep2": "Choisissez « Sur l'écran d'accueil ».",
+      "iosStep3": "Touchez « Ajouter ». FirmiCore s'ouvre ensuite depuis votre écran d'accueil comme une application.",
+      "close": "Fermer"
     }
   },
   "triage": {

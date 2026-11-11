@@ -4,8 +4,12 @@ import './style.css';
 import 'virtual:firmicore-light-theme.css';
 import i18n from './lib/i18n';
 import { startCurrencySync } from './lib/currency';
+import { initInstallPrompt } from './store/installStore';
 
 startCurrencySync(i18n);
+
+// "Install app": the browser's install offer fires once, before React is up.
+initInstallPrompt();
 
 // Links in stored data (attachments, notifications …) are written by other
 // users: never follow a `javascript:` / `vbscript:` one, wherever it is rendered.
@@ -21,7 +25,7 @@ document.addEventListener(
   true,
 );
 
-// Register service worker for PWA offline support
+// Register the service worker: required for the app to be installable (PWA)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
