@@ -21,7 +21,7 @@ export function CategoryRail({ cats, counts, selected, onSelect }: Props) {
     >
       <div
         className="text-[10px] font-bold uppercase tracking-wider px-2 pb-1"
-        style={{ color: '#a7b6d3' }}
+        style={{ color: 'var(--tri-muted-3)' }}
       >
         {t('common.triage.knowledge.page.pickTopic')}
       </div>
@@ -35,9 +35,9 @@ export function CategoryRail({ cats, counts, selected, onSelect }: Props) {
             onClick={() => onSelect(cat.id)}
             className="w-full text-left flex items-center gap-2.5 px-3 min-h-[40px] rounded-lg text-[13px] transition-colors"
             style={{
-              background: active ? '#12203d' : 'transparent',
+              background: active ? 'var(--tri-active)' : 'transparent',
               border: `2px solid ${active ? cat.color : 'transparent'}`,
-              color: active ? '#ffffff' : '#cbd5ea',
+              color: active ? 'var(--tri-ink-strong)' : 'var(--tri-ink-soft)',
               fontWeight: active ? 700 : 500,
             }}
           >
@@ -45,15 +45,15 @@ export function CategoryRail({ cats, counts, selected, onSelect }: Props) {
               <TriageCategoryIcon icon={cat.icon} className="w-4 h-4" />
             </span>
             <span className="flex-1 min-w-0 truncate">{cat.title}</span>
-            {cat.pinned && <Pin className="w-3.5 h-3.5 shrink-0" style={{ color: '#6b7fa3' }} />}
-            <span className="text-xs shrink-0" style={{ color: '#8BA3BF' }}>
+            {cat.pinned && <Pin className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--tri-muted)' }} />}
+            <span className="text-xs shrink-0" style={{ color: 'var(--tri-muted-2)' }}>
               {counts[cat.id] ?? 0}
             </span>
           </button>
         );
       })}
       {cats.length === 0 && (
-        <div className="text-sm text-center py-6" style={{ color: '#6b7fa3' }}>
+        <div className="text-sm text-center py-6" style={{ color: 'var(--tri-muted)' }}>
           {t('common.triage.knowledge.categoryRail.noCategories')}
         </div>
       )}

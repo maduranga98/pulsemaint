@@ -39,7 +39,7 @@ export function WOApprovalRequests({ workOrder }: { workOrder: WorkOrder }) {
 
   return (
     <section className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
-      <h3 className="text-xs font-semibold text-orange-700 uppercase tracking-wide">
+      <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">
         {t('common.widgets.pendingApprovalsWidget.title')}
       </h3>
       {pending.map((request) => {

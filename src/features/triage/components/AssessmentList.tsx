@@ -110,9 +110,9 @@ export function AssessmentList() {
       {assessments.length === 0 && (
         <div
           className="rounded-2xl p-8 text-center"
-          style={{ background: '#0e1628', border: '1px solid #1f2f4a' }}
+          style={{ background: 'var(--tri-card)', border: '1px solid var(--tri-line-2)' }}
         >
-          <div className="text-sm" style={{ color: '#6b7fa3' }}>
+          <div className="text-sm" style={{ color: 'var(--tri-muted)' }}>
             {t('common.triage.knowledge.assessmentList.empty')}
           </div>
         </div>
@@ -131,7 +131,7 @@ export function AssessmentList() {
             <div
               key={a.id}
               className="rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4"
-              style={{ background: '#0e1628', border: '1px solid #1f2f4a' }}
+              style={{ background: 'var(--tri-card)', border: '1px solid var(--tri-line-2)' }}
             >
               <div className="flex-1 min-w-0">
                 <span
@@ -141,10 +141,10 @@ export function AssessmentList() {
                   <meta.icon className="w-4 h-4" />
                   {meta.label}
                 </span>
-                <div className="font-semibold text-[13px] sm:text-sm mt-1" style={{ color: '#e2e8f0' }}>
+                <div className="font-semibold text-[13px] sm:text-sm mt-1" style={{ color: 'var(--tri-ink)' }}>
                   {a.title}
                 </div>
-                <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
+                <div className="text-xs mt-0.5" style={{ color: 'var(--tri-muted)' }}>
                   {a.cat} · {t('common.triage.knowledge.assessmentList.passMark', { value: a.passMark })}
                   {lastPct !== null && ` · ${t('common.triage.knowledge.assessmentList.lastScore', { value: lastPct })}`}
                 </div>

@@ -113,9 +113,9 @@ export function AssessmentBuilder() {
 
   const input = 'w-full px-3 py-2 rounded-lg text-sm bg-transparent outline-none';
   const inputStyle = {
-    background: '#0e1628',
-    border: '1px solid #1a2840',
-    color: '#e2e8f0',
+    background: 'var(--tri-card)',
+    border: '1px solid var(--tri-line)',
+    color: 'var(--tri-ink)',
   };
 
   return (
@@ -124,15 +124,15 @@ export function AssessmentBuilder() {
       <div className="space-y-4">
         <div
           className="rounded-xl p-4"
-          style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+          style={{ background: 'var(--tri-surface)', border: '1px solid var(--tri-line)' }}
         >
-          <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
+          <div className="text-sm font-semibold mb-4" style={{ color: 'var(--tri-ink)' }}>
             {t('common.triage.knowledge.builder.assessmentBuilder.newAssessmentHeading')}
           </div>
 
           <form onSubmit={handleSave} className="space-y-4">
             <div>
-              <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+              <label className="text-xs block mb-1" style={{ color: 'var(--tri-muted)' }}>
                 {t('common.triage.knowledge.builder.assessmentBuilder.fields.title')}
               </label>
               <input
@@ -147,7 +147,7 @@ export function AssessmentBuilder() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+                <label className="text-xs block mb-1" style={{ color: 'var(--tri-muted)' }}>
                   {t('common.triage.knowledge.builder.assessmentBuilder.fields.category')}
                 </label>
                 <select
@@ -166,7 +166,7 @@ export function AssessmentBuilder() {
                 </select>
               </div>
               <div>
-                <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+                <label className="text-xs block mb-1" style={{ color: 'var(--tri-muted)' }}>
                   {t('common.triage.knowledge.builder.assessmentBuilder.fields.passMark')}
                 </label>
                 <input
@@ -187,10 +187,10 @@ export function AssessmentBuilder() {
                 <div
                   key={qIdx}
                   className="rounded-xl p-4"
-                  style={{ background: '#0e1628', border: '1px solid #243450' }}
+                  style={{ background: 'var(--tri-card)', border: '1px solid #243450' }}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-xs font-semibold" style={{ color: '#6b7fa3' }}>
+                    <div className="text-xs font-semibold" style={{ color: 'var(--tri-muted)' }}>
                       {t('common.triage.knowledge.builder.assessmentBuilder.questionLabel', { number: qIdx + 1 })}
                     </div>
                     {questions.length > 1 && (
@@ -251,7 +251,7 @@ export function AssessmentBuilder() {
               type="button"
               onClick={() => setQuestions((qs) => [...qs, emptyQ()])}
               className="w-full py-2 rounded-lg text-xs font-medium transition-colors"
-              style={{ background: '#1a2840', color: '#6b7fa3', border: '1px solid #243450' }}
+              style={{ background: 'var(--tri-line)', color: 'var(--tri-muted)', border: '1px solid #243450' }}
             >
               {t('common.triage.knowledge.builder.assessmentBuilder.addQuestion')}
             </button>
@@ -273,14 +273,14 @@ export function AssessmentBuilder() {
       {/* ── RIGHT: existing assessments ─────────────────────────────────── */}
       <div
         className="rounded-xl p-4"
-        style={{ background: '#0e1628', border: '1px solid #1a2840' }}
+        style={{ background: 'var(--tri-card)', border: '1px solid var(--tri-line)' }}
       >
-        <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
+        <div className="text-sm font-semibold mb-4" style={{ color: 'var(--tri-ink)' }}>
           {t('common.triage.knowledge.builder.assessmentBuilder.existingHeading', { count: assessments.length })}
         </div>
 
         {assessments.length === 0 && (
-          <div className="text-sm text-center py-10" style={{ color: '#3d5070' }}>
+          <div className="text-sm text-center py-10" style={{ color: 'var(--tri-faint)' }}>
             {t('common.triage.knowledge.builder.assessmentBuilder.empty')}
           </div>
         )}
@@ -290,13 +290,13 @@ export function AssessmentBuilder() {
             <div
               key={a.id}
               className="flex items-start gap-3 p-3 rounded-xl"
-              style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+              style={{ background: 'var(--tri-surface)', border: '1px solid var(--tri-line)' }}
             >
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
+                <div className="text-sm font-semibold" style={{ color: 'var(--tri-ink)' }}>
                   {a.title}
                 </div>
-                <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
+                <div className="text-xs mt-0.5" style={{ color: 'var(--tri-muted)' }}>
                   {t('common.triage.knowledge.builder.assessmentBuilder.summary', {
                     category: a.cat,
                     count: a.questions.length,
@@ -307,8 +307,8 @@ export function AssessmentBuilder() {
                   <span
                     className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                     style={{
-                      background: a.status === 'open' ? '#22c55e1e' : '#6b7fa31e',
-                      color: a.status === 'open' ? '#22c55e' : '#6b7fa3',
+                      background: a.status === 'open' ? '#22c55e1e' : 'var(--tri-muted-bg)',
+                      color: a.status === 'open' ? '#22c55e' : 'var(--tri-muted)',
                     }}
                   >
                     {t(`common.triage.knowledge.builder.assessmentBuilder.status.${a.status}`)}

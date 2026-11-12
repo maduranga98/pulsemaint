@@ -46,9 +46,9 @@ export function ContactBuilder() {
 
   const input = 'w-full px-3 py-2 rounded-lg text-sm bg-transparent outline-none';
   const inputStyle = {
-    background: '#0e1628',
-    border: '1px solid #1a2840',
-    color: '#e2e8f0',
+    background: 'var(--tri-card)',
+    border: '1px solid var(--tri-line)',
+    color: 'var(--tri-ink)',
   };
 
   return (
@@ -56,14 +56,14 @@ export function ContactBuilder() {
       {/* Form */}
       <div
         className="rounded-xl p-4"
-        style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+        style={{ background: 'var(--tri-surface)', border: '1px solid var(--tri-line)' }}
       >
-        <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
+        <div className="text-sm font-semibold mb-4" style={{ color: 'var(--tri-ink)' }}>
           {t('common.triage.knowledge.builder.contactBuilder.addContactHeading')}
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+            <label className="text-xs block mb-1" style={{ color: 'var(--tri-muted)' }}>
               {t('common.triage.knowledge.builder.contactBuilder.fields.name')}
             </label>
             <input
@@ -76,7 +76,7 @@ export function ContactBuilder() {
             />
           </div>
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+            <label className="text-xs block mb-1" style={{ color: 'var(--tri-muted)' }}>
               {t('common.triage.knowledge.builder.contactBuilder.fields.role')}
             </label>
             <input
@@ -88,7 +88,7 @@ export function ContactBuilder() {
             />
           </div>
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+            <label className="text-xs block mb-1" style={{ color: 'var(--tri-muted)' }}>
               {t('common.triage.knowledge.builder.contactBuilder.fields.dept')}
             </label>
             <input
@@ -100,7 +100,7 @@ export function ContactBuilder() {
             />
           </div>
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+            <label className="text-xs block mb-1" style={{ color: 'var(--tri-muted)' }}>
               {t('common.triage.knowledge.builder.contactBuilder.fields.phone')}
             </label>
             <input
@@ -113,7 +113,7 @@ export function ContactBuilder() {
             />
           </div>
           <div>
-            <label className="text-xs block mb-2" style={{ color: '#6b7fa3' }}>
+            <label className="text-xs block mb-2" style={{ color: 'var(--tri-muted)' }}>
               {t('common.triage.knowledge.builder.contactBuilder.fields.priority')}
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -126,10 +126,10 @@ export function ContactBuilder() {
                   style={{
                     background: form.level === lvl
                       ? lvl === 'emergency' ? '#ef444422' : '#1d4ed822'
-                      : '#1a2840',
+                      : 'var(--tri-line)',
                     color: form.level === lvl
                       ? lvl === 'emergency' ? '#ef4444' : '#3b82f6'
-                      : '#6b7fa3',
+                      : 'var(--tri-muted)',
                     border: `1px solid ${
                       form.level === lvl
                         ? lvl === 'emergency' ? '#ef444440' : '#3b82f640'
@@ -158,9 +158,9 @@ export function ContactBuilder() {
       {/* Live list */}
       <div
         className="rounded-xl p-4"
-        style={{ background: '#0e1628', border: '1px solid #1a2840' }}
+        style={{ background: 'var(--tri-card)', border: '1px solid var(--tri-line)' }}
       >
-        <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
+        <div className="text-sm font-semibold mb-4" style={{ color: 'var(--tri-ink)' }}>
           {t('common.triage.knowledge.builder.contactBuilder.currentContactsHeading')}
         </div>
         <ContactList showDelete={canDelete} compact />

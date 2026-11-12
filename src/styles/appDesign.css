@@ -374,6 +374,18 @@ html[data-theme="light"] .app-main :is(.text-slate-400, .text-gray-400) { color:
 html[data-theme="light"] .app-main :is(.text-slate-500, .text-gray-500) { color: #18223C !important; }
 html[data-theme="light"] .app-main :is(.text-slate-600, .text-gray-600) { color: #0F1830 !important; }
 html[data-theme="light"] .app-main :is(.text-slate-700, .text-gray-700, .text-slate-800, .text-gray-800) { color: #080D1C !important; }
+/* The same classes with Tailwind's important modifier (text-slate-400!) —
+   in the base layer, which is what outranks a layered important utility. */
+@layer base {
+  html[data-theme="light"] .app-main :is(.text-slate-400\!, .text-gray-400\!) { color: #222D47 !important; }
+  html[data-theme="light"] .app-main :is(.text-slate-700\!, .text-gray-700\!) { color: #080D1C !important; }
+}
+/* Solid dark slate panels (audit forms …) keep their dark colour in the light
+   theme, so muted text inside them must stay pale — not the dark ink above. */
+html[data-theme="light"] .app-main :is(.bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-800, .bg-gray-900, .bg-gray-950)
+  :is(.text-slate-400, .text-gray-400, .text-slate-500, .text-gray-500, .text-slate-600, .text-gray-600) { color: #CBD5E1 !important; }
+html[data-theme="light"] .app-main :is(.bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-800, .bg-gray-900, .bg-gray-950)::placeholder,
+html[data-theme="light"] .app-main :is(.bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-800, .bg-gray-900, .bg-gray-950) ::placeholder { color: #94A3B8 !important; }
 /* Charts: axis numbers, category names and legends follow the theme instead of a fixed grey. */
 html[data-theme="light"] .app-main .recharts-text,
 html[data-theme="light"] .app-main .recharts-cartesian-axis-tick-value,

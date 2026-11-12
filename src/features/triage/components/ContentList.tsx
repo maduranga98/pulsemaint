@@ -52,7 +52,7 @@ export function ContentList({ category, showDelete = false }: Props) {
         <button
           onClick={() => setPlayingVideo(null)}
           className="flex items-center gap-2 mb-4 text-sm transition-colors hover:text-white"
-          style={{ color: '#6b7fa3' }}
+          style={{ color: 'var(--tri-muted)' }}
         >
           ← {t('common.triage.knowledge.contentList.back')}
         </button>
@@ -66,10 +66,10 @@ export function ContentList({ category, showDelete = false }: Props) {
           />
         </div>
         <div className="mt-4">
-          <div className="font-semibold" style={{ color: '#e2e8f0' }}>
+          <div className="font-semibold" style={{ color: 'var(--tri-ink)' }}>
             {playingVideo.title}
           </div>
-          <div className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+          <div className="text-sm mt-0.5" style={{ color: 'var(--tri-muted)' }}>
             {playingVideo.meta}
           </div>
         </div>
@@ -84,11 +84,11 @@ export function ContentList({ category, showDelete = false }: Props) {
           <TriageCategoryIcon icon={category.icon} className="w-6 h-6" />
         </span>
         <div>
-          <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--tri-ink)' }}>
             {category.title}
           </h2>
           {category.desc && (
-            <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--tri-muted)' }}>
               {category.desc}
             </p>
           )}
@@ -98,9 +98,9 @@ export function ContentList({ category, showDelete = false }: Props) {
       {items.length === 0 && (
         <div
           className="rounded-xl p-8 text-center"
-          style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+          style={{ background: 'var(--tri-surface)', border: '1px solid var(--tri-line)' }}
         >
-          <div className="text-sm" style={{ color: '#3d5070' }}>
+          <div className="text-sm" style={{ color: 'var(--tri-faint)' }}>
             {t('common.triage.knowledge.contentList.empty')}
           </div>
         </div>
@@ -123,14 +123,14 @@ export function ContentList({ category, showDelete = false }: Props) {
             <div
               key={item.id}
               className="rounded-xl overflow-hidden"
-              style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+              style={{ background: 'var(--tri-surface)', border: '1px solid var(--tri-line)' }}
             >
               <div className="flex items-center">
                 <button
                   className="flex-1 flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 min-h-[46px] sm:min-h-[52px] text-left transition-colors"
                   style={{ background: 'transparent' }}
                   onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.background = '#1a284033')
+                    ((e.currentTarget as HTMLElement).style.background = 'var(--tri-hover)')
                   }
                   onMouseLeave={(e) =>
                     ((e.currentTarget as HTMLElement).style.background = 'transparent')
@@ -149,10 +149,10 @@ export function ContentList({ category, showDelete = false }: Props) {
                 >
                   <TriageContentTypeIcon type={item.type} className="w-5 h-5 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] sm:text-sm font-medium" style={{ color: '#e2e8f0' }}>
+                    <div className="text-[13px] sm:text-sm font-medium" style={{ color: 'var(--tri-ink)' }}>
                       {item.title}
                     </div>
-                    <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
+                    <div className="text-xs mt-0.5" style={{ color: 'var(--tri-muted)' }}>
                       {item.meta}
                     </div>
                   </div>
@@ -160,7 +160,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                     <ChevronDown
                       className="w-4 h-4 shrink-0 transition-transform duration-200"
                       style={{
-                        color: '#3d5070',
+                        color: 'var(--tri-faint)',
                         transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                       }}
                     />
@@ -181,7 +181,7 @@ export function ContentList({ category, showDelete = false }: Props) {
               {isOpen && (
                 <div
                   className="px-4 pb-4"
-                  style={{ borderTop: '1px solid #1a2840' }}
+                  style={{ borderTop: '1px solid var(--tri-line)' }}
                 >
                   {item.type === 'guide' && (
                     <ul className="mt-3 space-y-1.5">
@@ -189,7 +189,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                         <li
                           key={i}
                           className="flex items-start gap-2 text-sm"
-                          style={{ color: '#e2e8f0' }}
+                          style={{ color: 'var(--tri-ink)' }}
                         >
                           <span className="mt-0.5 shrink-0" style={{ color: '#3b82f6' }}>
                             •
@@ -203,7 +203,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                   {item.type === 'procedure' && (
                     <div className="mt-3 space-y-4">
                       {item.intro && (
-                        <p className="text-sm italic" style={{ color: '#6b7fa3' }}>
+                        <p className="text-sm italic" style={{ color: 'var(--tri-muted)' }}>
                           {item.intro}
                         </p>
                       )}
@@ -211,9 +211,9 @@ export function ContentList({ category, showDelete = false }: Props) {
                         <div
                           className="flex items-start gap-2 p-3 rounded-lg text-sm"
                           style={{
-                            background: '#1f1b0c',
+                            background: 'var(--tri-warn-bg)',
                             border: '1px solid #5a4a1c',
-                            color: '#fde68a',
+                            color: 'var(--tri-warn-ink)',
                           }}
                         >
                           <span className="shrink-0">⚠️</span>
@@ -229,10 +229,10 @@ export function ContentList({ category, showDelete = false }: Props) {
                             {i + 1}
                           </div>
                           <div className="flex-1 pt-0.5">
-                            <div className="text-[13px] sm:text-sm font-semibold" style={{ color: '#e2e8f0' }}>
+                            <div className="text-[13px] sm:text-sm font-semibold" style={{ color: 'var(--tri-ink)' }}>
                               {step.t}
                             </div>
-                            <div className="text-xs sm:text-sm mt-0.5" style={{ color: '#8BA3BF' }}>
+                            <div className="text-xs sm:text-sm mt-0.5" style={{ color: 'var(--tri-muted-2)' }}>
                               {step.d}
                             </div>
                           </div>
@@ -247,7 +247,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                         src={item.fileUrl}
                         alt={item.title}
                         className="w-full rounded-lg"
-                        style={{ border: '1px solid #1a2840' }}
+                        style={{ border: '1px solid var(--tri-line)' }}
                       />
                       <a
                         href={item.fileUrl}
@@ -267,7 +267,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                         src={item.fileUrl}
                         controls
                         className="w-full rounded-lg"
-                        style={{ border: '1px solid #1a2840', background: '#000' }}
+                        style={{ border: '1px solid var(--tri-line)', background: '#000' }}
                       />
                     </div>
                   )}
