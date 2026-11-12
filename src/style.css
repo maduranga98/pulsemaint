@@ -40,6 +40,28 @@ html.app-shell-active body {
 html[data-theme="light"].app-shell-active,
 html[data-theme="light"].app-shell-active body { background: #EEF2F8; }
 html[data-theme="dark"] { color-scheme: dark; }
+
+/* Triage (src/features/triage) sets its colours in inline styles, which the
+   generated light-theme rules can't reach — so they come from these
+   variables: dark navy by default, light under data-theme="light". */
+:root {
+  --tri-ink-strong: #ffffff; --tri-ink: #e2e8f0; --tri-ink-soft: #cbd5ea;
+  --tri-muted: #6b7fa3; --tri-muted-2: #8BA3BF; --tri-muted-3: #a7b6d3; --tri-faint: #3d5070;
+  --tri-card: #0e1628; --tri-surface: #111d2e; --tri-active: #12203d; --tri-deep: #0a0f1c;
+  --tri-line: #1a2840; --tri-line-2: #1f2f4a;
+  --tri-hover: #1a284033; --tri-muted-bg: #6b7fa31e;
+  --tri-danger-bg: #2a1618; --tri-danger-soft: #e5b4b4; --tri-danger-ink: #fecaca;
+  --tri-warn-bg: #1f1b0c; --tri-warn-ink: #fde68a; --tri-info-ink: #bfdbfe;
+}
+html[data-theme="light"] {
+  --tri-ink-strong: #080D1C; --tri-ink: #0F1830; --tri-ink-soft: #18223C;
+  --tri-muted: #475569; --tri-muted-2: #475569; --tri-muted-3: #475569; --tri-faint: #64748B;
+  --tri-card: #FFFFFF; --tri-surface: #F4F7FC; --tri-active: #E6EDF8; --tri-deep: #EEF2F8;
+  --tri-line: #DCE4F0; --tri-line-2: #B9C7DD;
+  --tri-hover: rgba(15, 24, 48, 0.05); --tri-muted-bg: rgba(71, 85, 105, 0.12);
+  --tri-danger-bg: #FDE8E8; --tri-danger-soft: #B91C1C; --tri-danger-ink: #B91C1C;
+  --tri-warn-bg: #FEF3C7; --tri-warn-ink: #92400E; --tri-info-ink: #1E40AF;
+}
 html[data-theme="light"] .app-main { color: #101A33; }
 
 body {

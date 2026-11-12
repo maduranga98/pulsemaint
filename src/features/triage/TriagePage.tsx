@@ -96,12 +96,12 @@ export default function TriagePage() {
           <div className="flex-1 min-w-0">
             <div
               className="rounded-xl p-5 h-full"
-              style={{ background: '#0e1628', border: '1px solid #1a2840' }}
+              style={{ background: 'var(--tri-card)', border: '1px solid var(--tri-line)' }}
             >
               {selectedCat ? (
                 <ContentList category={selectedCat} />
               ) : (
-                <div className="flex items-center justify-center h-full text-sm" style={{ color: '#6b7fa3' }}>
+                <div className="flex items-center justify-center h-full text-sm" style={{ color: 'var(--tri-muted)' }}>
                   {t('common.triage.knowledge.page.selectCategoryPrompt')}
                 </div>
               )}
@@ -119,7 +119,7 @@ export default function TriagePage() {
           type="button"
           onClick={() => setSelected(null)}
           className="mb-1 inline-flex items-center gap-1 min-h-[40px] text-[13px] font-semibold"
-          style={{ color: '#bfdbfe' }}
+          style={{ color: 'var(--tri-info-ink)' }}
         >
           ← {t('common.triage.knowledge.contentList.back')}
         </button>
@@ -132,10 +132,10 @@ export default function TriagePage() {
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#e2e8f0' }}>
+          <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--tri-ink)' }}>
             {t('common.triage.knowledge.page.title')}
           </h1>
-          <p className="text-xs sm:text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+          <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'var(--tri-muted)' }}>
             {t('common.triage.knowledge.page.subtitle')}
           </p>
         </div>
@@ -173,14 +173,14 @@ export default function TriagePage() {
               onClick={() => setView(id)}
               className="flex items-center justify-center sm:justify-start gap-2.5 rounded-lg sm:rounded-xl px-1.5 sm:px-3.5 py-1.5 sm:py-2 min-h-[36px] sm:min-h-[52px] text-left transition-colors"
               style={{
-                background: active ? '#12203d' : '#0e1628',
-                border: `2px solid ${active ? color : '#1f2f4a'}`,
-                color: '#e2e8f0',
+                background: active ? 'var(--tri-active)' : 'var(--tri-card)',
+                border: `2px solid ${active ? color : 'var(--tri-line-2)'}`,
+                color: 'var(--tri-ink)',
               }}
             >
               <span
                 className="hidden sm:flex w-9 h-9 shrink-0 items-center justify-center rounded-lg"
-                style={{ background: color, color: '#0a0f1c' }}
+                style={{ background: color, color: 'var(--tri-deep)' }}
               >
                 <Icon className="w-[18px] h-[18px]" />
               </span>
@@ -188,7 +188,7 @@ export default function TriagePage() {
                 <span className="text-[13px] sm:text-sm font-semibold leading-tight text-center sm:text-left">
                   {t(`common.triage.knowledge.page.tabs.${label}`)}
                 </span>
-                <span className="hidden sm:block text-xs" style={{ color: '#8BA3BF' }}>
+                <span className="hidden sm:block text-xs" style={{ color: 'var(--tri-muted-2)' }}>
                   {t(`common.triage.knowledge.page.tabs.${hint}`)}
                 </span>
               </span>

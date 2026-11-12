@@ -114,3 +114,12 @@ describe('extractTokens / buildLightThemeCss', () => {
     expect(buildLightThemeCss([])).toContain('.text-white{');
   });
 });
+
+describe("Tailwind's important modifier", () => {
+  it('themes text-white! like text-white, on its own class', () => {
+    expect(extractTokens('className="text-2xl text-white! text-slate-300!"')).toEqual(['text-white!', 'text-slate-300!']);
+    const css = buildLightThemeCss(['text-white!', 'text-slate-300!']);
+    expect(css).toContain('.text-white\\!{color:');
+    expect(css).toContain('.text-slate-300\\!{color:');
+  });
+});

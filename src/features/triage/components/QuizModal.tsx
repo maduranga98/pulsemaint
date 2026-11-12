@@ -72,7 +72,7 @@ export function QuizModal({ assessment, onClose }: Props) {
 
   function optStyle(idx: number): React.CSSProperties {
     if (!answered) {
-      return { background: '#1a2840', border: '1px solid #243450', color: '#e2e8f0' };
+      return { background: 'var(--tri-line)', border: '1px solid #243450', color: 'var(--tri-ink)' };
     }
     if (idx === q.a) {
       return { background: '#22c55e14', border: '1px solid #22c55e', color: '#22c55e' };
@@ -80,7 +80,7 @@ export function QuizModal({ assessment, onClose }: Props) {
     if (idx === selectedOpt) {
       return { background: '#ef444414', border: '1px solid #ef4444', color: '#ef4444' };
     }
-    return { background: '#1a2840', border: '1px solid #1a2840', color: '#6b7fa3' };
+    return { background: 'var(--tri-line)', border: '1px solid var(--tri-line)', color: 'var(--tri-muted)' };
   }
 
   return (
@@ -90,27 +90,27 @@ export function QuizModal({ assessment, onClose }: Props) {
     >
       <div
         className="w-full max-w-lg rounded-2xl overflow-hidden"
-        style={{ background: '#0e1628', border: '1px solid #1a2840' }}
+        style={{ background: 'var(--tri-card)', border: '1px solid var(--tri-line)' }}
       >
         {/* Header */}
         <div
           className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: '1px solid #1a2840' }}
+          style={{ borderBottom: '1px solid var(--tri-line)' }}
         >
           <div>
-            <div className="font-semibold" style={{ color: '#e2e8f0' }}>
+            <div className="font-semibold" style={{ color: 'var(--tri-ink)' }}>
               {assessment.title}
             </div>
-            <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
+            <div className="text-xs mt-0.5" style={{ color: 'var(--tri-muted)' }}>
               {assessment.cat} · {t('common.triage.knowledge.quizModal.passMark', { value: assessment.passMark })}
             </div>
           </div>
           <button
             onClick={onClose}
             className="p-2 rounded-lg transition-colors"
-            style={{ color: '#6b7fa3' }}
+            style={{ color: 'var(--tri-muted)' }}
             onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.background = '#1a2840')
+              ((e.currentTarget as HTMLElement).style.background = 'var(--tri-line)')
             }
             onMouseLeave={(e) =>
               ((e.currentTarget as HTMLElement).style.background = 'transparent')
@@ -127,7 +127,7 @@ export function QuizModal({ assessment, onClose }: Props) {
               <div className="flex items-center gap-3 mb-5">
                 <div
                   className="flex-1 h-1.5 rounded-full"
-                  style={{ background: '#1a2840' }}
+                  style={{ background: 'var(--tri-line)' }}
                 >
                   <div
                     className="h-full rounded-full transition-all duration-300"
@@ -137,13 +137,13 @@ export function QuizModal({ assessment, onClose }: Props) {
                     }}
                   />
                 </div>
-                <span className="text-xs shrink-0" style={{ color: '#6b7fa3' }}>
+                <span className="text-xs shrink-0" style={{ color: 'var(--tri-muted)' }}>
                   {t('common.triage.knowledge.quizModal.progress', { current: currentQ + 1, total: totalQ })}
                 </span>
               </div>
 
               {/* Question */}
-              <div className="text-sm font-medium mb-4" style={{ color: '#e2e8f0' }}>
+              <div className="text-sm font-medium mb-4" style={{ color: 'var(--tri-ink)' }}>
                 {q.q}
               </div>
 
@@ -195,7 +195,7 @@ export function QuizModal({ assessment, onClose }: Props) {
               >
                 {pct}%
               </div>
-              <div className="text-sm mb-5" style={{ color: '#6b7fa3' }}>
+              <div className="text-sm mb-5" style={{ color: 'var(--tri-muted)' }}>
                 {t('common.triage.knowledge.quizModal.resultSummary', {
                   score,
                   total: totalQ,
@@ -218,7 +218,7 @@ export function QuizModal({ assessment, onClose }: Props) {
                   <div className="font-semibold" style={{ color: '#22c55e' }}>
                     {t('common.triage.knowledge.quizModal.passedTitle')}
                   </div>
-                  <div className="text-xs" style={{ color: '#6b7fa3' }}>
+                  <div className="text-xs" style={{ color: 'var(--tri-muted)' }}>
                     {t('common.triage.knowledge.quizModal.passedDetail', { title: assessment.title })}
                   </div>
                 </div>
@@ -231,14 +231,14 @@ export function QuizModal({ assessment, onClose }: Props) {
                   <div className="font-semibold" style={{ color: '#ef4444' }}>
                     {t('common.triage.knowledge.quizModal.failedTitle')}
                   </div>
-                  <div className="text-xs" style={{ color: '#6b7fa3' }}>
+                  <div className="text-xs" style={{ color: 'var(--tri-muted)' }}>
                     {t('common.triage.knowledge.quizModal.failedDetail')}
                   </div>
                 </div>
               )}
 
               {saving && (
-                <div className="text-xs mb-3" style={{ color: '#6b7fa3' }}>
+                <div className="text-xs mb-3" style={{ color: 'var(--tri-muted)' }}>
                   {t('common.triage.knowledge.quizModal.savingResult')}
                 </div>
               )}

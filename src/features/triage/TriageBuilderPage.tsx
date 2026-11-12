@@ -41,11 +41,11 @@ export default function TriageBuilderPage({ onBack }: Props) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <Lock className="w-10 h-10 mx-auto mb-4" style={{ color: '#6b7fa3' }} />
-          <h2 className="text-lg font-semibold mb-2" style={{ color: '#e2e8f0' }}>
+          <Lock className="w-10 h-10 mx-auto mb-4" style={{ color: 'var(--tri-muted)' }} />
+          <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--tri-ink)' }}>
             {t('common.triage.knowledge.builder.accessRestricted.title')}
           </h2>
-          <p className="text-sm" style={{ color: '#6b7fa3' }}>
+          <p className="text-sm" style={{ color: 'var(--tri-muted)' }}>
             {t('common.triage.knowledge.builder.accessRestricted.message')}
           </p>
         </div>
@@ -59,16 +59,16 @@ export default function TriageBuilderPage({ onBack }: Props) {
         type="button"
         onClick={handleBack}
         className="inline-flex items-center gap-1.5 text-sm font-medium mb-4 transition-colors"
-        style={{ color: '#6b7fa3' }}
+        style={{ color: 'var(--tri-muted)' }}
       >
         <ArrowLeft className="w-4 h-4" /> {t('common.triage.knowledge.builder.back')}
       </button>
 
       <div className="mb-5">
-        <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
+        <h1 className="text-xl font-bold" style={{ color: 'var(--tri-ink)' }}>
           {t('common.triage.knowledge.builder.title')}
         </h1>
-        <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--tri-muted)' }}>
           {t('common.triage.knowledge.builder.subtitle')}
         </p>
       </div>
@@ -76,7 +76,7 @@ export default function TriageBuilderPage({ onBack }: Props) {
       {/* Tab switcher */}
       <div
         className="flex gap-1 p-1 rounded-xl mb-6 w-fit"
-        style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+        style={{ background: 'var(--tri-surface)', border: '1px solid var(--tri-line)' }}
       >
         {TABS.map((tab) => (
           <button
@@ -85,7 +85,7 @@ export default function TriageBuilderPage({ onBack }: Props) {
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             style={{
               background: activeTab === tab.id ? '#1d4ed8' : 'transparent',
-              color: activeTab === tab.id ? 'white' : '#6b7fa3',
+              color: activeTab === tab.id ? 'white' : 'var(--tri-muted)',
             }}
           >
             <tab.icon className="w-4 h-4" />
