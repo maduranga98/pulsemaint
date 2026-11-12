@@ -276,7 +276,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false, initialSig
 
               {/* Extended WO — link to the open extension / the WO this extends */}
               {(workOrder.activeExtensionWoId || workOrder.extensionOfWoId) && (
-                <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-gray-900">
                   {workOrder.extensionOfWoId
                     ? t('common.workOrders.extension.isExtensionBanner', {
                         defaultValue: 'Extension of {{wo}}{{reason}}. Once signed off it joins that work order.',

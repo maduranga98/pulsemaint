@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Paperclip, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -33,6 +33,13 @@ export function ExtendWODialog({ workOrder: wo, onClose, onCreated }: Props) {
   const [files, setFiles] = useState<File[]>([]);
   const [dueDate, setDueDate] = useState(toDateInput(new Date(base.getTime() + 24 * 3600 * 1000)));
   const [hours, setHours] = useState('2');
+
+  // The form sits at the end of the panel's scroll area — bring it into view,
+  // otherwise pressing "Extend WO" looks like it did nothing.
+  const formRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, []);
 
   const cleanTasks = tasks.map((x) => x.trim()).filter(Boolean);
 
@@ -114,30 +121,30 @@ export function ExtendWODialog({ workOrder: wo, onClose, onCreated }: Props) {
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div ref={formRef} className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
       <div>
-        <p className="text-sm font-semibold text-blue-900">
+        <p className="text-sm font-semibold text-gray-900">
           {d('title', 'Extend {{wo}}', { wo: wo.woNumber })}
         </p>
-        <p className="text-xs text-blue-800/80">
+        <p className="text-xs text-gray-700">
           {d('hint', 'Creates an extension work order on the same ticket. When it is signed off it joins this work order, which then closes as one "Extended WO".')}
         </p>
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-700">
           {d('reasonLabel', 'Why is it being extended? (required)')}
         </label>
         <textarea
           rows={2}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-lg border border-gray-300 p-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-700">
           {d('tasksLabel', 'Extra tasks')}
         </label>
         <div className="space-y-2">
@@ -147,14 +154,14 @@ export function ExtendWODialog({ workOrder: wo, onClose, onCreated }: Props) {
                 value={task}
                 onChange={(e) => setTasks((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))}
                 placeholder={d('taskPlaceholder', 'Describe the task')}
-                className="h-9 flex-1 rounded-md border border-gray-300 px-3 text-sm"
+                className="h-9 flex-1 rounded-md border border-gray-300 px-3 text-sm text-gray-900"
               />
               {tasks.length > 1 && (
                 <button
                   type="button"
                   aria-label={d('removeTask', 'Remove task')}
                   onClick={() => setTasks((prev) => prev.filter((_, j) => j !== i))}
-                  className="rounded p-1 text-gray-500 hover:bg-white"
+                  className="rounded p-1 text-gray-700 hover:text-red-500"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -164,7 +171,7 @@ export function ExtendWODialog({ workOrder: wo, onClose, onCreated }: Props) {
           <button
             type="button"
             onClick={() => setTasks((prev) => [...prev, ''])}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-gray-900"
           >
             <Plus className="h-3.5 w-3.5" /> {d('addTask', 'Add task')}
           </button>
@@ -172,7 +179,7 @@ export function ExtendWODialog({ workOrder: wo, onClose, onCreated }: Props) {
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-700">
           {d('attachmentsLabel', 'Attachments')}
         </label>
         <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700">
@@ -208,31 +215,31 @@ export function ExtendWODialog({ workOrder: wo, onClose, onCreated }: Props) {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-700">
             {d('dueLabel', 'New due date')}
           </label>
           <input
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm"
+            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm text-gray-900"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-700">
             {d('hoursLabel', 'Estimated hours')}
           </label>
           <input
             value={hours}
             onChange={(e) => setHours(e.target.value)}
             inputMode="decimal"
-            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm"
+            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm text-gray-900"
           />
         </div>
       </div>
 
       <div className="flex gap-3">
-        <button type="button" onClick={onClose} className="flex-1 py-2 text-sm text-gray-600">
+        <button type="button" onClick={onClose} className="flex-1 py-2 text-sm text-gray-900">
           {d('cancel', 'Cancel')}
         </button>
         <button
